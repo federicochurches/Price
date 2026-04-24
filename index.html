@@ -106,21 +106,6 @@ footer {
 }
 </style>
 
-<script>
-(function() {
-  const key = 'pt_auth';
-  const pwd = '287429';
-  if (sessionStorage.getItem(key) !== pwd) {
-    const input = prompt('Ingresá la contraseña para acceder:');
-    if (input !== pwd) {
-      document.documentElement.innerHTML = '<div style="font-family:sans-serif;text-align:center;padding:80px;color:#333;"><h2>Acceso no autorizado</h2><p>Recargá la página e ingresá la contraseña correcta.</p></div>';
-      return;
-    }
-    sessionStorage.setItem(key, pwd);
-  }
-})();
-</script>
-
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
