@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Rates No Dispo · Week 16 · Abr 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+  --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#1E5A8C;--accent-soft:#DDE8F1;
+  --amber:#A86A1D;--amber-soft:#F6EAD2;--green:#2F6C34;--green-soft:#E1ECDE;
+  --navy:#14304A;--navy-soft:#1F4E78;--red:#C0392B;--red-soft:#FAE8E8;
+  --maxw:1280px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',system-ui,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+::selection{background:var(--navy);color:var(--paper);}
+.shell{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+.masthead{margin-bottom:16px;}
+.masthead-tag-row{padding:8px 0;}
+.masthead-top-rule{height:3px;background:var(--ink);}
+.masthead-nameplate{text-align:center;padding:7px 0 6px;border-bottom:1px solid var(--rule);}
+.masthead-brand{font-size:34px;line-height:1;display:inline-flex;align-items:baseline;}
+.masthead-brand .pt{font-weight:800;letter-spacing:-0.02em;}
+.masthead-brand .sep{font-weight:300;color:var(--rule);margin:0 14px;font-size:28px;}
+.masthead-brand .ad{font-weight:300;color:var(--ink-muted);font-size:28px;}
+.masthead-sub{display:flex;justify-content:space-between;padding:7px 0;font-size:10px;font-weight:500;color:var(--ink-muted);letter-spacing:0.09em;text-transform:uppercase;border-bottom:3px solid var(--ink);}
+.report-tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
+.hero{padding:16px 0 64px;border-bottom:1px solid var(--rule);margin-bottom:80px;}
+.eyebrow-tag{display:inline-block;background:var(--paper-soft);border:1px solid var(--rule);padding:6px 12px;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:16px;}
+.hero h1{font-size:clamp(40px,5.5vw,76px);font-weight:700;line-height:1.03;letter-spacing:-0.025em;margin:0 0 28px;max-width:26ch;}
+.hero h1 .accent{color:var(--accent);}
+.hero-lede{font-size:20px;line-height:1.5;font-weight:400;max-width:62ch;color:var(--ink-soft);margin-bottom:48px;}
+.hero-meta{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink);}.hero-meta+.hero-meta{border-top:1px solid var(--rule);grid-template-columns:repeat(2,1fr);}
+.meta-item{padding:24px 24px 24px 0;border-right:1px solid var(--rule);}
+.meta-item:last-child{border-right:none;padding-right:0;}
+.meta-item:not(:first-child){padding-left:24px;}
+.meta-label{font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;font-weight:600;}
+.meta-value{font-size:36px;font-weight:700;line-height:1;letter-spacing:-0.025em;color:var(--accent);display:block;margin-bottom:8px;}
+.meta-bar-wrap{height:4px;background:var(--rule-soft);margin-bottom:6px;}
+.meta-bar-fill{height:100%;background:#AABFCF;}
+.meta-hl{color:var(--accent);font-weight:700;}
+.meta-sub{font-size:11px;color:var(--ink-muted);}
+section{margin-bottom:80px;scroll-margin-top:24px;}
+.section-head{display:grid;grid-template-columns:80px 1fr;gap:32px;align-items:baseline;margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid var(--rule);}
+.section-num{font-size:13px;color:var(--accent);font-weight:500;letter-spacing:0.05em;padding-top:10px;}
+.section-title{font-size:clamp(28px,3.5vw,44px);font-weight:600;line-height:1.05;letter-spacing:-0.02em;margin:0;}
+.section-subtitle{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-muted);}
+.section-kicker{font-size:14px;color:var(--ink-muted);margin-top:10px;max-width:60ch;line-height:1.55;}
+.check-table{width:100%;border-collapse:collapse;max-width:780px;font-size:14px;}
+.check-table td{padding:13px 0;border-bottom:1px dashed var(--rule);vertical-align:baseline;}
+.check-table td:first-child{color:var(--ink-soft);padding-right:48px;width:52%;}
+.check-table td:last-child{font-weight:500;text-align:right;}
+.pull-note{margin-top:36px;padding:24px 28px;background:var(--paper-soft);border-left:3px solid var(--accent);font-size:15px;line-height:1.6;color:var(--ink-soft);max-width:72ch;}
+.pull-note strong{color:var(--ink);font-weight:600;}
+.exec-bullets{list-style:none;padding:0;margin:0;counter-reset:exec;}
+.exec-bullets li{counter-increment:exec;position:relative;padding:24px 0 24px 80px;border-bottom:1px solid var(--rule);font-size:16px;line-height:1.55;max-width:calc(74ch + 80px);}
+.exec-bullets li:last-child{border-bottom:none;}
+.exec-bullets li::before{content:counter(exec,decimal-leading-zero);font-size:12px;color:var(--accent);font-weight:500;letter-spacing:0.05em;position:absolute;left:0;top:30px;}
+.exec-bullets li strong{color:var(--ink);font-weight:600;}
+.hl{background:linear-gradient(180deg,transparent 60%,var(--accent-soft) 60%);padding:0 2px;}
+.detail-callout{margin:32px 0 0;padding:22px 26px;background:var(--paper-soft);border:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;max-width:880px;}
+.detail-callout .lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink-muted);margin-bottom:5px;}
+.detail-callout .msg{font-size:15px;line-height:1.4;color:var(--ink);}
+.detail-callout .msg strong{color:var(--accent);}
+.badge-link{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;background:var(--ink);color:var(--paper);white-space:nowrap;text-decoration:none;display:inline-block;}
+.action-grid{border-top:1px solid var(--rule);}
+.action-row{display:grid;grid-template-columns:56px 1.5fr 1fr 1fr 1fr;gap:20px;padding:22px 18px;border-bottom:1px solid var(--rule);font-size:13px;line-height:1.5;align-items:start;}
+.action-row.qw{background:var(--green-soft);}
+.action-row.mp{background:var(--amber-soft);}
+.action-row.es{background:var(--accent-soft);}
+.action-row .code{font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--ink);}
+.action-row .accion{font-size:14px;font-weight:500;}
+.action-row .meta-blk{font-size:12px;color:var(--ink-soft);}
+.action-row .meta-blk strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted);font-weight:700;margin-bottom:3px;}
+.critique{background:var(--ink);color:var(--paper);padding:80px 0;margin:80px 0 0;}
+.critique .section-num{color:var(--accent);}
+.critique .section-title{color:var(--paper);}
+.critique .section-kicker{color:rgba(255,255,255,0.55);}
+.critique .section-head{border-bottom-color:rgba(255,255,255,0.12);}
+.critique .exec-bullets li{border-bottom-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:15px;}
+.critique .exec-bullets li strong{color:#fff;}
+.critique .hl{background:linear-gradient(180deg,transparent 60%,rgba(30,90,140,0.5) 60%);}
+.toc{position:fixed;top:50%;right:24px;transform:translateY(-50%);font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted);display:flex;flex-direction:column;gap:8px;z-index:50;padding:14px 12px;background:rgba(248,244,236,0.92);backdrop-filter:blur(8px);border:1px solid var(--rule);}
+.toc a{color:var(--ink-muted);text-decoration:none;padding:2px 0;transition:color 150ms;}
+.toc a:hover,.toc a.active{color:var(--accent);font-weight:600;}
+footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-size:11px;color:var(--ink-muted);display:flex;justify-content:space-between;text-transform:uppercase;letter-spacing:0.1em;}
+@media(max-width:1100px){.toc{display:none;}}
+@media(max-width:700px){.shell{padding:0 20px;}.hero-meta{grid-template-columns:repeat(2,1fr);}.section-head{grid-template-columns:1fr;}.action-row{grid-template-columns:1fr;}.detail-callout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+  <a href="#resumen">· 01 Resumen</a>
+  <a href="#severity">· 02 Severity</a>
+  <a href="#demanda">· 03 Demanda</a>
+  <a href="#bajo">· 04 Bajo Rend.</a>
+  <a href="#corporativo">· 05 Corporativo</a>
+  <a href="#destino">· 06 Destino</a>
+  <a href="#pais">· 07 País</a>
+  <a href="#plan">· 08 Plan</a>
+  <a href="#metodo">· 09 Método</a>
+</nav>
+
+<div class="shell">
+
+<header class="masthead">
+  <div class="masthead-tag-row"><span class="report-tag">Rates · No Dispo · Last 7 Days</span></div>
+  <div class="masthead-top-rule"></div>
+  <div class="masthead-nameplate">
+    <span class="masthead-brand">
+      <span class="pt">PriceTravel</span><span class="sep">·</span><span class="ad">Analytics Desk</span>
+    </span>
+  </div>
+  <div class="masthead-sub">
+    <span>Lunes 21 de abril de 2026</span>
+    <span>Vol. 01</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow-tag">Week 16 · 13 – 19 Abril 2026</div>
+  <h1>IHG lidera con <span class="accent">$2.4M GB</span> y 27% sin convertir. Marriott: $67K con 89% de 0 Bookings. Riviera Maya supera a Cancún.</h1>
+  <p class="hero-lede">De los 16.238 hoteles de la muestra, <strong>9.753 no generaron ninguna reserva</strong> en 7 días. El total de la semana fue <strong>$8,993,513 GB</strong> — concentrado en USA ($3.75M) y México ($3.09M).</p>
+
+  <div class="hero-meta">
+    <div class="meta-item">
+      <div class="meta-label">Hoteles de la muestra</div>
+      <span class="meta-value">16.238</span>
+      <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:30%;"></div></div>
+      <div class="meta-sub"><span class="meta-hl">29.9%</span> del inventario total</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Hoteles con 0 Bookings</div>
+      <span class="meta-value">9.753</span>
+      <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:60%;"></div></div>
+      <div class="meta-sub"><span class="meta-hl">60.1%</span> de la muestra</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Gross Bookings · muestra</div>
+      <span class="meta-value">$8,993,513</span>
+      <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:80%;"></div></div>
+      <div class="meta-sub"><span class="meta-hl">36.484</span> bookings · 90 países</div>
+    </div>
+  </div>
+
+  <div class="hero-meta" style="border-top:1px solid var(--rule);">
+    <div class="meta-item">
+      <div class="meta-label">Por Corporativo · 97 cadenas</div>
+      <span class="meta-value" style="font-size:28px;"><span class="meta-hl" style="font-size:28px;color:var(--accent);">IHG</span> $2.4M</span>
+      <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:100%;"></div></div>
+      <div class="meta-sub">Marriott <span class="meta-hl">89%</span> · Hilton <span class="meta-hl">62%</span> con 0 Bookings</div>
+    </div>
+    <div class="meta-item" style="border-right:none;">
+      <div class="meta-label">Por Destino · 1.452 destinos</div>
+      <span class="meta-value" style="font-size:28px;"><span class="meta-hl" style="font-size:28px;color:var(--accent);">Riviera Maya</span> $871K</span>
+      <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:100%;"></div></div>
+      <div class="meta-sub"><span class="meta-hl">Nayarit $493K</span> · Cancún $484K · Pto. Vallarta $282K</div>
+    </div>
+  </div>
+
+  <div class="detail-callout" style="margin-top:40px;">
+    <div>
+      <div class="lbl">Detalle completo</div>
+      <div class="msg">Rankings y datos por hotel en el Excel adjunto.</div>
+    </div>
+    <a href="../Analisis/Analisis_Rates_NoDispo_7d.xlsx" class="badge-link">Analisis_Rates_NoDispo_7d.xlsx</a>
+  </div>
+</section>
+
+<!-- §01 RESUMEN EJECUTIVO -->
+<section id="resumen">
+  <div class="section-head">
+    <div class="section-num">· 01</div>
+    <div><h2 class="section-title">Resumen Ejecutivo · Top 10 Findings</h2></div>
+  </div>
+  <ol class="exec-bullets">
+    <li>
+      <strong>IHG es el benchmark: 3.886 hoteles, $2.4M GB, 27% con 0 bookings, 1.6% NoDispo.</strong> Con el doble de GB que Hilton y 36x más que Marriott, es el estándar contra el que medir al resto.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:73%;background:var(--green);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--green);white-space:nowrap;">73% con bookings · $2.4M GB</span>
+      </div>
+    </li>
+    <li>
+      <strong>Hilton: 3.572 hoteles, $1.2M GB, 62% sin bookings.</strong> Supply disponible (2.0% NoDispo) pero conversión baja. Segundo en tráfico, cuarto en eficiencia por hotel.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:62%;background:var(--amber);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--amber);white-space:nowrap;">62% con 0 bookings — revisar conversión</span>
+      </div>
+    </li>
+    <li>
+      <strong>Marriott: 1.364 hoteles, $67K GB, 89% con 0 bookings, 7.5% NoDispo.</strong> <span class="hl">Un hotel Marriott generó en promedio $49 en la semana.</span> Doble problema: supply con fricción y conversión rota.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:89%;background:var(--red);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--red);white-space:nowrap;">89% con 0 bookings · crítico</span>
+      </div>
+    </li>
+    <li>
+      <strong>Hyatt: segundo por GB con $1.08M, 830 hoteles, 35% con 0 bookings.</strong> Mejor ratio GB/hotel que Hilton. Si iguala la conversión de IHG podría superarlo.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:65%;background:var(--green);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--green);white-space:nowrap;">65% con bookings · $1.08M GB</span>
+      </div>
+    </li>
+    <li>
+      <strong>Hyatt Inclusive Collection: 74 hoteles, $160K GB, 31% con 0 bookings.</strong> Ratio GB/hotel más alto entre todos los all-inclusive. Primer reporte con este corporativo como nativo.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:69%;background:var(--green);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--green);white-space:nowrap;">69% con bookings · $160K · 74 hoteles</span>
+      </div>
+    </li>
+    <li>
+      <strong>Riviera Maya supera a Cancún en GB: $871K vs $484K con menos tráfico.</strong> <span class="hl">El tráfico no predice el GB — ADR y conversión sí.</span>
+      <div style="margin-top:12px;display:flex;gap:20px;">
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:90px;height:7px;background:var(--paper-soft);"><div style="height:100%;width:100%;background:var(--navy-soft);"></div></div><span style="font-size:11px;color:var(--navy-soft);font-weight:700;">Riviera Maya $871K</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:90px;height:7px;background:var(--paper-soft);"><div style="height:100%;width:56%;background:var(--ink-muted);"></div></div><span style="font-size:11px;color:var(--ink-muted);font-weight:700;">Cancún $484K</span></div>
+      </div>
+    </li>
+    <li>
+      <strong>Riviera Nayarit tercero con $493K — 923 bookings, ADR muy alto, mejor conversión de México.</strong> Puerto Vallarta Area cuarto con $282K. El corredor Pacífico es el segundo cluster de valor no explotado.
+      <div style="margin-top:12px;display:flex;gap:20px;">
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:70px;height:7px;background:var(--paper-soft);"><div style="height:100%;width:100%;background:var(--navy-soft);"></div></div><span style="font-size:11px;color:var(--navy-soft);font-weight:700;">Nayarit $493K</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><div style="width:70px;height:7px;background:var(--paper-soft);"><div style="height:100%;width:57%;background:var(--ink-muted);"></div></div><span style="font-size:11px;color:var(--ink-muted);font-weight:700;">Pto. Vallarta $282K</span></div>
+      </div>
+    </li>
+    <li>
+      <strong>USA y México concentran el 76% del GB: $3.75M y $3.09M.</strong> República Dominicana tercera con $556K impulsada por Punta Cana. Los siguientes 8 países suman $1.6M.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:76%;background:var(--navy-soft);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--navy-soft);white-space:nowrap;">76% del GB en USA + México</span>
+      </div>
+    </li>
+    <li>
+      <strong>Accor: 1.126 hoteles, $98K GB, 84% con 0 bookings, 6.8% NoDispo.</strong> Peor ratio GB/tráfico de los corporativos grandes. Doble problema: supply con fricción y conversión muy baja.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:84%;background:var(--red);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--red);white-space:nowrap;">84% con 0 bookings · crítico</span>
+      </div>
+    </li>
+    <li>
+      <strong>AA-Independent: 2.264 hoteles, $913K GB, 77% con 0 bookings.</strong> $913K proviene mayoritariamente de boutiques en México y Caribe. Con corporativo nativo ya no contamina el análisis de cadenas.
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <div style="flex:1;height:7px;background:var(--paper-soft);position:relative;">
+          <div style="position:absolute;left:0;top:0;height:100%;width:77%;background:var(--amber);"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--amber);white-space:nowrap;">77% con 0 bookings — dispersión alta</span>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- §02 SEVERITY -->
+<section id="severity">
+  <div class="section-head">
+    <div class="section-num">· 02</div>
+    <div><h2 class="section-title">Severity · % No Disponibilidad</h2><p class="section-kicker">De los 16.238 hoteles de la muestra — distribución por nivel de severidad de %NoDispo.</p></div>
+  </div>
+  <div style="max-width:720px;">
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;padding:10px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
+  <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Nivel</span>
+  <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Distribución</span>
+  <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Hoteles</span>
+  <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#E1ECDE;color:#2F6C34;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Exitosa</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100%;background:#2F6C34;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">12.054</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">74.2%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#F6EAD2;color:#A86A1D;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">No Aceptable</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:8%;background:#A86A1D;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">966</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">5.9%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#FEF3CD;color:#8E6F0F;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Revisar</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:21%;background:#8E6F0F;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2.540</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">15.6%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#DDE8F1;color:#1E5A8C;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Crítica</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:4%;background:#1E5A8C;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">515</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">3.2%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#1E5A8C;color:#ffffff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Muy Crítica</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1%;background:#1E5A8C;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">156</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">1.0%</span>
+</div>
+<div style="display:grid;grid-template-columns:160px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#161616;color:#ffffff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Súper Crítica</span>
+  <div style="height:16px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0%;background:#161616;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">0.0%</span>
+</div></div>
+  <div class="pull-note" style="margin-top:36px;">
+    <strong>Interpretación.</strong> El 74.2% está en Exitosa — el %NoDispo ponderado de 3.83% lo confirma. Los <strong>678 hoteles en Crítica + Muy Crítica + Súper Crítica</strong> (4.2% de la muestra) concentran la mayoría del dolor operativo. El foco debe estar en Crítica e inferiores.
+  </div>
+</section>
+
+<!-- §03 DEMANDA NO CONVERTIDA -->
+<section id="demanda">
+  <div class="section-head">
+    <div class="section-num">· 03</div>
+    <div>
+      <h2 class="section-title">Demanda No Convertida · Top 20</h2>
+      <span class="section-subtitle" style="color:var(--red);">Tráfico sin Bookings</span>
+      <p class="section-kicker">Muestra ∩ Bookings = 0 · ordenados por tráfico · con Corporativo, País y Destino.</p>
+    </div>
+  </div>
+  <div style="max-width:1040px;">
+    <div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;padding:10px 0;border-bottom:2px solid var(--red);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--red);">Hotel · Corporativo · País · Destino</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%NoDispo</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bookings</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Presidente InterContinental Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Presidente Intercontinental · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">10.691.546</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.1%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:100%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Serenade Punta Cana Beach & Spa Resort</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Punta Cana</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">9.879.270</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">4.1%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:92%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">SAHARA Las Vegas</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7.975.154</span>
+  <span style="font-weight:600;text-align:right;color:#E07060;">5.6%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:74%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">The Manhattan at Times Square Hotel</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG · Estados Unidos de América · New York</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7.924.809</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.8%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:74%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">whala!bavaro - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Bávaro Area</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7.223.477</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">2.6%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:67%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">The STRAT Hotel, Casino and Skypod</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Best Western · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.917.631</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">0.8%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:64%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Ziva Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Playa Resorts · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.687.812</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">3.0%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:62%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Grand Fiesta Americana Coral Beach - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">GRUPO POSADAS · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.471.262</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.2%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:60%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">DoubleTree by Hilton New York Downtown</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América · New York</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.358.485</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.9%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:59%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Secrets Maroma Beach Riviera Cancun - Solo Adultos</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt Inclusive Collection · México · Riviera Maya</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.211.167</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">2.2%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:58%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Sunset Marina Resort & Yacht Club - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6.095.123</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">3.3%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:57%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Live Aqua Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">GRUPO POSADAS · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.915.476</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">0.7%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:55%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Grand Velas Riviera Maya - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México · Riviera Maya</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.803.904</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">3.8%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:54%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">NH Collection Mexico City Reforma</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">NH · México · Mexico City - Central Mexico</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.631.629</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">3.3%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:52%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Dreams Playa Mujeres Golf & Spa Resort</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt Inclusive Collection · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.475.602</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">0.8%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:51%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">SLS Cancun Hotel</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.285.106</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">0.6%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:49%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Holiday Inn Resort Orlando - Lake Buena Vista by IHG</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG · Estados Unidos de América · Orlando</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.252.894</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.3%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:49%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Punta Cana Princess Adults Only - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Punta Cana</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.248.626</span>
+  <span style="font-weight:600;text-align:right;color:#C0392B;">11.7%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:49%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Sunset Royal Beach Resort - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.199.066</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">1.5%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:48%;background:#E8B4B4;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F0DADA;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton New York Times Square</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América · New York</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5.152.221</span>
+  <span style="font-weight:600;text-align:right;color:#E8B4B4;">4.1%</span>
+  <span style="font-weight:700;text-align:right;color:#C0392B;">0</span>
+</div>
+<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:48%;background:#E8B4B4;"></div></div>
+  </div>
+  <div class="pull-note" style="margin-top:28px;border-left-color:var(--red);">
+    <strong>Lo que llama la atención.</strong> 8 de los 20 hoteles tienen menos de 5% de NoDispo — la interfaz XML de Wholesale sí devolvía tarifa. El origen puede ser precio, paridad, presentación o problema de carga aguas abajo.
+  </div>
+</section>
+
+<!-- §04 BAJO RENDIMIENTO -->
+<section id="bajo">
+  <div class="section-head">
+    <div class="section-num">· 04</div>
+    <div>
+      <h2 class="section-title">Bajo Rendimiento · Top 20</h2>
+      <span class="section-subtitle" style="color:var(--amber);">Low Performers Conv Rate</span>
+      <p class="section-kicker">Hoteles con %NoDispo ≥ 5.3%, Bookings &gt; 0 y GB &gt; 0 · ordenados por tráfico.</p>
+    </div>
+  </div>
+  <div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;padding:10px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);">Hotel · Corporativo · País</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%NoDispo</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv%</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hard Rock Hotel & Casino Punta Cana - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">PAM Hotels · República Dominicana</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">9M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">6.2%</span>
+  <span style="text-align:right;">46</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$25,184</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:100%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Caesars Palace</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Caesars Entertainment · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">9M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">8.3%</span>
+  <span style="text-align:right;">63</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$16,674</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:94%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Regency Orlando</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">7.4%</span>
+  <span style="text-align:right;">44</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$35,894</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:88%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Virgin Hotels Las Vegas, Curio Collection by Hilton</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">15.9%</span>
+  <span style="text-align:right;">2</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$69</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:83%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Camino Real Aeropuerto México</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Camino Real · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">11.1%</span>
+  <span style="text-align:right;">16</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,344</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:81%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Luxor Hotel and Casino</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">MGM Resorts · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">6.8%</span>
+  <span style="text-align:right;">88</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$6,428</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:81%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Crown Paradise Club Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">6.3%</span>
+  <span style="text-align:right;">26</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$12,138</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:78%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Mandalay Bay Resort & Casino</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">MGM Resorts · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">6.8%</span>
+  <span style="text-align:right;">28</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$5,160</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:76%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Galería Plaza Reforma</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Las Brisas · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">10.4%</span>
+  <span style="text-align:right;">27</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$8,409</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:76%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Regency Grand Cypress</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">9.0%</span>
+  <span style="text-align:right;">12</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$5,856</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:73%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">DoubleTree by Hilton at the Entrance to Universal Orlando</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">9.7%</span>
+  <span style="text-align:right;">10</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$379</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:69%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton Chicago</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">12.2%</span>
+  <span style="text-align:right;">3</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$823</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:67%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton New Orleans Riverside</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">5.9%</span>
+  <span style="text-align:right;">31</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,989</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:67%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Fairmont Le Chateau Frontenac</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · Canadá</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">13.4%</span>
+  <span style="text-align:right;">4</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$4,766</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:63%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Regency New Orleans</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">7.3%</span>
+  <span style="text-align:right;">14</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$4,126</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:63%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Rosen Centre Hotel</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">8.0%</span>
+  <span style="text-align:right;">5</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$9,995</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:58%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">OYO Hotel and Casino Las Vegas</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Oyo Rooms · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">10.7%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$101</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:55%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Camino Real Polanco México</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Camino Real · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">25.6%</span>
+  <span style="text-align:right;">9</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$5,953</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:52%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hotel Riu Plaza Miami Beach</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">RIU · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">8.7%</span>
+  <span style="text-align:right;">11</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$7,923</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:52%;background:#D4A574;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 80px 60px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #F5EAD5;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hotel NYX Cancun</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="font-weight:600;text-align:right;color:var(--amber);">15.3%</span>
+  <span style="text-align:right;">145</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$31,834</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.003%</span>
+</div>
+<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:51%;background:#D4A574;"></div></div>
+  </div>
+  <div class="detail-callout">
+    <div>
+      <div class="lbl">Detalle completo</div>
+      <div class="msg">Hoteles de <strong>Bajo Rendimiento</strong> con severidad y GB en la hoja <em>«Bajo Rendimiento»</em> del Excel.</div>
+    </div>
+    <a href="../Analisis/Analisis_Rates_NoDispo_7d.xlsx" class="badge-link">Ver Excel</a>
+  </div>
+</section>
+
+<!-- §05 POR CORPORATIVO -->
+<section id="corporativo">
+  <div class="section-head">
+    <div class="section-num">· 05</div>
+    <div><h2 class="section-title">Por Corporativo · Top 20</h2><span class="section-subtitle" style="color:var(--accent);">GB por Corporativo</span></div>
+  </div>
+  <div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;padding:10px 0;border-bottom:2px solid var(--accent);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);">Corporativo · Hoteles</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv%</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%NoDispo</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">0 Bkgs%</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">IHG</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">3886 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2696M</span>
+  <span style="text-align:right;">13,486</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$2,435,040</span>
+  <span style="text-align:right;color:var(--accent);">1.6%</span>
+  <span style="text-align:right;">26%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">3572 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2874M</span>
+  <span style="text-align:right;">6,343</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,203,907</span>
+  <span style="text-align:right;color:var(--accent);">2.0%</span>
+  <span style="text-align:right;">61%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:49%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">830 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1046M</span>
+  <span style="text-align:right;">3,728</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,083,467</span>
+  <span style="text-align:right;color:var(--accent);">3.5%</span>
+  <span style="text-align:right;">35%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:44%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">AA-Independent</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">2264 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2020M</span>
+  <span style="text-align:right;">3,865</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$912,640</span>
+  <span style="text-align:right;color:var(--accent);">6.7%</span>
+  <span style="text-align:right;">76%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:37%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Wyndham</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">206 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">155M</span>
+  <span style="text-align:right;">828</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$310,174</span>
+  <span style="text-align:right;color:var(--accent);">6.7%</span>
+  <span style="text-align:right;">80%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:12%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Barcelo</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">46 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">136M</span>
+  <span style="text-align:right;">541</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$302,142</span>
+  <span style="text-align:right;color:var(--accent);">3.6%</span>
+  <span style="text-align:right;">34%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:12%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Karisma</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">7 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">21M</span>
+  <span style="text-align:right;">206</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$225,457</span>
+  <span style="text-align:right;color:var(--accent);">1.3%</span>
+  <span style="text-align:right;">28%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:9%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">RIU</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">49 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">104M</span>
+  <span style="text-align:right;">614</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$200,197</span>
+  <span style="text-align:right;color:var(--accent);">19.3%</span>
+  <span style="text-align:right;">14%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:8%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Palladium Hotel Group</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">18 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">27M</span>
+  <span style="text-align:right;">236</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$198,964</span>
+  <span style="text-align:right;color:var(--accent);">2.2%</span>
+  <span style="text-align:right;">22%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:8%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hoteles Xcaret</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">3 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">20M</span>
+  <span style="text-align:right;">94</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$181,075</span>
+  <span style="text-align:right;color:var(--accent);">1.3%</span>
+  <span style="text-align:right;">0%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:7%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Ocean by H10</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">11 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">35M</span>
+  <span style="text-align:right;">432</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$171,298</span>
+  <span style="text-align:right;color:var(--accent);">2.6%</span>
+  <span style="text-align:right;">18%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:7%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">PAM Hotels</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">13 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">50M</span>
+  <span style="text-align:right;">359</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$167,544</span>
+  <span style="text-align:right;color:var(--accent);">4.6%</span>
+  <span style="text-align:right;">0%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:6%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Inclusive Collection</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">74 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">224M</span>
+  <span style="text-align:right;">415</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$160,339</span>
+  <span style="text-align:right;color:var(--accent);">2.4%</span>
+  <span style="text-align:right;">31%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:6%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Palace</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">12 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">21M</span>
+  <span style="text-align:right;">244</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$147,085</span>
+  <span style="text-align:right;color:var(--accent);">7.7%</span>
+  <span style="text-align:right;">25%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:6%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Park Royal</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">17 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">42M</span>
+  <span style="text-align:right;">302</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$136,100</span>
+  <span style="text-align:right;color:var(--accent);">1.2%</span>
+  <span style="text-align:right;">17%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:5%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Decameron</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">17 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">29M</span>
+  <span style="text-align:right;">198</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$117,386</span>
+  <span style="text-align:right;color:var(--accent);">4.6%</span>
+  <span style="text-align:right;">23%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:4%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Accor</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">1126 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">730M</span>
+  <span style="text-align:right;">381</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$98,398</span>
+  <span style="text-align:right;color:var(--accent);">6.8%</span>
+  <span style="text-align:right;">84%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:4%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">GRUPO POSADAS</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">107 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">99M</span>
+  <span style="text-align:right;">339</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$94,933</span>
+  <span style="text-align:right;color:var(--accent);">3.1%</span>
+  <span style="text-align:right;">36%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:3%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Las Brisas</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">14 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">33M</span>
+  <span style="text-align:right;">265</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$86,544</span>
+  <span style="text-align:right;color:var(--accent);">4.9%</span>
+  <span style="text-align:right;">28%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:3%;background:var(--accent);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--accent-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Bahia Principe</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">17 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">35M</span>
+  <span style="text-align:right;">209</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$81,284</span>
+  <span style="text-align:right;color:var(--accent);">7.4%</span>
+  <span style="text-align:right;">5%</span>
+</div>
+<div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:3%;background:var(--accent);"></div></div>
+  </div>
+  <div class="pull-note" style="margin-top:36px;">
+    <strong>Benchmark.</strong> IHG lidera con $2.4M GB y solo 27% sin convertir. La brecha con Marriott ($67K) y Accor ($98K) es estructural — no de volumen, sino de calidad de conversión en la interfaz XML de Wholesale.
+  </div>
+</section>
+
+<!-- §06 POR DESTINO -->
+<section id="destino">
+  <div class="section-head">
+    <div class="section-num">· 06</div>
+    <div>
+      <h2 class="section-title">Por Destino · Top 20</h2>
+      <span class="section-subtitle" style="color:var(--green);">GB por Destino</span>
+      <p class="section-kicker">1.452 destinos en la muestra · ordenados por GB ↓ · el tráfico no predice el GB.</p>
+    </div>
+  </div>
+  <div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;padding:10px 0;border-bottom:2px solid var(--green);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--green);">Destino · País · Hoteles</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv%</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%NoDispo</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">0 Bkgs%</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Riviera Maya</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 264 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">549M</span>
+  <span style="text-align:right;">1,776</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$870,837</span>
+  <span style="text-align:right;color:var(--green);">3.3%</span>
+  <span style="text-align:right;">55%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Punta Cana</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">República Dominicana · 91 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">293M</span>
+  <span style="text-align:right;">1,155</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$560,377</span>
+  <span style="text-align:right;color:var(--green);">4.8%</span>
+  <span style="text-align:right;">44%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:64%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Riviera Nayarit</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 50 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">79M</span>
+  <span style="text-align:right;">923</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$492,723</span>
+  <span style="text-align:right;color:var(--green);">3.7%</span>
+  <span style="text-align:right;">40%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:56%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 210 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">641M</span>
+  <span style="text-align:right;">1,476</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$483,785</span>
+  <span style="text-align:right;color:var(--green);">3.0%</span>
+  <span style="text-align:right;">45%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:55%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Puerto Vallarta Area</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 79 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">164M</span>
+  <span style="text-align:right;">820</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$281,845</span>
+  <span style="text-align:right;color:var(--green);">2.9%</span>
+  <span style="text-align:right;">41%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:32%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">New York</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 383 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">628M</span>
+  <span style="text-align:right;">849</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$219,408</span>
+  <span style="text-align:right;color:var(--green);">4.7%</span>
+  <span style="text-align:right;">73%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:25%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Orlando</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 362 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">550M</span>
+  <span style="text-align:right;">767</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$176,298</span>
+  <span style="text-align:right;color:var(--green);">4.1%</span>
+  <span style="text-align:right;">65%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:20%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Las Vegas (and vicinity), NV, US</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 145 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">336M</span>
+  <span style="text-align:right;">1,142</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$165,632</span>
+  <span style="text-align:right;color:var(--green);">4.2%</span>
+  <span style="text-align:right;">67%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:19%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Chicago</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 257 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">253M</span>
+  <span style="text-align:right;">582</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$163,062</span>
+  <span style="text-align:right;color:var(--green);">3.3%</span>
+  <span style="text-align:right;">61%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:18%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Los Cabos Area</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 78 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">97M</span>
+  <span style="text-align:right;">276</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$144,600</span>
+  <span style="text-align:right;color:var(--green);">3.5%</span>
+  <span style="text-align:right;">56%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:16%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Ixtapa / Zihuatanejo</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 34 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">52M</span>
+  <span style="text-align:right;">460</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$123,983</span>
+  <span style="text-align:right;color:var(--green);">2.2%</span>
+  <span style="text-align:right;">41%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:14%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Mexico City - Central Mexico</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 225 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">270M</span>
+  <span style="text-align:right;">665</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$113,607</span>
+  <span style="text-align:right;color:var(--green);">3.8%</span>
+  <span style="text-align:right;">51%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:13%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Tokyo</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Japón · 49 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">40M</span>
+  <span style="text-align:right;">179</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$104,746</span>
+  <span style="text-align:right;color:var(--green);">20.5%</span>
+  <span style="text-align:right;">71%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:12%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Dallas</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 267 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">175M</span>
+  <span style="text-align:right;">493</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$104,740</span>
+  <span style="text-align:right;color:var(--green);">2.1%</span>
+  <span style="text-align:right;">57%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:12%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Huatulco Area</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">México · 25 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">31M</span>
+  <span style="text-align:right;">369</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$95,297</span>
+  <span style="text-align:right;color:var(--green);">2.6%</span>
+  <span style="text-align:right;">40%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:10%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Miami Area</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 266 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">298M</span>
+  <span style="text-align:right;">378</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$89,539</span>
+  <span style="text-align:right;color:var(--green);">6.1%</span>
+  <span style="text-align:right;">76%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:10%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Boston</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 122 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">109M</span>
+  <span style="text-align:right;">308</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$87,520</span>
+  <span style="text-align:right;color:var(--green);">4.6%</span>
+  <span style="text-align:right;">59%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:10%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Los Angeles (and vicinity), CA, US</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 263 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">205M</span>
+  <span style="text-align:right;">465</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$82,361</span>
+  <span style="text-align:right;color:var(--green);">3.5%</span>
+  <span style="text-align:right;">70%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:9%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Londres</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Gran Bretaña (UK) · 224 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">190M</span>
+  <span style="text-align:right;">324</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$71,644</span>
+  <span style="text-align:right;color:var(--green);">6.7%</span>
+  <span style="text-align:right;">76%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:8%;background:var(--green);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--green-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Greenville Area</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">Estados Unidos de América · 69 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">70M</span>
+  <span style="text-align:right;">229</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--green);">$68,844</span>
+  <span style="text-align:right;color:var(--green);">3.4%</span>
+  <span style="text-align:right;">57%</span>
+</div>
+<div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:7%;background:var(--green);"></div></div>
+  </div>
+</section>
+
+<section id="pais">
+  <div class="section-head">
+    <div class="section-num">· 07</div>
+    <div>
+      <h2 class="section-title">Por País · Top 20</h2>
+      <span class="section-subtitle" style="color:var(--amber);">GB por País</span>
+      <p class="section-kicker">90 países en la muestra · ordenados por GB ↓ · USA y México concentran el 76%.</p>
+    </div>
+  </div>
+  <div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;padding:10px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);">País · Hoteles</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv%</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%NoDispo</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">0 Bkgs%</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Estados Unidos de América</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">8994 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6756M</span>
+  <span style="text-align:right;">18,897</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$3,749,770</span>
+  <span style="text-align:right;color:var(--navy-soft);">2.6%</span>
+  <span style="text-align:right;">56%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">México</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">1783 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2468M</span>
+  <span style="text-align:right;">8,894</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$3,086,045</span>
+  <span style="text-align:right;color:var(--navy-soft);">3.2%</span>
+  <span style="text-align:right;">46%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:82%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">República Dominicana</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">158 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">388M</span>
+  <span style="text-align:right;">1,251</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$556,331</span>
+  <span style="text-align:right;color:var(--navy-soft);">5.7%</span>
+  <span style="text-align:right;">48%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:14%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Colombia</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">451 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">438M</span>
+  <span style="text-align:right;">1,191</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$245,037</span>
+  <span style="text-align:right;color:var(--navy-soft);">1.5%</span>
+  <span style="text-align:right;">51%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:6%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Gran Bretaña (UK)</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">513 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">314M</span>
+  <span style="text-align:right;">1,133</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$216,102</span>
+  <span style="text-align:right;color:var(--navy-soft);">4.7%</span>
+  <span style="text-align:right;">58%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:5%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Canadá</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">616 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">425M</span>
+  <span style="text-align:right;">1,210</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$194,994</span>
+  <span style="text-align:right;color:var(--navy-soft);">3.3%</span>
+  <span style="text-align:right;">62%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:5%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Japón</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">150 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">94M</span>
+  <span style="text-align:right;">561</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$158,841</span>
+  <span style="text-align:right;color:var(--navy-soft);">9.7%</span>
+  <span style="text-align:right;">56%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:4%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Alemania</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">525 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">254M</span>
+  <span style="text-align:right;">838</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$118,662</span>
+  <span style="text-align:right;color:var(--navy-soft);">4.4%</span>
+  <span style="text-align:right;">64%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:3%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Francia</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">637 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">364M</span>
+  <span style="text-align:right;">151</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$109,896</span>
+  <span style="text-align:right;color:var(--navy-soft);">6.7%</span>
+  <span style="text-align:right;">90%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:2%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">España</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">614 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">345M</span>
+  <span style="text-align:right;">379</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$81,602</span>
+  <span style="text-align:right;color:var(--navy-soft);">12.8%</span>
+  <span style="text-align:right;">90%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:2%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Australia</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">94 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">38M</span>
+  <span style="text-align:right;">266</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$39,185</span>
+  <span style="text-align:right;color:var(--navy-soft);">3.9%</span>
+  <span style="text-align:right;">54%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:1%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Arabia Saudita</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">52 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">45M</span>
+  <span style="text-align:right;">92</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$35,271</span>
+  <span style="text-align:right;color:var(--navy-soft);">14.4%</span>
+  <span style="text-align:right;">67%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Vietnam</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">15 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">9M</span>
+  <span style="text-align:right;">120</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.001%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$28,889</span>
+  <span style="text-align:right;color:var(--navy-soft);">6.4%</span>
+  <span style="text-align:right;">27%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Jamaica</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">23 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">25M</span>
+  <span style="text-align:right;">118</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$22,831</span>
+  <span style="text-align:right;color:var(--navy-soft);">14.3%</span>
+  <span style="text-align:right;">52%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Portugal</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">79 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">37M</span>
+  <span style="text-align:right;">64</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$22,283</span>
+  <span style="text-align:right;color:var(--navy-soft);">13.7%</span>
+  <span style="text-align:right;">75%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Italia</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">322 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">143M</span>
+  <span style="text-align:right;">114</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$22,025</span>
+  <span style="text-align:right;color:var(--navy-soft);">11.5%</span>
+  <span style="text-align:right;">85%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Grecia</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">26 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">12M</span>
+  <span style="text-align:right;">35</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$21,976</span>
+  <span style="text-align:right;color:var(--navy-soft);">13.5%</span>
+  <span style="text-align:right;">85%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Curazao</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">13 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">13M</span>
+  <span style="text-align:right;">35</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$21,881</span>
+  <span style="text-align:right;color:var(--navy-soft);">4.6%</span>
+  <span style="text-align:right;">31%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Brasil</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">89 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">52M</span>
+  <span style="text-align:right;">126</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$18,944</span>
+  <span style="text-align:right;color:var(--navy-soft);">5.7%</span>
+  <span style="text-align:right;">78%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+<div style="display:grid;grid-template-columns:1fr 100px 70px 60px 90px 70px 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--amber-soft);font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Turquía</div>
+    <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">172 hoteles</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">107M</span>
+  <span style="text-align:right;">62</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.000%</span>
+  <span style="font-weight:700;text-align:right;color:var(--navy-soft);">$18,749</span>
+  <span style="text-align:right;color:var(--navy-soft);">15.0%</span>
+  <span style="text-align:right;">83%</span>
+</div>
+<div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:0%;background:var(--amber);"></div></div>
+  </div>
+</section>
+
+<section id="plan">
+  <div class="section-head">
+    <div class="section-num">· 08</div>
+    <div><h2 class="section-title">Plan de acción</h2><p class="section-kicker">Quick Wins (&lt;7 días) · Medium Priority (2–4 semanas) · Estratégico (trimestre).</p></div>
+  </div>
+  <div class="action-grid">
+    <div class="action-row qw">
+      <span class="code">QW1</span>
+      <div class="accion">Auditoría end-to-end en los 10 hoteles con mayor tráfico, 0 bookings y NoDispo &lt;5%</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Top 10 Demanda No Convertida</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply Optimization</div>
+      <div class="meta-blk"><strong>Impacto</strong>+50-150 bookings/7d si se recupera el 10% del tráfico</div>
+    </div>
+    <div class="action-row qw">
+      <span class="code">QW2</span>
+      <div class="accion">Resolver los 7 hoteles en Súper Crítica · NoDispo &gt;80%, supply prácticamente cerrado</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Muestra · Súper Crítica</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply Optimization</div>
+      <div class="meta-blk"><strong>Impacto</strong>Reducir Súper Críticos a 0</div>
+    </div>
+    <div class="action-row qw">
+      <span class="code">QW3</span>
+      <div class="accion">Deep-dive Marriott: 89% con 0 bookings, $67K GB — segmentar por brand (Courtyard, Sheraton, Residence Inn)</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Marriott · 1.364 hoteles</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply</div>
+      <div class="meta-blk"><strong>Impacto</strong>Mayor palanca individual de la muestra</div>
+    </div>
+    <div class="action-row qw">
+      <span class="code">QW4</span>
+      <div class="accion">Shopping de paridad vs Booking y Expedia en el top 30 de Demanda No Convertida</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Top 30 · 0 bookings</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply y Wholesale</div>
+      <div class="meta-blk"><strong>Impacto</strong>Detectar rates fuera de mercado o fees ocultos</div>
+    </div>
+    <div class="action-row mp">
+      <span class="code">MP1</span>
+      <div class="accion">Revisión de los 156 hoteles Muy Críticos · segmentar por tipo de problema y destino</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Muestra · Muy Crítica</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply Optimization</div>
+      <div class="meta-blk"><strong>Impacto</strong>Plan de remediation por categoría</div>
+    </div>
+    <div class="action-row mp">
+      <span class="code">MP2</span>
+      <div class="accion">Analizar por qué Riviera Maya supera a Cancún en GB con menos tráfico — replicar el patrón</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Destinos México</div>
+      <div class="meta-blk"><strong>Responsable</strong>Wholesale</div>
+      <div class="meta-blk"><strong>Impacto</strong>+$150K-300K GB potencial en Cancún</div>
+    </div>
+    <div class="action-row mp">
+      <span class="code">MP3</span>
+      <div class="accion">Priorizar Riviera Nayarit y Puerto Vallarta en agenda de Supply — $775K GB combinados, bajo tráfico relativo</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Corredor Pacífico México</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply</div>
+      <div class="meta-blk"><strong>Impacto</strong>Segundo cluster de valor no explotado</div>
+    </div>
+    <div class="action-row es">
+      <span class="code">ES1</span>
+      <div class="accion">Incorporar ADR y GB/booking para priorizar por USD en riesgo, no por volumen de tráfico</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Sistémico · Pipeline</div>
+      <div class="meta-blk"><strong>Responsable</strong>Wholesale</div>
+      <div class="meta-blk"><strong>Impacto</strong>Priorización 3-5x más efectiva</div>
+    </div>
+    <div class="action-row es">
+      <span class="code">ES2</span>
+      <div class="accion">Alerta automática de NoDispo &gt;80% en hoteles top GB · tiempo-a-detección: 7d → &lt;48h</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Sistémico</div>
+      <div class="meta-blk"><strong>Responsable</strong>Supply Optimization</div>
+      <div class="meta-blk"><strong>Impacto</strong>Detección temprana de cierres críticos</div>
+    </div>
+    <div class="action-row es">
+      <span class="code">ES3</span>
+      <div class="accion">Mantener CorpName nativo en todos los datasets futuros — análisis por cadena sin parseo, comparables semana a semana</div>
+      <div class="meta-blk"><strong>Aplica a</strong>Pipeline de datos</div>
+      <div class="meta-blk"><strong>Responsable</strong>Wholesale</div>
+      <div class="meta-blk"><strong>Impacto</strong>Historial de cadenas confiable</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- §08 MÉTODO -->
+<div class="critique">
+<div class="shell">
+  <section id="metodo" style="margin-bottom:0;">
+    <div class="section-head">
+      <div class="section-num">· 09</div>
+      <div>
+        <h2 class="section-title">Método · lo que hay que corregir</h2>
+        <p class="section-kicker">Limitaciones del análisis actual y ajustes para la próxima iteración.</p>
+      </div>
+    </div>
+    <ol class="exec-bullets">
+      <li><strong>GB y ADR son nuevas dimensiones — hay que validar la cobertura.</strong> Solo 6.933 de los 16.238 hoteles tienen gb &gt; 0 (42.7%). Antes de tomar decisiones por GB hay que confirmar si el 0 refleja ausencia de ventas o ausencia de dato. <span class="hl">Un hotel con bookings y $0 GB es una inconsistencia que invalida la comparación.</span></li>
+      <li><strong>El Tráfico sigue siendo shopping searches, no visitas únicas.</strong> La conversión ponderada de 0.028% lo delata. Sin distinguir entre requests XML y visitantes reales, no podemos separar "nadie vio el hotel" de "muchos lo vieron y no convirtieron".</li>
+      <li><strong>ADR y GB negativos — mismo origen, distinto síntoma.</strong> Se excluyeron 46 hoteles con ADR negativo. Adicionalmente, 3 hoteles en Bajo Rendimiento tienen GB negativo (Dreams Tulum -$2.260, Hard Rock Cancún -$2.075, Marquis Reforma -$182) con bookings válidos. En Bajo Rendimiento se excluyen hoteles sin GB (GB = 0 o negativo): 169 casos. Si un hotel tiene Bookings debe tener GB — la ausencia indica dato faltante o devolución imputada. Probable causa: devoluciones imputadas en la misma semana de la venta original.</li>
+      <li><strong>El campo CorpName nativo tiene 121 valores únicos vs 42 parseados antes.</strong> Requiere un mapeo de equivalencias para comparar semana a semana. "Hyatt Inclusive Collection" y "Hyatt" son entidades distintas ahora.</li>
+    </ol>
+  </section>
+</div>
+</div>
+
+<div class="shell">
+  <footer>
+    <span>Supply Rates No Dispo · Week 16 · Abr 2026 · Vol. 01</span>
+    <span>PriceTravel · Analytics Desk · 54.324 hoteles analizados</span>
+  </footer>
+</div>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+      if(a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+sections.forEach(s => observer.observe(s));
+tocLinks.forEach(l => l.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector(l.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
