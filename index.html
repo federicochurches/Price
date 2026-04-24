@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-html
 <script>
-  var password = prompt("Este sitio es privado. Ingresa la contraseña:");
+  // Cambia 'tu-clave-aqui' por la contraseña que tú quieras
+  var password = prompt("Acceso restringido. Por favor, ingresa la contraseña:");
+  
   if (password !== "287429") {
-    alert("Contraseña incorrecta.");
-    window.location.href = "https://google.com";
+    alert("Contraseña incorrecta. Serás redirigido.");
+    window.location.href = "https://google.com"; // Envía fuera a quien no sepa la clave
   }
+</script>
+
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
