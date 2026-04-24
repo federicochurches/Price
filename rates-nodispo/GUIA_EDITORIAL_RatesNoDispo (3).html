@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Editorial · PriceTravel Analytics Desk · Rates & NoDispo</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --paper: #F8F4EC; --paper-soft: #EFEADD; --ink: #161616; --ink-soft: #4A4A4A;
+    --ink-muted: #8A8377; --rule: #C9C1B0; --accent: #1E5A8C; --accent-soft: #DDE8F1;
+    --green: #2F6C34; --green-soft: #E1ECDE; --amber: #A86A1D; --amber-soft: #F6EAD2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: 'Geist', sans-serif; font-size: 15px; line-height: 1.6; padding: 0 0 80px; }
+.shell { max-width: 900px; margin: 0 auto; padding: 0 40px; }
+.masthead { border-bottom: 3px solid var(--ink); padding: 24px 0 10px; margin-bottom: 48px; }
+.masthead-top { display: flex; justify-content: space-between; align-items: baseline; }
+.brand { font-size: 22px; line-height: 1; display: flex; align-items: baseline; }
+.brand .pt { font-weight: 800; letter-spacing: -0.02em; }
+.brand .sep { font-weight: 300; color: var(--rule); margin: 0 10px; }
+.brand .ad { font-weight: 300; color: var(--ink-muted); font-size: 18px; }
+.masthead-sub { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; }
+.guide-hero { padding: 40px 0 48px; border-bottom: 1px solid var(--rule); margin-bottom: 56px; }
+.guide-hero h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin-bottom: 16px; }
+.guide-hero h1 em { color: var(--accent); font-style: normal; }
+.guide-hero p { font-size: 18px; color: var(--ink-soft); font-weight: 400; max-width: 60ch; line-height: 1.5; }
+.section { margin-bottom: 64px; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.section h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.decision-grid { display: grid; gap: 16px; }
+.decision { background: var(--paper-soft); padding: 20px 24px; border-left: 3px solid var(--rule); }
+.decision.do { border-left-color: var(--green); }
+.decision.dont { border-left-color: var(--amber); }
+.decision.why { border-left-color: var(--accent); }
+.decision-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 8px; }
+.do .decision-type { color: var(--green); }
+.dont .decision-type { color: var(--amber); }
+.why .decision-type { color: var(--accent); }
+.decision p { font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.decision strong { color: var(--ink); }
+.decision code { background: var(--paper); padding: 2px 6px; font-family: monospace; font-size: 13px; }
+.vocab-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 8px; }
+.vocab-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+.vocab-table td { padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.vocab-table tr:last-child td { border-bottom: none; }
+.vocab-table td:first-child { font-weight: 600; color: var(--accent); white-space: nowrap; width: 220px; }
+.vocab-table td:nth-child(2) { color: var(--amber); text-decoration: line-through; opacity: 0.7; width: 200px; }
+.vocab-table tr:nth-child(even) td { background: var(--paper-soft); }
+.method-step { display: grid; grid-template-columns: 40px 1fr; gap: 20px; padding: 20px 0; border-bottom: 1px dashed var(--rule); align-items: start; }
+.method-step:last-child { border-bottom: none; }
+.step-num { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; }
+.step-content h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.step-content p { font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+.step-content code { background: var(--paper-soft); padding: 2px 6px; font-family: monospace; font-size: 12px; border: 1px solid var(--rule); }
+.placeholder-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.placeholder-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.placeholder-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.placeholder-table td:first-child { font-family: monospace; color: var(--accent); font-weight: 600; }
+.placeholder-table tr:nth-child(even) td { background: var(--paper-soft); }
+.card-spec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+.card-spec-item { border: 1px solid var(--rule); padding: 16px; }
+.card-spec-item .card-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-muted); margin-bottom: 6px; }
+.card-spec-item .card-value { font-size: 28px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.card-spec-item .card-sub { font-size: 11px; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header class="masthead">
+    <div class="masthead-top">
+        <div class="brand">
+            <span class="pt">PriceTravel</span>
+            <span class="sep">·</span>
+            <span class="ad">Analytics Desk</span>
+        </div>
+        <span style="font-size:11px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.1em;">Guía Editorial Interna</span>
+    </div>
+    <div class="masthead-sub">Rates & NoDispo · Estándares de edición, metodología y diseño · v2.0 · Abril 2026</div>
+</header>
+
+<div class="guide-hero">
+    <h1>El manual detrás de cada <em>edición semanal</em>.</h1>
+    <p>Este documento captura todas las decisiones de contenido, terminología, metodología y diseño que se tomaron durante el desarrollo del Vol. 01. Es la referencia obligatoria antes de publicar cada edición nueva.</p>
+</div>
+
+<!-- § 01 VOCABULARIO -->
+<div class="section">
+    <div class="section-label">§ 01</div>
+    <h2>Vocabulario aprobado</h2>
+    <p style="font-size:14px; color:var(--ink-muted); margin-bottom:20px;">Estos son los términos definitivos. La consistencia es crítica para que el lector no tenga que re-aprender conceptos cada semana.</p>
+
+    <table class="vocab-table">
+        <thead><tr><th>Usar siempre</th><th>No usar</th><th>Razón</th></tr></thead>
+        <tbody>
+            <tr><td>Búsquedas</td><td>Tráfico, Impresiones, Sesiones</td><td>"Tráfico" es ambiguo. "Búsquedas" es lo que son: shopping searches a nivla interfaz XML.</td></tr>
+            <tr><td>Bookings</td><td>Conversiones, Ventas, Reservas</td><td>En el contexto OTA, booking es el término preciso. No implica funnel completo.</td></tr>
+            <tr><td>No Disponibilidad / NoDispo</td><td>%NoDispo baja, Sin tarifa</td><td>NoDispo es el término del sistema. En títulos usar "no disponibilidad" completo.</td></tr>
+            <tr><td>Muestra / Inventario</td><td>Dataset, muestra, High Traffic Segment</td><td>muestra es jerga técnica interna. El lector ve "muestra" o "inventario".</td></tr>
+            <tr><td>Hoteles de la muestra</td><td>Hoteles en muestra, Hoteles analizados</td><td>"Analizados" implica que todos los 53k se analizaron igual. La muestra es el subconjunto con ≥200k búsquedas.</td></tr>
+            <tr><td>Tráfico sin disponibilidad</td><td>NoDispo absoluto, Búsquedas sin tarifa (muestra)</td><td>Quitar siglas internas del texto visible al lector.</td></tr>
+            <tr><td>% del inventario</td><td>% del inventario de la muestra</td><td>Cuando estamos dentro del reporte, "inventario" ya implica la muestra. No redundar.</td></tr>
+            <tr><td>% del tráfico</td><td>% del tráfico del dataset</td><td>"Del dataset" es lenguaje técnico. Quitar siempre.</td></tr>
+            <tr><td>Week {{N}}</td><td>Análisis semanal, Edición semanal</td><td>El número de semana ISO facilita referencias cruzadas entre ediciones.</td></tr>
+            <tr><td>Vol. 01, Vol. 02…</td><td>Edición 1, Número 1</td><td>Convención de publicaciones de referencia.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- § 02 MASTHEAD -->
+<div class="section">
+    <div class="section-label">§ 02</div>
+    <h2>Masthead — anatomía definitiva</h2>
+
+    <div class="decision-grid">
+        <div class="decision do">
+            <div class="decision-type">✓ Estructura fija (no modificar)</div>
+            <p>
+                <strong>1. Tag azul:</strong> <code>[RATES · NO DISPO · LAST 7 DAYS]</code> — margen izquierdo, encima de la línea gruesa. Con aire arriba (8px) y abajo (8px).<br><br>
+                <strong>2. Línea gruesa:</strong> 3px solid negro.<br><br>
+                <strong>3. Nameplate centrado:</strong> <code>PriceTravel</code> (Geist 800, 34px, negro) <code>·</code> (Geist 300, gris rule) <code>Analytics Desk</code> (Geist 300, 28px, gris muted).<br><br>
+                <strong>4. Línea fina:</strong> 1px solid gris rule.<br><br>
+                <strong>5. Strip inferior:</strong> Fecha larga a la izquierda · Vol. número a la derecha. Geist 10px, uppercase, gris muted.<br><br>
+                <strong>6. Línea gruesa:</strong> 3px solid negro cierra el masthead.
+            </p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Decisiones descartadas</div>
+            <p>
+                <strong>Logo SVG:</strong> se probó el logo de priceTravel en escala de grises — no quedó bien, quitado.<br>
+                <strong>Tags en la misma línea del nameplate:</strong> competía visualmente, descartado.<br>
+                <strong>"priceTravel" como texto suelto en el strip:</strong> no sumaba, el brand ya está en el nameplate.<br>
+                <strong>Vol. 02 inicialmente:</strong> corregido a Vol. 01 — cada semana nueva incrementa en 1.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- § 03 HERO — TÍTULO, BAJADA Y CARDS -->
+<div class="section">
+    <div class="section-label">§ 03</div>
+    <h2>Hero — título, bajada y cards</h2>
+
+    <div style="margin-bottom:32px;">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Eyebrow (sobre el título)</h3>
+        <div class="decision do">
+            <div class="decision-type">✓ Formato</div>
+            <p>Pill con fondo crema, borde gris: <code>WEEK {{N}} · {{RANGO_FECHAS}}</code>. Usar semana ISO del lunes de inicio del período.</p>
+        </div>
+    </div>
+
+    <div style="margin-bottom:32px;">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Título (H1)</h3>
+        <div class="decision do">
+            <div class="decision-type">✓ Fórmula del título</div>
+            <p><strong>Estructura fija:</strong> <code>[N hoteles] recibieron más de [umbral] búsquedas cada uno y vendieron 0 reservas en los últimos 7 días.</code></p>
+            <p style="margin-top:8px;"><strong>En azul:</strong> solo los dos datos numéricos — la cantidad de hoteles y el umbral de búsquedas. Nada más en azul dentro del título.</p>
+            <p style="margin-top:8px;"><strong>"cada uno"</strong> es obligatorio — sin eso queda ambiguo si las 200k son por hotel o en total.</p>
+        </div>
+        <div class="decision dont" style="margin-top:12px;">
+            <div class="decision-type">✗ No hacer</div>
+            <p>No usar italic + bold en el mismo título. No usar "alto tráfico", "mucho tráfico" — siempre cuantificar con el número exacto. No decir "cero reservas" — decir "0 reservas" (el número es más directo que la palabra).</p>
+        </div>
+    </div>
+
+    <div style="margin-bottom:32px;">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Bajada (hero-lede)</h3>
+        <div class="decision do">
+            <div class="decision-type">✓ Reglas</div>
+            <p>Máximo 2 oraciones. Foco y punch. El dato principal es el volumen de búsquedas con 0 bookings y su % del tráfico total. No hacer deep-dive ni mencionar grupos secundarios.</p>
+            <p style="margin-top:8px;">Geist 400 (no 300 — se probó y era difícil de leer), 22px, color <code>var(--ink-soft)</code>.</p>
+        </div>
+        <div class="decision dont" style="margin-top:12px;">
+            <div class="decision-type">✗ No hacer</div>
+            <p>No mencionar "dos Demanda No Convertida", "dos grupos", "aguas abajo", "pricing/contenido/mapping" — son interpretaciones sin datos. No usar "del dataset" — decir "de la muestra" o simplemente "del tráfico".</p>
+        </div>
+    </div>
+
+    <div>
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px;">Cards (3 columnas)</h3>
+        <div class="card-spec">
+            <div class="card-spec-item">
+                <div class="card-label">Hoteles de la muestra</div>
+                <div class="card-value">15.900</div>
+                <div class="card-sub">29,5% del inventario total</div>
+            </div>
+            <div class="card-spec-item">
+                <div class="card-label">Hoteles con 0 Bookings</div>
+                <div class="card-value">9.496</div>
+                <div class="card-sub">59,7% del inventario</div>
+            </div>
+            <div class="card-spec-item">
+                <div class="card-label">Hoteles sin disponibilidad</div>
+                <div class="card-value">3.450</div>
+                <div class="card-sub">21,7% del inventario</div>
+            </div>
+        </div>
+
+        <div class="decision-grid" style="margin-top:16px;">
+            <div class="decision do">
+                <div class="decision-type">✓ Reglas de las cards</div>
+                <p>
+                    <strong>3 cards, no 4.</strong> Se probaron 4 y la cuarta nunca tuvo un dato lo suficientemente relevante.<br><br>
+                    <strong>Todos los valores en azul</strong> (<code>var(--accent)</code>). Labels en gris muted uppercase. No poner labels en azul (genera saturación).<br><br>
+                    <strong>Labels en una sola línea</strong> — sin <code>&lt;br&gt;</code>. Si no cabe, reformular el texto, no partir la línea.<br><br>
+                    <strong>Bajada inferior:</strong> solo % del inventario. No poner % de tráfico — genera confusión porque los grupos se solapan y los porcentajes quedan similares sin serlo.<br><br>
+                    <strong>Card 1 sub:</strong> "% del inventario total" (referencia al dataset completo). Cards 2 y 3: "% del inventario" (referencia a la muestra).<br><br>
+                    <strong>Card 3:</strong> "Hoteles sin disponibilidad" son los que concentran el 80% del NoDispo total de la muestra. El número varía cada semana.
+                </p>
+            </div>
+            <div class="decision dont" style="margin-top:4px;">
+                <div class="decision-type">✗ Datos que no funcionan como card</div>
+                <p>
+                    <strong>%NoDispo Total (96,18%):</strong> confuso — "%NoDispo" se usa en CheckRates para otro KPI.<br>
+                    <strong>Total bookings (35.730):</strong> genera confusión con la ratio hoteles/bookings.<br>
+                    <strong>420M búsquedas sin disponibilidad:</strong> se movió a sección interna, no es dato de portada.<br>
+                    <strong>Hoteles con NoDispo ≥30/50/70%:</strong> el umbral correcto varía por contexto, ninguno es universal.<br>
+                    <strong>3,8% del tráfico:</strong> no parece masa crítica relevante como dato de portada.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- § 04 TIPOGRAFÍA Y COLOR -->
+<div class="section">
+    <div class="section-label">§ 04</div>
+    <h2>Tipografía y color</h2>
+
+    <div class="decision-grid">
+        <div class="decision do">
+            <div class="decision-type">✓ Una sola familia: Geist</div>
+            <p>Todo el documento usa <strong>Geist</strong> (Google Fonts). La jerarquía se crea con peso y tamaño, nunca con cambio de familia. Pesos usados: 800 (brand PriceTravel), 700 (H1, valores de cards, section-title), 600 (section-title, labels), 400 (cuerpo, lede), 300 (Analytics Desk en nameplate, separadores).</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Fuentes descartadas</div>
+            <p>
+                <strong>Fraunces (serif editorial):</strong> ornamental para datos, generaba bug de CSS Grid en exec-bullets.<br>
+                <strong>JetBrains Mono:</strong> en bloques grandes rompe el ritmo. Eliminado completamente.<br>
+                <strong>Playfair Display / DM Serif Display / EB Garamond:</strong> se probaron para el nameplate, no cerraban — "Analytics Desk" no es un nombre lo suficientemente reconocible para beneficiarse de serif editorial.<br>
+                <strong>Blackletter (UnifrakturMaguntia, etc.):</strong> ilegible sin el reconocimiento de marca de un NYT.<br>
+                <strong>Humanistas (DM Sans, Manrope, Outfit, Jost, etc.):</strong> se probaron 10 opciones, ninguna superaba a Geist en el contexto del masthead.<br>
+                <strong>Conclusión:</strong> cuando el nombre es "PriceTravel · Analytics Desk", la tipografía correcta es la que se sale del camino y deja que la jerarquía de peso haga el trabajo.
+            </p>
+        </div>
+        <div class="decision do" style="margin-top:4px;">
+            <div class="decision-type">✓ Uso del azul (#1E5A8C)</div>
+            <p>
+                El azul se reserva para <strong>datos accionables</strong>: tag del masthead, valores numéricos de las 3 cards, y los dos datos del título. Máximo 6–8 elementos azules en el primer viewport. No usar en labels de cards (se probó, genera saturación). No usar italic + azul (se probó, compite con bold).
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- § 05 ESPACIADO -->
+<div class="section">
+    <div class="section-label">§ 05</div>
+    <h2>Espaciado y ritmo</h2>
+
+    <table class="vocab-table">
+        <thead><tr><th>Elemento</th><th>Valor final</th><th>Razón del cambio</th></tr></thead>
+        <tbody>
+            <tr><td>Masthead margin-bottom</td><td>16px</td><td>32px y 64px dejaban demasiado espacio entre header y título</td></tr>
+            <tr><td>Hero padding-top</td><td>16px</td><td>28px y 56px generaban sensación de "vender publicidad"</td></tr>
+            <tr><td>Eyebrow margin-bottom</td><td>16px</td><td>24px acumulaba aire con los otros dos paddings</td></tr>
+            <tr><td>Section margin-bottom</td><td>80px</td><td>112px generaba hojas en blanco entre secciones</td></tr>
+            <tr><td>Section-title weight</td><td>600</td><td>400 se confundía con cuerpo de texto</td></tr>
+            <tr><td>Hero-lede weight</td><td>400</td><td>300 a 22px era difícil de leer en pantallas no-retina</td></tr>
+            <tr><td>Tag-row padding</td><td>8px top + 8px bottom</td><td>Suficiente aire sin separar demasiado</td></tr>
+            <tr><td>Nameplate padding</td><td>7px top + 6px bottom</td><td>Ajustado al tamaño final del brand (34px)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- § 06 METODOLOGÍA -->
+<div class="section">
+    <div class="section-label">§ 06</div>
+    <h2>Metodología de análisis</h2>
+
+    <div class="method-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+            <h3>Definición de la muestra</h3>
+            <p>Hoteles con <strong>≥ P80 acumulado de tráfico</strong>. En Vol. 01 = ≥ 200.898 búsquedas en 7 días. El umbral varía semana a semana — siempre recalcular con el nuevo dataset.</p>
+            <p style="margin-top:8px;">Fórmula: <code>df_sorted['cum_pct'] &lt;= 0.80</code></p>
+        </div>
+    </div>
+
+    <div class="method-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+            <h3>Grupo 1: Hoteles con 0 Bookings</h3>
+            <p>Hoteles de la muestra con <code>Bookings == 0</code>. Es el grupo protagonista del reporte.</p>
+            <p style="margin-top:8px;"><strong>Reportar:</strong> cantidad de hoteles + millones de búsquedas + % del inventario.</p>
+            <p style="margin-top:8px;"><strong>No reportar:</strong> causas (pricing, contenido, mapping) — es especulación sin ADR ni datos de funnel.</p>
+        </div>
+    </div>
+
+    <div class="method-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+            <h3>Grupo 2: Hoteles sin disponibilidad</h3>
+            <p>Los hoteles que concentran el <strong>80% del NoDispo total de la muestra</strong>, ordenados por NoDispo absoluto descendente.</p>
+            <p style="margin-top:8px;"><strong>Reportar:</strong> cantidad de hoteles + % del inventario.</p>
+            <p style="margin-top:8px;"><strong>Nota:</strong> el 65% de este grupo se solapa con el Grupo 1. No presentarlos como independientes.</p>
+        </div>
+    </div>
+
+    <div class="method-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+            <h3>Umbrales de NoDispo (referencia, no para portada)</h3>
+            <p>Alto: 30–39% · Muy Alto: 40–59% · Crítico: ≥ 60%. Estos umbrales se usan en secciones internas del reporte (§ 02 Severidad), no en el hero ni en las cards.</p>
+        </div>
+    </div>
+
+    <div class="method-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+            <h3>Limitación fundamental</h3>
+            <p><code>Trafico</code> son shopping searches a nivla interfaz XML, no sesiones de usuario. La conversión global &lt;0,001% es correcta y esperada. Nunca decir "tráfico web" ni comparar con analítica web. Sin ADR en el dataset, cualquier estimación de revenue es un proxy no verificable.</p>
+        </div>
+    </div>
+</div>
+
+<!-- § 07 ESTRUCTURA DEL REPORTE -->
+<div class="section">
+    <div class="section-label">§ 07</div>
+    <h2>Estructura editorial</h2>
+
+    <div class="decision-grid">
+        <div class="decision do">
+            <div class="decision-type">✓ 8 secciones fijas</div>
+            <p>§ 00 Validación · § 01 Resumen ejecutivo · § 02 Severidad · § 03 Top Demanda No Convertida · § 04 Bajo Rendimiento · § 05 Oportunidad · § 06 Corporate · § 07 Plan de acción · § 08 Método (fondo negro). El orden no cambia entre ediciones.</p>
+        </div>
+        <div class="decision do">
+            <div class="decision-type">✓ Detail-callouts con link</div>
+            <p>Cada sección que referencia al Excel debe tener un callout con <strong>link clickeable</strong> al archivo <code>Analisis_Rates_NoDispo_7d.xlsx</code>. No usar <code>&lt;span&gt;</code> — usar <code>&lt;a href="..."&gt;</code>.</p>
+        </div>
+        <div class="decision do">
+            <div class="decision-type">✓ CSS exec-bullets: position absolute, no grid</div>
+            <p>Los bullets del § 01 usan <code>position: relative</code> en el <code>&lt;li&gt;</code> y <code>position: absolute</code> en el <code>::before</code> counter. NO usar <code>display: grid</code> — genera bug de anonymous grid items cuando el contenido mezcla <code>&lt;strong&gt;</code>, <code>&lt;span&gt;</code> y texto plano.</p>
+        </div>
+    </div>
+</div>
+
+<!-- § 08 PLACEHOLDERS -->
+<div class="section">
+    <div class="section-label">§ 08</div>
+    <h2>Placeholders semanales</h2>
+
+    <p style="font-size:14px; color:var(--ink-muted); margin-bottom:20px;">Completar en orden antes de publicar cada edición.</p>
+
+    <table class="placeholder-table">
+        <thead><tr><th>Placeholder</th><th>Descripción</th><th>Cómo calcularlo</th></tr></thead>
+        <tbody>
+            <tr><td>{{SEMANA}}</td><td>Número de semana ISO</td><td>Semana ISO del lunes de inicio</td></tr>
+            <tr><td>{{RANGO_FECHAS}}</td><td>Ej: "14 — 20 Abril 2026"</td><td>Lunes a domingo del período</td></tr>
+            <tr><td>{{FECHA_REPORTE}}</td><td>Ej: "Lunes 20 de abril de 2026"</td><td>Fecha del lunes de cierre</td></tr>
+            <tr><td>{{VOLUMEN}}</td><td>01, 02, 03…</td><td>Incrementar +1 cada semana</td></tr>
+            <tr><td>{{TOTAL_HOTELES}}</td><td>Total rows con Trafico > 0</td><td><code>len(df[df['Trafico']>0])</code></td></tr>
+            <tr><td>{{UMBRAL_BUSQUEDAS}}</td><td>Ej: "200 mil"</td><td>P80 acumulado, redondeado a miles</td></tr>
+            <tr><td>{{UNIVERSO_muestra}}</td><td>Hoteles de la muestra</td><td>Hoteles que acumulan 80% del tráfico</td></tr>
+            <tr><td>{{PCT_INVENTARIO_muestra}}</td><td>Ej: "29,5"</td><td>Universo muestra / Total hoteles × 100</td></tr>
+            <tr><td>{{N_CERO_BOOKINGS}}</td><td>Hoteles con Bookings == 0</td><td><code>len(hts[hts['Bookings']==0])</code></td></tr>
+            <tr><td>{{N_HOTELES_CERO}}</td><td>Mismo valor (para el título)</td><td>Igual a {{N_CERO_BOOKINGS}}</td></tr>
+            <tr><td>{{PCT_INV_CERO}}</td><td>Ej: "59,7"</td><td>N cero bookings / Universo muestra × 100</td></tr>
+            <tr><td>{{TRAFICO_CERO_M}}</td><td>Ej: "4.644"</td><td>Tráfico grupo 0 bookings / 1.000.000</td></tr>
+            <tr><td>{{PCT_TRAFICO_CERO}}</td><td>Ej: "33,7"</td><td>Tráfico grupo 0 / Tráfico muestra × 100</td></tr>
+            <tr><td>{{N_HOTELES_NODISPO}}</td><td>Hoteles que concentran 80% del NoDispo</td><td>Top hoteles por NoDispo hasta acumular 80%</td></tr>
+            <tr><td>{{PCT_INV_NODISPO}}</td><td>Ej: "21,7"</td><td>N hoteles NoDispo / Universo muestra × 100</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- § 09 ERRORES A NO REPETIR -->
+<div class="section">
+    <div class="section-label">§ 09</div>
+    <h2>Errores a no repetir</h2>
+
+    <div class="decision-grid">
+        <div class="decision dont">
+            <div class="decision-type">✗ "del dataset" en textos visibles</div>
+            <p>Reemplazar por "del tráfico" o "de la muestra". "Dataset" es jerga interna.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Especular causas sin datos</div>
+            <p>"Pricing", "mapping", "contenido" — sin datos de soporte, van a § 08 como hipótesis, nunca como afirmaciones.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ muestra/LPS/P80 en texto visible</div>
+            <p>Son términos del pipeline. El lector ve "muestra", "inventario", "hoteles con más de X búsquedas".</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ "Alto tráfico", "mucho tráfico"</div>
+            <p>Siempre cuantificar: "más de 200 mil búsquedas", no "alto tráfico". Data driven.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Italic + bold en el mismo título</div>
+            <p>Si usamos bold, no usar italic. Los dos compiten. El énfasis se da con color azul, no con cambio de estilo tipográfico.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ % de tráfico en bajadas de cards</div>
+            <p>Genera confusión cuando los grupos se solapan — los porcentajes quedan similares sin serlo. Solo % del inventario.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Múltiples familias tipográficas</div>
+            <p>Una sola familia (Geist) en distintos pesos y tamaños. No mezclar serif, mono y sans en el mismo documento.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Usar "HTS", "LPS", "P80" en texto visible</div>
+            <p>Reemplazar siempre por "muestra", "hoteles", "inventario". HTS es jerga de pipeline analítico. El lector ejecutivo no sabe qué es. Aplica a TODO el documento: título, bajada, cards, secciones, plan de acción.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ Limitar findings a 5 corporativos grandes</div>
+            <p>El resumen ejecutivo debe cubrir 10 findings heterogéneos: corporativos grandes (IHG, Marriott, Accor), medianos (Riu, Iberostar, Catalonia, NH), pequeños pero eficientes (Caesars, Palladium, Bahia Principe), y el bloque AA-Independent. Cada finding con su mini-gráfica inline.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ "Validación de datos" como nombre de sección</div>
+            <p>Reemplazar por "Ficha técnica". El contenido es descriptivo (parámetros, alcance, fuente), no un log de validación. Incluir: período, fuente, inventario completo, muestra, umbral, búsquedas, bookings, NoDispo, corporativos, AA-Independent.</p>
+        </div>
+        <div class="decision dont">
+            <div class="decision-type">✗ CSS Grid para exec-bullets</div>
+            <p>Usar position absolute para el counter. CSS Grid con hijos mixtos (strong + span + texto plano) genera wrapping palabra por palabra.</p>
+        </div>
+    </div>
+</div>
+
+<div style="border-top: 3px solid var(--ink); padding-top: 24px; margin-top: 64px; display:flex; justify-content:space-between; font-size:10px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.1em;">
+    <span>PriceTravel Analytics Desk · Guía Editorial Interna</span>
+    <span>v2.0 · Abril 2026 · Actualizar con cada cambio metodológico</span>
+</div>
+
+</div>
+</body>
+</html>
