@@ -1,8 +1,9 @@
 # Price
 Proyectos Price
 # PriceTravel · Analytics Desk
+https://federicochurches.github.io/Price/index.html
 
-Reportes semanales de análisis del inventario Wholesale de PriceTravel.
+Reportes Optimización Supply
 
 ## Reportes
 
