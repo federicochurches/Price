@@ -93,7 +93,7 @@ function checkAuth() {
   const u = document.getElementById('user').value.trim().toLowerCase();
   const p = document.getElementById('pass').value;
   if (u === CREDS.user && p === CREDS.pass) {
-    sessionStorage.setItem(SESSION_KEY, '1');
+    localStorage.setItem(SESSION_KEY, '1');
     showHub();
   } else {
     document.getElementById('error').style.display = 'block';
@@ -106,7 +106,7 @@ function showHub() {
 }
 
 // Check if already authenticated this session
-if (sessionStorage.getItem(SESSION_KEY)) showHub();
+if (localStorage.getItem(SESSION_KEY)) showHub();
 
 // Allow Enter key
 document.addEventListener('keydown', e => {
