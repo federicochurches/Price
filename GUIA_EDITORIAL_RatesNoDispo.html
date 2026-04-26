@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Editorial · Supply Rates No Dispo · v4.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;--rule:#C9C1B0;--accent:#1E5A8C;--accent-soft:#DDE8F1;--amber:#A86A1D;--amber-soft:#F6EAD2;--green:#2F6C34;--green-soft:#E1ECDE;--red:#C0392B;--navy:#14304A;--maxw:960px;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.shell{max-width:var(--maxw);margin:0 auto;padding:0 40px 80px;}
+.guide-tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px;}
+.hero h1{font-size:clamp(36px,5vw,58px);font-weight:700;letter-spacing:-.025em;line-height:1.05;margin:0 0 12px;}
+.hero h1 em{color:var(--accent);font-style:normal;}
+.hero p{font-size:15px;color:var(--ink-soft);max-width:56ch;margin-bottom:0;}
+hr.rule{border:none;border-top:2px solid var(--ink);margin:40px 0;}
+hr.soft{border:none;border-top:1px solid var(--rule);margin:28px 0;}
+section{margin-bottom:48px;}
+h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0 0 20px;padding-bottom:10px;border-bottom:1px solid var(--rule);}
+h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:24px 0 10px;}
+p{margin:0 0 14px;font-size:14px;}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}
+thead th{background:var(--ink);color:#fff;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
+tbody tr:nth-child(even){background:var(--paper-soft);}
+td{padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top;}
+td:first-child{font-weight:600;font-family:monospace;font-size:12px;color:var(--accent);white-space:nowrap;}
+.note{padding:16px 20px;background:var(--paper-soft);border-left:3px solid var(--accent);font-size:13px;color:var(--ink-soft);margin:16px 0;}
+.note strong{color:var(--ink);}
+.ph{font-family:monospace;font-size:12px;background:var(--paper-soft);padding:16px 20px;border-left:3px solid var(--accent);line-height:2.2;}
+.ph span{color:var(--accent);font-weight:700;}
+.swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+.element-name{font-family:monospace;font-size:11px;background:var(--accent-soft);color:var(--accent);padding:2px 6px;border-radius:3px;font-weight:600;}
+footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em;}
+</style>
+</head>
+<body>
+<div class="shell">
+<div style="padding:32px 0 0;">
+  <span class="guide-tag">Guía Editorial · v4.0 · Abr 2026</span>
+  <div class="hero">
+    <h1>Supply Rates<br>No Dispo<br><em>Editorial Guide.</em></h1>
+    <p>Nomenclatura, vocabulario, diseño, estructura, métricas y placeholders para el reporte semanal de Supply Rates No Dispo · PriceTravel Analytics Desk.</p>
+  </div>
+</div>
+<hr class="rule">
+
+<!-- NOMENCLATURA -->
+<section>
+<h2>01 · Nomenclatura de elementos y secciones</h2>
+<p>Nombres canónicos para identificar cada parte del reporte en el template, la guía y la automatización.</p>
+
+<h3>Header</h3>
+<table>
+<thead><tr><th>Nombre del elemento</th><th>Descripción</th><th>Placeholder</th></tr></thead>
+<tbody>
+<tr><td>HEADER_TOP_RULE</td><td>Línea negra 3px superior del header</td><td>—</td></tr>
+<tr><td>HEADER_NAMEPLATE</td><td>Contenedor principal del header (entre las dos líneas)</td><td>—</td></tr>
+<tr><td>HEADER_TAG</td><td>Tag azul con nombre del reporte · "RATES NO DISPO"</td><td>—</td></tr>
+<tr><td>HEADER_WEEK</td><td>Número de semana grande izquierda · "Week 16"</td><td><span class="element-name">{{SEMANA}}</span></td></tr>
+<tr><td>HEADER_DATE_RANGE</td><td>Período del análisis bajo Week · "13 – 19 de abril de 2026"</td><td><span class="element-name">{{RANGO_FECHAS_CORTO}}</span></td></tr>
+<tr><td>HEADER_LOGO</td><td>Isólogo PriceTravel color · 68px de alto</td><td><span class="element-name">{{LOGO_BASE64}}</span></td></tr>
+<tr><td>HEADER_DIVIDER</td><td>Línea vertical gris entre logo y Supply Optimization</td><td>—</td></tr>
+<tr><td>HEADER_AREA</td><td>Texto "Supply / Optimization" en accent blue · 20px 400</td><td>—</td></tr>
+<tr><td>HEADER_BOTTOM_RULE</td><td>Línea negra 3px inferior del header</td><td>—</td></tr>
+<tr><td>HEADER_SUB</td><td>Sub-row inferior · fecha de publicación izquierda · Vol. derecha</td><td><span class="element-name">{{FECHA_REPORTE}}</span> · <span class="element-name">{{VOLUMEN}}</span></td></tr>
+</tbody>
+</table>
+
+<h3>Hero</h3>
+<table>
+<thead><tr><th>Nombre del elemento</th><th>Descripción</th><th>Placeholder</th></tr></thead>
+<tbody>
+<tr><td>HERO_TITLE</td><td>Título principal del reporte · gran finding de la semana</td><td><span class="element-name">{{HERO_TITLE}}</span></td></tr>
+<tr><td>HERO_LEDE</td><td>Bajada del título · oportunidad perdida en números</td><td><span class="element-name">{{HERO_LEDE}}</span></td></tr>
+<tr><td>HERO_CARDS_ROW1</td><td>Primera fila de cards (3 columnas)</td><td>—</td></tr>
+<tr><td>CARD_01_MUESTRA</td><td>Hoteles de la muestra · Percentil 80</td><td><span class="element-name">{{N_MUESTRA}}</span> · <span class="element-name">{{PCT_MUESTRA}}</span> · <span class="element-name">{{N_TOTAL}}</span></td></tr>
+<tr><td>CARD_02_CERO_BKGS</td><td>Hoteles con 0 Bookings</td><td><span class="element-name">{{N_CERO_BOOKINGS}}</span> · <span class="element-name">{{PCT_CERO_BOOKINGS}}</span> · <span class="element-name">{{PCT_CERO_INV}}</span></td></tr>
+<tr><td>CARD_03_GB_NO_GEN</td><td>GB No Generado · 0 Bookings</td><td><span class="element-name">{{GB_NO_GENERADO}}</span> · <span class="element-name">{{RESERVAS_PERDIDAS}}</span> · <span class="element-name">{{PAISES_0BKGS}}</span></td></tr>
+<tr><td>HERO_CARDS_ROW2</td><td>Segunda fila de cards (3 columnas)</td><td>—</td></tr>
+<tr><td>CARD_04_CORP_0BKGS</td><td>Por Corporativo · Hoteles con 0 Bookings · ordenado por %</td><td><span class="element-name">{{CORP_TOP_NAME}}</span> … <span class="element-name">{{CORP7_N}}</span></td></tr>
+<tr><td>CARD_05_DEST_ND</td><td>Por Destino · Mayor %NoDispo</td><td><span class="element-name">{{DEST_ND1}}</span> … <span class="element-name">{{DEST_ND5_PCT}}</span></td></tr>
+<tr><td>CARD_06_DEST_RPM</td><td>Por Destino · Menor Conv Rate (RPM)</td><td><span class="element-name">{{DEST_RPM1}}</span> … <span class="element-name">{{RPM_MUESTRA}}</span></td></tr>
+<tr><td>HERO_EXCEL_CTA</td><td>Call to action "VER EXCEL" al pie del hero</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>Secciones del cuerpo</h3>
+<table>
+<thead><tr><th>Nombre de sección</th><th>ID HTML</th><th>Color</th><th>Bajada destacada</th></tr></thead>
+<tbody>
+<tr><td>SEC_01_RESUMEN</td><td>id="resumen"</td><td>Neutro</td><td>—</td></tr>
+<tr><td>SEC_02_SEVERITY</td><td>id="severity"</td><td>Por nivel</td><td>—</td></tr>
+<tr><td>SEC_03_DEMANDA</td><td>id="demanda"</td><td>🔴 Rojo #C0392B</td><td>Tráfico sin Bookings</td></tr>
+<tr><td>SEC_04_BAJO_REND</td><td>id="bajo"</td><td>🟠 Ámbar #A86A1D</td><td>Low Performers Conv Rate</td></tr>
+<tr><td>SEC_05_CORPORATIVO</td><td>id="corporativo"</td><td>🔵 Accent #1E5A8C</td><td>0 Bookings por Corporativo</td></tr>
+<tr><td>SEC_06_DESTINO</td><td>id="destino"</td><td>🟢 Verde #2F6C34</td><td>GB por Destino</td></tr>
+<tr><td>SEC_07_PAIS</td><td>id="pais"</td><td>🟦 Navy #14304A</td><td>GB por País</td></tr>
+<tr><td>SEC_08_PLAN</td><td>id="plan"</td><td>Verde/Ámbar/Azul</td><td>—</td></tr>
+<tr><td>SEC_09_METODO</td><td>id="metodo"</td><td>Ink (negro)</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>Componentes recurrentes</h3>
+<table>
+<thead><tr><th>Nombre</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>SECTION_HEAD</td><td>Cabecera de sección: número (·NN) + título + bajada</td></tr>
+<tr><td>SECTION_NUM</td><td>Número de sección en accent blue · Ej: "· 03"</td></tr>
+<tr><td>SECTION_TITLE</td><td>H2 de la sección · SemiBold clamp(28–44px)</td></tr>
+<tr><td>SECTION_SUBTITLE</td><td>Bajada destacada bajo el título · 11px bold uppercase accent</td></tr>
+<tr><td>SECTION_KICKER</td><td>Texto descriptivo bajo el título · 14px muted</td></tr>
+<tr><td>DATA_TABLE_HEADER</td><td>Cabecera de tabla de datos · fondo color de la sección</td></tr>
+<tr><td>DATA_ROW</td><td>Fila de datos con barra de proporción al pie</td></tr>
+<tr><td>CORP_80_20</td><td>Destinos 80/20 bajo el nombre del corporativo · accent blue bold</td></tr>
+<tr><td>SECTION_CALLOUT</td><td>Call to action "VER EXCEL" al pie de cada sección</td></tr>
+<tr><td>EXEC_BULLET</td><td>Finding del Resumen Ejecutivo con barra de semáforo</td></tr>
+<tr><td>SEVERITY_ROW</td><td>Fila del gráfico de Severity · 5 columnas: Nivel · Rango · Barra · Hoteles · %</td></tr>
+<tr><td>ACTION_ROW_QW</td><td>Fila del Plan de Acción · Quick Win (verde)</td></tr>
+<tr><td>ACTION_ROW_MP</td><td>Fila del Plan de Acción · Medium Priority (ámbar)</td></tr>
+<tr><td>ACTION_ROW_ES</td><td>Fila del Plan de Acción · Estratégico (azul)</td></tr>
+<tr><td>FOOTER</td><td>Pie del reporte · nombre + vol + hoteles analizados</td></tr>
+<tr><td>TOC</td><td>Tabla de contenidos flotante derecha · visible en desktop</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- VOCABULARIO -->
+<section>
+<h2>02 · Vocabulario aprobado</h2>
+<table>
+<thead><tr><th>Usar</th><th>Significado</th><th>No usar</th></tr></thead>
+<tbody>
+<tr><td>Tráfico</td><td>Shopping searches de la interfaz XML de Wholesale</td><td>Búsquedas, Sesiones</td></tr>
+<tr><td>Bookings</td><td>Reservas confirmadas</td><td>Conversiones, Ventas</td></tr>
+<tr><td>%NoDispo</td><td>% ponderado de búsquedas sin respuesta</td><td>Efectividad, Fill Rate</td></tr>
+<tr><td>Conv Rate · RPM</td><td>Reservas Por Millón de búsquedas = Bookings / Tráfico × 1.000.000</td><td>Tasa de conversión, 0.00002%</td></tr>
+<tr><td>GB</td><td>Gross Bookings en USD</td><td>GB USD, Revenue, Ingresos</td></tr>
+<tr><td>GB No Generado</td><td>Estimación del GB potencial perdido por hoteles con 0 bookings</td><td>Revenue perdido, fugas</td></tr>
+<tr><td>Reservas Perdidas</td><td>Estimación de reservas no generadas por hoteles con 0 bookings</td><td>Conversiones perdidas</td></tr>
+<tr><td>Muestra · HTS · P80</td><td>Hoteles que concentran el 80% del tráfico (Percentil 80)</td><td>Dataset, Base, Universo</td></tr>
+<tr><td>Demanda No Convertida</td><td>Hoteles con 0 bookings en la muestra</td><td>Fugas, Leakage, Oportunidad Perdida</td></tr>
+<tr><td>Bajo Rendimiento</td><td>Hoteles con %NoDispo ≥ 5.3%, Bookings &gt; 0 y GB &gt; 0</td><td>Underperformers</td></tr>
+<tr><td>Supply Optimization / Supply</td><td>Área de conectividad y disponibilidad</td><td>Market Manager, Connectivity</td></tr>
+<tr><td>Wholesale</td><td>Área de BI y análisis del canal mayorista</td><td>BI Wholesale, BI genérico</td></tr>
+<tr><td>Week {{N}}</td><td>Número de semana ISO · Ej: Week 17</td><td>Análisis semanal, Semana del...</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- MÉTRICAS -->
+<section>
+<h2>03 · Métricas clave</h2>
+<h3>RPM — Reservas Por Millón de búsquedas</h3>
+<p>Fórmula: <strong>Bookings / Tráfico × 1.000.000</strong>. Benchmark Week 16: muestra 2.84 RPM · IHG 5.00 RPM (mejor referencia).</p>
+<div class="note"><strong>Por qué RPM y no %:</strong> Barcelona 0.23 RPM vs muestra 2.84 RPM es inmediato. El % equivalente (0.000023%) requiere 6 decimales — ilegible en tablas y cards.</div>
+<h3>GB No Generado</h3>
+<p>Fórmula: <strong>Tráfico(0-bkgs) × Conv Rate(hoteles activos) × ADR(hoteles activos)</strong>. Estimación orientativa — no es un número exacto.</p>
+</section>
+
+<hr class="soft">
+
+<!-- SEVERITY -->
+<section>
+<h2>04 · Severity · %NoDispo</h2>
+<table>
+<thead><tr><th>Nivel</th><th>Rango</th><th>Acción</th></tr></thead>
+<tbody>
+<tr><td>Exitosa</td><td>0% – 3.8%</td><td>Monitoreo normal</td></tr>
+<tr><td>No Aceptable</td><td>3.8% – 5.3%</td><td>Monitoreo continuo</td></tr>
+<tr><td>Revisar</td><td>5.3% – 20%</td><td>Diagnóstico de causa &lt;72h</td></tr>
+<tr><td>Crítica</td><td>20% – 40%</td><td>Acción inmediata</td></tr>
+<tr><td>Muy Crítica</td><td>40% – 79%</td><td>Escalamiento</td></tr>
+<tr><td>Súper Crítica</td><td>80% – 99%</td><td>Urgente · escalamiento máximo</td></tr>
+</tbody>
+</table>
+<p>Prioridad: 7 Súper Crítica + 156 Muy Crítica = <strong>163 urgentes</strong> → luego 515 Crítica → luego 2.540 Revisar.</p>
+</section>
+
+<hr class="soft">
+
+<!-- COLORES -->
+<section>
+<h2>05 · Sistema de color</h2>
+<table>
+<thead><tr><th>Nombre</th><th>Elemento</th><th>Hex</th></tr></thead>
+<tbody>
+<tr><td>ACCENT_BLUE</td><td>Valores clave · HEADER_AREA · CARD highlights · SEC_05_CORPORATIVO</td><td><span class="swatch" style="background:#1E5A8C;"></span>#1E5A8C</td></tr>
+<tr><td>RED</td><td>SEC_03_DEMANDA · Semáforo crítico en EXEC_BULLET</td><td><span class="swatch" style="background:#C0392B;"></span>#C0392B</td></tr>
+<tr><td>AMBER</td><td>SEC_04_BAJO_REND · Semáforo atención · ACTION_ROW_MP</td><td><span class="swatch" style="background:#A86A1D;"></span>#A86A1D</td></tr>
+<tr><td>GREEN</td><td>SEC_06_DESTINO · Semáforo bueno · ACTION_ROW_QW</td><td><span class="swatch" style="background:#2F6C34;"></span>#2F6C34</td></tr>
+<tr><td>NAVY</td><td>SEC_07_PAIS · Insights geográficos en EXEC_BULLET</td><td><span class="swatch" style="background:#14304A;"></span>#14304A</td></tr>
+<tr><td>BAR_NEUTRAL</td><td>Barras de proporción en CARD_01/02/03 Hero</td><td><span class="swatch" style="background:#AABFCF;border:1px solid #C9C1B0;"></span>#AABFCF</td></tr>
+<tr><td>INK</td><td>Tipografía principal · reglas negras · SEC_09_METODO</td><td><span class="swatch" style="background:#161616;"></span>#161616</td></tr>
+<tr><td>PAPER</td><td>Fondo principal del reporte</td><td><span class="swatch" style="background:#F8F4EC;border:1px solid #C9C1B0;"></span>#F8F4EC</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Regla CARD barras:</strong> siempre BAR_NEUTRAL (#AABFCF) — no compite con valores en ACCENT_BLUE. <strong>Regla EXEC_BULLET:</strong> verde = buena conversión · ámbar = atención · rojo = crítico · navy = geográfico.</div>
+</section>
+
+<hr class="soft">
+
+<!-- TIPOGRAFÍA -->
+<section>
+<h2>06 · Tipografía</h2>
+<table>
+<thead><tr><th>Nombre</th><th>Elemento</th><th>Peso</th><th>Tamaño</th></tr></thead>
+<tbody>
+<tr><td>TYPE_WEEK</td><td>HEADER_WEEK · "Week 16"</td><td>800</td><td>32px</td></tr>
+<tr><td>TYPE_DATE</td><td>HEADER_DATE_RANGE</td><td>400</td><td>12px</td></tr>
+<tr><td>TYPE_AREA</td><td>HEADER_AREA · "Supply / Optimization"</td><td>400</td><td>20px</td></tr>
+<tr><td>TYPE_H1</td><td>HERO_TITLE</td><td>700</td><td>clamp(32px, 4vw, 58px)</td></tr>
+<tr><td>TYPE_LEDE</td><td>HERO_LEDE</td><td>400</td><td>20px</td></tr>
+<tr><td>TYPE_CARD_VALUE</td><td>Valor principal de CARD_01/02/03</td><td>700</td><td>36px</td></tr>
+<tr><td>TYPE_CARD_VALUE_SM</td><td>Valor principal de CARD_04/05/06</td><td>700</td><td>24px</td></tr>
+<tr><td>TYPE_SECTION_TITLE</td><td>SECTION_TITLE</td><td>600</td><td>clamp(28px, 3.5vw, 44px)</td></tr>
+<tr><td>TYPE_SECTION_SUBTITLE</td><td>SECTION_SUBTITLE</td><td>700</td><td>11px · uppercase · tracking</td></tr>
+<tr><td>TYPE_TABLE</td><td>DATA_ROW</td><td>400/500</td><td>13px</td></tr>
+<tr><td>TYPE_TAG</td><td>HEADER_TAG · labels</td><td>700</td><td>9–10px · uppercase · tracking</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Fuente exclusiva:</strong> Geist (Google Fonts). No usar Inter, Poppins ni ninguna otra.</div>
+</section>
+
+<hr class="soft">
+
+<!-- ESTRUCTURA -->
+<section>
+<h2>07 · Estructura del reporte</h2>
+<table>
+<thead><tr><th>Nombre</th><th>ID</th><th>Contenido</th><th>Color</th></tr></thead>
+<tbody>
+<tr><td>HEADER</td><td>—</td><td>Tag + Week + logo + Supply Optimization + sub-row</td><td>INK rules</td></tr>
+<tr><td>HERO</td><td>—</td><td>6 CARDS + HERO_TITLE + HERO_LEDE + HERO_EXCEL_CTA</td><td>Accent highlights</td></tr>
+<tr><td>SEC_01_RESUMEN</td><td>resumen</td><td>10 EXEC_BULLET con semáforo</td><td>Neutro</td></tr>
+<tr><td>SEC_02_SEVERITY</td><td>severity</td><td>SEVERITY_ROW × 6 niveles con Rango</td><td>Por nivel</td></tr>
+<tr><td>SEC_03_DEMANDA</td><td>demanda</td><td>Top 20 · DATA_ROW + SECTION_CALLOUT</td><td>🔴 RED</td></tr>
+<tr><td>SEC_04_BAJO_REND</td><td>bajo</td><td>Top 20 · DATA_ROW + SECTION_CALLOUT</td><td>🟠 AMBER</td></tr>
+<tr><td>SEC_05_CORPORATIVO</td><td>corporativo</td><td>Top 20 · DATA_ROW + CORP_80_20 + SECTION_CALLOUT</td><td>🔵 ACCENT_BLUE</td></tr>
+<tr><td>SEC_06_DESTINO</td><td>destino</td><td>Top 20 · DATA_ROW + SECTION_CALLOUT</td><td>🟢 GREEN</td></tr>
+<tr><td>SEC_07_PAIS</td><td>pais</td><td>Top 20 · DATA_ROW + SECTION_CALLOUT</td><td>🟦 NAVY</td></tr>
+<tr><td>SEC_08_PLAN</td><td>plan</td><td>ACTION_ROW_QW/MP/ES + SECTION_CALLOUT Excel</td><td>Por tipo</td></tr>
+<tr><td>SEC_09_METODO</td><td>metodo</td><td>4 EXEC_BULLET sobre limitaciones · fondo negro</td><td>INK</td></tr>
+<tr><td>FOOTER</td><td>—</td><td>Nombre reporte · Vol · hoteles analizados</td><td>INK rule</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- FILTROS -->
+<section>
+<h2>08 · Filtros de datos</h2>
+<table>
+<thead><tr><th>Sección</th><th>Filtros</th><th>Motivo</th></tr></thead>
+<tbody>
+<tr><td>Muestra HTS · todas</td><td>Tráfico &gt; 0 · ADR ≥ 0 · P80 acumulado</td><td>46 hoteles excluidos por ADR negativo</td></tr>
+<tr><td>SEC_04_BAJO_REND</td><td>%NoDispo ≥ 5.3% + Bookings &gt; 0 + <strong>GB &gt; 0</strong></td><td>169 excluidos: 133 GB negativo + 36 GB = 0</td></tr>
+<tr><td>SEC_05/06/07</td><td>Sin filtro adicional sobre la muestra</td><td>GB = 0 es dato válido (no vendió)</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- PLACEHOLDERS -->
+<section>
+<h2>09 · Placeholders del template</h2>
+<div class="ph">
+<strong>— Header —</strong><br>
+<span>{{SEMANA}}</span> — HEADER_WEEK · Ej: 17<br>
+<span>{{RANGO_FECHAS_CORTO}}</span> — HEADER_DATE_RANGE · Ej: 20 – 26 Abr 2026<br>
+<span>{{FECHA_REPORTE}}</span> — HEADER_SUB izquierda · Ej: Lunes 28 de abril de 2026<br>
+<span>{{VOLUMEN}}</span> — HEADER_SUB derecha · Ej: 02<br>
+<span>{{LOGO_BASE64}}</span> — HEADER_LOGO · base64 del isólogo PriceTravel<br>
+<span>{{MES_ANO}}</span> — Footer · Ej: Abr 2026<br>
+<span>{{FUENTE_DATOS}}</span> — Ficha técnica · nombre del archivo .xlsx<br>
+<br>
+<strong>— CARD_01_MUESTRA —</strong><br>
+<span>{{N_MUESTRA}}</span> — Hoteles de la muestra HTS P80<br>
+<span>{{PCT_MUESTRA}}</span> — % del inventario<br>
+<span>{{BAR_MUESTRA}}</span> — Ancho barra (0–100)<br>
+<span>{{N_TOTAL}}</span> — Total hoteles con tráfico<br>
+<br>
+<strong>— CARD_02_CERO_BKGS —</strong><br>
+<span>{{N_CERO_BOOKINGS}}</span> — Hoteles con 0 bookings<br>
+<span>{{PCT_CERO_BOOKINGS}}</span> — % de la muestra<br>
+<span>{{BAR_CERO}}</span> — Ancho barra (0–100)<br>
+<span>{{PCT_CERO_INV}}</span> — % del inventario total<br>
+<br>
+<strong>— CARD_03_GB_NO_GEN —</strong><br>
+<span>{{GB_NO_GENERADO}}</span> — Ej: 8.2M<br>
+<span>{{BAR_GB}}</span> — Ancho barra (0–100)<br>
+<span>{{RESERVAS_PERDIDAS}}</span> — Reservas no generadas estimadas<br>
+<span>{{PAISES_0BKGS}}</span> — Países con hoteles 0-booking<br>
+<br>
+<strong>— CARD_04_CORP_0BKGS —</strong><br>
+<span>{{CORP_TOP_NAME}}</span> <span>{{CORP_TOP_PCT}}</span> <span>{{CORP_TOP_N}}</span> — Corp #1<br>
+<span>{{CORP2}}</span> <span>{{CORP2_PCT}}</span> <span>{{CORP2_N}}</span> — Corp #2<br>
+<span>{{CORP3}}</span> <span>{{CORP3_PCT}}</span> <span>{{CORP3_N}}</span> — Corp #3<br>
+<span>{{CORP4}}</span> <span>{{CORP4_PCT}}</span> <span>{{CORP4_N}}</span> — Corp #4<br>
+<span>{{CORP5}}</span> <span>{{CORP5_PCT}}</span> <span>{{CORP5_N}}</span> — Corp #5<br>
+<span>{{CORP6}}</span> <span>{{CORP6_PCT}}</span> <span>{{CORP6_N}}</span> — Corp #6<br>
+<span>{{CORP7}}</span> <span>{{CORP7_PCT}}</span> <span>{{CORP7_N}}</span> — Corp #7<br>
+<br>
+<strong>— CARD_05_DEST_ND —</strong><br>
+<span>{{DEST_ND1}}</span> <span>{{DEST_ND1_PCT}}</span> — Destino #1 mayor NoDispo<br>
+<span>{{DEST_ND2}}</span> <span>{{DEST_ND2_PCT}}</span> — #2<br>
+<span>{{DEST_ND3}}</span> <span>{{DEST_ND3_PCT}}</span> — #3<br>
+<span>{{DEST_ND4}}</span> <span>{{DEST_ND4_PCT}}</span> — #4<br>
+<span>{{DEST_ND5}}</span> <span>{{DEST_ND5_PCT}}</span> — #5<br>
+<br>
+<strong>— CARD_06_DEST_RPM —</strong><br>
+<span>{{DEST_RPM1}}</span> <span>{{DEST_RPM1_VAL}}</span> — Destino menor RPM<br>
+<span>{{DEST_RPM2}}</span> <span>{{DEST_RPM2_VAL}}</span> — #2<br>
+<span>{{DEST_RPM3}}</span> <span>{{DEST_RPM3_VAL}}</span> — #3<br>
+<span>{{DEST_RPM4}}</span> <span>{{DEST_RPM4_VAL}}</span> — #4<br>
+<span>{{RPM_MUESTRA}}</span> — RPM promedio de la muestra<br>
+<br>
+<strong>— CORP_80_20 (en tabla SEC_05_CORPORATIVO) —</strong><br>
+<span>{{CORP01_DEST_80_20}}</span> … <span>{{CORP20_DEST_80_20}}</span> — HTML con destinos 80/20 por corporativo
+</div>
+</section>
+
+<hr class="soft">
+
+<!-- FLUJO SEMANAL -->
+<section>
+<h2>10 · Flujo semanal · Release Week-N</h2>
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Input</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Recibir dataset nuevo</td><td>Rates_No_Dispo_Last_7_Days_XX.xlsx</td><td>Archivo fuente</td></tr>
+<tr><td>2</td><td>Ejecutar análisis en Python</td><td>Dataset semana nueva</td><td>Pickles + métricas</td></tr>
+<tr><td>3</td><td>Calcular todos los placeholders</td><td>Métricas calculadas</td><td>Valores para el template</td></tr>
+<tr><td>4</td><td>Reemplazar placeholders en TEMPLATE</td><td>TEMPLATE_RatesNoDispo_Reporte.html</td><td>Reporte semana nueva</td></tr>
+<tr><td>5</td><td>Regenerar Excel de análisis</td><td>Datos nuevos</td><td>Analisis_Rates_NoDispo_7d.xlsx</td></tr>
+<tr><td>6</td><td>Crear carpeta nueva en GitHub</td><td>—</td><td>rates-nodispo/week-NN/Editorial/ + Analisis/</td></tr>
+<tr><td>7</td><td>Commit automático (script)</td><td>Reporte + Excel</td><td>GitHub actualizado</td></tr>
+<tr><td>8</td><td>Actualizar index.html</td><td>Link a week-NN</td><td>Hub apunta a la semana activa</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- ARCHIVADO -->
+<section>
+<h2>11 · Política de archivado</h2>
+<p>Cada semana crea su propia carpeta — nada se sobreescribe. El historial queda accesible por URL directa.</p>
+<table>
+<thead><tr><th>Reporte</th><th>Estructura</th></tr></thead>
+<tbody>
+<tr><td>Supply Rates No Dispo</td><td><code>rates-nodispo/week-NN/Editorial/</code> + <code>Analisis/</code></td></tr>
+<tr><td>Supply CheckRates</td><td><code>check-rates/week-NN/Editorial/</code> + <code>Analisis/</code></td></tr>
+<tr><td>Wholesale CheckRates</td><td><code>wholesale-checkrates/week-NN/Editorial/</code> + <code>Analisis/</code></td></tr>
+<tr><td>CheckRates por Corporativo</td><td><code>checkrates-corp/week-NN/Editorial/</code> + <code>Analisis/</code></td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Permanentes (no cambian cada semana):</strong> TEMPLATE en <code>_templates/</code> · GUIA en <code>_editorial/</code>. Solo se actualizan cuando hay cambios en el diseño o metodología.</div>
+</section>
+
+<hr class="soft">
+
+<!-- ÁREAS -->
+<section>
+<h2>12 · Áreas responsables</h2>
+<table>
+<thead><tr><th>Área</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td>Supply Optimization</td><td>Conectividad, disponibilidad, resolución Súper Críticos · ACTION_ROW_QW principal</td></tr>
+<tr><td>Supply</td><td>Abreviación de Supply Optimization en tablas y plans</td></tr>
+<tr><td>Wholesale</td><td>BI, análisis, pricing, paridad · ACTION_ROW_ES</td></tr>
+<tr><td>Supply y Wholesale</td><td>Responsabilidad compartida · ACTION_ROW_QW4</td></tr>
+</tbody>
+</table>
+</section>
+
+<footer>Guía Editorial · Supply Rates No Dispo · PriceTravel Analytics Desk · v4.0 · Abr 2026</footer>
+</div>
+</body>
+</html>
