@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Editorial · Supply Rates No Dispo · v4.0</title>
+<title>Guía Editorial · Supply Rates No Dispo · v4.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;--rule:#C9C1B0;--accent:#1E5A8C;--accent-soft:#DDE8F1;--amber:#A86A1D;--amber-soft:#F6EAD2;--green:#2F6C34;--green-soft:#E1ECDE;--red:#C0392B;--navy:#14304A;--maxw:960px;}
@@ -36,7 +36,7 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 <body>
 <div class="shell">
 <div style="padding:32px 0 0;">
-  <span class="guide-tag">Guía Editorial · v4.0 · Abr 2026</span>
+  <span class="guide-tag">Guía Editorial · v4.3 · Abr 2026</span>
   <div class="hero">
     <h1>Supply Rates<br>No Dispo<br><em>Editorial Guide.</em></h1>
     <p>Nomenclatura, vocabulario, diseño, estructura, métricas y placeholders para el reporte semanal de Supply Rates No Dispo · PriceTravel Analytics Desk.</p>
@@ -96,7 +96,11 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 <tr><td>SEC_06_DESTINO</td><td>id="destino"</td><td>🟢 Verde #2F6C34</td><td>GB por Destino</td></tr>
 <tr><td>SEC_07_PAIS</td><td>id="pais"</td><td>🟦 Navy #14304A</td><td>GB por País</td></tr>
 <tr><td>SEC_08_PLAN</td><td>id="plan"</td><td>Verde/Ámbar/Azul</td><td>—</td></tr>
-<tr><td>SEC_09_METODO</td><td>id="metodo"</td><td>Ink (negro)</td><td>—</td></tr>
+<tr><td>SEC_09_CANASTAS</td><td>id="sec_canastas"</td><td>Tabla comparativa B2C · B2B (OP) · CUG con Canasta Weight, RPM, GB, 0 Bkgs%, Cluster</td><td>Neutro</td></tr>
+      <tr><td>SEC_10_B2C</td><td>id="canasta_B2C"</td><td>Resumen Ejecutivo + Top 10 por sub-tabla + Plan de Acción · Canasta Weight 0.1</td><td>🔵 ACCENT</td></tr>
+      <tr><td>SEC_11_B2B_OP</td><td>id="canasta_B2B_OP"</td><td>Resumen Ejecutivo + Top 10 por sub-tabla + Plan de Acción · Canasta Weight 0.6</td><td>🟢 GREEN</td></tr>
+      <tr><td>SEC_12_CUG</td><td>id="canasta_CUG_UOP"</td><td>Resumen Ejecutivo + Top 10 por sub-tabla + Plan de Acción · Canasta Weight 0.6</td><td>🟠 AMBER</td></tr>
+      <tr><td>SEC_09_METODO</td><td>id="metodo"</td><td>Ink (negro)</td><td>—</td></tr>
 </tbody>
 </table>
 
@@ -143,7 +147,7 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 <tr><td>Demanda No Convertida</td><td>Hoteles con 0 bookings en la muestra</td><td>Fugas, Leakage, Oportunidad Perdida</td></tr>
 <tr><td>Bajo Rendimiento</td><td>Hoteles con %NoDispo ≥ 5.3%, Bookings &gt; 0 y GB &gt; 0</td><td>Underperformers</td></tr>
 <tr><td>Supply Optimization / Supply</td><td>Área de conectividad y disponibilidad</td><td>Market Manager, Connectivity</td></tr>
-<tr><td>Wholesale</td><td>Área de BI y análisis del canal mayorista</td><td>BI Wholesale, BI genérico</td></tr>
+<tr><td>Wholesale</td><td>Área de BI y análisis del canasta mayorista</td><td>BI Wholesale, BI genérico</td></tr>
 <tr><td>Week {{N}}</td><td>Número de semana ISO · Ej: Week 17</td><td>Análisis semanal, Semana del...</td></tr>
 </tbody>
 </table>
@@ -165,6 +169,19 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 
 <!-- SEVERITY -->
 <section>
+<h2>03b · Clusters de diagnóstico</h2>
+  <table>
+  <thead><tr><th>Nombre en reporte</th><th>Código interno</th><th>Condición</th><th>Acción</th></tr></thead>
+  <tbody>
+  <tr><td>Connectivity Issue</td><td>Connectivity Issue</td><td>0 bookings + NoDispo &gt; p85 del canal</td><td>Escalamiento inmediato Supply</td></tr>
+  <tr><td>Sin Conversión</td><td>Monetization Failure</td><td>0 bookings + NoDispo normal</td><td>Validar booking flow + paridad precios</td></tr>
+  <tr><td>Suspicious Traffic</td><td>Suspicious Traffic</td><td>0 bookings + Traffic Intensity &gt; 0.8</td><td>Auditar calidad de tráfico</td></tr>
+  <tr><td>Quick Win</td><td>Quick Win</td><td>RPM &lt; 10% mediana + NoDispo &lt; 5%</td><td>Optimizar pricing y contenido</td></tr>
+  <tr><td>Low Priority</td><td>Low Priority</td><td>Resto</td><td>Monitoreo rutinario</td></tr>
+  </tbody>
+  </table>
+  <div class="note"><strong>Columna CANASTA Weight:</strong> B2C=0.1 · B2B(OP)=0.6 · CUG(UOP)=0.6. Los scores no se mezclan entre canastas.</div>
+
 <h2>04 · Severity · %NoDispo</h2>
 <table>
 <thead><tr><th>Nivel</th><th>Rango</th><th>Acción</th></tr></thead>
@@ -329,6 +346,20 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 
 <!-- FLUJO SEMANAL -->
 <section>
+<h2>09c · Generación de PDF</h2>
+  <p>El PDF se genera con <strong>Playwright + Chromium</strong> con la fuente <strong>Roboto</strong> embebida (descargada de npm). No depende de Google Fonts.</p>
+  <table>
+  <thead><tr><th>Parámetro</th><th>Valor</th></tr></thead>
+  <tbody>
+  <tr><td>Fuente</td><td>Roboto · embebida en base64 desde @fontsource/roboto</td></tr>
+  <tr><td>Formato página</td><td>A4 · portrait</td></tr>
+  <tr><td>Márgenes</td><td>top 20mm · right 20mm · bottom 14mm · left 14mm</td></tr>
+  <tr><td>Page breaks</td><td>Por sección — cada section[id] empieza en página nueva</td></tr>
+  <tr><td>Tablas HTML · Excel</td><td>Top 10 en reporte · Top 20 en Excel</td></tr>
+  </tbody>
+  </table>
+  <div class="note"><strong>Acceso al sitio:</strong> Netlify Personal ($9/mes) con login JavaScript en index.html. Usuario: pricetravel · Contraseña: supply2026. Sin fricción — un solo set de credenciales para todo el Analytics Desk.</div>
+
 <h2>10 · Flujo semanal · Release Week-N</h2>
 <table>
 <thead><tr><th>#</th><th>Paso</th><th>Input</th><th>Output</th></tr></thead>
@@ -379,7 +410,7 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 </table>
 </section>
 
-<footer>Guía Editorial · Supply Rates No Dispo · PriceTravel Analytics Desk · v4.0 · Abr 2026</footer>
+<footer>Guía Editorial · Supply Rates No Dispo · PriceTravel Analytics Desk · v4.3 · Abr 2026</footer>
 </div>
 </body>
 </html>
