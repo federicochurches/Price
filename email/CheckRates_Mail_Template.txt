@@ -1,0 +1,21 @@
+Compartimos Reporte de CheckRates Week-{{WEEK_NUM}}.
+Datos obtenidos de los CheckRates generados por Wholesale sobre el inventario de Hoteles.
+
+Ver reporte → {{LINK_HUB}}
+
+Credenciales de acceso
+Usuario: pricetravel
+Contraseña: supply2026
+
+Contenido del reporte
+
+• Resumen Ejecutivo
+• Severity · Eficacia
+• Severity · Conv Rate
+• Hoteles Críticos · Eficacia + Conv Rate
+• Bajo Rendimiento · Top 10
+• Por Corporativo · Top 10
+• Severity por Corporativo
+• Menor Conv Rate · Top 10
+• Plan de acción
+• Misma estructura por Canasta · B2C · OP · UOP

@@ -1,0 +1,24 @@
+# Carpetas y archivos que NO deben subirse al repo
+
+# Outputs generados localmente del script de email
+email/output/
+
+# Archivos del SO
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Excel temporales
+~$*.xlsx
+~$*.xls
