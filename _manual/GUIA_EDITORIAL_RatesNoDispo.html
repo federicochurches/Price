@@ -6,7 +6,7 @@
 <title>Guía Editorial · Supply Rates No Dispo · v4.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;--rule:#C9C1B0;--accent:#1E5A8C;--accent-soft:#DDE8F1;--amber:#A86A1D;--amber-soft:#F6EAD2;--green:#2F6C34;--green-soft:#E1ECDE;--red:#C0392B;--navy:#14304A;--maxw:960px;}
+:root{--paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;--rule:#C9C1B0;--accent:#1E5A8C;--accent-soft:#DDE8F1;--amber:#14304A;--amber-soft:#E8EEF3;--green:#00A693;--green-soft:#E0F5F3;--red:#E8000D;--navy:#14304A;--maxw:960px;}
 *{box-sizing:border-box;}html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
 .shell{max-width:var(--maxw);margin:0 auto;padding:0 40px 80px;}
 .guide-tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px;}
@@ -406,6 +406,73 @@ footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var
 <tr><td>Supply</td><td>Abreviación de Supply Optimization en tablas y plans</td></tr>
 <tr><td>Wholesale</td><td>BI, análisis, pricing, paridad · ACTION_ROW_ES</td></tr>
 <tr><td>Supply y Wholesale</td><td>Responsabilidad compartida · ACTION_ROW_QW4</td></tr>
+</tbody>
+</table>
+</section>
+
+
+<section id="paleta-corporativa">
+<h2>10 · Paleta corporativa definitiva</h2>
+<p>Todos los reportes del set <em>Supply Optimization</em> utilizan los 4 colores corporativos siguientes. Los colores heredados de Bootstrap / Material (verde oscuro, ámbar cálido, rojo burdeos) fueron reemplazados en el ciclo W16-2026. Esta paleta es la referencia canónica desde esa fecha.</p>
+<table>
+<thead><tr><th>Token</th><th>Hex</th><th>Rol semántico</th><th>Reporte</th></tr></thead>
+<tbody>
+<tr><td>HARMONY_TEAL</td><td><span class="swatch" style="background:#00A693;"></span>#00A693</td><td>Verde · nivel Exitosa · sectores positivos · barras de éxito</td><td>Ambos</td></tr>
+<tr><td>DEEP_NAVY</td><td><span class="swatch" style="background:#14304A;"></span>#14304A</td><td>Amber → reemplazado por Deep Navy · nivel No Aceptable · acción prioritaria</td><td>Ambos</td></tr>
+<tr><td>CORPORATE_RED</td><td><span class="swatch" style="background:#E8000D;"></span>#E8000D</td><td>Rojo corporativo · nivel Crítico · 0 Bookings · fuga alta</td><td>Ambos</td></tr>
+<tr><td>ACCENT_PURPLE</td><td><span class="swatch" style="background:#5C469C;"></span>#5C469C</td><td>Acento CheckRates · nivel Crítica en severity · TOC activo</td><td>CheckRates</td></tr>
+<tr><td>ACCENT_PINK</td><td><span class="swatch" style="background:#EA0074;"></span>#EA0074</td><td>Acento NoDispo · hero values · call to action</td><td>Rates NoDispo</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Regla de barras hero (cards 1–6):</strong> CheckRates usa <code>rgba(92,70,156,0.45)</code> (púrpura translúcido) · NoDispo usa <code>rgba(234,0,116,0.35)</code> (pink translúcido). Nunca usar #AABFCF en producción — ese token fue deprecado.</div>
+
+<h3>Colores de fondo suaves asociados</h3>
+<table>
+<thead><tr><th>Token base</th><th>Soft bg</th><th>Barra</th></tr></thead>
+<tbody>
+<tr><td>HARMONY_TEAL #00A693</td><td>#E0F5F3</td><td>#7DCEC6</td></tr>
+<tr><td>DEEP_NAVY #14304A</td><td>#E8EEF3 / #EDF1F5</td><td>#2A5070</td></tr>
+<tr><td>CORPORATE_RED #E8000D</td><td>#FDE8E8</td><td>#F8A0A0</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="vocabulario-checkrates">
+<h2>11 · Vocabulario CheckRates — excepción terminológica</h2>
+<p>El reporte <em>Supply CheckRates</em> usa vocabulario diferente al reporte <em>Rates NoDispo</em>. Las siguientes sustituciones son obligatorias dentro del contexto CheckRates y <strong>no deben usarse en NoDispo</strong>:</p>
+<table>
+<thead><tr><th>NoDispo usa</th><th>CheckRates usa</th><th>Razón</th></tr></thead>
+<tbody>
+<tr><td>Tráfico / Búsquedas</td><td>CheckRates</td><td>El evento técnico es un CheckRate, no una búsqueda de usuario</td></tr>
+<tr><td>Tráfico Único</td><td>CheckRates Únicos</td><td>Precisión sobre la unidad de medida del dataset</td></tr>
+<tr><td>Requests</td><td>CheckRates</td><td>Consistencia con la fuente (sistema HTS)</td></tr>
+<tr><td>No Dispo / NoDispo</td><td>%Errors / Eficacia</td><td>El concepto análogo en CheckRates es el ratio de errores</td></tr>
+<tr><td>GB perdido</td><td>Bookings perdidos / RPM bajo</td><td>Sin ADR en el dataset no se puede estimar GB en USD</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Regla de edición:</strong> antes de publicar un reporte CheckRates, buscar globalmente las palabras "tráfico", "búsquedas" y "NoDispo" y reemplazar según la tabla. La excepción es dentro de citas directas a fuentes externas.</div>
+</section>
+
+<section id="referencia-colores-por-reporte">
+<h2>12 · Referencia de colores por reporte</h2>
+<div class="note">Esta sección reemplaza cualquier referencia de color anterior en el manual. En caso de conflicto, esta tabla es la autoridad.</div>
+<table>
+<thead><tr><th>Elemento</th><th>CheckRates</th><th>Rates NoDispo</th></tr></thead>
+<tbody>
+<tr><td>Acento / accent</td><td>#5C469C</td><td>#EA0074</td></tr>
+<tr><td>Accent-soft bg</td><td>#E2DCEF</td><td>#FCE0EE</td></tr>
+<tr><td>Verde (éxito/exitosa)</td><td>#00A693</td><td>#00A693</td></tr>
+<tr><td>Verde bg suave</td><td>#E0F5F3</td><td>#E0F5F3</td></tr>
+<tr><td>Verde barra</td><td>#7DCEC6</td><td>#7DCEC6</td></tr>
+<tr><td>Navy/Amber (atención)</td><td>#14304A</td><td>#14304A</td></tr>
+<tr><td>Navy bg suave</td><td>#E8EEF3</td><td>#E8EEF3</td></tr>
+<tr><td>Navy barra</td><td>#2A5070</td><td>#2A5070</td></tr>
+<tr><td>Rojo (crítico)</td><td>#E8000D</td><td>#E8000D</td></tr>
+<tr><td>Rojo bg suave</td><td>#FDE8E8</td><td>#FDE8E8</td></tr>
+<tr><td>Rojo barra suave</td><td>#F8A0A0</td><td>#F8A0A0</td></tr>
+<tr><td>Barras hero cards</td><td>rgba(92,70,156,0.45)</td><td>rgba(234,0,116,0.35)</td></tr>
+<tr><td>Paper (fondo)</td><td>#F8F4EC</td><td>#F8F4EC</td></tr>
+<tr><td>Ink (texto)</td><td>#161616</td><td>#161616</td></tr>
 </tbody>
 </table>
 </section>

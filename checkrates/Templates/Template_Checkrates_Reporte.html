@@ -11,8 +11,8 @@
 :root{
   --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
   --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#E2DCEF;
-  --amber:#A86A1D;--amber-soft:#F6EAD2;--green:#2F6C34;--green-soft:#E1ECDE;
-  --navy:#14304A;--navy-soft:#1F4E78;--red:#C0392B;--red-soft:#FAE8E8;
+  --amber:#14304A;--amber-soft:#E8EEF3;--green:#00A693;--green-soft:#E0F5F3;
+  --navy:#14304A;--navy-soft:#1F4E78;--red:#E8000D;--red-soft:#FDE8E8;
   --maxw:1280px;
 }
 *{box-sizing:border-box;}
@@ -21,7 +21,7 @@ html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-famil
 .shell{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
 .masthead{margin-bottom:16px;padding-top:32px;}
 .masthead-top-rule{height:3px;background:var(--ink);}
-.report-tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
+.report-tag-wrap{display:inline-block;}.report-tag{display:block;text-align:left;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
 .masthead-sub{display:flex;justify-content:space-between;padding:7px 0;font-size:10px;font-weight:500;color:var(--ink-muted);letter-spacing:0.09em;text-transform:uppercase;border-bottom:3px solid var(--ink);}
 .hero{padding:16px 0 64px;border-bottom:1px solid var(--rule);margin-bottom:80px;}
 .hero h1{font-size:clamp(28px,3.2vw,44px);font-weight:700;line-height:1.05;letter-spacing:-0.025em;margin:0 0 28px;max-width:26ch;}
@@ -35,7 +35,7 @@ html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-famil
 .meta-label{font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;font-weight:600;}
 .meta-value{font-size:36px;font-weight:700;line-height:1;letter-spacing:-0.025em;color:var(--accent);display:block;margin-bottom:8px;}
 .meta-bar-wrap{height:4px;background:var(--rule-soft);margin-bottom:6px;}
-.meta-bar-fill{height:100%;background:#AABFCF;}
+.meta-bar-fill{height:100%;background:rgba(92,70,156,0.45);}
 .meta-hl{color:var(--accent);font-weight:700;}
 .meta-sub{font-size:11px;color:var(--ink-muted);}
 section{margin-bottom:80px;scroll-margin-top:24px;}
@@ -108,7 +108,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <div style="display:table;width:100%;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
     <div style="display:table-cell;vertical-align:middle;">
       <div style="display:inline-block;vertical-align:top;">
-        <span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">CheckRates</span>
+        <div class="report-tag-wrap"><span class="report-tag" style="margin-bottom:6px;">CheckRates</span></div>
         <div style="font-size:32px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1;">Week {{SEMANA}}</div>
         <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{{RANGO_FECHAS_CORTO}}</div>
       </div>
@@ -162,13 +162,13 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="meta-sub">{{C4_REST}}</div>
     </div>
     <div class="meta-item">
-      <div class="meta-label">Eficacia por Hotel · CheckRates ≥1K</div>
+      <div class="meta-label">Eficacia por Hotel</div>
       <span class="meta-value" style="font-size:22px;line-height:1.25;">{{C5_TOP1_NAME}} {{C5_TOP1_PCT}}</span>
       <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:{{BAR_C5}}%;"></div></div>
       <div class="meta-sub">{{C5_REST}}</div>
     </div>
     <div class="meta-item" style="border-right:none;">
-      <div class="meta-label">Conv Rate por Hotel · CheckRates ≥1K</div>
+      <div class="meta-label">Conv Rate por Hotel</div>
       <span class="meta-value" style="font-size:22px;line-height:1.25;">{{C6_TOP1_NAME}} {{C6_TOP1_PCT}}</span>
       <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:{{BAR_C6}}%;"></div></div>
       <div class="meta-sub">{{C6_REST}}</div>
@@ -291,25 +291,25 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </div>
 
 <div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
-  <span style="display:inline-block;padding:4px 10px;background:#E1ECDE;color:#2F6C34;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Exitosa</span>
+  <span style="display:inline-block;padding:4px 10px;background:#E0F5F3;color:#00A693;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Exitosa</span>
   <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">0 – 3.8%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:67%;background:#2F6C34;"></div></div>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:67%;background:#00A693;"></div></div>
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2.853</span>
   <span style="font-weight:500;text-align:right;color:var(--ink-muted);">67.9%</span>
 </div>
 
 <div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
-  <span style="display:inline-block;padding:4px 10px;background:#F6EAD2;color:#A86A1D;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">No Aceptable</span>
+  <span style="display:inline-block;padding:4px 10px;background:#E8EEF3;color:#14304A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">No Aceptable</span>
   <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">3.8 – 5.3%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:5%;background:#A86A1D;"></div></div>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:5%;background:#14304A;"></div></div>
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">249</span>
   <span style="font-weight:500;text-align:right;color:var(--ink-muted);">5.9%</span>
 </div>
 
 <div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
-  <span style="display:inline-block;padding:4px 10px;background:#FEF3CD;color:#8E6F0F;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Revisar</span>
+  <span style="display:inline-block;padding:4px 10px;background:#EDF1F5;color:#1A3D5C;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Revisar</span>
   <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5.3 – 20%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:18%;background:#8E6F0F;"></div></div>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:18%;background:#1A3D5C;"></div></div>
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">763</span>
   <span style="font-weight:500;text-align:right;color:var(--ink-muted);">18.2%</span>
 </div>
@@ -362,7 +362,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Cluster</span>
     </div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Sofitel Cairo Downtown Nile</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor</div>
@@ -370,11 +370,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3.1K</span>
   <span style="text-align:right;color:var(--red);">0.5%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:100%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:100%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Fairmont Nile City, Cairo</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor</div>
@@ -382,11 +382,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3.0K</span>
   <span style="text-align:right;color:var(--red);">0.4%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:95%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:95%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">DoubleTree by Hilton Sharm El Sheikh - Sharm Bay</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -394,11 +394,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.8K</span>
   <span style="text-align:right;color:var(--red);">0.1%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:58%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:58%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Hilton Cairo Nile Maadi</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -406,11 +406,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.7K</span>
   <span style="text-align:right;color:var(--red);">0.2%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:53%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:53%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Holiday Inn NYC - Lower East Side by IHG</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG</div>
@@ -418,11 +418,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.6K</span>
   <span style="text-align:right;color:var(--red);">20.1%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#C0392B1A;color:#C0392B;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Connectivity Issue</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#E8000D1A;color:#E8000D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Connectivity Issue</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:50%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:50%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Waldorf Astoria Dubai Palm Jumeirah</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -430,11 +430,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.6K</span>
   <span style="text-align:right;color:var(--red);">5.5%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:50%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:50%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Hilton London Metropole</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -442,11 +442,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.4K</span>
   <span style="text-align:right;color:var(--red);">0.9%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:44%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:44%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Hyatt Place Charlotte Downtown</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt</div>
@@ -454,11 +454,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.4K</span>
   <span style="text-align:right;color:var(--red);">86.5%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#C0392B1A;color:#C0392B;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Connectivity Issue</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#E8000D1A;color:#E8000D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Connectivity Issue</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:43%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:43%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Waldorf Astoria Ras Al Khaimah</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -466,11 +466,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.3K</span>
   <span style="text-align:right;color:var(--red);">2.3%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:42%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:42%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 150px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Holiday Inn Resort Orlando - Lake Buena Vista by IHG</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG</div>
@@ -478,9 +478,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">1.2K</span>
   <span style="text-align:right;color:var(--red);">0.9%</span>
   <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#A86A1D1A;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
+  <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#14304A1A;color:#14304A;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Monetization Failure</span></span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:38%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:38%;background:#F8A0A0;"></div></div>
 
   </div>
   <div class="detail-callout">
@@ -511,7 +511,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Cluster</span>
     </div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Paris Las Vegas Resort &amp; Casino</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Caesars Entertainment</div>
@@ -522,9 +522,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">9.693</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:100%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:100%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Rio Hotel &amp; Casino</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt</div>
@@ -535,9 +535,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">8.943</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:93%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:93%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Las Vegas Hilton at Resorts World</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -548,9 +548,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">209</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:70%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:70%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Conrad Las Vegas at Resorts World</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton</div>
@@ -561,9 +561,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">673</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:43%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:43%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Crowne Plaza Toronto Airport by IHG</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG</div>
@@ -574,9 +574,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">364</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:40%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:40%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Universal&#x27;s Cabana Bay Beach Resort</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Universal</div>
@@ -587,9 +587,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">6.213</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:40%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:40%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Holiday Inn Manhattan 6th Ave - Chelsea by IHG</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG</div>
@@ -600,9 +600,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">3.121</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:37%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:37%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Paradise Village Beach Resort</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent</div>
@@ -613,9 +613,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">66.351</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:37%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:37%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">InterContinental London Park Lane by IHG</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG</div>
@@ -626,9 +626,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">4.781</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:33%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:33%;background:#2A5070;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #FBF0DD;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px 150px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF1F5;font-size:13px;">
   <div>
     <div style="font-weight:500;color:var(--ink);">Universal&#x27;s Endless Summer Resort - Dockside Inn and Suites</div>
     <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Universal</div>
@@ -639,7 +639,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">5.455</span>
   <span style="text-align:right;"><span style="display:inline-block;padding:2px 8px;background:#8A83771A;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Low Priority</span></span>
 </div>
-<div style="height:4px;background:#FBF0DD;margin-bottom:2px;"><div style="height:100%;width:32%;background:#D4A574;"></div></div>
+<div style="height:4px;background:#EDF1F5;margin-bottom:2px;"><div style="height:100%;width:32%;background:#2A5070;"></div></div>
 
   </div>
   <div class="detail-callout">
@@ -810,7 +810,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Total Críticos+</span>
     </div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">IHG</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">1698 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">0</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">38</span>
@@ -818,9 +818,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">556</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">211</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:100%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:100%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Hyatt</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">385 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">18</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">9</span>
@@ -828,9 +828,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">40</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">34</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:16%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:16%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">AA-Independent</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">223 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">3</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">9</span>
@@ -838,9 +838,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">21</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">24</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:11%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:11%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Accor</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">223 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">3</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">5</span>
@@ -848,9 +848,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">41</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">17</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:8%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:8%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Melia</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">13 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">2</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">2</span>
@@ -858,9 +858,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">2</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">7</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:3%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:3%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">BH Hoteles</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">7 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">2</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">4</span>
@@ -868,9 +868,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">0</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">7</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:3%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:3%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Universal</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">10 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">0</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">0</span>
@@ -878,9 +878,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">4</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">6</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Hilton</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">1178 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">2</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">0</span>
@@ -888,9 +888,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">68</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">5</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Iberostar</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">12 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">3</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">1</span>
@@ -898,9 +898,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">2</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">5</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:2%;background:#F8A0A0;"></div></div>
 
-<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FAE8E8;font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 60px 60px 60px 60px 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #FDE8E8;font-size:13px;">
   <div><div style="font-weight:500;">Marriott</div><div style="font-size:10px;color:var(--ink-muted);margin-top:2px;">10 hoteles HTS</div></div>
   <span style="text-align:right;font-weight:700;color:#161616;">0</span>
   <span style="text-align:right;font-weight:700;color:var(--accent);">1</span>
@@ -908,7 +908,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--ink-muted);">0</span>
   <span style="text-align:right;font-weight:700;color:var(--red);">4</span>
 </div>
-<div style="height:4px;background:#FAE8E8;margin-bottom:2px;"><div style="height:100%;width:1%;background:#E8B4B4;"></div></div>
+<div style="height:4px;background:#FDE8E8;margin-bottom:2px;"><div style="height:100%;width:1%;background:#F8A0A0;"></div></div>
 
   </div>
   <div class="pull-note" style="margin-top:36px;">
@@ -944,7 +944,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">209</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -956,7 +956,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">342</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:61%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:61%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -968,7 +968,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">364</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:57%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:57%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -980,7 +980,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">392</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:53%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:53%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -992,7 +992,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">2</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">673</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:62%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:62%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -1004,7 +1004,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">3</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">781</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:80%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:80%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -1016,7 +1016,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">835</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:25%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:25%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -1028,7 +1028,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">841</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:24%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:24%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -1040,7 +1040,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">914</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#7DCEC6;"></div></div>
 
 <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--paper-soft);font-size:13px;">
   <div>
@@ -1052,7 +1052,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;">1</span>
   <span style="text-align:right;font-weight:700;color:var(--green);">932</span>
 </div>
-<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#A8C4A2;"></div></div>
+<div style="height:4px;background:var(--paper-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#7DCEC6;"></div></div>
 
   </div>
   <div class="pull-note">
