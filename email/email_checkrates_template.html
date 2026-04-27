@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Supply Optimization · Reporte CheckRates Week-16</title>
+<title>Supply Optimization · Reporte CheckRates Week-{{WEEK_NUM}}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -174,16 +174,16 @@
   <!-- Body -->
   <div class="body">
 
-    <div class="label-tag">CheckRates · Week-16</div>
+    <div class="label-tag">CheckRates · Week-{{WEEK_NUM}}</div>
 
-    <div class="subject-line">Supply Optimization<br>Reporte CheckRates Week-16</div>
+    <div class="subject-line">Supply Optimization<br>Reporte CheckRates Week-{{WEEK_NUM}}</div>
 
     <p class="body-text">
-      Compartimos Reporte de CheckRates Week-16. Datos obtenidos de los CheckRates generados por Wholesale sobre el inventario de Hoteles.
+      Compartimos Reporte de CheckRates Week-{{WEEK_NUM}}. Datos obtenidos de los CheckRates generados por Wholesale sobre el inventario de Hoteles.
     </p>
 
     <div class="cta-wrap">
-      <a href="#" class="cta-btn">Ver reporte →</a>
+      <a href="{{LINK_REPORTE}}" class="cta-btn">Ver reporte →</a>
     </div>
 
     <div class="credentials">
@@ -199,21 +199,39 @@
         <li>Severity <span class="sep">·</span> Eficacia</li>
         <li>Severity <span class="sep">·</span> Conv Rate</li>
         <li>Hoteles Críticos <span class="sep">·</span> Eficacia + Conv Rate</li>
-        <li>Bajo Rendimiento <span class="sep">·</span> Top 10</li>
-        <li>Por Corporativo <span class="sep">·</span> Top 10</li>
+        <li>Bajo Rendimiento <span class="sep">·</span> Top 5</li>
+        <li>Por Corporativo <span class="sep">·</span> Top 5</li>
         <li>Severity por Corporativo</li>
-        <li>Menor Conv Rate <span class="sep">·</span> Top 10</li>
+        <li>Menor Conv Rate <span class="sep">·</span> Top 5</li>
         <li>Plan de acción</li>
         <li>Misma estructura por Canasta <span class="sep">·</span> B2C <span class="sep">·</span> OP <span class="sep">·</span> UOP</li>
       </ul>
     </div>
 
+
+    <div class="content-section">
+      <div class="content-label">Destinatarios</div>
+      <ul class="content-list">
+        <li>Rafael Durand Gutierrez <span class="sep">·</span> <a href="mailto:rafael.durand@pricetravel.com" style="color:#888;text-decoration:none;">rafael.durand@pricetravel.com</a></li>
+        <li>Bellanira Hernandez Garcia <span class="sep">·</span> <a href="mailto:bellanira.hernandez@pricetravel.com" style="color:#888;text-decoration:none;">bellanira.hernandez@pricetravel.com</a></li>
+        <li>Maria Alejandra Rico <span class="sep">·</span> <a href="mailto:maria.rico@pricetravel.com" style="color:#888;text-decoration:none;">maria.rico@pricetravel.com</a></li>
+        <li>Javier Parra Ladrón de Guevara <span class="sep">·</span> <a href="mailto:javier.parra@pricetravel.com" style="color:#888;text-decoration:none;">javier.parra@pricetravel.com</a></li>
+        <li>Alonso Mis Perez <span class="sep">·</span> <a href="mailto:alonso.mis@pricetravel.com" style="color:#888;text-decoration:none;">alonso.mis@pricetravel.com</a></li>
+        <li>Ingrid Dayanna Hernandez Kuhnne <span class="sep">·</span> <a href="mailto:ingrid.kuhnne@pricetravel.com" style="color:#888;text-decoration:none;">ingrid.kuhnne@pricetravel.com</a></li>
+        <li>David Carrillo Gamboa <span class="sep">·</span> <a href="mailto:david.gamboa@pricetravel.com" style="color:#888;text-decoration:none;">david.gamboa@pricetravel.com</a></li>
+        <li>Hugo Iván Ascencio Martínez <span class="sep">·</span> <a href="mailto:hugo.ascencio@pricetravel.com" style="color:#888;text-decoration:none;">hugo.ascencio@pricetravel.com</a></li>
+        <li>Ext Jesus Lizarraga <span class="sep">·</span> <a href="mailto:ext.jesus.lizarraga@pricetravel.com" style="color:#888;text-decoration:none;">ext.jesus.lizarraga@pricetravel.com</a></li>
+        <li>Alejandro Flores <span class="sep">·</span> <a href="mailto:alejandro.flores@pricetravel.com" style="color:#888;text-decoration:none;">alejandro.flores@pricetravel.com</a></li>
+        <li>Gabriela Guerra <span class="sep">·</span> <a href="mailto:gabriela.guerra@pricetravel.com" style="color:#888;text-decoration:none;">gabriela.guerra@pricetravel.com</a></li>
+        <li>Barbara Rodriguez <span class="sep">·</span> <a href="mailto:barbara.rodriguez@pricetravel.com" style="color:#888;text-decoration:none;">barbara.rodriguez@pricetravel.com</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- Footer -->
   <div class="footer">
     <span>Supply Optimization · PriceTravel</span>
-    <span>Week 16 · 2026</span>
+    <span>Week {{WEEK_NUM}} · 2026</span>
   </div>
 
 </div>
