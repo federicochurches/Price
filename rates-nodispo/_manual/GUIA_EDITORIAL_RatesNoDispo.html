@@ -2,26 +2,19 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guía Editorial · Supply Rates No Dispo · v5.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
-  --rule:#C9C1B0;--rule-soft:#D9D2C1;
-  --accent:#5C469C;--accent-soft:#EDE8F7;
-  --amber:#EA0074;--amber-soft:#FCE4F1;
-  --green:#4FC3F4;--green-soft:#E8F7FD;
-  --red:#C0392B;--red-soft:#FDECEA;
-  --verde:#2E7D32;--verde-soft:#E8F5E9;
-  --maxw:960px;
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;}
+:root{--paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;--rule:#C9C1B0;--accent:#5C469C;--accent-soft:#EDE8F7;--amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;--red:#C0392B;--maxw:980px;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
 .shell{max-width:var(--maxw);margin:0 auto;padding:0 40px 80px;}
 .guide-tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px;}
 .hero h1{font-size:clamp(36px,5vw,58px);font-weight:700;letter-spacing:-.025em;line-height:1.05;margin:0 0 12px;}
 .hero h1 em{color:var(--amber);font-style:normal;}
 .hero p{font-size:15px;color:var(--ink-soft);max-width:56ch;margin-bottom:0;}
 hr.rule{border:none;border-top:2px solid var(--ink);margin:40px 0;}
+hr.soft{border:none;border-top:1px solid var(--rule);margin:28px 0;}
 section{margin-bottom:48px;}
 h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0 0 20px;padding-bottom:10px;border-bottom:2px solid var(--accent);}
 h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:24px 0 10px;}
@@ -31,184 +24,298 @@ thead th{background:var(--ink);color:#fff;padding:9px 12px;text-align:left;font-
 tbody tr:nth-child(even){background:var(--paper-soft);}
 td{padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top;}
 td:first-child{font-weight:600;font-family:monospace;font-size:12px;color:var(--accent);white-space:nowrap;}
-.note{padding:16px 20px;background:var(--paper-soft);border-left:3px solid var(--amber);font-size:13px;color:var(--ink-soft);margin:16px 0;}
+.note{padding:16px 20px;background:var(--paper-soft);border-left:3px solid var(--accent);font-size:13px;color:var(--ink-soft);margin:16px 0;}
 .note strong{color:var(--ink);}
-.swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:middle;border:1px solid rgba(0,0,0,.1);}
+.new{display:inline-block;background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:2px;text-transform:uppercase;letter-spacing:.08em;margin-left:6px;vertical-align:middle;}
+.ph{font-family:monospace;font-size:12px;background:var(--paper-soft);padding:16px 20px;border-left:3px solid var(--accent);line-height:2.2;}
+.ph span{color:var(--accent);font-weight:700;}
+.swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+.el{font-family:monospace;font-size:11px;background:var(--accent-soft);color:var(--accent);padding:2px 6px;border-radius:3px;font-weight:600;}
 footer{border-top:2px solid var(--ink);padding:28px 0 0;font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em;}
-.canasta-b2c{color:var(--amber);font-weight:700;}
-.canasta-op{color:var(--green);font-weight:700;}
-.canasta-cug{color:var(--accent);font-weight:700;}
 </style>
 </head>
 <body>
 <div class="shell">
-<hr class="rule">
-<div class="hero" style="padding:40px 0 32px;">
-  <div class="guide-tag">Guía Editorial · v5.0 · PRICE Analytics Desk</div>
-  <h1>Rates <em>No Dispo</em><br>Editorial Guide</h1>
-  <p>Nomenclatura, vocabulario, diseño, estructura, métricas, reglas de canasta y plan de acción para el reporte semanal de Supply Rates No Dispo · PriceTravel Analytics Desk.</p>
+<div style="padding:32px 0 0;">
+  <span class="guide-tag">Guía Editorial · v5.0 · Abr 2026</span>
+  <div class="hero">
+    <h1>Supply Rates<br>No Dispo<br><em>Editorial Guide.</em></h1>
+    <p>Nomenclatura, vocabulario, diseño, estructura, métricas, colores de canasta, reglas de análisis y estructura de repositorio para el reporte semanal de Supply Rates No Dispo · PriceTravel Analytics Desk.</p>
+  </div>
 </div>
 <hr class="rule">
 
+<!-- 01 NOMENCLATURA -->
 <section>
-<h2>01 · Sistema de Colores</h2>
-<p>El reporte usa un sistema de colores fijo. <strong>Nunca mezclar colores entre canastas.</strong></p>
+<h2>01 · Nomenclatura de secciones</h2>
 <table>
-  <thead><tr><th>Elemento</th><th>Color</th><th>Hex</th><th>CSS Var</th></tr></thead>
-  <tbody>
-    <tr><td>Canasta B2C</td><td><span class="swatch" style="background:#EA0074"></span>Pink</td><td>#EA0074</td><td>var(--amber)</td></tr>
-    <tr><td>Canasta OP</td><td><span class="swatch" style="background:#4FC3F4"></span>Celeste</td><td>#4FC3F4</td><td>var(--green)</td></tr>
-    <tr><td>Canasta CUG</td><td><span class="swatch" style="background:#5C469C"></span>Violeta</td><td>#5C469C</td><td>var(--accent)</td></tr>
-    <tr><td>Delta ▲ bueno (RPM sube)</td><td><span class="swatch" style="background:#2E7D32"></span>Verde</td><td>#2E7D32</td><td>--verde</td></tr>
-    <tr><td>Delta ▼ malo (RPM baja)</td><td><span class="swatch" style="background:#C0392B"></span>Rojo</td><td>#C0392B</td><td>--red</td></tr>
-    <tr><td>Bajo Rendimiento (toda la sección)</td><td><span class="swatch" style="background:#5C469C"></span>Violeta</td><td>#5C469C</td><td>var(--accent)</td></tr>
-    <tr><td>Plan Acción QW</td><td><span class="swatch" style="background:#E3F2FD"></span>Azul cielo</td><td>#E3F2FD</td><td>fondo inline</td></tr>
-    <tr><td>Plan Acción MP</td><td><span class="swatch" style="background:#FCE4F1"></span>Pink suave</td><td>var(--amber-soft)</td><td>fondo inline</td></tr>
-    <tr><td>Plan Acción ES</td><td><span class="swatch" style="background:#EDE8F7"></span>Violeta suave</td><td>var(--accent-soft)</td><td>fondo inline</td></tr>
-    <tr><td>COD en plan (texto)</td><td><span class="swatch" style="background:#161616"></span>Negro</td><td>#161616</td><td>var(--ink)</td></tr>
-  </tbody>
-</table>
-<div class="note"><strong>Regla crítica:</strong> Los colores de los delta badges (▲▼) NO aplican al COD del Plan de Acción. El COD es siempre negro — el tipo se distingue por el fondo de la fila.</div>
-</section>
-
-<section>
-<h2>02 · Vocabulario Canónico</h2>
-<p>Términos fijos que deben usarse exactamente como se indica. No parafrasear.</p>
-<table>
-  <thead><tr><th>Usar</th><th>Nunca usar</th></tr></thead>
-  <tbody>
-    <tr><td>No Dispo</td><td>NoDispo, no-dispo, no disponibilidad</td></tr>
-    <tr><td>% de No Dispo</td><td>%NoDispo, % NoDispo</td></tr>
-    <tr><td>Conv Rate RPM</td><td>Conversion Rate, tasa de conversión</td></tr>
-    <tr><td>Revisión Comercial y Conectividad</td><td>Escalamiento Supply y conectividad API, stop sales</td></tr>
-    <tr><td>Bloqueos por Agencia</td><td>hoteles bloqueados por agencia</td></tr>
-    <tr><td>Validar Bloqueos por Agencia y corregir que las agencias consulten producto que tienen bloqueado</td><td>Validar hoteles bloqueados por agencia — evitar que agencias consulten...</td></tr>
-    <tr><td>Shop de Eficiencia de Pseudo Netas vs Expedia, Hotelbeds y Hotel Único</td><td>Shop de Paridad, Shopping de Eficiencia (sin el resto)</td></tr>
-    <tr><td>Revisión Comercial y Conectividad</td><td>Escalamiento inmediato Supply</td></tr>
-    <tr><td>· (punto medio)</td><td>— (guion largo) en títulos y findings</td></tr>
-    <tr><td>benchmark global: 2.60</td><td>vs 2.60, benchmark 2.60 (sin contexto)</td></tr>
-    <tr><td>Canasta B2C / Canasta OP / Canasta CUG</td><td>B2C, OP, CUG (sin "Canasta" en títulos)</td></tr>
-  </tbody>
+<thead><tr><th>Sección</th><th>ID HTML</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>SEC_01_RESUMEN</td><td>id="resumen"</td><td>Resumen Ejecutivo · Top 10 Findings</td></tr>
+<tr><td>SEC_02_SEVERITY</td><td>id="severity"</td><td>Severity · % No Dispo</td></tr>
+<tr><td>SEC_03_DEMANDA</td><td>id="demanda"</td><td>Demanda No Convertida · Top 10</td></tr>
+<tr><td>SEC_04_BAJO_REND</td><td>id="bajo"</td><td>Bajo Rendimiento · Top 10 · color violeta var(--accent)</td></tr>
+<tr><td>SEC_05_CORPORATIVO</td><td>id="corporativo"</td><td>Por Corporativo · Top 10 · 0 Bookings</td></tr>
+<tr><td>SEC_06_DESTINO</td><td>id="destino"</td><td>Por Destino · Top 10</td></tr>
+<tr><td>SEC_07_PAIS</td><td>id="pais"</td><td>Por País · Top 10</td></tr>
+<tr><td>SEC_08_PLAN</td><td>id="plan"</td><td>Plan de Acción</td></tr>
+<tr><td>SEC_09_CANASTAS</td><td>id="sec_canastas"</td><td>Análisis por Canasta · tabla comparativa B2C · OP · CUG</td></tr>
+<tr><td>SEC_10_B2C</td><td>id="canasta_B2C"</td><td>Canasta B2C · color pink var(--amber)</td></tr>
+<tr><td>SEC_11_OP</td><td>id="canasta_B2B_OP"</td><td>Canasta OP · color celeste var(--green)</td></tr>
+<tr><td>SEC_12_CUG</td><td>id="canasta_CUG_UOP"</td><td>Canasta CUG · color violeta var(--accent)</td></tr>
+</tbody>
 </table>
 </section>
 
+<hr class="soft">
+
+<!-- 02 VOCABULARIO -->
 <section>
-<h2>03 · Estructura de Secciones</h2>
+<h2>02 · Vocabulario aprobado</h2>
 <table>
-  <thead><tr><th>#</th><th>ID</th><th>Título</th><th>Notas</th></tr></thead>
-  <tbody>
-    <tr><td>01</td><td>resumen</td><td>Resumen Ejecutivo · Top 10 Findings</td><td>10 findings con barra + badge</td></tr>
-    <tr><td>02</td><td>severity</td><td>Severity · % No Disponibilidad</td><td>padding-top:80px</td></tr>
-    <tr><td>03</td><td>demanda</td><td>Demanda No Convertida · Top 10</td><td>Ordenado por tráfico ↓</td></tr>
-    <tr><td>04</td><td>bajo</td><td>Bajo Rendimiento · Top 10</td><td>Todo en violeta · Bkgs&gt;0 · %NoDispo&gt;5%</td></tr>
-    <tr><td>05</td><td>corporativo</td><td>Por Corporativo · Top 10</td><td>0 bkgs · n≥3 hoteles · ordenado por tráfico ↓</td></tr>
-    <tr><td>06</td><td>destino</td><td>Por Destino · Top 10</td><td>Tráfico · Conv RPM · % No Dispo · GB</td></tr>
-    <tr><td>07</td><td>pais</td><td>Por País · Top 10</td><td>Mismas columnas que Destino</td></tr>
-    <tr><td>08</td><td>plan</td><td>Plan de Acción</td><td>QW1-QW6 · MP1-MP6 · ES2 · padding-bottom:80px</td></tr>
-    <tr><td>09</td><td>sec_canastas</td><td>Análisis por Canasta</td><td>Bajada: "Canastas: B2C · B2B Opaco · CUG"</td></tr>
-    <tr><td>10</td><td>canasta_B2C</td><td>Canasta B2C</td><td>padding-top:80px · color: var(--amber)</td></tr>
-    <tr><td>11</td><td>canasta_B2B_OP</td><td>Canasta OP</td><td>padding-top:80px · color: var(--green)</td></tr>
-    <tr><td>12</td><td>canasta_CUG_UOP</td><td>Canasta CUG</td><td>padding-top:80px · color: var(--accent)</td></tr>
-  </tbody>
+<thead><tr><th>Usar</th><th>Significado</th><th>No usar nunca</th></tr></thead>
+<tbody>
+<tr><td>Tráfico</td><td>Shopping searches XML Wholesale</td><td>Búsquedas, Sesiones</td></tr>
+<tr><td>Bookings</td><td>Reservas confirmadas</td><td>Conversiones, Ventas</td></tr>
+<tr><td>No Dispo</td><td>% búsquedas sin respuesta (con espacio)</td><td>NoDispo (sin espacio), Fill Rate</td></tr>
+<tr><td>Conv Rate · RPM</td><td>Reservas Por Millón = Bookings / Tráfico × 1.000.000</td><td>Tasa de conversión, 0.00002%</td></tr>
+<tr><td>GB</td><td>Gross Bookings en USD</td><td>Revenue, Ingresos</td></tr>
+<tr><td>Demanda No Convertida</td><td>Hoteles con 0 bookings en la muestra</td><td>Fugas, Leakage</td></tr>
+<tr><td>Bajo Rendimiento</td><td>Hoteles con % No Dispo ≥ 5.3%, Bookings > 0</td><td>Underperformers</td></tr>
+<tr><td>Revisión Comercial y Conectividad</td><td>Acción para hoteles con No Dispo crítica</td><td>Escalamiento Supply y conectividad API, stop sales</td></tr>
+<tr><td>Bloqueos por Agencia</td><td>Hoteles bloqueados para ciertas agencias</td><td>Hoteles bloqueados por agencia —...</td></tr>
+<tr><td>Validar Bloqueos por Agencia y corregir que las agencias consulten producto que tienen bloqueado</td><td>Acción Wholesale completa</td><td>Validar hoteles bloqueados por agencia — evitar que...</td></tr>
+<tr><td>Supply y Supply Optimization</td><td>Responsable en QW1 · QW2 · QW3</td><td>Solo Supply Optimization</td></tr>
+<tr><td>Week {{N}}</td><td>Número de semana ISO</td><td>Análisis semanal, Semana del...</td></tr>
+<tr><td>· (punto medio)</td><td>Separador en texto corrido y títulos</td><td>— (guion largo) en texto de findings</td></tr>
+</tbody>
 </table>
 </section>
 
+<hr class="soft">
+
+<!-- 03 SISTEMA DE COLOR -->
 <section>
-<h2>04 · Reglas de Canasta</h2>
-<h3>Filtros obligatorios</h3>
+<h2>03 · Sistema de color <span class="new">v5</span></h2>
+<h3>CSS Variables globales</h3>
 <table>
-  <thead><tr><th>Finding</th><th>Filtro</th><th>Orden</th></tr></thead>
-  <tbody>
-    <tr><td>F1 — Conv Rate RPM</td><td>P80 del dataset total</td><td>RPM canasta vs benchmark 2.60</td></tr>
-    <tr><td>F2 — GB + Bookings</td><td>P80</td><td>GB WoW · Bkgs WoW · share de bookings totales</td></tr>
-    <tr><td>F3 — Corp menor RPM</td><td>P80 · n≥3 hoteles · bkgs≥5</td><td>RPM ↑ (peor primero) · 4 corps</td></tr>
-    <tr><td>F4 — Hotel mayor No Dispo</td><td>Tráfico ≥ 500K</td><td>%NoDispo ↓ · 3 hoteles</td></tr>
-    <tr><td>F5 — Destino menor RPM</td><td>P80 · n≥5 hoteles · bkgs≥5</td><td>RPM ↑ · 4 destinos · con WoW donde disponible</td></tr>
-  </tbody>
+<thead><tr><th>Variable</th><th>Hex</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>--amber</td><td><span class="swatch" style="background:#EA0074;"></span>#EA0074</td><td>Canasta B2C · Hero accent · badges alertas</td></tr>
+<tr><td>--accent</td><td><span class="swatch" style="background:#5C469C;"></span>#5C469C</td><td>Canasta CUG · Bajo Rendimiento · MP actions · ES actions</td></tr>
+<tr><td>--green</td><td><span class="swatch" style="background:#4FC3F4;"></span>#4FC3F4</td><td>Canasta OP</td></tr>
+<tr><td>--red / delta negativo</td><td><span class="swatch" style="background:#C0392B;"></span>#C0392B</td><td>Deltas malos · No Dispo sube · RPM baja</td></tr>
+<tr><td>--verde delta positivo</td><td><span class="swatch" style="background:#2E7D32;"></span>#2E7D32</td><td>Deltas buenos · RPM sube · No Dispo baja</td></tr>
+</tbody>
 </table>
-<h3>Reglas de delta WoW</h3>
-<p><strong>RPM:</strong> ▲ sube = verde (bueno) · ▼ baja = rojo (malo)</p>
-<p><strong>No Dispo:</strong> ▲ sube = rojo (malo) · ▼ baja = verde (bueno)</p>
-<p><strong>GB:</strong> ▲ sube = verde (bueno) · ▼ baja = rojo (malo)</p>
-<p><strong>0 Bkgs:</strong> ▲ sube = rojo (malo) · ▼ baja = verde (bueno)</p>
-<p><strong>F4 No Dispo:</strong> Sin delta WoW si el hotel no estuvo en W anterior (outlier de comparación).</p>
-<h3>Formato de card en findings F3-F5</h3>
-<p>Nombre principal: 16px · color de canasta. Valor: 13px · var(--ink-muted). Delta WoW: badge verde/rojo inline. Corporativos secundarios: 12px · nombre en color canasta · valor en gris · delta badge. Benchmark solo en el principal: "· benchmark global: 2.60".</p>
-<h3>WoW por canasta</h3>
-<p>Disponible desde el Excel de la semana anterior (hojas: Canasta B2C · Canasta OP · Canasta UOP). Para W18 verificar que el Excel tenga las 4 hojas. P80 W16: tráfico ≥ percentil 80 del dataset Canasta ALL.</p>
-</section>
 
-<section>
-<h2>05 · Plan de Acción</h2>
-<h3>Codificación de acciones</h3>
+<h3>Colores por Canasta — regla estricta</h3>
+<div class="note"><strong>Regla:</strong> Cada elemento visual dentro de una sección de canasta usa EXCLUSIVAMENTE el color de esa canasta. Nombres, barras, badges, bordes, headers de tabla. Nunca mezclar colores de canasta.</div>
 <table>
-  <thead><tr><th>Código</th><th>Tipo</th><th>Fondo</th><th>Plazo</th></tr></thead>
-  <tbody>
-    <tr><td>QW1-QWn</td><td>Quick Win</td><td>#E3F2FD (azul cielo)</td><td>&lt;7 días</td></tr>
-    <tr><td>MP1-MPn</td><td>Medium Priority</td><td>var(--amber-soft) pink</td><td>2-4 semanas</td></tr>
-    <tr><td>ES1-ESn</td><td>Estratégico</td><td>var(--accent-soft) violeta</td><td>Trimestre</td></tr>
-  </tbody>
+<thead><tr><th>Canasta</th><th>Color principal</th><th>Fondo soft</th></tr></thead>
+<tbody>
+<tr><td>B2C</td><td>var(--amber) · #EA0074</td><td>var(--amber-soft) · #FCE4F1</td></tr>
+<tr><td>OP</td><td>var(--green) · #4FC3F4</td><td>var(--green-soft) · #E8F7FD</td></tr>
+<tr><td>CUG</td><td>var(--accent) · #5C469C</td><td>var(--accent-soft) · #EDE8F7</td></tr>
+</tbody>
 </table>
-<h3>Acciones W17 establecidas (Plan General)</h3>
-<p>QW1 Auditoría end-to-end top 10 · QW2 Resolver Súper Críticos · QW3 Deep-dive Marriott · QW4 Shop de Eficiencia Pseudo Netas vs Expedia/Hotelbeds/Hotel Único · QW5 Deep dive Canasta B2C Bloqueos por Agencia · QW6 Top 5 Demanda No Convertida B2C = 100% US · MP1 Revisión Muy Críticos + Súper Críticos · MP2 Accor París · MP3 Riviera Nayarit/Puerto Vallarta · MP4 Conv Rate RPM NY/Orlando/Miami · MP5 Hoteles No Dispo crítica ≥500K · MP6 Deep dive RPM París/Istanbul/Río · ES2 Alerta automática No Dispo &gt;80%.</p>
-<h3>Responsables</h3>
-<p>QW1: Supply y Supply Optimization · QW2: Supply y Supply Optimization · QW3: Supply · QW4: Supply y Wholesale · QW5: Wholesale · QW6: Supply · MP: Supply Optimization / Wholesale según aplique · ES: Supply Optimization.</p>
-</section>
 
-<section>
-<h2>06 · Columnas por Sección</h2>
+<h3>Plan de Acción — colores de fondo</h3>
 <table>
-  <thead><tr><th>Sección</th><th>Columnas</th><th>Orden</th></tr></thead>
-  <tbody>
-    <tr><td>Demanda No Convertida</td><td>Hotel · Tráfico · % de No Dispo · Bkgs · Cluster</td><td>Tráfico ↓</td></tr>
-    <tr><td>Bajo Rendimiento</td><td>Hotel · Tráfico · % de No Dispo · Bkgs · Conv RPM · GB · Cluster</td><td>RPM ↑ · Bkgs&gt;0 · %NoDispo&gt;5%</td></tr>
-    <tr><td>Por Corporativo (global)</td><td>Tráfico · Bkgs · Conv RPM · % No Dispo · GB</td><td>Tráfico ↓ · 0 bkgs · n≥3</td></tr>
-    <tr><td>Por Destino (global)</td><td>Tráfico · Conv RPM · % No Dispo · GB</td><td>Tráfico ↓</td></tr>
-    <tr><td>Por País (global)</td><td>Tráfico · Conv RPM · % No Dispo · GB</td><td>Tráfico ↓</td></tr>
-    <tr><td>Por Corp/Destino/País (canasta)</td><td>Tráfico · Conv RPM · % No Dispo · GB</td><td>Tráfico ↓</td></tr>
-  </tbody>
+<thead><tr><th>Tipo</th><th>COD</th><th>Fondo fila</th><th>Color COD</th></tr></thead>
+<tbody>
+<tr><td>QW (Quick Win)</td><td>QW1–QW6</td><td>#E3F2FD azul cielo</td><td>var(--ink) negro</td></tr>
+<tr><td>MP (Medium Priority)</td><td>MP1–MP6</td><td>var(--amber-soft) pink</td><td>var(--ink) negro</td></tr>
+<tr><td>ES (Estratégico)</td><td>ES1–ES2</td><td>var(--paper-soft) neutro</td><td>var(--ink) negro</td></tr>
+</tbody>
 </table>
+<div class="note"><strong>Importante:</strong> El color de fondo de los action items viene del CSS class. Usar style inline para garantizar que no sea pisado por otras reglas: <span class="el">style="background:#E3F2FD;"</span> directamente en el div.</div>
 </section>
 
+<hr class="soft">
+
+<!-- 04 REGLAS DE ANÁLISIS -->
 <section>
-<h2>07 · Benchmark y Métricas Clave W17</h2>
+<h2>04 · Reglas de análisis por sección <span class="new">v5</span></h2>
+
+<h3>Muestra · P80</h3>
 <table>
-  <thead><tr><th>Métrica</th><th>Valor W17</th><th>Notas</th></tr></thead>
-  <tbody>
-    <tr><td>RPM benchmark global</td><td>2.60 RPM</td><td>P80 · semana 21-27 Apr 2026</td></tr>
-    <tr><td>No Dispo benchmark</td><td>3.6%</td><td>Promedio P80</td></tr>
-    <tr><td>GB total P80</td><td>$8.57M</td><td>Suma 3 canastas</td></tr>
-    <tr><td>Bookings P80</td><td>37.654</td><td>B2C 1.603 · OP 20.268 · CUG 15.783</td></tr>
-    <tr><td>Hoteles P80</td><td>45.310</td><td>Threshold &gt;95K búsquedas</td></tr>
-    <tr><td>RPM Canasta B2C</td><td>0.81 RPM (31%)</td><td>Canal con mayor oportunidad</td></tr>
-    <tr><td>RPM Canasta OP</td><td>2.22 RPM (85%)</td><td>Cerca del benchmark</td></tr>
-    <tr><td>RPM Canasta CUG</td><td>2.92 RPM (112%)</td><td>Por encima del benchmark</td></tr>
-    <tr><td>GB Canasta B2C</td><td>$0.34M · 4.0% share</td><td>▲+1.7% WoW · 4.3% bkgs</td></tr>
-    <tr><td>GB Canasta OP</td><td>$4.25M · 49.6% share</td><td>▼-5.1% WoW · 53.8% bkgs</td></tr>
-    <tr><td>GB Canasta CUG</td><td>$3.98M · 46.4% share</td><td>▼-6.9% WoW · 41.9% bkgs</td></tr>
-  </tbody>
+<thead><tr><th>Regla</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>Filtro muestra general</td><td>Tráfico ≥ Percentil 80 del dataset total</td></tr>
+<tr><td>Filtro canastas B2C · OP · CUG</td><td>Mismos hoteles del P80 general — intersección por nombre de hotel</td></tr>
+<tr><td>Benchmark global RPM</td><td>Calculado semanalmente: Bookings totales P80 / Tráfico total P80 × 1.000.000</td></tr>
+<tr><td>Benchmark No Dispo</td><td>Media de %NoDispo del dataset P80</td></tr>
+</tbody>
+</table>
+
+<h3>Columnas globales — Por Corporativo · Por Destino · Por País</h3>
+<p>Mismas columnas en secciones globales y en cada canasta: <strong>Tráfico · Conv RPM · % No Dispo · GB</strong> · ordenado por tráfico ↓</p>
+
+<h3>Bajo Rendimiento</h3>
+<p>Filtro: Bookings > 0 · % No Dispo > 5% · ordenado por Conv RPM ↑ · Top 10 · <strong>sin duplicados</strong> (drop_duplicates por Hotel+Corp antes de ordenar). Color: violeta <span class="el">var(--accent)</span> en toda la sección incluyendo bordes de tabla.</p>
+
+<h3>Resumen Ejecutivo General — 10 Findings</h3>
+<p>Formato: <strong>X.XX RPM vs benchmark Y.YY (ZZ%)</strong> · badges pink var(--amber) para alertas · celeste var(--green) para positivos.</p>
+
+<h3>Resumen Ejecutivo por Canasta — 5 Findings</h3>
+<table>
+<thead><tr><th>Finding</th><th>Contenido</th><th>Reglas</th></tr></thead>
+<tbody>
+<tr><td>F1</td><td>Conv Rate RPM de la canasta vs benchmark</td><td>Formato: "Canasta X: Y.YY RPM vs benchmark Z.ZZ (NN%)" · Sin mencionar % hoteles con 0 bookings · Mención Wholesale+Bloqueos solo en B2C y OP</td></tr>
+<tr><td>F2</td><td>GB + Bookings + WoW + share bookings</td><td>WoW calculado vs week anterior (W16 disponible) · Share = % de bookings propios sobre total 3 canastas · Delta badge verde si sube · rojo si baja</td></tr>
+<tr><td>F3</td><td>Corporativos con Conv Rate RPM más bajo</td><td>P80 · n≥3 hoteles · bkgs≥5 · 4 corps · formato card: nombre en color canasta · valor en gris · "X.XX RPM · benchmark global: Y.YY" · delta WoW badge (▲ sube=verde · ▼ baja=rojo)</td></tr>
+<tr><td>F4</td><td>Hotel con Mayor % No Dispo</td><td>Filtro tráfico ≥ 500K (evita outliers con 0 tráfico) · 3 hoteles · sin delta WoW (son outliers estadísticos) · descripción 1-2 líneas</td></tr>
+<tr><td>F5</td><td>Destinos con Menor Conv Rate RPM</td><td>n≥5 hoteles · bkgs≥5 · 4 destinos · delta WoW cuando disponible en W anterior · "X.XX RPM · benchmark global: Y.YY" · descripción 1-2 líneas</td></tr>
+</tbody>
+</table>
+
+<h3>Titulos de findings en canastas</h3>
+<div class="note">Nunca usar guion largo — en los títulos de findings. Usar punto seguido o · (punto medio) como separador.</div>
+
+<h3>Formato card en F3 · F4 · F5</h3>
+<p>Nombre principal: <span class="el">font-size:16px;font-weight:700;color:[color canasta]</span> · Valor: <span class="el">font-size:13px;color:var(--ink-muted)</span> · Delta: badge inline verde/rojo · Secundarios en div font-size:12px con mismo patrón nombre+valor.</p>
+</section>
+
+<hr class="soft">
+
+<!-- 05 SEVERITY -->
+<section>
+<h2>05 · Severity · % No Dispo</h2>
+<table>
+<thead><tr><th>Nivel</th><th>Rango</th><th>Acción</th></tr></thead>
+<tbody>
+<tr><td>Exitosa</td><td>0% – 3.8%</td><td>Monitoreo normal</td></tr>
+<tr><td>No Aceptable</td><td>3.8% – 5.3%</td><td>Monitoreo continuo</td></tr>
+<tr><td>Revisar</td><td>5.3% – 20%</td><td>Diagnóstico de causa &lt;72h</td></tr>
+<tr><td>Crítica</td><td>20% – 40%</td><td>Acción inmediata</td></tr>
+<tr><td>Muy Crítica</td><td>40% – 79%</td><td>Revisión Comercial y Conectividad</td></tr>
+<tr><td>Súper Crítica</td><td>80% – 99%</td><td>Urgente · escalamiento máximo</td></tr>
+</tbody>
 </table>
 </section>
 
+<hr class="soft">
+
+<!-- 06 PLAN DE ACCIÓN -->
 <section>
-<h2>08 · Reglas Editoriales</h2>
-<h3>Títulos y subtítulos</h3>
-<p>Sin guiones (—) en títulos de findings ni en sub-items. Usar punto seguido (.) o punto medio (·). El título del Resumen Ejecutivo de cada canasta dice solo "Resumen Ejecutivo" — sin repetir el nombre de la canasta.</p>
-<h3>Benchmark en F3</h3>
-<p>Solo en el corporativo principal: "· benchmark global: 2.60". Los secundarios muestran solo el RPM sin repetir el benchmark.</p>
-<h3>F4 No Dispo</h3>
-<p>Filtro tráfico ≥ 500K. Sin texto "(tráfico ≥ 500K)" visible al usuario. Sin delta WoW si el hotel cambió dramáticamente (outlier de comparación).</p>
-<h3>Share en F2</h3>
-<p>El share es % de bookings totales de las 3 canastas — no % de GB.</p>
-<h3>Secciones padding</h3>
-<p>padding-top:80px en: severity · demanda · bajo · corporativo · destino · pais · plan · canastas · cada canasta individual.</p>
-<h3>Plan de Acción</h3>
-<p>MP4 y siguientes van ANTES del bloque de Descarga. El bloque Descarga siempre al final dentro del section#plan.</p>
+<h2>06 · Plan de Acción — estructura <span class="new">v5</span></h2>
+<table>
+<thead><tr><th>COD</th><th>Tipo</th><th>Descripción</th><th>Responsable</th></tr></thead>
+<tbody>
+<tr><td>QW1</td><td>Quick Win</td><td>Auditoría end-to-end top 10 alto tráfico 0 bookings</td><td>Supply y Supply Optimization</td></tr>
+<tr><td>QW2</td><td>Quick Win</td><td>Resolver hoteles Súper Crítica No Dispo >80%</td><td>Supply y Supply Optimization</td></tr>
+<tr><td>QW3</td><td>Quick Win</td><td>Deep-dive corporativo principal</td><td>Supply y Supply Optimization</td></tr>
+<tr><td>QW4</td><td>Quick Win</td><td>Shop de Eficiencia de Pseudo Netas vs Expedia, Hotelbeds y Hotel Único</td><td>Wholesale</td></tr>
+<tr><td>QW5</td><td>Quick Win</td><td>Deep dive Canasta B2C · Bloqueos por Agencia</td><td>Wholesale</td></tr>
+<tr><td>QW6</td><td>Quick Win</td><td>Top 5 Demanda No Convertida B2C = 100% US</td><td>Supply</td></tr>
+<tr><td>MP1–MP6</td><td>Medium Priority</td><td>Deep dives por corporativo · destino · No Dispo crítica</td><td>Supply Optimization · Wholesale</td></tr>
+<tr><td>ES1–ES2</td><td>Estratégico</td><td>Automatización · alertas</td><td>Supply Optimization</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>VER EXCEL:</strong> El botón VER EXCEL siempre va DESPUÉS de todos los action items, nunca dentro de un div de acción. Path relativo: <span class="el">href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener"</span></div>
 </section>
 
-<footer>
-  <p>Guía Editorial RatesNoDispo · v5.0 · PRICE Analytics Desk · PriceTravel · Abril 2026</p>
-</footer>
+<hr class="soft">
+
+<!-- 07 ESTRUCTURA REPO -->
+<section>
+<h2>07 · Estructura de repositorio <span class="new">v5</span></h2>
+<table>
+<thead><tr><th>Path</th><th>Contenido</th></tr></thead>
+<tbody>
+<tr><td>PRICE/index.html</td><td>Hub de acceso · links a todos los reportes activos</td></tr>
+<tr><td>PRICE/_template/_TEMPLATE_Hub.html</td><td>Template del Hub</td></tr>
+<tr><td>PRICE/_docs/</td><td>Documentación general del proyecto</td></tr>
+<tr><td>PRICE/_scripts/</td><td>Scripts de generación y automatización</td></tr>
+<tr><td>rates-nodispo/_template/_TEMPLATE_RatesNoDispo_Reporte_Editorial.html</td><td>Template activo del reporte</td></tr>
+<tr><td>rates-nodispo/_manual/GUIA_EDITORIAL_RatesNoDispo.html</td><td>Esta guía</td></tr>
+<tr><td>rates-nodispo/_email/email_rates_nodispo_template.html</td><td>Template de email</td></tr>
+<tr><td>rates-nodispo/_email/email_rates_nodispo_weekNN.html</td><td>Email de la semana activa</td></tr>
+<tr><td>rates-nodispo/week-NN/RatesNoDispo_Reporte_Editorial.html</td><td>Reporte semanal</td></tr>
+<tr><td>rates-nodispo/week-NN/Analisis_Rates_NoDispo_7d.xlsx</td><td>Dataset semanal</td></tr>
+<tr><td>checkrates/_template/_TEMPLATE_CheckRates_Reporte_Editorial.html</td><td>Template activo CheckRates</td></tr>
+<tr><td>checkrates/_manual/GUIA_EDITORIAL_CheckRates.html</td><td>Guía CheckRates</td></tr>
+<tr><td>checkrates/week-NN/CheckRates_Reporte_Editorial.html</td><td>Reporte semanal CheckRates</td></tr>
+<tr><td>checkrates/week-NN/Analisis_Checkrates_7d.xlsx</td><td>Dataset semanal CheckRates</td></tr>
+</tbody>
+</table>
+
+<h3>Convenciones de nomenclatura</h3>
+<table>
+<thead><tr><th>Convención</th><th>Aplica a</th><th>Ejemplo</th></tr></thead>
+<tbody>
+<tr><td>_nombre/</td><td>Carpetas de soporte/infraestructura fuera de weeks</td><td>_template/ · _manual/ · _email/ · _docs/ · _scripts/</td></tr>
+<tr><td>_TEMPLATE_Nombre.html</td><td>Archivos template</td><td>_TEMPLATE_RatesNoDispo_Reporte_Editorial.html</td></tr>
+<tr><td>week-NN/</td><td>Carpetas de contenido semanal · sin underscore</td><td>week-17/ · week-18/</td></tr>
+<tr><td>Sin subcarpetas en week-NN</td><td>Archivos directo en week-NN/ · sin Analisis/ ni Editorial/</td><td>week-17/RatesNoDispo_Reporte_Editorial.html</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- 08 LINKS Y COMPORTAMIENTO -->
+<section>
+<h2>08 · Links · Excel · comportamiento <span class="new">v5</span></h2>
+<table>
+<thead><tr><th>Elemento</th><th>Regla</th></tr></thead>
+<tbody>
+<tr><td>VER EXCEL en reporte</td><td>Path relativo: <span class="el">href="Analisis_Rates_NoDispo_7d.xlsx"</span> · siempre con <span class="el">target="_blank" rel="noopener"</span></td></tr>
+<tr><td>VER EXCEL en canastas</td><td>Mismo path relativo · mismo target="_blank"</td></tr>
+<tr><td>Links en index.html Hub</td><td>Path relativo desde raíz: <span class="el">rates-nodispo/week-NN/RatesNoDispo_Reporte_Editorial.html</span> · sin subcarpetas Editorial/</td></tr>
+<tr><td>Apertura Excel</td><td>Siempre en nueva tab — nunca navegar fuera del reporte</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- 09 FLUJO SEMANAL -->
+<section>
+<h2>09 · Flujo semanal · Release Week-N <span class="new">v5</span></h2>
+<table>
+<thead><tr><th>#</th><th>Paso</th><th>Input</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Recibir dataset nuevo</td><td>Rates_No_Dispo_Last_7_Days_XX.xlsx + W anterior</td><td>Archivo fuente + W anterior para WoW</td></tr>
+<tr><td>2</td><td>Ejecutar análisis Python</td><td>Dataset semana nueva</td><td>Pickles W17 + nd_wNN_prev.pkl</td></tr>
+<tr><td>3</td><td>Calcular métricas canasta</td><td>df_b2c · df_op · df_uop filtrados al P80</td><td>RPM · GB · Bookings · WoW · F1-F5 por canasta</td></tr>
+<tr><td>4</td><td>Poblar template</td><td>_TEMPLATE_RatesNoDispo_Reporte_Editorial.html</td><td>RatesNoDispo_Reporte_Editorial.html</td></tr>
+<tr><td>5</td><td>Validar</td><td>Reporte generado</td><td>Guiones · NoDispo · colores · links xlsx</td></tr>
+<tr><td>6</td><td>Crear carpeta week-NN</td><td>—</td><td>rates-nodispo/week-NN/</td></tr>
+<tr><td>7</td><td>Commit ZIP</td><td>Reporte + xlsx + index.html actualizado</td><td>GitHub + Netlify deploy</td></tr>
+<tr><td>8</td><td>Verificar links</td><td>analytics-desk.netlify.app</td><td>Hub + Excel + reportes W anteriores OK</td></tr>
+</tbody>
+</table>
+</section>
+
+<hr class="soft">
+
+<!-- 10 CHECKLIST -->
+<section>
+<h2>10 · Checklist de validación pre-commit <span class="new">v5</span></h2>
+<table>
+<thead><tr><th>✓</th><th>Verificar</th></tr></thead>
+<tbody>
+<tr><td>□</td><td>"No Dispo" con espacio — nunca "NoDispo"</td></tr>
+<tr><td>□</td><td>Sin guiones — en texto de findings y títulos h3</td></tr>
+<tr><td>□</td><td>Sin "stop sales" · sin "conectividad API" · sin "513.98"</td></tr>
+<tr><td>□</td><td>Colores de canasta correctos: B2C=pink · OP=celeste · CUG=violeta</td></tr>
+<tr><td>□</td><td>0 colores incorrectos en cada sección de canasta</td></tr>
+<tr><td>□</td><td>Bajo Rendimiento: todo violeta var(--accent)</td></tr>
+<tr><td>□</td><td>Plan de Acción: MP4 y siguientes ANTES del VER EXCEL</td></tr>
+<tr><td>□</td><td>Links xlsx: path relativo + target="_blank"</td></tr>
+<tr><td>□</td><td>index.html: paths sin subcarpeta Editorial/</td></tr>
+<tr><td>□</td><td>F4 canastas: filtro tráfico ≥ 500K aplicado</td></tr>
+<tr><td>□</td><td>F3 canastas: 4 corps · P80 · n≥3 · bkgs≥5 · delta WoW</td></tr>
+<tr><td>□</td><td>WoW disponible para F2 y F3 desde dataset W anterior</td></tr>
+<tr><td>□</td><td>QW1 y QW2: Responsable = "Supply y Supply Optimization"</td></tr>
+<tr><td>□</td><td>QUICK WIN de canastas: dentro del div de sección · no fuera</td></tr>
+</tbody>
+</table>
+</section>
+
+<footer>Guía Editorial · Supply Rates No Dispo · PriceTravel Analytics Desk · v5.0 · Abr 2026</footer>
 </div>
 </body>
 </html>
