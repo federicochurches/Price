@@ -1,44 +1,9 @@
-<!--
-=============================================================================
-TEMPLATE CHECKRATES REPORTE EDITORIAL - W18+
-=============================================================================
-REGLAS DE COLOR (NO MODIFICAR):
-  Canasta B2C  → #EA0074  (pink/magenta)
-  Canasta OP   → #5C469C  (violeta corporativo)  
-  Canasta CUG  → #4FC3F4  (celeste)
-
-REGLAS DE DATOS:
-  - Por Corporativo: filtro CK >= 500 y n >= 3 hoteles
-  - Menor Conv Rate: filtro CK >= 2000 y Bookings >= 3
-  - HTS P80 para todas las secciones globales
-  - Severity Corp: usar Severity_CR del dataframe
-
-SECCIONES DE CANASTA (render_canasta):
-  Cada canasta tiene: Hoteles Críticos Top 5 · Bajo Rendimiento Top 5 ·
-  Por Corporativo Top 5 · Severity por Corp Conv Rate Top 5 ·
-  Menor Conv Rate Top 5 · Plan de Acción Top 3
-  
-  REGLA DE COLOR EN TABLAS:
-  - Nombre hotel/corp → color canasta
-  - Todos los valores numéricos → color canasta  
-  - Header columnas → color canasta
-  - Línea separadora (border-bottom) → color canasta
-  - Barra de progreso → color canasta
-  - EXCEPCIÓN: "P/Debajo" en Severity → var(--ink-muted)
-
-PLACEHOLDERS:
-  {{SEMANA}} {{WEEK_NUM_RAW}} {{MES_ANO}} {{VOLUMEN}}
-  {{EFF_TOTAL}} {{CR_TOTAL}} {{HTS_P80}}
-
-SCRIPT DE GENERACIÓN: python3 generate_checkrates_report.py --week 18
-=============================================================================
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Supply CheckRates · {{SEMANA}} · {{MES_ANO}}</title>
+<title>Supply CheckRates · Week {{WEEK}} · Abr 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -148,8 +113,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     <div style="display:table-cell;vertical-align:middle;">
       <div style="display:inline-block;vertical-align:top;">
         <span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">CheckRates</span>
-        <div style="font-size:32px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1;">{{SEMANA}}</div>
-        <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">20 – 26 {{MES_ANO}}</div>
+        <div style="font-size:32px;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1;">Week {{WEEK}}</div>
+        <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">20 – 26 Abr 2026</div>
       </div>
     </div>
     <div style="display:table-cell;vertical-align:middle;text-align:right;white-space:nowrap;">
@@ -175,7 +140,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <div class="hero-meta">
     <div class="meta-item">
       <div class="meta-label">Eficacia</div>
-      <span class="meta-value">{{EFF_TOTAL}}</span><span style="display:inline-block;font-size:10px;font-weight:700;color:#2F6C34;background:#E8F5E9;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">▲ +0.1%</span>
+      <span class="meta-value">94.06%</span><span style="display:inline-block;font-size:10px;font-weight:700;color:#2F6C34;background:#E8F5E9;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">▲ +0.1%</span>
       <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:94;"></div></div>
       <div class="meta-sub">Canasta B2C <span class="meta-hl">94.4%</span> · Canasta OP <span class="meta-hl">94.3%</span> · Canasta CUG <span class="meta-hl">93.2%</span></div>
     </div>
@@ -196,7 +161,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <div class="hero-meta" style="border-top:1px solid var(--rule);grid-template-columns:repeat(3,1fr);">
     <div class="meta-item">
       <div class="meta-label">Conv Rate</div>
-      <span class="meta-value">{{CR_TOTAL}}</span><span style="display:inline-block;font-size:10px;font-weight:700;color:#C0392B;background:#FDECEA;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">▼ -10.7%</span>
+      <span class="meta-value">1.56%</span><span style="display:inline-block;font-size:10px;font-weight:700;color:#C0392B;background:#FDECEA;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">▼ -10.7%</span>
       <div class="meta-bar-wrap"><div class="meta-bar-fill" style="width:50%;"></div></div>
       <div class="meta-sub">Canasta B2C <span class="meta-hl">0.51%</span> · Canasta OP <span class="meta-hl">1.29%</span> · Canasta CUG <span class="meta-hl">3.15%</span></div>
     </div>
@@ -219,7 +184,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">Rankings y datos por hotel en el Excel adjunto.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -256,7 +221,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <section id="severity">
   <div class="section-head">
     <div class="section-num">· 02</div>
-    <div><h2 class="section-title">Severity · Eficacia</h2><p class="section-kicker">De los {{HTS_P80}} hoteles de la Muestra · P80 — distribución por nivel de severidad de %Errors (= 100 − Eficacia).</p></div>
+    <div><h2 class="section-title">Severity · Eficacia</h2><p class="section-kicker">De los 4,350 hoteles de la Muestra · P80 — distribución por nivel de severidad de %Errors (= 100 − Eficacia).</p></div>
   </div>
   <div style="max-width:760px;">
     
@@ -469,7 +434,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Top 20 completo</div>
       <div class="msg">Los próximos 10 hoteles del ranking están en la hoja <strong>Hoteles Críticos</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 
@@ -568,7 +533,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Top 20 completo</div>
       <div class="msg">Los próximos 10 hoteles del ranking están en la hoja <strong>Bajo Rendimiento</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 
@@ -667,7 +632,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle por corporativo</div>
       <div class="msg">Listado completo en la hoja <strong>Por Corporativo</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 
@@ -980,7 +945,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Descarga</div>
       <div style="font-size:15px;color:var(--ink);">El Plan de Acción completo está en la hoja <em>«Plan de Acción»</em> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -1323,7 +1288,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle por canasta</div>
       <div class="msg">Top 20 completo en la hoja <strong>Canasta B2C</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 <section id="canasta-b2b-op" style="border-top:1px solid var(--rule);padding-top:60px;margin-top:80px;">
@@ -1665,7 +1630,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle por canasta</div>
       <div class="msg">Top 20 completo en la hoja <strong>Canasta OP</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 <section id="canasta-cug-uop" style="border-top:1px solid var(--rule);padding-top:60px;margin-top:80px;">
@@ -2007,7 +1972,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle por canasta</div>
       <div class="msg">Top 20 completo en la hoja <strong>Canasta CUG</strong> del Excel.</div>
     </div>
-    <a href="https://federicochurches.github.io/Price/checkrates/{{WEEK_NUM_RAW}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
+    <a href="https://federicochurches.github.io/Price/checkrates/week-{{WEEK}}/Analisis/Analisis_Checkrates_7d.xlsx" class="badge-link">VER EXCEL</a>
   </div>
 </section>
 
@@ -2039,8 +2004,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 <div class="shell">
   <footer>
-    <span>Supply CheckRates · {{SEMANA}} · {{MES_ANO}} · Vol. 02</span>
-    <span>PriceTravel · Analytics Desk · {{VOLUMEN}} hoteles analizados</span>
+    <span>Supply CheckRates · Week {{WEEK}} · Abr 2026 · Vol. 02</span>
+    <span>PriceTravel · Analytics Desk · 27.835 hoteles analizados</span>
   </footer>
 </div>
 
