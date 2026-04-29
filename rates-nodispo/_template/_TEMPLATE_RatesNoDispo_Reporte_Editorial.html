@@ -196,7 +196,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">Rankings y datos por hotel en el Excel adjunto.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">VER EXCEL</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -431,7 +431,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">El listado completo de <strong>Demanda No Convertida</strong> está en la hoja <em>«Demanda No Convertida»</em> del Excel adjunto.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">VER EXCEL</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -581,7 +581,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">Hoteles de <strong>Bajo Rendimiento</strong> con severidad y GB en la hoja <em>«Bajo Rendimiento»</em> del Excel.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">Ver Excel</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link">Ver Excel</a>
   </div>
 </section>
 
@@ -725,7 +725,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">El listado completo de <strong>Bajo Rendimiento</strong> está en la hoja <em>«Bajo Rendimiento»</em> del Excel adjunto.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">VER EXCEL</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -846,7 +846,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div class="lbl">Detalle completo</div>
       <div class="msg">El listado completo de <strong>Por Destino</strong> está en la hoja <em>«Por Destino»</em> del Excel adjunto.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">VER EXCEL</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
 </section>
 
@@ -1048,7 +1048,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Descarga</div>
 <div style="font-size:15px;color:var(--ink);">El Plan de Acción completo está en la hoja <em>«Plan de Acción»</em> del Excel.</div>
     </div>
-    <a href="Analisis_Rates_NoDispo_7d.xlsx" target="_blank" rel="noopener">VER EXCEL</a>
+    <a href="Analisis_Rates_NoDispo_7d_W{{WEEK}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
 </div>
 </section>
 
@@ -2151,7 +2151,10 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
   </div>
   <div style="height:1px;background:var(--rule);margin-top:40px;"></div>
-</section><div class="critique">
+</section>
+</div>
+
+<div class="critique">
 <div class="shell">
   <section id="metodo" style="margin-bottom:0;">
     <div class="section-head">
@@ -2197,242 +2200,4 @@ tocLinks.forEach(l => l.addEventListener('click', e => {
 }));
 </script>
 </body>
-</html<div style="max-width:1100px;">
-    <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;padding:10px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);text-align:left;">Hotel</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">% de No Dispo</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv RPM</span>
-    </div>
-    
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">OYO Hotel and Casino Las Vegas</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Oyo Rooms · Estados Unidos de América</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
-  <span style="text-align:right;color:var(--amber);">10.7%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$101</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.19</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:67%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Hilton Miami Downtown</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
-  <span style="text-align:right;color:var(--amber);">8.1%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$260</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.21</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:60%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Virgin Hotels Las Vegas, Curio Collection by Hilton</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
-  <span style="text-align:right;color:var(--amber);">15.9%</span>
-  <span style="text-align:right;">2</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$69</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.25</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:100%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Novotel London West</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · Gran Bretaña (UK)</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">4M</span>
-  <span style="text-align:right;color:var(--amber);">7.0%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$901</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.26</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:48%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Caribe Royale Orlando</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Best Western · Estados Unidos de América</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
-  <span style="text-align:right;color:var(--amber);">5.6%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$338</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.31</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:40%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Hilton Tampa Downtown</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
-  <span style="text-align:right;color:var(--amber);">6.2%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$188</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.35</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:36%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Buenaventura Grand Hotel & Great Moments</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
-  <span style="text-align:right;color:var(--amber);">21.2%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$599</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.36</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:34%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Riu Palace Riviera Maya - All Inclusive</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">RIU · México</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
-  <span style="text-align:right;color:var(--amber);">28.4%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,674</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.40</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:31%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Aparthotel Adagio Paris Centre Tour Eiffel</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · Francia</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2M</span>
-  <span style="text-align:right;color:var(--amber);">10.3%</span>
-  <span style="text-align:right;">1</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$704</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.43</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:29%;background:#A090CC;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Riu Palace Punta Cana - All Inclusive</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">RIU · República Dominicana</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
-  <span style="text-align:right;color:var(--amber);">24.5%</span>
-  <span style="text-align:right;">2</span>
-  <span style="font-weight:700;text-align:right;color:var(--accent);">$5,617</span>
-  <span style="text-align:right;color:var(--ink-muted);">0.44</span>
-</div>
-<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:57%;background:#A090CC;"></div></div>
-  </div><div style="max-width:1100px;">
-    <div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;padding:10px 0;border-bottom:2px solid var(--red);margin-bottom:4px;">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--red);text-align:left;">Hotel</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">% de No Dispo</span>
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Bkgs</span>
-    </div>
-    
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Presidente InterContinental Cancún</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Presidente Intercontinental · México · Cancún</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">11M</span>
-  <span style="text-align:right;color:var(--red);">1.1%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:100%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Serenade Punta Cana Beach & Spa Resort</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Punta Cana</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">10M</span>
-  <span style="text-align:right;color:var(--red);">4.1%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:92%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">SAHARA Las Vegas</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
-  <span style="text-align:right;color:var(--red);">5.6%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:74%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">The Manhattan at Times Square Hotel</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG · Estados Unidos de América · New York</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
-  <span style="text-align:right;color:var(--red);">1.8%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:74%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">whala!bavaro - All Inclusive</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Bávaro Area</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
-  <span style="text-align:right;color:var(--red);">2.6%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:67%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">The STRAT Hotel, Casino and Skypod</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Best Western · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
-  <span style="text-align:right;color:var(--red);">0.8%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:64%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Hyatt Ziva Cancún</div>
-    
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
-  <span style="text-align:right;color:var(--red);">3.0%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:62%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Grand Fiesta Americana Coral Beach - All Inclusive</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">GRUPO POSADAS · México · Cancún</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
-  <span style="text-align:right;color:var(--red);">1.2%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:60%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">DoubleTree by Hilton New York Downtown</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América · New York</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
-  <span style="text-align:right;color:var(--red);">1.9%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:59%;background:#F48CB8;"></div></div>
-<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
-  <div>
-    <div style="font-weight:500;color:var(--ink);">Secrets Maroma Beach Riviera Cancun - Solo Adultos</div>
-    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt Inclusive Collection · México · Riviera Maya</div>
-  </div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
-  <span style="text-align:right;color:var(--red);">2.2%</span>
-  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
-</div>
-<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:58%;background:#F48CB8;"></div></div>
-  </div>>
+</html>
