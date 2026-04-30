@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>[TEMPLATE] Supply Optimization · Week [XX] · Reportes CheckRates + Rates No Dispo</title>
+<!--
+  TEMPLATE · Mail unificado Supply Optimization
+  Versión: W17 estructura final (mail combinado)
+
+  Para usar este template:
+  1. Reemplazar placeholders [Week XX], [YY-ZZ de mes año], [Mes año], Vol. [N]
+  2. Reemplazar [LEDE PRINCIPAL] con titulares de impacto de la semana
+  3. Reemplazar todos los datos numéricos según los reportes de la semana
+  4. Reemplazar URLs week-XX por la nueva semana
+  5. Actualizar sección "Cambios metodológicos" si aplica (W17 es base)
+  6. Verificar destinatarios antes de envío
+
+  REGLAS OBLIGATORIAS — ver _docs/README.md y guías editoriales
+-->
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 0 24px; color: #161616; line-height: 1.5; background: #F8F4EC; }
+  .container { background: #fff; border: 1px solid #E5E0D2; padding: 32px; margin: 24px 0; }
+  .masthead { border-bottom: 3px solid #161616; padding-bottom: 16px; margin-bottom: 24px; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A8377; margin-bottom: 4px; }
+  .title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: #161616; margin: 0; }
+  .lede { font-size: 15px; color: #4A4A4A; margin: 16px 0 24px; line-height: 1.5; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #C9C1B0; padding-bottom: 6px; margin: 32px 0 14px; }
+  h2.cr { color: #5C469C; }
+  h2.rnd { color: #EA0074; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 8px; font-size: 14px; }
+  a { color: #5C469C; text-decoration: underline; }
+  strong { color: #161616; }
+  .accent-cr { color: #5C469C; font-weight: 700; }
+  .accent-rnd { color: #EA0074; font-weight: 700; }
+  .delta-down { color: #C0392B; font-weight: 700; font-size: 12px; }
+  .delta-up { color: #2E7D32; font-weight: 700; font-size: 12px; }
+  .delta-flat { color: #8A8377; font-weight: 700; font-size: 12px; }
+  .cta { display: inline-block; padding: 11px 20px; text-decoration: none !important; font-weight: 600; font-size: 13px; letter-spacing: 0.04em; margin: 4px 8px 4px 0; }
+  .cta-cr { background: #5C469C; color: #fff !important; }
+  .cta-rnd { background: #EA0074; color: #fff !important; }
+  .divider { border: none; border-top: 2px dashed #C9C1B0; margin: 36px 0; }
+  .footer { border-top: 1px solid #C9C1B0; padding-top: 16px; margin-top: 32px; font-size: 11px; color: #8A8377; line-height: 1.5; }
+  .kpi-line { font-size: 13.5px; line-height: 1.7; margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="masthead">
+    <div class="brand">PriceTravel · Supply Optimization</div>
+    <h1 class="title">Week [XX] · Cierre Editorial</h1>
+  </div>
+
+  <p class="lede">
+    [LEDE PRINCIPAL — 2-3 frases con titulares de impacto de la semana, mencionando KPIs clave y deltas WoW relevantes.]
+  </p>
+
+  <p>Hola equipo,</p>
+
+  <p>
+    Compartimos los reportes de <strong>Supply Optimization · Week [XX]</strong> ([YY] al [ZZ] de [mes]).
+    [Línea opcional con contexto adicional o cambios metodológicos si aplica.]
+  </p>
+
+  <p style="margin: 20px 0;">
+    <a href="https://analytics-desk.netlify.app/checkrates/week-[XX]/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Ver CheckRates</a>
+    <a href="https://analytics-desk.netlify.app/rates-nodispo/week-[XX]/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Ver Rates No Dispo</a>
+  </p>
+
+  <h2 class="cr">Supply CheckRates · Week [XX]</h2>
+
+  <p style="margin: 12px 0 6px;"><strong>KPIs de la semana</strong></p>
+  <ul>
+    <li class="kpi-line"><strong>Eficacia:</strong> [XX.XX]% <span class="delta-flat">[delta]</span> · Canasta B2C [XX]% · OP [XX]% · CUG [XX]%</li>
+    <li class="kpi-line"><strong>Conv Rate:</strong> [X.XX]% <span class="delta-down">[delta WoW]</span> · Canasta B2C [X.XX]% · OP [X.XX]% · CUG [X.XX]%</li>
+    <li class="kpi-line"><strong>HTS · P80:</strong> [N] hoteles · [N] CheckRates · [N] BKGS</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Top hallazgos</strong></p>
+  <ul>
+    <li><strong>[Finding 1]</strong> [Detalle con datos concretos].</li>
+    <li><strong>[Finding 2]</strong> [Detalle].</li>
+    <li><strong>[Finding 3]</strong> [Detalle].</li>
+    <li><strong>[Finding 4]</strong> [Detalle].</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Plan de acción</strong></p>
+  <ul>
+    <li><span class="accent-cr">QW</span> — [Quick win 1].</li>
+    <li><span class="accent-cr">QW</span> — [Quick win 2].</li>
+    <li><span class="accent-cr">MP</span> — [Mediano plazo 1].</li>
+    <li><span class="accent-cr">MP</span> — [Mediano plazo 2].</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 class="rnd">Supply Rates No Dispo · Week [XX]</h2>
+
+  <p style="margin: 12px 0 6px;"><strong>KPIs de la semana</strong></p>
+  <ul>
+    <li class="kpi-line"><strong>Oportunidad perdida GB:</strong> $[X.X]M <span class="delta-up">[delta]</span> · [N] reservas perdidas en [N] países</li>
+    <li class="kpi-line"><strong>Hoteles con 0 BKGS:</strong> [N] <span class="delta-down">[delta]</span> · [XX]% de [N] hoteles P80</li>
+    <li class="kpi-line"><strong>Mayor % No Dispo por destino:</strong> [Destino 1] [XX]% · [Destino 2] [XX]% · [Destino 3] [XX]%</li>
+    <li class="kpi-line"><strong>Menor Conv Rate RPM por Corp:</strong> [Corp 1] [X.XX] · [Corp 2] [X.XX] · [Corp 3] [X.XX]</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Top hallazgos</strong></p>
+  <ul>
+    <li><strong>[Finding 1]</strong> [Detalle].</li>
+    <li><strong>[Finding 2]</strong> [Detalle].</li>
+    <li><strong>[Finding 3]</strong> [Detalle].</li>
+    <li><strong>[Finding 4]</strong> [Detalle].</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Análisis por Canasta</strong></p>
+  <ul>
+    <li><strong>B2C:</strong> $[X]K · [N] BKGS · [X.XX] RPM — [XX]% hoteles sin BKGS</li>
+    <li><strong>OP:</strong> $[X.X]M · [N] BKGS · [XX.XX] RPM — [XX]% hoteles sin BKGS</li>
+    <li><strong>CUG:</strong> $[X.X]M · [N] BKGS · [XX.XX] RPM — [XX]% hoteles sin BKGS</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Plan de acción</strong></p>
+  <ul>
+    <li><span class="accent-rnd">QW</span> — [Quick win 1].</li>
+    <li><span class="accent-rnd">QW</span> — [Quick win 2].</li>
+    <li><span class="accent-rnd">MP</span> — [Mediano plazo 1].</li>
+    <li><span class="accent-rnd">ES</span> — [Estructural].</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 style="color:#161616;">Próximos pasos</h2>
+  <ul>
+    <li>Revisar el detalle por hotel, corporativo y canasta en los reportes completos.</li>
+    <li>Validar acciones específicas según área: Supply Optimization · Supply · Wholesale.</li>
+    <li>Próxima publicación: lunes [DD] de [mes] (Week [XX+1]).</li>
+    <li>Cualquier feedback o consulta, respondan este mail.</li>
+  </ul>
+
+  <p style="margin: 28px 0 16px;">
+    <a href="https://analytics-desk.netlify.app/checkrates/week-[XX]/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Ver CheckRates</a>
+    <a href="https://analytics-desk.netlify.app/rates-nodispo/week-[XX]/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Ver Rates No Dispo</a>
+  </p>
+
+  <div class="footer">
+    Reciben este mail porque son parte del equipo de Supply Optimization. Cada lunes enviamos el deep-dive de la semana anterior.<br><br>
+    <strong>PriceTravel · Supply Optimization · Week [XX] · [YY – ZZ Mes Año] · Vol. [N]</strong>
+  </div>
+
+</div>
+
+</body>
+</html>

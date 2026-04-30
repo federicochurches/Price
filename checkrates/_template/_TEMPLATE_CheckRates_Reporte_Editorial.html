@@ -26,6 +26,7 @@
   --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
   --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
   --amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;
+  --verde:#2F6C34;--verde-soft:#E8F5E9;
   --navy:#161616;--navy-soft:#F2EEE6;--red:#EA0074;--red-soft:#FCE4F1;
   --maxw:1280px;
 }
@@ -98,6 +99,24 @@ section{margin-bottom:80px;scroll-margin-top:24px;}
 footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-size:11px;color:var(--ink-muted);display:flex;justify-content:space-between;text-transform:uppercase;letter-spacing:0.1em;}
 @media(max-width:1100px){.toc{display:none;}}
 @media(max-width:700px){.shell{padding:0 20px;}.hero-meta{grid-template-columns:repeat(2,1fr);}.section-head{grid-template-columns:1fr;}.action-row{grid-template-columns:1fr;}.detail-callout{grid-template-columns:1fr;}}
+
+/* ── Método · tarjetas categorizadas ── */
+.metodo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px;}
+.metodo-card{border:1px solid var(--rule);background:var(--paper);padding:18px 20px;border-radius:3px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s;}
+.metodo-card:hover{border-color:var(--accent);}
+.metodo-card.wide{grid-column:1/-1;}
+.card-chip{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:2px;width:fit-content;}
+.chip-canasta{background:#F3E8FF;color:#6B21A8;}
+.chip-data{background:var(--amber-soft);color:var(--amber);}
+.chip-clean{background:var(--verde-soft);color:var(--verde);}
+.chip-metric{background:var(--accent-soft);color:var(--accent);}
+.chip-mapping{background:#FFF3E0;color:#A86A1D;}
+.chip-method{background:var(--green-soft);color:#0288D1;}
+.card-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3;letter-spacing:-.01em;}
+.card-body{font-size:12.5px;color:var(--ink-soft);line-height:1.55;}
+.card-action{font-size:11px;font-weight:600;color:var(--accent);padding-top:8px;border-top:1px dashed var(--rule);margin-top:auto;letter-spacing:.02em;}
+.card-action .arrow{margin-right:6px;}
+@media(max-width:720px){.metodo-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -108,13 +127,13 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <a href="#severity-cr">· 03 Sev. Conv Rate</a>
   <a href="#criticos">· 04 H. Críticos</a>
   <a href="#bajo">· 05 Bajo Rend.</a>
-  <a href="#corporativo">· 06 Corporativo</a>
-  <a href="#severity-corp">· 07 Sev. x Corp</a>
-  <a href="#conversion">· 08 Conv Rate</a>
-  <a href="#plan">· 09 Plan</a>
+  <a href="#severity-corp">· 06 Sev. x Corp</a>
+  <a href="#conversion">· 07 Conv Rate</a>
+  <a href="#plan">· 08 Plan</a>
+  <a href="#sec_canastas">· 09 Canastas</a>
   <a href="#canasta-b2c">· 10 B2C</a>
-  <a href="#canasta-b2b-op">· 11 Canasta OP</a>
-  <a href="#canasta-cug-uop">· 12 Canasta CUG</a>
+  <a href="#canasta-b2b-op">· 11 OP</a>
+  <a href="#canasta-cug-uop">· 12 CUG</a>
   <a href="#metodo">· 13 Método</a>
 </nav>
 
@@ -297,51 +316,57 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <section id="severity">
   <div class="section-head">
     <div class="section-num">· 02</div>
-    <div><h2 class="section-title">Severity · Eficacia</h2><p class="section-kicker">De los 4.349 hoteles de la Muestra · P80 — distribución por nivel de severidad de %Errors (= 100 − Eficacia).</p></div>
+    <div><h2 class="section-title">Severity · Eficacia</h2><p class="section-kicker">De los {{HOTELES_P80}} hoteles de la Muestra · P80 — distribución por nivel de Eficacia (= Successful CheckRates ÷ CheckRates). De mayor a menor eficacia.</p></div>
   </div>
-  <div style="max-width:760px;">
-    
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <div style="max-width:830px;">
+    <div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;padding:10px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Nivel</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Eficacia</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Distribución</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Hoteles</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">%</span>
+    </div>
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
   <span style="display:inline-block;padding:4px 10px;background:#E8F7FD;color:#4FC3F4;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Exitosa</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">0 – 5%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100%;background:#4FC3F4;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3.166</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">72.8%</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">100 – 95%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_EXITOSA_BARRA}}%;background:#4FC3F4;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_EXITOSA_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_EXITOSA_PCT}}%</span>
 </div>
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
-  <span style="display:inline-block;padding:4px 10px;background:#EDE8F7;color:#5C469C;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">No Aceptable</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5 – 20%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:27%;background:#5C469C;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">866</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">19.9%</span>
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+  <span style="display:inline-block;padding:4px 10px;background:#EDE8F7;color:#5C469C;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Por debajo del Rango</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">95 – 80%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_PORDEBAJO_BARRA}}%;background:#5C469C;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_PORDEBAJO_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_PORDEBAJO_PCT}}%</span>
 </div>
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
   <span style="display:inline-block;padding:4px 10px;background:#EDE8F7;color:#5C469C;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Revisar</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20 – 40%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7%;background:#5C469C;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">235</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">5.4%</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">80 – 60%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_REVISAR_BARRA}}%;background:#5C469C;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_REVISAR_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_REVISAR_PCT}}%</span>
 </div>
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
   <span style="display:inline-block;padding:4px 10px;background:#FCE4F1;color:#EA0074;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Crítica</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">40 – 60%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1%;background:#EA0074;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">46</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">1.1%</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">60 – 40%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_CRITICA_BARRA}}%;background:#EA0074;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_CRITICA_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_CRITICA_PCT}}%</span>
 </div>
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
   <span style="display:inline-block;padding:4px 10px;background:#EA0074;color:#ffffff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Muy Crítica</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">60 – 80%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1%;background:#EA0074;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">14</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">0.3%</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">40 – 20%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_MUYCRITICA_BARRA}}%;background:#EA0074;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_MUYCRITICA_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_MUYCRITICA_PCT}}%</span>
 </div>
-<div style="display:grid;grid-template-columns:140px 60px 1fr 90px 60px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
+<div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule-soft);">
   <span style="display:inline-block;padding:4px 10px;background:#161616;color:#ffffff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:center;">Súper Crítica</span>
-  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">80 – 100%</span>
-  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1%;background:#161616;"></div></div>
-  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">22</span>
-  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">0.5%</span>
+  <span style="font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20 – 0%</span>
+  <div style="height:14px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{{SEV_SUPERCRITICA_BARRA}}%;background:#161616;"></div></div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">{{SEV_SUPERCRITICA_N}}</span>
+  <span style="font-weight:500;text-align:right;color:var(--ink-muted);">{{SEV_SUPERCRITICA_PCT}}%</span>
 </div></div>
 
 </section>
@@ -349,7 +374,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <section id="severity-cr">
   <div class="section-head">
     <div class="section-num">· 03</div>
-    <div><h2 class="section-title">Severity · Conv Rate</h2><p class="section-kicker">De los 4.349 hoteles de la Muestra · P80 — distribución por nivel de severidad de Conv Rate (= Bookings / CheckRates × 100). El nivel «Sin Conversión» separa los hoteles con 0 Bookings de los Súper Críticos con BKGS &gt; 0.</p></div>
+    <div><h2 class="section-title">Severity · Conv Rate</h2><p class="section-kicker">De los {{HOTELES_P80}} hoteles de la Muestra · P80 — distribución por nivel de severidad de Conv Rate (= Bookings ÷ Successful CheckRates × 100). El nivel «Sin Conversión» separa los hoteles con 0 Bookings de los Súper Críticos con BKGS &gt; 0.</p></div>
   </div>
   <div style="max-width:830px;">
     <div style="display:grid;grid-template-columns:170px 90px 1fr 90px 60px;gap:14px;padding:10px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
@@ -424,7 +449,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     <div class="section-num">· 04</div>
     <div>
       <h2 class="section-title">Hoteles Críticos · Eficacia + Conv Rate</h2>
-      <span class="section-subtitle" style="color:#5C469C">Top 10 · ordenado por ranking combinado de Eficacia + Conv Rate · CheckRates ≥ 1K</span>
+      <span class="section-subtitle" style="color:#5C469C">Top 10 · ordenado por ranking compuesto Eficacia + Conv Rate ↑ · CheckRates ≥ 1K</span>
     </div>
   </div>
   <div style="max-width:1100px;"><div style="display:grid;grid-template-columns:1fr 80px 80px 80px 160px;gap:14px;padding:10px 0;border-bottom:2px solid #5C469C;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#5C469C;text-align:left;">Hotel</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">CheckRates</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Eficacia</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv Rate</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Cluster</span></div>
@@ -516,7 +541,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     <div class="section-num">· 05</div>
     <div>
       <h2 class="section-title">Bajo Rendimiento · Top 10</h2>
-      <span class="section-subtitle" style="color:#5C469C">Hoteles con %Errors ≥ 5% y Bookings &gt; 0 · ordenado por CheckRates ↓</span>
+      <span class="section-subtitle" style="color:#5C469C">Hoteles con %Errors ≥ 5% y Bookings &gt; 0 · ordenado por Conv Rate ↑</span>
     </div>
   </div>
   <div style="max-width:1100px;"><div style="display:grid;grid-template-columns:1fr 75px 80px 60px 80px;gap:14px;padding:10px 0;border-bottom:2px solid #5C469C;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#5C469C;text-align:left;">Hotel</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">CheckRates</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Eficacia</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">BKGS</span><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#5C469C;text-align:right;">Conv Rate</span></div>
@@ -605,7 +630,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 <section id="severity-corp">
   <div class="section-head">
-    <div class="section-num">· 07</div>
+    <div class="section-num">· 06</div>
     <div>
       <h2 class="section-title">Severity por Corporativo</h2>
       <span class="section-subtitle" style="color:#5C469C">Concentración de hoteles Críticos+ (Eficacia &lt; 60%) por Corporativo · top 10 ↓</span>
@@ -739,7 +764,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </section>
 <section id="conversion">
   <div class="section-head">
-    <div class="section-num">· 08</div>
+    <div class="section-num">· 07</div>
     <div>
       <h2 class="section-title">Menor Conv Rate · Top 10</h2>
       <span class="section-subtitle" style="color:#5C469C">Hoteles con Bookings ≥ 3 · CheckRates ≥ 2K · ordenado por Conv Rate ↑</span>
@@ -832,8 +857,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 <section id="plan" style="padding-top:80px;">
   <div class="section-head">
-    <div class="section-num">· 09</div>
-    <div><h2 class="section-title">Plan de acción</h2><p class="section-kicker">Quick Wins (&lt;7 días) · Medium Priority (2–4 semanas) · Estratégico (trimestre).</p></div>
+    <div class="section-num">· 08</div>
+    <div><h2 class="section-title">Plan de acción</h2><p class="section-kicker">Acción Rápida (&lt;7 días) · Mediano Plazo (2–4 semanas) · Estratégico (trimestre).</p></div>
   </div>
   <div class="action-grid">
     <div class="action-row qw">
@@ -912,8 +937,65 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Descarga</div>
       <div style="font-size:15px;color:var(--ink);">El Plan de Acción completo está en la hoja <em>«Plan de Acción»</em> del Excel.</div>
     </div>
-    <a href="Analisis_Checkrates_7d_W17.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
+    <a href="Analisis_Checkrates_7d_W{{WEEK_NUM}}.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:10px 24px;letter-spacing:.12em;">VER EXCEL</a>
   </div>
+</section>
+
+<section id="sec_canastas" style="margin-bottom:60px;padding-top:80px;">
+  <div class="section-head">
+    <div class="section-num">· 09</div>
+    <div>
+      <h2 class="section-title">Análisis por Canasta</h2>
+      <span class="section-subtitle" style="color:var(--accent)">Canastas: B2C · OP · CUG</span>
+      <p class="section-kicker">Resumen comparativo de las 3 canastas con métricas core: CheckRates, Bookings, Eficacia, Conv Rate, % de hoteles sin BKGS y cluster dominante.</p>
+    </div>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:32px;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--ink);">
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:left;padding-left:0;">Canasta</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:right;">CheckRates</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:right;">Eficacia</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:right;">BKGS</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:right;">Conv Rate</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:right;">0 BKGS%</th>
+        <th style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);padding:8px 12px;text-align:left;">Cluster dominante</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid var(--rule);">
+        <td style="padding:14px 20px 6px 0;font-weight:700;color:#EA0074;white-space:nowrap;">B2C</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;">{{B2C_CHECKRATES}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;color:#EA0074;">{{B2C_EFICACIA}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{B2C_BKGS}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:700;color:#EA0074;">{{B2C_CONVRATE}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{B2C_PCT_SIN_BKGS}}</td>
+        <td style="padding:14px 0 6px 12px;"><span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">{{B2C_CLUSTER}}</span></td>
+      </tr>
+      <tr><td colspan="7" style="padding:0 0 6px;border:none;"><div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:{{B2C_BARRA}}%;background:#EA0074;"></div></div></td></tr>
+      <tr style="border-bottom:1px solid var(--rule);">
+        <td style="padding:14px 20px 6px 0;font-weight:700;color:var(--accent);white-space:nowrap;">OP</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;">{{OP_CHECKRATES}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;color:var(--accent);">{{OP_EFICACIA}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{OP_BKGS}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:700;color:var(--accent);">{{OP_CONVRATE}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{OP_PCT_SIN_BKGS}}</td>
+        <td style="padding:14px 0 6px 12px;"><span style="display:inline-block;padding:2px 8px;background:var(--accent-soft);color:var(--accent);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">{{OP_CLUSTER}}</span></td>
+      </tr>
+      <tr><td colspan="7" style="padding:0 0 6px;border:none;"><div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:{{OP_BARRA}}%;background:var(--accent);"></div></div></td></tr>
+      <tr style="border-bottom:1px solid var(--rule);">
+        <td style="padding:14px 20px 6px 0;font-weight:700;color:#4FC3F4;white-space:nowrap;">CUG</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;">{{CUG_CHECKRATES}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:600;color:#4FC3F4;">{{CUG_EFICACIA}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{CUG_BKGS}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;font-weight:700;color:#4FC3F4;">{{CUG_CONVRATE}}</td>
+        <td style="padding:14px 12px 6px;text-align:right;">{{CUG_PCT_SIN_BKGS}}</td>
+        <td style="padding:14px 0 6px 12px;"><span style="display:inline-block;padding:2px 8px;background:var(--green-soft);color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">{{CUG_CLUSTER}}</span></td>
+      </tr>
+      <tr><td colspan="7" style="padding:0 0 6px;border:none;"><div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:{{CUG_BARRA}}%;background:#4FC3F4;"></div></div></td></tr>
+    </tbody>
+  </table>
 </section>
 
 <section id="canasta-b2c" style="border-top:1px solid var(--rule);padding-top:60px;margin-top:80px;">
@@ -985,7 +1067,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </li>
 </ol>
 
-<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ranking compuesto Eficacia + Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Combinado Eficacia + Conv Rate · CheckRates ≥ 500</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #EA0074;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Conv Rate</span></div>
@@ -1041,7 +1123,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#EA0074;font-weight:600;">0.00%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">%Errors ≥ 5.3% y Bookings > 0 · ordenado por CheckRates ↓</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #EA0074;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Conv Rate</span></div>
@@ -1097,7 +1179,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#EA0074;font-weight:600;">0.14%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por CheckRates ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Peor Conv Rate · ≥3 hoteles · CheckRates ≥ 500 · ordenado por Conv Rate ↑</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 80px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #EA0074;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Hoteles</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">BKGS</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Eficacia</span></div>
@@ -1148,7 +1230,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:#EA0074;"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por % Críticos+ ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Concentración de hoteles Críticos+ en Conv Rate por Corporativo</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #EA0074;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Súper</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Muy Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">P/Debajo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Total</span></div>
@@ -1158,7 +1240,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #FCE4F1;font-size:12px;"><div><div style="font-weight:600;color:#EA0074;">IHG</div><div style="font-size:10px;color:var(--ink-muted);">531 hoteles en P80</div></div><span style="text-align:right;color:#EA0074;font-weight:700;">0</span><span style="text-align:right;color:#EA0074;font-weight:700;">2</span><span style="text-align:right;color:#EA0074;">3</span><span style="text-align:right;color:var(--ink-muted);">57</span><span style="text-align:right;color:#EA0074;font-weight:700;">62</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:29%;background:#EA0074;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #FCE4F1;font-size:12px;"><div><div style="font-weight:600;color:#EA0074;">Accor</div><div style="font-size:10px;color:var(--ink-muted);">107 hoteles en P80</div></div><span style="text-align:right;color:#EA0074;font-weight:700;">1</span><span style="text-align:right;color:#EA0074;font-weight:700;">1</span><span style="text-align:right;color:#EA0074;">3</span><span style="text-align:right;color:var(--ink-muted);">34</span><span style="text-align:right;color:#EA0074;font-weight:700;">39</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:29%;background:#EA0074;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #FCE4F1;font-size:12px;"><div><div style="font-weight:600;color:#EA0074;">Universal</div><div style="font-size:10px;color:var(--ink-muted);">9 hoteles en P80</div></div><span style="text-align:right;color:#EA0074;font-weight:700;">0</span><span style="text-align:right;color:#EA0074;font-weight:700;">1</span><span style="text-align:right;color:#EA0074;">3</span><span style="text-align:right;color:var(--ink-muted);">5</span><span style="text-align:right;color:#EA0074;font-weight:700;">9</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:24%;background:#EA0074;"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Bookings > 0 · CheckRates ≥ P50 canasta · ordenado por Conv Rate ↑</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #EA0074;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#EA0074;text-align:right;">Conv Rate</span></div>
@@ -1217,7 +1299,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <h3 style="font-size:15px;font-weight:600;margin:48px 0 14px;color:var(--ink);">Plan de Acción · Top 3</h3>
 <div style="border-left:3px solid #EA0074;padding:12px 0 12px 16px;margin-bottom:14px;background:#FCE4F140;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
+    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
     <strong style="font-size:13px;">Escalar 212 hoteles Connectivity Issue</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors > P85 — baja efectividad. Validar conectividad de motor y rate plans.</p>
@@ -1225,15 +1307,15 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="border-left:3px solid #EA0074;padding:12px 0 12px 16px;margin-bottom:14px;background:#FCE4F140;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
-    <strong style="font-size:13px;">Capturar 1.715 Quick Wins de la canasta</strong>
+    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
+    <strong style="font-size:13px;">Capturar 1.715 Optimizables de la canasta</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles con %Errors <5% y Conv Rate <1.74% — problema downstream. Revisar pricing y display.</p>
   <span style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;">Área: Wholesale</span>
 </div>
 <div style="border-left:3px solid #EA0074;padding:12px 0 12px 16px;margin-bottom:14px;background:#FCE4F140;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mid-term</span>
+    <span style="display:inline-block;padding:2px 8px;background:#FCE4F1;color:#EA0074;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mediano Plazo</span>
     <strong style="font-size:13px;">Diagnóstico de 299 hoteles Sin Conversión</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors normal — problema downstream (pricing, contenido, booking flow). Coordinar con Producto.</p>
@@ -1317,7 +1399,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </li>
 </ol>
 
-<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ranking compuesto Eficacia + Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Combinado Eficacia + Conv Rate · CheckRates ≥ 500</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #5C469C;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Conv Rate</span></div>
@@ -1373,7 +1455,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#5C469C;font-weight:600;">0.00%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">%Errors ≥ 5.3% y Bookings > 0 · ordenado por CheckRates ↓</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #5C469C;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Conv Rate</span></div>
@@ -1429,7 +1511,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#5C469C;font-weight:600;">0.79%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por CheckRates ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Peor Conv Rate · ≥3 hoteles · CheckRates ≥ 500 · ordenado por Conv Rate ↑</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 80px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #5C469C;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Hoteles</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">BKGS</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Eficacia</span></div>
@@ -1480,7 +1562,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:#5C469C;"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por % Críticos+ ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Concentración de hoteles Críticos+ en Conv Rate por Corporativo</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #5C469C;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Súper</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Muy Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">P/Debajo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Total</span></div>
@@ -1490,7 +1572,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #EDE8F7;font-size:12px;"><div><div style="font-weight:600;color:#5C469C;">AA-Independent</div><div style="font-size:10px;color:var(--ink-muted);">157 hoteles en P80</div></div><span style="text-align:right;color:#5C469C;font-weight:700;">5</span><span style="text-align:right;color:#5C469C;font-weight:700;">2</span><span style="text-align:right;color:#5C469C;">1</span><span style="text-align:right;color:var(--ink-muted);">23</span><span style="text-align:right;color:#5C469C;font-weight:700;">31</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#5C469C;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #EDE8F7;font-size:12px;"><div><div style="font-weight:600;color:#5C469C;">Accor</div><div style="font-size:10px;color:var(--ink-muted);">193 hoteles en P80</div></div><span style="text-align:right;color:#5C469C;font-weight:700;">4</span><span style="text-align:right;color:#5C469C;font-weight:700;">0</span><span style="text-align:right;color:#5C469C;">4</span><span style="text-align:right;color:var(--ink-muted);">43</span><span style="text-align:right;color:#5C469C;font-weight:700;">51</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:22%;background:#5C469C;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #EDE8F7;font-size:12px;"><div><div style="font-weight:600;color:#5C469C;">Melia</div><div style="font-size:10px;color:var(--ink-muted);">6 hoteles en P80</div></div><span style="text-align:right;color:#5C469C;font-weight:700;">1</span><span style="text-align:right;color:#5C469C;font-weight:700;">0</span><span style="text-align:right;color:#5C469C;">2</span><span style="text-align:right;color:var(--ink-muted);">1</span><span style="text-align:right;color:#5C469C;font-weight:700;">4</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:8%;background:#5C469C;"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Bookings > 0 · CheckRates ≥ P50 canasta · ordenado por Conv Rate ↑</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #5C469C;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5C469C;text-align:right;">Conv Rate</span></div>
@@ -1549,7 +1631,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <h3 style="font-size:15px;font-weight:600;margin:48px 0 14px;color:var(--ink);">Plan de Acción · Top 3</h3>
 <div style="border-left:3px solid #5C469C;padding:12px 0 12px 16px;margin-bottom:14px;background:#EDE8F740;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
+    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
     <strong style="font-size:13px;">Escalar 384 hoteles Connectivity Issue</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors > P85 — baja efectividad. Validar conectividad de motor y rate plans.</p>
@@ -1557,15 +1639,15 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="border-left:3px solid #5C469C;padding:12px 0 12px 16px;margin-bottom:14px;background:#EDE8F740;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
-    <strong style="font-size:13px;">Capturar 1.017 Quick Wins de la canasta</strong>
+    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
+    <strong style="font-size:13px;">Capturar 1.017 Optimizables de la canasta</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles con %Errors <5% y Conv Rate <1.74% — problema downstream. Revisar pricing y display.</p>
   <span style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;">Área: Wholesale</span>
 </div>
 <div style="border-left:3px solid #5C469C;padding:12px 0 12px 16px;margin-bottom:14px;background:#EDE8F740;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mid-term</span>
+    <span style="display:inline-block;padding:2px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mediano Plazo</span>
     <strong style="font-size:13px;">Diagnóstico de 376 hoteles Sin Conversión</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors normal — problema downstream (pricing, contenido, booking flow). Coordinar con Producto.</p>
@@ -1649,7 +1731,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </li>
 </ol>
 
-<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:48px 0 12px;color:var(--ink);">Hoteles Críticos · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ranking compuesto Eficacia + Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Combinado Eficacia + Conv Rate · CheckRates ≥ 500</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #4FC3F4;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Conv Rate</span></div>
@@ -1705,7 +1787,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#4FC3F4;font-weight:600;">0.00%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">%Errors ≥ 5.3% y Bookings > 0 · ordenado por CheckRates ↓</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #4FC3F4;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Conv Rate</span></div>
@@ -1761,7 +1843,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:#4FC3F4;font-weight:600;">1.01%</span>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por CheckRates ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Peor Conv Rate · ≥3 hoteles · CheckRates ≥ 500 · ordenado por Conv Rate ↑</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 80px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #4FC3F4;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Hoteles</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">BKGS</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Eficacia</span></div>
@@ -1812,7 +1894,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:#4FC3F4;"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Severity por Corporativo · Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por % Críticos+ ↓</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Concentración de hoteles Críticos+ en Conv Rate por Corporativo</p>
 <div style="max-width:900px;">
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;padding:6px 0;border-bottom:1.5px solid #4FC3F4;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:left;">Corp</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Súper</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Muy Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Crit.</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">P/Debajo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Total</span></div>
@@ -1822,7 +1904,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E8F7FD;font-size:12px;"><div><div style="font-weight:600;color:#4FC3F4;">Accor</div><div style="font-size:10px;color:var(--ink-muted);">256 hoteles en P80</div></div><span style="text-align:right;color:#4FC3F4;font-weight:700;">5</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">0</span><span style="text-align:right;color:#4FC3F4;">5</span><span style="text-align:right;color:var(--ink-muted);">61</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">71</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:10%;background:#4FC3F4;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E8F7FD;font-size:12px;"><div><div style="font-weight:600;color:#4FC3F4;">AA-Independent</div><div style="font-size:10px;color:var(--ink-muted);">198 hoteles en P80</div></div><span style="text-align:right;color:#4FC3F4;font-weight:700;">4</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">3</span><span style="text-align:right;color:#4FC3F4;">3</span><span style="text-align:right;color:var(--ink-muted);">24</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">34</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:10%;background:#4FC3F4;"></div></div>
 <div style="display:grid;grid-template-columns:1fr 60px 70px 60px 80px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E8F7FD;font-size:12px;"><div><div style="font-weight:600;color:#4FC3F4;">Iberostar</div><div style="font-size:10px;color:var(--ink-muted);">20 hoteles en P80</div></div><span style="text-align:right;color:#4FC3F4;font-weight:700;">4</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">0</span><span style="text-align:right;color:#4FC3F4;">4</span><span style="text-align:right;color:var(--ink-muted);">3</span><span style="text-align:right;color:#4FC3F4;font-weight:700;">11</span></div><div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:8%;background:#4FC3F4;"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Menor Conv Rate · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv Rate ↑</span></h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Bookings > 0 · CheckRates ≥ P50 canasta · ordenado por Conv Rate ↑</p>
 <div style="max-width:1000px;">
 <div style="display:grid;grid-template-columns:1fr 80px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid #4FC3F4;"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:left;">Hotel</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">CheckRates</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4FC3F4;text-align:right;">Conv Rate</span></div>
@@ -1881,7 +1963,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <h3 style="font-size:15px;font-weight:600;margin:48px 0 14px;color:var(--ink);">Plan de Acción · Top 3</h3>
 <div style="border-left:3px solid #4FC3F4;padding:12px 0 12px 16px;margin-bottom:14px;background:#E8F7FD40;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
+    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
     <strong style="font-size:13px;">Escalar 435 hoteles Connectivity Issue</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors > P85 — baja efectividad. Validar conectividad de motor y rate plans.</p>
@@ -1889,15 +1971,15 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="border-left:3px solid #4FC3F4;padding:12px 0 12px 16px;margin-bottom:14px;background:#E8F7FD40;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Quick Win</span>
-    <strong style="font-size:13px;">Capturar 1.230 Quick Wins de la canasta</strong>
+    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Acción Rápida</span>
+    <strong style="font-size:13px;">Capturar 1.230 Optimizables de la canasta</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles con %Errors <5% y Conv Rate <1.74% — problema downstream. Revisar pricing y display.</p>
   <span style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;">Área: Wholesale</span>
 </div>
 <div style="border-left:3px solid #4FC3F4;padding:12px 0 12px 16px;margin-bottom:14px;background:#E8F7FD40;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mid-term</span>
+    <span style="display:inline-block;padding:2px 8px;background:#E8F7FD;color:#4FC3F4;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Mediano Plazo</span>
     <strong style="font-size:13px;">Diagnóstico de 499 hoteles Sin Conversión</strong>
   </div>
   <p style="margin:0 0 4px;font-size:12px;color:var(--ink-soft);line-height:1.45;">Hoteles 0 Bookings con %Errors normal — problema downstream (pricing, contenido, booking flow). Coordinar con Producto.</p>
@@ -1929,14 +2011,52 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
         <p class="section-kicker">Limitaciones del análisis actual y ajustes para la próxima iteración.</p>
       </div>
     </div>
-    <ol class="exec-bullets">
-      <li><strong>Dimensión Canasta integrada esta semana — primera iteración con análisis por canasta.</strong> Se procesaron las pestañas Canasta B2C / Canasta OP / Canasta UOP del dataset fuente y se construyeron las secciones §10/§11/§12. Próximo paso: validar que las hojas Canasta_* del Excel reflejen el detalle Top 20 por canasta y refinar el cálculo de pesos según el manual editorial sec. 03b.</li>
-      <li><strong>Falta ADR en el dataset CheckRates.</strong> Sin tarifa promedio no podemos estimar GB no generado en USD — solo Bookings perdidos. Un Booking en Conrad Las Vegas (~$400 ADR) y uno en Holiday Inn Express (~$120 ADR) cuentan igual. La priorización está sesgada hacia volumen, no hacia revenue en riesgo.</li>
-      <li><strong>El P20 sobre %Errors es demasiado permisivo en este dataset.</strong> El umbral cae en 7.76% de %Errors — la mayoría del LPS son hoteles "No Aceptable" o "Revisar", no Críticos reales. Combinar el P20 con Severity ≥ Crítica daría una muestra más accionable.</li>
-      <li><strong>CheckRates Únicos = consultas únicas al sistema de rates, no sesiones reales.</strong> El Conv Rate global de 1.38% es alto comparado con %NoDispo — refleja que el dataset filtra mejor el volumen cualificado, pero todavía mezcla consultas automáticas con visitantes reales. Sin distinción entre query types, no separamos "Eficacia alta sin conversión" de "Eficacia baja".</li>
-      <li><strong>Threshold de relevancia para rankings por Corporativo: CheckRates ≥ 1.000.</strong> Para títulos y rankings, se aplica un mínimo de 1.000 CheckRates Únicos por corporativo. Esto garantiza muestra estadística estable y captura corporativos con volumen real (como Oasis: 7 hoteles · 3.511 CheckRates · 13 Bookings) descartando ruido (corporativos con &lt;1.000 CheckRates que no son representativos). El threshold no se aplica a tablas detalladas internas, sólo a rankings de comparación.</li>
-      <li><strong>Severity Conv Rate: nuevo nivel «Sin Conversión» separa los hoteles con 0 Bookings de los Súper Críticos.</strong> En W17 se incorpora un 7º nivel — «Sin Conversión» (Bookings = 0) — que se sustrae de la categoría «Súper Crítica» (Conv Rate &lt; 0.1% pero con BKGS &gt; 0). El cambio aclara la lectura: 1.129 hoteles sin Bookings reflejan oportunidad comercial («no convirtió aún»), mientras que los 12 con BKGS &gt; 0 y Conv Rate &lt; 0.1% son falla activa («tráfico que no convierte»). Antes ambos estaban mezclados en «Súper Crítica» (1.141 hoteles, 26.2%) inflando la sensación de alarma.</li>
-    </ol>
+
+    <div class="metodo-grid">
+
+      <div class="metodo-card">
+        <span class="card-chip chip-canasta">Canasta · 1ª iteración</span>
+        <div class="card-title">Análisis por canasta integrado en W{{WEEK_NUM}}</div>
+        <div class="card-body">Se procesaron las hojas Canasta B2C / OP / UOP y se construyeron §10 / §11 / §12. Falta validar que el Excel refleje el detalle Top 20 y refinar el cálculo de pesos.</div>
+        <div class="card-action"><span class="arrow">→</span> Validar Top 20 por canasta · refinar weights</div>
+      </div>
+
+      <div class="metodo-card">
+        <span class="card-chip chip-data">Cobertura · Data</span>
+        <div class="card-title">Falta ADR en el dataset CheckRates</div>
+        <div class="card-body">Sin tarifa promedio no estimamos GB perdido en USD — solo Bookings. Un Booking en Conrad Las Vegas (~$400) y uno en Holiday Inn Express (~$120) hoy cuentan igual.</div>
+        <div class="card-action"><span class="arrow">→</span> Sumar ADR para priorización por revenue</div>
+      </div>
+
+      <div class="metodo-card">
+        <span class="card-chip chip-clean">Umbral · Filtro</span>
+        <div class="card-title">P20 sobre %Errors demasiado permisivo</div>
+        <div class="card-body">El umbral cae en {{P20_ERRORS_PCT}}% de %Errors — el LPS se llena de «Por debajo del Rango», no de Críticos reales. Combinar P20 con Severity ≥ Crítica daría muestra más accionable.</div>
+        <div class="card-action"><span class="arrow">→</span> Cruzar P20 + Severity Crítica</div>
+      </div>
+
+      <div class="metodo-card">
+        <span class="card-chip chip-metric">Definición · Métrica</span>
+        <div class="card-title">CheckRates ≠ sesiones reales</div>
+        <div class="card-body">El Conv Rate de {{CR_GLOBAL}}% es alto vs %NoDispo, pero el numerador todavía mezcla consultas automáticas con visitantes reales. Sin distinguir query types, no separamos «Eficacia alta sin conversión» de «Eficacia baja».</div>
+        <div class="card-action"><span class="arrow">→</span> Tipificar query types en el dataset</div>
+      </div>
+
+      <div class="metodo-card">
+        <span class="card-chip chip-mapping">Threshold · Relevancia</span>
+        <div class="card-title">Mínimo CheckRates ≥ 1.000 para ranking corporativo</div>
+        <div class="card-body">Garantiza muestra estable: captura corporativos con volumen real ({{EJEMPLO_CORP}}: {{EJEMPLO_CORP_HOTELES}} hoteles · {{EJEMPLO_CORP_CK}} CK · {{EJEMPLO_CORP_BKGS}} BKGS) y descarta ruido. Aplica solo a rankings de comparación, no a tablas detalladas.</div>
+        <div class="card-action"><span class="arrow">→</span> Documentar en guía editorial · sec. 03b</div>
+      </div>
+
+      <div class="metodo-card wide">
+        <span class="card-chip chip-method">Severity · Método</span>
+        <div class="card-title">Nuevo nivel «Sin Conversión» separa BKGS=0 de Súper Críticos</div>
+        <div class="card-body">W{{WEEK_NUM}} incorpora un 7º nivel: «Sin Conversión» (BKGS = 0) se sustrae de «Súper Crítica» (CR &lt; 0.1% con BKGS &gt; 0). Ahora los <strong>{{HOTELES_SIN_CONV}} hoteles sin Bookings</strong> reflejan oportunidad comercial («no convirtió aún»), mientras que los <strong>{{HOTELES_SUPER_CRIT}} con BKGS &gt; 0 y CR &lt; 0.1%</strong> son falla activa («tráfico que no convierte»). Antes mezclados en «Súper Crítica» ({{HOTELES_SUPER_CRIT_OLD}} · {{PCT_SUPER_CRIT_OLD}}%) inflando la alarma.</div>
+        <div class="card-action"><span class="arrow">→</span> Replicar nivel «Sin Conversión» en RatesNoDispo · W{{NEXT_WEEK}}</div>
+      </div>
+
+    </div>
   </section>
 </div>
 </div>

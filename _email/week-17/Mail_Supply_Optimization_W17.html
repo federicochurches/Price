@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Supply Optimization · Week 17 · Reportes CheckRates + Rates No Dispo</title>
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 0 24px; color: #161616; line-height: 1.5; background: #F8F4EC; }
+  .container { background: #fff; border: 1px solid #E5E0D2; padding: 32px; margin: 24px 0; }
+  .masthead { border-bottom: 3px solid #161616; padding-bottom: 16px; margin-bottom: 24px; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A8377; margin-bottom: 4px; }
+  .title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: #161616; margin: 0; }
+  .lede { font-size: 15px; color: #4A4A4A; margin: 16px 0 24px; line-height: 1.5; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #C9C1B0; padding-bottom: 6px; margin: 32px 0 14px; }
+  h2.cr { color: #5C469C; }
+  h2.rnd { color: #EA0074; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 8px; font-size: 14px; }
+  a { color: #5C469C; text-decoration: underline; }
+  strong { color: #161616; }
+  .accent-cr { color: #5C469C; font-weight: 700; }
+  .accent-rnd { color: #EA0074; font-weight: 700; }
+  .delta-down { color: #C0392B; font-weight: 700; font-size: 12px; }
+  .delta-up { color: #2E7D32; font-weight: 700; font-size: 12px; }
+  .delta-flat { color: #8A8377; font-weight: 700; font-size: 12px; }
+  .cta { display: inline-block; padding: 11px 20px; text-decoration: none !important; font-weight: 600; font-size: 13px; letter-spacing: 0.04em; margin: 4px 8px 4px 0; }
+  .cta-cr { background: #5C469C; color: #fff !important; }
+  .cta-rnd { background: #EA0074; color: #fff !important; }
+  .divider { border: none; border-top: 2px dashed #C9C1B0; margin: 36px 0; }
+  .footer { border-top: 1px solid #C9C1B0; padding-top: 16px; margin-top: 32px; font-size: 11px; color: #8A8377; line-height: 1.5; }
+  .kpi-line { font-size: 13.5px; line-height: 1.7; margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="masthead">
+    <div class="brand">PriceTravel · Supply Optimization</div>
+    <h1 class="title">Week 17 · Cierre Editorial</h1>
+  </div>
+
+  <p class="lede">
+    <strong>Eficacia estable (93.92%) · Conv Rate <span class="delta-down">▼ -20.7% WoW</span> (1.38%)</strong> en CheckRates.
+    <strong><span class="accent-rnd">9.753 hoteles</span> con 0 BKGS · <span class="accent-rnd">$8.9M en GB</span></strong> no generado en 7 días en Rates No Dispo.
+    Las Vegas + Marriott + Accor concentran la criticidad.
+  </p>
+
+  <p>Hola equipo,</p>
+
+  <p>
+    Compartimos los reportes de <strong>Supply Optimization · Week 17</strong> (20 al 26 de abril).
+    Esta semana introducimos cambios metodológicos importantes — destacados al final del mail.
+  </p>
+
+  <p style="margin: 20px 0;">
+    <a href="https://analytics-desk.netlify.app/checkrates/week-17/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Ver CheckRates</a>
+    <a href="https://analytics-desk.netlify.app/rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Ver Rates No Dispo</a>
+  </p>
+
+  <h2 class="cr">Supply CheckRates · Week 17</h2>
+
+  <p style="margin: 12px 0 6px;"><strong>KPIs de la semana</strong></p>
+  <ul>
+    <li class="kpi-line"><strong>Eficacia:</strong> 93.92% <span class="delta-flat">— estable</span> · Canasta B2C 93.98% · OP 94.13% · CUG 92.87%</li>
+    <li class="kpi-line"><strong>Conv Rate:</strong> 1.38% <span class="delta-down">▼ -20.7% WoW</span> · Canasta B2C 0.42% · OP 1.18% · CUG 2.88%</li>
+    <li class="kpi-line"><strong>HTS · P80:</strong> 4.349 hoteles · 1.459.274 CheckRates · 20.131 BKGS</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Top hallazgos</strong></p>
+  <ul>
+    <li><strong>Las Vegas — 2 Casos Críticos.</strong> Las Vegas Hilton: 6.6% Eficacia · 0% Conv Rate · 0 BKGS sobre 5.5K CheckRates. Conrad Las Vegas: 11.1% Eficacia · 0.09% Conv Rate · 3 BKGS. Cluster geográfico-corporativo Hilton confirmado.</li>
+    <li><strong>Severity Conv Rate (nuevo nivel «Sin Conversión»).</strong> 1.129 hoteles con BKGS = 0 (26.0% de la muestra) — antes mezclados con Súper Crítica. Solo 12 hoteles con CR &lt; 0.1% y BKGS &gt; 0.</li>
+    <li><strong>Accor: 73% de los hoteles con baja conversión.</strong> 213 hoteles · Conv Rate 0.18% · 108 BKGS. Concentración corporativa que requiere deep dive específico.</li>
+    <li><strong>Diferencia 7× entre canastas.</strong> CUG convierte a 2.88% (saludable) vs B2C 0.42% (crítico).</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Plan de acción</strong></p>
+  <ul>
+    <li><span class="accent-cr">QW</span> — Las Vegas Hilton + Conrad Las Vegas (escalamiento inmediato a Supply + Wholesale).</li>
+    <li><span class="accent-cr">QW</span> — 34 hoteles Críticos+ con %errors &gt; 40% para diagnóstico técnico.</li>
+    <li><span class="accent-cr">MP</span> — 14 hoteles Muy Críticos con %errors 60-80%.</li>
+    <li><span class="accent-cr">MP</span> — 390 hoteles (33%) con Conv Rate &lt; benchmark 1.74%.</li>
+    <li><span class="accent-cr">MP</span> — Deep dive Accor: 73% concentración requiere análisis de fuente de tráfico.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 class="rnd">Supply Rates No Dispo · Week 17</h2>
+
+  <p style="margin: 12px 0 6px;"><strong>KPIs de la semana</strong></p>
+  <ul>
+    <li class="kpi-line"><strong>Oportunidad perdida GB:</strong> $8.9M <span class="delta-up">▼ -2.3% WoW</span> · 39.261 reservas perdidas en 76 países</li>
+    <li class="kpi-line"><strong>Hoteles con 0 BKGS:</strong> 35.561 <span class="delta-down">▲ +21.9% WoW</span> · 78.5% de 45.310 hoteles P80</li>
+    <li class="kpi-line"><strong>Mayor % No Dispo por destino:</strong> Bangkok 42.7% · Tenerife 39.3% · Sharm el Sheikh 34.6%</li>
+    <li class="kpi-line"><strong>Menor Conv Rate RPM por Corp:</strong> Marriott 0.24 · Best Western 0.30 · CHOICE 0.36</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Top hallazgos</strong></p>
+  <ul>
+    <li><strong>Las Vegas — 3 Casos Críticos.</strong> Las Vegas Hilton at RW: 5.1M tráfico · 0.9% NoDispo · RPM 0. Virgin Hotels Las Vegas: 5.0M tráfico · 12.7% NoDispo · RPM 0. The STRAT: 5.4M tráfico · 0.9% NoDispo · RPM 0. Las Vegas como destino convierte bien (3.70 RPM vs benchmark 2.60), pero estos 3 hoteles son casos críticos que rompen el patrón regional.</li>
+    <li><strong>Diferencia 19× entre corporativos.</strong> IHG: 5.30 RPM (referencia) vs Marriott 0.28 RPM. Concentración del problema en Marriott requiere deep dive.</li>
+    <li><strong>Canasta CUG sostiene el negocio.</strong> 31.44 RPM · 626M búsquedas · pero 76.4% de hoteles con 0 BKGS — alta dependencia de pocos hoteles top.</li>
+    <li><strong>Catalonia · NH · Hotusa · Nacional Inn:</strong> ≥97% de sus hoteles con 0 BKGS. Concentración corporativa que requiere revisión de conectividad y bloqueos comerciales.</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Análisis por Canasta</strong></p>
+  <ul>
+    <li><strong>B2C:</strong> $320K · 1.399 BKGS · 6.08 RPM — 90.9% hoteles sin BKGS</li>
+    <li><strong>OP:</strong> $4.39M · 19.721 BKGS · 18.43 RPM — 72.0% hoteles sin BKGS</li>
+    <li><strong>CUG:</strong> $4.15M · 15.752 BKGS · 31.44 RPM — 76.4% hoteles sin BKGS</li>
+  </ul>
+
+  <p style="margin: 18px 0 6px;"><strong>Plan de acción</strong></p>
+  <ul>
+    <li><span class="accent-rnd">QW</span> — Las Vegas: 3 hoteles (LV Hilton + Virgin + STRAT) revisión inmediata de conectividad.</li>
+    <li><span class="accent-rnd">QW</span> — Top 10 demanda no convertida: 50-150 BKGS/7d de upside potencial.</li>
+    <li><span class="accent-rnd">MP</span> — Deep dive Marriott (concentración 0.24 RPM).</li>
+    <li><span class="accent-rnd">MP</span> — Deep dive destinos con mayor caída WoW: París (0.23), Istanbul (0.32), Río de Janeiro (0.36).</li>
+    <li><span class="accent-rnd">ES</span> — Sistema de detección temprana de cierres críticos por corporativo.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2 style="color:#161616;">Cambios metodológicos Week 17</h2>
+
+  <ul>
+    <li><strong>CheckRates · Severity Conv Rate:</strong> nuevo nivel «Sin Conversión» (BKGS=0) separado de Súper Crítica. Antes ambos estaban juntos inflando la sensación de alarma.</li>
+    <li><strong>Rates No Dispo · Reconstrucción de archivo:</strong> archivo W17 reconstruido (Canasta CUG estaba truncada). Tabla resumen §09 alineada con secciones detalle.</li>
+    <li><strong>Convención canastas (ambos reportes):</strong> B2C magenta · OP violeta · CUG celeste — coherente entre los 2 reportes.</li>
+    <li><strong>Tipografía unificada:</strong> CheckRates · Conv Rate · BKGS · Canasta · «Casos Críticos» (no «Outliers»).</li>
+    <li><strong>Nueva documentación:</strong> guías editoriales completas con changelog y checklist pre-publicación, disponibles en el repo dentro de <code>_manual/</code> de cada reporte.</li>
+  </ul>
+
+  <h2 style="color:#161616;">Próximos pasos</h2>
+  <ul>
+    <li>Revisar el detalle por hotel, corporativo y canasta en los reportes completos.</li>
+    <li>Validar acciones específicas según área: Supply Optimization · Supply · Wholesale.</li>
+    <li>Próxima publicación: lunes 5 de mayo (Week 18).</li>
+    <li>Cualquier feedback o consulta, respondan este mail.</li>
+  </ul>
+
+  <p style="margin: 28px 0 16px;">
+    <a href="https://analytics-desk.netlify.app/checkrates/week-17/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Ver CheckRates</a>
+    <a href="https://analytics-desk.netlify.app/rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Ver Rates No Dispo</a>
+  </p>
+
+  <div class="footer">
+    Reciben este mail porque son parte del equipo de Supply Optimization. Cada lunes enviamos el deep-dive de la semana anterior.<br><br>
+    <strong>PriceTravel · Supply Optimization · Week 17 · 20 – 26 Abril 2026 · Vol. 02</strong>
+  </div>
+
+</div>
+
+</body>
+</html>
