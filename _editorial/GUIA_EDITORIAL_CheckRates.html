@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guía Editorial · Supply CheckRates</title>
+<style>
+  :root{
+    --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+    --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
+    --amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',system-ui,sans-serif;font-size:15px;line-height:1.6;}
+  .shell{max-width:var(--maxw);margin:0 auto;padding:40px 32px;}
+  h1{font-size:38px;font-weight:700;letter-spacing:-.03em;margin:0 0 8px;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--rule);color:var(--accent);}
+  h3{font-size:17px;font-weight:600;margin:28px 0 12px;color:var(--ink);}
+  h4{font-size:14px;font-weight:600;margin:20px 0 8px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+  p, li{font-size:14px;line-height:1.6;}
+  code{font-family:'Geist Mono',monospace;background:var(--paper-soft);padding:2px 6px;border-radius:3px;font-size:13px;color:var(--accent);}
+  ul, ol{padding-left:24px;}
+  li{margin-bottom:8px;}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13px;}
+  th{background:var(--paper-soft);padding:10px;text-align:left;font-weight:600;border-bottom:2px solid var(--ink);}
+  td{padding:10px;border-bottom:1px solid var(--rule-soft);}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:6px;}
+  .badge{display:inline-block;padding:3px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-radius:3px;}
+  .b-mandatory{background:#FCE4F1;color:#EA0074;}
+  .b-recommend{background:#E8F7FD;color:#1B95D6;}
+  .b-deprecated{background:#F1EFE8;color:#888780;}
+  .rule-box{background:var(--paper-soft);border-left:3px solid var(--accent);padding:16px 22px;margin:20px 0;font-size:13px;}
+  .rule-box strong{color:var(--ink);}
+  .meta{color:var(--ink-muted);font-size:12px;}
+  hr{border:none;border-top:1px solid var(--rule);margin:48px 0;}
+  .toc{background:var(--paper-soft);padding:18px 24px;border-radius:6px;margin:24px 0;}
+  .toc a{color:var(--accent);text-decoration:none;font-size:13px;}
+  .toc a:hover{text-decoration:underline;}
+  .toc li{margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="meta">PriceTravel Analytics Desk · Supply Optimization</div>
+<h1>Guía Editorial · Supply CheckRates</h1>
+<p style="font-size:18px;color:var(--ink-soft);margin:8px 0 0;">Reglas, convenciones y estructura del reporte semanal CheckRates.</p>
+<div class="meta" style="margin-top:8px;">Última actualización: W18 · Abr 2026 · Vol. 03 · v1.6 Etapa 2</div>
+
+<div class="toc">
+  <strong style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Contenido</strong>
+  <ul style="list-style:none;padding-left:0;margin:10px 0 0;">
+    <li><a href="#proposito">1. Propósito del reporte</a></li>
+    <li><a href="#dataset">2. Dataset y procesamiento</a></li>
+    <li><a href="#estructura">3. Estructura del reporte (12 secciones · Etapa 2)</a></li>
+    <li><a href="#convenciones">4. Convenciones tipográficas y nomenclatura</a></li>
+    <li><a href="#paleta">5. Paleta cromática</a></li>
+    <li><a href="#severity">6. Sistema Severity (5+5 niveles)</a></li>
+    <li><a href="#thresholds">7. Thresholds y filtros</a></li>
+    <li><a href="#vocabulario-clusters">7.6 Vocabulario · Clusters y Prioridades</a></li>
+    <li><a href="#sort-orders">7.7 Sort orders canónicos por sección</a></li>
+    <li><a href="#layouts-etapa2">7.8 Layouts Etapa 2 · Horizontalización <span class="badge b-mandatory" style="font-size:9px;">NUEVO</span></a></li>
+    <li><a href="#changelog">8. Changelog metodológico</a></li>
+    <li><a href="#checklist">9. Checklist pre-publicación</a></li>
+    <li><a href="#metodo-section">10. Sección 12 · Método (formato canónico)</a></li>
+  </ul>
+</div>
+
+<h2 id="proposito">1. Propósito del reporte</h2>
+
+<p>El reporte semanal <strong>Supply CheckRates</strong> mide la salud técnica y comercial del canal de distribución por hotel. Detecta hoteles con baja Eficacia (problemas de respuesta de rates) y baja Conv Rate (problemas de conversión) para priorizar acciones de Supply Optimization.</p>
+
+<p>El reporte se publica semanalmente, los lunes, y cubre los 7 días de la semana anterior (lunes a domingo).</p>
+
+<h3>Audiencia</h3>
+<ul>
+  <li>Equipo Supply Optimization</li>
+  <li>Equipo Supply</li>
+  <li>Equipo Wholesale</li>
+  <li>Stakeholders ejecutivos (lectura de §01 Resumen Ejecutivo)</li>
+</ul>
+
+<h2 id="dataset">2. Dataset y procesamiento</h2>
+
+<h3>Fuente</h3>
+<p>Archivo <code>Week-XX-CheckRates.xlsx</code> con 4 hojas:</p>
+<ul>
+  <li><strong>Canasta ALL</strong> — universo total (incluye hoteles sin tráfico)</li>
+  <li><strong>Canasta B2C</strong> — Cliente final (web/app retail)</li>
+  <li><strong>Canasta OP</strong> — Tour operadores · canal mayorista</li>
+  <li><strong>Canasta UOP</strong> — Closed User Group · contratos privados</li>
+</ul>
+
+<h3>Universo y muestra</h3>
+<ol>
+  <li>Filtrar hoteles con <code>CheckRates Únicos &gt; 0</code> (universo válido)</li>
+  <li>Ordenar por <code>CheckRates Únicos</code> descendente</li>
+  <li>Construir <strong>Muestra HTS · P80</strong>: hoteles que acumulan el 80% del CheckRates total</li>
+  <li>Las métricas globales y los rankings se calculan sobre P80</li>
+</ol>
+
+<h3>Métricas core</h3>
+<table>
+  <tr><th>Métrica</th><th>Cálculo</th><th>Notas</th></tr>
+  <tr><td><code>Eficacia</code></td><td>Promedio ponderado de Efectividad por CK Únicos</td><td>%errors = 100 − Eficacia</td></tr>
+  <tr><td><code>Conv Rate</code></td><td>Bookings ÷ CheckRates Únicos × 100</td><td>NO usar el campo nativo del crudo (incorrecto)</td></tr>
+  <tr><td><code>%NoDispo</code></td><td>NoDispo ÷ Tráfico × 100</td><td>Solo en RatesNoDispo, referencia cruzada</td></tr>
+</table>
+
+<div class="rule-box">
+  <strong>⚠ Atención:</strong> El campo <code>Conversion Rate</code> del crudo NO es <code>Bookings/CheckRates Únicos</code>. Para el reporte se calcula manualmente. Documentado en §13 Método del reporte.
+</div>
+
+<h2 id="estructura">3. Estructura del reporte (12 secciones · Etapa 2)</h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">Desde Etapa 2 (W18+), Severity Eficacia y Conv Rate se unifican en una sola sección §02 con dos columnas. La numeración del resto se ajusta -1.</p>
+
+<table>
+  <tr><th>#</th><th>Sección</th><th>Contenido</th><th>Color brand</th></tr>
+  <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave en grid 2 columnas (5+5)</td><td>brand mixto</td></tr>
+  <tr><td>·02</td><td><strong>Severity</strong> <span class="badge b-mandatory">Etapa 2</span></td><td>Distribución unificada · 2 columnas: Eficacia (5 niveles) + Conv Rate (5 niveles)</td><td>gradiente</td></tr>
+  <tr><td>·03</td><td>Hoteles Críticos</td><td>Top 10 ranking compuesto Eficacia + Conv Rate ↑</td><td>violeta</td></tr>
+  <tr><td>·04</td><td>Bajo Rendimiento</td><td>Top 10 con %Errors ≥ 5% y BKGS &gt; 0 · ordenado por Conv Rate ↑</td><td>violeta</td></tr>
+  <tr><td>·05</td><td><strong>Severity por Corporativo</strong> <span class="badge b-mandatory">Etapa 2</span></td><td>1 tabla unificada Top 5 con %Crit+ Eficacia + %Crit+ Conv Rate + Diagnóstico</td><td>violeta</td></tr>
+  <tr><td>·06</td><td>Menor Conv Rate</td><td>Top 10 con BKGS ≥ 3 y CheckRates ≥ 2K · ordenado por Conv Rate ↑</td><td>violeta</td></tr>
+  <tr><td>·07</td><td>Plan de Acción</td><td>10 acciones numeradas (1–10) en grid 2 cols · Acción Rápida · Mediano Plazo · Estratégico</td><td>brand mixto</td></tr>
+  <tr><td>·08</td><td><strong>Análisis por Canasta</strong> <span class="badge b-mandatory">Etapa 2</span></td><td>3 cards horizontales: B2C · OP · CUG con KPIs y cluster dominante</td><td>colores canasta</td></tr>
+  <tr><td>·09</td><td>Canasta B2C</td><td>Detalle con KPI strip + Resumen 3 cols + tablas en grid 2x2 + tabla wide</td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td></tr>
+  <tr><td>·10</td><td>Canasta OP</td><td>Detalle con KPI strip + Resumen 3 cols + tablas en grid 2x2 + tabla wide</td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td></tr>
+  <tr><td>·11</td><td>Canasta CUG</td><td>Detalle con KPI strip + Resumen 3 cols + tablas en grid 2x2 + tabla wide</td><td><span class="swatch" style="background:#4FC3F4;"></span> celeste</td></tr>
+  <tr><td>·12</td><td>Método</td><td>Limitaciones y mejoras pendientes (formato cards categorizadas)</td><td>neutral</td></tr>
+</table>
+
+<h3>Hero (antes de §01) <span class="badge b-mandatory">Etapa 2 · Variante B</span></h3>
+<ol>
+  <li>Masthead compacto con logo + identidad + fecha + volumen</li>
+  <li>Bajada de 1 línea con headline + bajada secundaria con KPIs globales</li>
+  <li>2 KPI cards principales (Eficacia · Conv Rate) con <strong>tabs CSS-only</strong> internos: Por Canasta · Por Corp · Por Hotel</li>
+  <li>3 alert cards horizontales · "📍 Casos Críticos de la Semana"</li>
+  <li>Banner Excel compacto · 1 línea</li>
+</ol>
+
+<h3>Cada canasta (§09/10/11) incluye:</h3>
+<ol>
+  <li>KPI strip 5 columnas: Hoteles P80, CK, BKGS, Eficacia, Conv Rate</li>
+  <li><strong>Resumen Ejecutivo · Top 3 Findings</strong> en grid 3 columnas (1 finding por col) <span class="badge b-mandatory">Etapa 2</span></li>
+  <li><strong>Grid 2x2 de tablas Top 5</strong> <span class="badge b-mandatory">Etapa 2</span>:
+    <ul>
+      <li>Hoteles Críticos + Bajo Rendimiento (fila 1)</li>
+      <li>Por Corporativo + Severity Corp (fila 2)</li>
+    </ul>
+  </li>
+  <li>Menor Conv Rate · Top 5 (tabla wide full-width)</li>
+  <li>Plan de Acción · Top 3 (3 cards numeradas 1/2/3)</li>
+  <li>Banner Excel compacto · 1 línea</li>
+</ol>
+
+<h2 id="convenciones">4. Convenciones tipográficas y nomenclatura</h2>
+
+<h3>Términos canónicos <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Usar</th><th>NO usar</th><th>Motivo</th></tr>
+  <tr><td><code>CheckRates</code></td><td><code>CheckRates Únicos</code> · <code>CK Únicos</code> · <code>CK</code></td><td>Editorial: nombre simplificado. El campo del dataset se llama "CheckRates Únicos" pero en el reporte se usa "CheckRates"</td></tr>
+  <tr><td><code>Successful CheckRates</code></td><td><code>Successful UniqueChkRts</code> · <code>Suc</code></td><td>Mismo principio: editorial vs. dataset</td></tr>
+  <tr><td><code>Conv Rate</code></td><td><code>CR</code></td><td>Abreviatura interna ambigua</td></tr>
+  <tr><td><code>BKGS</code></td><td><code>Bk</code> · <code>Bkgs</code></td><td>Mayúsculas para consistencia</td></tr>
+  <tr><td><code>Canasta</code></td><td><code>Canal</code></td><td>Vocabulario interno PriceTravel</td></tr>
+  <tr><td><code>Por debajo del Rango</code></td><td><code>No Aceptable</code></td><td>W18+ · más descriptivo · evita juicio de valor</td></tr>
+  <tr><td><code>Baja Eficacia en CheckRates</code></td><td><code>falla técnica</code> · <code>problema técnico</code></td><td>Métrica concreta vs. juicio vago</td></tr>
+  <tr><td><code>Casos Críticos</code></td><td><code>Outliers</code> (en badges)</td><td>"Outliers" solo permitido como término estadístico</td></tr>
+  <tr><td><code>Sin Conversión</code></td><td>(no separar antes)</td><td>Nivel separado para hoteles BKGS=0 (W17+)</td></tr>
+</table>
+
+<h3>Vocabulario PriceTravel</h3>
+<ul>
+  <li>Siempre usar el prefijo <strong>"Canasta"</strong>: Canasta B2C, Canasta OP, Canasta CUG</li>
+  <li>Plural correcto: "las 3 canastas" (no "los 3 canales")</li>
+</ul>
+
+<h3>Formato de números</h3>
+<ul>
+  <li>Miles con punto: <code>1.234</code> · <code>4.349</code></li>
+  <li>Decimales con punto: <code>1.38%</code></li>
+  <li>Volumen abreviado: <code>5.5K CheckRates</code> · <code>$8.9M</code></li>
+</ul>
+
+<h3>Idioma</h3>
+<p>Español argentino. Sin tilde en "fé", "rúido", etc. Tildes correctas: "Análisis", "Crítica", "Súper Crítica".</p>
+
+<h2 id="paleta">5. Paleta cromática</h2>
+
+<h3>Colores brand corporativos</h3>
+<table>
+  <tr><th>Variable CSS</th><th>HEX</th><th>Color</th><th>Uso</th></tr>
+  <tr><td><code>--accent</code></td><td><code>#5C469C</code></td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td><td>Brand CheckRates · Canasta OP · Severity "Por debajo / Revisar"</td></tr>
+  <tr><td><code>--accent-soft</code></td><td><code>#EDE8F7</code></td><td><span class="swatch" style="background:#EDE8F7;"></span> violeta claro</td><td>Backgrounds violeta · chips de Severity violeta</td></tr>
+  <tr><td><code>--amber</code></td><td><code>#EA0074</code></td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td><td>Canasta B2C · brand B2C · Severity "Crítica" + "Crítica Severa"</td></tr>
+  <tr><td><code>--amber-soft</code></td><td><code>#FCE4F1</code></td><td><span class="swatch" style="background:#FCE4F1;"></span> magenta claro</td><td>Backgrounds magenta · chip Severity Crítica soft</td></tr>
+  <tr><td><code>--green</code></td><td><code>#4FC3F4</code></td><td><span class="swatch" style="background:#4FC3F4;"></span> cyan</td><td>Canasta CUG · Severity "Exitosa / Saludable" <span class="badge b-mandatory">Etapa 2 · unificado</span></td></tr>
+  <tr><td><code>--green-soft</code></td><td><code>#E8F7FD</code></td><td><span class="swatch" style="background:#E8F7FD;"></span> cyan claro</td><td>Backgrounds cyan · chips Severity Exitosa/Saludable</td></tr>
+  <tr><td><code>--navy</code></td><td><code>#161616</code></td><td><span class="swatch" style="background:#161616;"></span> negro</td><td>Severity Súper Crítica (solo Eficacia)</td></tr>
+  <tr><td><code>--gray-medium</code> <span class="badge b-mandatory">Etapa 2 · NUEVO</span></td><td><code>#888780</code></td><td><span class="swatch" style="background:#888780;"></span> gris medio</td><td>Severity "Sin Conversión" (solo Conv Rate)</td></tr>
+</table>
+
+<h3>Convención por canasta <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Canasta</th><th>Color</th><th>Variable</th></tr>
+  <tr><td>B2C</td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td><td><code>--amber</code></td></tr>
+  <tr><td>OP</td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td><td><code>--accent</code></td></tr>
+  <tr><td>CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> cyan</td><td><code>--green</code></td></tr>
+</table>
+
+<h3>Colores semánticos (deltas)</h3>
+<ul>
+  <li><span class="swatch" style="background:#2F6C34;"></span> Verde <code>#2F6C34</code> + bg <code>#E8F5E9</code> — delta positivo / mejora</li>
+  <li><span class="swatch" style="background:#C0392B;"></span> Rojo <code>#C0392B</code> + bg <code>#FDECEA</code> — delta negativo / empeoramiento</li>
+</ul>
+
+<div class="rule-box">
+  <strong>⚠ NO usar terracota (<code>#C0392B</code>) para datos descriptivos.</strong> Solo para deltas semánticos (▼ -X% / ▲ +X%). Para datos críticos descriptivos usar el color brand del reporte.
+</div>
+
+<div class="rule-box">
+  <strong>Etapa 2 · Cambios cromáticos clave:</strong>
+  <ul style="margin-top:8px;margin-bottom:0;">
+    <li><strong>Saludable</strong> (Conv Rate ≥ 1.74%) usa cyan <code>#4FC3F4</code> — antes era verde <code>#2F6C34</code>. La unificación con Exitosa permite reconocer "está bien" en cualquier dimensión.</li>
+    <li><strong>Sin Conversión</strong> (BKGS = 0) usa gris medio <code>#888780</code> — antes era negro <code>#161616</code>. Diferencia visual entre <em>ausencia de conversión</em> (gris) y <em>falla activa máxima</em> (negro Súper Crítica).</li>
+    <li><strong>Crítica Severa</strong> (Eficacia 60–20% · Conv Rate &lt; 0.5%) usa magenta solid <code>#EA0074</code> en ambas tablas — coherencia entre dimensiones.</li>
+  </ul>
+</div>
+
+<h2 id="severity">6. Sistema Severity <span class="badge b-mandatory">Etapa 2 · 5+5 niveles</span></h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;"><strong>Cambio Etapa 2:</strong> Las dos tablas Severity (Eficacia + Conv Rate) ahora son <strong>simétricas con 5 niveles cada una</strong>, renderizadas en grid 2 columnas dentro de §02. La paleta de colores está unificada entre ambas para que niveles equivalentes en gravedad se reconozcan visualmente sin importar la dimensión.</p>
+
+<h3>Severity · Eficacia (5 niveles · rangos FIJOS) <span class="badge b-mandatory">Etapa 2</span></h3>
+<p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;">Lectura: <em>"de 100 a 95% de eficacia"</em>. Crítica + Muy Crítica del Bloque B se unifican en <strong>"Crítica Severa"</strong> para mantener simetría con Conv Rate.</p>
+<table>
+  <tr><th>Nivel</th><th>Rango Eficacia</th><th>Badge</th><th>Acción</th></tr>
+  <tr><td>Exitosa</td><td>100 – 95%</td><td><span class="badge" style="background:#E8F7FD;color:#4FC3F4;">Exitosa</span></td><td>Mantener</td></tr>
+  <tr><td>Por debajo</td><td>95 – 80%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Por debajo</span></td><td>Revisar tendencia</td></tr>
+  <tr><td>Revisar</td><td>80 – 60%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Revisar</span></td><td>Diagnóstico</td></tr>
+  <tr><td>Crítica Severa</td><td>60 – 20%</td><td><span class="badge" style="background:#EA0074;color:#fff;">Crítica Severa</span></td><td>Escalamiento urgente</td></tr>
+  <tr><td>Súper Crítica</td><td>20 – 0%</td><td><span class="badge" style="background:#161616;color:#fff;">Súper Crítica</span></td><td>Escalamiento inmediato</td></tr>
+</table>
+
+<h3>Severity · Conv Rate (5 niveles · benchmark global) <span class="badge b-mandatory">Etapa 2</span></h3>
+<p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;"><strong>Fórmula W18+:</strong> Conv Rate = <code>Bookings ÷ Successful CheckRates × 100</code>. Solo los CheckRates que devolvieron tarifa correctamente pueden producir bookings — usar Successful en el denominador aísla la conversión comercial pura. <strong>Buena + Excelente</strong> del Bloque B se unifican en <strong>"Saludable"</strong>; <strong>Súper + Muy Crítica</strong> se unifican en <strong>"Crítica Severa"</strong>.</p>
+<table>
+  <tr><th>Nivel</th><th>Conv Rate rango</th><th>Badge</th><th>Acción</th></tr>
+  <tr><td>Saludable</td><td>≥ 1.74%</td><td><span class="badge" style="background:#E8F7FD;color:#4FC3F4;">Saludable</span></td><td>Mantener</td></tr>
+  <tr><td>Por debajo</td><td>1 – 1.74%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Por debajo</span></td><td>Revisar pricing/contenido</td></tr>
+  <tr><td>Crítica</td><td>0.5 – 1%</td><td><span class="badge" style="background:#FCE4F1;color:#EA0074;">Crítica</span></td><td>Análisis comercial</td></tr>
+  <tr><td>Crítica Severa</td><td>0 &lt; 0.5%</td><td><span class="badge" style="background:#EA0074;color:#fff;">Crítica Severa</span></td><td>Escalamiento Wholesale + Supply</td></tr>
+  <tr><td>Sin Conversión</td><td>BKGS = 0</td><td><span class="badge" style="background:#888780;color:#fff;">Sin Conversión</span></td><td>Auditar booking flow + pricing</td></tr>
+</table>
+
+<h3>Paleta unificada por nivel <span class="badge b-mandatory">Etapa 2</span></h3>
+<p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;">Niveles equivalentes en gravedad (Saludable ↔ Exitosa, Crítica Severa en ambas, etc.) usan el mismo color para que el lector reconozca el patrón sin esfuerzo cognitivo.</p>
+<table>
+  <tr><th>Color</th><th>Significado</th><th>Eficacia</th><th>Conv Rate</th></tr>
+  <tr><td><span class="swatch" style="background:#4FC3F4;"></span> cyan <code>#4FC3F4</code></td><td>"Está bien"</td><td>Exitosa</td><td>Saludable</td></tr>
+  <tr><td><span class="swatch" style="background:#5C469C;"></span> violeta <code>#5C469C</code></td><td>"Hay que mirar"</td><td>Por debajo · Revisar</td><td>Por debajo</td></tr>
+  <tr><td><span class="swatch" style="background:#EA0074;border:1px solid var(--rule);"></span> magenta soft</td><td>"Atención"</td><td>—</td><td>Crítica</td></tr>
+  <tr><td><span class="swatch" style="background:#EA0074;"></span> magenta solid <code>#EA0074</code></td><td>"Urgente"</td><td>Crítica Severa</td><td>Crítica Severa</td></tr>
+  <tr><td><span class="swatch" style="background:#161616;"></span> negro <code>#161616</code></td><td>"Máxima gravedad"</td><td>Súper Crítica</td><td>—</td></tr>
+  <tr><td><span class="swatch" style="background:#888780;"></span> gris medio <code>#888780</code></td><td>"Sin actividad · auditar"</td><td>—</td><td>Sin Conversión</td></tr>
+</table>
+
+<div class="rule-box">
+  <strong>Decisión visual clave:</strong> "Sin Conversión" usa <strong>gris medio</strong> (no negro) porque no es <em>peor</em> que Súper Crítica, es <em>diferente</em>. Súper Crítica = falla activa (CR &lt; 0.1% pero positivo). Sin Conversión = ausencia de actividad (BKGS = 0). El gris comunica "neutral · auditar" mejor que negro.
+</div>
+
+<div class="rule-box">
+  <strong>Rangos FIJOS, no por percentil.</strong> No recalcular umbrales semana a semana. Esto garantiza comparación WoW y consistencia histórica. <strong>Headers obligatorios en la tabla:</strong> Nivel · Distribución · Hoteles · %.
+</div>
+
+<div class="rule-box">
+  <strong>Cambio metodológico W17:</strong> El nivel <strong>"Sin Conversión"</strong> (BKGS=0) se separa de "Súper Crítica" (BKGS&gt;0 con CR&lt;0.1%). Antes ambos estaban juntos inflando la sensación de alarma.
+</div>
+<div class="rule-box">
+  <strong>Cambio metodológico W18:</strong> Conv Rate ahora se calcula sobre <strong>Successful CheckRates</strong> (BK ÷ Suc) en lugar de sobre el total de CheckRates (BK ÷ CK). Esto separa el problema técnico (Eficacia) del problema comercial (Conv Rate). En W17 publicado se usó la fórmula antigua — la transición se completa desde W18.
+</div>
+
+<h2 id="thresholds">7. Thresholds y filtros</h2>
+
+<table>
+  <tr><th>Filtro</th><th>Valor</th><th>Aplica a</th></tr>
+  <tr><td>Universo válido</td><td><code>CK Únicos &gt; 0</code></td><td>Todo el dataset</td></tr>
+  <tr><td>Muestra HTS · P80</td><td><code>cumsum(CK) ≤ 80%</code></td><td>Métricas globales y rankings</td></tr>
+  <tr><td>Top 10 Críticos (general)</td><td><code>CK ≥ 1.000</code></td><td>§04</td></tr>
+  <tr><td>Top 5 por canasta</td><td><code>CK ≥ 500</code></td><td>§10/11/12 tablas internas</td></tr>
+  <tr><td>Menor Conv Rate (general)</td><td><code>BKGS ≥ 3 ∧ CheckRates ≥ 2.000</code></td><td>§07</td></tr>
+  <tr><td>Menor Conv Rate (canasta)</td><td><code>BKGS ≥ 3 ∧ CheckRates ≥ 500</code></td><td>§10/11/12</td></tr>
+  <tr><td>Severity por Corp</td><td><code>n ≥ 5 hoteles ∧ CheckRates ≥ 1.000</code></td><td>Rankings por corporativo</td></tr>
+</table>
+
+<h2 id="vocabulario-clusters">7.6 Vocabulario · Clusters y Prioridades <span class="badge b-mandatory">W18+</span></h2>
+
+<p>El reporte usa <strong>dos ejes de etiquetado distintos</strong> que antes se mezclaban en chips visualmente idénticos. La separación los hace independientes y evita ambigüedad.</p>
+
+<h3>Eje A · Cluster del hotel <span class="badge b-mandatory">Obligatorio</span></h3>
+<p>Etiqueta <strong>qué tiene</strong> el hotel. Aparece como chip en cada fila de las tablas (§04, §05, §07) y en la tabla resumen §09 (cluster dominante por canasta).</p>
+<table>
+  <tr><th>Cluster</th><th>Criterio</th><th>Diagnóstico</th><th>Chip color</th></tr>
+  <tr><td><strong>Optimizable</strong></td><td>Eficacia ≥ 95% · Conv Rate sano · vol. significativo</td><td>Ya funciona — un ajuste lo mejora</td><td>Verde / cyan claro</td></tr>
+  <tr><td><strong>Conv Rate Crítico</strong></td><td>Eficacia ≥ 95% · Conv Rate &lt; 0.5%</td><td>El motor anda · la conversión está mal · problema comercial</td><td>Magenta</td></tr>
+  <tr><td><strong>Connectivity Issue</strong></td><td>Eficacia &lt; 60% sostenida</td><td>Problema técnico · API/integración falla</td><td>Magenta</td></tr>
+  <tr><td><strong>Tráfico Anómalo</strong></td><td>Volumen alto + 0 BKGS sostenido (semana tras semana)</td><td>Patrón estadísticamente inusual · validar antes de juzgar</td><td>Naranja</td></tr>
+  <tr><td><strong>Bajo Volumen</strong></td><td>CheckRates &lt; threshold de la canasta · poca señal</td><td>No es prioridad ahora · falta data para conclusiones robustas</td><td>Gris / neutral</td></tr>
+</table>
+
+<h3>Eje B · Prioridad temporal <span class="badge b-mandatory">Obligatorio</span></h3>
+<p>Etiqueta <strong>cuándo hacer</strong> la acción. Aparece como chip en el §08 Plan de Acción y en las cards "Plan de Acción · Top 3" de cada canasta.</p>
+<table>
+  <tr><th>Prioridad</th><th>Horizonte</th><th>Cuándo aplicar</th></tr>
+  <tr><td><strong>Acción Rápida</strong></td><td>&lt; 7 días</td><td>Quick win operativo · ajuste técnico simple · escalamiento puntual</td></tr>
+  <tr><td><strong>Mediano Plazo</strong></td><td>2–4 semanas</td><td>Diagnóstico que requiere coordinación · análisis multi-equipo</td></tr>
+  <tr><td><strong>Estratégico</strong></td><td>Trimestre</td><td>Auditoría profunda · cambio de pricing/contenido · revisión integral</td></tr>
+</table>
+
+<div class="rule-box">
+  <strong>Regla de uso:</strong> los dos ejes son <strong>independientes</strong>. Un hotel puede ser cluster <em>"Optimizable"</em> y al mismo tiempo aparecer en una acción de prioridad <em>"Mediano Plazo"</em>. El cluster describe el estado del hotel, la prioridad describe el horizonte de la acción asociada.
+</div>
+
+<div class="rule-box">
+  <strong>Cambio W18 vs anterior:</strong> En W17 el chip <em>"Quick Win"</em> se usaba con dos significados (cluster del hotel · prioridad temporal), generando confusión. Desde W18+ los dos ejes son independientes con vocabulario propio: el cluster correspondiente a "Quick Win como tipo de hotel" pasa a ser <strong>Optimizable</strong>; la prioridad temporal "&lt;7 días" pasa a ser <strong>Acción Rápida</strong>.
+</div>
+
+<h2 id="sort-orders">7.7 Sort orders canónicos por sección <span class="badge b-mandatory">W18+</span></h2>
+
+<p>Cada tabla del reporte tiene un <strong>sort default obligatorio</strong> que debe coincidir con el nombre de la sección. El sort default se documenta como <code>span</code> al lado del título de cada tabla y en el subtítulo de la sección.</p>
+
+<h3>Análisis principal (§04 – §08)</h3>
+<table>
+  <tr><th>Sección</th><th>Sort default</th><th>Justificación</th></tr>
+  <tr><td>§04 Hoteles Críticos</td><td>Ranking compuesto Eficacia + Conv Rate ↑</td><td>El nombre dice "Eficacia + Conv Rate" — ambos pesos juntos</td></tr>
+  <tr><td>§05 Bajo Rendimiento</td><td>Conv Rate ↑</td><td>El nombre dice "Bajo Rendimiento" — peor conversión primero</td></tr>
+  <tr><td>§06 Severity por Corporativo</td><td>% Críticos+ ↓</td><td>El nombre habla de concentración de hoteles críticos</td></tr>
+  <tr><td>§07 Menor Conv Rate</td><td>Conv Rate ↑</td><td>El nombre dice "Menor" — peor primero</td></tr>
+</table>
+
+<h3>Sub-tablas de canastas (§10/§11/§12)</h3>
+<p>Cada canasta repite las mismas tablas con el mismo sort default. <strong>El sort se explicita visualmente</strong> al lado del título <code>h3</code> con el formato:</p>
+<pre style="font-size:12px;background:#f7f7f7;padding:10px;border-left:3px solid var(--ink);overflow-x:auto;">&lt;h3&gt;Bajo Rendimiento · Top 5  &lt;span style="font-size:11px;font-weight:400;color:var(--ink-muted);"&gt;— ordenado por Conv Rate ↑&lt;/span&gt;&lt;/h3&gt;</pre>
+
+<div class="rule-box">
+  <strong>Regla anti-bug · Sort consistency:</strong> al generar cada tabla, el sort default debe aplicarse al <strong>conjunto completo de filas</strong>, no a sub-bloques concatenados. Si una tabla se construye en dos pasos (ej. Top 5 + Top 6-10 separados), <strong>re-ordenar el conjunto antes de renderizar</strong>. Detectamos este bug en W17 §03 RND donde una tabla quedó con dos tramos ordenados internamente pero no entre sí.
+</div>
+<div class="rule-box">
+  <strong>Regla anti-bug · Sin duplicados:</strong> verificar que cada tabla no contenga el mismo hotel/corporativo/destino más de una vez. Detectamos este bug en W17 §03 RND donde un hotel aparecía dos veces con valores distintos.
+</div>
+
+<h2 id="layouts-etapa2">7.8 Layouts Etapa 2 · Horizontalización <span class="badge b-mandatory">Etapa 2 · NUEVO</span></h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">Etapa 2 introduce 9 opciones de horizontalización para reducir longitud vertical sin perder información. El norte estratégico es <em>"el reporte no debe ser tan largo, pero no perder valor"</em>. Reducción esperada: <strong>~40% menos líneas verticales</strong> manteniendo el 100% del contenido.</p>
+
+<table>
+  <tr><th>Opción</th><th>Sección</th><th>Cambio</th><th>Reducción</th></tr>
+  <tr><td><strong>A</strong></td><td>§02 Severity</td><td>Eficacia + Conv Rate en <strong>1 sección con 2 columnas</strong> (antes eran §02 + §03 separadas)</td><td>−54%</td></tr>
+  <tr><td><strong>B</strong></td><td>§05 Severity por Corp</td><td><strong>1 tabla unificada</strong> con %Crit+ Eficacia + %Crit+ Conv Rate + Diagnóstico (antes 2 tablas)</td><td>−66%</td></tr>
+  <tr><td><strong>C</strong></td><td>§08 Análisis por Canasta</td><td><strong>3 cards horizontales</strong> (B2C · OP · CUG) en lugar de tabla</td><td>−30%</td></tr>
+  <tr><td><strong>D</strong></td><td>§01 Resumen Ejecutivo</td><td><strong>Grid 2 columnas (5+5 findings)</strong> en lugar de lista vertical</td><td>−50%</td></tr>
+  <tr><td><strong>E</strong></td><td>§07 Plan de Acción</td><td><strong>Numeración simple 1–10</strong> (sin prefijos QW/MP/ES) en grid 2 cols</td><td>−40%</td></tr>
+  <tr><td><strong>F</strong></td><td>§09/§10/§11 Canastas</td><td>Pareo de tablas: <strong>grid 2x2</strong> (Críticos+Bajo / Corp+SevCorp) + Menor CR wide</td><td>−40% por canasta</td></tr>
+  <tr><td><strong>G</strong></td><td>Hero</td><td><strong>3 cards horizontales</strong> de alertas (LV Hilton + Conrad + Iberostar) integradas</td><td>incluido en Hero</td></tr>
+  <tr><td><strong>H</strong></td><td>Resumen Ej. de canasta</td><td><strong>3 columnas</strong> (1 finding por col)</td><td>−40% por bloque</td></tr>
+  <tr><td><strong>I</strong></td><td>Banners Excel</td><td><strong>1 línea horizontal compacta</strong> (mantener 6 banners)</td><td>−70% por banner</td></tr>
+</table>
+
+<h3>Hero · Variante B con tabs CSS-only <span class="badge b-mandatory">Etapa 2 · NUEVO</span></h3>
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">El Hero rediseñado consta de 5 bloques compactos verticalmente:</p>
+<ol>
+  <li><strong>Bajada principal</strong>: 1 línea con headline (KPI principal con accent) + bajada secundaria con KPIs globales (1 línea de prosa)</li>
+  <li><strong>2 KPI cards principales</strong> (Eficacia · Conv Rate) con valores en 36px + tabs internos</li>
+  <li><strong>Tabs CSS-only</strong>: 3 tabs por card (Por Canasta · Por Corp · Por Hotel). Activación con <code>input[type=radio]</code> escondidos + <code>:checked ~</code> selectors. Sin JavaScript.</li>
+  <li><strong>3 alertas horizontales</strong>: cards con borde superior magenta para los Top 3 hoteles críticos de la semana</li>
+  <li><strong>Banner Excel compacto</strong>: 1 línea con label + botón "EXCEL →"</li>
+</ol>
+
+<div class="rule-box">
+  <strong>Activación CSS de los tabs (Hero Variante B):</strong>
+  <pre style="font-size:11px;background:var(--paper-soft);padding:10px;margin-top:8px;border-radius:3px;overflow-x:auto;">input[name="tabs-eff"]:nth-of-type(1):checked ~ .tabs-row label[for="tab-eff-canasta"]{color:var(--accent);border-bottom-color:var(--accent);}
+#tab-eff-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block;}</pre>
+  Esto requiere que los <code>&lt;input type="radio"&gt;</code> estén <strong>antes</strong> de <code>.tabs-row</code> y <code>.tab-panels</code> en el HTML para que <code>~</code> funcione.
+</div>
+
+<h3>Reglas de aplicación de la horizontalización</h3>
+<ul>
+  <li><strong>Densidad vs claridad</strong>: las 9 opciones reducen sin saturar. Si un bloque queda muy denso visualmente, se mantiene la versión vertical original.</li>
+  <li><strong>Mobile responsive</strong>: cada layout horizontal incluye media query para colapsar a 1 columna en pantallas &lt; 720px (excepto banners Excel que mantienen 1 línea).</li>
+  <li><strong>Banners Excel</strong>: mantenemos los 6 banners en sus ubicaciones originales (Hero, Plan, B2C, OP, CUG, post-canastas) pero todos con el formato compacto Opción I.</li>
+</ul>
+
+<h2 id="changelog">8. Changelog metodológico</h2>
+
+<h3>v1.6 · Etapa 2 (W18+ Abr–May 2026) · Horizontalización + Severity simétrico <span class="badge b-mandatory">NUEVO</span></h3>
+<ul>
+  <li><strong>Severity unificado</strong>: §02 Severity Eficacia + §03 Severity Conv Rate ahora son <strong>una sola sección §02</strong> con grid 2 columnas. Reduce 1 sección del reporte (de 13 a 12).</li>
+  <li><strong>Eficacia → 5 niveles</strong>: Crítica (60-40%) + Muy Crítica (40-20%) se unifican en <strong>"Crítica Severa"</strong> (60-20%). Los otros niveles se mantienen.</li>
+  <li><strong>Conv Rate → 5 niveles</strong>: Buena (1.74-3%) + Excelente (≥3%) se unifican en <strong>"Saludable"</strong> (≥1.74%). Súper Crítica (&lt;0.1%) + Muy Crítica (0.1-0.5%) se unifican en <strong>"Crítica Severa"</strong> (&lt;0.5%).</li>
+  <li><strong>Paleta unificada</strong>: Saludable y Exitosa ahora ambos en <strong>cyan #4FC3F4</strong> (antes Saludable era verde). "Sin Conversión" pasa de negro a <strong>gris medio #888780</strong> para diferenciarlo visualmente de Súper Crítica.</li>
+  <li><strong>Severity por Corp · 1 tabla</strong>: §05 ahora unifica %Crit+ Eficacia + %Crit+ Conv Rate + Diagnóstico (COMERCIAL/TÉCNICO/MIXTO/VOLUMEN) en una sola tabla Top 5.</li>
+  <li><strong>Resumen Ejecutivo · 2 columnas</strong>: §01 ahora muestra los 10 findings en grid 5+5 columnas (en lugar de lista vertical).</li>
+  <li><strong>Plan numerado simple</strong>: §07 reemplaza códigos QW1/MP1/ES1 por <strong>numeración 1–10 simple</strong>. Las prioridades temporales (Acción Rápida / Mediano Plazo / Estratégico) se mantienen visualmente con clases CSS pero sin código de prefijo.</li>
+  <li><strong>Análisis por Canasta · 3 cards</strong>: §08 (antes §09) usa 3 cards horizontales en lugar de tabla.</li>
+  <li><strong>Canastas detalle · grid 2x2</strong>: §09/§10/§11 (antes §10/§11/§12) presentan tablas en grid 2x2 (Críticos+Bajo / Corp+SevCorp) + Menor CR como tabla wide.</li>
+  <li><strong>Resumen Ej. de canasta · 3 cols</strong>: cada canasta presenta sus 3 findings en grid horizontal (Opción H).</li>
+  <li><strong>Banners Excel compactos</strong>: los 6 banners "VER EXCEL" pasan a formato 1-línea con borde-izquierdo (Opción I).</li>
+  <li><strong>Hero Variante B</strong>: bajada de 1 línea + 2 KPI cards con tabs CSS-only (Por Canasta/Corp/Hotel) + 3 alertas horizontales + banner Excel compacto.</li>
+</ul>
+
+<h3>v1.5 · W18 (Abr–May 2026) · Bloque Editorial Mayor</h3>
+<ul>
+  <li><strong>Eje 5 · Sección 13 Método rediseñada</strong>: prosa larga → 6 tarjetas categorizadas con chip + título + cuerpo + acción próxima. Variable CSS <code>--verde:#2F6C34</code> agregada al <code>:root</code> para el chip-clean.</li>
+  <li><strong>Eje 5.5 · Terminología</strong>: <code>CheckRates Únicos</code> y <code>CK Únicos</code> reemplazados por <code>CheckRates</code> en todo el reporte editorial. El campo del dataset mantiene su nombre original.</li>
+  <li><strong>Eje 5.6 · Conv Rate corregido</strong>: fórmula nueva <code>Bookings ÷ Successful CheckRates</code> (BK/Suc) en lugar de <code>BK / CheckRates</code>. Aísla la conversión comercial pura del problema técnico de Eficacia. <strong>Aplica a template + W18 en adelante</strong>; W17 publicado queda histórico con la fórmula vieja.</li>
+  <li><strong>Eje 5.7 · Severity Eficacia rangos invertidos</strong>: rangos en términos de Eficacia directa (Exitosa 100–95%, Súper Crítica 20–0%) en lugar de %Errors. Renombrado nivel 2: "No Aceptable" → "Por debajo del Rango". Headers explícitos en las 3 tablas Severity (Nivel · Rango · Distribución · Hoteles · %).</li>
+  <li><strong>Eje 5.8 · Sort orders estandarizados</strong>: ver sección 7.5 de esta guía. Cada sub-tabla en canastas explicita su sort default visualmente. Reglas anti-bug agregadas (sort consistency + sin duplicados).</li>
+  <li><strong>Eje 6.1 · §09 Análisis por Canasta</strong>: nueva sección con tabla resumen comparativa de las 3 canastas. Renumeración: Plan §09 → §08, canastas detalle a §10/§11/§12.</li>
+  <li><strong>Eje 6.2 · Vocabulario Clusters & Prioridades</strong>: separación clara de dos ejes que antes se mezclaban en chips idénticos. <strong>Cluster del hotel</strong>: Quick Win → <strong>Optimizable</strong> · Monetization Failure → <strong>Conv Rate Crítico</strong> · Connectivity Issue (mantiene) · Suspicious Traffic → <strong>Tráfico Anómalo</strong> · Low Priority → <strong>Bajo Volumen</strong>. <strong>Prioridad temporal</strong>: Quick Win → <strong>Acción Rápida</strong> · Mid-term → <strong>Mediano Plazo</strong> · Estratégico (mantiene). Documentado en sección 7.6 de esta guía.</li>
+  <li><strong>Templates con placeholders</strong>: <code>_TEMPLATE_CheckRates_Reporte_Editorial.html</code> usa <code>{{WEEK_NUM}}</code>, <code>{{HOTELES_P80}}</code>, <code>{{B2C_CHECKRATES}}</code>, <code>{{SEV_EXITOSA_N}}</code>, etc.</li>
+</ul>
+
+<h3>W17 (Abr 2026)</h3>
+<ul>
+  <li><strong>Severity Conv Rate</strong>: 7º nivel "Sin Conversión" (BKGS=0) separado de Súper Crítica</li>
+  <li><strong>Severity Eficacia</strong>: rangos cambiados de percentil a FIJOS</li>
+  <li><strong>Resúmenes Ejecutivos por canasta</strong>: 3 findings × 3 canastas (nuevos)</li>
+  <li><strong>Threshold CK ≥ 1.000</strong> para rankings por Corporativo (estabilidad estadística)</li>
+  <li><strong>Sistema de cards hero</strong> con barras inline (meta-bar-wrap)</li>
+  <li><strong>Bajada Las Vegas</strong> con barras grises + badges magenta brand</li>
+  <li><strong>Plan QW4</strong>: responsable "Supply Optimization + Supply + Wholesale"</li>
+  <li><strong>Tipografía</strong>: CK→CheckRates · Bk/Bkgs→BKGS · CR→Conv Rate · Canal→Canasta</li>
+  <li><strong>Falla técnica</strong> reemplazado por "Baja Eficacia en CheckRates"</li>
+  <li><strong>Anchos completos</strong>: eliminados <code>max-width</code> en banners y bajadas</li>
+</ul>
+
+<h3>W16 (Abr 2026)</h3>
+<ul>
+  <li>Primera iteración con análisis por Canasta (B2C / OP / CUG)</li>
+  <li>Cálculo de Conv Rate manual (no usar campo del crudo)</li>
+</ul>
+
+<h2 id="checklist">9. Checklist pre-publicación</h2>
+
+<h3>Etapa 2 · checklist específico <span class="badge b-mandatory">NUEVO</span></h3>
+<ol>
+  <li>☐ <strong>Hero Variante B</strong>: bajada de 1 línea + 2 KPI cards con tabs CSS-only + 3 alertas horizontales</li>
+  <li>☐ <strong>Tabs del Hero funcionales</strong>: clickeables sin JS · activación por <code>:checked ~</code> selectors</li>
+  <li>☐ <strong>§02 Severity unificado</strong>: 1 sola sección con grid 2 cols (Eficacia + Conv Rate)</li>
+  <li>☐ <strong>Severity Eficacia · 5 niveles</strong>: Exitosa · Por debajo · Revisar · Crítica Severa · Súper Crítica</li>
+  <li>☐ <strong>Severity Conv Rate · 5 niveles</strong>: Sin Conversión · Crítica Severa · Crítica · Por debajo · Saludable</li>
+  <li>☐ <strong>Paleta cromática</strong>: Saludable + Exitosa ambos en cyan #4FC3F4 · Sin Conversión en gris #888780</li>
+  <li>☐ <strong>§05 Severity por Corp · 1 tabla</strong> con %Crit+ Eficacia + %Crit+ Conv Rate + Diagnóstico</li>
+  <li>☐ <strong>§01 Resumen Ejecutivo · 2 columnas</strong> (5+5 findings)</li>
+  <li>☐ <strong>§07 Plan · numeración 1-10 simple</strong> (sin QW/MP/ES) en grid 2 cols</li>
+  <li>☐ <strong>§08 Análisis Canasta · 3 cards horizontales</strong> (no tabla)</li>
+  <li>☐ <strong>Canastas detalle · grid 2x2</strong>: Críticos+Bajo / Corp+SevCorp · Menor CR wide</li>
+  <li>☐ <strong>Resumen Ej. de canasta · 3 cols</strong> (1 finding por col)</li>
+  <li>☐ <strong>Banners Excel compactos</strong>: 1-línea con borde-izquierdo en los 6 banners</li>
+  <li>☐ <strong>Plan de Acción de canasta · numeración 1/2/3</strong> (sin códigos)</li>
+  <li>☐ <strong>Renumeración secciones</strong>: §02 Severity unificado · §03 a §11 desplazadas -1 · §12 Método</li>
+</ol>
+
+<h3>Checklist general (todas las semanas)</h3>
+<ol>
+  <li>☐ Datos del dataset Week-XX-CheckRates.xlsx procesados correctamente</li>
+  <li>☐ HTS calculado sobre P80 (no sobre universo total)</li>
+  <li>☐ <strong>Conv Rate calculado con fórmula W18: BKGS ÷ Successful CheckRates × 100</strong></li>
+  <li>☐ <strong>Severity Eficacia con rangos en términos de Eficacia: 100–95 / 95–80 / 80–60 / 60–20 / 20–0</strong></li>
+  <li>☐ <strong>Las 2 columnas Severity con headers explícitos: Nivel · Distribución · Hoteles · %</strong></li>
+  <li>☐ Threshold CheckRates ≥ 1.000 aplicado a rankings por Corp</li>
+  <li>☐ <strong>Terminología: usar "CheckRates" (no "CK Únicos" ni "CheckRates Únicos") en todo el editorial</strong></li>
+  <li>☐ Sin "falla técnica" / "problema técnico" en textos narrativos</li>
+  <li>☐ Convención canastas: B2C magenta · OP violeta · CUG cyan</li>
+  <li>☐ Header Week XX · fechas · Vol. N actualizados</li>
+  <li>☐ Footer con número de hoteles analizados actualizado</li>
+  <li>☐ Deltas WoW calculados vs semana anterior (atención: W17→W18 cambia fórmula CR)</li>
+  <li>☐ <strong>§12 Método: 6 tarjetas categorizadas (no prosa larga)</strong></li>
+  <li>☐ <strong>§12 Método: cada chip con su categoría correcta (CANASTA · DATA · UMBRAL · MÉTRICA · THRESHOLD · MÉTODO)</strong></li>
+  <li>☐ <strong>Sort default explicitado en TODAS las tablas</strong></li>
+  <li>☐ <strong>Anti-bug · Sort consistency: cada tabla tiene su sort default respetado</strong></li>
+  <li>☐ <strong>Anti-bug · Sin duplicados: no hay hoteles/corporativos/destinos duplicados</strong></li>
+  <li>☐ <strong>Vocabulario Clusters</strong>: Optimizable · Conv Rate Crítico · Connectivity Issue · Tráfico Anómalo · Bajo Volumen</li>
+  <li>☐ <strong>Vocabulario Prioridades</strong>: Acción Rápida · Mediano Plazo · Estratégico</li>
+  <li>☐ Validación visual final en navegador (incluye chequeo de tabs del Hero)</li>
+  <li>☐ Subir a Netlify y validar en URL pública</li>
+</ol>
+
+<h2 id="metodo-section">10. Sección 12 · Método (formato canónico)</h2>
+
+<p>La sección 13 «Método · lo que hay que corregir» se renderiza en formato de <strong>tarjetas categorizadas</strong>, no como prosa larga ni lista numerada. El objetivo es que cada limitación metodológica sea legible de un vistazo y comunique su acción próxima.</p>
+
+<h3>Estructura por tarjeta <span class="badge b-mandatory">Obligatorio</span></h3>
+<ul>
+  <li><strong>Chip de categoría</strong> en la parte superior — uno de los 6 colores definidos abajo</li>
+  <li><strong>Card title</strong> · 4–8 palabras máx · enuncia el problema en una frase</li>
+  <li><strong>Card body</strong> · 1–3 líneas máx · explica con datos concretos (usar placeholders en el template)</li>
+  <li><strong>Card action</strong> · línea destacada al pie con <code>→</code> · siempre acción concreta (verbo + objeto)</li>
+</ul>
+
+<h3>Categorías y colores de chip <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Chip</th><th>Categoría</th><th>Color hex</th><th>Cuándo usar</th></tr>
+  <tr><td><span class="swatch" style="background:#6B21A8;"></span> <code>chip-canasta</code></td><td>Canasta · Iteración</td><td>#6B21A8 sobre #F3E8FF</td><td>Cambios estructurales en análisis por canasta</td></tr>
+  <tr><td><span class="swatch" style="background:#EA0074;"></span> <code>chip-data</code></td><td>Cobertura · Data</td><td>#EA0074 sobre #FCE4F1</td><td>Faltantes/inconsistencias en columnas del dataset</td></tr>
+  <tr><td><span class="swatch" style="background:#2F6C34;"></span> <code>chip-clean</code></td><td>Umbral · Filtro</td><td>#2F6C34 sobre #E8F5E9</td><td>Thresholds o filtros con calibración pendiente</td></tr>
+  <tr><td><span class="swatch" style="background:#5C469C;"></span> <code>chip-metric</code></td><td>Definición · Métrica</td><td>#5C469C sobre #EDE8F7</td><td>Métrica con definición ambigua o sesgada</td></tr>
+  <tr><td><span class="swatch" style="background:#A86A1D;"></span> <code>chip-mapping</code></td><td>Threshold · Relevancia</td><td>#A86A1D sobre #FFF3E0</td><td>Mínimos de muestra para rankings o cortes</td></tr>
+  <tr><td><span class="swatch" style="background:#0288D1;"></span> <code>chip-method</code></td><td>Severity · Método</td><td>#0288D1 sobre #E8F7FD</td><td>Mejoras a la metodología de cálculo o segmentación</td></tr>
+</table>
+
+<h3>Layout</h3>
+<ul>
+  <li>Grid de 2 columnas en desktop · 1 columna en mobile (breakpoint 720px)</li>
+  <li>Cantidad recomendada: <strong>4 a 6 tarjetas</strong>. Si pasa de 6, reagrupar puntos similares.</li>
+  <li>La tarjeta de mayor peso narrativo va en clase <code>wide</code> (ocupa las 2 columnas) — usualmente la última</li>
+</ul>
+
+<h3>Tarjetas canónicas CheckRates (6)</h3>
+<ol>
+  <li><code>chip-canasta</code> · Análisis por canasta integrado en W{{NN}}</li>
+  <li><code>chip-data</code> · Falta ADR en el dataset CheckRates</li>
+  <li><code>chip-clean</code> · P20 sobre %Errors demasiado permisivo</li>
+  <li><code>chip-metric</code> · CheckRates Únicos ≠ sesiones reales</li>
+  <li><code>chip-mapping</code> · Mínimo CheckRates ≥ 1.000 para ranking corporativo</li>
+  <li><code>chip-method</code> <em>(wide)</em> · Nuevo nivel «Sin Conversión» separa BKGS=0 de Súper Críticos</li>
+</ol>
+
+<h3>Qué NO va en las tarjetas</h3>
+<ul>
+  <li>❌ Configuraciones del reporte (weights, thresholds, % global) → van en el README o en la guía editorial</li>
+  <li>❌ Notas metodológicas largas → en la documentación, no en el Editorial</li>
+  <li>❌ Fórmulas de Final Score / DQS / Impact Ajustado → quedan en la sección 6 de esta guía y en el README</li>
+  <li>❌ Top X tablas con datos → esto es la sección 13, no análisis</li>
+</ul>
+
+</div>
+</body>
+</html>

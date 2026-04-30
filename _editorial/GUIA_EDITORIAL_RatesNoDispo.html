@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guía Editorial · Supply Rates No Dispo</title>
+<style>
+  :root{
+    --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+    --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
+    --amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',system-ui,sans-serif;font-size:15px;line-height:1.6;}
+  .shell{max-width:var(--maxw);margin:0 auto;padding:40px 32px;}
+  h1{font-size:38px;font-weight:700;letter-spacing:-.03em;margin:0 0 8px;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--rule);color:var(--amber);}
+  h3{font-size:17px;font-weight:600;margin:28px 0 12px;color:var(--ink);}
+  h4{font-size:14px;font-weight:600;margin:20px 0 8px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+  p, li{font-size:14px;line-height:1.6;}
+  code{font-family:'Geist Mono',monospace;background:var(--paper-soft);padding:2px 6px;border-radius:3px;font-size:13px;color:var(--amber);}
+  ul, ol{padding-left:24px;}
+  li{margin-bottom:8px;}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13px;}
+  th{background:var(--paper-soft);padding:10px;text-align:left;font-weight:600;border-bottom:2px solid var(--ink);}
+  td{padding:10px;border-bottom:1px solid var(--rule-soft);}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:6px;}
+  .badge{display:inline-block;padding:3px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-radius:3px;}
+  .b-mandatory{background:#FCE4F1;color:#EA0074;}
+  .b-recommend{background:#E8F7FD;color:#1B95D6;}
+  .rule-box{background:var(--paper-soft);border-left:3px solid var(--amber);padding:16px 22px;margin:20px 0;font-size:13px;}
+  .rule-box strong{color:var(--ink);}
+  .meta{color:var(--ink-muted);font-size:12px;}
+  hr{border:none;border-top:1px solid var(--rule);margin:48px 0;}
+  .toc{background:var(--paper-soft);padding:18px 24px;border-radius:6px;margin:24px 0;}
+  .toc a{color:var(--amber);text-decoration:none;font-size:13px;}
+  .toc a:hover{text-decoration:underline;}
+  .toc li{margin-bottom:4px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="meta">PriceTravel Analytics Desk · Supply Optimization</div>
+<h1>Guía Editorial · Supply Rates No Dispo</h1>
+<p style="font-size:18px;color:var(--ink-soft);margin:8px 0 0;">Reglas, convenciones y estructura del reporte semanal Rates No Dispo.</p>
+<div class="meta" style="margin-top:8px;">Última actualización: W18 · Abr 2026 · Vol. 03 · v1.6 Etapa 2</div>
+
+<div class="toc">
+  <strong style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Contenido</strong>
+  <ul style="list-style:none;padding-left:0;margin:10px 0 0;">
+    <li><a href="#proposito">1. Propósito del reporte</a></li>
+    <li><a href="#dataset">2. Dataset y procesamiento</a></li>
+    <li><a href="#estructura">3. Estructura del reporte (13 secciones · Etapa 2)</a></li>
+    <li><a href="#convenciones">4. Convenciones tipográficas y nomenclatura</a></li>
+    <li><a href="#paleta">5. Paleta cromática</a></li>
+    <li><a href="#severity">6. Sistema Severity (5 niveles)</a></li>
+    <li><a href="#thresholds">7. Thresholds y filtros</a></li>
+    <li><a href="#sort-orders">7.5 Sort orders canónicos por sección</a></li>
+    <li><a href="#layouts-etapa2">7.6 Layouts Etapa 2 · Horizontalización <span class="badge b-mandatory" style="font-size:9px;">NUEVO</span></a></li>
+    <li><a href="#changelog">8. Changelog metodológico</a></li>
+    <li><a href="#checklist">9. Checklist pre-publicación</a></li>
+    <li><a href="#metodo-section">10. Sección 13 · Método (formato canónico)</a></li>
+  </ul>
+</div>
+
+<h2 id="proposito">1. Propósito del reporte</h2>
+
+<p>El reporte semanal <strong>Supply Rates No Dispo</strong> mide la oportunidad perdida (GB no generado) por hoteles con tráfico que no convierte: ya sea por No Disponibilidad de inventario (No Dispo), pricing o booking flow.</p>
+
+<p>El reporte se publica los lunes, cubriendo los 7 días previos.</p>
+
+<h3>Audiencia</h3>
+<ul>
+  <li>Equipo Supply</li>
+  <li>Equipo Supply Optimization</li>
+  <li>Equipo Wholesale (canasta OP)</li>
+  <li>Stakeholders ejecutivos</li>
+</ul>
+
+<h2 id="dataset">2. Dataset y procesamiento</h2>
+
+<h3>Fuente</h3>
+<p>Archivo <code>Week-XX-Rates-NoDispo.xlsx</code> con hojas por canasta:</p>
+<ul>
+  <li><strong>Canasta B2C</strong> — cliente final</li>
+  <li><strong>Canasta OP</strong> — tour operadores</li>
+  <li><strong>Canasta CUG</strong> — contratos privados</li>
+</ul>
+
+<h3>Métricas core</h3>
+<table>
+  <tr><th>Métrica</th><th>Cálculo</th></tr>
+  <tr><td><code>Tráfico</code></td><td>Shopping searches (no visitas únicas)</td></tr>
+  <tr><td><code>%NoDispo</code></td><td>NoDispo ÷ Tráfico × 100</td></tr>
+  <tr><td><code>RPM</code></td><td>Reservas por Mil búsquedas</td></tr>
+  <tr><td><code>GB</code></td><td>Gross Booking Value (USD)</td></tr>
+  <tr><td><code>0 BKGS</code></td><td>Conteo de hoteles con BKGS = 0</td></tr>
+</table>
+
+<h2 id="estructura">3. Estructura del reporte (13 secciones · Etapa 2)</h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">RND mantiene las 13 secciones (a diferencia de CheckRates que unifica Severity en una sola). El cambio Etapa 2 es estructural en layout: horizontalización + Severity reducido a 5 niveles + Hero Variante B + plan numerado simple.</p>
+
+<table>
+  <tr><th>#</th><th>Sección</th><th>Contenido</th><th>Sort default</th></tr>
+  <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave en grid 2 columnas (5+5) <span class="badge b-mandatory">Etapa 2</span></td><td>—</td></tr>
+  <tr><td>·02</td><td><strong>Severity · % No Disponibilidad</strong> <span class="badge b-mandatory">Etapa 2 · 5 niveles</span></td><td>Distribución unificada · 5 niveles (Crítica + Muy Crítica → Crítica Severa)</td><td>—</td></tr>
+  <tr><td>·03</td><td>Demanda No Convertida</td><td>Top 10 Tráfico sin BKGS</td><td>Tráfico ↓</td></tr>
+  <tr><td>·04</td><td>Bajo Rendimiento</td><td>Top 10 con BKGS &gt; 0 y % errors</td><td>RPM ↑</td></tr>
+  <tr><td>·05</td><td>Por Corporativo</td><td>Top 10 Corporativos sin BKGS · 7 columnas (incl. <strong>GB Proyectado</strong>)</td><td>GB Proyectado ↓</td></tr>
+  <tr><td>·06</td><td>Por Destino</td><td>Top destinos con problemas</td><td>GB ↓</td></tr>
+  <tr><td>·07</td><td>Por País</td><td>Distribución geográfica</td><td>GB ↓</td></tr>
+  <tr><td>·08</td><td>Plan de Acción</td><td>10 acciones numeradas (1–10) en grid 2 cols <span class="badge b-mandatory">Etapa 2</span></td><td>—</td></tr>
+  <tr><td>·09</td><td><strong>Análisis por Canasta</strong> <span class="badge b-mandatory">Etapa 2</span></td><td>3 cards horizontales: B2C · OP · CUG con KPIs RND</td><td>—</td></tr>
+  <tr><td>·10</td><td>Canasta B2C</td><td><span class="swatch" style="background:#EA0074;"></span> Detalle con KPI strip + Resumen 3 cols + tablas grid 2x2 + tabla wide <span class="badge b-mandatory">Etapa 2</span></td><td>—</td></tr>
+  <tr><td>·11</td><td>Canasta OP</td><td><span class="swatch" style="background:#5C469C;"></span> Detalle con layout idéntico</td><td>—</td></tr>
+  <tr><td>·12</td><td>Canasta CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> Detalle con layout idéntico</td><td>—</td></tr>
+  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras (formato cards)</td><td>—</td></tr>
+</table>
+
+<h3>Hero (antes de §01) <span class="badge b-mandatory">Etapa 2 · Variante B</span></h3>
+<ol>
+  <li>Masthead compacto con logo + identidad + fecha + volumen</li>
+  <li>Bajada de 1 línea con headline (GB no generado) + bajada secundaria con KPIs globales (NoDispo · RPM · Hoteles HTS)</li>
+  <li>2 KPI cards principales (NoDispo Rate · Conv Rate RPM) con <strong>tabs CSS-only</strong> internos:
+    <ul>
+      <li>Card NoDispo Rate: Por Canasta · Por Corp · Por Hotel</li>
+      <li>Card Conv Rate RPM: Por Canasta · Por Corp · <strong>Por Destino</strong> (en lugar de Por Hotel — RPM tiene más sentido por destino en RND)</li>
+    </ul>
+  </li>
+  <li>3 alert cards horizontales · "📍 Casos Críticos de la Semana" — típicamente Las Vegas Hilton + Virgin LV + Dreams Tulum (W17)</li>
+  <li>Banner Excel compacto · 1 línea</li>
+</ol>
+
+<h3>Cada canasta (§10/11/12) incluye:</h3>
+<ol>
+  <li>KPI strip 5 columnas: Hoteles, Tráfico, BKGS, % NoDispo, RPM</li>
+  <li><strong>Resumen Ejecutivo · Top 3 Findings</strong> en grid 3 columnas (1 finding por col) <span class="badge b-mandatory">Etapa 2</span></li>
+  <li><strong>Grid 2x2 de tablas Top 5</strong> <span class="badge b-mandatory">Etapa 2</span>:
+    <ul>
+      <li>Demanda No Convertida + Bajo Rendimiento (fila 1)</li>
+      <li>Por Corporativo + Por Destino (fila 2)</li>
+    </ul>
+  </li>
+  <li>Por País · Top 5 (tabla wide full-width)</li>
+  <li>Plan de Acción · Top 3 (3 cards numeradas 1/2/3)</li>
+  <li>Banner Excel compacto · 1 línea</li>
+</ol>
+
+<h2 id="convenciones">4. Convenciones tipográficas y nomenclatura</h2>
+
+<h3>Términos canónicos <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Usar</th><th>NO usar</th></tr>
+  <tr><td><code>BKGS</code></td><td><code>Bk</code> · <code>Bkgs</code></td></tr>
+  <tr><td><code>Conv Rate</code></td><td><code>CR</code></td></tr>
+  <tr><td><code>Canasta</code></td><td><code>Canal</code></td></tr>
+  <tr><td><code>Casos Críticos</code></td><td><code>Outliers</code> (en badges)</td></tr>
+  <tr><td><code>RPM</code></td><td>(usar tal cual, abreviatura aceptada)</td></tr>
+  <tr><td><code>GB</code></td><td>(usar tal cual, abreviatura aceptada)</td></tr>
+</table>
+
+<h2 id="paleta">5. Paleta cromática</h2>
+
+<h3>Colores brand corporativos</h3>
+<p>Misma paleta que CheckRates, pero el reporte RatesNoDispo tiene <strong>magenta como brand principal</strong> (vs. violeta del CheckRates).</p>
+
+<table>
+  <tr><th>Variable</th><th>HEX</th><th>Color</th><th>Uso</th></tr>
+  <tr><td><code>--amber</code></td><td><code>#EA0074</code></td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td><td>Brand RatesNoDispo · Canasta B2C · Severity "Crítica Severa"</td></tr>
+  <tr><td><code>--accent</code></td><td><code>#5C469C</code></td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td><td>Canasta OP · Severity "Por debajo / Revisar" · Header default</td></tr>
+  <tr><td><code>--green</code></td><td><code>#4FC3F4</code></td><td><span class="swatch" style="background:#4FC3F4;"></span> cyan</td><td>Canasta CUG · Severity "Exitosa" <span class="badge b-mandatory">Etapa 2 · unificado con CheckRates</span></td></tr>
+  <tr><td><code>--verde</code></td><td><code>#2F6C34</code></td><td><span class="swatch" style="background:#2F6C34;"></span> verde real</td><td>Deltas positivos · GB recuperable</td></tr>
+  <tr><td><code>--navy</code></td><td><code>#161616</code></td><td><span class="swatch" style="background:#161616;"></span> negro</td><td>Severity "Súper Crítica"</td></tr>
+  <tr><td><code>--gray-medium</code> <span class="badge b-mandatory">Etapa 2 · NUEVO</span></td><td><code>#888780</code></td><td><span class="swatch" style="background:#888780;"></span> gris medio</td><td>"Sin Conversión" en CheckRates · <em>RND no la usa</em>, pero mantenida en CSS para coherencia</td></tr>
+</table>
+
+<h3>Convención por canasta <span class="badge b-mandatory">Obligatorio</span></h3>
+<p>Idéntica al CheckRates para coherencia entre reportes:</p>
+<table>
+  <tr><th>Canasta</th><th>Color</th></tr>
+  <tr><td>B2C</td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td></tr>
+  <tr><td>OP</td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td></tr>
+  <tr><td>CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> cyan</td></tr>
+</table>
+
+<h3>Header masthead "Supply Optimization"</h3>
+<div class="rule-box">
+  <strong>Regla específica:</strong>
+  <ul>
+    <li>En el <strong>template base</strong>: usar <code>var(--accent)</code> violeta (color neutral)</li>
+    <li>En el <strong>reporte semanal</strong>: usar el color brand activo de la semana (ej. magenta para W17)</li>
+  </ul>
+  La razón: el template debe ser independiente de la edición; el reporte semanal puede variar el color brand pero manteniendo coherencia interna.
+</div>
+
+<h3>Color del badge "Las Vegas — N Casos Críticos"</h3>
+<ul>
+  <li>RatesNoDispo: <span class="swatch" style="background:#EA0074;"></span> magenta + bg <span class="swatch" style="background:#FCE4F1;"></span></li>
+  <li>CheckRates: <span class="swatch" style="background:#5C469C;"></span> violeta + bg <span class="swatch" style="background:#EDE8F7;"></span></li>
+</ul>
+
+<div class="rule-box">
+  <strong>Etapa 2 · Cambios cromáticos clave:</strong>
+  <ul style="margin-top:8px;margin-bottom:0;">
+    <li><strong>Exitosa</strong> (NoDispo 0–3.8%) usa cyan <code>#4FC3F4</code> — coherente con CheckRates donde "Exitosa + Saludable" comparten ese color.</li>
+    <li><strong>Crítica Severa</strong> (NoDispo 20–79%) usa magenta solid <code>#EA0074</code> — unifica los antiguos niveles "Crítica" + "Muy Crítica" del Bloque B.</li>
+    <li><strong>Sin Conversión</strong> y <strong>Saludable</strong> son niveles propios de CheckRates (no aplican a RND porque RND mide solo NoDispo, no Conv Rate).</li>
+  </ul>
+</div>
+
+<h2 id="severity">6. Sistema Severity <span class="badge b-mandatory">Etapa 2 · 5 niveles</span></h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;"><strong>Cambio Etapa 2:</strong> Severity reduce de 6 a 5 niveles. Los antiguos "Crítica" (20–40%) y "Muy Crítica" (40–79%) se unifican en <strong>"Crítica Severa"</strong> (20–79%) para mantener simetría con la paleta de CheckRates. Todos los rangos siguen siendo FIJOS.</p>
+
+<h3>Severity · % No Disponibilidad (5 niveles · rangos FIJOS) <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Nivel</th><th>%NoDispo rango</th><th>Badge</th><th>Acción</th></tr>
+  <tr><td>Exitosa</td><td>0 – 3.8%</td><td><span class="badge" style="background:#E8F7FD;color:#4FC3F4;">Exitosa</span></td><td>Mantener</td></tr>
+  <tr><td>Por debajo</td><td>3.8 – 5.3%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Por debajo</span></td><td>Revisar tendencia</td></tr>
+  <tr><td>Revisar</td><td>5.3 – 20%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Revisar</span></td><td>Diagnóstico</td></tr>
+  <tr><td>Crítica Severa</td><td>20 – 79%</td><td><span class="badge" style="background:#EA0074;color:#fff;">Crítica Severa</span></td><td>Escalamiento urgente</td></tr>
+  <tr><td>Súper Crítica</td><td>80 – 100%</td><td><span class="badge" style="background:#161616;color:#fff;">Súper Crítica</span></td><td>Escalamiento inmediato</td></tr>
+</table>
+
+<div class="rule-box">
+  <strong>Coherencia con CheckRates:</strong> mismos colores por nivel (cyan = "está bien", violeta = "hay que mirar", magenta solid = "urgente", negro = "máxima gravedad"). La diferencia es que RND solo tiene esta dimensión (no tiene Conv Rate como CheckRates).
+</div>
+
+<div class="rule-box">
+  <strong>Cambio nomenclatura Etapa 2:</strong>
+  <ul style="margin-top:8px;margin-bottom:0;">
+    <li><strong>"No Aceptable" → "Por debajo"</strong> (mismo nombre que CheckRates · más neutral · documenta diferencia con benchmark sin connotación de juicio)</li>
+    <li><strong>"Crítica" + "Muy Crítica" → "Crítica Severa"</strong> (unificación · simetría con CheckRates)</li>
+    <li><strong>"Súper Crítica"</strong> mantiene su rango (80-100%) · sigue siendo el más grave</li>
+  </ul>
+</div>
+
+<div class="rule-box">
+  <strong>Rangos FIJOS, no por percentil.</strong> No recalcular umbrales semana a semana. Esto garantiza comparación WoW y consistencia histórica. <strong>Headers obligatorios en la tabla:</strong> Nivel · Rango · Distribución · Hoteles · %.
+</div>
+
+<h2 id="thresholds">7. Thresholds y filtros</h2>
+
+<table>
+  <tr><th>Filtro</th><th>Valor</th><th>Aplica a</th></tr>
+  <tr><td>Universo válido</td><td>Tráfico &gt; 0</td><td>Todo el dataset</td></tr>
+  <tr><td>Top Demanda No Convertida</td><td>BKGS = 0 ordenado por Tráfico ↓</td><td>§03</td></tr>
+  <tr><td>Bajo Rendimiento</td><td>BKGS &gt; 0 ∧ %errors ≥ 5%</td><td>§04</td></tr>
+  <tr><td>Por Corporativo (W18)</td><td>Corp con 100% hoteles sin BKGS · ordenado por GB Proyectado ↓</td><td>§05</td></tr>
+  <tr><td>Severity por Corp</td><td>n ≥ 5 hoteles</td><td>Rankings por corporativo</td></tr>
+</table>
+
+<h2 id="sort-orders">7.5 Sort orders canónicos por sección <span class="badge b-mandatory">W18+</span></h2>
+
+<p>Cada tabla del reporte tiene un <strong>sort default obligatorio</strong> que debe coincidir con el nombre/objetivo de la sección.</p>
+
+<h3>Análisis principal (§03 – §07)</h3>
+<table>
+  <tr><th>Sección</th><th>Sort default</th><th>Justificación</th></tr>
+  <tr><td>§03 Demanda No Convertida</td><td>Tráfico ↓</td><td>Mayor oportunidad perdida primero</td></tr>
+  <tr><td>§04 Bajo Rendimiento</td><td>Conv RPM ↑</td><td>Peor rendimiento primero</td></tr>
+  <tr><td>§05 Por Corporativo <span class="badge b-mandatory">W18</span></td><td>GB Proyectado ↓</td><td>Mayor valor económico potencial primero</td></tr>
+  <tr><td>§06 Por Destino</td><td>GB ↓</td><td>Mayor valor real primero</td></tr>
+  <tr><td>§07 Por País</td><td>GB ↓</td><td>Mayor valor real primero</td></tr>
+</table>
+
+<h3>Sub-tablas de canastas (§10/§11/§12)</h3>
+<p>Cada canasta repite las tablas con el sort correspondiente. <strong>El sort se explicita visualmente</strong> al lado del título <code>h3</code>:</p>
+<pre style="font-size:12px;background:#f7f7f7;padding:10px;border-left:3px solid var(--ink);overflow-x:auto;">&lt;h3&gt;Demanda No Convertida · Top 5  &lt;span style="font-size:11px;font-weight:400;color:var(--ink-muted);"&gt;— ordenado por Tráfico ↓&lt;/span&gt;&lt;/h3&gt;</pre>
+
+<h3>Columna nueva W18 · GB Proyectado <span class="badge b-mandatory">W18+</span></h3>
+<p>La sección <strong>§05 Por Corporativo</strong> agrega una 7ma columna llamada <code>GB Proyectado</code> que estima el GB que el corporativo habría generado si hubiera convertido al RPM promedio del reporte.</p>
+<table>
+  <tr><th>Métrica</th><th>Fórmula</th><th>Interpretación</th></tr>
+  <tr><td><code>RPM_global</code></td><td>GB_total ÷ Tráfico_total × 1.000.000</td><td>Para W17 ≈ $3.97 por mil búsquedas</td></tr>
+  <tr><td><code>GB Proyectado</code></td><td>Tráfico × RPM_global ÷ 1.000.000</td><td>Estimación del upside no realizado</td></tr>
+</table>
+<div class="rule-box">
+  <strong>Coherencia con CheckRates:</strong> El "Conv Rate" de RatesNoDispo (= Bookings ÷ Tráfico) es conceptualmente equivalente al "Conv Rate Total" de CheckRates (= Bookings ÷ CheckRates). Ambos miden conversión sobre el total de demanda. El "Conv Rate" principal de CheckRates (W18+) usa Successful CheckRates en el denominador para aislar la conversión comercial pura — esto no aplica en RatesNoDispo porque el dataset no tiene métrica de Eficacia.
+</div>
+
+<div class="rule-box">
+  <strong>Regla anti-bug · Sort consistency:</strong> al generar cada tabla, el sort default debe aplicarse al <strong>conjunto completo de filas</strong>, no a sub-bloques concatenados. Si una tabla se construye en dos pasos, <strong>re-ordenar el conjunto antes de renderizar</strong>. Detectamos este bug en W17 §03 RND donde una tabla quedó con dos tramos ordenados internamente pero no entre sí.
+</div>
+<div class="rule-box">
+  <strong>Regla anti-bug · Sin duplicados:</strong> verificar que cada tabla no contenga el mismo hotel/corporativo/destino más de una vez. Detectamos este bug en W17 §03 RND donde un hotel aparecía dos veces con valores distintos.
+</div>
+
+<h2 id="layouts-etapa2">7.6 Layouts Etapa 2 · Horizontalización <span class="badge b-mandatory">Etapa 2 · NUEVO</span></h2>
+
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">Etapa 2 introduce horizontalización para reducir longitud vertical sin perder información. RND adapta las opciones de CheckRates a su naturaleza (1 dimensión Severity, 3 secciones geográficas Por Corp/Destino/País). Reducción esperada: <strong>~30% menos líneas verticales</strong>.</p>
+
+<table>
+  <tr><th>Opción</th><th>Sección RND</th><th>Cambio</th><th>Reducción</th></tr>
+  <tr><td><strong>A</strong></td><td>§02 Severity</td><td><em>No aplica</em>: RND tiene una sola dimensión (%NoDispo). Severity se reduce a 5 niveles pero queda en 1 sola tabla horizontal.</td><td>−15% (por reducción niveles)</td></tr>
+  <tr><td><strong>B</strong></td><td>—</td><td><em>No aplica</em>: RND no tiene Severity por Corp combinado.</td><td>—</td></tr>
+  <tr><td><strong>C</strong></td><td>§09 Análisis por Canasta</td><td><strong>3 cards horizontales</strong> (B2C · OP · CUG) con KPIs RND: Tráfico, %Global, BKGS, RPM, GB, %Sin BKGS, Cluster</td><td>−30%</td></tr>
+  <tr><td><strong>D</strong></td><td>§01 Resumen Ejecutivo</td><td><strong>Grid 2 columnas (5+5 findings)</strong></td><td>−50%</td></tr>
+  <tr><td><strong>E</strong></td><td>§08 Plan de Acción</td><td><strong>Numeración simple 1–10</strong> (sin prefijos QW/MP/ES) en grid 2 cols</td><td>−40%</td></tr>
+  <tr><td><strong>F</strong></td><td>§10/§11/§12 Canastas</td><td>Pareo de tablas: <strong>grid 2x2</strong> (Demanda+Bajo / Corp+Destino) + Por País como tabla wide</td><td>−40% por canasta</td></tr>
+  <tr><td><strong>G</strong></td><td>Hero</td><td><strong>3 cards horizontales</strong> de alertas (LV Hilton + Virgin LV + Dreams Tulum)</td><td>incluido en Hero</td></tr>
+  <tr><td><strong>H</strong></td><td>Resumen Ej. de canasta</td><td><strong>3 columnas</strong> (1 finding por col)</td><td>−40% por bloque</td></tr>
+  <tr><td><strong>I</strong></td><td>Banners Excel</td><td><strong>1 línea horizontal compacta</strong> (mantener 6 banners)</td><td>−70% por banner</td></tr>
+</table>
+
+<h3>Hero RND · Variante B con tabs CSS-only <span class="badge b-mandatory">Etapa 2 · NUEVO</span></h3>
+<p style="font-size:13px;color:var(--ink-soft);margin-bottom:14px;">El Hero rediseñado consta de 5 bloques compactos verticalmente, adaptados a métricas RND:</p>
+<ol>
+  <li><strong>Bajada principal</strong>: 1 línea con headline (GB no generado · "$8.9M en 7 días") + bajada secundaria con KPIs globales (NoDispo · RPM · Hoteles HTS)</li>
+  <li><strong>2 KPI cards principales</strong>: NoDispo Rate · Conv Rate RPM (en lugar de Eficacia · Conv Rate de CheckRates)</li>
+  <li><strong>Tabs CSS-only</strong>:
+    <ul>
+      <li>Card NoDispo Rate: Por Canasta · Por Corp · Por Hotel</li>
+      <li>Card Conv Rate RPM: Por Canasta · Por Corp · <strong>Por Destino</strong> (en lugar de Por Hotel — porque en RND la geografía es más decisional para RPM)</li>
+    </ul>
+  </li>
+  <li><strong>3 alertas horizontales</strong>: cards con borde superior magenta · típicamente Las Vegas Hilton + Virgin LV + Dreams Tulum (W17)</li>
+  <li><strong>Banner Excel compacto</strong>: 1 línea con label + botón "EXCEL →"</li>
+</ol>
+
+<div class="rule-box">
+  <strong>Diferencias entre Hero CheckRates y RND:</strong>
+  <ul style="margin-top:8px;margin-bottom:0;">
+    <li>CheckRates: KPIs Eficacia + Conv Rate · ambos cards con tabs por Hotel</li>
+    <li>RND: KPIs NoDispo Rate + Conv Rate RPM · card NoDispo por Hotel · card RPM por Destino (geografía decisional)</li>
+  </ul>
+</div>
+
+<h3>Reglas de aplicación de la horizontalización</h3>
+<ul>
+  <li><strong>Densidad vs claridad</strong>: las opciones aplicables a RND (C, D, E, F, G, H, I) reducen sin saturar.</li>
+  <li><strong>Mobile responsive</strong>: cada layout horizontal incluye media query para colapsar a 1 columna en pantallas &lt; 720px.</li>
+  <li><strong>Banners Excel</strong>: mantener los 6 banners originales (Hero, Plan, B2C, OP, CUG, post-canastas) con formato compacto Opción I.</li>
+</ul>
+
+<h2 id="changelog">8. Changelog metodológico</h2>
+
+<h3>v1.6 · Etapa 2 (W18+ Abr–May 2026) · Horizontalización + Severity simétrico <span class="badge b-mandatory">NUEVO</span></h3>
+<ul>
+  <li><strong>Severity → 5 niveles</strong>: Crítica (20–40%) + Muy Crítica (40–79%) se unifican en <strong>"Crítica Severa"</strong> (20–79%). "No Aceptable" → "Por debajo".</li>
+  <li><strong>Paleta unificada con CheckRates</strong>: "Exitosa" pasa a usar cyan <code>#4FC3F4</code> (mismo que CheckRates "Exitosa + Saludable"). "Crítica Severa" magenta solid <code>#EA0074</code>. "Súper Crítica" mantiene negro.</li>
+  <li><strong>Resumen Ejecutivo · 2 columnas</strong>: §01 ahora muestra los 10 findings en grid 5+5 columnas.</li>
+  <li><strong>Plan numerado simple</strong>: §08 reemplaza códigos QW1/MP1/ES1 por <strong>numeración 1–10 simple</strong>.</li>
+  <li><strong>Análisis por Canasta · 3 cards</strong>: §09 usa 3 cards horizontales con KPIs RND (Tráfico, %Global, BKGS, RPM, GB, %Sin BKGS, Cluster) en lugar de tabla.</li>
+  <li><strong>Canastas detalle · grid 2x2</strong>: §10/§11/§12 presentan tablas en grid 2x2 (Demanda+Bajo / Corp+Destino) + Por País como tabla wide.</li>
+  <li><strong>Resumen Ej. de canasta · 3 cols</strong>: cada canasta presenta sus 3 findings en grid horizontal (Opción H).</li>
+  <li><strong>Banners Excel compactos</strong>: los 6 banners "VER EXCEL" pasan a formato 1-línea con borde-izquierdo (Opción I).</li>
+  <li><strong>Hero Variante B</strong>: bajada de 1 línea + 2 KPI cards con tabs CSS-only (NoDispo: Por Canasta/Corp/Hotel · RPM: Por Canasta/Corp/<strong>Destino</strong>) + 3 alertas horizontales + banner Excel compacto.</li>
+  <li><strong>Bug fix W17 publicado</strong>: archivo W17 RND tenía 290 líneas zombie tras <code>&lt;/body&gt;</code> con sección Método duplicada. Corregido. Aplicar el fix también a <code>/mnt/project/RatesNoDispo_Reporte_Editorial.html</code> si reaparece.</li>
+</ul>
+
+<h3>v1.5 · W18 (Abr–May 2026) · Bloque Editorial Mayor</h3>
+<ul>
+  <li><strong>Eje 5 · Sección 13 Método rediseñada</strong>: prosa larga → 5 tarjetas categorizadas. Bug HTML resuelto en W17 (sección duplicada + bloque zombie post-<code>&lt;/html&gt;</code>).</li>
+  <li><strong>Eje 5.8 · Sort orders estandarizados</strong>: cada sub-tabla en canastas explicita su sort default visualmente. Reglas anti-bug agregadas (sort consistency + sin duplicados). Ver sección 7.5.</li>
+  <li><strong>§05 Por Corporativo · columna GB Proyectado</strong>: agregada para mostrar valor económico potencial. Sort default cambia de "% 0 BKGS ↓" a "GB Proyectado ↓". Subtítulo: "Top 10 Corporativos sin BKGS · ordenado por GB Proyectado ↓".</li>
+  <li><strong>Mini-fix W17 publicado · §03 Demanda No Convertida</strong>: regenerada la tabla porque tenía 1 hotel duplicado con valores distintos (The STRAT) y dos sub-bloques con sort independientes. La tabla corregida tiene 10 hoteles únicos ordenados estrictamente por Tráfico ↓.</li>
+  <li><strong>Templates con placeholders</strong>: <code>_TEMPLATE_RatesNoDispo_Reporte_Editorial.html</code> usa <code>{{HOTELES_TOTAL}}</code>, <code>{{RPM_GLOBAL}}</code>, <code>{{CORP_GB_PROY_1..10}}</code>, etc.</li>
+</ul>
+
+<h3>W17 (Abr 2026)</h3>
+<ul>
+  <li><strong>Estructura del archivo</strong> reconstruida (estaba truncado · Canasta CUG fuera del shell)</li>
+  <li><strong>Convención canastas</strong>: swap OP↔CUG (CUG ahora celeste, OP violeta — coherente con CheckRates)</li>
+  <li><strong>Tabla resumen §09</strong>: alineada con colores de secciones detalle</li>
+  <li><strong>Cards hero</strong>: agregadas barras visuales (meta-bar-wrap)</li>
+  <li><strong>Bajada hero Las Vegas</strong>: barras grises + badges magenta brand</li>
+  <li><strong>H1 a 2 líneas</strong>: quitado <code>white-space:nowrap</code> y agregado <code>&lt;br&gt;</code></li>
+  <li><strong>Anchos completos</strong>: eliminados <code>max-width</code> en banners</li>
+  <li><strong>Tipografía</strong>: Bk/Bkgs→BKGS · Canal→Canasta</li>
+  <li><strong>Badge Las Vegas</strong>: "Destino Crítico" → "N Casos Críticos"</li>
+  <li><strong>Supply Optimization en masthead</strong>: en violeta (template) / magenta (reporte W17)</li>
+</ul>
+
+<h3>W16</h3>
+<ul>
+  <li>Primera versión con análisis por Canasta</li>
+</ul>
+
+<h2 id="checklist">9. Checklist pre-publicación</h2>
+
+<h3>Etapa 2 · checklist específico <span class="badge b-mandatory">NUEVO</span></h3>
+<ol>
+  <li>☐ <strong>Hero Variante B</strong>: bajada de 1 línea + 2 KPI cards (NoDispo Rate · Conv Rate RPM) con tabs CSS-only</li>
+  <li>☐ <strong>Tabs del Hero funcionales</strong>: clickeables sin JS · activación por <code>:checked ~</code> selectors</li>
+  <li>☐ <strong>Tab "Por Destino" en card Conv Rate RPM</strong> (en lugar de "Por Hotel" — diferencia con CheckRates)</li>
+  <li>☐ <strong>3 alertas horizontales en Hero</strong>: típicamente Las Vegas Hilton + Virgin LV + Dreams Tulum</li>
+  <li>☐ <strong>Severity · 5 niveles</strong>: Exitosa · Por debajo · Revisar · Crítica Severa · Súper Crítica</li>
+  <li>☐ <strong>Severity · paleta unificada</strong>: cyan #4FC3F4 (Exitosa) · violeta #5C469C (Por debajo + Revisar) · magenta #EA0074 (Crítica Severa) · negro #161616 (Súper Crítica)</li>
+  <li>☐ <strong>"No Aceptable" reemplazado por "Por debajo"</strong> en Severity</li>
+  <li>☐ <strong>"Crítica" + "Muy Crítica" unificados en "Crítica Severa"</strong> (rango 20–79%)</li>
+  <li>☐ <strong>§01 Resumen Ejecutivo · 2 columnas</strong> (5+5 findings)</li>
+  <li>☐ <strong>§08 Plan · numeración 1-10 simple</strong> (sin QW/MP/ES) en grid 2 cols</li>
+  <li>☐ <strong>§09 Análisis Canasta · 3 cards horizontales</strong> con KPIs RND (Tráfico, %Global, BKGS, RPM, GB, %Sin BKGS, Cluster)</li>
+  <li>☐ <strong>Canastas detalle · grid 2x2</strong>: Demanda+Bajo / Corp+Destino · Por País wide</li>
+  <li>☐ <strong>Resumen Ej. de canasta · 3 cols</strong> (1 finding por col)</li>
+  <li>☐ <strong>Banners Excel compactos</strong>: 1-línea con borde-izquierdo en los 6 banners</li>
+  <li>☐ <strong>Plan de Acción de canasta · numeración 1/2/3</strong> (sin códigos)</li>
+</ol>
+
+<h3>Checklist general (todas las semanas)</h3>
+<ol>
+  <li>☐ Dataset Week-XX-Rates-NoDispo.xlsx procesado</li>
+  <li>☐ <strong>Severity con rangos FIJOS Etapa 2 (0-3.8/3.8-5.3/5.3-20/20-79/80-100)</strong></li>
+  <li>☐ Tipografía: BKGS · Conv Rate · Canasta · "Casos Críticos"</li>
+  <li>☐ Convención canastas: B2C magenta · OP violeta · CUG cyan</li>
+  <li>☐ Tabla §09 con colores alineados a secciones detalle</li>
+  <li>☐ Header Week XX · fechas · Vol. N actualizados</li>
+  <li>☐ Footer con número de hoteles analizados</li>
+  <li>☐ <strong>Estructura HTML válida</strong>: 1 <code>&lt;/body&gt;</code> + 1 <code>&lt;/html&gt;</code> · sin contenido zombie tras <code>&lt;/body&gt;</code></li>
+  <li>☐ <strong>§13 Método: 5 tarjetas categorizadas (no prosa larga)</strong></li>
+  <li>☐ <strong>§13 Método: cada chip con su categoría correcta (DATA · MÉTRICA · LIMPIEZA · MAPEO · MÉTODO)</strong></li>
+  <li>☐ <strong>§05 Por Corporativo: 7 columnas (incluye GB Proyectado) · ordenado por GB Proyectado ↓</strong></li>
+  <li>☐ <strong>RPM_global recalculado de la semana (no usar el de W17 ≈ 2.60)</strong></li>
+  <li>☐ <strong>Sort default explicitado en TODAS las tablas (análisis principal y sub-tablas de canastas)</strong></li>
+  <li>☐ <strong>Anti-bug · Sort consistency: cada tabla tiene su sort default respetado</strong></li>
+  <li>☐ <strong>Anti-bug · Sin duplicados: no hay hoteles/corporativos/destinos duplicados</strong></li>
+  <li>☐ Validación visual final en navegador (incluye chequeo de tabs del Hero)</li>
+  <li>☐ Subir a Netlify</li>
+</ol>
+
+<h2 id="metodo-section">10. Sección 13 · Método (formato canónico)</h2>
+
+<p>La sección 13 «Método · lo que hay que corregir» se renderiza en formato de <strong>tarjetas categorizadas</strong>, no como prosa larga ni lista numerada. El objetivo es que cada limitación metodológica sea legible de un vistazo y comunique su acción próxima.</p>
+
+<h3>Estructura por tarjeta <span class="badge b-mandatory">Obligatorio</span></h3>
+<ul>
+  <li><strong>Chip de categoría</strong> en la parte superior — uno de los 5 colores definidos abajo</li>
+  <li><strong>Card title</strong> · 4–8 palabras máx · enuncia el problema en una frase</li>
+  <li><strong>Card body</strong> · 1–3 líneas máx · explica con datos concretos (usar placeholders en el template)</li>
+  <li><strong>Card action</strong> · línea destacada al pie con <code>→</code> · siempre acción concreta (verbo + objeto)</li>
+</ul>
+
+<h3>Categorías y colores de chip <span class="badge b-mandatory">Obligatorio</span></h3>
+<table>
+  <tr><th>Chip</th><th>Categoría</th><th>Color hex</th><th>Cuándo usar</th></tr>
+  <tr><td><span class="swatch" style="background:#EA0074;"></span> <code>chip-data</code></td><td>Cobertura · Data</td><td>#EA0074 sobre #FCE4F1</td><td>Faltantes/inconsistencias en columnas del dataset</td></tr>
+  <tr><td><span class="swatch" style="background:#5C469C;"></span> <code>chip-metric</code></td><td>Definición · Métrica</td><td>#5C469C sobre #EDE8F7</td><td>Métrica con definición ambigua o sesgada</td></tr>
+  <tr><td><span class="swatch" style="background:#2F6C34;"></span> <code>chip-clean</code></td><td>Limpieza · Outliers</td><td>#2F6C34 sobre #E8F5E9</td><td>Tratamiento de valores extremos, refunds, NaN</td></tr>
+  <tr><td><span class="swatch" style="background:#A86A1D;"></span> <code>chip-mapping</code></td><td>Taxonomía · Mapeo</td><td>#A86A1D sobre #FFF3E0</td><td>Cambios de granularidad o renombres de campos</td></tr>
+  <tr><td><span class="swatch" style="background:#0288D1;"></span> <code>chip-method</code></td><td>Severity · Método</td><td>#0288D1 sobre #E8F7FD</td><td>Mejoras a la metodología de cálculo o segmentación</td></tr>
+</table>
+
+<h3>Layout</h3>
+<ul>
+  <li>Grid de 2 columnas en desktop · 1 columna en mobile (breakpoint 720px)</li>
+  <li>Cantidad recomendada: <strong>4 a 6 tarjetas</strong>. Si pasa de 6, reagrupar puntos similares.</li>
+  <li>La tarjeta de mayor peso narrativo va en clase <code>wide</code> (ocupa las 2 columnas) — usualmente la última</li>
+</ul>
+
+<h3>Tarjetas canónicas RatesNoDispo (5)</h3>
+<ol>
+  <li><code>chip-data</code> · GB y ADR · validar cobertura del 0</li>
+  <li><code>chip-metric</code> · Tráfico = shopping searches, no visitas únicas</li>
+  <li><code>chip-clean</code> · ADR y GB negativos · mismo origen</li>
+  <li><code>chip-mapping</code> · CorpName nativo · valores vs parseados</li>
+  <li><code>chip-method</code> <em>(wide)</em> · Replicar nivel «Sin Conversión» de CheckRates</li>
+</ol>
+
+<h3>Qué NO va en las tarjetas</h3>
+<ul>
+  <li>❌ Configuraciones del reporte (weights, thresholds, % global) → van en el README o en la guía editorial</li>
+  <li>❌ Notas metodológicas largas → en la documentación, no en el Editorial</li>
+  <li>❌ Fórmulas de Final Score / DQS → quedan en la sección 6 de esta guía y en el README</li>
+  <li>❌ Top X tablas con datos → esto es la sección 13, no análisis</li>
+</ul>
+
+</div>
+</body>
+</html>
