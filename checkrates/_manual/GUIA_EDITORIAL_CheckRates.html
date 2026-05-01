@@ -166,5 +166,45 @@ ul li { margin-bottom: 6px; }
   </ul>
 </div>
 
+
+<h2>8. Excel de Análisis · estructura estándar (14 pestañas)</h2>
+
+<div class="warn">
+  <strong>Estándar establecido post W17</strong> · todas las semanas a partir de W18 deben generar el Excel con esta estructura completa de 14 pestañas. El W17 quedó con 9 pestañas como excepción (datos crudos no disponibles para canastas).
+</div>
+
+<table>
+  <tr><th>#</th><th>Pestaña</th><th>Contenido · Top 50</th></tr>
+  <tr><td>1</td><td><strong>Ficha Técnica</strong></td><td>KPIs globales + bandas D + targets</td></tr>
+  <tr><td>2</td><td><strong>Severity Eficacia</strong></td><td>5 niveles · distribución por banda</td></tr>
+  <tr><td>3</td><td><strong>Severity Conv Rate</strong></td><td>Sin Conversión separada + 4 bandas D</td></tr>
+  <tr><td>4</td><td><strong>Hoteles Críticos</strong></td><td>Top 50 hoteles con Eficacia &lt; 85%</td></tr>
+  <tr><td>5</td><td><strong>Bajo Rendimiento</strong></td><td>Top 50 hoteles con Eficacia 85-93%</td></tr>
+  <tr><td>6</td><td><strong>Sin Conversión</strong></td><td>Top 50 hoteles con BKGS = 0 (cohorte separada)</td></tr>
+  <tr><td>7</td><td><strong>Por Corporativo</strong></td><td>Agregado por corp · Top 50</td></tr>
+  <tr><td>8</td><td><strong>Menor Conv Rate</strong></td><td>Top 50 hoteles con Conv Rate &lt; 1.5%</td></tr>
+  <tr><td>9</td><td><strong>Canasta B2C · Críticos</strong></td><td>Hoteles B2C P80 con Eficacia &lt; 85%</td></tr>
+  <tr><td>10</td><td><strong>Canasta B2C · Bajo Rend</strong></td><td>Hoteles B2C P80 con Eficacia 85-93%</td></tr>
+  <tr><td>11</td><td><strong>Canasta OP · Críticos</strong></td><td>Hoteles OP P80 con Eficacia &lt; 85%</td></tr>
+  <tr><td>12</td><td><strong>Canasta OP · Bajo Rend</strong></td><td>Hoteles OP P80 con Eficacia 85-93%</td></tr>
+  <tr><td>13</td><td><strong>Canasta CUG · Críticos</strong></td><td>Hoteles CUG P80 con Eficacia &lt; 85%</td></tr>
+  <tr><td>14</td><td><strong>Canasta CUG · Bajo Rend</strong></td><td>Hoteles CUG P80 con Eficacia 85-93%</td></tr>
+</table>
+
+<h3>8.1 Columnas estándar por pestaña</h3>
+<ul>
+  <li><strong>Hoteles Críticos / Bajo Rend / Sin Conversión / Menor Conv Rate / Canasta * </strong>: Hotel · Corporativo · Destino · CheckRates · Bookings · Eficacia % · Conv Rate %</li>
+  <li><strong>Por Corporativo</strong>: Corporativo · Hoteles · CheckRates · Bookings · Eficacia % · Conv Rate %</li>
+  <li><strong>Severity</strong>: Nivel · Rango · Hoteles · % del P80 · CheckRates · Bookings</li>
+</ul>
+
+<h3>8.2 Reglas de formato</h3>
+<ul>
+  <li>Header en violet <code>#5C469C</code> con texto blanco</li>
+  <li>Bordes en gris claro <code>#D9D2C2</code></li>
+  <li>Top 50 en cada pestaña (no Top 20)</li>
+  <li>Pestaña "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento" (cohorte estructural distinta)</li>
+</ul>
+
 </body>
 </html>

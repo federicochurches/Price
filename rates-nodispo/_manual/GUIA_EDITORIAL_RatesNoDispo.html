@@ -261,5 +261,43 @@ assert len(cards) == 2  # debe ser 2</code></pre>
   </ul>
 </div>
 
+
+<h2>8. Excel de Análisis · estructura estándar (12 pestañas)</h2>
+
+<div class="warn">
+  <strong>Estándar post W17</strong> · todas las semanas deben generar el Excel con esta estructura.
+</div>
+
+<table>
+  <tr><th>#</th><th>Pestaña</th><th>Contenido · Top 50</th></tr>
+  <tr><td>1</td><td><strong>Ficha Técnica</strong></td><td>KPIs globales + bandas D + targets RPM ≥ 3,0</td></tr>
+  <tr><td>2</td><td><strong>Severity NoDispo</strong></td><td>5 niveles distribución</td></tr>
+  <tr><td>3</td><td><strong>Severity Conv Rate (RPM)</strong></td><td>Sin Conversión separada + 4 bandas D</td></tr>
+  <tr><td>4</td><td><strong>Demanda No Convertida</strong></td><td>Top 50 hoteles con tráfico y 0 BKGS</td></tr>
+  <tr><td>5</td><td><strong>Bajo Rendimiento</strong></td><td>Top 50 con %NoDispo &gt; 20%</td></tr>
+  <tr><td>6</td><td><strong>Sin Conversión</strong></td><td>Top 50 hoteles con BKGS = 0 (cohorte separada)</td></tr>
+  <tr><td>7</td><td><strong>Por Corporativo</strong></td><td>Agregado · ordenado por %NoDispo</td></tr>
+  <tr><td>8</td><td><strong>Por Destino</strong></td><td>Top 50 destinos críticos</td></tr>
+  <tr><td>9</td><td><strong>Por País</strong></td><td>Agregado por país</td></tr>
+  <tr><td>10</td><td><strong>Plan de Acción</strong></td><td>10 acciones priorizadas</td></tr>
+  <tr><td>11</td><td><strong>Canasta B2C · Bajo Rend</strong></td><td>Top 50 B2C con %NoDispo &gt; 20%</td></tr>
+  <tr><td>12</td><td><strong>Canasta OP · Bajo Rend</strong></td><td>Top 50 OP con %NoDispo &gt; 20%</td></tr>
+  <tr><td>13</td><td><strong>Canasta CUG · Bajo Rend</strong></td><td>Top 50 CUG con %NoDispo &gt; 20%</td></tr>
+</table>
+
+<h3>8.1 Columnas estándar</h3>
+<ul>
+  <li><strong>Hoteles · Bajo Rend · Sin Conversión · Canasta *</strong>: Hotel · Corporativo · Destino · Tráfico · Bookings · %NoDispo · RPM</li>
+  <li><strong>Por Corporativo</strong>: Corporativo · Tráfico · Hoteles · HotelesCríticos · %NoDispo · RPM · GB USD</li>
+  <li><strong>Severity</strong>: Nivel · Rango · Hoteles · % del P80 · Tráfico · GB USD</li>
+</ul>
+
+<h3>8.2 Reglas de formato</h3>
+<ul>
+  <li>Header en magenta <code>#EA0074</code> con texto blanco</li>
+  <li>Top 50 en cada pestaña</li>
+  <li>Pestaña "Sin Conversión" SIEMPRE separada</li>
+</ul>
+
 </body>
 </html>

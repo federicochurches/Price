@@ -174,6 +174,16 @@ Antes 60% de hoteles caían en "Súper Crítica" porque tenían BKGS = 0. Esto s
 
 Sin estos datos, hay que hacer recovery vía join Hotel→CorpName y Hotel→Destino del W16 (proxy menos preciso).
 
+### Estándar Excel CR · estandarizar a partir de W18
+
+El Excel CR W17 quedó con **9 pestañas** como excepción (no había datos crudos completos). A partir de W18 todas las semanas deben generar el Excel CR con la **estructura estándar de 14 pestañas**:
+
+1. Ficha Técnica · 2. Severity Eficacia · 3. Severity Conv Rate · 4. Hoteles Críticos · 5. Bajo Rendimiento · 6. Sin Conversión · 7. Por Corporativo · 8. Menor Conv Rate · 9-10. Canasta B2C (Críticos + Bajo Rend) · 11-12. Canasta OP · 13-14. Canasta CUG
+
+Detalle completo en `checkrates/_manual/GUIA_EDITORIAL_CheckRates.html` sección 8.
+
+Mismo estándar para RND con **12 pestañas** documentado en `rates-nodispo/_manual/GUIA_EDITORIAL_RatesNoDispo.html` sección 8.
+
 ---
 
 **Última actualización:** 1 mayo 2026 · post W17 · sistema bandas D + targets + tabs folder + Channel agrupado + Top 50
