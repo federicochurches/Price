@@ -230,30 +230,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .metodo-section-dark .card-action{font-size:11px;font-weight:600;color:rgba(245,242,238,0.85);margin-top:auto;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:6px;}
 .metodo-section-dark .card-action .arrow{color:#FF4DA0;font-weight:700;}
 
-
-/* CR detalle canasta · tabs universales */
-.kpi-card input[type="radio"][id*="-pais"]:checked ~ .tabs-row label[for*="-pais"],
-.kpi-card input[type="radio"][id*="-destino"]:checked ~ .tabs-row label[for*="-destino"],
-.kpi-card input[type="radio"][id*="-corp"]:checked ~ .tabs-row label[for*="-corp"],
-.kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tabs-row label[for*="-hotel"],
-.kpi-card input[type="radio"][id*="-channel"]:checked ~ .tabs-row label[for*="-channel"]{
-  background:var(--paper);
-  color:#EA0074;
-  border:1px solid var(--rule);
-  border-bottom:1px solid var(--paper);
-}
-.kpi-card input[type="radio"][id*="-pais"]:checked ~ .tab-panels .tab-panel[data-tab="pais"],
-.kpi-card input[type="radio"][id*="-destino"]:checked ~ .tab-panels .tab-panel[data-tab="destino"],
-.kpi-card input[type="radio"][id*="-corp"]:checked ~ .tab-panels .tab-panel[data-tab="corp"],
-.kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
-.kpi-card input[type="radio"][id*="-channel"]:checked ~ .tab-panels .tab-panel[data-tab="channel"]{
-  display:block;
-}
-.kpi-card .tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
-.kpi-card .tab-panel{display:none;}
-.kpi-card .tab-panel > div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
-.kpi-card .tab-panel strong{color:var(--ink);font-weight:400;}
-.kpi-card .tab-panel div span:not(.tab-key){color:#EA0074 !important;font-weight:700;}
 </style>
 </head>
 <body>
@@ -287,7 +263,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 <section class="hero">
   <!-- BAJADA PRINCIPAL · 1 línea con headline -->
-  <h1><span style="color:#EA0074;">% Eficacia</span> se mantiene en <span style="color:#EA0074;">93.9%</span> · <span style="color:#EA0074;">Conv Rate</span> cae a <span style="color:#EA0074;">1.35%</span> (<span style="color:#EA0074;">-11.5%</span> WoW) · caída principal en <span style="color:#EA0074;">Punta Cana</span>, <span style="color:#EA0074;">El Cairo</span> y <span style="color:#EA0074;">Tokyo</span>.</h1>
+  <h1><span style="color:#EA0074;">Eficacia</span> se mantiene en <span style="color:#EA0074;">93.9%</span> y <span style="color:#EA0074;">Conv Rate</span> en <span style="color:#EA0074;">1.50%</span>, con mayor concentración crítica en <span style="color:#EA0074;">Punta Cana</span>, <span style="color:#EA0074;">El Cairo</span> y <span style="color:#EA0074;">Tokyo</span>. <span style="color:#EA0074;">AA-Independent</span>, <span style="color:#EA0074;">Hilton</span> e <span style="color:#EA0074;">IHG</span> concentran los corporativos con más hoteles en estado crítico.</h1>
   <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:8px 0 24px;line-height:1.5;"><strong style="color:#EA0074;font-weight:700;">1.55M</strong> CheckRates · <strong style="color:#EA0074;font-weight:700;">4.869</strong> hoteles · <strong style="color:#EA0074;font-weight:700;">20.913</strong> Bookings.</p>
 
   <!-- KPIs PRINCIPALES · V7 FINAL · gauge 130×85 · inputs FUERA de tabs-row -->
@@ -346,8 +322,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
         <label for="tab-nd-destino" class="tab-label">Destino</label>
         <label for="tab-nd-corp" class="tab-label">Corp</label>
         <label for="tab-nd-hotel" class="tab-label">Hotel</label>
-        <label for="tab-nd-canasta" class="tab-label">Canasta</label>
         <label for="tab-nd-channel" class="tab-label">Channel</label>
+        <label for="tab-nd-canasta" class="tab-label">Canasta</label>
       </div>
       <div class="tab-panels">
         <div class="tab-panel" data-tab="destino">
@@ -371,11 +347,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
           <div><strong>Ocean View Cancún Arenas</strong> <span>43.6%</span></div>
           <div><strong>Hotel Indigo LA Downtown</strong> <span>44.8%</span></div>
         </div>
-        <div class="tab-panel" data-tab="canasta">
-          <div><strong>B2C</strong> <span>94.4%</span></div>
-          <div><strong>OP</strong> <span>94.4%</span></div>
-          <div><strong>CUG</strong> <span>93.2%</span></div>
-        </div>
         <div class="tab-panel" data-tab="channel">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <div>
@@ -396,6 +367,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
               <div><strong>Travelgate</strong> <span>—</span></div>
             </div>
           </div>
+        </div>
+        <div class="tab-panel" data-tab="canasta">
+          <div><strong>B2C</strong> <span>94.4%</span></div>
+          <div><strong>OP</strong> <span>94.4%</span></div>
+          <div><strong>CUG</strong> <span>93.2%</span></div>
         </div>
       </div>
     </div>
@@ -453,8 +429,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
         <label for="tab-rpm-destino" class="tab-label">Destino</label>
         <label for="tab-rpm-corp" class="tab-label">Corp</label>
         <label for="tab-rpm-hotel" class="tab-label">Hotel</label>
-        <label for="tab-rpm-canasta" class="tab-label">Canasta</label>
         <label for="tab-rpm-channel" class="tab-label">Channel</label>
+        <label for="tab-rpm-canasta" class="tab-label">Canasta</label>
       </div>
       <div class="tab-panels">
         <div class="tab-panel" data-tab="destino">
@@ -478,11 +454,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
           <div><strong>Fairmont Nile City Cairo</strong> <span>0.00%</span></div>
           <div><strong>Hilton Cairo Nile Maadi</strong> <span>0.00%</span></div>
         </div>
-        <div class="tab-panel" data-tab="canasta">
-          <div><strong>B2C</strong> <span>0.51%</span></div>
-          <div><strong>OP</strong> <span>1.23%</span></div>
-          <div><strong>CUG</strong> <span>2.92%</span></div>
-        </div>
         <div class="tab-panel" data-tab="channel">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <div>
@@ -504,81 +475,100 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
             </div>
           </div>
         </div>
+        <div class="tab-panel" data-tab="canasta">
+          <div><strong>B2C</strong> <span>0.51%</span></div>
+          <div><strong>OP</strong> <span>1.23%</span></div>
+          <div><strong>CUG</strong> <span>2.92%</span></div>
+        </div>
       </div>
     </div>
   </div>
 
 
+  <!-- ALERTAS · DEBAJO de KPI cards · CheckRates W17 · 3 bloques (Hoteles · Destinos · Corporativos) -->
   <div class="alerts-block" style="margin:0 0 24px;">
-  <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
+    <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      
+      <!-- BLOQUE 1 · HOTELES · MAGENTA -->
+      <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
+        <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span>🏨</span><span>Hoteles</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <!-- Las Vegas Hilton (Eficacia crítica) -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Las Vegas Hilton at RW</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
+            <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">6.7%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">5.483 CK · 0 BKGS</div>
+          </div>
+          <!-- Conrad Las Vegas (Eficacia crítica también) -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Conrad Las Vegas at RW</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
+            <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">11.5%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">3.272 CK · 3 BKGS</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- BLOQUE 2 · DESTINOS · CYAN -->
+      <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
+        <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span>📍</span><span>Destinos</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <!-- Punta Cana -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#0D7A99;background:#D9F2FB;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Punta Cana</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">20.146 CK · 481 BKGS</div>
+            <div style="font-size:18px;font-weight:600;color:#4FC3F4;margin-top:6px;letter-spacing:-.02em;line-height:1;">2.39%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 4.33% · ↓-45%</div>
+          </div>
+          <!-- El Cairo -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#0D7A99;background:#D9F2FB;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">El Cairo Area</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">15.726 CK · 3 BKGS</div>
+            <div style="font-size:18px;font-weight:600;color:#4FC3F4;margin-top:6px;letter-spacing:-.02em;line-height:1;">0.02%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 0.08% · ↓-77%</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- BLOQUE 3 · CORPORATIVOS · VIOLETA -->
+      <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
+        <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span>🏬</span><span>Corporativos</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <!-- Wyndham (cae 77%) -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Wyndham</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">72.690 CK · 403 BKGS</div>
+            <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0.55%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 2.43% · ↓-77%</div>
+          </div>
+          <!-- Hoteles Xcaret -->
+          <div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+            <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hoteles Xcaret</div>
+            <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">7.437 CK · 36 BKGS</div>
+            <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0.48%</div>
+            <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 0.94% · ↓-49%</div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
-      <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏨</span><span>Hoteles</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Las Vegas Hilton at RW</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">6,70%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">5.483 CK · 0 BKGS</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">DoubleTree Sharm</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Egipto</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">15.4K CK · 0 BKGS</div>
-</div>
-      </div>
-    </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
-      <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>📍</span><span>Destinos</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Osaka Area</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">eficacia baja</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">83,70%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">El Cairo Area</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">15.726 CK · 3 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,02%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 0.08% ↓-77%</div>
-</div>
-      </div>
-    </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
-      <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏬</span><span>Corporativos</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Iberostar</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia mínima</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">61,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Wyndham</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">72.690 CK · 403 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,55%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 2.43% ↓-77%</div>
-</div>
-      </div>
-    </div>
-  </div>
-</div>
 
   <!-- Resumen Ejecutivo · header fuera del card · estilo alertas -->
   <div style="margin-top:64px;font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
@@ -779,6 +769,14 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 80px 60px 60px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Waldorf Astoria Dubai Palm Jumeirah">9. Waldorf Astoria Dubai Palm Jumeirah</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">Hilton</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">1.2K</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">87.8%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.00%</span></div>
 <div style="display:grid;grid-template-columns:1fr 80px 60px 60px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Holiday Inn Houston Downtown by IHG">10. Holiday Inn Houston Downtown by IHG</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">IHG</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">1.1K</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">90.7%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.09%</span></div></div>
 </div>
+
+<div style="margin-top:18px;padding:14px 18px;background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;border-left:3px solid #5C469C;display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Detalle completo</div>
+    <div style="font-size:14px;color:var(--ink);">El listado completo de <strong>Hoteles Críticos</strong> está en la hoja <em>«Hoteles Críticos»</em> del Excel adjunto.</div>
+  </div>
+  <a href="Analisis_Checkrates_7d_W17.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:9px 22px;letter-spacing:.12em;font-size:11px;white-space:nowrap;">VER EXCEL</a>
+</div>
 </section>
 
 <section id="bajo">
@@ -801,6 +799,14 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 65px 70px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="MGM Grand Hotel and Casino">8. MGM Grand Hotel and Casino</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">MGM RESORTS</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">91.5%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.96%</span></div>
 <div style="display:grid;grid-template-columns:1fr 65px 70px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Universal's Cabana Bay Beach Resort">9. Universal's Cabana Bay Beach Resort</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">UNIVERSAL</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">79.1%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.44%</span></div>
 <div style="display:grid;grid-template-columns:1fr 65px 70px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Hyatt Place San Juan">10. Hyatt Place San Juan</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">HYATT</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">93.2%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.23%</span></div></div>
+</div>
+
+<div style="margin-top:18px;padding:14px 18px;background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;border-left:3px solid #5C469C;display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Detalle completo</div>
+    <div style="font-size:14px;color:var(--ink);">El listado completo de <strong>Hoteles con Bajo Rendimiento</strong> está en la hoja <em>«Bajo Rendimiento»</em> del Excel adjunto.</div>
+  </div>
+  <a href="Analisis_Checkrates_7d_W17.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:9px 22px;letter-spacing:.12em;font-size:11px;white-space:nowrap;">VER EXCEL</a>
 </div>
 </section>
 
@@ -925,6 +931,14 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
   </div>
 </div>
+
+<div style="margin-top:18px;padding:14px 18px;background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;border-left:3px solid #5C469C;display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Detalle completo</div>
+    <div style="font-size:14px;color:var(--ink);">El listado completo de <strong>Concentración por Corporativo</strong> está en la hoja <em>«Concentración por Corp»</em> del Excel adjunto.</div>
+  </div>
+  <a href="Analisis_Checkrates_7d_W17.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:9px 22px;letter-spacing:.12em;font-size:11px;white-space:nowrap;">VER EXCEL</a>
+</div>
 </section>
 <section id="conversion">
   <div class="section-head">
@@ -947,294 +961,15 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:1fr 65px 70px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Hilton Istanbul Bomonti Hotel & Conference Center">9. Hilton Istanbul Bomonti Hotel & Conf…</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">Hilton</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">99.6%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.20%</span></div>
 <div style="display:grid;grid-template-columns:1fr 65px 70px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;"><div><div style="font-weight:600;color:#5C469C;line-height:1.3;" title="Holiday Inn Manhattan 6th Ave - Chelsea by IHG">10. Holiday Inn Manhattan 6th Ave - Chel…</div><div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">IHG</div></div><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">87.1%</span><span style="text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;">0.22%</span></div></div>
 </div>
-</section>
 
-
-
-<section id="por-canasta-cr" style="margin-bottom:80px;">
-  <div class="section-head">
-    <div>
-      <h2 class="section-title">Análisis por Canasta</h2>
-      <span class="section-subtitle" style="color:#EA0074">Vista comparativa B2C · OP · CUG · KPI cards y Alertas con misma estructura del header global</span>
-    </div>
+<div style="margin-top:18px;padding:14px 18px;background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;border-left:3px solid #5C469C;display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--ink-muted);margin-bottom:5px;">Detalle completo</div>
+    <div style="font-size:14px;color:var(--ink);">El listado completo de <strong>Hoteles que no convierten</strong> está en la hoja <em>«No convierten»</em> del Excel adjunto.</div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr;gap:14px;margin:0 0 24px;">
-<div class="kpi-card" style="border:1px solid var(--rule);border-top:3px solid #EA0074;padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <div style="font-size:13px;color:#EA0074;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">B2C</div>
-  <div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;font-weight:600;">Cliente final · web/app</div>
-  
-  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">% Eficacia</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#EA0074;line-height:1;margin-top:4px;">94,40%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;">Aceptable</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:67.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">Conv Rate</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#EA0074;line-height:1;margin-top:4px;">0,51%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#FCE4F1;color:#EA0074;border:1px solid #EA0074;">Crítica</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:20.4%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:10px;">
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">CheckRates</div>
-      <div style="color:#EA0074;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">192,0K</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">12,4% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Bookings</div>
-      <div style="color:#EA0074;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">1.018</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">4,9% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Hoteles 0 BKGS</div>
-      <div style="color:#EA0074;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">93,1%</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">9.162 de 9.840</div>
-    </div>
-  </div>
-</div>
-<div class="kpi-card" style="border:1px solid var(--rule);border-top:3px solid #5C469C;padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <div style="font-size:13px;color:#5C469C;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">OP</div>
-  <div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;font-weight:600;">B2B Opaco · agencias</div>
-  
-  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">% Eficacia</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#5C469C;line-height:1;margin-top:4px;">94,40%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;">Aceptable</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:67.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">Conv Rate</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#5C469C;line-height:1;margin-top:4px;">1,23%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;">Revisar</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:46.2%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:10px;">
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">CheckRates</div>
-      <div style="color:#5C469C;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">1,0M</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">65,5% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Bookings</div>
-      <div style="color:#5C469C;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">11.129</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">53,2% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Hoteles 0 BKGS</div>
-      <div style="color:#5C469C;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">76,8%</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">3.650 de 4.750</div>
-    </div>
-  </div>
-</div>
-<div class="kpi-card" style="border:1px solid var(--rule);border-top:3px solid #4FC3F4;padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <div style="font-size:13px;color:#4FC3F4;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">CUG</div>
-  <div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;font-weight:600;">B2B contratos privados</div>
-  
-  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">% Eficacia</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#4FC3F4;line-height:1;margin-top:4px;">93,20%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;">Aceptable</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:61.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.10em;text-transform:uppercase;">Conv Rate</div>
-      <div style="font-size:30px;font-weight:600;letter-spacing:-.02em;color:#4FC3F4;line-height:1;margin-top:4px;">2,92%</div>
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;">Aceptable</span>
-      </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:78.7%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:10px;">
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">CheckRates</div>
-      <div style="color:#4FC3F4;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">343,0K</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">22,1% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Bookings</div>
-      <div style="color:#4FC3F4;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">8.767</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">41,9% global</div>
-    </div>
-    <div style="background:var(--paper-soft);padding:7px 9px;border-radius:3px;">
-      <div style="font-size:8px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Hoteles 0 BKGS</div>
-      <div style="color:#4FC3F4;font-weight:700;font-size:13px;letter-spacing:-.01em;margin-top:2px;">66,7%</div>
-      <div style="color:var(--ink-muted);font-size:9px;margin-top:1px;">1.520 de 2.280</div>
-    </div>
-  </div>
-</div>
-</div>
-  <div style="margin:0 0 24px;">
-  <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <span>📍</span><span>Alertas comparativas · Casos críticos por canasta</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
-      <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏨</span><span>Hoteles</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#EA00741F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">B2C</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hotel Egina Bogotá</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Decameron · Bogotá</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">1,00%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#5C469C1F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">OP</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Conrad Las Vegas</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">11,50%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#4FC3F4;background:#4FC3F41F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">CUG</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">All Ritmo Cancún</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">AA-Independent</div>
-  <div style="font-size:18px;font-weight:600;color:#4FC3F4;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,40%</div>
-</div>
-      </div>
-    </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
-      <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>📍</span><span>Destinos</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#EA00741F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">B2C</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Roanoke Area</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">5 hoteles</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#5C469C1F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">OP</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">El Cairo</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">15.726 CK · 3 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,05%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#4FC3F4;background:#4FC3F41F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">CUG</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Las Vegas, NV</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Conv Rate baja</div>
-  <div style="font-size:18px;font-weight:600;color:#4FC3F4;margin-top:6px;letter-spacing:-.02em;line-height:1;">2,95%</div>
-</div>
-      </div>
-    </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
-      <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏬</span><span>Corporativos</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#EA00741F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">B2C</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Krystal</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Conv Rate baja</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,24%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#5C469C1F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">OP</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Wyndham</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">72.690 CK · 403 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,55%</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#4FC3F4;background:#4FC3F41F;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">CUG</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hoteles Xcaret</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">7.437 CK · 36 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#4FC3F4;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,48%</div>
-</div>
-      </div>
-    </div>
-  </div>
+  <a href="Analisis_Checkrates_7d_W17.xlsx" target="_blank" rel="noopener" class="badge-link" style="padding:9px 22px;letter-spacing:.12em;font-size:11px;white-space:nowrap;">VER EXCEL</a>
 </div>
 </section>
-
-<section id="canastas-detail" style="margin-bottom:80px;">
-  <div class="section-head">
-    <div>
-      <h2 class="section-title">Detalle por Canasta</h2>
-      <span class="section-subtitle" style="color:#EA0074">B2C · OP · CUG · Estructura completa por canasta · click para expandir</span>
-    </div>
-  </div>
-  <p style="font-size:13px;color:var(--ink-muted);max-width:60ch;margin-bottom:32px;">Cada canasta replica la estructura del análisis global con sus propios KPIs, severidad, tablas Top 10 y plan de acción.</p>
 
 <details class="canasta-block" id="canasta-b2c">
   <summary>
@@ -1246,246 +981,109 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   </summary>
   <div class="canasta-content">
 
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-efic-b2c" id="tab-efic-b2c-pais" checked style="display:none;">
-  <input type="radio" name="tabs-efic-b2c" id="tab-efic-b2c-destino" style="display:none;">
-  <input type="radio" name="tabs-efic-b2c" id="tab-efic-b2c-corp" style="display:none;">
-  <input type="radio" name="tabs-efic-b2c" id="tab-efic-b2c-hotel" style="display:none;">
-  <input type="radio" name="tabs-efic-b2c" id="tab-efic-b2c-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% Eficacia</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#EA0074;line-height:1;">94,40%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;"><strong>Aceptable</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 97%</span></span>
-      </div>
-    </div>
+  
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:2px solid var(--ink);background:var(--paper-soft);">
+  <div style="padding:18px 18px 18px 18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Hoteles P80</div>
+    <span style="font-size:26px;font-weight:700;color:#EA0074;">2.338</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">2.014 con 0 Bookings (86.1%)</div>
   </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:67.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-efic-b2c-pais" class="tab-label">País</label>
-    <label for="tab-efic-b2c-destino" class="tab-label">Destino</label>
-    <label for="tab-efic-b2c-corp" class="tab-label">Corp</label>
-    <label for="tab-efic-b2c-hotel" class="tab-label">Hotel</label>
-    <label for="tab-efic-b2c-channel" class="tab-label">Channel</label>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">CheckRates</div>
+    <span style="font-size:26px;font-weight:700;color:var(--ink-muted);">217.9K</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">80.0% del canal total</div>
   </div>
-  <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Estados Unidos</strong> <span>89.5%</span></div>
-        <div><strong>México</strong> <span>91.2%</span></div>
-        <div><strong>República Dominicana</strong> <span>88.7%</span></div>
-        <div><strong>España</strong> <span>94.1%</span></div>
-        <div><strong>Italia</strong> <span>92.3%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Roanoke Area</strong> <span>22.0%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>70.3%</span></div>
-        <div><strong>Laughlin Area</strong> <span>74.6%</span></div>
-        <div><strong>Puerto Escondido</strong> <span>82.5%</span></div>
-        <div><strong>Colonia Area</strong> <span>84.1%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Krystal</strong> <span>50.2%</span></div>
-        <div><strong>Universal</strong> <span>66.1%</span></div>
-        <div><strong>Presidente IC</strong> <span>74.9%</span></div>
-        <div><strong>Decameron</strong> <span>80.3%</span></div>
-        <div><strong>Caesars Ent.</strong> <span>82.5%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>Hotel Egina Bogotá</strong> <span>1.0%</span></div>
-        <div><strong>Hyatt Place Roanoke</strong> <span>4.3%</span></div>
-        <div><strong>Las Vegas Hilton</strong> <span>5.8%</span></div>
-        <div><strong>Conrad Las Vegas</strong> <span>10.2%</span></div>
-        <div><strong>Holiday Inn Ixtapa</strong> <span>11.7%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>94.5%</span></div>
-<div><strong>Internal</strong> <span>94.9%</span></div>
-<div><strong>HBSI</strong> <span>82.0%</span></div>
-<div><strong>SynXis</strong> <span>99.2%</span></div>
-<div><strong>Siteminder</strong> <span>100%</span></div>
-<div><strong>Travelclick</strong> <span>100%</span></div>
-<div><strong>Omnibees</strong> <span>100%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>97.7%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>83.2%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>96.8%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
-      </div>
-    </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Bookings</div>
+    <span style="font-size:26px;font-weight:700;color:var(--ink-muted);">911</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">66.0% del canal total</div>
+  </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Eficacia</div>
+    <span style="font-size:26px;font-weight:700;color:#EA0074;">93.98%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">ponderada por CheckRates</div>
+  </div>
+  <div style="padding:18px;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Conv Rate</div>
+    <span style="font-size:26px;font-weight:700;color:#EA0074;">0.42%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">Bookings / CheckRates × 100</div>
   </div>
 </div>
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-cr-b2c" id="tab-cr-b2c-pais" checked style="display:none;">
-  <input type="radio" name="tabs-cr-b2c" id="tab-cr-b2c-destino" style="display:none;">
-  <input type="radio" name="tabs-cr-b2c" id="tab-cr-b2c-corp" style="display:none;">
-  <input type="radio" name="tabs-cr-b2c" id="tab-cr-b2c-hotel" style="display:none;">
-  <input type="radio" name="tabs-cr-b2c" id="tab-cr-b2c-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conv Rate</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#EA0074;line-height:1;">0,51%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#FCE4F1;color:#EA0074;border:1px solid #EA0074;"><strong>Crítica</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 1,74%</span></span>
-      </div>
-    </div>
-  </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:20.4%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-cr-b2c-pais" class="tab-label">País</label>
-    <label for="tab-cr-b2c-destino" class="tab-label">Destino</label>
-    <label for="tab-cr-b2c-corp" class="tab-label">Corp</label>
-    <label for="tab-cr-b2c-hotel" class="tab-label">Hotel</label>
-    <label for="tab-cr-b2c-channel" class="tab-label">Channel</label>
+
+
+<div class="canasta-alert-bar">
+  <div class="alert-cell">
+  <div class="label">Hoteles sin Bookings</div>
+  <div class="value">9.162 de 9.840</div>
+  <div class="desc">93.1% del canal · zero conversion</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Destino más crítico</div>
+  <div class="value">Roanoke Area</div>
+  <div class="desc">22.0% Eficacia · 0.00% CR</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Corporativo más crítico</div>
+  <div class="value">Krystal</div>
+  <div class="desc">50.2% Eficacia · 0.24% CR</div>
+</div>
+</div>
+
+<div class="canasta-tabs">
+  <input type="radio" name="tabs-b2c" id="tab-b2c-destino" checked>
+<input type="radio" name="tabs-b2c" id="tab-b2c-corp">
+<input type="radio" name="tabs-b2c" id="tab-b2c-hotel">
+<input type="radio" name="tabs-b2c" id="tab-b2c-provider">
+
+  <div class="tabs-row">
+    <label for="tab-b2c-destino" class="tab-label">Destino</label>
+  <label for="tab-b2c-corp" class="tab-label">Corporativo</label>
+  <label for="tab-b2c-hotel" class="tab-label">Hotel</label>
+  <label for="tab-b2c-provider" class="tab-label">Provider</label>
+  
   </div>
   <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Estados Unidos</strong> <span>0.42%</span></div>
-        <div><strong>México</strong> <span>0.73%</span></div>
-        <div><strong>República Dominicana</strong> <span>1.21%</span></div>
-        <div><strong>España</strong> <span>0.18%</span></div>
-        <div><strong>Italia</strong> <span>0.31%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Roanoke Area</strong> <span>0.00%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>0.24%</span></div>
-        <div><strong>Laughlin Area</strong> <span>0.64%</span></div>
-        <div><strong>Puerto Escondido</strong> <span>3.08%</span></div>
-        <div><strong>Colonia Area</strong> <span>0.00%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Krystal</strong> <span>0.24%</span></div>
-        <div><strong>Universal</strong> <span>0.68%</span></div>
-        <div><strong>Presidente IC</strong> <span>0.60%</span></div>
-        <div><strong>Decameron</strong> <span>0.36%</span></div>
-        <div><strong>Caesars Ent.</strong> <span>0.37%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>Hotel Egina Bogotá</strong> <span>0.00%</span></div>
-        <div><strong>Hyatt Place Roanoke</strong> <span>0.00%</span></div>
-        <div><strong>Las Vegas Hilton</strong> <span>0.00%</span></div>
-        <div><strong>Conrad Las Vegas</strong> <span>0.00%</span></div>
-        <div><strong>Holiday Inn Ixtapa</strong> <span>0.00%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>1.37%</span></div>
-<div><strong>Internal</strong> <span>2.71%</span></div>
-<div><strong>HBSI</strong> <span>1.27%</span></div>
-<div><strong>SynXis</strong> <span>2.39%</span></div>
-<div><strong>Siteminder</strong> <span>3.80%</span></div>
-<div><strong>Travelclick</strong> <span>3.50%</span></div>
-<div><strong>Omnibees</strong> <span>7.03%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>0.32%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>0.80%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>16.80%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
+    <div class="tab-panel-c" data-tab="destino">
+      <div class="panel-header">
+        <span>Destino</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
+      <div class="panel-row"><span class="label">1. Roanoke Area</span><span class="efic">22.0%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">2. Las Vegas (and vicinity), NV, US</span><span class="efic">70.3%</span><span class="cr">0.24%</span></div>
+      <div class="panel-row"><span class="label">3. Laughlin Area</span><span class="efic">74.6%</span><span class="cr">0.64%</span></div>
+      <div class="panel-row"><span class="label">4. Puerto Escondido Area</span><span class="efic">82.5%</span><span class="cr">3.08%</span></div>
+      <div class="panel-row"><span class="label">5. Colonia Area</span><span class="efic">84.1%</span><span class="cr">0.00%</span></div>
     </div>
-  </div>
-</div>
-</div>
-<div class="alerts-block" style="margin:0 0 24px;">
-  <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
-      <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏨</span><span>Hoteles</span>
+    <div class="tab-panel-c" data-tab="corp">
+      <div class="panel-header">
+        <span>Corporativo</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hotel Egina Bogotá</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Decameron · Bogotá</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">1,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">1.2K CK · 0 BKGS</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Las Vegas Hilton</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">5.483 CK · 0 BKGS</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. Krystal</span><span class="efic">50.2%</span><span class="cr">0.24%</span></div>
+      <div class="panel-row"><span class="label">2. Universal</span><span class="efic">66.1%</span><span class="cr">0.68%</span></div>
+      <div class="panel-row"><span class="label">3. Presidente Intercontinental</span><span class="efic">74.9%</span><span class="cr">0.60%</span></div>
+      <div class="panel-row"><span class="label">4. Decameron</span><span class="efic">80.3%</span><span class="cr">0.36%</span></div>
+      <div class="panel-row"><span class="label">5. Caesars Entertainment</span><span class="efic">82.5%</span><span class="cr">0.37%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
-      <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>📍</span><span>Destinos</span>
+    <div class="tab-panel-c" data-tab="hotel">
+      <div class="panel-header">
+        <span>Hotel</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Roanoke Area</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">5 hoteles</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">22,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Roanoke Area</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">5 hoteles</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. Hotel Egina Bogotá</span><span class="efic">1.0%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">2. Hyatt Place Roanoke Airport/Valley View Mall</span><span class="efic">4.3%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">3. Las Vegas Hilton at Resorts World</span><span class="efic">5.8%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">4. Conrad Las Vegas at Resorts World</span><span class="efic">10.2%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">5. Holiday Inn Resort Ixtapa All Inclusive</span><span class="efic">11.7%</span><span class="cr">0.00%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
-      <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏬</span><span>Corporativos</span>
+    <div class="tab-panel-c" data-tab="provider">
+      <div class="panel-header">
+        <span>Provider</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Krystal</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia mínima</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">50,20%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Krystal</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Conv Rate baja</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,24%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. HBSI</span><span class="efic">67.1%</span><span class="cr">0.39%</span></div>
+      <div class="panel-row"><span class="label">2. Internal</span><span class="efic">94.1%</span><span class="cr">1.77%</span></div>
+      <div class="panel-row"><span class="label">3. DerbySoft</span><span class="efic">96.1%</span><span class="cr">0.16%</span></div>
+      <div class="panel-row"><span class="label">4. SynXis</span><span class="efic">99.5%</span><span class="cr">0.21%</span></div>
+      <div class="panel-row"><span class="label">5. Siteminder</span><span class="efic">100.0%</span><span class="cr">3.36%</span></div>
     </div>
+
   </div>
 </div>
 
@@ -1810,252 +1408,115 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <summary>
     <div class="summary-title">
       <h2>Canasta OP</h2>
-      <span class="section-subtitle" style="color:#5C469C">B2B Opaco · agencias</span>
+      <span class="section-subtitle" style="color:#5C469C">B2B opaco · agencias</span>
     </div>
     <span class="toggle-arrow"><span class="label"></span><span class="icon"></span></span>
   </summary>
   <div class="canasta-content">
 
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-efic-op" id="tab-efic-op-pais" checked style="display:none;">
-  <input type="radio" name="tabs-efic-op" id="tab-efic-op-destino" style="display:none;">
-  <input type="radio" name="tabs-efic-op" id="tab-efic-op-corp" style="display:none;">
-  <input type="radio" name="tabs-efic-op" id="tab-efic-op-hotel" style="display:none;">
-  <input type="radio" name="tabs-efic-op" id="tab-efic-op-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% Eficacia</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#5C469C;line-height:1;">94,40%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;"><strong>Aceptable</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 97%</span></span>
-      </div>
-    </div>
+  
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:2px solid var(--ink);background:var(--paper-soft);">
+  <div style="padding:18px 18px 18px 18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Hoteles P80</div>
+    <span style="font-size:26px;font-weight:700;color:#5C469C;">4.080</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">1.393 con 0 Bookings (34.1%)</div>
   </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:67.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-efic-op-pais" class="tab-label">País</label>
-    <label for="tab-efic-op-destino" class="tab-label">Destino</label>
-    <label for="tab-efic-op-corp" class="tab-label">Corp</label>
-    <label for="tab-efic-op-hotel" class="tab-label">Hotel</label>
-    <label for="tab-efic-op-channel" class="tab-label">Channel</label>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">CheckRates</div>
+    <span style="font-size:26px;font-weight:700;color:var(--ink-muted);">940.6K</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">80.0% del canal total</div>
   </div>
-  <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Egipto</strong> <span>82.1%</span></div>
-        <div><strong>Japón</strong> <span>78.5%</span></div>
-        <div><strong>República Dominicana</strong> <span>84.6%</span></div>
-        <div><strong>Estados Unidos</strong> <span>85.2%</span></div>
-        <div><strong>México</strong> <span>86.4%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Tokyo</strong> <span>78.5%</span></div>
-        <div><strong>El Cairo</strong> <span>82.1%</span></div>
-        <div><strong>Punta Cana</strong> <span>84.6%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>85.2%</span></div>
-        <div><strong>Riviera Maya</strong> <span>86.4%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Iberostar</strong> <span>61.0%</span></div>
-        <div><strong>Melia</strong> <span>70.4%</span></div>
-        <div><strong>Wyndham</strong> <span>78.3%</span></div>
-        <div><strong>Accor</strong> <span>82.1%</span></div>
-        <div><strong>Marriott</strong> <span>84.5%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>Conrad Las Vegas</strong> <span>11.5%</span></div>
-        <div><strong>Las Vegas Hilton</strong> <span>15.4%</span></div>
-        <div><strong>Crowne Plaza Toronto</strong> <span>42.3%</span></div>
-        <div><strong>DoubleTree Sharm</strong> <span>58.1%</span></div>
-        <div><strong>Fairmont Cairo</strong> <span>61.7%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>94.5%</span></div>
-<div><strong>Internal</strong> <span>94.9%</span></div>
-<div><strong>HBSI</strong> <span>82.0%</span></div>
-<div><strong>SynXis</strong> <span>99.2%</span></div>
-<div><strong>Siteminder</strong> <span>100%</span></div>
-<div><strong>Travelclick</strong> <span>100%</span></div>
-<div><strong>Omnibees</strong> <span>100%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>97.7%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>83.2%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>96.8%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
-      </div>
-    </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Bookings</div>
+    <span style="font-size:26px;font-weight:700;color:#5C469C;">11.114</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">79.1% del canal total</div>
+  </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Eficacia</div>
+    <span style="font-size:26px;font-weight:700;color:#5C469C;">94.13%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">ponderada por CheckRates</div>
+  </div>
+  <div style="padding:18px;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Conv Rate</div>
+    <span style="font-size:26px;font-weight:700;color:#5C469C;">1.18%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">Bookings / CheckRates × 100</div>
   </div>
 </div>
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-cr-op" id="tab-cr-op-pais" checked style="display:none;">
-  <input type="radio" name="tabs-cr-op" id="tab-cr-op-destino" style="display:none;">
-  <input type="radio" name="tabs-cr-op" id="tab-cr-op-corp" style="display:none;">
-  <input type="radio" name="tabs-cr-op" id="tab-cr-op-hotel" style="display:none;">
-  <input type="radio" name="tabs-cr-op" id="tab-cr-op-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conv Rate</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#5C469C;line-height:1;">1,23%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;"><strong>Revisar</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 1,74%</span></span>
-      </div>
-    </div>
-  </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:46.2%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-cr-op-pais" class="tab-label">País</label>
-    <label for="tab-cr-op-destino" class="tab-label">Destino</label>
-    <label for="tab-cr-op-corp" class="tab-label">Corp</label>
-    <label for="tab-cr-op-hotel" class="tab-label">Hotel</label>
-    <label for="tab-cr-op-channel" class="tab-label">Channel</label>
+
+
+<div class="canasta-alert-bar">
+  <div class="alert-cell">
+  <div class="label">Hoteles sin Bookings</div>
+  <div class="value">23.519 de 28.842</div>
+  <div class="desc">81.5% del canal · zero conversion</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Destino más crítico</div>
+  <div class="value">Melbourne Area</div>
+  <div class="desc">74.7% Eficacia · 2.41% CR</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Corporativo más crítico</div>
+  <div class="value">Decameron</div>
+  <div class="desc">68.1% Eficacia · 3.45% CR</div>
+</div>
+</div>
+
+<div class="canasta-tabs">
+  <input type="radio" name="tabs-b2b-op" id="tab-b2b-op-destino" checked>
+<input type="radio" name="tabs-b2b-op" id="tab-b2b-op-corp">
+<input type="radio" name="tabs-b2b-op" id="tab-b2b-op-hotel">
+<input type="radio" name="tabs-b2b-op" id="tab-b2b-op-provider">
+
+  <div class="tabs-row">
+    <label for="tab-b2b-op-destino" class="tab-label">Destino</label>
+  <label for="tab-b2b-op-corp" class="tab-label">Corporativo</label>
+  <label for="tab-b2b-op-hotel" class="tab-label">Hotel</label>
+  <label for="tab-b2b-op-provider" class="tab-label">Provider</label>
+  
   </div>
   <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Egipto</strong> <span>0.05%</span></div>
-        <div><strong>Japón</strong> <span>0.18%</span></div>
-        <div><strong>República Dominicana</strong> <span>2.39%</span></div>
-        <div><strong>Estados Unidos</strong> <span>0.31%</span></div>
-        <div><strong>México</strong> <span>1.85%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Tokyo</strong> <span>0.18%</span></div>
-        <div><strong>El Cairo</strong> <span>0.05%</span></div>
-        <div><strong>Punta Cana</strong> <span>2.39%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>0.31%</span></div>
-        <div><strong>Riviera Maya</strong> <span>1.85%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Iberostar</strong> <span>1.92%</span></div>
-        <div><strong>Melia</strong> <span>1.55%</span></div>
-        <div><strong>Wyndham</strong> <span>0.55%</span></div>
-        <div><strong>Accor</strong> <span>0.27%</span></div>
-        <div><strong>Marriott</strong> <span>0.46%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>Conrad Las Vegas</strong> <span>0.09%</span></div>
-        <div><strong>Las Vegas Hilton</strong> <span>0.12%</span></div>
-        <div><strong>Crowne Plaza Toronto</strong> <span>0.00%</span></div>
-        <div><strong>DoubleTree Sharm</strong> <span>0.00%</span></div>
-        <div><strong>Fairmont Cairo</strong> <span>0.00%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>1.37%</span></div>
-<div><strong>Internal</strong> <span>2.71%</span></div>
-<div><strong>HBSI</strong> <span>1.27%</span></div>
-<div><strong>SynXis</strong> <span>2.39%</span></div>
-<div><strong>Siteminder</strong> <span>3.80%</span></div>
-<div><strong>Travelclick</strong> <span>3.50%</span></div>
-<div><strong>Omnibees</strong> <span>7.03%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>0.32%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>0.80%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>16.80%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
+    <div class="tab-panel-c" data-tab="destino">
+      <div class="panel-header">
+        <span>Destino</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
+      <div class="panel-row"><span class="label">1. Melbourne Area</span><span class="efic">74.7%</span><span class="cr">2.41%</span></div>
+      <div class="panel-row"><span class="label">2. Quebec</span><span class="efic">76.5%</span><span class="cr">0.34%</span></div>
+      <div class="panel-row"><span class="label">3. Osaka Area</span><span class="efic">79.5%</span><span class="cr">1.50%</span></div>
+      <div class="panel-row"><span class="label">4. Sydney Area</span><span class="efic">80.3%</span><span class="cr">1.64%</span></div>
+      <div class="panel-row"><span class="label">5. Jamaica</span><span class="efic">81.3%</span><span class="cr">0.96%</span></div>
     </div>
-  </div>
-</div>
-</div>
-<div class="alerts-block" style="margin:0 0 24px;">
-  <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
-      <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏨</span><span>Hoteles</span>
+    <div class="tab-panel-c" data-tab="corp">
+      <div class="panel-header">
+        <span>Corporativo</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Conrad Las Vegas</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Hilton · Las Vegas</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">11,50%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">3.272 CK · 3 BKGS</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Crowne Plaza Toronto</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">IHG · Toronto</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">2.1K CK · 0 BKGS</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. Decameron</span><span class="efic">68.1%</span><span class="cr">3.45%</span></div>
+      <div class="panel-row"><span class="label">2. Melia</span><span class="efic">75.4%</span><span class="cr">2.10%</span></div>
+      <div class="panel-row"><span class="label">3. Universal</span><span class="efic">80.2%</span><span class="cr">0.36%</span></div>
+      <div class="panel-row"><span class="label">4. Caesars Entertainment</span><span class="efic">89.8%</span><span class="cr">0.78%</span></div>
+      <div class="panel-row"><span class="label">5. AA-Independent</span><span class="efic">90.6%</span><span class="cr">2.26%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
-      <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>📍</span><span>Destinos</span>
+    <div class="tab-panel-c" data-tab="hotel">
+      <div class="panel-header">
+        <span>Hotel</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Tokyo</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia baja</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">78,50%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">El Cairo</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">15.726 CK · 3 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,05%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. All Ritmo Cancún Resort & Waterpark</span><span class="efic">0.1%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">2. Las Vegas Hilton at Resorts World</span><span class="efic">7.5%</span><span class="cr">0.00%</span></div>
+      <div class="panel-row"><span class="label">3. Conrad Las Vegas at Resorts World</span><span class="efic">11.9%</span><span class="cr">0.13%</span></div>
+      <div class="panel-row"><span class="label">4. Grand Decameron Complex, A Trademark All-Inclusive</span><span class="efic">62.8%</span><span class="cr">2.45%</span></div>
+      <div class="panel-row"><span class="label">5. Holiday Inn NYC - Lower East Side by IHG</span><span class="efic">73.9%</span><span class="cr">0.29%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
-      <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏬</span><span>Corporativos</span>
+    <div class="tab-panel-c" data-tab="provider">
+      <div class="panel-header">
+        <span>Provider</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Iberostar</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia mínima</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">61,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Wyndham</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">72.690 CK · 403 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,55%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 2.43% ↓-77%</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. HotelBeds Apitude</span><span class="efic">83.5%</span><span class="cr">0.63%</span></div>
+      <div class="panel-row"><span class="label">2. HBSI</span><span class="efic">86.8%</span><span class="cr">0.96%</span></div>
+      <div class="panel-row"><span class="label">3. Internal</span><span class="efic">94.5%</span><span class="cr">2.02%</span></div>
+      <div class="panel-row"><span class="label">4. DerbySoft</span><span class="efic">94.6%</span><span class="cr">1.21%</span></div>
+      <div class="panel-row"><span class="label">5. Expedia</span><span class="efic">97.9%</span><span class="cr">0.14%</span></div>
     </div>
+
   </div>
 </div>
 
@@ -2380,252 +1841,115 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <summary>
     <div class="summary-title">
       <h2>Canasta CUG</h2>
-      <span class="section-subtitle" style="color:#4FC3F4">B2B contratos privados</span>
+      <span class="section-subtitle" style="color:#4FC3F4">CUG-UOP · clusters cerrados</span>
     </div>
     <span class="toggle-arrow"><span class="label"></span><span class="icon"></span></span>
   </summary>
   <div class="canasta-content">
 
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-efic-cug" id="tab-efic-cug-pais" checked style="display:none;">
-  <input type="radio" name="tabs-efic-cug" id="tab-efic-cug-destino" style="display:none;">
-  <input type="radio" name="tabs-efic-cug" id="tab-efic-cug-corp" style="display:none;">
-  <input type="radio" name="tabs-efic-cug" id="tab-efic-cug-hotel" style="display:none;">
-  <input type="radio" name="tabs-efic-cug" id="tab-efic-cug-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% Eficacia</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#4FC3F4;line-height:1;">93,20%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;"><strong>Aceptable</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 97%</span></span>
-      </div>
-    </div>
+  
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:2px solid var(--ink);background:var(--paper-soft);">
+  <div style="padding:18px 18px 18px 18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Hoteles P80</div>
+    <span style="font-size:26px;font-weight:700;color:#4FC3F4;">4.060</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">1.729 con 0 Bookings (42.6%)</div>
   </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:61.0%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-efic-cug-pais" class="tab-label">País</label>
-    <label for="tab-efic-cug-destino" class="tab-label">Destino</label>
-    <label for="tab-efic-cug-corp" class="tab-label">Corp</label>
-    <label for="tab-efic-cug-hotel" class="tab-label">Hotel</label>
-    <label for="tab-efic-cug-channel" class="tab-label">Channel</label>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">CheckRates</div>
+    <span style="font-size:26px;font-weight:700;color:var(--ink-muted);">301.3K</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">80.0% del canal total</div>
   </div>
-  <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Japón</strong> <span>84.3%</span></div>
-        <div><strong>Estados Unidos</strong> <span>86.1%</span></div>
-        <div><strong>República Dominicana</strong> <span>89.4%</span></div>
-        <div><strong>México</strong> <span>91.2%</span></div>
-        <div><strong>España</strong> <span>93.5%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Tokyo</strong> <span>84.3%</span></div>
-        <div><strong>Osaka</strong> <span>85.7%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>86.1%</span></div>
-        <div><strong>Punta Cana</strong> <span>89.4%</span></div>
-        <div><strong>Cancún</strong> <span>91.2%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Hoteles Xcaret</strong> <span>78.4%</span></div>
-        <div><strong>Universal</strong> <span>79.6%</span></div>
-        <div><strong>Decameron</strong> <span>84.8%</span></div>
-        <div><strong>Iberostar</strong> <span>89.1%</span></div>
-        <div><strong>Riu</strong> <span>91.5%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>All Ritmo Cancún</strong> <span>0.4%</span></div>
-        <div><strong>Hotel Indigo LA</strong> <span>44.8%</span></div>
-        <div><strong>Ocean View Cancún</strong> <span>43.6%</span></div>
-        <div><strong>Caesars Palace</strong> <span>85.2%</span></div>
-        <div><strong>MGM Grand</strong> <span>87.4%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>94.5%</span></div>
-<div><strong>Internal</strong> <span>94.9%</span></div>
-<div><strong>HBSI</strong> <span>82.0%</span></div>
-<div><strong>SynXis</strong> <span>99.2%</span></div>
-<div><strong>Siteminder</strong> <span>100%</span></div>
-<div><strong>Travelclick</strong> <span>100%</span></div>
-<div><strong>Omnibees</strong> <span>100%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>97.7%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>83.2%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>96.8%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
-      </div>
-    </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Bookings</div>
+    <span style="font-size:26px;font-weight:700;color:#4FC3F4;">8.673</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">78.4% del canal total</div>
+  </div>
+  <div style="padding:18px;border-right:1px solid var(--rule);">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Eficacia</div>
+    <span style="font-size:26px;font-weight:700;color:#4FC3F4;">92.87%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">ponderada por CheckRates</div>
+  </div>
+  <div style="padding:18px;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);margin-bottom:6px;font-weight:600;">Conv Rate</div>
+    <span style="font-size:26px;font-weight:700;color:#4FC3F4;">2.88%</span>
+    <div style="font-size:10px;color:var(--ink-muted);margin-top:4px;">Bookings / CheckRates × 100</div>
   </div>
 </div>
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
-  <input type="radio" name="tabs-cr-cug" id="tab-cr-cug-pais" checked style="display:none;">
-  <input type="radio" name="tabs-cr-cug" id="tab-cr-cug-destino" style="display:none;">
-  <input type="radio" name="tabs-cr-cug" id="tab-cr-cug-corp" style="display:none;">
-  <input type="radio" name="tabs-cr-cug" id="tab-cr-cug-hotel" style="display:none;">
-  <input type="radio" name="tabs-cr-cug" id="tab-cr-cug-channel" style="display:none;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conv Rate</div>
-    <div style="margin-top:4px;">
-      <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:#4FC3F4;line-height:1;">2,92%</div>
-      <div style="margin-top:10px;">
-        <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:3px;background:#EDE8F7;color:#5C469C;border:1px solid #5C469C;"><strong>Aceptable</strong> <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:10px;">· Target &ge; 1,74%</span></span>
-      </div>
-    </div>
-  </div>
-<div style="margin-top:14px;">
-        <div style="display:flex;height:14px;border-radius:3px;overflow:hidden;">
-<div style="flex:1;background:#1A1A1A;"></div><div style="flex:1;background:#A8005C;"></div><div style="flex:1;background:#EA0074;"></div><div style="flex:1;background:#5C469C;"></div><div style="flex:1;background:#4FC3F4;"></div>
-        </div>
-        <div style="position:relative;height:6px;margin-top:2px;">
-          <div style="position:absolute;width:3px;height:22px;background:#161616;left:78.7%;top:-8px;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">
-<span style="flex:1;text-align:center;padding:0 2px;">Súper Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Crítica</span><span style="flex:1;text-align:center;padding:0 2px;">Revisar</span><span style="flex:1;text-align:center;padding:0 2px;">Aceptable</span><span style="flex:1;text-align:center;padding:0 2px;">Exitosa</span>
-        </div>
-      </div>
-  <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">
-    <label for="tab-cr-cug-pais" class="tab-label">País</label>
-    <label for="tab-cr-cug-destino" class="tab-label">Destino</label>
-    <label for="tab-cr-cug-corp" class="tab-label">Corp</label>
-    <label for="tab-cr-cug-hotel" class="tab-label">Hotel</label>
-    <label for="tab-cr-cug-channel" class="tab-label">Channel</label>
+
+
+<div class="canasta-alert-bar">
+  <div class="alert-cell">
+  <div class="label">Hoteles sin Bookings</div>
+  <div class="value">20.075 de 24.798</div>
+  <div class="desc">81.0% del canal · zero conversion</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Destino más crítico</div>
+  <div class="value">Jamaica</div>
+  <div class="desc">52.8% Eficacia · 2.52% CR</div>
+</div>
+  <div class="alert-cell">
+  <div class="label">Corporativo más crítico</div>
+  <div class="value">Melia</div>
+  <div class="desc">70.3% Eficacia · 2.43% CR</div>
+</div>
+</div>
+
+<div class="canasta-tabs">
+  <input type="radio" name="tabs-cug-uop" id="tab-cug-uop-destino" checked>
+<input type="radio" name="tabs-cug-uop" id="tab-cug-uop-corp">
+<input type="radio" name="tabs-cug-uop" id="tab-cug-uop-hotel">
+<input type="radio" name="tabs-cug-uop" id="tab-cug-uop-provider">
+
+  <div class="tabs-row">
+    <label for="tab-cug-uop-destino" class="tab-label">Destino</label>
+  <label for="tab-cug-uop-corp" class="tab-label">Corporativo</label>
+  <label for="tab-cug-uop-hotel" class="tab-label">Hotel</label>
+  <label for="tab-cug-uop-provider" class="tab-label">Provider</label>
+  
   </div>
   <div class="tab-panels">
-    <div class="tab-panel" data-tab="pais">
-        <div><strong>Japón</strong> <span>3.21%</span></div>
-        <div><strong>Estados Unidos</strong> <span>2.95%</span></div>
-        <div><strong>República Dominicana</strong> <span>3.85%</span></div>
-        <div><strong>México</strong> <span>4.12%</span></div>
-        <div><strong>España</strong> <span>3.45%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="destino">
-        <div><strong>Tokyo</strong> <span>3.21%</span></div>
-        <div><strong>Osaka</strong> <span>3.45%</span></div>
-        <div><strong>Las Vegas, NV</strong> <span>2.95%</span></div>
-        <div><strong>Punta Cana</strong> <span>3.85%</span></div>
-        <div><strong>Cancún</strong> <span>4.12%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="corp">
-        <div><strong>Hoteles Xcaret</strong> <span>0.48%</span></div>
-        <div><strong>Universal</strong> <span>0.85%</span></div>
-        <div><strong>Decameron</strong> <span>1.12%</span></div>
-        <div><strong>Iberostar</strong> <span>3.85%</span></div>
-        <div><strong>Riu</strong> <span>3.12%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="hotel">
-        <div><strong>All Ritmo Cancún</strong> <span>0.00%</span></div>
-        <div><strong>Hotel Indigo LA</strong> <span>0.55%</span></div>
-        <div><strong>Ocean View Cancún</strong> <span>1.85%</span></div>
-        <div><strong>Caesars Palace</strong> <span>2.45%</span></div>
-        <div><strong>MGM Grand</strong> <span>3.55%</span></div>
-    </div>
-    <div class="tab-panel" data-tab="channel">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Producto Propio</div>
-          <div><strong>DerbySoft</strong> <span>1.37%</span></div>
-<div><strong>Internal</strong> <span>2.71%</span></div>
-<div><strong>HBSI</strong> <span>1.27%</span></div>
-<div><strong>SynXis</strong> <span>2.39%</span></div>
-<div><strong>Siteminder</strong> <span>3.80%</span></div>
-<div><strong>Travelclick</strong> <span>3.50%</span></div>
-<div><strong>Omnibees</strong> <span>7.03%</span></div>
-        </div>
-        <div>
-          <div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule-soft);">Third Party</div>
-          <div><strong>Expedia</strong> <span>0.32%</span></div>
-<div><strong>HotelBeds Apitude</strong> <span>0.80%</span></div>
-<div><strong>Hotel Unico V2</strong> <span>16.80%</span></div>
-<div><strong>Travelgate</strong> <span>—</span></div>
-        </div>
+    <div class="tab-panel-c" data-tab="destino">
+      <div class="panel-header">
+        <span>Destino</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
+      <div class="panel-row"><span class="label">1. Jamaica</span><span class="efic">52.8%</span><span class="cr">2.52%</span></div>
+      <div class="panel-row"><span class="label">2. Melbourne Area</span><span class="efic">69.9%</span><span class="cr">2.67%</span></div>
+      <div class="panel-row"><span class="label">3. Charlotte Area</span><span class="efic">80.1%</span><span class="cr">3.44%</span></div>
+      <div class="panel-row"><span class="label">4. Las Vegas (and vicinity), NV, US</span><span class="efic">82.0%</span><span class="cr">2.31%</span></div>
+      <div class="panel-row"><span class="label">5. Manchester Area</span><span class="efic">83.7%</span><span class="cr">2.90%</span></div>
     </div>
-  </div>
-</div>
-</div>
-<div class="alerts-block" style="margin:0 0 24px;">
-  <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-    <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #EA0074;">
-      <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏨</span><span>Hoteles</span>
+    <div class="tab-panel-c" data-tab="corp">
+      <div class="panel-header">
+        <span>Corporativo</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">All Ritmo Cancún</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">AA-Independent</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,40%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">eficacia crítica</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">All Ritmo Cancún</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">AA-Independent</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,00%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">sin BKGS</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. Melia</span><span class="efic">70.3%</span><span class="cr">2.43%</span></div>
+      <div class="panel-row"><span class="label">2. Universal</span><span class="efic">84.3%</span><span class="cr">1.77%</span></div>
+      <div class="panel-row"><span class="label">3. Caesars Entertainment</span><span class="efic">88.8%</span><span class="cr">3.26%</span></div>
+      <div class="panel-row"><span class="label">4. IHG</span><span class="efic">90.0%</span><span class="cr">4.09%</span></div>
+      <div class="panel-row"><span class="label">5. AA-Independent</span><span class="efic">90.5%</span><span class="cr">4.45%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #4FC3F4;">
-      <div style="font-size:10px;font-weight:700;color:#0D7A99;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>📍</span><span>Destinos</span>
+    <div class="tab-panel-c" data-tab="hotel">
+      <div class="panel-header">
+        <span>Hotel</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Tokyo</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia baja</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">84,30%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Las Vegas, NV</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Conv Rate baja</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">2,95%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. Rio Hotel & Casino</span><span class="efic">88.5%</span><span class="cr">2.85%</span></div>
+      <div class="panel-row"><span class="label">2. Luxor Hotel and Casino</span><span class="efic">94.8%</span><span class="cr">1.66%</span></div>
+      <div class="panel-row"><span class="label">3. Hyatt Grand Central New York</span><span class="efic">96.4%</span><span class="cr">0.56%</span></div>
+      <div class="panel-row"><span class="label">4. Hyatt Regency Waikiki Beach Resort & Spa</span><span class="efic">98.6%</span><span class="cr">4.33%</span></div>
+      <div class="panel-row"><span class="label">5. Hilton New Orleans Riverside</span><span class="efic">98.8%</span><span class="cr">0.09%</span></div>
     </div>
-    <div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid #5C469C;">
-      <div style="font-size:10px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🏬</span><span>Corporativos</span>
+    <div class="tab-panel-c" data-tab="provider">
+      <div class="panel-header">
+        <span>Provider</span><span>Eficacia</span><span>Conv Rate</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% Eficacia</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hoteles Xcaret</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">Eficacia baja</div>
-  <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">78,40%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">&nbsp;</div>
-</div>
-<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
-  <div style="font-size:8px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">Conv Rate</div>
-  <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hoteles Xcaret</div>
-  <div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">7.437 CK · 36 BKGS</div>
-  <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0,48%</div>
-  <div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">W16: 0.94% ↓-49%</div>
-</div>
-      </div>
+      <div class="panel-row"><span class="label">1. HBSI</span><span class="efic">76.9%</span><span class="cr">3.33%</span></div>
+      <div class="panel-row"><span class="label">2. HotelBeds Apitude</span><span class="efic">82.9%</span><span class="cr">0.92%</span></div>
+      <div class="panel-row"><span class="label">3. DerbySoft</span><span class="efic">93.3%</span><span class="cr">2.73%</span></div>
+      <div class="panel-row"><span class="label">4. Internal</span><span class="efic">96.0%</span><span class="cr">4.67%</span></div>
+      <div class="panel-row"><span class="label">5. Expedia</span><span class="efic">97.4%</span><span class="cr">0.64%</span></div>
     </div>
+
   </div>
 </div>
 
@@ -2947,8 +2271,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 </details>
 
-
-</section>
 
 
 </div>
