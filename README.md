@@ -1,57 +1,82 @@
-# PRICE · Release Workflow
+# Price · HUB Supply Optimization
 
-Este documento describe el proceso semanal para generar y publicar los Reportes **CheckRates** y **RatesNoDispo** de Supply Optimization · PriceTravel.
+Repo de reportes semanales · `Supply Rates No Dispo` y `Supply CheckRates` · publicados en GitHub Pages.
+
+URL pública: `https://federicochurches.github.io/Price/`
 
 ---
 
-## 📁 Estructura del repo
+## Estructura del repo
 
 ```
 Price/                                          (repo público de GitHub Pages)
 ├── README.md                                   (este archivo)
-├── _editorial/
-│   ├── GUIA_EDITORIAL_RatesNoDispo.html        (guía editorial RND · ⭐ actualizada W17)
-│   └── GUIA_EDITORIAL_CheckRates.html          (guía editorial CR)
-├── _template/
-│   ├── _TEMPLATE_RatesNoDispo_Reporte.html     (template RND · ⭐ sin bugs estructurales)
-│   └── _TEMPLATE_CheckRates_Reporte.html       (template CR · con banners Excel)
-├── datasets/                                   (datasets originales — fuente)
-│   ├── rates-nodispo/week-NN/Rates_NoDispo_WNN.xlsx
-│   └── checkrates/week-NN/CheckRates_WNN.xlsx
-├── rates-nodispo/
-│   ├── week-16/
-│   │   ├── Editorial/RatesNoDispo_Reporte_Editorial.html
-│   │   └── Analisis/Analisis_Rates_NoDispo_7d.xlsx
-│   └── week-17/
-│       ├── Editorial/RatesNoDispo_Reporte_Editorial.html
-│       └── Analisis/Analisis_Rates_NoDispo_7d.xlsx
-├── checkrates/
-│   └── week-17/
-│       ├── Editorial/CheckRates_Reporte_Editorial.html
-│       └── Analisis/Analisis_Checkrates_7d.xlsx
-├── _scripts/                                   (NO se publica — solo local)
-│   ├── prepare_week.py
-│   ├── organize_datasets.py
+├── index.html                                  (hub de navegación)
+├── .gitignore
+│
+├── _email/                                     (NO se publica · solo local)
+│   ├── week-NN/Mail_WNN.html
+│   ├── Playbook_Mail_Semanal.md
+│   └── destinatarios.md
+│
+├── _scripts/                                   (NO se publica · solo local)
+│   ├── lib/
+│   ├── templates/
+│   ├── commit_release.py
+│   ├── release_week.py
 │   └── send_email.py
-└── _email/                                     (NO se publica)
-    └── week-NN/Mail_WNN.html
+│
+├── _template/                                  (template del Hub)
+│   └── _TEMPLATE_Hub.html
+│
+├── rates-nodispo/
+│   ├── _manual/
+│   │   └── GUIA_EDITORIAL_RatesNoDispo.html    (guía editorial RND · ⭐ actualizada W17)
+│   ├── _template/
+│   │   └── _TEMPLATE_RatesNoDispo_Reporte.html (template RND · ⭐ sin bugs estructurales)
+│   ├── week-16/
+│   │   ├── RatesNoDispo_Reporte_Editorial.html (reporte editorial)
+│   │   ├── Analisis_Rates_NoDispo_7d.xlsx      (excel de análisis · Top 50)
+│   │   └── Rates_NoDispo_W16.xlsx              (dataset crudo · fuente)
+│   └── week-17/
+│       ├── RatesNoDispo_Reporte_Editorial.html
+│       ├── Analisis_Rates_NoDispo_7d.xlsx
+│       └── Rates_NoDispo_W17.xlsx
+│
+└── checkrates/
+    ├── _manual/
+    │   └── GUIA_EDITORIAL_CheckRates.html      (guía editorial CR · ⭐ actualizada W17)
+    ├── _template/
+    │   └── _TEMPLATE_CheckRates_Reporte.html   (template CR · con banners Excel)
+    ├── week-16/
+    │   ├── CheckRates_Reporte_Editorial.html
+    │   ├── Analisis_Checkrates_7d.xlsx
+    │   └── CheckRates_W16.xlsx
+    └── week-17/
+        ├── CheckRates_Reporte_Editorial.html
+        ├── Analisis_Checkrates_7d.xlsx
+        └── CheckRates_W17.xlsx
 ```
 
 ### URLs públicas
 
 - **Hub interno**: `https://analytics-desk.netlify.app/`
-- **RatesNoDispo**: `https://federicochurches.github.io/Price/rates-nodispo/week-NN/Editorial/RatesNoDispo_Reporte_Editorial.html`
-- **CheckRates**: `https://federicochurches.github.io/Price/checkrates/week-NN/Editorial/CheckRates_Reporte_Editorial.html`
+- **RatesNoDispo**: `https://federicochurches.github.io/Price/rates-nodispo/week-NN/RatesNoDispo_Reporte_Editorial.html`
+- **CheckRates**: `https://federicochurches.github.io/Price/checkrates/week-NN/CheckRates_Reporte_Editorial.html`
 
 ---
 
 ## ⚠ Decisiones consolidadas · post W17
 
-> Antes de hacer cambios al template o reportes, leer la **Guía Editorial** completa: `_editorial/GUIA_EDITORIAL_RatesNoDispo.html`
+> Antes de hacer cambios al template o reportes, leer la **Guía Editorial** completa: `rates-nodispo/_manual/GUIA_EDITORIAL_RatesNoDispo.html` y `checkrates/_manual/GUIA_EDITORIAL_CheckRates.html`
 
-### Bandas Severity definitivas
+### Bandas Severity · sistema D · post W17
 
-**% NoDispo (5 niveles):**
+**Lógica D (híbrida) · documentada en post-W17:**
+
+Severity NO se aplica uniformemente · separamos hoteles "procesables" (con conversión > 0) de los "no procesables" (sin conversión). Los hoteles con BKGS = 0 son **categoría operativa aparte**: requieren tratamiento estructural distinto (revisar conectividad API, contratos, demanda real).
+
+**% NoDispo (sigue igual · 5 niveles):**
 | Nivel | Rango |
 |---|---|
 | Exitosa | < 3% |
@@ -60,215 +85,95 @@ Price/                                          (repo público de GitHub Pages)
 | Crítica | 20 – 60% |
 | Súper Crítica | > 60% |
 
-**Conv Rate RPM (5 niveles):**
-| Nivel | Rango |
-|---|---|
-| Exitosa | > 3 |
-| Aceptable | 1,74 – 3 |
-| Revisar | 1 – 1,74 |
-| Crítica | 0,5 – 1 |
-| Súper Crítica | < 0,5 |
+**Conv Rate / RPM · sistema D:**
+
+| Reporte | Métrica | Sin Conversión | Crítica | Revisar | Aceptable | Exitosa | **Target** |
+|---|---|---|---|---|---|---|---|
+| **RND** | RPM | BKGS = 0 (informativo) | < 1 | 1 – 2,5 | 2,5 – 4 | > 4 | **≥ 3,0** |
+| **CR** | Conv Rate | BKGS = 0 (informativo) | < 0,8% | 0,8 – 1,5% | 1,5 – 2,5% | > 2,5% | **≥ 2,0%** |
+
+**Justificación de targets:**
+- **RND · RPM ≥ 3,0**: mediana de hoteles que sí convierten (3,82). Realista: ~28% ya están sobre. Aspiracional: empuja al cluster Revisar (1-2,5) hacia arriba.
+- **CR · Conv Rate ≥ 2,0%**: cerca de la mediana Con Conversión (1,67%). Realista: ~35% ya superan. Industria: 1,5-3% es saludable.
+
+**¿Por qué Sin Conversión es categoría aparte?**
+Antes 60% de hoteles caían en "Súper Crítica" porque tenían BKGS = 0. Esto saturaba la severity y hacía que el reporte fuera poco accionable: nadie escala 9.000 hoteles. Ahora Sin Conversión se reporta como métrica operativa (cohorte estructural · diagnóstico técnico/contractual) y Severity se aplica solo a los que sí convierten · permitiendo priorizar acciones de pricing/optimización.
+
+**Cómo se aplica en visualizaciones:**
+- En tablas Severity: "Sin Conversión" aparece como primera fila con pill gris (`#8A8377`), seguido de un separador horizontal antes de las bandas Severity propias
+- En kpis-hero cards: pill severity refleja el estado del hotel ponderado · target visible debajo
+- En gauge bar (CR): 5 bandas (Súper Crítica · Crítica · Revisar · Aceptable · Exitosa) · "Sin Conversión" no se incluye en gauge porque no aplica
 
 ### Estructura kpis-hero · regla crítica
 
-Card NoDispo y Card RPM deben ser **2 hijos directos** del div `.kpis-hero`. Si la 2da card queda anidada dentro de la 1ra (bug detectado en W17), el grid colapsa a 1 columna. Validar con BeautifulSoup antes de cada release (ver Validación al final).
+**Card global y de canasta** (RND y CR) tienen 2 cards directas con tabs estilo folder:
 
-### Tabs por card · listas DIFERENCIADAS
+- Card 1: % Eficacia (CR) o %NoDispo (RND) con pill severity + gauge bar 5 niveles + WoW + tabs (País · Destino · Corp · Hotel · Channel/Canasta)
+- Card 2: Conv Rate (CR) o RPM (RND) con pill severity + gauge bar 5 niveles + WoW + tabs
 
-| Pestaña | Card NoDispo | Card RPM |
-|---|---|---|
-| País | peor %NoDispo ponderado | peor RPM ponderado |
-| Destino | destinos con más hoteles críticos en P80 | peor RPM (BKGS>0, tráfico>5M) |
-| Corp | peor %NoDispo (filtro tráfico>50M) | peor RPM (BKGS>0, tráfico>10M) |
-| Hotel | peor %NoDispo en P80 | peor RPM con BKGS>0 |
-| Canasta | B2C, OP, CUG con su %NoDispo | B2C, OP, CUG con su RPM |
+### Tabs sistema folder
 
-### TAG header
+- Inputs radio escondidos con prefijo `tab-{seccion}-{tab}`
+- Labels con `border-radius: 6px 6px 0 0` · efecto folder cuando active
+- En CR canasta: prefijo `tab-cb-{canasta}-{side}-{tab}` · 6 grupos (3 canastas × 2 cards)
 
-- RND: magenta `#EA0074` ✅
-- CR: violeta `#5C469C` ✅
-- **Nunca usar #5C469C en RND**
+### Channel agrupado · Producto Propio vs Third Party
 
-### Resumen Ejecutivo por Canasta
+- **Producto Propio:** DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees
+- **Third Party:** Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate
 
-10 findings en 2 columnas dentro de cada `<details>` (B2C, OP, CUG). Posición: **inmediatamente después de Alerts · Casos Críticos**, no al final del details.
+### Sistema de color
 
-### Sección "Análisis por Canasta" · ELIMINADA
+**Rates No Dispo:**
+- `--accent` `#1E5A8C` (no usado en TAG · usar magenta)
+- `--amber` / TAG `#EA0074` magenta
+- TAG corp en H1: `#F277AC` (magenta más claro · diferenciación destinos vs corp)
+- `--green` `#2F6C34`
+- `--red` `#C0392B`
 
-`<section id="por-canasta">` fue eliminada por redundancia con "Detalle por Canasta". **NO recrear**.
+**CheckRates:**
+- `--accent` `#5C469C` violet (TAG, valores clave, destinos H1)
+- TAG corp en H1: `#9580C9` (violet más claro)
+- `--amber` `#EA0074` magenta (Severity Eficacia, %Errors)
+- `--green` / CUG `#4FC3F4` cyan
+- `--ink-muted` `#8A8377` (CheckRates, Bookings, Sin Conversión)
 
----
+### Reglas obligatorias
 
-## 🚀 Workflow semanal (Lunes)
-
-### Paso 1 · Recibir datasets
-
-```
-Rates_NoDispo_W<NN>.xlsx     (pestañas: Canasta ALL · B2C · OP · UOP)
-CheckRates_W<NN>.xlsx        (pestañas: TOTALES · Canal B2C · Canal OP · Canal UOP)
-```
-
-### Paso 2 · Validación de columnas datasets
-
-**RND debe tener:**
-- ✅ `CorpName` (sin `-`) · sin esto requiere recovery del W previo (~99% coverage)
-- ✅ `Hotel` · `PaisDestino` · `Destino`
-- ✅ `Trafico` · `%NoDispo` (decimal · 0.07 = 7%) · `Bookings` · `gb_usd`
-
-**CR debe tener:**
-- ✅ `Destino` · sin esto la tab País del CR no funciona
-
-### Paso 3 · Organizar datasets originales
-
-```bash
-python _scripts/organize_datasets.py NN ~/Downloads/Rates_NoDispo_WNN.xlsx ~/Downloads/CheckRates_WNN.xlsx
-```
-
-### Paso 4 · Generar reportes
-
-Tomar el TEMPLATE limpio (`_template/_TEMPLATE_*`), copiar a `week-NN/Editorial/`, y reemplazar valores hardcoded con datos de la semana. Validar estructura antes de commit (paso 6).
-
-### Paso 5 · Generar Excel de Análisis
-
-11 pestañas obligatorias para RND:
-
-1. Ficha Técnica
-2. Severity NoDispo
-3. Demanda No Convertida
-4. Bajo Rendimiento
-5. Por Corporativo
-6. Por Destino
-7. Por País
-8. Plan de Acción
-9. Canasta B2C · Bajo Rendimiento
-10. Canasta OP · Bajo Rendimiento
-11. Canasta CUG · Bajo Rendimiento
-
-Cada pestaña con Top 20.
-
-### Paso 6 · Validación pre-release (checklist 2 min)
-
-```python
-from bs4 import BeautifulSoup
-import re
-
-with open('rates-nodispo/week-NN/Editorial/RatesNoDispo_Reporte_Editorial.html') as f:
-    html = f.read()
-
-# 1. Balance HTML
-opens = len(re.findall(r'<div\b[^>]*>', html))
-closes = len(re.findall(r'</div\s*>', html))
-assert opens == closes
-
-# 2. kpis-hero con 2 cards directas
-soup = BeautifulSoup(html, 'lxml')
-kpis_hero = soup.find('div', class_='kpis-hero')
-cards = [c for c in kpis_hero.children if c.name == 'div' and 'kpi-card' in c.get('class', [])]
-assert len(cards) == 2
-
-# 3. TAG en magenta (RND) o violeta (CR)
-tag_rule = re.search(r'\.report-tag\{[^}]*\}', html).group(0)
-assert '#EA0074' in tag_rule  # para RND
-
-# 4. Sin sección obsoleta
-assert 'id="por-canasta"' not in html
-
-# 5. 3 details con Resumen Ejecutivo
-section = soup.find('section', id='canastas-detail')
-assert len(section.find_all('details')) == 3
-
-print("✓ OK")
-```
-
-### Paso 7 · Commit y Push
-
-```
-fix: editoriales W<NN> · datos validados
-
-- RND W<NN>: kpis-hero validado · 2 cards directas
-- Pestañas Destino/Corp diferenciadas (NoDispo vs RPM)
-- TAG header magenta correcta
-- Resumen Ejecutivo 10 findings 2 cols post-Alerts en cada canasta
-- Excel Análisis con 11 pestañas Top 20
-```
-
-### Paso 8 · Actualizar Hub de Netlify
-
-Actualizar cards CheckRates y RatesNoDispo con URL de la nueva semana.
-
-### Paso 9 · Enviar email
-
-```bash
-python _scripts/send_email.py NN
-```
+- **Top 5** en Editorial · **Top 50** en Excel de Análisis (post W17 · antes era Top 20)
+- Pestaña "Sin Conversión" SEPARADA de "Bajo Rendimiento" en Excel
+- Findings del Resumen Ejecutivo SIEMPRE empiezan con mayúscula
+- Resumen Ejecutivo: 10 findings · 2 columnas · post-Alerts en cada `<details>` de canasta
+- Nunca hardcodear colores fuera de `:root` excepto donde la guía lo permite (CUG `#4FC3F4`)
+- CUG y B2B-OP son prioridad estratégica (Weight 0.6)
+- Links a Excel: usar nombre sin sufijo de week (ej. `Analisis_Rates_NoDispo_7d.xlsx`) · la carpeta `week-NN/` ya identifica la semana
 
 ---
 
-## 🎨 Sistema de Color · Rates No Dispo
+## Workflow semanal
 
-| Variable | Hex | Uso |
-|---|---|---|
-| --magenta | `#EA0074` | TAG · valores principales · pill Crítica |
-| --violet | `#5C469C` | Pill Aceptable · banda gauge Aceptable |
-| --accent | `#1E5A8C` | Conv RPM · TOTAL Severity |
-| --amber | `#A86A1D` | Bajo Rendimiento · severity atención |
-| --green | `#2F6C34` | Por Destino · GB positivo |
-| --ink-muted | `#8A8377` | Valores secundarios · neutros |
+1. Recibir datasets Week-NN · guardarlos en `{seccion}/week-NN/`
+2. Correr análisis Python → métricas por sección
+3. Generar Excel de Análisis (Top 50 por pestaña + Sin Conversión separada)
+4. Poblar Template con datos nuevos → Reporte Editorial
+5. Commit GitHub: agregar `rates-nodispo/week-NN/` y `checkrates/week-NN/` con los 3 archivos
+6. Actualizar `index.html` con links Week-NN
+7. Generar mail desde `_email/week-NN/Mail_WNN.html` (reemplazar placeholders)
+8. Enviar a lista de destinatarios (12 personas en BCC)
 
-⚠ **NO usar #5C469C como TAG en RND** · ese color es de CheckRates.
-
-## 🎨 Sistema de Color · Check Rates
-
-| Variable | Hex | Uso |
-|---|---|---|
-| --accent | `#5C469C` | TAG · Eficacia · Conv Rate · TOTAL |
-| --amber | `#EA0074` | Bajo Rendimiento · %Errors · Severity Eficacia |
-| --green | `#4FC3F4` | Canasta CUG (color propio) |
-| --ink-muted | `#8A8377` | CheckRates · Bookings · neutros |
+### Commit summary format
+`fix: datos Week-NN · RatesNoDispo + CheckRates · sistema bandas D · [fecha]`
 
 ---
 
-## 📊 Destinatarios del email
+## Action items pendientes para W18
 
-| Campo | Valor |
-|---|---|
-| **De** | `federico.iglesias@pricetravel.com` |
-| **Asunto** | `Supply Optimization · Reporte [CheckRates+RatesNoDispo] Week-NN` |
-| **Para** | rafael.durand, bellanira.hernandez, maria.alejandra.rico, javier.parra, alonso.mis, ingrid.kuhnne, david.gamboa, hugo.ascencio, ext.jesus.lizarraga, alejandro.flores, gabriela.guerra, barbara.rodriguez |
+> Pedirle al equipo de data:
+> - **RND W18**: dataset crudo con `CorpName` en cada pestaña de canasta (no solo en Canasta ALL)
+> - **CR W18**: dataset crudo con columna `Destino` en cada fila
 
----
-
-## 📅 Calendario de releases
-
-| Week | Periodo | RatesNoDispo | CheckRates |
-|---|---|---|---|
-| 16 | 13–19 Abr 2026 | ✅ v2.0 | ⚠ pendiente regenerar |
-| 17 | 20–26 Abr 2026 | ✅ v2.0 | ✅ v2.0 |
-| 18 | 27 Abr – 3 May 2026 | ⏳ Próximo | ⏳ Próximo |
+Sin estos datos, hay que hacer recovery vía join Hotel→CorpName y Hotel→Destino del W16 (proxy menos preciso).
 
 ---
 
-## 📝 Changelog
-
-- **v1.0** (2026-04-27): Release inicial W16. Estructura por canastas.
-- **v1.1** (2026-04-28): W17 CheckRates. Umbrales D, colores canasta definidos.
-- **v1.2** (2026-04-28): W17 RND. Resúmenes ejecutivos por canasta con RPM, WoW.
-- **v2.0** (2026-05-01): **Release mayor · estructura validada y bugs resueltos**:
-  - kpis-hero con 2 cards directas (era 1 columna)
-  - Pestañas Destino/Corp diferenciadas (NoDispo vs RPM)
-  - Card RPM Corp ahora muestra RPM (era #críticos)
-  - H1 narrativo alineado con pestaña Corp · RIU/Iberostar/Melia
-  - Detalle por Canasta: 10 findings 2 cols post-Alerts
-  - TAG header magenta correcta (#EA0074)
-  - Sección Análisis por Canasta eliminada (redundante)
-  - CR W17: H1 narrativo + 4 banners Excel + tabs reordenadas
-  - Templates RND/CR actualizados con estructura validada
-  - Guía Editorial RND con decisiones consolidadas
-  - Excels Análisis RND con 11 pestañas Top 20
-
-## ⚠ Acciones para W18
-
-Pedir al equipo de data:
-- **RND W18 con `CorpName` correcta** (sin `-`) · evita recovery manual
-- **CR W18 con `Destino`** · habilita la tab País del CheckRates
-
+**Última actualización:** 1 mayo 2026 · post W17 · sistema bandas D + targets + tabs folder + Channel agrupado + Top 50

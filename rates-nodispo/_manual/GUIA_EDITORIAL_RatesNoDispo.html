@@ -79,15 +79,30 @@ ul li { margin-bottom: 6px; }
   <tr><td>Súper Crítica</td><td>&gt; 60%</td><td><code>#161616</code> bg · <code>#FFFFFF</code> text</td></tr>
 </table>
 
-<h3>2.2 Conv Rate RPM (5 niveles)</h3>
+<h3>2.2 Conv Rate RPM · Sistema D (post W17)</h3>
+
+<div class="tip">
+  <strong>Cambio importante post W17:</strong> Severity Conv Rate ahora separa "Sin Conversión" (BKGS=0) como <strong>categoría operativa aparte</strong> del cluster Severity. Antes 60% de hoteles caían en Súper Crítica por no tener bookings · esto saturaba la severity y limitaba la accionabilidad.
+</div>
+
 <table>
-  <tr><th>Nivel</th><th>Rango</th></tr>
-  <tr><td>Exitosa</td><td>&gt; 3</td></tr>
-  <tr><td>Aceptable</td><td>1,74 – 3</td></tr>
-  <tr><td>Revisar</td><td>1 – 1,74</td></tr>
-  <tr><td>Crítica</td><td>0,5 – 1</td></tr>
-  <tr><td>Súper Crítica</td><td>&lt; 0,5</td></tr>
+  <tr><th>Categoría</th><th>Rango RPM</th><th>Tratamiento</th></tr>
+  <tr><td><strong>Sin Conversión</strong></td><td>BKGS = 0</td><td>Cohorte operativa · diagnóstico técnico/contractual · NO aplica Severity</td></tr>
+  <tr><td>Crítica</td><td>&lt; 1</td><td>Bajo RPM con conversión activa · revisar pricing</td></tr>
+  <tr><td>Revisar</td><td>1 – 2,5</td><td>Cohorte de mejora · diagnóstico individual</td></tr>
+  <tr><td>Aceptable</td><td>2,5 – 4</td><td>Cerca del benchmark P80 (2,86) · target operativo</td></tr>
+  <tr><td>Exitosa</td><td>&gt; 4</td><td>Sobresaliente · benchmark replicable</td></tr>
 </table>
+
+<h3>2.3 Target operativo · RND</h3>
+<div class="warn">
+  <strong>Target RPM ≥ 3,0</strong> (banda Aceptable)
+  <ul>
+    <li>Es la mediana de hoteles "Con Conversión"</li>
+    <li>Realista: ~28% del portafolio ya supera el target</li>
+    <li>Aspiracional: motiva a hoteles del cluster Revisar (1-2,5) a mejorar</li>
+  </ul>
+</div>
 
 <h3>2.3 Posición del indicador en gauge</h3>
 <p>El gauge tiene 5 bandas de igual ancho (cada una 20% del total). Para un valor X dentro de la banda Y · la posición es:</p>
