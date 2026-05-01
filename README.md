@@ -1,30 +1,81 @@
-# PRICE · Scripts de Automatización
+# PRICE · Supply Optimization
 
-Automatización del proceso de release semanal · Supply Optimization.
+Repositorio de reportes semanales de **Supply Optimization** de PriceTravel Holding.
+
+🌐 **Hub público:** https://federicochurches.github.io/Price/
 
 ---
 
-## 🚀 Workflow del lunes (release semanal)
+## 📊 Reportes
 
-### Pre-requisitos
-1. Tener el repo Price clonado localmente
-2. Python 3.8+ instalado
-3. Dependencias instaladas (1 sola vez):
-   ```
-   pip install pandas openpyxl
-   ```
+Dos reportes editoriales semanales que analizan la performance del supply en una OTA:
 
-### Pasos
+### CheckRates
+Análisis de eficacia técnica y conversión por canal (B2C · B2B-OP · CUG). Evalúa cuántos checkRates se hacen, qué porcentaje son exitosos, y cuántos terminan en booking.
+
+**Métricas clave:** Eficacia · Conv Rate · CheckRates totales · Cluster (Connectivity / Tech / Conversion / Hybrid / Quick Win)
+
+### Rates No Dispo
+Análisis de disponibilidad y conversión por hotel/destino/corporativo. Identifica el tráfico que no se monetiza por falta de inventario.
+
+**Métricas clave:** %NoDispo ponderado · Tráfico bloqueado · GB · RPM · Concentración por Corporativo
+
+---
+
+## 📁 Estructura del repo
+
+```
+Price/
+├── README.md                    ← este archivo
+├── index.html                   ← Hub público
+│
+├── _docs/                       ← documentación interna (CHANGELOG, etc)
+├── _email/
+│   └── week-NN/
+│       └── Mail_WNN.html        ← mail unificado CR + RND por semana
+├── _scripts/                    ← automatización (ver más abajo)
+├── _template/
+│   └── _TEMPLATE_Hub.html       ← template del hub
+│
+├── checkrates/
+│   ├── _manual/
+│   │   └── GUIA_EDITORIAL_CheckRates.html
+│   ├── _template/
+│   │   └── _TEMPLATE_CheckRates_Reporte_Editorial.html
+│   └── week-NN/
+│       ├── CheckRates_Reporte_Editorial.html
+│       ├── Analisis_Checkrates_7d_WNN.xlsx
+│       └── data_set_checkrates_WNN.xlsx
+│
+└── rates-nodispo/
+    ├── _manual/
+    │   └── GUIA_EDITORIAL_RatesNoDispo.html
+    ├── _template/
+    │   └── _TEMPLATE_RatesNoDispo_Reporte_Editorial.html
+    └── week-NN/
+        ├── RatesNoDispo_Reporte_Editorial.html
+        ├── Analisis_Rates_NoDispo_7d_WNN.xlsx
+        └── WeekNNRatesNoDispo.xlsx
+```
+
+---
+
+## 🚀 Workflow semanal · cómo hacer un release
+
+### Pre-requisitos (1 sola vez)
+```bash
+pip install pandas openpyxl
+```
+
+### Cada lunes · 4 pasos
 
 #### 1. Recibir los 2 datasets crudos
-Cada lunes recibís:
-- `data_set_checkrates_W{NN}.xlsx` (CheckRates · ~4-5 MB)
-- `Week{NN}RatesNoDispo.xlsx` (Rates No Dispo · ~22 MB · **debe tener columna CorpName**)
+- `data_set_checkrates_WNN.xlsx` (~4-5 MB)
+- `WeekNNRatesNoDispo.xlsx` (~22 MB · **debe tener columna CorpName**)
 
-#### 2. Ponerlos en `_scripts/inputs/`
-Copiá los 2 archivos a la carpeta `_scripts/inputs/` del repo Price.
+Copialos a `_scripts/inputs/`.
 
-#### 3. Correr el script de generación
+#### 2. Generar Excels + Mail + actualizar index
 ```bash
 cd ~/Documents/GitHub/Price
 python _scripts/release_week.py --week 18 --periodo "27 Abr - 3 May 2026"
@@ -36,126 +87,124 @@ Esto genera automáticamente:
 - ✅ `rates-nodispo/week-18/Analisis_Rates_NoDispo_7d_W18.xlsx`
 - ✅ `rates-nodispo/week-18/Week18RatesNoDispo.xlsx`
 - ✅ `_email/week-18/Mail_W18.html`
-- ✅ `index.html` (actualizado con KPIs nuevos)
+- ✅ `index.html` (KPIs actualizados)
 
-#### 4. Generar reportes editoriales HTML (en Claude)
-Esta parte **sigue siendo manual**:
-1. Abrir una sesión con Claude
-2. Pedir "release W{NN} · CheckRates + Rates No Dispo · datasets en /mnt/project"
-3. Claude genera los 2 HTMLs
-4. Bajarlos y ponerlos en:
-   - `checkrates/week-{NN}/CheckRates_Reporte_Editorial.html`
-   - `rates-nodispo/week-{NN}/RatesNoDispo_Reporte_Editorial.html`
+#### 3. Generar reportes editoriales HTML (manual con Claude)
+Esta parte sigue siendo manual. En una nueva sesión con Claude:
+- Subí los 2 datasets
+- Pedí: "release WNN · CheckRates + Rates No Dispo · estructura W17"
+- Claude genera los 2 HTMLs
 
-#### 5. Commit + Push
+Bajalos y movelos a:
+- `checkrates/week-NN/CheckRates_Reporte_Editorial.html`
+- `rates-nodispo/week-NN/RatesNoDispo_Reporte_Editorial.html`
+
+#### 4. Commit + Push
 ```bash
 python _scripts/commit_release.py --week 18 --periodo "27 Abr - 3 May 2026"
 ```
 
-El script:
-- Verifica que TODOS los archivos esperados estén en sus rutas
-- Si falta alguno, te avisa exactamente cuál
-- `git add .`
-- `git commit -m "feat: release W18 · 27 Abr - 3 May 2026"`
-- `git push origin main`
-- Te muestra las URLs públicas
+El script verifica que TODOS los archivos esperados estén · si falta uno te avisa cuál · y hace `git add . && git commit && git push origin main` automáticamente.
 
-#### 6. Mandar el mail
-Abrí `_email/week-18/Mail_W18.html` en Chrome · Ctrl+A · Ctrl+C · pegá en Gmail.
+#### 5. Mandar el mail
+Abrí `_email/week-NN/Mail_WNN.html` en Chrome · Ctrl+A · Ctrl+C · pegá en Gmail.
+
+**Asunto:** `Supply Optimization · Week NN · CheckRates + Rates No Dispo`
 
 ---
 
-## 📁 Estructura
+## 🤖 Automatización · `_scripts/`
 
 ```
 _scripts/
 ├── release_week.py          ← genera Excels + Mail + actualiza index
-├── commit_release.py        ← git add + commit + push
+├── commit_release.py        ← validación + git add + commit + push
 ├── inputs/                  ← acá poner los 2 datasets crudos cada semana
 ├── lib/
 │   ├── calculate_kpis.py    ← cálculo de KPIs y Top 50
 │   ├── generate_xlsx.py     ← genera Excels con 11 pestañas
 │   ├── generate_mail.py     ← genera mail unificado
 │   └── update_index.py      ← actualiza index.html
-├── templates/
-│   └── mail_template.html   ← template del mail con placeholders
-└── README.md                ← este archivo
+└── templates/
+    └── mail_template.html   ← template del mail con placeholders
 ```
+
+**Antes:** ~60 min de trabajo manual cada lunes
+**Después:** ~10 min · solo datasets en `inputs/` + 2 comandos + reportes editoriales con Claude
+
+---
+
+## 📊 Severity (5 niveles · CR + RND)
+
+### CheckRates · Eficacia
+| Nivel | Rango |
+|---|---|
+| Exitosa | > 97% |
+| Aceptable | 93-97% |
+| Revisar | 85-93% |
+| Crítica | 60-85% |
+| Súper Crítica | < 60% |
+
+### CheckRates · Conv Rate
+| Nivel | Rango |
+|---|---|
+| Exitosa | > 3% |
+| Aceptable | 1.74-3% |
+| Revisar | 1-1.74% |
+| Crítica | 0.5-1% |
+| Súper Crítica | < 0.5% |
+
+### Rates No Dispo · %NoDispo
+| Nivel | Rango |
+|---|---|
+| Exitosa | 0-3% |
+| Aceptable | 3-5% |
+| Revisar | 5-20% |
+| Crítica | 20-60% |
+| Súper Crítica | > 60% |
+
+---
+
+## 📅 Destinatarios del mail
+
+Rafael Durand · Bellanira Hernandez · Maria Alejandra Rico · Javier Parra · Alonso Mis · Ingrid Kuhnne · David Carrillo · Hugo Ascencio · Jesús Lizarraga · Alejandro Flores · Gabriela Guerra · Barbara Rodriguez
 
 ---
 
 ## 🐛 Troubleshooting
 
-### "Dataset CR no encontrado"
-El script busca un archivo en `inputs/` que tenga "checkrates" + "W{NN}" en el nombre. Verifica:
-- `data_set_checkrates_W18.xlsx` ✅
-- `data_set_CheckRates_W18.xlsx` ✅ (case insensitive)
-- `checkrates_18.xlsx` ❌ (falta "data_set" o usar `--cr-input` para forzar)
+### "Dataset no encontrado"
+El script busca archivos en `_scripts/inputs/` con patrones específicos. Verificá que los nombres incluyan:
+- Para CR: `data_set_checkrates_W{NN}.xlsx`
+- Para RND: `Week{NN}RatesNoDispo.xlsx`
 
-Si el nombre no coincide, usá `--cr-input <path>` explícito.
-
-### "Dataset RND no encontrado"
-Mismo principio · busca "nodispo" + "W{NN}" o "Week{NN}".
+Si los nombres no coinciden, usá `--cr-input` y `--rnd-input` para pasar paths explícitos.
 
 ### "Falta CorpName en RND"
-El export del W17 no tenía esa columna. Para futuros releases, asegurate que el export de RND incluya `CorpName`. Si falta, el script igual genera todo pero la pestaña "Concentración por Corp" queda con un aviso.
+Si el export de RND no incluye CorpName, el script igual genera todo · pero la pestaña "Concentración por Corporativo" del Excel queda con un aviso. **Acción:** pedir al equipo de data que incluya CorpName en el export.
+
+### "Archivos faltantes" al hacer commit
+`commit_release.py` valida 8 archivos esperados. Si falta alguno, te dice cuál. Completá lo que falte (típicamente los 2 reportes editoriales HTML que se generan con Claude) y volvé a correr.
 
 ### "Error en git push"
 Probable conflicto de merge. Hacé `git pull origin main` antes y resolvé.
 
-### "Archivos faltantes" al hacer commit
-El script `commit_release.py` valida que estén:
-- Los 2 reportes editoriales HTML (manual)
-- Los 2 Excels (los genera `release_week.py`)
-- Los 2 datasets crudos (los copia `release_week.py`)
-- El mail HTML (lo genera `release_week.py`)
-- index.html
+---
 
-Si falta alguno, completá lo que diga el mensaje y volvé a correr.
+## 📝 Changelog
+
+Ver `_docs/CHANGELOG.md` para el historial completo de releases y cambios estructurales.
+
+**Release actual:** Week 17 (20-26 Abr 2026)
+**Próximo release:** Lunes con datos de Week 18
 
 ---
 
-## 📊 KPIs calculados
+## 🎨 Sistema de color
 
-### CheckRates
-- Hoteles totales · P80 · CK total · BKGS · Eficacia · CR
-- Hoteles con 0 BKGS y %
-- Severity Eficacia (5 niveles): Exitosa · Aceptable · Revisar · Crítica · Súper Crítica
-- Severity CR (5 niveles)
-- Top 50 críticos con cluster (Connectivity / Tech / Conversion / Hybrid / Quick Win)
-- Concentración por Corporativo con %Portfolio + %Share
-- Canastas B2C / OP / CUG (Top 50 cada una)
+- **CheckRates · accent:** `#5C469C` (violeta)
+- **Rates No Dispo · accent:** `#EA0074` (magenta)
+- **Paper:** `#F8F4EC`
+- **Ink:** `#161616`
 
-### Rates No Dispo
-- Hoteles activos · P80 · Tráfico · BKGS · GB · %NoDispo ponderado
-- Hoteles con 0 BKGS y %
-- Severity %NoDispo (5 niveles): 0-3% / 3-5% / 5-20% / 20-60% / >60%
-- Top 50 Demanda No Convertida (alto Tráfico · 0 BKGS)
-- Concentración por Corporativo (si hay CorpName) · si no, fallback Por Destino
-- Top 50 por Destino · Top 50 por País
-- Canastas B2C / OP / CUG
-
----
-
-## 🔧 Configuración avanzada
-
-### Cambiar el template del mail
-Editá `_scripts/templates/mail_template.html`. Los placeholders disponibles son:
-- `{{WEEK}}` `{{WEEK_PADDED}}` `{{PERIODO}}`
-- CR: `{{CR_TOTAL_HOT}}` `{{CR_P80}}` `{{CR_EFICACIA}}` `{{CR_CR}}` `{{CR_TOTAL_CK}}` `{{CR_TOTAL_BKGS}}` `{{CR_ZERO_BKGS}}` `{{CR_ZERO_PCT}}` `{{CR_TOP_CORPS}}` `{{CR_SEV_SUPER}}` `{{CR_SEV_CRITICA}}`
-- RND: `{{RND_TOTAL_HOT}}` `{{RND_P80}}` `{{RND_NODISPO}}` `{{RND_TRAFICO}}` `{{RND_BKGS}}` `{{RND_GB}}` `{{RND_ZERO_BKGS}}` `{{RND_ZERO_PCT}}` `{{RND_TOP_CORPS}}` `{{RND_SEV_SUPER}}` `{{RND_SEV_CRITICA}}`
-
-### Modificar el Plan de Acción del Excel
-Editá las funciones `generate_cr_xlsx` y `generate_rnd_xlsx` en `_scripts/lib/generate_xlsx.py` · sección "Plan de Acción".
-
-### Cambiar criterios de Severity
-Editá las funciones `calculate_cr_kpis` y `calculate_rnd_kpis` en `_scripts/lib/calculate_kpis.py` · diccionarios `severity_eficacia`, `severity_cr`, `severity`.
-
----
-
-## 📅 Ahorro de tiempo estimado
-
-Antes (manual): ~60 min cada release
-Después (automatizado): ~10 min cada release (datasets + reportes editoriales en Claude + 1 comando)
-
-**Ahorro: ~50 min/semana = ~3.5 hs/mes**
+Tipografía: Geist (Google Fonts).
