@@ -2,236 +2,249 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Guía Editorial · Supply Rates No Dispo</title>
+<title>Guía Editorial · Rates No Dispo</title>
 <style>
-  :root{
-    --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
-    --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
-    --amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;
-    --maxw:1100px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Geist',system-ui,sans-serif;font-size:15px;line-height:1.6;}
-  .shell{max-width:var(--maxw);margin:0 auto;padding:40px 32px;}
-  h1{font-size:38px;font-weight:700;letter-spacing:-.03em;margin:0 0 8px;}
-  h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--rule);color:var(--amber);}
-  h3{font-size:17px;font-weight:600;margin:28px 0 12px;color:var(--ink);}
-  h4{font-size:14px;font-weight:600;margin:20px 0 8px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
-  p, li{font-size:14px;line-height:1.6;}
-  code{font-family:'Geist Mono',monospace;background:var(--paper-soft);padding:2px 6px;border-radius:3px;font-size:13px;color:var(--amber);}
-  ul, ol{padding-left:24px;}
-  li{margin-bottom:8px;}
-  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13px;}
-  th{background:var(--paper-soft);padding:10px;text-align:left;font-weight:600;border-bottom:2px solid var(--ink);}
-  td{padding:10px;border-bottom:1px solid var(--rule-soft);}
-  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:6px;}
-  .badge{display:inline-block;padding:3px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-radius:3px;}
-  .b-mandatory{background:#FCE4F1;color:#EA0074;}
-  .b-recommend{background:#E8F7FD;color:#1B95D6;}
-  .rule-box{background:var(--paper-soft);border-left:3px solid var(--amber);padding:16px 22px;margin:20px 0;font-size:13px;}
-  .rule-box strong{color:var(--ink);}
-  .meta{color:var(--ink-muted);font-size:12px;}
-  hr{border:none;border-top:1px solid var(--rule);margin:48px 0;}
-  .toc{background:var(--paper-soft);padding:18px 24px;border-radius:6px;margin:24px 0;}
-  .toc a{color:var(--amber);text-decoration:none;font-size:13px;}
-  .toc a:hover{text-decoration:underline;}
-  .toc li{margin-bottom:4px;}
+:root {
+  --paper: #F8F4ED;
+  --paper-soft: #F1ECE0;
+  --ink: #1A1A1A;
+  --ink-soft: #2D2D2D;
+  --ink-muted: #8A8377;
+  --rule: #D9D2C2;
+  --accent: #1E5A8C;
+  --magenta: #EA0074;
+  --violet: #5C469C;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--paper); color: var(--ink-soft); padding: 40px; max-width: 1100px; margin: 0 auto; line-height: 1.6; }
+h1 { color: var(--magenta); font-size: 32px; letter-spacing: -0.02em; margin-bottom: 8px; }
+h2 { color: var(--ink); font-size: 22px; margin-top: 48px; padding-bottom: 8px; border-bottom: 2px solid var(--magenta); letter-spacing: -0.01em; }
+h3 { color: var(--ink); font-size: 16px; margin-top: 28px; margin-bottom: 8px; }
+.meta { color: var(--ink-muted); font-size: 13px; margin-bottom: 32px; }
+.warn { background: #FCE4F1; border-left: 3px solid var(--magenta); padding: 14px 18px; margin: 16px 0; border-radius: 3px; }
+.tip { background: var(--paper-soft); border-left: 3px solid var(--accent); padding: 14px 18px; margin: 16px 0; border-radius: 3px; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--rule); }
+th { background: var(--paper-soft); font-weight: 700; }
+code { background: var(--paper-soft); padding: 2px 6px; border-radius: 3px; font-size: 13px; color: var(--magenta); }
+ul li { margin-bottom: 6px; }
+.tag { display: inline-block; background: var(--magenta); color: white; padding: 3px 9px; border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 </style>
 </head>
 <body>
-<div class="shell">
 
-<div class="meta">PriceTravel Analytics Desk · Supply Optimization</div>
-<h1>Guía Editorial · Supply Rates No Dispo</h1>
-<p style="font-size:18px;color:var(--ink-soft);margin:8px 0 0;">Reglas, convenciones y estructura del reporte semanal Rates No Dispo.</p>
-<div class="meta" style="margin-top:8px;">Última actualización: W17 · Abr 2026 · Vol. 02</div>
+<h1>Guía Editorial · Rates No Dispo</h1>
+<div class="meta"><strong>Última actualización:</strong> 1 mayo 2026 · post W17 · <span class="tag">RatesNoDispo</span></div>
 
-<div class="toc">
-  <strong style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Contenido</strong>
-  <ul style="list-style:none;padding-left:0;margin:10px 0 0;">
-    <li><a href="#proposito">1. Propósito del reporte</a></li>
-    <li><a href="#dataset">2. Dataset y procesamiento</a></li>
-    <li><a href="#estructura">3. Estructura del reporte (13 secciones)</a></li>
-    <li><a href="#convenciones">4. Convenciones tipográficas y nomenclatura</a></li>
-    <li><a href="#paleta">5. Paleta cromática</a></li>
-    <li><a href="#severity">6. Sistema Severity</a></li>
-    <li><a href="#thresholds">7. Thresholds y filtros</a></li>
-    <li><a href="#changelog">8. Changelog metodológico</a></li>
-    <li><a href="#checklist">9. Checklist pre-publicación</a></li>
-  </ul>
+<div class="warn">
+  <strong>⚠ IMPORTANTE</strong> · Esta guía recoge las decisiones consolidadas hasta W17. Cualquier cambio futuro debe documentarse aquí ANTES de modificar templates o reportes.
 </div>
 
-<h2 id="proposito">1. Propósito del reporte</h2>
+<h2>1. Estructura del Reporte</h2>
 
-<p>El reporte semanal <strong>Supply Rates No Dispo</strong> mide la oportunidad perdida (GB no generado) por hoteles con tráfico que no convierte: ya sea por No Disponibilidad de inventario (No Dispo), pricing o booking flow.</p>
-
-<p>El reporte se publica los lunes, cubriendo los 7 días previos.</p>
-
-<h3>Audiencia</h3>
+<h3>1.1 Header global</h3>
 <ul>
-  <li>Equipo Supply</li>
-  <li>Equipo Supply Optimization</li>
-  <li>Equipo Wholesale (canasta OP)</li>
-  <li>Stakeholders ejecutivos</li>
+  <li><strong>TAG:</strong> "RatesNoDispo" en color magenta <code>#EA0074</code> (NO violeta · ese es de CheckRates)</li>
+  <li><strong>H1 narrativo:</strong> debe mencionar 4 elementos clave:
+    <ul>
+      <li>% hoteles con 0 Bookings</li>
+      <li>Conv Rate (RPM) actual</li>
+      <li>Top 3 destinos con mayor concentración crítica</li>
+      <li>Top 3 corporativos con mayor % de NoDispo</li>
+    </ul>
+  </li>
+  <li><strong>Subhead:</strong> Tráfico total · # hoteles · # bookings · GB · # hoteles P80</li>
 </ul>
 
-<h2 id="dataset">2. Dataset y procesamiento</h2>
-
-<h3>Fuente</h3>
-<p>Archivo <code>Week-XX-Rates-NoDispo.xlsx</code> con hojas por canasta:</p>
-<ul>
-  <li><strong>Canasta B2C</strong> — cliente final</li>
-  <li><strong>Canasta OP</strong> — tour operadores</li>
-  <li><strong>Canasta CUG</strong> — contratos privados</li>
-</ul>
-
-<h3>Métricas core</h3>
-<table>
-  <tr><th>Métrica</th><th>Cálculo</th></tr>
-  <tr><td><code>Tráfico</code></td><td>Shopping searches (no visitas únicas)</td></tr>
-  <tr><td><code>%NoDispo</code></td><td>NoDispo ÷ Tráfico × 100</td></tr>
-  <tr><td><code>RPM</code></td><td>Reservas por Mil búsquedas</td></tr>
-  <tr><td><code>GB</code></td><td>Gross Booking Value (USD)</td></tr>
-  <tr><td><code>0 BKGS</code></td><td>Conteo de hoteles con BKGS = 0</td></tr>
-</table>
-
-<h2 id="estructura">3. Estructura del reporte (13 secciones)</h2>
-
-<table>
-  <tr><th>#</th><th>Sección</th><th>Contenido</th></tr>
-  <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave</td></tr>
-  <tr><td>·02</td><td>Severity · % No Disponibilidad</td><td>Distribución por niveles</td></tr>
-  <tr><td>·03</td><td>Demanda No Convertida</td><td>Top 10 Tráfico sin BKGS</td></tr>
-  <tr><td>·04</td><td>Bajo Rendimiento</td><td>Top 10 con BKGS &gt; 0 y % errors</td></tr>
-  <tr><td>·05</td><td>Por Corporativo</td><td>Concentración por corp</td></tr>
-  <tr><td>·06</td><td>Por Destino</td><td>Top destinos con problemas</td></tr>
-  <tr><td>·07</td><td>Por País</td><td>Distribución geográfica</td></tr>
-  <tr><td>·08</td><td>Plan de Acción</td><td>QW · MP · ES</td></tr>
-  <tr><td>·09</td><td>Análisis por Canasta</td><td>Tabla resumen 3 canastas</td></tr>
-  <tr><td>·10</td><td>Canasta B2C</td><td><span class="swatch" style="background:#EA0074;"></span> Resumen + tablas</td></tr>
-  <tr><td>·11</td><td>Canasta OP</td><td><span class="swatch" style="background:#5C469C;"></span> Resumen + tablas</td></tr>
-  <tr><td>·12</td><td>Canasta CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> Resumen + tablas</td></tr>
-  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras</td></tr>
-</table>
-
-<h2 id="convenciones">4. Convenciones tipográficas y nomenclatura</h2>
-
-<h3>Términos canónicos <span class="badge b-mandatory">Obligatorio</span></h3>
-<table>
-  <tr><th>Usar</th><th>NO usar</th></tr>
-  <tr><td><code>BKGS</code></td><td><code>Bk</code> · <code>Bkgs</code></td></tr>
-  <tr><td><code>Conv Rate</code></td><td><code>CR</code></td></tr>
-  <tr><td><code>Canasta</code></td><td><code>Canal</code></td></tr>
-  <tr><td><code>Casos Críticos</code></td><td><code>Outliers</code> (en badges)</td></tr>
-  <tr><td><code>RPM</code></td><td>(usar tal cual, abreviatura aceptada)</td></tr>
-  <tr><td><code>GB</code></td><td>(usar tal cual, abreviatura aceptada)</td></tr>
-</table>
-
-<h2 id="paleta">5. Paleta cromática</h2>
-
-<h3>Colores brand corporativos</h3>
-<p>Misma paleta que CheckRates, pero el reporte RatesNoDispo tiene <strong>magenta como brand principal</strong> (vs. violeta del CheckRates).</p>
-
-<table>
-  <tr><th>Variable</th><th>HEX</th><th>Color</th><th>Uso</th></tr>
-  <tr><td><code>--amber</code></td><td><code>#EA0074</code></td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td><td>Brand RatesNoDispo · Canasta B2C</td></tr>
-  <tr><td><code>--accent</code></td><td><code>#5C469C</code></td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td><td>Canasta OP · Header default</td></tr>
-  <tr><td><code>--green</code></td><td><code>#4FC3F4</code></td><td><span class="swatch" style="background:#4FC3F4;"></span> celeste</td><td>Canasta CUG</td></tr>
-  <tr><td><code>--verde</code></td><td><code>#2F6C34</code></td><td><span class="swatch" style="background:#2F6C34;"></span> verde real</td><td>Deltas positivos</td></tr>
-  <tr><td><code>--navy</code></td><td><code>#161616</code></td><td><span class="swatch" style="background:#161616;"></span> negro</td><td>Severity Súper Crítica</td></tr>
-</table>
-
-<h3>Convención por canasta <span class="badge b-mandatory">Obligatorio</span></h3>
-<p>Idéntica al CheckRates para coherencia entre reportes:</p>
-<table>
-  <tr><th>Canasta</th><th>Color</th></tr>
-  <tr><td>B2C</td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td></tr>
-  <tr><td>OP</td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td></tr>
-  <tr><td>CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> celeste</td></tr>
-</table>
-
-<h3>Header masthead "Supply Optimization"</h3>
-<div class="rule-box">
-  <strong>Regla específica:</strong>
-  <ul>
-    <li>En el <strong>template base</strong>: usar <code>var(--accent)</code> violeta (color neutral)</li>
-    <li>En el <strong>reporte semanal</strong>: usar el color brand activo de la semana (ej. magenta para W17)</li>
-  </ul>
-  La razón: el template debe ser independiente de la edición; el reporte semanal puede variar el color brand pero manteniendo coherencia interna.
+<h3>1.2 KPIs Hero (kpis-hero)</h3>
+<div class="warn">
+  <strong>BUG ESTRUCTURAL DETECTADO Y CORREGIDO EN W17</strong> · El kpis-hero DEBE tener exactamente 2 hijos directos kpi-card. Si solo tiene 1, las cards aparecen en una sola columna. Validar siempre con BeautifulSoup antes de release.
 </div>
 
-<h3>Color del badge "Las Vegas — N Casos Críticos"</h3>
 <ul>
-  <li>RatesNoDispo: <span class="swatch" style="background:#EA0074;"></span> magenta + bg <span class="swatch" style="background:#FCE4F1;"></span></li>
-  <li>CheckRates: <span class="swatch" style="background:#5C469C;"></span> violeta + bg <span class="swatch" style="background:#EDE8F7;"></span></li>
+  <li>Grid de 2 columnas con <code>grid-template-columns:1fr 1fr</code></li>
+  <li>Card izquierda: <strong>% de No Dispo</strong></li>
+  <li>Card derecha: <strong>Conv Rate en RPM</strong></li>
+  <li>Cada card incluye: valor grande · pill severity · gauge bar 5 niveles · comparativa Week N-1/WoW/Week N · tabs (PAÍS · DESTINO · CORP · HOTEL · CANASTA)</li>
 </ul>
 
-<h2 id="severity">6. Sistema Severity</h2>
+<h2>2. Bandas de Severity</h2>
 
-<h3>Severity · % No Disponibilidad <span class="badge b-mandatory">Obligatorio</span></h3>
+<h3>2.1 % NoDispo (5 niveles)</h3>
 <table>
-  <tr><th>Nivel</th><th>%NoDispo rango</th><th>Acción</th></tr>
-  <tr><td>Exitosa</td><td>0 – 5%</td><td>Mantener</td></tr>
-  <tr><td>No Aceptable</td><td>5 – 20%</td><td>Revisar</td></tr>
-  <tr><td>Revisar</td><td>20 – 40%</td><td>Diagnóstico</td></tr>
-  <tr><td>Crítica</td><td>40 – 60%</td><td>Escalamiento</td></tr>
-  <tr><td>Muy Crítica</td><td>60 – 80%</td><td>Escalamiento urgente</td></tr>
-  <tr><td>Súper Crítica</td><td>80 – 100%</td><td>Escalamiento inmediato</td></tr>
+  <tr><th>Nivel</th><th>Rango</th><th>Color pill</th></tr>
+  <tr><td>Exitosa</td><td>&lt; 3%</td><td><code>#E0F4FB</code> bg · <code>#4FC3F4</code> text</td></tr>
+  <tr><td>Aceptable</td><td>3 – 5%</td><td><code>#EDE8F7</code> bg · <code>#5C469C</code> text</td></tr>
+  <tr><td>Revisar</td><td>5 – 20%</td><td><code>#FCE4F1</code> bg · <code>#EA0074</code> text</td></tr>
+  <tr><td>Crítica</td><td>20 – 60%</td><td><code>#FCE4F1</code> bg · <code>#EA0074</code> text</td></tr>
+  <tr><td>Súper Crítica</td><td>&gt; 60%</td><td><code>#161616</code> bg · <code>#FFFFFF</code> text</td></tr>
 </table>
 
-<div class="rule-box">
-  <strong>Coherencia con CheckRates:</strong> mismos rangos fijos para que la lectura cruzada entre reportes sea inmediata.
+<h3>2.2 Conv Rate RPM (5 niveles)</h3>
+<table>
+  <tr><th>Nivel</th><th>Rango</th></tr>
+  <tr><td>Exitosa</td><td>&gt; 3</td></tr>
+  <tr><td>Aceptable</td><td>1,74 – 3</td></tr>
+  <tr><td>Revisar</td><td>1 – 1,74</td></tr>
+  <tr><td>Crítica</td><td>0,5 – 1</td></tr>
+  <tr><td>Súper Crítica</td><td>&lt; 0,5</td></tr>
+</table>
+
+<h3>2.3 Posición del indicador en gauge</h3>
+<p>El gauge tiene 5 bandas de igual ancho (cada una 20% del total). Para un valor X dentro de la banda Y · la posición es:</p>
+<ul>
+  <li><strong>%NoDispo</strong> (bajo es mejor): orden visual de izq a der = Súper Crítica → Crítica → Revisar → Aceptable → Exitosa</li>
+  <li><strong>RPM</strong> (alto es mejor): orden visual de izq a der = Súper Crítica → Crítica → Revisar → Aceptable → Exitosa</li>
+</ul>
+
+<h2>3. Tabs por Card · Criterios</h2>
+
+<div class="tip">
+  <strong>Decisión W17:</strong> Las pestañas de Card NoDispo y Card RPM deben mostrar listas DIFERENCIADAS (no las mismas) para aportar info complementaria.
 </div>
 
-<h2 id="thresholds">7. Thresholds y filtros</h2>
-
+<h3>3.1 Card NoDispo · pestañas</h3>
 <table>
-  <tr><th>Filtro</th><th>Valor</th><th>Aplica a</th></tr>
-  <tr><td>Universo válido</td><td>Tráfico &gt; 0</td><td>Todo el dataset</td></tr>
-  <tr><td>Top Demanda No Convertida</td><td>BKGS = 0 ordenado por Tráfico ↓</td><td>§03</td></tr>
-  <tr><td>Bajo Rendimiento</td><td>BKGS &gt; 0 ∧ %errors ≥ 5%</td><td>§04</td></tr>
-  <tr><td>Severity por Corp</td><td>n ≥ 5 hoteles</td><td>Rankings por corporativo</td></tr>
+  <tr><th>Pestaña</th><th>Top 5</th><th>Métrica</th></tr>
+  <tr><td>País</td><td>peor %NoDispo ponderado</td><td>%NoDispo</td></tr>
+  <tr><td>Destino</td><td><strong>destinos con más hoteles críticos</strong> en P80 (>20% NoDispo)</td><td>%NoDispo del destino</td></tr>
+  <tr><td>Corp</td><td>peor %NoDispo ponderado (filtro tráfico &gt;50M)</td><td>%NoDispo</td></tr>
+  <tr><td>Hotel</td><td>peor %NoDispo en P80</td><td>%NoDispo</td></tr>
+  <tr><td>Canasta</td><td>las 3 (B2C, OP, CUG)</td><td>%NoDispo de la canasta</td></tr>
 </table>
 
-<h2 id="changelog">8. Changelog metodológico</h2>
+<h3>3.2 Card RPM · pestañas</h3>
+<table>
+  <tr><th>Pestaña</th><th>Top 5</th><th>Métrica</th></tr>
+  <tr><td>País</td><td>peor RPM ponderado</td><td>RPM</td></tr>
+  <tr><td>Destino</td><td><strong>peor RPM</strong> con BKGS &gt; 0 y tráfico &gt; 5M</td><td>RPM</td></tr>
+  <tr><td>Corp</td><td><strong>peor RPM</strong> con BKGS &gt; 0 y tráfico &gt; 10M</td><td>RPM</td></tr>
+  <tr><td>Hotel</td><td>peor RPM con BKGS &gt; 0</td><td>RPM</td></tr>
+  <tr><td>Canasta</td><td>las 3 (B2C, OP, CUG)</td><td>RPM de la canasta</td></tr>
+</table>
 
-<h3>W17 (Abr 2026)</h3>
-<ul>
-  <li><strong>Estructura del archivo</strong> reconstruida (estaba truncado · Canasta CUG fuera del shell)</li>
-  <li><strong>Convención canastas</strong>: swap OP↔CUG (CUG ahora celeste, OP violeta — coherente con CheckRates)</li>
-  <li><strong>Tabla resumen §09</strong>: alineada con colores de secciones detalle</li>
-  <li><strong>Cards hero</strong>: agregadas barras visuales (meta-bar-wrap)</li>
-  <li><strong>Bajada hero Las Vegas</strong>: barras grises + badges magenta brand</li>
-  <li><strong>H1 a 2 líneas</strong>: quitado <code>white-space:nowrap</code> y agregado <code>&lt;br&gt;</code></li>
-  <li><strong>Anchos completos</strong>: eliminados <code>max-width</code> en banners</li>
-  <li><strong>Tipografía</strong>: Bk/Bkgs→BKGS · Canal→Canasta</li>
-  <li><strong>Badge Las Vegas</strong>: "Destino Crítico" → "N Casos Críticos"</li>
-  <li><strong>Supply Optimization en masthead</strong>: en violeta (template) / magenta (reporte W17)</li>
-</ul>
+<div class="warn">
+  <strong>⚠ Filtro de tráfico mínimo</strong> · sin este filtro, los Top 5 RPM pueden ser todos 0,00 (destinos con BKGS=0) · o el corp puede ser un outlier de pocas búsquedas. SIEMPRE filtrar por tráfico relevante.
+</div>
 
-<h3>W16</h3>
-<ul>
-  <li>Primera versión con análisis por Canasta</li>
-</ul>
+<h3>3.3 H1 vs Pestañas · coherencia</h3>
+<p>Los corps mencionados en el H1 deben coincidir con los Top 3 de la pestaña Corp en card NoDispo. Si la pestaña usa filtro tráfico &gt; 50M, el H1 debe basarse en el mismo conjunto.</p>
 
-<h2 id="checklist">9. Checklist pre-publicación</h2>
+<h2>4. Sección "Detalle por Canasta"</h2>
 
+<h3>4.1 Estructura</h3>
+<p>3 elementos <code>&lt;details&gt;</code> colapsables (B2C, OP, CUG). Cada uno contiene:</p>
 <ol>
-  <li>☐ Dataset Week-XX-Rates-NoDispo.xlsx procesado</li>
-  <li>☐ Severity con rangos FIJOS (0-5/5-20/20-40/40-60/60-80/80-100)</li>
-  <li>☐ Tipografía: BKGS · Conv Rate · Canasta · "Casos Críticos"</li>
-  <li>☐ Convención canastas: B2C magenta · OP violeta · CUG celeste</li>
-  <li>☐ Cards hero con barras visuales (meta-bar-wrap)</li>
-  <li>☐ H1 cabe en 2 líneas (con <code>&lt;br&gt;</code>)</li>
-  <li>☐ Banners ocupan ancho completo (sin <code>max-width</code>)</li>
-  <li>☐ Tabla §09 con colores alineados a secciones detalle</li>
-  <li>☐ Header Week XX · fechas · Vol. N actualizados</li>
-  <li>☐ Footer con número de hoteles analizados</li>
-  <li>☐ Estructura HTML cerrada correctamente (15 sections / 15 closes)</li>
-  <li>☐ Validación visual final</li>
-  <li>☐ Subir a Netlify</li>
+  <li>KPI cards (NoDispo + RPM con tabs específicas de la canasta)</li>
+  <li><strong>Alertas · Casos Críticos</strong> (3 sub-cards: Hoteles · Destinos · Corporativos)</li>
+  <li><strong>🎯 Resumen Ejecutivo</strong> (10 findings · 2 columnas) ← CRÍTICO: va inmediatamente después de Alertas, NO al final del &lt;details&gt;</li>
+  <li>Severidad · % NoDispo y Conv Rate</li>
+  <li>Hoteles que no convierten · Top 10</li>
+  <li>Hoteles con Bajo Rendimiento · Top 10</li>
+  <li>Concentración por Corporativo · Top 10</li>
+  <li>Por País · Top 10</li>
+  <li>Plan de Acción</li>
+  <li>Box descarga · referencia al Excel de Análisis</li>
 </ol>
 
+<h3>4.2 Resumen Ejecutivo por canasta · 10 findings</h3>
+<p>Cada canasta tiene su Resumen Ejecutivo con 10 findings en 2 columnas (5 por columna):</p>
+<table>
+  <tr><th>#</th><th>Finding</th></tr>
+  <tr><td>1</td><td>%NoDispo + WoW + severity</td></tr>
+  <tr><td>2</td><td>Conv Rate (RPM) + WoW + severity</td></tr>
+  <tr><td>3</td><td>Hoteles con 0 BKGS · % y count</td></tr>
+  <tr><td>4</td><td>Hoteles en Severity Crítica+ · count + Súper Crítica</td></tr>
+  <tr><td>5</td><td>Top corp con concentración crítica (# hoteles)</td></tr>
+  <tr><td>6</td><td>Top destino con más hoteles críticos</td></tr>
+  <tr><td>7</td><td>GB de la canasta · weight</td></tr>
+  <tr><td>8</td><td>RPM en hoteles P80 · vs global</td></tr>
+  <tr><td>9</td><td>Peor hotel de la canasta · %NoDispo</td></tr>
+  <tr><td>10</td><td>Hoteles en Severity Revisar · cohorte prevención</td></tr>
+</table>
+
+<h3>4.3 Sección "Análisis por Canasta" · ELIMINADA</h3>
+<div class="warn">
+  La sección <code>&lt;section id="por-canasta"&gt;</code> fue eliminada en W17 por redundancia con "Detalle por Canasta". NO recrearla.
 </div>
+
+<h2>5. Bugs estructurales conocidos</h2>
+
+<h3>5.1 kpis-hero anidación</h3>
+<p>Si la 2da kpi-card aparece como hijo de la 1ra (en lugar de ser hermanas), el grid colapsa a 1 columna. Validar con:</p>
+<pre><code>from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, 'lxml')
+kpis_hero = soup.find('div', class_='kpis-hero')
+cards = [c for c in kpis_hero.children if c.name == 'div' and 'kpi-card' in c.get('class', [])]
+assert len(cards) == 2  # debe ser 2</code></pre>
+
+<h3>5.2 Tab-panels mal cerrados</h3>
+<p>Si un panel HOTEL no cierra antes del panel CANASTA, los items de canasta aparecen dentro del panel hotel. Validar que cada tab-panel tenga su <code>&lt;/div&gt;</code> de cierre.</p>
+
+<h3>5.3 Balance de divs</h3>
+<p>El HTML completo debe tener <code>opens == closes</code> con <code>re.findall(r'&lt;div\b[^&gt;]*&gt;', html)</code> y <code>re.findall(r'&lt;/div\s*&gt;', html)</code>.</p>
+
+<h2>6. Datasets · validaciones obligatorias</h2>
+
+<h3>6.1 RND (Rates No Dispo)</h3>
+<ul>
+  <li><strong>CRÍTICO:</strong> debe tener columna <code>CorpName</code> · sin esto no se puede agrupar por corporativo y hay que hacer recovery con join al W previo</li>
+  <li>Columnas requeridas: <code>CorpName · Hotel · PaisDestino · Destino · DistributionCategory · Trafico · %NoDispo · Bookings · gb_usd</code></li>
+  <li>%NoDispo viene como <strong>decimal</strong> (0.0786 = 7.86%) · multiplicar por 100 para mostrar</li>
+  <li>Filas con <code>Hotel == '-'</code> son ruido · descartar</li>
+  <li>Hoteles únicos esperados: ~54.000</li>
+</ul>
+
+<h3>6.2 Excel de Análisis · pestañas obligatorias (Top 20)</h3>
+<ol>
+  <li>Ficha Técnica</li>
+  <li>Severity · %NoDispo</li>
+  <li>Demanda No Convertida</li>
+  <li>Bajo Rendimiento</li>
+  <li>Por Corporativo</li>
+  <li>Por Destino</li>
+  <li>Por País</li>
+  <li>Plan de Acción</li>
+  <li>Canasta B2C · Bajo Rendimiento</li>
+  <li>Canasta OP · Bajo Rendimiento</li>
+  <li>Canasta CUG · Bajo Rendimiento</li>
+</ol>
+
+<h2>7. Sistema de Color · Rates No Dispo</h2>
+<table>
+  <tr><th>Variable</th><th>Hex</th><th>Uso</th></tr>
+  <tr><td>--accent</td><td>#1E5A8C</td><td>Valores clave · TOTAL Severity</td></tr>
+  <tr><td>--magenta</td><td>#EA0074</td><td>TAG · valores principales · highlights · pill Crítica · target</td></tr>
+  <tr><td>--violet</td><td>#5C469C</td><td>Pill Aceptable · banda gauge Aceptable</td></tr>
+  <tr><td>--amber</td><td>#A86A1D</td><td>Bajo Rendimiento · severidad atención</td></tr>
+  <tr><td>--green</td><td>#2F6C34</td><td>Por Destino · GB positivo</td></tr>
+  <tr><td>--ink-muted</td><td>#8A8377</td><td>Valores secundarios</td></tr>
+</table>
+
+<div class="warn">
+  <strong>⚠ NO usar #5C469C como TAG</strong> · ese color es de CheckRates. RND TAG = magenta <code>#EA0074</code>.
+</div>
+
+<h2>8. Workflow Semanal</h2>
+<ol>
+  <li>Recibir dataset Week N · validar columnas (CorpName presente!)</li>
+  <li>Si falta CorpName: hacer recovery con join al Week N-1 (~99% coverage)</li>
+  <li>Calcular métricas globales y por canasta</li>
+  <li>Generar Excel de Análisis (11 pestañas Top 20)</li>
+  <li>Tomar el TEMPLATE limpio · hacer copy</li>
+  <li>Reemplazar valores hardcoded con datos de la semana</li>
+  <li>Validar estructura HTML con BeautifulSoup (kpis-hero, balance, tab-panels)</li>
+  <li>Commit a GitHub: <code>rates-nodispo/week-NN/</code></li>
+  <li>Generar mail desde template · enviar al equipo</li>
+</ol>
+
+<h2>9. Action Items pendientes</h2>
+<div class="warn">
+  <strong>W18 · pedir al equipo de data:</strong>
+  <ul>
+    <li>RND W18 con columna <code>CorpName</code> correcta (no '-')</li>
+    <li>CR W18 con columna <code>Destino</code> (actualmente falta)</li>
+  </ul>
+</div>
+
 </body>
 </html>
