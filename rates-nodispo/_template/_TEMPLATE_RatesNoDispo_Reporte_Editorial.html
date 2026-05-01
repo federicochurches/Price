@@ -118,23 +118,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .meta-bar-fill{height:100%;background:var(--amber);}
 .meta-hl{color:var(--amber);font-weight:700;}
 .meta-sub{font-size:11px;color:var(--ink-muted);}
-
-/* ── Método · tarjetas categorizadas ── */
-.metodo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px;}
-.metodo-card{border:1px solid var(--rule);background:var(--paper);padding:18px 20px;border-radius:3px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s;}
-.metodo-card:hover{border-color:var(--accent);}
-.metodo-card.wide{grid-column:1/-1;}
-.card-chip{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:2px;width:fit-content;}
-.chip-data{background:var(--amber-soft);color:var(--amber);}
-.chip-metric{background:var(--accent-soft);color:var(--accent);}
-.chip-clean{background:var(--verde-soft);color:var(--verde);}
-.chip-mapping{background:#FFF3E0;color:#A86A1D;}
-.chip-method{background:var(--green-soft);color:#0288D1;}
-.card-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3;letter-spacing:-.01em;}
-.card-body{font-size:12.5px;color:var(--ink-soft);line-height:1.55;}
-.card-action{font-size:11px;font-weight:600;color:var(--accent);padding-top:8px;border-top:1px dashed var(--rule);margin-top:auto;letter-spacing:.02em;}
-.card-action .arrow{margin-right:6px;}
-@media (max-width:720px){.metodo-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -664,18 +647,17 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <section id="corporativo" style="padding-top:80px;">
   <div class="section-head">
     <div class="section-num">· 05</div>
-    <div><h2 class="section-title">Por Corporativo · Top 10</h2><span class="section-subtitle" style="color:var(--amber)">Top 10 Corporativos sin BKGS · ordenado por GB Proyectado ↓</span></div>
+    <div><h2 class="section-title">Por Corporativo · Top 10</h2><span class="section-subtitle" style="color:var(--amber)">0 Bookings por Corporativo · Top 10 · ordenado por % 0 BKGS ↓</span></div>
   </div>
-  <div style="max-width:1100px;"><div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;padding:8px 0;border-bottom:2px solid var(--amber);">
+  <div style="max-width:1100px;"><div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;padding:8px 0;border-bottom:2px solid var(--amber);">
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);">Corporativo</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">BKGS</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv RPM</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">% No Dispo</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span>
-<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);text-align:right;">GB Proyectado</span>
 </div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Catalonia</div>
     <div style="font-size:11px;color:var(--ink-muted);">33 hoteles</div>
@@ -685,10 +667,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">14.8%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_1}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Hotusa Hotels</div>
     <div style="font-size:11px;color:var(--ink-muted);">32 hoteles</div>
@@ -698,10 +679,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">7.2%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_2}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:97%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Costa del Sol</div>
     <div style="font-size:11px;color:var(--ink-muted);">5 hoteles</div>
@@ -711,10 +691,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">5.2%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_3}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:47%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Hoteles Cosmos</div>
     <div style="font-size:11px;color:var(--ink-muted);">6 hoteles</div>
@@ -724,10 +703,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">3.8%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_4}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:27%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Sercotel</div>
     <div style="font-size:11px;color:var(--ink-muted);">9 hoteles</div>
@@ -737,10 +715,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">12.0%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_5}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:25%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Carimundi</div>
     <div style="font-size:11px;color:var(--ink-muted);">5 hoteles</div>
@@ -750,10 +727,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">51.0%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_6}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:19%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Fontan</div>
     <div style="font-size:11px;color:var(--ink-muted);">3 hoteles</div>
@@ -763,10 +739,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">2.2%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_7}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:18%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Hardrock</div>
     <div style="font-size:11px;color:var(--ink-muted);">5 hoteles</div>
@@ -776,10 +751,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">8.7%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_8}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:17%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Prisma Hoteles</div>
     <div style="font-size:11px;color:var(--ink-muted);">5 hoteles</div>
@@ -789,10 +763,9 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">2.1%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_9}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:16%;background:var(--amber);"></div></div>
-<div style="display:grid;grid-template-columns:1fr 80px 60px 70px 70px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
+<div style="display:grid;grid-template-columns:1fr 90px 60px 80px 80px 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule-soft);font-size:13px;">
   <div>
     <div style="font-weight:600;color:var(--amber);">Blue Doors</div>
     <div style="font-size:11px;color:var(--ink-muted);">6 hoteles</div>
@@ -802,7 +775,6 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;color:var(--amber);font-weight:600;">0.00</span>
   <span style="text-align:right;color:var(--ink-muted);">3.2%</span>
   <span style="text-align:right;color:var(--amber);font-weight:600;">$0K</span>
-  <span style="text-align:right;color:var(--amber);font-weight:700;">{{CORP_GB_PROY_10}}</span>
 </div>
 <div style="height:3px;background:var(--rule-soft);margin-bottom:2px;"><div style="height:100%;width:15%;background:var(--amber);"></div></div>
 
@@ -1253,7 +1225,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   </ol>
 
 
-  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Tráfico ↓</span></h3>
+  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--amber);display:block;margin-bottom:10px;">Tráfico sin Bookings · Top 5 · ordenado por Tráfico ↓</span>
   <div style="max-width:1050px;overflow-x:auto;">
     <div style="display:grid;grid-template-columns:1fr 80px 70px 60px 130px;gap:10px;padding:8px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;">
@@ -1306,7 +1278,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-size:10px;color:var(--ink-muted);">0</span>
 </div>
 <div style="height:3px;background:var(--amber-soft);margin-bottom:1px;"><div style="height:100%;width:6%;background:var(--amber);"></div></div>
-<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv RPM ↑</span></h3>
+<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--amber)">Low Performers Conv Rate · Top 5 · ordenado por RPM ↑</span>
   <div style="max-width:1050px;overflow-x:auto;"><div style="display:grid;grid-template-columns:1fr 80px 75px 55px 60px 90px 115px;gap:12px;padding:10px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);text-align:left;">Hotel</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
@@ -1361,7 +1333,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;font-weight:700;color:var(--amber);">$83</span>
 </div>
 <div style="height:4px;background:var(--amber-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--amber);"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB Proyectado ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Tráfico · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--amber);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);">CorpName</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -1406,7 +1378,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:24%;background:var(--amber);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;padding:6px 10px;background:var(--amber-soft);border-left:3px solid var(--amber);"><strong style="color:var(--amber);">Focos Supply · Comercial · Optimización:</strong> Cancún 0.00 RPM · Riviera Maya 0.67 RPM · Las Vegas · New York · Orlando — alta demanda con conversión a monitorear.</div>
 <div style="max-width:900px;overflow-x:auto;">
@@ -1452,7 +1424,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:70%;background:var(--amber);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--amber);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);">País</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -1591,7 +1563,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </li>
   </ol>
 
-  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Tráfico ↓</span></h3>
+  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);display:block;margin-bottom:10px;">Tráfico sin Bookings · Top 5 · ordenado por Tráfico ↓</span>
   <div style="max-width:1050px;overflow-x:auto;">
     <div style="display:grid;grid-template-columns:1fr 80px 70px 60px 130px;gap:10px;padding:8px 0;border-bottom:2px solid var(--accent);margin-bottom:4px;">
@@ -1644,7 +1616,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-size:10px;color:var(--ink-muted);">0</span>
 </div>
 <div style="height:3px;background:var(--accent-soft);margin-bottom:1px;"><div style="height:100%;width:5%;background:var(--accent-soft);"></div></div>
-<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv RPM ↑</span></h3>
+<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--accent)">Low Performers Conv Rate · Top 5 · ordenado por RPM ↑</span>
   <div style="max-width:1050px;overflow-x:auto;"><div style="display:grid;grid-template-columns:1fr 80px 75px 55px 60px 90px 115px;gap:12px;padding:10px 0;border-bottom:2px solid var(--accent);margin-bottom:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);text-align:left;">Hotel</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
@@ -1699,7 +1671,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;font-weight:700;color:var(--accent);">$8K</span>
 </div>
 <div style="height:4px;background:var(--accent-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--accent);"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB Proyectado ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Tráfico · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--accent);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">CorpName</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -1744,7 +1716,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:38%;background:var(--accent);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--accent);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">Destino</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -1789,7 +1761,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:65%;background:var(--accent);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--accent);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);">País</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -1937,7 +1909,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
     </li>
   </ol>
 
-  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Tráfico ↓</span></h3>
+  <h3 style="font-size:16px;font-weight:600;margin:28px 0 4px;">Demanda No Convertida · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--green);display:block;margin-bottom:10px;">Tráfico sin Bookings · Top 5 · ordenado por Tráfico ↓</span>
   <div style="max-width:1050px;overflow-x:auto;">
     <div style="display:grid;grid-template-columns:1fr 80px 70px 60px 130px;gap:10px;padding:8px 0;border-bottom:2px solid var(--green);margin-bottom:4px;">
@@ -1990,7 +1962,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="font-size:10px;color:var(--ink-muted);">0</span>
 </div>
 <div style="height:3px;background:var(--green-soft);margin-bottom:1px;"><div style="height:100%;width:5%;background:var(--green);"></div></div>
-<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por Conv RPM ↑</span></h3>
+<h3 style="font-size:16px;font-weight:600;margin:36px 0 4px;">Bajo Rendimiento · Top 5</h3>
   <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--green)">Low Performers Conv Rate · Top 5 · ordenado por RPM ↑</span>
   <div style="max-width:1050px;overflow-x:auto;"><div style="display:grid;grid-template-columns:1fr 80px 75px 55px 60px 90px 115px;gap:12px;padding:10px 0;border-bottom:2px solid var(--green);margin-bottom:4px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--green);text-align:left;">Hotel</span>
 <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
@@ -2045,7 +2017,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   <span style="text-align:right;font-weight:700;color:var(--green);">$-16992</span>
 </div>
 <div style="height:4px;background:var(--green-soft);margin-bottom:2px;"><div style="height:100%;width:100%;background:var(--green);"></div></div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB Proyectado ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Corporativo · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Tráfico · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--green);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);">CorpName</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -2090,7 +2062,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:41%;background:var(--green);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por Destino · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--green);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);">Destino</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -2135,7 +2107,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div style="height:3px;background:var(--rule-soft);"><div style="height:100%;width:56%;background:var(--green);"></div></div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5  <span style="font-size:11px;font-weight:400;color:var(--ink-muted);letter-spacing:.04em;">— ordenado por GB ↓</span></h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 8px;color:var(--ink);">Por País · Top 5</h3>
 <p style="font-size:11px;color:var(--ink-muted);margin:0 0 10px;">Ordenado por tráfico ↓ · Conv RPM · % No Dispo · GB</p>
 <div style="max-width:900px;overflow-x:auto;">
 <div style="display:grid;grid-template-columns:1fr 70px 70px 80px 80px;gap:10px;padding:6px 0;border-bottom:1.5px solid var(--green);"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);">País</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Tráfico</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">Conv RPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">% No Dispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);text-align:right;">GB</span></div>
@@ -2247,45 +2219,12 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
         <p class="section-kicker">Limitaciones del análisis actual y ajustes para la próxima iteración.</p>
       </div>
     </div>
-
-    <div class="metodo-grid">
-
-      <div class="metodo-card">
-        <span class="card-chip chip-data">Cobertura · Data</span>
-        <div class="card-title">GB y ADR · validar cobertura del 0</div>
-        <div class="card-body">Solo <strong>{{HOTELES_CON_GB}} de {{HOTELES_TOTAL}} hoteles</strong> tienen GB &gt; 0 ({{COBERTURA_GB_PCT}}%). Un hotel con bookings y $0 GB es una inconsistencia que invalida la comparación.</div>
-        <div class="card-action"><span class="arrow">→</span> Confirmar si el 0 es ausencia de venta o de dato</div>
-      </div>
-
-      <div class="metodo-card">
-        <span class="card-chip chip-metric">Definición · Métrica</span>
-        <div class="card-title">Tráfico = shopping searches, no visitas únicas</div>
-        <div class="card-body">RPM {{RPM_GLOBAL}} lo delata: el denominador incluye millones de requests XML. Imposible separar <em>"nadie vio"</em> de <em>"muchos vieron y no convirtieron"</em>.</div>
-        <div class="card-action"><span class="arrow">→</span> Distinguir requests XML de visitantes reales</div>
-      </div>
-
-      <div class="metodo-card">
-        <span class="card-chip chip-clean">Limpieza · Outliers</span>
-        <div class="card-title">ADR y GB negativos · mismo origen</div>
-        <div class="card-body">Se excluyeron {{HOTELES_ADR_NEG}} hoteles con ADR &lt; 0. En Bajo Rendimiento hay {{HOTELES_GB_NEG}} hoteles con GB negativo ({{EJEMPLO_HOTEL_NEG_1}} {{EJEMPLO_GB_NEG_1}}, {{EJEMPLO_HOTEL_NEG_2}} {{EJEMPLO_GB_NEG_2}}) por devoluciones imputadas en la misma semana.</div>
-        <div class="card-action"><span class="arrow">→</span> Aislar refunds del cálculo semanal</div>
-      </div>
-
-      <div class="metodo-card">
-        <span class="card-chip chip-mapping">Taxonomía · Mapeo</span>
-        <div class="card-title">CorpName nativo · {{CORPNAME_NATIVOS}} valores vs {{CORPNAME_PARSEADOS}} parseados</div>
-        <div class="card-body">«Hyatt Inclusive Collection» y «Hyatt» ahora son entidades distintas. Sin tabla de equivalencias, las comparaciones WoW se rompen.</div>
-        <div class="card-action"><span class="arrow">→</span> Construir mapeo de corporativos canónico</div>
-      </div>
-
-      <div class="metodo-card wide">
-        <span class="card-chip chip-method">Severity · Método</span>
-        <div class="card-title">Replicar nivel «Sin Conversión» de CheckRates en RatesNoDispo</div>
-        <div class="card-body">CheckRates W17 introdujo un nivel que separa <strong>BKGS = 0</strong> (oportunidad comercial: «no convirtió aún») de los <strong>Súper Críticos con BKGS &gt; 0</strong> (falla activa: «tráfico que no convierte»). Antes ambos estaban mezclados, inflando la sensación de alarma. Pendiente aplicarlo aquí en próxima iteración.</div>
-        <div class="card-action"><span class="arrow">→</span> Aplicar a Severity %NoDispo · W{{NEXT_WEEK}}</div>
-      </div>
-
-    </div>
+    <ol class="exec-bullets">
+      <li><strong>GB y ADR son nuevas dimensiones — hay que validar la cobertura.</strong> Solo 6.933 de los 45.310 hoteles tienen GB &gt; 0 (42.7%). Antes de tomar decisiones por GB hay que confirmar si el 0 refleja ausencia de ventas o ausencia de dato. <span class="hl">Un hotel con bookings y $0 GB es una inconsistencia que invalida la comparación.</span></li>
+      <li><strong>El Tráfico sigue siendo shopping searches, no visitas únicas.</strong> El RPM de 2.60 lo delata — es bajo porque el denominador incluye millones de requests automáticos del sistema. Sin distinguir entre requests XML y visitantes reales, no podemos separar "nadie vio el hotel" de "muchos lo vieron y no convirtieron".</li>
+      <li><strong>ADR y GB negativos — mismo origen, distinto síntoma.</strong> Se excluyeron 46 hoteles con ADR negativo. Adicionalmente, 133 hoteles en Bajo Rendimiento tienen GB negativo (Dreams Tulum -$2.260, Hard Rock Cancún -$2.075). Probable causa: devoluciones imputadas en la misma semana de la venta original.</li>
+      <li><strong>El campo CorpName nativo tiene 121 valores únicos vs 42 parseados antes.</strong> Requiere un mapeo de equivalencias para comparar semana a semana. "Hyatt Inclusive Collection" y "Hyatt" son entidades distintas ahora.</li>
+    </ol>
   </section>
 </div>
 </div>
@@ -2293,7 +2232,297 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div class="shell">
   <footer>
     <span>Supply Rates No Dispo · [Week XX] · [Mes año] · Vol. [N]</span>
-    <span>PriceTravel · Analytics Desk · {{HOTELES_TOTAL}} hoteles analizados</span>
+    <span>PriceTravel · Analytics Desk · 45.310 hoteles analizados</span>
+  </footer>
+</div>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+      if(a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+sections.forEach(s => observer.observe(s));
+tocLinks.forEach(l => l.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector(l.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+}));
+</script>
+</body>
+</html<div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;padding:10px 0;border-bottom:2px solid var(--amber);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--amber);text-align:left;">Hotel</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">% de No Dispo</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">BKGS</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">GB</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Conv RPM</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">OYO Hotel and Casino Las Vegas</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Oyo Rooms · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="text-align:right;color:var(--amber);">10.7%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$101</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.19</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:67%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton Miami Downtown</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="text-align:right;color:var(--amber);">8.1%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$260</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.21</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:60%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Virgin Hotels Las Vegas, Curio Collection by Hilton</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="text-align:right;color:var(--amber);">15.9%</span>
+  <span style="text-align:right;">2</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$69</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.25</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:100%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Novotel London West</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · Gran Bretaña (UK)</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">4M</span>
+  <span style="text-align:right;color:var(--amber);">7.0%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$901</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.26</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:48%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Caribe Royale Orlando</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Best Western · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
+  <span style="text-align:right;color:var(--amber);">5.6%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$338</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.31</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:40%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hilton Tampa Downtown</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
+  <span style="text-align:right;color:var(--amber);">6.2%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$188</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.35</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:36%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Buenaventura Grand Hotel & Great Moments</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
+  <span style="text-align:right;color:var(--amber);">21.2%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$599</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.36</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:34%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Riu Palace Riviera Maya - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">RIU · México</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">3M</span>
+  <span style="text-align:right;color:var(--amber);">28.4%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$1,674</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.40</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:31%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Aparthotel Adagio Paris Centre Tour Eiffel</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Accor · Francia</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">2M</span>
+  <span style="text-align:right;color:var(--amber);">10.3%</span>
+  <span style="text-align:right;">1</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$704</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.43</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:29%;background:#A090CC;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px 100px 80px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #EDE8F7;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Riu Palace Punta Cana - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">RIU · República Dominicana</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">5M</span>
+  <span style="text-align:right;color:var(--amber);">24.5%</span>
+  <span style="text-align:right;">2</span>
+  <span style="font-weight:700;text-align:right;color:var(--accent);">$5,617</span>
+  <span style="text-align:right;color:var(--ink-muted);">0.44</span>
+</div>
+<div style="height:4px;background:#EDE8F7;margin-bottom:2px;"><div style="height:100%;width:57%;background:#A090CC;"></div></div>
+  </div><div style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;padding:10px 0;border-bottom:2px solid var(--red);margin-bottom:4px;">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--red);text-align:left;">Hotel</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">Tráfico</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">% de No Dispo</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);text-align:right;">BKGS</span>
+    </div>
+    
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Presidente InterContinental Cancún</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Presidente Intercontinental · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">11M</span>
+  <span style="text-align:right;color:var(--red);">1.1%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:100%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Serenade Punta Cana Beach & Spa Resort</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Punta Cana</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">10M</span>
+  <span style="text-align:right;color:var(--red);">4.1%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:92%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">SAHARA Las Vegas</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="text-align:right;color:var(--red);">5.6%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:74%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">The Manhattan at Times Square Hotel</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">IHG · Estados Unidos de América · New York</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">8M</span>
+  <span style="text-align:right;color:var(--red);">1.8%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:74%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">whala!bavaro - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">AA-Independent · República Dominicana · Bávaro Area</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="text-align:right;color:var(--red);">2.6%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:67%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">The STRAT Hotel, Casino and Skypod</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Best Western · Estados Unidos de América · Las Vegas (and vicinity), NV, US</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="text-align:right;color:var(--red);">0.8%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:64%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Hyatt Ziva Cancún</div>
+    
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">7M</span>
+  <span style="text-align:right;color:var(--red);">3.0%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:62%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Grand Fiesta Americana Coral Beach - All Inclusive</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">GRUPO POSADAS · México · Cancún</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="text-align:right;color:var(--red);">1.2%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:60%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">DoubleTree by Hilton New York Downtown</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hilton · Estados Unidos de América · New York</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="text-align:right;color:var(--red);">1.9%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:59%;background:#F48CB8;"></div></div>
+<div style="display:grid;grid-template-columns:1fr 90px 80px 60px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #FCE4F1;font-size:13px;">
+  <div>
+    <div style="font-weight:500;color:var(--ink);">Secrets Maroma Beach Riviera Cancun - Solo Adultos</div>
+    <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;">Hyatt Inclusive Collection · México · Riviera Maya</div>
+  </div>
+  <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;">6M</span>
+  <span style="text-align:right;color:var(--red);">2.2%</span>
+  <span style="font-weight:700;text-align:right;color:var(--red);">0</span>
+</div>
+<div style="height:4px;background:#FCE4F1;margin-bottom:2px;"><div style="height:100%;width:58%;background:#F48CB8;"></div></div>
+  </div>
+  <div style="height:1px;background:var(--rule);margin-top:40px;"></div>
+</section>
+</div>
+
+<div class="critique">
+<div class="shell">
+  <section id="metodo" style="margin-bottom:0;">
+    <div class="section-head">
+      <div class="section-num">· 13</div>
+      <div>
+        <h2 class="section-title">Método · lo que hay que corregir</h2>
+        <p class="section-kicker">Limitaciones del análisis actual y ajustes para la próxima iteración.</p>
+      </div>
+    </div>
+    <ol class="exec-bullets">
+      <li><strong>GB y ADR son nuevas dimensiones — hay que validar la cobertura.</strong> Solo 6.933 de los 16.238 hoteles tienen GB &gt; 0 (42.7%). Antes de tomar decisiones por GB hay que confirmar si el 0 refleja ausencia de ventas o ausencia de dato. <span class="hl">Un hotel con bookings y $0 GB es una inconsistencia que invalida la comparación.</span></li>
+      <li><strong>El Tráfico sigue siendo shopping searches, no visitas únicas.</strong> El RPM de 2.84 lo delata — es bajo porque el denominador incluye millones de requests automáticos del sistema. Sin distinguir entre requests XML y visitantes reales, no podemos separar "nadie vio el hotel" de "muchos lo vieron y no convirtieron".</li>
+      <li><strong>ADR y GB negativos — mismo origen, distinto síntoma.</strong> Se excluyeron 46 hoteles con ADR negativo. Adicionalmente, hoteles en Bajo Rendimiento tienen GB negativo (Dreams Tulum, Hard Rock Cancún). Probable causa: devoluciones imputadas en la misma semana de la venta original.</li>
+      <li><strong>El campo CorpName nativo tiene 121 valores únicos vs 42 parseados antes.</strong> Requiere un mapeo de equivalencias para comparar semana a semana. "Hyatt Inclusive Collection" y "Hyatt" son entidades distintas ahora.</li>
+      <li><strong>Severity Conv Rate: nuevo nivel «Sin Conversión» en CheckRates.</strong> Replicado el cambio metodológico del CheckRates W17 — separar hoteles con BKGS=0 de los Súper Críticos con BKGS&gt;0 aclara la lectura. Aplicación a RatesNoDispo en próxima iteración.</li>
+    </ol>
+  </section>
+</div>
+</div>
+
+<div class="shell">
+  <footer>
+    <span>Supply Rates No Dispo · [Week XX] · [Mes año] · Vol. [N]</span>
+    <span>PriceTravel · Supply Optimization · 45.310 hoteles analizados</span>
   </footer>
 </div>
 

@@ -59,7 +59,6 @@
     <li><a href="#thresholds">7. Thresholds y filtros</a></li>
     <li><a href="#changelog">8. Changelog metodológico</a></li>
     <li><a href="#checklist">9. Checklist pre-publicación</a></li>
-    <li><a href="#metodo-section">10. Sección 13 · Método (formato canónico)</a></li>
   </ul>
 </div>
 
@@ -113,18 +112,18 @@
 <table>
   <tr><th>#</th><th>Sección</th><th>Contenido</th><th>Color brand</th></tr>
   <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave con barras + badges</td><td>brand mixto</td></tr>
-  <tr><td>·02</td><td>Severity · Eficacia</td><td>Distribución por niveles de Eficacia (100→0)</td><td>gradiente</td></tr>
+  <tr><td>·02</td><td>Severity · Eficacia</td><td>Distribución por niveles de %errors</td><td>gradiente</td></tr>
   <tr><td>·03</td><td>Severity · Conv Rate</td><td>Distribución por niveles + Sin Conversión</td><td>gradiente</td></tr>
-  <tr><td>·04</td><td>Hoteles Críticos</td><td>Top 10 ranking compuesto Eficacia + Conv Rate ↑</td><td>violeta</td></tr>
-  <tr><td>·05</td><td>Bajo Rendimiento</td><td>Top 10 con %Errors ≥ 5% y BKGS &gt; 0 · ordenado por Conv Rate ↑</td><td>violeta</td></tr>
-  <tr><td>·06</td><td>Severity por Corporativo</td><td>Top 10 con concentración de Críticos+ ↓</td><td>violeta</td></tr>
-  <tr><td>·07</td><td>Menor Conv Rate</td><td>Top 10 con BKGS ≥ 3 y CheckRates ≥ 2K · ordenado por Conv Rate ↑</td><td>violeta</td></tr>
+  <tr><td>·04</td><td>Hoteles Críticos</td><td>Top 10 ranking combinado Eficacia+CR</td><td>violeta</td></tr>
+  <tr><td>·05</td><td>Bajo Rendimiento</td><td>Top 10 con %errors ≥ 5% y BKGS &gt; 0</td><td>violeta</td></tr>
+  <tr><td>·06</td><td>Severity por Corporativo</td><td>Top 10 con concentración de Críticos+</td><td>violeta</td></tr>
+  <tr><td>·07</td><td>Menor Conv Rate</td><td>Top 10 con BKGS≥3 y CK≥2K</td><td>violeta</td></tr>
   <tr><td>·08</td><td>Plan de Acción</td><td>QW · MP · ES con responsables</td><td>brand mixto</td></tr>
-  <tr><td>·09</td><td><strong>Análisis por Canasta</strong> <span class="badge b-mandatory">W18+</span></td><td>Tabla resumen comparativa: B2C · OP · CUG con CheckRates, Eficacia, BKGS, Conv Rate, % Sin BKGS, Cluster dominante</td><td>colores canasta</td></tr>
+  <tr><td>·09</td><td>Tabla resumen 3 canastas</td><td>Comparativa Final Score</td><td>colores canasta</td></tr>
   <tr><td>·10</td><td>Canasta B2C</td><td>Resumen ejecutivo + tablas</td><td><span class="swatch" style="background:#EA0074;"></span> magenta</td></tr>
   <tr><td>·11</td><td>Canasta OP</td><td>Resumen ejecutivo + tablas</td><td><span class="swatch" style="background:#5C469C;"></span> violeta</td></tr>
   <tr><td>·12</td><td>Canasta CUG</td><td>Resumen ejecutivo + tablas</td><td><span class="swatch" style="background:#4FC3F4;"></span> celeste</td></tr>
-  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras pendientes (formato cards categorizadas)</td><td>neutral</td></tr>
+  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras pendientes</td><td>neutral</td></tr>
 </table>
 
 <h3>Cada canasta (§10/11/12) incluye:</h3>
@@ -144,12 +143,10 @@
 <h3>Términos canónicos <span class="badge b-mandatory">Obligatorio</span></h3>
 <table>
   <tr><th>Usar</th><th>NO usar</th><th>Motivo</th></tr>
-  <tr><td><code>CheckRates</code></td><td><code>CheckRates Únicos</code> · <code>CK Únicos</code> · <code>CK</code></td><td>Editorial: nombre simplificado. El campo del dataset se llama "CheckRates Únicos" pero en el reporte se usa "CheckRates"</td></tr>
-  <tr><td><code>Successful CheckRates</code></td><td><code>Successful UniqueChkRts</code> · <code>Suc</code></td><td>Mismo principio: editorial vs. dataset</td></tr>
+  <tr><td><code>CheckRates</code></td><td><code>CK</code></td><td>Abreviatura interna confusa fuera del equipo</td></tr>
   <tr><td><code>Conv Rate</code></td><td><code>CR</code></td><td>Abreviatura interna ambigua</td></tr>
   <tr><td><code>BKGS</code></td><td><code>Bk</code> · <code>Bkgs</code></td><td>Mayúsculas para consistencia</td></tr>
   <tr><td><code>Canasta</code></td><td><code>Canal</code></td><td>Vocabulario interno PriceTravel</td></tr>
-  <tr><td><code>Por debajo del Rango</code></td><td><code>No Aceptable</code></td><td>W18+ · más descriptivo · evita juicio de valor</td></tr>
   <tr><td><code>Baja Eficacia en CheckRates</code></td><td><code>falla técnica</code> · <code>problema técnico</code></td><td>Métrica concreta vs. juicio vago</td></tr>
   <tr><td><code>Casos Críticos</code></td><td><code>Outliers</code> (en badges)</td><td>"Outliers" solo permitido como término estadístico</td></tr>
   <tr><td><code>Sin Conversión</code></td><td>(no separar antes)</td><td>Nivel separado para hoteles BKGS=0 (W17+)</td></tr>
@@ -206,23 +203,21 @@
 <h2 id="severity">6. Sistema Severity</h2>
 
 <h3>Severity · Eficacia (rangos FIJOS) <span class="badge b-mandatory">Obligatorio</span></h3>
-<p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;"><strong>Cambio W18:</strong> los rangos se expresan en términos de <strong>Eficacia</strong> directa (no de %Errors). Lectura: <em>"de 100 a 95% de eficacia"</em> en lugar de <em>"de 0 a 5% de errores"</em>.</p>
 <table>
-  <tr><th>Nivel</th><th>Rango Eficacia</th><th>Badge</th><th>Acción</th></tr>
-  <tr><td>Exitosa</td><td>100 – 95%</td><td><span class="badge" style="background:#E8F7FD;color:#4FC3F4;">Exitosa</span></td><td>Mantener</td></tr>
-  <tr><td>Por debajo del Rango</td><td>95 – 80%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Por debajo del Rango</span></td><td>Revisar tendencia</td></tr>
-  <tr><td>Revisar</td><td>80 – 60%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Revisar</span></td><td>Diagnóstico</td></tr>
-  <tr><td>Crítica</td><td>60 – 40%</td><td><span class="badge" style="background:#FCE4F1;color:#EA0074;">Crítica</span></td><td>Escalamiento</td></tr>
-  <tr><td>Muy Crítica</td><td>40 – 20%</td><td><span class="badge" style="background:#EA0074;color:#fff;">Muy Crítica</span></td><td>Escalamiento urgente</td></tr>
-  <tr><td>Súper Crítica</td><td>20 – 0%</td><td><span class="badge" style="background:#161616;color:#fff;">Súper Crítica</span></td><td>Escalamiento inmediato</td></tr>
+  <tr><th>Nivel</th><th>%errors rango</th><th>Badge</th><th>Acción</th></tr>
+  <tr><td>Exitosa</td><td>0 – 5%</td><td><span class="badge" style="background:#E8F7FD;color:#4FC3F4;">Exitosa</span></td><td>Mantener</td></tr>
+  <tr><td>No Aceptable</td><td>5 – 20%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">No Aceptable</span></td><td>Revisar tendencia</td></tr>
+  <tr><td>Revisar</td><td>20 – 40%</td><td><span class="badge" style="background:#EDE8F7;color:#5C469C;">Revisar</span></td><td>Diagnóstico</td></tr>
+  <tr><td>Crítica</td><td>40 – 60%</td><td><span class="badge" style="background:#FCE4F1;color:#EA0074;">Crítica</span></td><td>Escalamiento</td></tr>
+  <tr><td>Muy Crítica</td><td>60 – 80%</td><td><span class="badge" style="background:#EA0074;color:#fff;">Muy Crítica</span></td><td>Escalamiento urgente</td></tr>
+  <tr><td>Súper Crítica</td><td>80 – 100%</td><td><span class="badge" style="background:#161616;color:#fff;">Súper Crítica</span></td><td>Escalamiento inmediato</td></tr>
 </table>
 
 <div class="rule-box">
-  <strong>Rangos FIJOS, no por percentil.</strong> No recalcular umbrales semana a semana. Esto garantiza comparación WoW y consistencia histórica. <strong>Headers obligatorios en la tabla:</strong> Nivel · Eficacia · Distribución · Hoteles · %.
+  <strong>Rangos FIJOS, no por percentil.</strong> No recalcular umbrales semana a semana. Esto garantiza comparación WoW y consistencia histórica.
 </div>
 
 <h3>Severity · Conv Rate (con benchmark global) <span class="badge b-mandatory">Obligatorio W17+</span></h3>
-<p style="font-size:13px;color:var(--ink-muted);margin-bottom:8px;"><strong>Fórmula W18:</strong> Conv Rate = <code>Bookings ÷ Successful CheckRates × 100</code>. Solo los CheckRates que devolvieron tarifa correctamente pueden producir bookings — usar Successful en el denominador aísla la conversión comercial pura.</p>
 <table>
   <tr><th>Nivel</th><th>Conv Rate rango</th><th>Acción</th></tr>
   <tr><td>Excelente</td><td>≥ 3%</td><td>Mantener</td></tr>
@@ -237,9 +232,6 @@
 <div class="rule-box">
   <strong>Cambio metodológico W17:</strong> El nivel <strong>"Sin Conversión"</strong> (BKGS=0) se separa de "Súper Crítica" (BKGS&gt;0 con CR&lt;0.1%). Antes ambos estaban juntos inflando la sensación de alarma.
 </div>
-<div class="rule-box">
-  <strong>Cambio metodológico W18:</strong> Conv Rate ahora se calcula sobre <strong>Successful CheckRates</strong> (BK ÷ Suc) en lugar de sobre el total de CheckRates (BK ÷ CK). Esto separa el problema técnico (Eficacia) del problema comercial (Conv Rate). En W17 publicado se usó la fórmula antigua — la transición se completa desde W18.
-</div>
 
 <h2 id="thresholds">7. Thresholds y filtros</h2>
 
@@ -249,80 +241,12 @@
   <tr><td>Muestra HTS · P80</td><td><code>cumsum(CK) ≤ 80%</code></td><td>Métricas globales y rankings</td></tr>
   <tr><td>Top 10 Críticos (general)</td><td><code>CK ≥ 1.000</code></td><td>§04</td></tr>
   <tr><td>Top 5 por canasta</td><td><code>CK ≥ 500</code></td><td>§10/11/12 tablas internas</td></tr>
-  <tr><td>Menor Conv Rate (general)</td><td><code>BKGS ≥ 3 ∧ CheckRates ≥ 2.000</code></td><td>§07</td></tr>
-  <tr><td>Menor Conv Rate (canasta)</td><td><code>BKGS ≥ 3 ∧ CheckRates ≥ 500</code></td><td>§10/11/12</td></tr>
-  <tr><td>Severity por Corp</td><td><code>n ≥ 5 hoteles ∧ CheckRates ≥ 1.000</code></td><td>Rankings por corporativo</td></tr>
+  <tr><td>Menor Conv Rate (general)</td><td><code>BKGS ≥ 3 ∧ CK ≥ 2.000</code></td><td>§07</td></tr>
+  <tr><td>Menor Conv Rate (canasta)</td><td><code>BKGS ≥ 3 ∧ CK ≥ 500</code></td><td>§10/11/12</td></tr>
+  <tr><td>Severity por Corp</td><td><code>n ≥ 5 hoteles ∧ CK ≥ 1.000</code></td><td>Rankings por corporativo</td></tr>
 </table>
-
-<h2 id="vocabulario-clusters">7.6 Vocabulario · Clusters y Prioridades <span class="badge b-mandatory">W18+</span></h2>
-
-<p>El reporte usa <strong>dos ejes de etiquetado distintos</strong> que antes se mezclaban en chips visualmente idénticos. La separación los hace independientes y evita ambigüedad.</p>
-
-<h3>Eje A · Cluster del hotel <span class="badge b-mandatory">Obligatorio</span></h3>
-<p>Etiqueta <strong>qué tiene</strong> el hotel. Aparece como chip en cada fila de las tablas (§04, §05, §07) y en la tabla resumen §09 (cluster dominante por canasta).</p>
-<table>
-  <tr><th>Cluster</th><th>Criterio</th><th>Diagnóstico</th><th>Chip color</th></tr>
-  <tr><td><strong>Optimizable</strong></td><td>Eficacia ≥ 95% · Conv Rate sano · vol. significativo</td><td>Ya funciona — un ajuste lo mejora</td><td>Verde / cyan claro</td></tr>
-  <tr><td><strong>Conv Rate Crítico</strong></td><td>Eficacia ≥ 95% · Conv Rate &lt; 0.5%</td><td>El motor anda · la conversión está mal · problema comercial</td><td>Magenta</td></tr>
-  <tr><td><strong>Connectivity Issue</strong></td><td>Eficacia &lt; 60% sostenida</td><td>Problema técnico · API/integración falla</td><td>Magenta</td></tr>
-  <tr><td><strong>Tráfico Anómalo</strong></td><td>Volumen alto + 0 BKGS sostenido (semana tras semana)</td><td>Patrón estadísticamente inusual · validar antes de juzgar</td><td>Naranja</td></tr>
-  <tr><td><strong>Bajo Volumen</strong></td><td>CheckRates &lt; threshold de la canasta · poca señal</td><td>No es prioridad ahora · falta data para conclusiones robustas</td><td>Gris / neutral</td></tr>
-</table>
-
-<h3>Eje B · Prioridad temporal <span class="badge b-mandatory">Obligatorio</span></h3>
-<p>Etiqueta <strong>cuándo hacer</strong> la acción. Aparece como chip en el §08 Plan de Acción y en las cards "Plan de Acción · Top 3" de cada canasta.</p>
-<table>
-  <tr><th>Prioridad</th><th>Horizonte</th><th>Cuándo aplicar</th></tr>
-  <tr><td><strong>Acción Rápida</strong></td><td>&lt; 7 días</td><td>Quick win operativo · ajuste técnico simple · escalamiento puntual</td></tr>
-  <tr><td><strong>Mediano Plazo</strong></td><td>2–4 semanas</td><td>Diagnóstico que requiere coordinación · análisis multi-equipo</td></tr>
-  <tr><td><strong>Estratégico</strong></td><td>Trimestre</td><td>Auditoría profunda · cambio de pricing/contenido · revisión integral</td></tr>
-</table>
-
-<div class="rule-box">
-  <strong>Regla de uso:</strong> los dos ejes son <strong>independientes</strong>. Un hotel puede ser cluster <em>"Optimizable"</em> y al mismo tiempo aparecer en una acción de prioridad <em>"Mediano Plazo"</em>. El cluster describe el estado del hotel, la prioridad describe el horizonte de la acción asociada.
-</div>
-
-<div class="rule-box">
-  <strong>Cambio W18 vs anterior:</strong> En W17 el chip <em>"Quick Win"</em> se usaba con dos significados (cluster del hotel · prioridad temporal), generando confusión. Desde W18+ los dos ejes son independientes con vocabulario propio: el cluster correspondiente a "Quick Win como tipo de hotel" pasa a ser <strong>Optimizable</strong>; la prioridad temporal "&lt;7 días" pasa a ser <strong>Acción Rápida</strong>.
-</div>
-
-<h2 id="sort-orders">7.7 Sort orders canónicos por sección <span class="badge b-mandatory">W18+</span></h2>
-
-<p>Cada tabla del reporte tiene un <strong>sort default obligatorio</strong> que debe coincidir con el nombre de la sección. El sort default se documenta como <code>span</code> al lado del título de cada tabla y en el subtítulo de la sección.</p>
-
-<h3>Análisis principal (§04 – §08)</h3>
-<table>
-  <tr><th>Sección</th><th>Sort default</th><th>Justificación</th></tr>
-  <tr><td>§04 Hoteles Críticos</td><td>Ranking compuesto Eficacia + Conv Rate ↑</td><td>El nombre dice "Eficacia + Conv Rate" — ambos pesos juntos</td></tr>
-  <tr><td>§05 Bajo Rendimiento</td><td>Conv Rate ↑</td><td>El nombre dice "Bajo Rendimiento" — peor conversión primero</td></tr>
-  <tr><td>§06 Severity por Corporativo</td><td>% Críticos+ ↓</td><td>El nombre habla de concentración de hoteles críticos</td></tr>
-  <tr><td>§07 Menor Conv Rate</td><td>Conv Rate ↑</td><td>El nombre dice "Menor" — peor primero</td></tr>
-</table>
-
-<h3>Sub-tablas de canastas (§10/§11/§12)</h3>
-<p>Cada canasta repite las mismas tablas con el mismo sort default. <strong>El sort se explicita visualmente</strong> al lado del título <code>h3</code> con el formato:</p>
-<pre style="font-size:12px;background:#f7f7f7;padding:10px;border-left:3px solid var(--ink);overflow-x:auto;">&lt;h3&gt;Bajo Rendimiento · Top 5  &lt;span style="font-size:11px;font-weight:400;color:var(--ink-muted);"&gt;— ordenado por Conv Rate ↑&lt;/span&gt;&lt;/h3&gt;</pre>
-
-<div class="rule-box">
-  <strong>Regla anti-bug · Sort consistency:</strong> al generar cada tabla, el sort default debe aplicarse al <strong>conjunto completo de filas</strong>, no a sub-bloques concatenados. Si una tabla se construye en dos pasos (ej. Top 5 + Top 6-10 separados), <strong>re-ordenar el conjunto antes de renderizar</strong>. Detectamos este bug en W17 §03 RND donde una tabla quedó con dos tramos ordenados internamente pero no entre sí.
-</div>
-<div class="rule-box">
-  <strong>Regla anti-bug · Sin duplicados:</strong> verificar que cada tabla no contenga el mismo hotel/corporativo/destino más de una vez. Detectamos este bug en W17 §03 RND donde un hotel aparecía dos veces con valores distintos.
-</div>
 
 <h2 id="changelog">8. Changelog metodológico</h2>
-
-<h3>W18 (Abr–May 2026) · Bloque Editorial Mayor</h3>
-<ul>
-  <li><strong>Eje 5 · Sección 13 Método rediseñada</strong>: prosa larga → 6 tarjetas categorizadas con chip + título + cuerpo + acción próxima. Variable CSS <code>--verde:#2F6C34</code> agregada al <code>:root</code> para el chip-clean.</li>
-  <li><strong>Eje 5.5 · Terminología</strong>: <code>CheckRates Únicos</code> y <code>CK Únicos</code> reemplazados por <code>CheckRates</code> en todo el reporte editorial. El campo del dataset mantiene su nombre original.</li>
-  <li><strong>Eje 5.6 · Conv Rate corregido</strong>: fórmula nueva <code>Bookings ÷ Successful CheckRates</code> (BK/Suc) en lugar de <code>BK / CheckRates</code>. Aísla la conversión comercial pura del problema técnico de Eficacia. <strong>Aplica a template + W18 en adelante</strong>; W17 publicado queda histórico con la fórmula vieja.</li>
-  <li><strong>Eje 5.7 · Severity Eficacia rangos invertidos</strong>: rangos en términos de Eficacia directa (Exitosa 100–95%, Súper Crítica 20–0%) en lugar de %Errors. Renombrado nivel 2: "No Aceptable" → "Por debajo del Rango". Headers explícitos en las 3 tablas Severity (Nivel · Rango · Distribución · Hoteles · %).</li>
-  <li><strong>Eje 5.8 · Sort orders estandarizados</strong>: ver sección 7.5 de esta guía. Cada sub-tabla en canastas explicita su sort default visualmente. Reglas anti-bug agregadas (sort consistency + sin duplicados).</li>
-  <li><strong>Eje 6.1 · §09 Análisis por Canasta</strong>: nueva sección con tabla resumen comparativa de las 3 canastas. Renumeración: Plan §09 → §08, canastas detalle a §10/§11/§12.</li>
-  <li><strong>Eje 6.2 · Vocabulario Clusters & Prioridades</strong>: separación clara de dos ejes que antes se mezclaban en chips idénticos. <strong>Cluster del hotel</strong>: Quick Win → <strong>Optimizable</strong> · Monetization Failure → <strong>Conv Rate Crítico</strong> · Connectivity Issue (mantiene) · Suspicious Traffic → <strong>Tráfico Anómalo</strong> · Low Priority → <strong>Bajo Volumen</strong>. <strong>Prioridad temporal</strong>: Quick Win → <strong>Acción Rápida</strong> · Mid-term → <strong>Mediano Plazo</strong> · Estratégico (mantiene). Documentado en sección 7.6 de esta guía.</li>
-  <li><strong>Templates con placeholders</strong>: <code>_TEMPLATE_CheckRates_Reporte_Editorial.html</code> usa <code>{{WEEK_NUM}}</code>, <code>{{HOTELES_P80}}</code>, <code>{{B2C_CHECKRATES}}</code>, <code>{{SEV_EXITOSA_N}}</code>, etc.</li>
-</ul>
 
 <h3>W17 (Abr 2026)</h3>
 <ul>
@@ -349,79 +273,21 @@
 <ol>
   <li>☐ Datos del dataset Week-XX-CheckRates.xlsx procesados correctamente</li>
   <li>☐ HTS calculado sobre P80 (no sobre universo total)</li>
-  <li>☐ <strong>Conv Rate calculado con fórmula W18: BKGS ÷ Successful CheckRates × 100</strong></li>
-  <li>☐ <strong>Severity Eficacia con rangos en términos de Eficacia: 100–95 / 95–80 / 80–60 / 60–40 / 40–20 / 20–0</strong></li>
-  <li>☐ <strong>Severity Eficacia: nivel 2 nombrado "Por debajo del Rango" (no "No Aceptable")</strong></li>
-  <li>☐ <strong>Las 3 tablas Severity con headers explícitos: Nivel · Rango · Distribución · Hoteles · %</strong></li>
+  <li>☐ Conv Rate calculado manualmente (BKGS ÷ CK × 100)</li>
+  <li>☐ Severity Eficacia con rangos FIJOS (0-5/5-20/20-40/40-60/60-80/80-100)</li>
   <li>☐ Severity Conv Rate con 7 niveles (incluye Sin Conversión)</li>
-  <li>☐ Threshold CheckRates ≥ 1.000 aplicado a rankings por Corp</li>
-  <li>☐ <strong>Terminología: usar "CheckRates" (no "CK Únicos" ni "CheckRates Únicos") en todo el editorial</strong></li>
+  <li>☐ Threshold CK ≥ 1.000 aplicado a rankings por Corp</li>
+  <li>☐ Tipografía: CheckRates · Conv Rate · BKGS · Canasta</li>
   <li>☐ Sin "falla técnica" / "problema técnico" en textos narrativos</li>
   <li>☐ Convención canastas: B2C magenta · OP violeta · CUG celeste</li>
   <li>☐ Resúmenes Ejecutivos por canasta (3 findings × 3 canastas)</li>
   <li>☐ Banners ocupan ancho completo (sin <code>max-width</code>)</li>
   <li>☐ Header Week XX · fechas · Vol. N actualizados</li>
   <li>☐ Footer con número de hoteles analizados actualizado</li>
-  <li>☐ Deltas WoW calculados vs semana anterior (atención: W17→W18 cambia fórmula CR)</li>
-  <li>☐ <strong>§13 Método: 6 tarjetas categorizadas (no prosa larga)</strong></li>
-  <li>☐ <strong>§13 Método: cada chip con su categoría correcta (CANASTA · DATA · UMBRAL · MÉTRICA · THRESHOLD · MÉTODO)</strong></li>
-  <li>☐ <strong>§09 Análisis por Canasta presente con 3 filas (B2C · OP · CUG) y cluster dominante por canasta</strong></li>
-  <li>☐ <strong>Sort default explicitado en TODAS las tablas (análisis principal y sub-tablas de canastas) — sin ambigüedad sobre el criterio de orden</strong></li>
-  <li>☐ <strong>Anti-bug · Sort consistency: cada tabla tiene su sort default respetado de principio a fin (sin re-ordenamientos parciales por sub-bloques concatenados)</strong></li>
-  <li>☐ <strong>Anti-bug · Sin duplicados: no hay hoteles/corporativos/destinos duplicados en ninguna tabla</strong></li>
-  <li>☐ <strong>Vocabulario Clusters: usar Optimizable · Conv Rate Crítico · Connectivity Issue · Tráfico Anómalo · Bajo Volumen (no usar Quick Win/Monetization Failure/Suspicious/Low Priority como cluster)</strong></li>
-  <li>☐ <strong>Vocabulario Prioridades: usar Acción Rápida · Mediano Plazo · Estratégico (no usar Quick Win/Mid-term como prioridad)</strong></li>
+  <li>☐ Deltas WoW calculados vs semana anterior</li>
   <li>☐ Validación visual final en navegador</li>
   <li>☐ Subir a Netlify y validar en URL pública</li>
 </ol>
-
-<h2 id="metodo-section">10. Sección 13 · Método (formato canónico)</h2>
-
-<p>La sección 13 «Método · lo que hay que corregir» se renderiza en formato de <strong>tarjetas categorizadas</strong>, no como prosa larga ni lista numerada. El objetivo es que cada limitación metodológica sea legible de un vistazo y comunique su acción próxima.</p>
-
-<h3>Estructura por tarjeta <span class="badge b-mandatory">Obligatorio</span></h3>
-<ul>
-  <li><strong>Chip de categoría</strong> en la parte superior — uno de los 6 colores definidos abajo</li>
-  <li><strong>Card title</strong> · 4–8 palabras máx · enuncia el problema en una frase</li>
-  <li><strong>Card body</strong> · 1–3 líneas máx · explica con datos concretos (usar placeholders en el template)</li>
-  <li><strong>Card action</strong> · línea destacada al pie con <code>→</code> · siempre acción concreta (verbo + objeto)</li>
-</ul>
-
-<h3>Categorías y colores de chip <span class="badge b-mandatory">Obligatorio</span></h3>
-<table>
-  <tr><th>Chip</th><th>Categoría</th><th>Color hex</th><th>Cuándo usar</th></tr>
-  <tr><td><span class="swatch" style="background:#6B21A8;"></span> <code>chip-canasta</code></td><td>Canasta · Iteración</td><td>#6B21A8 sobre #F3E8FF</td><td>Cambios estructurales en análisis por canasta</td></tr>
-  <tr><td><span class="swatch" style="background:#EA0074;"></span> <code>chip-data</code></td><td>Cobertura · Data</td><td>#EA0074 sobre #FCE4F1</td><td>Faltantes/inconsistencias en columnas del dataset</td></tr>
-  <tr><td><span class="swatch" style="background:#2F6C34;"></span> <code>chip-clean</code></td><td>Umbral · Filtro</td><td>#2F6C34 sobre #E8F5E9</td><td>Thresholds o filtros con calibración pendiente</td></tr>
-  <tr><td><span class="swatch" style="background:#5C469C;"></span> <code>chip-metric</code></td><td>Definición · Métrica</td><td>#5C469C sobre #EDE8F7</td><td>Métrica con definición ambigua o sesgada</td></tr>
-  <tr><td><span class="swatch" style="background:#A86A1D;"></span> <code>chip-mapping</code></td><td>Threshold · Relevancia</td><td>#A86A1D sobre #FFF3E0</td><td>Mínimos de muestra para rankings o cortes</td></tr>
-  <tr><td><span class="swatch" style="background:#0288D1;"></span> <code>chip-method</code></td><td>Severity · Método</td><td>#0288D1 sobre #E8F7FD</td><td>Mejoras a la metodología de cálculo o segmentación</td></tr>
-</table>
-
-<h3>Layout</h3>
-<ul>
-  <li>Grid de 2 columnas en desktop · 1 columna en mobile (breakpoint 720px)</li>
-  <li>Cantidad recomendada: <strong>4 a 6 tarjetas</strong>. Si pasa de 6, reagrupar puntos similares.</li>
-  <li>La tarjeta de mayor peso narrativo va en clase <code>wide</code> (ocupa las 2 columnas) — usualmente la última</li>
-</ul>
-
-<h3>Tarjetas canónicas CheckRates (6)</h3>
-<ol>
-  <li><code>chip-canasta</code> · Análisis por canasta integrado en W{{NN}}</li>
-  <li><code>chip-data</code> · Falta ADR en el dataset CheckRates</li>
-  <li><code>chip-clean</code> · P20 sobre %Errors demasiado permisivo</li>
-  <li><code>chip-metric</code> · CheckRates Únicos ≠ sesiones reales</li>
-  <li><code>chip-mapping</code> · Mínimo CheckRates ≥ 1.000 para ranking corporativo</li>
-  <li><code>chip-method</code> <em>(wide)</em> · Nuevo nivel «Sin Conversión» separa BKGS=0 de Súper Críticos</li>
-</ol>
-
-<h3>Qué NO va en las tarjetas</h3>
-<ul>
-  <li>❌ Configuraciones del reporte (weights, thresholds, % global) → van en el README o en la guía editorial</li>
-  <li>❌ Notas metodológicas largas → en la documentación, no en el Editorial</li>
-  <li>❌ Fórmulas de Final Score / DQS / Impact Ajustado → quedan en la sección 6 de esta guía y en el README</li>
-  <li>❌ Top X tablas con datos → esto es la sección 13, no análisis</li>
-</ul>
 
 </div>
 </body>

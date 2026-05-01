@@ -58,7 +58,6 @@
     <li><a href="#thresholds">7. Thresholds y filtros</a></li>
     <li><a href="#changelog">8. Changelog metodológico</a></li>
     <li><a href="#checklist">9. Checklist pre-publicación</a></li>
-    <li><a href="#metodo-section">10. Sección 13 · Método (formato canónico)</a></li>
   </ul>
 </div>
 
@@ -99,20 +98,20 @@
 <h2 id="estructura">3. Estructura del reporte (13 secciones)</h2>
 
 <table>
-  <tr><th>#</th><th>Sección</th><th>Contenido</th><th>Sort default</th></tr>
-  <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave</td><td>—</td></tr>
-  <tr><td>·02</td><td>Severity · % No Disponibilidad</td><td>Distribución por niveles</td><td>—</td></tr>
-  <tr><td>·03</td><td>Demanda No Convertida</td><td>Top 10 Tráfico sin BKGS</td><td>Tráfico ↓</td></tr>
-  <tr><td>·04</td><td>Bajo Rendimiento</td><td>Top 10 con BKGS &gt; 0 y % errors</td><td>Conv RPM ↑</td></tr>
-  <tr><td>·05</td><td>Por Corporativo <span class="badge b-mandatory">W18: nueva col</span></td><td>Top 10 Corporativos sin BKGS · 7 columnas (incl. <strong>GB Proyectado</strong>)</td><td>GB Proyectado ↓</td></tr>
-  <tr><td>·06</td><td>Por Destino</td><td>Top destinos con problemas</td><td>GB ↓</td></tr>
-  <tr><td>·07</td><td>Por País</td><td>Distribución geográfica</td><td>GB ↓</td></tr>
-  <tr><td>·08</td><td>Plan de Acción</td><td>QW · MP · ES</td><td>—</td></tr>
-  <tr><td>·09</td><td>Análisis por Canasta</td><td>Tabla resumen 3 canastas</td><td>—</td></tr>
-  <tr><td>·10</td><td>Canasta B2C</td><td><span class="swatch" style="background:#EA0074;"></span> Resumen + tablas</td><td>—</td></tr>
-  <tr><td>·11</td><td>Canasta OP</td><td><span class="swatch" style="background:#5C469C;"></span> Resumen + tablas</td><td>—</td></tr>
-  <tr><td>·12</td><td>Canasta CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> Resumen + tablas</td><td>—</td></tr>
-  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras (formato cards)</td><td>—</td></tr>
+  <tr><th>#</th><th>Sección</th><th>Contenido</th></tr>
+  <tr><td>·01</td><td>Resumen Ejecutivo</td><td>10 findings clave</td></tr>
+  <tr><td>·02</td><td>Severity · % No Disponibilidad</td><td>Distribución por niveles</td></tr>
+  <tr><td>·03</td><td>Demanda No Convertida</td><td>Top 10 Tráfico sin BKGS</td></tr>
+  <tr><td>·04</td><td>Bajo Rendimiento</td><td>Top 10 con BKGS &gt; 0 y % errors</td></tr>
+  <tr><td>·05</td><td>Por Corporativo</td><td>Concentración por corp</td></tr>
+  <tr><td>·06</td><td>Por Destino</td><td>Top destinos con problemas</td></tr>
+  <tr><td>·07</td><td>Por País</td><td>Distribución geográfica</td></tr>
+  <tr><td>·08</td><td>Plan de Acción</td><td>QW · MP · ES</td></tr>
+  <tr><td>·09</td><td>Análisis por Canasta</td><td>Tabla resumen 3 canastas</td></tr>
+  <tr><td>·10</td><td>Canasta B2C</td><td><span class="swatch" style="background:#EA0074;"></span> Resumen + tablas</td></tr>
+  <tr><td>·11</td><td>Canasta OP</td><td><span class="swatch" style="background:#5C469C;"></span> Resumen + tablas</td></tr>
+  <tr><td>·12</td><td>Canasta CUG</td><td><span class="swatch" style="background:#4FC3F4;"></span> Resumen + tablas</td></tr>
+  <tr><td>·13</td><td>Método</td><td>Limitaciones y mejoras</td></tr>
 </table>
 
 <h2 id="convenciones">4. Convenciones tipográficas y nomenclatura</h2>
@@ -191,56 +190,10 @@
   <tr><td>Universo válido</td><td>Tráfico &gt; 0</td><td>Todo el dataset</td></tr>
   <tr><td>Top Demanda No Convertida</td><td>BKGS = 0 ordenado por Tráfico ↓</td><td>§03</td></tr>
   <tr><td>Bajo Rendimiento</td><td>BKGS &gt; 0 ∧ %errors ≥ 5%</td><td>§04</td></tr>
-  <tr><td>Por Corporativo (W18)</td><td>Corp con 100% hoteles sin BKGS · ordenado por GB Proyectado ↓</td><td>§05</td></tr>
   <tr><td>Severity por Corp</td><td>n ≥ 5 hoteles</td><td>Rankings por corporativo</td></tr>
 </table>
 
-<h2 id="sort-orders">7.5 Sort orders canónicos por sección <span class="badge b-mandatory">W18+</span></h2>
-
-<p>Cada tabla del reporte tiene un <strong>sort default obligatorio</strong> que debe coincidir con el nombre/objetivo de la sección.</p>
-
-<h3>Análisis principal (§03 – §07)</h3>
-<table>
-  <tr><th>Sección</th><th>Sort default</th><th>Justificación</th></tr>
-  <tr><td>§03 Demanda No Convertida</td><td>Tráfico ↓</td><td>Mayor oportunidad perdida primero</td></tr>
-  <tr><td>§04 Bajo Rendimiento</td><td>Conv RPM ↑</td><td>Peor rendimiento primero</td></tr>
-  <tr><td>§05 Por Corporativo <span class="badge b-mandatory">W18</span></td><td>GB Proyectado ↓</td><td>Mayor valor económico potencial primero</td></tr>
-  <tr><td>§06 Por Destino</td><td>GB ↓</td><td>Mayor valor real primero</td></tr>
-  <tr><td>§07 Por País</td><td>GB ↓</td><td>Mayor valor real primero</td></tr>
-</table>
-
-<h3>Sub-tablas de canastas (§10/§11/§12)</h3>
-<p>Cada canasta repite las tablas con el sort correspondiente. <strong>El sort se explicita visualmente</strong> al lado del título <code>h3</code>:</p>
-<pre style="font-size:12px;background:#f7f7f7;padding:10px;border-left:3px solid var(--ink);overflow-x:auto;">&lt;h3&gt;Demanda No Convertida · Top 5  &lt;span style="font-size:11px;font-weight:400;color:var(--ink-muted);"&gt;— ordenado por Tráfico ↓&lt;/span&gt;&lt;/h3&gt;</pre>
-
-<h3>Columna nueva W18 · GB Proyectado <span class="badge b-mandatory">W18+</span></h3>
-<p>La sección <strong>§05 Por Corporativo</strong> agrega una 7ma columna llamada <code>GB Proyectado</code> que estima el GB que el corporativo habría generado si hubiera convertido al RPM promedio del reporte.</p>
-<table>
-  <tr><th>Métrica</th><th>Fórmula</th><th>Interpretación</th></tr>
-  <tr><td><code>RPM_global</code></td><td>GB_total ÷ Tráfico_total × 1.000.000</td><td>Para W17 ≈ $3.97 por mil búsquedas</td></tr>
-  <tr><td><code>GB Proyectado</code></td><td>Tráfico × RPM_global ÷ 1.000.000</td><td>Estimación del upside no realizado</td></tr>
-</table>
-<div class="rule-box">
-  <strong>Coherencia con CheckRates:</strong> El "Conv Rate" de RatesNoDispo (= Bookings ÷ Tráfico) es conceptualmente equivalente al "Conv Rate Total" de CheckRates (= Bookings ÷ CheckRates). Ambos miden conversión sobre el total de demanda. El "Conv Rate" principal de CheckRates (W18+) usa Successful CheckRates en el denominador para aislar la conversión comercial pura — esto no aplica en RatesNoDispo porque el dataset no tiene métrica de Eficacia.
-</div>
-
-<div class="rule-box">
-  <strong>Regla anti-bug · Sort consistency:</strong> al generar cada tabla, el sort default debe aplicarse al <strong>conjunto completo de filas</strong>, no a sub-bloques concatenados. Si una tabla se construye en dos pasos, <strong>re-ordenar el conjunto antes de renderizar</strong>. Detectamos este bug en W17 §03 RND donde una tabla quedó con dos tramos ordenados internamente pero no entre sí.
-</div>
-<div class="rule-box">
-  <strong>Regla anti-bug · Sin duplicados:</strong> verificar que cada tabla no contenga el mismo hotel/corporativo/destino más de una vez. Detectamos este bug en W17 §03 RND donde un hotel aparecía dos veces con valores distintos.
-</div>
-
 <h2 id="changelog">8. Changelog metodológico</h2>
-
-<h3>W18 (Abr–May 2026) · Bloque Editorial Mayor</h3>
-<ul>
-  <li><strong>Eje 5 · Sección 13 Método rediseñada</strong>: prosa larga → 5 tarjetas categorizadas. Bug HTML resuelto en W17 (sección duplicada + bloque zombie post-<code>&lt;/html&gt;</code>).</li>
-  <li><strong>Eje 5.8 · Sort orders estandarizados</strong>: cada sub-tabla en canastas explicita su sort default visualmente. Reglas anti-bug agregadas (sort consistency + sin duplicados). Ver sección 7.5.</li>
-  <li><strong>§05 Por Corporativo · columna GB Proyectado</strong>: agregada para mostrar valor económico potencial. Sort default cambia de "% 0 BKGS ↓" a "GB Proyectado ↓". Subtítulo: "Top 10 Corporativos sin BKGS · ordenado por GB Proyectado ↓".</li>
-  <li><strong>Mini-fix W17 publicado · §03 Demanda No Convertida</strong>: regenerada la tabla porque tenía 1 hotel duplicado con valores distintos (The STRAT) y dos sub-bloques con sort independientes. La tabla corregida tiene 10 hoteles únicos ordenados estrictamente por Tráfico ↓.</li>
-  <li><strong>Templates con placeholders</strong>: <code>_TEMPLATE_RatesNoDispo_Reporte_Editorial.html</code> usa <code>{{HOTELES_TOTAL}}</code>, <code>{{RPM_GLOBAL}}</code>, <code>{{CORP_GB_PROY_1..10}}</code>, etc.</li>
-</ul>
 
 <h3>W17 (Abr 2026)</h3>
 <ul>
@@ -275,62 +228,9 @@
   <li>☐ Header Week XX · fechas · Vol. N actualizados</li>
   <li>☐ Footer con número de hoteles analizados</li>
   <li>☐ Estructura HTML cerrada correctamente (15 sections / 15 closes)</li>
-  <li>☐ <strong>§13 Método: 5 tarjetas categorizadas (no prosa larga)</strong></li>
-  <li>☐ <strong>§13 Método: cada chip con su categoría correcta (DATA · MÉTRICA · LIMPIEZA · MAPEO · MÉTODO)</strong></li>
-  <li>☐ <strong>§05 Por Corporativo: 7 columnas (incluye GB Proyectado) · ordenado por GB Proyectado ↓</strong></li>
-  <li>☐ <strong>RPM_global recalculado de la semana (no usar el de W17 ≈ $3.97)</strong></li>
-  <li>☐ <strong>Sort default explicitado en TODAS las tablas (análisis principal y sub-tablas de canastas)</strong></li>
-  <li>☐ <strong>Anti-bug · Sort consistency: cada tabla tiene su sort default respetado de principio a fin (sin re-ordenamientos parciales por sub-bloques concatenados)</strong></li>
-  <li>☐ <strong>Anti-bug · Sin duplicados: no hay hoteles/corporativos/destinos duplicados en ninguna tabla</strong></li>
   <li>☐ Validación visual final</li>
   <li>☐ Subir a Netlify</li>
 </ol>
-
-<h2 id="metodo-section">10. Sección 13 · Método (formato canónico)</h2>
-
-<p>La sección 13 «Método · lo que hay que corregir» se renderiza en formato de <strong>tarjetas categorizadas</strong>, no como prosa larga ni lista numerada. El objetivo es que cada limitación metodológica sea legible de un vistazo y comunique su acción próxima.</p>
-
-<h3>Estructura por tarjeta <span class="badge b-mandatory">Obligatorio</span></h3>
-<ul>
-  <li><strong>Chip de categoría</strong> en la parte superior — uno de los 5 colores definidos abajo</li>
-  <li><strong>Card title</strong> · 4–8 palabras máx · enuncia el problema en una frase</li>
-  <li><strong>Card body</strong> · 1–3 líneas máx · explica con datos concretos (usar placeholders en el template)</li>
-  <li><strong>Card action</strong> · línea destacada al pie con <code>→</code> · siempre acción concreta (verbo + objeto)</li>
-</ul>
-
-<h3>Categorías y colores de chip <span class="badge b-mandatory">Obligatorio</span></h3>
-<table>
-  <tr><th>Chip</th><th>Categoría</th><th>Color hex</th><th>Cuándo usar</th></tr>
-  <tr><td><span class="swatch" style="background:#EA0074;"></span> <code>chip-data</code></td><td>Cobertura · Data</td><td>#EA0074 sobre #FCE4F1</td><td>Faltantes/inconsistencias en columnas del dataset</td></tr>
-  <tr><td><span class="swatch" style="background:#5C469C;"></span> <code>chip-metric</code></td><td>Definición · Métrica</td><td>#5C469C sobre #EDE8F7</td><td>Métrica con definición ambigua o sesgada</td></tr>
-  <tr><td><span class="swatch" style="background:#2F6C34;"></span> <code>chip-clean</code></td><td>Limpieza · Outliers</td><td>#2F6C34 sobre #E8F5E9</td><td>Tratamiento de valores extremos, refunds, NaN</td></tr>
-  <tr><td><span class="swatch" style="background:#A86A1D;"></span> <code>chip-mapping</code></td><td>Taxonomía · Mapeo</td><td>#A86A1D sobre #FFF3E0</td><td>Cambios de granularidad o renombres de campos</td></tr>
-  <tr><td><span class="swatch" style="background:#0288D1;"></span> <code>chip-method</code></td><td>Severity · Método</td><td>#0288D1 sobre #E8F7FD</td><td>Mejoras a la metodología de cálculo o segmentación</td></tr>
-</table>
-
-<h3>Layout</h3>
-<ul>
-  <li>Grid de 2 columnas en desktop · 1 columna en mobile (breakpoint 720px)</li>
-  <li>Cantidad recomendada: <strong>4 a 6 tarjetas</strong>. Si pasa de 6, reagrupar puntos similares.</li>
-  <li>La tarjeta de mayor peso narrativo va en clase <code>wide</code> (ocupa las 2 columnas) — usualmente la última</li>
-</ul>
-
-<h3>Tarjetas canónicas RatesNoDispo (5)</h3>
-<ol>
-  <li><code>chip-data</code> · GB y ADR · validar cobertura del 0</li>
-  <li><code>chip-metric</code> · Tráfico = shopping searches, no visitas únicas</li>
-  <li><code>chip-clean</code> · ADR y GB negativos · mismo origen</li>
-  <li><code>chip-mapping</code> · CorpName nativo · valores vs parseados</li>
-  <li><code>chip-method</code> <em>(wide)</em> · Replicar nivel «Sin Conversión» de CheckRates</li>
-</ol>
-
-<h3>Qué NO va en las tarjetas</h3>
-<ul>
-  <li>❌ Configuraciones del reporte (weights, thresholds, % global) → van en el README o en la guía editorial</li>
-  <li>❌ Notas metodológicas largas → en la documentación, no en el Editorial</li>
-  <li>❌ Fórmulas de Final Score / DQS → quedan en la sección 6 de esta guía y en el README</li>
-  <li>❌ Top X tablas con datos → esto es la sección 13, no análisis</li>
-</ul>
 
 </div>
 </body>
