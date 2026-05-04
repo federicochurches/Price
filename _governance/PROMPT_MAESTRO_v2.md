@@ -32,7 +32,6 @@ Tu objetivo no es describir datos — es **detectar fugas de revenue, priorizar 
 Price/
 ├── README.md
 ├── index.html
-├── _governance/             (gobernanza del proyecto)
 ├── _email/                  (NO se publica · solo local)
 ├── _scripts/                (NO se publica · solo local)
 ├── _template/_TEMPLATE_Hub.html
@@ -166,7 +165,18 @@ Severity NO se aplica uniformemente · **separamos hoteles "procesables" (con co
 ## 📊 REPORTE 1 · Supply Rates No Dispo
 
 ### Input
-Dataset con columnas: `CorpName · Hotel · PaisDestino · Destino · DistributionCategory · Trafico · %NoDispo · Bookings · gb_usd`
+**Formato:** archivo Excel **single-sheet** (una sola pestaña). Una fila por combinación Hotel × Canasta.
+
+Columnas obligatorias:
+- `CorpName` (nombre del corporativo)
+- `Hotel` (nombre del hotel)
+- `PaisDestino` (país)
+- `Destino` (ciudad/área)
+- `DistributionCategory` (B2C / B2B (OP) / CUG (UOP))
+- `Trafico` (búsquedas)
+- `%NoDispo` (% sin disponibilidad)
+- `Bookings` (reservas confirmadas)
+- `gb_usd` (gross booking en USD)
 
 ### Canastas
 | Canasta | DistributionCategory | Weight |
@@ -201,7 +211,20 @@ Dataset con columnas: `CorpName · Hotel · PaisDestino · Destino · Distributi
 ## 📊 REPORTE 2 · Supply CheckRates
 
 ### Input
-Dataset con columnas: `IdHotel · Hotel · CorpName · Destino · DistributionCategory · ExternalProviderName · CheckRates Únicos · Successful UniqueChkRts · Bookings · #Errors · Conversion Rate`
+**Formato:** archivo Excel **single-sheet** (una sola pestaña). Una fila por combinación Hotel × Canasta × Channel.
+
+Columnas obligatorias:
+- `IdHotel`
+- `Hotel`
+- `CorpName`
+- `Destino`
+- `DistributionCategory` (B2C / B2B (OP) / CUG (UOP))
+- `ExternalProviderName` (channel: DerbySoft, Expedia, etc.)
+- `CheckRates Únicos`
+- `Successful UniqueChkRts`
+- `Bookings`
+- `#Errors`
+- `Conversion Rate`
 
 ### Canastas y Weights
 | Canal | Weight |
@@ -267,10 +290,34 @@ Ver `destinatarios.md` · 12 personas en BCC.
 
 ## 🎯 Action items para el siguiente release
 
-> Pedirle al equipo de data:
-> - **RND**: dataset crudo con `CorpName` en cada pestaña de canasta
-> - **CR**: dataset crudo con columna `Destino` en cada fila
+> Pedirle al equipo de data los datasets en formato **single-sheet** con todas las columnas listadas en cada Reporte. Una fila por combinación Hotel × Canasta (× Channel para CR).
+> 
+> **Cambio respecto al formato anterior (multi-pestaña):**
+> - Antes: 4 pestañas (Canasta ALL, B2C, OP, UOP) con datos duplicados
+> - Ahora: 1 pestaña con columna `DistributionCategory` que indica la canasta
+> - Beneficios: 1 fuente de verdad, más rápido procesar, menos errores, menor tamaño
+> 
+> Si data team aún no puede entregar single-sheet, se puede hacer recovery uniendo las 4 pestañas via Python (`pd.concat([sheets])` con columna `Canasta` agregada).
 
 ---
 
-**Última actualización:** Mayo 2026 · post W17
+## 🔄 Workflow técnico para procesar dataset (Python)
+
+```python
+import pandas as pd
+
+# Cargar dataset single-sheet
+df = pd.read_excel('data_set_checkrates_W18.xlsx')
+
+# Filtrar por canasta
+df_b2c = df[df['DistributionCategory'] == 'B2C']
+df_op  = df[df['DistributionCategory'] == 'B2B (OP)']
+df_cug = df[df['DistributionCategory'] == 'CUG (UOP)']
+
+# O agrupar por canasta
+by_canasta = df.groupby('DistributionCategory').agg(...)
+```
+
+---
+
+**Última actualización:** Mayo 2026 · post W17 · single-sheet datasets
