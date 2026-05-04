@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mail Supply Optimization W18 · Ejecutivo</title>
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 24px; color: #161616; line-height: 1.55; background: #F8F4EC; }
+  .instructions { background: #FFF8E1; border-left: 4px solid #F2B90B; padding: 16px 20px; margin-bottom: 32px; font-size: 13px; border-radius: 4px; }
+  .instructions strong { color: #B07A00; }
+  .field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8A8377; margin-bottom: 6px; margin-top: 16px; }
+  .field-box { background: #fff; border: 1px solid #C9C1B0; padding: 12px 16px; margin-bottom: 8px; font-size: 14px; }
+  .field-box.subject { font-size: 15px; font-weight: 600; }
+  hr.divider { border: none; border-top: 2px dashed #C9C1B0; margin: 32px 0; }
+  .copy-tip { font-size: 12px; color: #8A8377; margin-top: 8px; font-style: italic; }
+  
+  /* Mail body */
+  .mail-body { background: #fff; border: 1px solid #E5E0D2; padding: 36px 40px; font-size: 14px; line-height: 1.6; }
+  .mail-body h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 4px; color: #161616; }
+  .mail-body .subhead { font-size: 12px; color: #8A8377; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 24px; }
+  .mail-body h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; padding-bottom: 8px; margin: 28px 0 14px; color: #161616; border-bottom: 1px solid #C9C1B0; }
+  .mail-body p { margin: 12px 0; }
+  .mail-body strong { color: #161616; }
+  
+  /* Highlights inline */
+  .hl-rnd { color: #EA0074; font-weight: 700; }
+  .hl-cr { color: #5C469C; font-weight: 700; }
+  .delta-down { color: #C0392B; font-weight: 700; }
+  .delta-up { color: #2E7D32; font-weight: 700; }
+  
+  /* CTAs */
+  .cta-row { display: flex; gap: 10px; margin: 18px 0 4px; }
+  .cta { display: inline-block; color: #fff !important; padding: 9px 16px; text-decoration: none !important; font-weight: 600; border-radius: 4px; font-size: 12px; letter-spacing: 0.02em; }
+  .cta-cr { background: #5C469C; }
+  .cta-rnd { background: #EA0074; }
+  
+  /* Resumen ejecutivo · bloque destacado */
+  .exec-summary { background: #FAFAFA; border-left: 3px solid #161616; padding: 18px 22px; margin: 18px 0 24px; font-size: 14px; }
+  .exec-summary p { margin: 0 0 10px; }
+  .exec-summary p:last-child { margin-bottom: 0; }
+  
+  /* Plan de Acción · agrupado por owner */
+  .owner-group { margin-bottom: 22px; }
+  .owner-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #EAEAEA; }
+  .owner-name { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; color: #161616; background: #EAEAEA; padding: 4px 10px; border-radius: 3px; }
+  .owner-count { font-size: 11px; color: #8A8377; font-weight: 600; }
+  
+  .action-item { display: grid; grid-template-columns: 60px 1fr; gap: 14px; padding: 10px 0; border-bottom: 1px solid #F0EBDF; align-items: start; }
+  .action-item:last-child { border-bottom: none; }
+  .action-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 6px; border-radius: 2px; text-align: center; line-height: 1.3; }
+  .tag-qw { background: #E0F0E2; color: #2F6C34; }
+  .tag-mp { background: #FFF4E0; color: #A86A1D; }
+  .tag-es { background: #EDE8F7; color: #5C469C; }
+  .action-text { font-size: 13px; line-height: 1.5; }
+  .action-text .src { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 1px 5px; border-radius: 2px; margin-left: 6px; vertical-align: middle; }
+  .src-rnd { background: #FCE4F1; color: #EA0074; }
+  .src-cr { background: #EDE8F7; color: #5C469C; }
+  .action-meta { font-size: 11px; color: #8A8377; margin-top: 3px; }
+  
+  /* Links section */
+  .reports-row { background: #FAFAFA; border: 1px solid #EDE8E0; border-radius: 6px; padding: 18px 22px; margin: 24px 0 12px; }
+  .reports-row p { margin: 0 0 10px; font-size: 13px; color: #8A8377; }
+  
+  /* Footer */
+  .footer { border-top: 1px solid #C9C1B0; padding-top: 18px; margin-top: 32px; font-size: 12px; color: #8A8377; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  <strong>Cómo enviar este mail:</strong><br>
+  1. Copiá el "Asunto" y pegalo en el campo asunto del compose.<br>
+  2. Hacé click adentro del área blanca, seleccioná todo (Ctrl+A) y copiá (Ctrl+C).<br>
+  3. Pegá (Ctrl+V) en el body del compose de Gmail/Outlook. El formato (bold, links, badges) se mantiene.<br>
+  4. Verificá las URLs y agregá los 12 destinatarios en CCO (ver destinatarios.md).
+</div>
+
+<div class="field-label">De (remitente)</div>
+<div class="field-box">PriceTravel · Supply Optimization</div>
+
+<div class="field-label">Asunto</div>
+<div class="field-box subject">Supply Optimization · Week 18 · Resumen + Plan de Acción</div>
+
+<div class="field-label">Preheader</div>
+<div class="field-box">RND %NoDispo 3,01% (▼ banda Aceptable). CR ConvRate cae a 1,38% (Revisar). Plan de acción consolidado por owner.</div>
+
+<hr class="divider">
+
+<div class="field-label">Cuerpo del mail (copiar desde acá ↓)</div>
+<p class="copy-tip">Click adentro del recuadro blanco · Ctrl+A · Ctrl+C · Ctrl+V en el compose.</p>
+
+<div class="mail-body">
+
+<h1>Supply Optimization · Week 18</h1>
+<div class="subhead">27 Abr – 3 May 2026 · Vol. 04</div>
+
+<p>Hola equipo,</p>
+
+<p>Esta semana cambiamos el formato del mail para enfocarlo en lo accionable: <strong>resumen ejecutivo + plan de acción consolidado por área owner</strong>. Todo el detalle (hallazgos, hoteles específicos, análisis por canasta, KPIs por dimensión) sigue en los reportes editoriales y los Excels Top 50.</p>
+
+<!-- ====================================================================== -->
+<!-- RESUMEN EJECUTIVO DE LA SEMANA                                           -->
+<!-- ====================================================================== -->
+
+<h2>📌 Resumen ejecutivo de la semana</h2>
+
+<div class="exec-summary">
+<p><strong>RND:</strong> <span class="hl-rnd">%NoDispo mejora a 3,01%</span> (<span class="delta-up">▼ 0,88pp WoW</span>) y entra en banda Aceptable, primera vez que se acerca al target &lt;3%. Pero <strong>RPM cae -6,5%</strong> (479,70) y CUG retrocede -21,6% — la mejora en disponibilidad no se está traduciendo en revenue.</p>
+
+<p><strong>CR:</strong> Eficacia estable en <span class="hl-cr">94,36%</span> (<span class="delta-up">+0,25pp</span>) pero <strong>ConvRate baja a 1,38%</strong> (<span class="delta-down">-0,12pp</span>) y queda en banda Revisar. El volumen de check-rates crece +6,3% pero los bookings retroceden -2,2%.</p>
+
+<p><strong>Foco de la semana:</strong> (1) <strong>Channel Third Party en Crítica</strong> (ConvRate 0,29% vs Producto Propio 1,43%) — brecha sistémica que requiere auditoría. (2) <strong>Cohorte Sin Conversión estructural</strong>: 64% del P80 RND y 28% del P80 CR sin BKGS — diagnóstico técnico/contractual, no de eficacia. (3) <strong>108 hoteles Súper Críticos</strong> entre ambos reportes para escalar esta semana.</p>
+</div>
+
+<!-- ====================================================================== -->
+<!-- PLAN DE ACCIÓN CONSOLIDADO · POR OWNER                                  -->
+<!-- ====================================================================== -->
+
+<h2>🎯 Plan de acción consolidado · por área owner</h2>
+
+<p style="font-size: 12px; color: #8A8377; margin-bottom: 18px;">Acciones agrupadas por área responsable. Cada acción indica horizonte (<strong style="color:#2F6C34">QW</strong> Quick Win &lt;1 semana · <strong style="color:#A86A1D">MP</strong> Mid Priority 2-4 semanas · <strong style="color:#5C469C">ES</strong> Estratégica trimestre) y reporte de origen (<strong style="color:#EA0074">RND</strong> · <strong style="color:#5C469C">CR</strong>).</p>
+
+<!-- TECH -->
+<div class="owner-group">
+  <div class="owner-header">
+    <span class="owner-name">Tech · Account Management</span>
+    <span class="owner-count">3 acciones</span>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-qw">QW</span>
+    <div>
+      <div class="action-text">Diagnóstico técnico Top 10 <strong>Sin Conversión</strong> de alto tráfico — revisar mapping, paridad, inventario, tarifas.<span class="src src-rnd">RND</span><span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: 1 semana · Métrica: Bookings &gt; 0 · Universo: 11.954 hoteles RND + 1.342 hoteles CR sin BKGS</div>
+    </div>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-qw">QW</span>
+    <div>
+      <div class="action-text">Escalar <strong>77 hoteles Súper Críticos de Eficacia</strong> en P80 (&lt;60%) — empezar por Las Vegas Hilton at Resorts World y Conrad LV.<span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: 5 días · Métrica: Eficacia &gt; 85%</div>
+    </div>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-qw">QW</span>
+    <div>
+      <div class="action-text">Escalar <strong>31 hoteles Súper Críticos de %NoDispo</strong> (&gt;60%) en coordinación con Supply.<span class="src src-rnd">RND</span></div>
+      <div class="action-meta">Plazo: 5 días · Métrica: %NoDispo &lt; 20%</div>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLY -->
+<div class="owner-group">
+  <div class="owner-header">
+    <span class="owner-name">Supply · BI</span>
+    <span class="owner-count">2 acciones</span>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-mp">MP</span>
+    <div>
+      <div class="action-text">Plan de saneamiento para hoteles <strong>Crítica/Súper Crítica</strong> · 441 en %NoDispo (RND) + 442 en Eficacia (CR). Priorizar canastas <strong>CUG y B2B-OP</strong> (weight 0,6).<span class="src src-rnd">RND</span><span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: 3 semanas · Métrica: 50% migrado a Revisar</div>
+    </div>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-es">ES</span>
+    <div>
+      <div class="action-text">Reducir <strong>cohorte Sin Conversión</strong> en P80 — proyecto trimestral coordinado con Tech y KAM.<span class="src src-rnd">RND</span><span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: Q3 · Métrica: -25% a -30% vs baseline · Universo total: 13.296 hoteles</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMERCIAL -->
+<div class="owner-group">
+  <div class="owner-header">
+    <span class="owner-name">Comercial · KAM · Legal</span>
+    <span class="owner-count">2 acciones</span>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-mp">MP</span>
+    <div>
+      <div class="action-text">Auditar canal <strong>Third Party</strong> (ConvRate 0,29% banda Crítica) — revisar paridad de tarifas y latencia con Expedia y HotelBeds Apitude.<span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: 2 semanas · Métrica: ConvRate &gt; 0,8%</div>
+    </div>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-es">ES</span>
+    <div>
+      <div class="action-text">Definir <strong>SLAs de %NoDispo por corporativo</strong> — Top 10 corp por tráfico con cláusulas de severity-based pricing.<span class="src src-rnd">RND</span></div>
+      <div class="action-meta">Plazo: Q3 · Métrica: SLAs firmados con Top 10 corp</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING · PRODUCTO -->
+<div class="owner-group">
+  <div class="owner-header">
+    <span class="owner-name">Pricing · Producto</span>
+    <span class="owner-count">2 acciones</span>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-mp">MP</span>
+    <div>
+      <div class="action-text">Revisión de <strong>RPM en CUG</strong> (566,24, deterioro -21,6% WoW) — canasta de mayor weight con caída pronunciada en revenue.<span class="src src-rnd">RND</span></div>
+      <div class="action-meta">Plazo: 2 semanas · Métrica: RPM &gt; 600</div>
+    </div>
+  </div>
+  <div class="action-item">
+    <span class="action-tag tag-es">ES</span>
+    <div>
+      <div class="action-text">Revisión integral del producto <strong>B2C</strong> (ConvRate Crítica 0,50%) — pricing, UX, mapping, fee structure.<span class="src src-cr">CR</span></div>
+      <div class="action-meta">Plazo: Q3 · Métrica: ConvRate &gt; 1,5%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- LINKS A REPORTES                                                         -->
+<!-- ====================================================================== -->
+
+<h2>🔍 Detalle completo en los reportes</h2>
+
+<div class="reports-row">
+<p>Cada reporte editorial incluye los 10 hallazgos del Resumen Ejecutivo, severity por nivel, hoteles específicos, análisis por canasta (B2C · B2B-OP · CUG) con tabs por destino/corp/hotel/channel, y plan de acción detallado por canasta.</p>
+<div class="cta-row">
+  <a href="https://federicochurches.github.io/Price/checkrates/week-18/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Reporte CheckRates</a>
+  <a href="https://federicochurches.github.io/Price/rates-nodispo/week-18/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Reporte Rates No Dispo</a>
+</div>
+<p style="margin-top: 12px; font-size: 12px;">Excels Top 50 adjuntos · CR: 17 pestañas · RND: 13 pestañas</p>
+</div>
+
+<!-- ====================================================================== -->
+<!-- FOOTER                                                                   -->
+<!-- ====================================================================== -->
+
+<p style="margin-top: 24px;">Cualquier feedback sobre el nuevo formato del mail (más ejecutivo, foco en accionables) lo agradecemos — respondé este mismo hilo.</p>
+
+<p style="margin-top: 12px;">Próxima publicación: <strong>lunes 12 de mayo (Week 19)</strong>.</p>
+
+<div class="footer">
+Recibís este mail porque sos parte del equipo de Supply Optimization. Cada lunes enviamos el deep-dive de la semana anterior.<br><br>
+<strong>PriceTravel · Supply Optimization · Week 18 · 27 Abr – 3 May 2026 · Vol. 04</strong>
+</div>
+
+</div>
+
+</body>
+</html>
