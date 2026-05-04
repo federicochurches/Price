@@ -288,6 +288,47 @@ Ver `destinatarios.md` · 12 personas en BCC.
 
 ---
 
+## 📂 Nomenclatura estándar de archivos
+
+### Datasets crudos (fuente de datos)
+**Patrón:** `Dataset_<Reporte>_W<NN>.xlsx` · single-sheet
+
+```
+Dataset_RatesNoDispo_W18.xlsx       (RND)
+Dataset_CheckRates_W18.xlsx         (CR)
+```
+
+### Reportes editoriales (deliverable público)
+**Patrón:** `<Reporte>_Reporte_Editorial.html` · sin sufijo de week (la carpeta `week-NN/` identifica la semana)
+
+```
+RatesNoDispo_Reporte_Editorial.html
+CheckRates_Reporte_Editorial.html
+```
+
+### Excels de análisis (Top 50)
+**Patrón:** `Analisis_<Reporte>_7d.xlsx` · sin sufijo de week
+
+```
+Analisis_Rates_NoDispo_7d.xlsx
+Analisis_Checkrates_7d.xlsx
+```
+
+### Estructura completa por week
+```
+checkrates/week-NN/
+├── CheckRates_Reporte_Editorial.html
+├── Analisis_Checkrates_7d.xlsx
+└── Dataset_CheckRates_WNN.xlsx
+
+rates-nodispo/week-NN/
+├── RatesNoDispo_Reporte_Editorial.html
+├── Analisis_Rates_NoDispo_7d.xlsx
+└── Dataset_RatesNoDispo_WNN.xlsx
+```
+
+---
+
 ## 🎯 Action items para el siguiente release
 
 > Pedirle al equipo de data los datasets en formato **single-sheet** con todas las columnas listadas en cada Reporte. Una fila por combinación Hotel × Canasta (× Channel para CR).
