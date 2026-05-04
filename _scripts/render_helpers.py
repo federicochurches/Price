@@ -1,0 +1,148 @@
+"""
+Generador del reporte editorial RatesNoDispo W18
+Sistema bandas D · post W17
+"""
+import pandas as pd
+import numpy as np
+from engine import *
+
+# ============ CONFIG W18 ============
+WEEK_NUM = "W18"
+PERIODO  = "27 abr – 3 may 2026"
+PERIODO_LABEL = "Lunes 27 De Abril De 2026"
+MES_AÑO  = "Mayo 2026"
+VOL_NUM  = "18"
+ACCENT   = "#EA0074"  # magenta RND
+
+# ============ HELPER: limpiar nombre de hotel ============
+def clean_hotel_name(name):
+    """Quita prefijo de ID '(NNNNNN) - ' del nombre del hotel.
+    Ejemplo: '(102572) - Hyatt Grand Central' → 'Hyatt Grand Central'
+    Si no matchea el patrón, devuelve el nombre original.
+    """
+    import re
+    if not isinstance(name, str): return str(name)
+    m = re.match(r'^\(\d+\)\s*-\s*(.+)$', name.strip())
+    return m.group(1).strip() if m else name
+
+# ============ HELPERS DE COLOR PARA BANDAS ============
+BANDA_COLORS = {
+    'Exitosa':       {'bg':'#E8F7FD', 'fg':'#0D7A99', 'bd':'#4FC3F4'},
+    'Aceptable':     {'bg':'#EDE8F7', 'fg':'#5C469C', 'bd':'#5C469C'},
+    'Revisar':       {'bg':'#FFF4E0', 'fg':'#A86A1D', 'bd':'#D4A878'},
+    'Crítica':       {'bg':'#FCE4F1', 'fg':'#C0392B', 'bd':'#C0392B'},
+    'Súper Crítica': {'bg':'rgba(22,22,22,.80)', 'fg':'#FFFFFF', 'bd':'#161616'},
+    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#8A8377', 'bd':'#8A8377'},
+}
+
+def banda_pill(banda, target=None, font_size='10px'):
+    """Renderiza pill de severity"""
+    c = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
+    bg = c['bg']
+    fg = c['fg']
+    bd = c['bd']
+    target_html = f' <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:{font_size};">· Target {target}</span>' if target else ''
+    return (f'<span style="display:inline-block;font-size:{font_size};font-weight:700;letter-spacing:.05em;'
+            f'text-transform:uppercase;padding:5px 12px;border-radius:3px;background:{bg};color:{fg};'
+            f'border:1px solid {bd};"><strong>{banda}</strong>{target_html}</span>')
+
+def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
+    """Render gauge bar 5 niveles para %NoDispo"""
+    if niveles_rnd_or_cr == 'nodispo':
+        levels = [
+            ('Súper Crítica', '> 60%',    '#161616'),
+            ('Crítica',       '20–60%',  '#C0392B'),
+            ('Revisar',       '5–20%',   '#D4A878'),
+            ('Aceptable',     '3–5%',    '#5C469C'),
+            ('Exitosa',       '< 3%',    '#4FC3F4'),
+        ]
+    elif niveles_rnd_or_cr == 'rpm':
+        levels = [
+            ('Sin Conversión', 'BKGS=0',   '#161616'),
+            ('Crítica',        '< 1',     '#C0392B'),
+            ('Revisar',        '1–2,5',   '#D4A878'),
+            ('Aceptable',      '2,5–4',   '#5C469C'),
+            ('Exitosa',        '> 4',     '#4FC3F4'),
+        ]
+    elif niveles_rnd_or_cr == 'eficacia':
+        levels = [
+            ('Súper Crítica', '< 60%',    '#161616'),
+            ('Crítica',       '60–85%',  '#C0392B'),
+            ('Revisar',       '85–93%',  '#D4A878'),
+            ('Aceptable',     '93–97%',  '#5C469C'),
+            ('Exitosa',       '≥ 97%',   '#4FC3F4'),
+        ]
+    elif niveles_rnd_or_cr == 'convrate':
+        levels = [
+            ('Sin Conversión', 'BKGS=0',     '#161616'),
+            ('Crítica',        '< 0,8%',    '#C0392B'),
+            ('Revisar',        '0,8–1,5%',  '#D4A878'),
+            ('Aceptable',      '1,5–2,5%',  '#5C469C'),
+            ('Exitosa',        '> 2,5%',    '#4FC3F4'),
+        ]
+    cells = []
+    for nombre, rango, color in levels:
+        active = 'opacity:1;' if nombre == banda_actual else 'opacity:.30;'
+        cells.append(f'<div style="flex:1;background:{color};height:8px;{active}"></div>')
+    bar = '<div style="display:flex;gap:2px;margin-top:14px;">' + ''.join(cells) + '</div>'
+    labels = '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">'
+    for nombre, rango, _ in levels:
+        labels += f'<span style="flex:1;text-align:center;padding:0 2px;">{nombre}</span>'
+    labels += '</div>'
+    return bar + labels
+
+def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num=WEEK_NUM):
+    """Caja con W18 actual + WoW + W17 prev. bg de WoW va con el wow_color."""
+    # Mapeo color → bg suave
+    if wow_color == '#2F6C34':       # verde
+        wow_bg = '#E0F0E2'
+    elif wow_color == '#C0392B':     # rojo
+        wow_bg = '#FCE4F1'
+    else:                            # gris/flat
+        wow_bg = '#F2EEE6'
+    return (
+        f'<div style="margin-top:14px;background:var(--paper-soft);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">'
+          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_num}</div>'
+          f'<div style="font-size:18px;font-weight:700;color:{accent_color};margin-top:2px;letter-spacing:-.01em;">{curr_str}</div>'
+        f'</div>'
+        f'<div style="flex:1;text-align:center;background:{wow_bg};padding:8px 4px;border-radius:3px;">'
+          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>'
+          f'<div style="font-size:18px;font-weight:700;color:{wow_color};margin-top:2px;letter-spacing:-.01em;">{wow_str}</div>'
+        f'</div>'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">'
+          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>'
+          f'<div style="font-size:18px;font-weight:700;color:var(--ink-soft);margin-top:2px;letter-spacing:-.01em;">{curr_label}</div>'
+        f'</div>'
+      f'</div>'
+    )
+
+def truncate(txt, n=42):
+    if pd.isna(txt): return '-'
+    s = str(txt).strip()
+    return s if len(s) <= n else s[:n-1].strip() + '…'
+
+def fmt_big(x):
+    """Formato compacto (3,5M, 580K)"""
+    if pd.isna(x) or x == 0: return '0'
+    x = abs(x)
+    if x >= 1_000_000_000: return f'{x/1_000_000_000:.1f}B'.replace('.', ',')
+    if x >= 1_000_000:     return f'{x/1_000_000:.1f}M'.replace('.', ',')
+    if x >= 1_000:         return f'{x/1_000:.1f}K'.replace('.', ',')
+    return f'{int(x):,}'.replace(',', '.')
+
+def fmt_pct_short(x):
+    if pd.isna(x): return '-'
+    return f'{x*100:.1f}%'.replace('.', ',')
+
+def fmt_pct2(x):
+    if pd.isna(x): return '-'
+    return f'{x*100:.2f}%'.replace('.', ',')
+
+def fmt_num2(x):
+    if pd.isna(x): return '-'
+    return f'{x:,.2f}'.replace(',', '|').replace('.', ',').replace('|', '.')
+
+def fmt_int_es(x):
+    if pd.isna(x): return '-'
+    return f'{int(round(x)):,}'.replace(',', '.')

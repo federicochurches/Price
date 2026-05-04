@@ -30,6 +30,19 @@ ul li { margin-bottom: 6px; }
 </style>
 </head>
 <body>
+<!-- ===== ACTUALIZACIONES WEEK 18 ===== -->
+<div style="margin:32px 0;padding:20px 24px;background:#FFF8E5;border-left:4px solid #D4A878;border-radius:4px;font-size:13px;line-height:1.55;color:#5C469C;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;color:#A86A1D;">⚠ Actualizaciones Week 18 · Mayo 2026</div>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Pestaña "Ficha Técnica" eliminada del Excel.</strong> El Excel arranca directo con Severity. Las KPIs globales viven solo en el reporte editorial HTML (header + métricas inline + cards hero).</li>
+<li><strong>RPM redefinido como GBM USD/M</strong> (Gross Booking USD por millón de búsquedas). Bandas calibradas: <code>&lt;$200 Crítica · $200-$650 Revisar · $650-$1500 Aceptable · ≥$1500 Exitosa</code>. <strong>Target ≥ $650.</strong></li>
+<li><strong>Estructura completa por canasta:</strong> KPI + Alertas + Resumen Ejecutivo + Severidad + Tabs + Top 10 Bajo Rend + Top 10 Sin Conv + Síntesis + Plan. Cada canasta es un mini-reporte completo.</li>
+<li><strong>Resumen Ejecutivo</strong> con estructura template literal: header overline "🎯 Resumen Ejecutivo" fuera del card, card border-top 3px negro, grid 2 columnas, findings con número + valor numérico destacado + título + descripción. Sin highlights <code>.hl</code>.</li>
+<li><strong>H1 narrativo eliminado</strong> del hero. El reporte arranca directo con la línea de métricas globales y los cards.</li>
+<li><strong>Catálogo Áreas Accountable v2:</strong> Supply Optimization · Supply Optimization / TPS · Supply Comercial / Supply Optimization · Supply Comercial / Wholesale.</li>
+</ul>
+</div>
+
 
 <h1>Guía Editorial · CheckRates</h1>
 <div class="meta"><strong>Última actualización:</strong> 1 mayo 2026 · post W17 · <span class="tag">CheckRates</span></div>
@@ -175,7 +188,7 @@ ul li { margin-bottom: 6px; }
 
 <table>
   <tr><th>#</th><th>Pestaña</th><th>Contenido · Top 50</th></tr>
-  <tr><td>1</td><td><strong>Ficha Técnica</strong></td><td>KPIs globales + bandas D + targets</td></tr>
+  <tr style="opacity:.5;"><td>—</td><td><strong>Ficha Técnica</strong> <span style="font-size:10px;color:#C0392B;">(deprecada W18)</span></td><td><s>KPIs globales + bandas D + targets</s></td></tr>
   <tr><td>2</td><td><strong>Severity Eficacia</strong></td><td>5 niveles · distribución por banda</td></tr>
   <tr><td>3</td><td><strong>Severity Conv Rate</strong></td><td>Sin Conversión separada + 4 bandas D</td></tr>
   <tr><td>4</td><td><strong>Hoteles Críticos</strong></td><td>Top 50 hoteles con Eficacia &lt; 85%</td></tr>
