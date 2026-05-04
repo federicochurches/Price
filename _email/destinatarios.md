@@ -15,12 +15,14 @@ ext.jesus.lizarraga@pricetravel.com
 alejandro.flores@pricetravel.com
 gabriela.guerra@pricetravel.com
 barbara.rodriguez@pricetravel.com
+jordi.pena@pricetravel.com
+
 ```
 
 ## Convención
 
 - **TO**: el remitente (federico.iglesias@pricetravel.com)
-- **BCC**: los 12 destinatarios listados arriba
+- **BCC**: los 13 destinatarios listados arriba
 - **Razón**: privacidad — los destinatarios no ven a los demás
 
 ## Para agregar/quitar destinatarios
