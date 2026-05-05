@@ -5,13 +5,13 @@ Layout: B · Grid por reporte · escalable en weeks y reportes
 =============================================================================
 
 PLACEHOLDERS A REEMPLAZAR CADA SEMANA:
-  Week 18        → Week 18
-  week-18  → week-18  (minúsculas con guión · para URLs)
-  28 Abr–4 May 2026       → 28 Abr–4 May 2026
-  May 2026       → May 2026
+  {{SEMANA}}        → Week 18
+  {{WEEK_NUM_RAW}}  → week-18  (minúsculas con guión · para URLs)
+  {{PERIODO}}       → 28 Abr–4 May 2026
+  {{MES_ANO}}       → May 2026
 
-  Datos pendientes       → KPI principal RND (ej: "45.8K hoteles · %NoDispo 3.9% · $8.9M GB")
-  Datos pendientes       → KPI principal CR  (ej: "Eficacia 94.1% · Conv Rate 1.50%")
+  {{ND_META}}       → KPI principal RND (ej: "45.8K hoteles · %NoDispo 3.9% · $8.9M GB")
+  {{CK_META}}       → KPI principal CR  (ej: "Eficacia 94.1% · Conv Rate 1.50%")
 
 ARCHIVO — agregar una fila por semana en cada grupo:
   <a href="rates-nodispo/week-NN/RatesNoDispo_Reporte_Editorial.html" class="archivo-link">
@@ -126,16 +126,13 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:40px;}
 
 /* ── Card de reporte ── */
-.rpt-card{background:var(--white);border:1px solid var(--rule);display:flex;flex-direction:column;overflow:hidden;transition:border-color .15s;}
-.rpt-card:hover{border-color:var(--ink);}
+.rpt-card{background:var(--white);border:1px solid var(--rule);border-radius:0;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;}
+.rpt-card:hover{border-color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.07);}
 
-.rpt-card-top{padding:20px 20px 0;flex:1;}
+.rpt-card-top{padding:20px 20px 16px;flex:1;}
 .rpt-accent{display:inline-block;padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;margin-bottom:12px;}
 .rpt-name{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;}
 .rpt-week{font-size:13px;font-weight:600;margin-bottom:2px;}
-.rpt-link{display:block;padding:11px 20px;background:var(--ink);color:var(--white) !important;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;text-align:center;transition:background .15s;}
-.rpt-link.rnd:hover{background:#EA0074;}
-.rpt-link.cr:hover{background:var(--cr);}
 .rpt-periodo{font-size:11px;color:var(--muted);margin-bottom:12px;}
 .rpt-meta{font-size:12px;color:var(--muted);line-height:1.5;border-top:1px solid var(--rule);padding-top:10px;}
 
@@ -185,7 +182,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
   </div>
   <div class="lock-footer">
     <span class="lock-footer-tag">analytics-desk.netlify.app</span>
-    <span class="lock-footer-url">Week 18</span>
+    <span class="lock-footer-url">{{SEMANA}}</span>
   </div>
 </div>
 
@@ -196,7 +193,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
     <div class="hub-header-left">
       <div class="hub-tag">Supply Optimization</div>
       <div class="hub-title">PriceTravel <span>· Weekly Reports</span></div>
-      <div class="hub-sub">Week 18 · 28 Abr–4 May 2026</div>
+      <div class="hub-sub">{{SEMANA}} · {{PERIODO}}</div>
     </div>
     <div class="hub-logo">
       <!-- Logo PriceTravel -->
@@ -208,53 +205,51 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
   <div class="hub-grid">
 
     <!-- Card: Rates No Dispo -->
-    <div class="rpt-card">
+    <div class="rpt-card" onclick="location.href='rates-nodispo/week-18/RatesNoDispo_Reporte_Editorial.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(234,0,116,.12);color:var(--rnd);">Supply · Rates No Dispo</span>
         <div class="rpt-name">Supply Rates No Dispo</div>
-        <div class="rpt-week" style="color:var(--rnd);">Week 18 · 28 Abr–4 May 2026</div>
-        <div class="rpt-meta">Datos pendientes</div>
+        <div class="rpt-week" style="color:var(--rnd);">Week 18 · 27 Abr – 3 May 2026</div>
+        <div class="rpt-meta">%NoDispo 3,01% · IPM 479,70 · 11.954 P80 sin BKGS</div>
       </div>
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
         <span class="pill active" style="background:var(--rnd);border-color:var(--rnd);">Week 18</span>
-        <a href="rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="pill">W17</a>
-        <a href="rates-nodispo/week-16/RatesNoDispo_Reporte_Editorial.html" class="pill">W16</a>
+        <a href="rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W17</a>
+        <a href="rates-nodispo/week-16/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W16</a>
         <span class="pill disabled">W15</span>
       </div>
-      <a href="rates-nodispo/week-18/RatesNoDispo_Reporte_Editorial.html" class="rpt-link rnd">Ver reporte →</a>
     </div>
 
-        <!-- Card: CheckRates -->
-    <div class="rpt-card">
+    <!-- Card: CheckRates -->
+    <div class="rpt-card" onclick="location.href='checkrates/week-18/CheckRates_Reporte_Editorial.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(92,70,156,.12);color:var(--cr);">Supply · CheckRates</span>
         <div class="rpt-name">Supply CheckRates</div>
-        <div class="rpt-week" style="color:var(--cr);">Week 18 · 28 Abr–4 May 2026</div>
-        <div class="rpt-meta">Datos pendientes</div>
+        <div class="rpt-week" style="color:var(--cr);">Week 18 · 27 Abr – 3 May 2026</div>
+        <div class="rpt-meta">Eficacia 94,36% · ConvRate 1,38% · Third Party Crítica</div>
       </div>
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
         <span class="pill active" style="background:var(--cr);border-color:var(--cr);">Week 18</span>
-        <a href="checkrates/week-17/CheckRates_Reporte_Editorial.html" class="pill">W17</a>
-        <a href="checkrates/week-16/CheckRates_Reporte_Editorial.html" class="pill">W16</a>
+        <a href="checkrates/week-17/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W17</a>
+        <a href="checkrates/week-16/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W16</a>
         <span class="pill disabled">W15</span>
       </div>
-      <a href="checkrates/week-18/CheckRates_Reporte_Editorial.html" class="rpt-link cr">Ver reporte →</a>
     </div>
 
     <!--
     PRÓXIMO REPORTE — descomentar cuando esté disponible:
-    <div class="rpt-card">
+    <a href="pricing/{{WEEK_NUM_RAW}}/Pricing_Reporte_Editorial.html" class="rpt-card">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(31,139,110,.12);color:#1F8B6E;">Supply · Pricing</span>
         <div class="rpt-name">Supply Pricing</div>
-        <div class="rpt-week" style="color:#1F8B6E;">Week 18 · 28 Abr–4 May 2026</div>
+        <div class="rpt-week" style="color:#1F8B6E;">{{SEMANA}} · {{PERIODO}}</div>
         <div class="rpt-meta">{{PRC_META}}</div>
       </div>
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
-        <span class="pill active" style="background:#1F8B6E;border-color:#1F8B6E;">Week 18</span>
+        <span class="pill active" style="background:#1F8B6E;border-color:#1F8B6E;">{{SEMANA}}</span>
       </div>
     </a>
     -->
