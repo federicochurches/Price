@@ -112,3 +112,47 @@
 
 ### CSS clave aprendido
 La regla `.tab-panel{display:none}` del CSS hero original tiene la misma especificidad que la regla `:checked ~ .tab-panels .tab-panel[data-tab="x"]{display:block}`. Como CSS prioriza la última declarada en orden, el `display:none` ganaba. Solución: prefijar con `.tabs-block` Y usar `!important`. Documentado en ESTRUCTURA_TEMPLATE.md.
+
+---
+
+## 🆕 Banner descarga Excel por canasta (post Week 18 · vuelta final)
+
+**Fecha:** 5 mayo 2026
+
+### Cambio
+Cada canasta del editorial ahora tiene un banner minimalista al final con link directo a un Excel filtrado **solo de esa canasta**.
+
+**Antes:** un solo Excel global con 33 (RND) o 37 (CR) pestañas.
+
+**Ahora:**
+- Excel global se mantiene (todas las pestañas, para análisis cruzado)
+- + 3 Excels solo-canasta por reporte (B2C, OP, CUG) con 8 (RND) o 9 (CR) pestañas cada uno
+
+### Archivos generados por reporte (4 cada uno · total 8)
+```
+checkrates/week-18/
+├── Analisis_Checkrates_7d.xlsx       (37 pestañas · global)
+├── Analisis_Checkrates_B2C_7d.xlsx   (9 pestañas)
+├── Analisis_Checkrates_OP_7d.xlsx    (9 pestañas)
+└── Analisis_Checkrates_CUG_7d.xlsx   (9 pestañas)
+
+rates-nodispo/week-18/
+├── Analisis_Rates_NoDispo_7d.xlsx       (33 pestañas · global)
+├── Analisis_Rates_NoDispo_B2C_7d.xlsx   (8 pestañas)
+├── Analisis_Rates_NoDispo_OP_7d.xlsx    (8 pestañas)
+└── Analisis_Rates_NoDispo_CUG_7d.xlsx   (8 pestañas)
+```
+
+### Banner visual
+Al final de cada canasta del editorial (después del Plan de Acción), un banner sutil de una fila:
+```
+📥  Descargar análisis completo · Canasta {nombre}     N pestañas · Top 50 por dimensión    [EXCEL ↗]
+```
+Color del CTA según reporte: violeta `#5C469C` (CR), rosa `#EA0074` (RND).
+
+### Implementación
+- `excel_cr.py` y `excel_rnd.py` refactorizados: lógica canasta extraída a función reutilizable `add_canasta_sheets()` que recibe el workbook destino y un `prefix` opcional. Una llamada para el global (con prefix `Canasta {short} ·`) y tres llamadas para los solo-canasta (sin prefix, nombres cortos).
+- `render_cr_p3.py` y `render_rnd_p3.py`: variable `banner_descarga_canasta` construida en `render_canasta_block()` con map `idx_str → file_suffix` para el filename correcto.
+
+### Para Week 19+
+El nuevo flujo es automático. Cada vez que se generen los Excel se crearán los 4 archivos. No requiere ajuste adicional.

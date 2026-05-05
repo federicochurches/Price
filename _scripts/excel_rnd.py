@@ -223,14 +223,18 @@ plan_data = [
 df_plan = pd.DataFrame(plan_data)
 add_table(ws10, df_plan, start_row=5)
 
-# ==================== CANASTAS · 4 pestañas por canasta ====================
-# Por canasta: Severity NoDispo · Severity IPM · Bajo Rend · Sin Conv
-for key in ['b2c','op','cug']:
-    c = CANASTA[key]
+# ==================== CANASTAS · 8 pestañas por canasta ====================
+def add_canasta_sheets_rnd(wb_target, key, c, prefix=None):
+    """Agrega las 8 pestañas de una canasta al workbook target.
+    Si prefix=None, usa 'Canasta {short}' (para Excel global).
+    Si prefix='', usa nombres cortos sin prefix (para Excel solo-canasta).
+    """
     short = c['short']
+    p = prefix if prefix is not None else f'Canasta {short} · '
+    full_name = lambda base: f'{p}{base}' if prefix is not None else f'Canasta {short} · {base}'
     
-    # 1. Severity NoDispo por canasta
-    ws_se = wb.create_sheet(f'Canasta {short} · Sev ND')
+    # 1. Severity NoDispo
+    ws_se = wb_target.create_sheet(full_name('Sev ND'))
     add_title(ws_se, f'Canasta {short} · Severity %NoDispo',
               f'{c["name"]} · P80 · target <3%')
     sev_dict = c.get('sev_nd', {})
@@ -242,8 +246,8 @@ for key in ['b2c','op','cug']:
         data_se.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_se})
     add_table(ws_se, pd.DataFrame(data_se), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
     
-    # 2. Severity IPM por canasta
-    ws_si = wb.create_sheet(f'Canasta {short} · Sev IPM')
+    # 2. Severity IPM
+    ws_si = wb_target.create_sheet(full_name('Sev IPM'))
     add_title(ws_si, f'Canasta {short} · Severity IPM (USD/M)',
               f'{c["name"]} · P80 · target ≥ $650')
     sev_dict2 = c.get('sev_rpm', {})
@@ -256,7 +260,7 @@ for key in ['b2c','op','cug']:
     add_table(ws_si, pd.DataFrame(data_si), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
     
     # 3. Bajo Rendimiento
-    ws = wb.create_sheet(f'Canasta {short} · BajoRend')
+    ws = wb_target.create_sheet(full_name('BajoRend'))
     add_title(ws, f'Canasta {short} · Top 50 Bajo Rendimiento',
               f'{c["name"]} · BKGS>0 · ordenado por tráfico ↓')
     df_c = c['agg_hotel'].copy()
@@ -271,8 +275,8 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','RPM':'$0.00','Trafico':'#,##0'},
               banda_col='BandaRPM')
     
-    # 4. Sin Conversión por canasta
-    ws_sn = wb.create_sheet(f'Canasta {short} · Sin Conv')
+    # 4. Sin Conversión
+    ws_sn = wb_target.create_sheet(full_name('Sin Conv'))
     add_title(ws_sn, f'Canasta {short} · Top 50 Sin Conversión',
               f'{c["name"]} · BKGS=0 · ordenado por tráfico ↓ · cohorte estructural')
     df_sn = c['agg_hotel'].copy()
@@ -284,8 +288,8 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0'},
               banda_col='BandaNoDispo')
     
-    # 5. Demanda No Convertida por canasta · Top 50 hoteles con mayor tráfico no convertido
-    ws_dn = wb.create_sheet(f'Canasta {short} · Demanda NC')
+    # 5. Demanda No Convertida
+    ws_dn = wb_target.create_sheet(full_name('Demanda NC'))
     add_title(ws_dn, f'Canasta {short} · Top 50 Demanda No Convertida',
               f'{c["name"]} · tráfico × %NoDispo · ordenado por demanda perdida ↓')
     df_dn = c['agg_hotel'].copy()
@@ -297,8 +301,8 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','DemandaNC':'#,##0','RPM':'$0.00'},
               banda_col='BandaNoDispo')
     
-    # 6. Por Corporativo por canasta · Top 50
-    ws_co = wb.create_sheet(f'Canasta {short} · Por Corp')
+    # 6. Por Corporativo
+    ws_co = wb_target.create_sheet(full_name('Por Corp'))
     add_title(ws_co, f'Canasta {short} · Por Corporativo',
               f'{c["name"]} · Top 50 corp · ordenado por tráfico ↓')
     df_co = c['agg_corp'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
@@ -308,8 +312,8 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
               banda_col='BandaNoDispo')
     
-    # 7. Por Destino por canasta · Top 50
-    ws_de = wb.create_sheet(f'Canasta {short} · Por Destino')
+    # 7. Por Destino
+    ws_de = wb_target.create_sheet(full_name('Por Destino'))
     add_title(ws_de, f'Canasta {short} · Por Destino',
               f'{c["name"]} · Top 50 destinos · ordenado por tráfico ↓')
     df_de = c['agg_destino'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
@@ -319,8 +323,8 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
               banda_col='BandaNoDispo')
     
-    # 8. Por País por canasta · todos los países
-    ws_pa = wb.create_sheet(f'Canasta {short} · Por País')
+    # 8. Por País
+    ws_pa = wb_target.create_sheet(full_name('Por País'))
     add_title(ws_pa, f'Canasta {short} · Por País',
               f'{c["name"]} · todos los países · ordenado por tráfico ↓')
     df_pa = c['agg_pais'].copy().sort_values('Trafico', ascending=False).reset_index(drop=True)
@@ -330,9 +334,24 @@ for key in ['b2c','op','cug']:
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
               banda_col='BandaNoDispo')
 
-# Save
+# Agregar pestañas al Excel global
+for key in ['b2c','op','cug']:
+    add_canasta_sheets_rnd(wb, key, CANASTA[key])
+
+# Save Excel global
 out = '/mnt/user-data/outputs/Analisis_Rates_NoDispo_W18.xlsx'
 wb.save(out)
 print(f'Excel RND escrito: {out}')
 print(f'Pestañas: {len(wb.sheetnames)}')
+
+# === Generar 3 Excels solo-canasta ===
+from openpyxl import Workbook as WB2
+canasta_filename = {'b2c':'B2C','op':'OP','cug':'CUG'}
+for key in ['b2c','op','cug']:
+    wb_c = WB2()
+    wb_c.remove(wb_c.active)
+    add_canasta_sheets_rnd(wb_c, key, CANASTA[key], prefix='')
+    out_c = f'/mnt/user-data/outputs/Analisis_Rates_NoDispo_{canasta_filename[key]}_W18.xlsx'
+    wb_c.save(out_c)
+    print(f'  ✓ Excel canasta {canasta_filename[key]}: {len(wb_c.sheetnames)} pestañas')
 for s in wb.sheetnames: print(f'  - {s}')

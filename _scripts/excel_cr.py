@@ -205,14 +205,17 @@ plan_data = [
 df_plan = pd.DataFrame(plan_data)
 add_table(ws11, df_plan, start_row=5)
 
-# ==================== CANASTAS · 4 pestañas por canasta ====================
-# Por canasta: Severity Eficacia · Severity ConvRate · Críticos · Bajo Rend · Sin Conv
-for c_key in ['b2c','op','cug']:
-    c = CANASTA[c_key]
+# ==================== CANASTAS · 9 pestañas por canasta ====================
+def add_canasta_sheets(wb_target, c_key, c, prefix=None):
+    """Agrega las 9 pestañas de una canasta al workbook target.
+    Si prefix=None, usa 'Canasta {short}' (para Excel global).
+    Si prefix='', usa nombres más cortos sin prefix (para Excel solo-canasta).
+    """
     short = c['short']
+    p = prefix if prefix is not None else f'Canasta {short} · '
     
-    # 1. Severity Eficacia por canasta
-    ws_se = wb.create_sheet(f'Canasta {short} · Sev Ef')
+    # 1. Severity Eficacia
+    ws_se = wb_target.create_sheet(f'{p}Sev Ef' if prefix is not None else f'Canasta {short} · Sev Ef')
     add_title(ws_se, f'Canasta {short} · Severity Eficacia',
               f'{c["name"]} · P80 · target ≥ 97%')
     sev_dict = c.get('sev_ef', {})
@@ -224,8 +227,8 @@ for c_key in ['b2c','op','cug']:
         data_se.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_se})
     add_table(ws_se, pd.DataFrame(data_se), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
     
-    # 2. Severity ConvRate por canasta
-    ws_sc = wb.create_sheet(f'Canasta {short} · Sev CV')
+    # 2. Severity ConvRate
+    ws_sc = wb_target.create_sheet(f'{p}Sev CV' if prefix is not None else f'Canasta {short} · Sev CV')
     add_title(ws_sc, f'Canasta {short} · Severity Conv Rate',
               f'{c["name"]} · P80 · target ≥ 2,5%')
     sev_dict2 = c.get('sev_cv', {})
@@ -238,7 +241,7 @@ for c_key in ['b2c','op','cug']:
     add_table(ws_sc, pd.DataFrame(data_sc), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
     
     # 3. Críticos
-    ws_c = wb.create_sheet(f'Canasta {short} · Críticos')
+    ws_c = wb_target.create_sheet(f'{p}Críticos' if prefix is not None else f'Canasta {short} · Críticos')
     add_title(ws_c, f'Canasta {short} · Top 50 Críticos',
               f'{c["name"]} · BKGS>0 · peor Eficacia · ordenado ↑')
     df_c = c['agg_hotel'].copy()
@@ -250,7 +253,7 @@ for c_key in ['b2c','op','cug']:
               banda_col='BandaEficacia')
     
     # 4. Bajo Rendimiento
-    ws_b = wb.create_sheet(f'Canasta {short} · BajoRend')
+    ws_b = wb_target.create_sheet(f'{p}BajoRend' if prefix is not None else f'Canasta {short} · BajoRend')
     add_title(ws_b, f'Canasta {short} · Top 50 Bajo Rendimiento',
               f'{c["name"]} · BKGS>0 · ConvRate Crítica/Revisar · ordenado por CR ↓')
     df_b = c['agg_hotel'].copy()
@@ -261,8 +264,8 @@ for c_key in ['b2c','op','cug']:
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
               banda_col='BandaConvRate')
     
-    # 5. Sin Conversión por canasta
-    ws_sn = wb.create_sheet(f'Canasta {short} · Sin Conv')
+    # 5. Sin Conversión
+    ws_sn = wb_target.create_sheet(f'{p}Sin Conv' if prefix is not None else f'Canasta {short} · Sin Conv')
     add_title(ws_sn, f'Canasta {short} · Top 50 Sin Conversión',
               f'{c["name"]} · BKGS=0 · ordenado por CR ↓ · cohorte estructural')
     df_sn = c['agg_hotel'].copy()
@@ -272,8 +275,8 @@ for c_key in ['b2c','op','cug']:
               start_row=5, num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
     
-    # 6. Por Corporativo por canasta · Top 50 ordenado por volumen CR
-    ws_co = wb.create_sheet(f'Canasta {short} · Por Corp')
+    # 6. Por Corporativo
+    ws_co = wb_target.create_sheet(f'{p}Por Corp' if prefix is not None else f'Canasta {short} · Por Corp')
     add_title(ws_co, f'Canasta {short} · Por Corporativo',
               f'{c["name"]} · Top 50 corp · ordenado por CR únicos ↓')
     df_co = c['agg_corp'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
@@ -283,8 +286,8 @@ for c_key in ['b2c','op','cug']:
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
     
-    # 7. Por Destino por canasta · Top 50
-    ws_de = wb.create_sheet(f'Canasta {short} · Por Destino')
+    # 7. Por Destino
+    ws_de = wb_target.create_sheet(f'{p}Por Destino' if prefix is not None else f'Canasta {short} · Por Destino')
     add_title(ws_de, f'Canasta {short} · Por Destino',
               f'{c["name"]} · Top 50 destinos · ordenado por CR únicos ↓')
     df_de = c['agg_destino'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
@@ -294,8 +297,8 @@ for c_key in ['b2c','op','cug']:
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
     
-    # 8. Por Channel por canasta · todos los channels disponibles
-    ws_ch = wb.create_sheet(f'Canasta {short} · Por Channel')
+    # 8. Por Channel
+    ws_ch = wb_target.create_sheet(f'{p}Por Channel' if prefix is not None else f'Canasta {short} · Por Channel')
     add_title(ws_ch, f'Canasta {short} · Por Channel',
               f'{c["name"]} · todos los channels · ordenado por CR únicos ↓')
     df_ch = c['agg_channel'].copy().sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
@@ -305,8 +308,8 @@ for c_key in ['b2c','op','cug']:
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
     
-    # 9. Menor Conv Rate por canasta · Top 50 hoteles BKGS>0 con peor ConvRate
-    ws_mc = wb.create_sheet(f'Canasta {short} · Menor CR')
+    # 9. Menor Conv Rate
+    ws_mc = wb_target.create_sheet(f'{p}Menor CR' if prefix is not None else f'Canasta {short} · Menor CR')
     add_title(ws_mc, f'Canasta {short} · Top 50 Menor Conv Rate',
               f'{c["name"]} · BKGS>0 · peor ConvRate · ordenado ↑')
     df_mc = c['agg_hotel'].copy()
@@ -316,8 +319,24 @@ for c_key in ['b2c','op','cug']:
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
               banda_col='BandaConvRate')
 
+# Agregar pestañas al Excel global
+for c_key in ['b2c','op','cug']:
+    add_canasta_sheets(wb, c_key, CANASTA[c_key])
+
+# Save Excel global
 out = '/mnt/user-data/outputs/Analisis_CheckRates_W18.xlsx'
 wb.save(out)
 print(f'Excel CR escrito: {out}')
 print(f'Pestañas: {len(wb.sheetnames)}')
+
+# === Generar 3 Excels solo-canasta ===
+from openpyxl import Workbook as WB2
+canasta_filename = {'b2c':'B2C','op':'OP','cug':'CUG'}
+for c_key in ['b2c','op','cug']:
+    wb_c = WB2()
+    wb_c.remove(wb_c.active)  # Sacar Sheet por default
+    add_canasta_sheets(wb_c, c_key, CANASTA[c_key], prefix='')
+    out_c = f'/mnt/user-data/outputs/Analisis_CheckRates_{canasta_filename[c_key]}_W18.xlsx'
+    wb_c.save(out_c)
+    print(f'  ✓ Excel canasta {canasta_filename[c_key]}: {len(wb_c.sheetnames)} pestañas')
 for s in wb.sheetnames: print(f'  - {s}')

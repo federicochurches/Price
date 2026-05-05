@@ -276,3 +276,41 @@ Sección 07+ · Análisis por canasta (3 canastas)
 - `render_rnd_p2.py` → `render_bloque_hoteles()` y `render_bloque_dimensiones()`
 - `render_cr_p2.py` → `render_bloque_hoteles_cr()` y `render_bloque_dimensiones_cr()`
 - `asset_rnd_head.html` y `asset_cr_head.html` → CSS de los tabs
+
+---
+
+## 📥 Banner de descarga por canasta (post Week 18)
+
+Cada bloque de canasta termina con un banner minimalista de descarga del Excel filtrado:
+
+```html
+<!-- Justo después del Plan de Acción de la canasta, antes del cierre </div></details> -->
+<div style="margin-top:24px;padding:14px 18px;background:var(--paper-soft);
+            border:1px solid var(--rule);border-radius:4px;
+            display:flex;align-items:center;justify-content:space-between;gap:16px;">
+  <div style="font-size:12px;color:var(--ink-soft);line-height:1.4;">
+    <span style="font-size:13px;color:var(--ink);">📥</span>
+    &nbsp;&nbsp;Descargar análisis completo · 
+    <strong style="color:#EA0074;">Canasta {short}</strong>
+    <span style="display:inline-block;margin-left:8px;font-size:11px;color:var(--ink-muted);">
+      N pestañas · Top 50 por dimensión
+    </span>
+  </div>
+  <a href="Analisis_{tipo}_{B2C|OP|CUG}_7d.xlsx" 
+     style="display:inline-block;padding:6px 14px;background:#EA0074;color:#fff;
+            font-size:11px;font-weight:600;text-decoration:none;border-radius:3px;
+            letter-spacing:.04em;text-transform:uppercase;">Excel ↗</a>
+</div>
+```
+
+### Naming convention de Excels por canasta
+
+| Reporte | Canasta | Filename |
+|---|---|---|
+| CR  | B2C       | `Analisis_Checkrates_B2C_7d.xlsx` |
+| CR  | B2B Opaco | `Analisis_Checkrates_OP_7d.xlsx`  |
+| CR  | CUG       | `Analisis_Checkrates_CUG_7d.xlsx` |
+| RND | B2C       | `Analisis_Rates_NoDispo_B2C_7d.xlsx` |
+| RND | B2B Opaco | `Analisis_Rates_NoDispo_OP_7d.xlsx`  |
+| RND | CUG       | `Analisis_Rates_NoDispo_CUG_7d.xlsx` |
+

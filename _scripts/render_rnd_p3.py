@@ -362,6 +362,19 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">{plan_canasta_rows}</div>
 </div>'''
     
+    # Banner minimalista de descarga · Excel filtrado por canasta
+    canasta_filename_map = {'b2c':'B2C', 'op':'OP', 'cug':'CUG'}
+    file_suffix = canasta_filename_map.get(idx_str, 'B2C')
+    excel_canasta_url = f'Analisis_Rates_NoDispo_{file_suffix}_7d.xlsx'
+    banner_descarga_canasta = f'''<div style="margin-top:24px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+<div style="font-size:12px;color:var(--ink-soft);line-height:1.4;">
+<span style="font-size:13px;color:var(--ink);">📥</span>
+&nbsp;&nbsp;Descargar análisis completo · <strong style="color:#EA0074;">Canasta {c['short']}</strong>
+<span style="display:inline-block;margin-left:8px;font-size:11px;color:var(--ink-muted);">8 pestañas · Top 50 por dimensión</span>
+</div>
+<a href="{excel_canasta_url}" style="display:inline-block;padding:6px 14px;background:#EA0074;color:#fff;font-size:11px;font-weight:600;text-decoration:none;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;">Excel ↗</a>
+</div>'''
+    
     return f'''{extra_css}<details class="canasta-block">
 <summary>
 <div class="summary-title">
@@ -380,6 +393,7 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 
 {sintesis_html}
 {plan_canasta_html}
+{banner_descarga_canasta}
 </div>
 </details>
 '''
