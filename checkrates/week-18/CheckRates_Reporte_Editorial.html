@@ -126,7 +126,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 
 /* === BLOQUES con tabs (Análisis por hotel + Por dimensión) === */
-.tabs-block{border:1px solid var(--rule);background:var(--paper-soft);border-radius:6px;padding:18px 22px;margin-top:8px;}
+.tabs-block{border:1px solid var(--rule);background:#F6EFE0;border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);}
 .tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;margin-bottom:14px;}
 .tabs-block .tab-panels{padding-top:6px;font-size:12px;color:var(--ink);line-height:1.5;min-height:auto;}
 .tabs-block .tab-panel{display:none;}
@@ -395,14 +395,14 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severidad · Eficacia y Conv Rate</h2>
+<h2 class="section-title">Severity</h2>
 <span class="section-subtitle" style="color:#5C469C">P80 · 4.734 hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte aparte (BKGS=0); Severity ConvRate se aplica solo a procesables.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#5C469C;margin:0 0 12px;">Eficacia</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Eficacia</h3>
 <div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:rgba(22,22,22,.80);color:#FFFFFF;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">&lt; 60%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.6265314744402195%;background:#161616;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">77</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">1.6%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FCE4F1;color:#C0392B;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">60–85%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.710181664554288%;background:#C0392B;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">365</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">7.7%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FFF4E0;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">85–93%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:10.519645120405578%;background:#D4A878;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">498</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">10.5%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">93–97%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:15.779467680608365%;background:#5C469C;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">747</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">15.8%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#E8F7FD;color:#0D7A99;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">≥ 97%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:64.36417405999156%;background:#4FC3F4;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">3.047</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">64.4%</span></div>
 </div>
 <div>
@@ -442,7 +442,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <section id="channel-agrupado" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 07</div>
-<h2 class="section-title">Channel agrupado</h2>
+<h2 class="section-title">Análisis por tipo de producto</h2>
 <span class="section-subtitle" style="color:#5C469C">Producto Propio vs Third Party</span>
 <p class="section-kicker">Vista consolidada por familia de canal según decisión post Week 17. Producto Propio: DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees. Third Party: Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate.</p>
 </div>
@@ -454,7 +454,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
-<h2 class="section-title">Por dimensión</h2>
+<h2 class="section-title">Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:#5C469C">Top 10 agregados · ordenado por CR únicos ↓</span>
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>
@@ -681,7 +681,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -967,7 +967,7 @@ Canasta B2B Opaco con 4.351 hoteles P80. <strong>441 en Severity Crítica+</stro
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -1253,7 +1253,7 @@ Canasta CUG con 4.789 hoteles P80. <strong>606 en Severity Crítica+</strong> (1
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">

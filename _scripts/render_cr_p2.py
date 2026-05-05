@@ -190,14 +190,14 @@ def render_severities_combinadas():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severidad · Eficacia y Conv Rate</h2>
+<h2 class="section-title">Severity</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">P80 · {fmt_int_es(total_ef)} hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte aparte (BKGS=0); Severity ConvRate se aplica solo a procesables.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{CR_ACCENT};margin:0 0 12px;">Eficacia</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Eficacia</h3>
 {rows_ef}
 </div>
 <div>
@@ -414,7 +414,7 @@ def render_channel_agrupado():
     return f'''<section id="channel-agrupado" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 07</div>
-<h2 class="section-title">Channel agrupado</h2>
+<h2 class="section-title">Análisis por tipo de producto</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Producto Propio vs Third Party</span>
 <p class="section-kicker">Vista consolidada por familia de canal según decisión post Week 17. Producto Propio: DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees. Third Party: Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate.</p>
 </div>
@@ -723,7 +723,7 @@ def render_bloque_dimensiones_cr():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
-<h2 class="section-title">Por dimensión</h2>
+<h2 class="section-title">Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Top 10 agregados · ordenado por CR únicos ↓</span>
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>

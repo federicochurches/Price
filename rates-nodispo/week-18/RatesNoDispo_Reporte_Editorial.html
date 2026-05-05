@@ -126,7 +126,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-rpm-channel:checked ~ .tabs-row label[for="tab-rpm-channel"]{background:var(--paper);color:var(--amber);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
 /* === BLOQUES con tabs (Análisis por hotel + Por dimensión) === */
-.tabs-block{border:1px solid var(--rule);background:var(--paper-soft);border-radius:6px;padding:18px 22px;margin-top:8px;}
+.tabs-block{border:1px solid var(--rule);background:#F6EFE0;border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);}
 .tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;margin-bottom:14px;}
 .tabs-block .tab-panels{padding-top:6px;font-size:12px;color:var(--ink);line-height:1.5;min-height:auto;}
 .tabs-block .tab-panel{display:none;}
@@ -402,7 +402,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severidad · % NoDispo y IPM</h2>
+<h2 class="section-title">Severity</h2>
 <span class="section-subtitle" style="color:#EA0074">P80 · 18.692 hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo (target &lt;3%) e IPM (Income Per Million USD · target ≥ $650). Sin Conversión es cohorte aparte (BKGS=0); Severity IPM se aplica solo a procesables.</p>
 </div>
@@ -413,7 +413,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:rgba(22,22,22,.80);color:#FFFFFF;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">&gt; 60%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.5%;background:#161616;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">31</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.2%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FCE4F1;color:#C0392B;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20–60%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:2.1934517440616306%;background:#C0392B;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">410</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">2.2%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FFF4E0;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5–20%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:10.881660603466724%;background:#D4A878;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">2.034</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">10.9%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">3–5%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.511234752835437%;background:#5C469C;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.404</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">7.5%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#E8F7FD;color:#0D7A99;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">&lt; 3%</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:79.24780654825594%;background:#4FC3F4;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">14.813</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">79.2%</span></div>
 </div>
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">IPM (USD)</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#A86A1D;margin:0 0 12px;">IPM (USD)</h3>
 <div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#F2EEE6;color:#8A8377;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conversión</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">BKGS=0</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:63.952493045153005%;background:#8A8377;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">11.954</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">64.0%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FCE4F1;color:#C0392B;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">&lt; $200</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:9.126899208217418%;background:#C0392B;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.706</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">9.1%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#FFF4E0;color:#A86A1D;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$200–$650</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:9.265996148084742%;background:#D4A878;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.732</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">9.3%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#EDE8F7;color:#5C469C;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$650–$1500</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:9.009201797560454%;background:#5C469C;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.684</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">9.0%</span></div><div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);"><span style="display:inline-block;padding:3px 8px;background:#E8F7FD;color:#0D7A99;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span><span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">≥ $1500</span><div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:8.645409800984378%;background:#4FC3F4;"></div></div><span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.616</span><span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">8.6%</span></div>
 </div>
 </div>
@@ -448,7 +448,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 <div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
-<h2 class="section-title">Por dimensión</h2>
+<h2 class="section-title">Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 agregados · ordenado por tráfico ↓</span>
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>
@@ -692,7 +692,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -739,7 +739,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-<span style="color:#EA0074;">●</span><span>IPM (Income Per Million USD)</span>
+<span style="color:#A86A1D;">●</span><span>IPM (Income Per Million USD)</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;padding:7px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Nivel</span>
@@ -978,7 +978,7 @@ Canasta B2B Opaco con 16.515 hoteles P80. <strong>390 en Severity Crítica+ por 
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -1025,7 +1025,7 @@ Canasta B2B Opaco con 16.515 hoteles P80. <strong>390 en Severity Crítica+ por 
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-<span style="color:#EA0074;">●</span><span>IPM (Income Per Million USD)</span>
+<span style="color:#A86A1D;">●</span><span>IPM (Income Per Million USD)</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;padding:7px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Nivel</span>
@@ -1264,7 +1264,7 @@ Canasta CUG con 22.325 hoteles P80. <strong>426 en Severity Crítica+ por %NoDis
 </ol>
 </div>
 </div>
-<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -1311,7 +1311,7 @@ Canasta CUG con 22.325 hoteles P80. <strong>426 en Severity Crítica+ por %NoDis
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-<span style="color:#EA0074;">●</span><span>IPM (Income Per Million USD)</span>
+<span style="color:#A86A1D;">●</span><span>IPM (Income Per Million USD)</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;padding:7px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Nivel</span>

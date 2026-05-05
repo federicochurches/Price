@@ -55,7 +55,7 @@ def render_severity_block(title, icon, header_color, levels_data, total):
 
 
 def render_severity_2cols(left_block, right_block):
-    return f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severidad</h3>
+    return f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 {left_block}
 {right_block}

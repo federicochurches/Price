@@ -198,7 +198,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     levels_nd = make_severity_levels(c['sev_nd'], LEVELS_NODISPO)
     levels_rpm = make_severity_levels(c['sev_rpm'], LEVELS_RPM)
     sev_block_nd = render_severity_block('% NoDispo', '●', '#EA0074', levels_nd, n_p80)
-    sev_block_rpm = render_severity_block('IPM (Income Per Million USD)', '●', '#EA0074', levels_rpm, n_p80)
+    sev_block_rpm = render_severity_block('IPM (Income Per Million USD)', '●', '#A86A1D', levels_rpm, n_p80)
     severity_canasta_html = render_severity_2cols(sev_block_nd, sev_block_rpm)
     
     # === Tabs (Destino, Corp, Hotel, País) — Top 10 a 2 columnas, borde folder ===

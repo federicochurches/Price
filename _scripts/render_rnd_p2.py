@@ -188,7 +188,7 @@ def render_severities_combinadas():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severidad · % NoDispo y IPM</h2>
+<h2 class="section-title">Severity</h2>
 <span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total_nd)} hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo (target &lt;3%) e IPM (Income Per Million USD · target ≥ $650). Sin Conversión es cohorte aparte (BKGS=0); Severity IPM se aplica solo a procesables.</p>
 </div>
@@ -199,7 +199,7 @@ def render_severities_combinadas():
 {rows_nd}
 </div>
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">IPM (USD)</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#A86A1D;margin:0 0 12px;">IPM (USD)</h3>
 {rows_ipm}
 </div>
 </div>
@@ -563,7 +563,7 @@ def render_bloque_dimensiones():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
-<h2 class="section-title">Por dimensión</h2>
+<h2 class="section-title">Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 agregados · ordenado por tráfico ↓</span>
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>
