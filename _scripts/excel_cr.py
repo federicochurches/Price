@@ -205,12 +205,39 @@ plan_data = [
 df_plan = pd.DataFrame(plan_data)
 add_table(ws11, df_plan, start_row=5)
 
-# ==================== 12-17. CANASTAS (Críticos + BajoRend × 3) ====================
+# ==================== CANASTAS · 4 pestañas por canasta ====================
+# Por canasta: Severity Eficacia · Severity ConvRate · Críticos · Bajo Rend · Sin Conv
 for c_key in ['b2c','op','cug']:
     c = CANASTA[c_key]
     short = c['short']
     
-    # Críticos
+    # 1. Severity Eficacia por canasta
+    ws_se = wb.create_sheet(f'Canasta {short} · Sev Ef')
+    add_title(ws_se, f'Canasta {short} · Severity Eficacia',
+              f'{c["name"]} · P80 · target ≥ 97%')
+    sev_dict = c.get('sev_ef', {})
+    total_se = sum(sev_dict.values()) or 1
+    data_se = []
+    for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']:
+        rng = {'Súper Crítica':'<60%','Crítica':'60-85%','Revisar':'85-93%','Aceptable':'93-97%','Exitosa':'≥97%'}[n]
+        cnt = int(sev_dict.get(n,0))
+        data_se.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_se})
+    add_table(ws_se, pd.DataFrame(data_se), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
+    
+    # 2. Severity ConvRate por canasta
+    ws_sc = wb.create_sheet(f'Canasta {short} · Sev CV')
+    add_title(ws_sc, f'Canasta {short} · Severity Conv Rate',
+              f'{c["name"]} · P80 · target ≥ 2,5%')
+    sev_dict2 = c.get('sev_cv', {})
+    total_sc = sum(sev_dict2.values()) or 1
+    data_sc = []
+    for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
+        rng = {'Sin Conversión':'BKGS=0','Crítica':'<0,8%','Revisar':'0,8-1,5%','Aceptable':'1,5-2,5%','Exitosa':'≥2,5%'}[n]
+        cnt = int(sev_dict2.get(n,0))
+        data_sc.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_sc})
+    add_table(ws_sc, pd.DataFrame(data_sc), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
+    
+    # 3. Críticos
     ws_c = wb.create_sheet(f'Canasta {short} · Críticos')
     add_title(ws_c, f'Canasta {short} · Top 50 Críticos',
               f'{c["name"]} · BKGS>0 · peor Eficacia · ordenado ↑')
@@ -222,7 +249,7 @@ for c_key in ['b2c','op','cug']:
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
     
-    # Bajo Rendimiento
+    # 4. Bajo Rendimiento
     ws_b = wb.create_sheet(f'Canasta {short} · BajoRend')
     add_title(ws_b, f'Canasta {short} · Top 50 Bajo Rendimiento',
               f'{c["name"]} · BKGS>0 · ConvRate Crítica/Revisar · ordenado por CR ↓')
@@ -233,6 +260,17 @@ for c_key in ['b2c','op','cug']:
     add_table(ws_b, df_b[['Rk','Hotel','CorpName','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
               banda_col='BandaConvRate')
+    
+    # 5. Sin Conversión por canasta
+    ws_sn = wb.create_sheet(f'Canasta {short} · Sin Conv')
+    add_title(ws_sn, f'Canasta {short} · Top 50 Sin Conversión',
+              f'{c["name"]} · BKGS=0 · ordenado por CR ↓ · cohorte estructural')
+    df_sn = c['agg_hotel'].copy()
+    df_sn = df_sn[df_sn['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+    df_sn.insert(0,'Rk', range(1, len(df_sn)+1))
+    add_table(ws_sn, df_sn[['Rk','Hotel','CorpName','Destino','CR_Unicos','Success','Bookings','Eficacia','BandaEficacia']],
+              start_row=5, num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
+              banda_col='BandaEficacia')
 
 out = '/mnt/user-data/outputs/Analisis_CheckRates_W18.xlsx'
 wb.save(out)

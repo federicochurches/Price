@@ -54,8 +54,8 @@ def _build_canasta_findings_rnd(c):
          'titulo': f'% NoDispo · banda {m18["banda_nodispo"]}',
          'desc': f'Tasa de búsquedas sin disponibilidad en canasta {canasta_label}. WoW {es_pp(pct_wow)} · weight estratégico {weight_label}.'},
         {'numero': '$' + es_num2(rpm_v),
-         'titulo': f'RPM (GBM USD/M) · banda {m18["banda_rpm"]}',
-         'desc': f'Gross Booking USD por millón de búsquedas en {canasta_label}. WoW {es_pct1(rpm_wow)} · target ≥ $650.'},
+         'titulo': f'IPM (Income Per Million USD) · banda {m18["banda_rpm"]}',
+         'desc': f'Income Per Million · GB USD por millón en {canasta_label}. WoW {es_pct1(rpm_wow)} · target ≥ $650.'},
         {'numero': es_int(n_critmas_nd),
          'titulo': 'Hoteles Severity %NoDispo Crítica+',
          'desc': f'%NoDispo &gt; 20% · {n_supcrit_nd} Súper Críticos requieren escalamiento técnico inmediato.'},
@@ -63,8 +63,8 @@ def _build_canasta_findings_rnd(c):
          'titulo': 'Hoteles P80 Sin Conversión (BKGS=0)',
          'desc': f'{es_pct(n_sc/max(n_p80,1)*100,1)} del P80 sin convertir · cohorte estructural · diagnóstico técnico/contractual, no de eficacia.'},
         {'numero': es_int(n_crit_rpm),
-         'titulo': 'Hoteles Severity RPM Crítica',
-         'desc': f'RPM &lt; $200 · revisar pricing, posicionamiento y velocidad de respuesta · evitar escalamiento a Sin Conv.'},
+         'titulo': 'Hoteles Severity IPM Crítica',
+         'desc': f'IPM &lt; $200 · revisar pricing, posicionamiento y velocidad de respuesta · evitar escalamiento a Sin Conv.'},
     ]
     if h_worst_nd is not None:
         findings.append({
@@ -81,7 +81,7 @@ def _build_canasta_findings_rnd(c):
     if h_worst_rpm is not None:
         findings.append({
             'numero': '$' + es_num2(h_worst_rpm['RPM']),
-            'titulo': f'{truncate(clean_hotel_name(h_worst_rpm["Hotel"]),28)} · peor RPM',
+            'titulo': f'{truncate(clean_hotel_name(h_worst_rpm["Hotel"]),28)} · peor IPM',
             'desc': f'BKGS {int(h_worst_rpm["Bookings"])} · {h_worst_rpm["CorpName"]} · pricing y matching técnico requieren revisión.'
         })
     if h_top_dnc is not None:
@@ -114,7 +114,7 @@ def _render_canasta_alertas_rnd(c, accent_color='#EA0074'):
             '#EA0074'
         )
         sub_rpm = render_alert_subcell(
-            'RPM', '#5C469C', '#EDE8F7',
+            'IPM', '#5C469C', '#EDE8F7',
             truncate(clean_hotel_name(str(rpm_obj[label_field])), 22) if label_field=='Hotel' else truncate(str(rpm_obj[label_field]),22),
             f'${fmt_num2(rpm_obj["RPM"])}',
             '#5C469C'
@@ -172,7 +172,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>
 </div>
 <div style="border:1px solid var(--rule);padding:16px 18px;border-radius:3px;background:var(--paper);">
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">RPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· GBM USD/M</span></div>
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million USD</span></div>
 <div style="display:flex;align-items:baseline;gap:12px;margin-top:6px;">
 <div style="font-size:36px;font-weight:600;color:#EA0074;letter-spacing:-.02em;">${fmt_num2(rpm_w18)}</div>
 {pill_rp}
@@ -198,7 +198,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     levels_nd = make_severity_levels(c['sev_nd'], LEVELS_NODISPO)
     levels_rpm = make_severity_levels(c['sev_rpm'], LEVELS_RPM)
     sev_block_nd = render_severity_block('% NoDispo', '●', '#EA0074', levels_nd, n_p80)
-    sev_block_rpm = render_severity_block('RPM (GBM USD/M)', '●', '#EA0074', levels_rpm, n_p80)
+    sev_block_rpm = render_severity_block('IPM (Income Per Million USD)', '●', '#EA0074', levels_rpm, n_p80)
     severity_canasta_html = render_severity_2cols(sev_block_nd, sev_block_rpm)
     
     # === Tabs (Destino, Corp, Hotel, País) — Top 10 a 2 columnas, borde folder ===
@@ -292,7 +292,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 if col2 else f'<div>{col1}</div>')
         return f'<div style="margin-top:24px;"><h3 style="font-size:13px;font-weight:700;color:#EA0074;text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">{title}</h3>{body}</div>'
     
-    bajo_rows = render_top10_2cols_rnd(c['bajo_rend'], f'Top 10 · Bajo Rendimiento · Canasta {c["short"]}', 'BKGS', 'Bookings', 'RPM', 'RPM')
+    bajo_rows = render_top10_2cols_rnd(c['bajo_rend'], f'Top 10 · Bajo Rendimiento · Canasta {c["short"]}', 'BKGS', 'Bookings', 'IPM', 'RPM')
     sin_rows = render_top10_2cols_rnd(c['sin_conv'], f'Top 10 · Sin Conversión · Canasta {c["short"]}', '%NoDispo', '%NoDispo')
     
     # === Síntesis ejecutiva ===
@@ -302,7 +302,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     
     sintesis_html = f'''<div style="margin-top:32px;padding:16px 20px;background:var(--paper-soft);border-left:3px solid #EA0074;border-radius:3px;font-size:13px;line-height:1.55;color:var(--ink-soft);">
 <div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">📝 Síntesis ejecutiva</div>
-Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_critmas_local)} en Severity Crítica+ por %NoDispo</strong> ({f"{pct_critmas:.1f}".replace(".",",")}% del P80) y <strong>{fmt_int_es(int(n_sc_total))} sin conversión</strong> ({f"{pct_sc:.1f}".replace(".",",")}% del total). %NoDispo {fmt_pct2(pct_w18)} (banda {m18["banda_nodispo"]}) y RPM ${fmt_num2(rpm_w18)} (banda {m18["banda_rpm"]}). Las acciones del Plan siguiente ordenan por horizonte (Quick Win → Estratégica) y Área Accountable.
+Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_critmas_local)} en Severity Crítica+ por %NoDispo</strong> ({f"{pct_critmas:.1f}".replace(".",",")}% del P80) y <strong>{fmt_int_es(int(n_sc_total))} sin conversión</strong> ({f"{pct_sc:.1f}".replace(".",",")}% del total). %NoDispo {fmt_pct2(pct_w18)} (banda {m18["banda_nodispo"]}) y IPM ${fmt_num2(rpm_w18)} (banda {m18["banda_rpm"]}). Las acciones del Plan siguiente ordenan por horizonte (Quick Win → Estratégica) y Área Accountable.
 </div>'''
     
     # === Plan de Acción (mantengo estructura existente, ya está en 2 cols) ===
@@ -338,8 +338,8 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
     plan_canasta_rows += (
         f'<div class="action-row mp">'
         f'<div class="action-owner-badge">Supply Comercial / Wholesale</div>'
-        f'<div class="accion">Revisión de RPM en canasta {canasta_label} (actual ${fmt_num2(rpm_w18)}) frente al target ≥ $650 · validar pricing y disponibilidad.</div>'
-        f'<div class="action-meta-bottom"><span class="cluster-tag">Mid Priority</span><span class="meta-item"><strong>Plazo</strong> 2 semanas</span><span class="meta-item"><strong>Métrica</strong> RPM ≥ $650</span></div>'
+        f'<div class="accion">Revisión de IPM en canasta {canasta_label} (actual ${fmt_num2(rpm_w18)}) frente al target ≥ $650 · validar pricing y disponibilidad.</div>'
+        f'<div class="action-meta-bottom"><span class="cluster-tag">Mid Priority</span><span class="meta-item"><strong>Plazo</strong> 2 semanas</span><span class="meta-item"><strong>Métrica</strong> IPM ≥ $650</span></div>'
         f'</div>'
     )
     plan_canasta_rows += (
@@ -376,8 +376,8 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 {resumen_canasta_html}
 {severity_canasta_html}
 {tabs_html}
-{bajo_rows}
-{sin_rows}
+
+
 {sintesis_html}
 {plan_canasta_html}
 </div>

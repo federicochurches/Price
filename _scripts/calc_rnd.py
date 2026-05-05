@@ -193,4 +193,4 @@ print(f"%NoDispo: {fmt_pct(M['global_w18']['pct_nodispo'],2)} (W17 {fmt_pct(M['g
 print(f"RPM: {fmt_num(M['global_w18']['rpm'],2)} (W17 {fmt_num(M['global_w17']['rpm'],2)})")
 print(f"Hoteles P80: {len(p80_hotel_w18):,}")
 print(f"\nSeverity %NoDispo (P80): {sev_nd.to_dict()}")
-print(f"Severity RPM (P80): {sev_rpm.to_dict()}")
+print(f"Severity IPM (P80): {sev_rpm.to_dict()}")

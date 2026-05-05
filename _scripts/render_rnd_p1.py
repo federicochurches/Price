@@ -88,7 +88,7 @@ def render_hero():
     pct_wow = (pct - pct17) * 100
     rpm_wow = (rpm/rpm17 - 1) * 100 if rpm17 else 0
     
-    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad y RPM de {fmt_num2(rpm)} · '
+    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad y IPM de {fmt_num2(rpm)} · '
           f'concentración crítica en <span class="accent">{top_dest[0]}</span>, '
           f'<span class="accent">{top_dest[1]}</span> y <span class="accent">{top_dest[2]}</span>.</span>'
           f'<span style="display:block;margin-top:.3em;">'
@@ -132,17 +132,30 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         ('hotel','Hotel', TAB_NoDispo['hotel']),
         ('canasta','Canasta', TAB_NoDispo['canasta']),
     ]:
-        rows = ''
-        for _, r in df_t.iterrows():
+        # 2 columnas · 1-5 izquierda, 6-10 derecha · peor→mejor (ya viene ordenado descendente)
+        rows_left, rows_right = '', ''
+        for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['%NoDispo']
             elif t_key=='hotel':
-                lab = truncate(r['Hotel'], 36); val = r['%NoDispo']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['%NoDispo']
             else:
                 col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 36); val = r['%NoDispo']
-            rows += f'<div><strong>{lab}</strong> <span>{fmt_pct2(val)}</span></div>'
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{rows}</div>'
+                lab = truncate(r[col], 30); val = r['%NoDispo']
+            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+            if i < 5:
+                rows_left += cell
+            else:
+                rows_right += cell
+        if rows_right:
+            panel_html = (
+                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+                f'<div>{rows_left}</div><div>{rows_right}</div>'
+                f'</div>'
+            )
+        else:
+            panel_html = rows_left
+        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-nd-pais" name="tabs-nd" style="display:none;" type="radio"/>
@@ -187,17 +200,30 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         ('hotel','Hotel', TAB_RPM['hotel']),
         ('canasta','Canasta', TAB_RPM['canasta']),
     ]:
-        rows = ''
-        for _, r in df_t.iterrows():
+        # 2 columnas peor→mejor (TAB_RPM ya viene ordenado ascendente: peor RPM primero)
+        rows_left, rows_right = '', ''
+        for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['RPM']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 36); val = r['RPM']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['RPM']
             else:
                 col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 36); val = r['RPM']
-            rows += f'<div><strong>{lab}</strong> <span>{fmt_num2(val)}</span></div>'
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{rows}</div>'
+                lab = truncate(r[col], 30); val = r['RPM']
+            cell = f'<div><strong>{i+1}. {lab}</strong> <span>${fmt_num2(val)}</span></div>'
+            if i < 5:
+                rows_left += cell
+            else:
+                rows_right += cell
+        if rows_right:
+            panel_html = (
+                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+                f'<div>{rows_left}</div><div>{rows_right}</div>'
+                f'</div>'
+            )
+        else:
+            panel_html = rows_left
+        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-rpm-pais" name="tabs-rpm" style="display:none;" type="radio"/>
@@ -206,7 +232,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <input id="tab-rpm-hotel" name="tabs-rpm" style="display:none;" type="radio"/>
 <input id="tab-rpm-canasta" name="tabs-rpm" style="display:none;" type="radio"/>
 <div>
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">RPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Gross Booking USD por millón de búsquedas</span></div>
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
 <div style="margin-top:4px;">
 <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div style="margin-top:10px;">{pill}</div>
@@ -255,23 +281,23 @@ def render_alerts_block():
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_nd['Hotel']),38),'sub':f'{h_nd["CorpName"]} · {h_nd["Destino"]}',
          'value':fmt_pct2(h_nd['%NoDispo']),'foot':f'{fmt_big(h_nd["Trafico"])} · {int(h_nd["Bookings"])} BKGS'},
-        {'pill':'RPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
+        {'pill':'IPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_rpm['Hotel']),38),'sub':f'{h_rpm["CorpName"]} · {h_rpm["Destino"]}',
          'value':fmt_num2(h_rpm['RPM']),'foot':f'{fmt_big(h_rpm["Trafico"])} · {int(h_rpm["Bookings"])} BKGS'},
     ]
     d_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_nd['Destino'],38),'sub':f'{fmt_big(d_nd["Trafico"])} · {int(d_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'RPM {fmt_num2(d_nd["RPM"])}'},
-        {'pill':'RPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
+         'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'IPM {fmt_num2(d_nd["RPM"])}'},
+        {'pill':'IPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_rpm['Destino'],38),'sub':f'{fmt_big(d_rpm["Trafico"])} · {int(d_rpm["Bookings"])} BKGS',
          'value':fmt_num2(d_rpm['RPM']),'foot':f'%ND {fmt_pct2(d_rpm["%NoDispo"])}'},
     ]
     c_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_nd['CorpName'],38),'sub':f'{fmt_big(c_nd["Trafico"])} · {int(c_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'RPM {fmt_num2(c_nd["RPM"])}'},
-        {'pill':'RPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
+         'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'IPM {fmt_num2(c_nd["RPM"])}'},
+        {'pill':'IPM','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_rpm['CorpName'],38),'sub':f'{fmt_big(c_rpm["Trafico"])} · {int(c_rpm["Bookings"])} BKGS',
          'value':fmt_num2(c_rpm['RPM']),'foot':f'%ND {fmt_pct2(c_rpm["%NoDispo"])}'},
     ]

@@ -105,7 +105,7 @@ TAB_CV = {}
 TAB_CV['destino']  = g_destino_w18[(g_destino_w18['Bookings']>5) & (g_destino_w18['CR_Unicos']>500)].sort_values('ConvRate').head(10).reset_index(drop=True)
 TAB_CV['corp']     = g_corp_w18[(g_corp_w18['Bookings']>5) & (g_corp_w18['CR_Unicos']>1000)].sort_values('ConvRate').head(10).reset_index(drop=True)
 TAB_CV['hotel']    = g_hotel_w18[(g_hotel_w18['Bookings']>0) & (g_hotel_w18['CR_Unicos']>200)].sort_values('ConvRate').head(10).reset_index(drop=True)
-TAB_CV['channel']  = g_channel_w18[g_channel_w18['CR_Unicos']>100].sort_values('ConvRate').reset_index(drop=True)
+TAB_CV['channel']  = g_channel_w18.sort_values('ConvRate').reset_index(drop=True)
 TAB_CV['canasta']  = pd.DataFrame([
     {'Canasta':'B2C',      'ConvRate':M['B2C_w18']['conv_rate']},
     {'Canasta':'B2B (OP)', 'ConvRate':M['B2B (OP)_w18']['conv_rate']},

@@ -389,8 +389,8 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 {resumen_canasta_html}
 {severity_canasta_html}
 {tabs_html}
-{bajo_rows}
-{sin_rows}
+
+
 {sintesis_html}
 {plan_canasta_html}
 </div>

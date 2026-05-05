@@ -25,7 +25,7 @@ def banda_eficacia(pct):
     return 'Súper Crítica'
 
 def banda_rpm(rpm, bkgs):
-    """RPM como GBM USD/M (Gross Booking USD por millón de búsquedas) · sistema D
+    """RPM como GBM USD/M (Income Per Million · GB USD por millón) · sistema D
     Thresholds: <$200 Crítica · $200-$650 Revisar · $650-$1500 Aceptable · ≥$1500 Exitosa
     Target ≥ $650 (banda Aceptable o mejor)"""
     if pd.isna(bkgs) or bkgs == 0: return 'Sin Conversión'

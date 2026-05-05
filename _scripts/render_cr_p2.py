@@ -142,46 +142,70 @@ def render_severity_eficacia():
 </section>
 '''
 
-# ============ SECCIÓN SEVERITY CONVRATE ============
-def render_severity_convrate():
-    levels = [
-        ('Sin Conversión','BKGS=0','#161616'),
+# ============ SECCIÓN SEVERITY · Eficacia + ConvRate combinada en 2 cols ============
+def render_severities_combinadas():
+    """Severity Eficacia + ConvRate lado a lado · una sola sección."""
+    
+    def render_table(sev_dict, levels_data):
+        total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
+        rows = ''
+        for name, rng, color in levels_data:
+            n = int(sev_dict.get(name, 0))
+            pct = n/total*100 if total else 0
+            bar_w = max(min(pct, 100), 0.5)
+            rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
+                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                     f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
+                     f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
+                     f'</div>')
+        return rows, total
+    
+    levels_ef = [
+        ('Súper Crítica','&lt; 60%','#161616'),
+        ('Crítica','60–85%','#C0392B'),
+        ('Revisar','85–93%','#D4A878'),
+        ('Aceptable','93–97%','#5C469C'),
+        ('Exitosa','≥ 97%','#4FC3F4'),
+    ]
+    levels_cv = [
+        ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','&lt; 0,8%','#C0392B'),
         ('Revisar','0,8–1,5%','#D4A878'),
         ('Aceptable','1,5–2,5%','#5C469C'),
         ('Exitosa','≥ 2,5%','#4FC3F4'),
     ]
-    total = int(sev_cv_p80.sum())
-    rows = ''
-    for name, rng, color in levels:
-        n = int(sev_cv_p80.get(name, 0))
-        pct = n/total*100 if total else 0
-        bar_w = max(min(pct, 100), 0.5)
-        rows += (f'<div style="display:grid;grid-template-columns:130px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
-                 f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                 f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
-                 f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
-                 f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
-                 f'</div>')
     
+    rows_ef, total_ef = render_table(sev_ef_p80, levels_ef)
+    rows_cv, total_cv = render_table(sev_cv_p80, levels_cv)
+    
+    n_critmas_ef = int(sev_ef_p80.get('Crítica',0) + sev_ef_p80.get('Súper Crítica',0))
+    n_supc_ef = int(sev_ef_p80.get('Súper Crítica',0))
     n_sc = int(sev_cv_p80.get('Sin Conversión',0))
-    n_crit = int(sev_cv_p80.get('Crítica',0))
-    n_proc = total - n_sc
+    n_crit_cv = int(sev_cv_p80.get('Crítica',0))
+    n_proc = total_cv - n_sc
     
-    return f'''<section id="severity-convrate">
+    return f'''<section id="severity-combinada">
 <div class="section-head">
 <div>
-<div class="section-num">Sección 03</div>
-<h2 class="section-title">Severity · ConvRate</h2>
-<span class="section-subtitle" style="color:{CR_ACCENT}">P80 · {fmt_int_es(total)} hoteles · target ≥ 2,5%</span>
-<p class="section-kicker">Distribución por ConvRate (Bookings/CR únicos). Sin Conversión es cohorte aparte (BKGS=0); Severity se aplica a hoteles procesables.</p>
+<div class="section-num">Sección 02</div>
+<h2 class="section-title">Severidad · Eficacia y Conv Rate</h2>
+<span class="section-subtitle" style="color:{CR_ACCENT}">P80 · {fmt_int_es(total_ef)} hoteles</span>
+<p class="section-kicker">Distribución de hoteles del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte aparte (BKGS=0); Severity ConvRate se aplica solo a procesables.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
-<div>{rows}</div>
-<div class="pull-note" style="margin-top:0;"><strong>Interpretación.</strong> <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total*100:.1f}%) sin conversión</strong> (BKGS=0): cohorte estructural — diagnóstico técnico/contractual. De los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit)} en Crítica (&lt;0,8%) son la primera fila de escalamiento.</div>
+<div>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{CR_ACCENT};margin:0 0 12px;">Eficacia</h3>
+{rows_ef}
 </div>
+<div>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{CR_ACCENT};margin:0 0 12px;">Conv Rate</h3>
+{rows_cv}
+</div>
+</div>
+<div class="pull-note" style="margin-top:18px;"><strong>Interpretación.</strong> En Eficacia, <strong>{fmt_int_es(n_critmas_ef)} hoteles ({n_critmas_ef/total_ef*100:.1f}%)</strong> en Crítica+ requieren escalamiento técnico ({n_supc_ef} Súper Críticos primero). En Conv Rate, <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total_cv*100:.1f}%) sin conversión</strong> son cohorte estructural; de los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit_cv)} en Crítica (&lt; 0,8%) son la primera fila.</div>
 </section>
 '''
 
@@ -236,7 +260,7 @@ def render_criticos():
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Hoteles Críticos</strong> está en la pestaña <em>«Críticos»</em> del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_CheckRates_W18.xlsx">Excel ↗</a>
+<a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
 '''
@@ -265,7 +289,7 @@ def render_bajo_rendimiento():
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_CheckRates_W18.xlsx">Excel ↗</a>
+<a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
 '''
@@ -298,7 +322,7 @@ def render_sin_conv():
 {body}
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_CheckRates_W18.xlsx">Excel ↗</a>
+<a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
 '''
@@ -458,8 +482,8 @@ def render_plan_accion():
 
 # Render parte 2 completa
 RESUMEN = render_resumen_ej()
-SEV_EF = render_severity_eficacia()
-SEV_CV = render_severity_convrate()
+SEV_COMBINADA = render_severities_combinadas()
+
 CRITICOS = render_criticos()
 BAJO_REND = render_bajo_rendimiento()
 SIN_CONV = render_sin_conv()
@@ -552,7 +576,7 @@ POR_CHAN = render_por_channel_split()
 CHAN_AGR = render_channel_agrupado()
 PLAN_ACCION = render_plan_accion()
 
-PART2 = RESUMEN + SEV_EF + SEV_CV + CRITICOS + BAJO_REND + SIN_CONV + CHAN_AGR + POR_CORP + POR_DEST + POR_CHAN + PLAN_ACCION
+PART2 = RESUMEN + SEV_COMBINADA + CRITICOS + BAJO_REND + SIN_CONV + CHAN_AGR + POR_CORP + POR_DEST + POR_CHAN + PLAN_ACCION
 
 with open('part2_cr.html','w') as f:
     f.write(PART2)

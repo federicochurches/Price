@@ -63,7 +63,7 @@ def build_findings():
          'titulo': '% NoDispo global · banda Aceptable',
          'desc': f'WoW {es_pp(pct_wow)} · primera vez que se acerca a la zona Exitosa (target &lt;3%) tras semanas en Revisar.'},
         {'numero': '$' + es_num2(rpm),
-         'titulo': f'RPM (GBM USD/M) · banda {M["global_w18"]["banda_rpm"]}',
+         'titulo': f'IPM (Income Per Million USD) · banda {M["global_w18"]["banda_rpm"]}',
          'desc': f'WoW {es_pct1(rpm_wow)} · sigue por debajo del target ≥ $650 con deterioro en tráfico (-1,7%) y bookings ({es_pct1(bk_wow)}) anticipa presión.'},
         {'numero': fmt_big(dnc_p80_total),
          'titulo': 'Demanda no convertida en P80',
@@ -81,11 +81,11 @@ def build_findings():
          'titulo': f'{by_dest.iloc[0]["Destino"]} · destino crítico',
          'desc': f'{fmt_big(by_dest.iloc[0]["DNC"])} búsquedas no convertidas · concentra fugas de high-traffic markets.'},
         {'numero': '$' + es_num2(cu['rpm']),
-         'titulo': 'CUG · mayor deterioro de RPM',
+         'titulo': 'CUG · mayor deterioro de IPM',
          'desc': f'WoW {es_pct1(cug_rpm_wow)} · canasta con weight 0,6 que requiere atención prioritaria pese a mejorar %NoDispo a {es_pct(cu["pct_nodispo"]*100,2)}.'},
         {'numero': es_pct(co['pct_nodispo']*100,2),
          'titulo': 'B2B-OP · canasta más sólida en %NoDispo',
-         'desc': f'banda {co["banda_nodispo"]} en %NoDispo y RPM ${es_num2(co["rpm"])} (banda {co["banda_rpm"]}) · refleja la calidad del producto opaco premium frente a B2C.'},
+         'desc': f'banda {co["banda_nodispo"]} en %NoDispo y IPM ${es_num2(co["rpm"])} (banda {co["banda_rpm"]}) · refleja la calidad del producto opaco premium frente a B2C.'},
         {'numero': fmt_big(h0["Trafico"]),
          'titulo': f'{truncate(clean_hotel_name(h0["Hotel"]),32)} · #1 Sin Conv',
          'desc': f'tráfico sin convertir · {h0["CorpName"]} · primera fila para revisión técnica esta semana.'},
@@ -141,46 +141,69 @@ def render_severity_nodispo():
 </section>
 '''.replace('.','.',2)
 
-# ============ SECCIÓN SEVERITY RPM ============
-def render_severity_rpm():
-    levels = [
-        ('Sin Conversión','BKGS=0','#161616'),
-        ('Crítica','&lt; 1','#C0392B'),
-        ('Revisar','1–2,5','#D4A878'),
-        ('Aceptable','2,5–4','#5C469C'),
-        ('Exitosa','&gt; 4','#4FC3F4'),
+# ============ SECCIÓN SEVERITY · NoDispo + IPM combinada en 2 cols ============
+def render_severities_combinadas():
+    """Severity %NoDispo + IPM lado a lado · una sola sección."""
+    
+    def render_table(sev_dict, levels_data, accent='#EA0074', fmt_label='pct'):
+        total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
+        rows = ''
+        for name, rng, color in levels_data:
+            n = int(sev_dict.get(name, 0))
+            pct = n/total*100 if total else 0
+            bar_w = max(min(pct, 100), 0.5)
+            rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
+                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                     f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
+                     f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
+                     f'</div>')
+        return rows, total
+    
+    levels_nd = [
+        ('Súper Crítica','&gt; 60%','#161616'),
+        ('Crítica','20–60%','#C0392B'),
+        ('Revisar','5–20%','#D4A878'),
+        ('Aceptable','3–5%','#5C469C'),
+        ('Exitosa','&lt; 3%','#4FC3F4'),
     ]
-    total = int(sev_rpm.sum())
-    rows = ''
-    for name, rng, color in levels:
-        n = int(sev_rpm[name])
-        pct = n/total*100 if total else 0
-        bar_w = max(min(pct, 100), 0.5)
-        rows += (f'<div style="display:grid;grid-template-columns:130px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
-                 f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                 f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
-                 f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
-                 f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
-                 f'</div>')
+    levels_ipm = [
+        ('Sin Conversión','BKGS=0','#8A8377'),
+        ('Crítica','&lt; $200','#C0392B'),
+        ('Revisar','$200–$650','#D4A878'),
+        ('Aceptable','$650–$1500','#5C469C'),
+        ('Exitosa','≥ $1500','#4FC3F4'),
+    ]
     
+    rows_nd, total_nd = render_table(sev_nd, levels_nd)
+    rows_ipm, total_ipm = render_table(sev_rpm, levels_ipm)
+    
+    n_critmas = int(sev_nd['Crítica'] + sev_nd['Súper Crítica'])
     n_sc = int(sev_rpm['Sin Conversión'])
-    n_crit = int(sev_rpm['Crítica'])
-    n_proc = total - n_sc
+    n_crit_ipm = int(sev_rpm['Crítica'])
+    n_proc = total_ipm - n_sc
     
-    return f'''<section id="severity-rpm">
+    return f'''<section id="severity-combinada">
 <div class="section-head">
 <div>
-<div class="section-num">Sección 03</div>
-<h2 class="section-title">Severity · Conv Rate (RPM)</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total)} hoteles · target ≥ $650</span>
-<p class="section-kicker">Distribución por RPM (Revenue por Millón de búsquedas). Sin Conversión es cohorte aparte (BKGS=0); Severity se aplica solo a hoteles procesables.</p>
+<div class="section-num">Sección 02</div>
+<h2 class="section-title">Severidad · % NoDispo y IPM</h2>
+<span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total_nd)} hoteles</span>
+<p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo (target &lt;3%) e IPM (Income Per Million USD · target ≥ $650). Sin Conversión es cohorte aparte (BKGS=0); Severity IPM se aplica solo a procesables.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
-<div>{rows}</div>
-<div class="pull-note" style="margin-top:0;"><strong>Interpretación.</strong> <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total*100:.1f}%) sin conversión</strong> en P80 (BKGS=0): es cohorte estructural — diagnóstico técnico/contractual, no eficacia. De los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit)} están en RPM Crítica (&lt;1) y son la primera fila de escalamiento.</div>
+<div>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">% No Disponibilidad</h3>
+{rows_nd}
 </div>
+<div>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">IPM (USD)</h3>
+{rows_ipm}
+</div>
+</div>
+<div class="pull-note" style="margin-top:18px;"><strong>Interpretación.</strong> En %NoDispo, {fmt_int_es(n_critmas)} hoteles ({n_critmas/total_nd*100:.2f}%) en Severity Crítica+ requieren escalamiento. En IPM, <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total_ipm*100:.1f}%) sin conversión</strong> son cohorte estructural; de los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit_ipm)} están en Crítica (&lt; $200) — primera fila de escalamiento.</div>
 </section>
 '''
 
@@ -257,7 +280,7 @@ def render_bajo_rend():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'bk','label':'BKGS','width':'55px','fmt':lambda r:fmt_int_es(r['Bookings'])},
-        {'key':'rpm','label':'RPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
+        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
     ]
     col1 = render_top_table('','',df1,cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -267,8 +290,8 @@ def render_bajo_rend():
 <div>
 <div class="section-num">Sección 05</div>
 <h2 class="section-title">Bajo rendimiento</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · RPM Crítica/Revisar · ordenado por tráfico ↓</span>
-<p class="section-kicker">Hoteles del P80 con bookings &gt; 0 pero RPM en banda Crítica/Revisar — están convirtiendo, pero el revenue por millón de búsquedas no llega al target ≥ $650.</p>
+<span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · IPM Crítica/Revisar · ordenado por tráfico ↓</span>
+<p class="section-kicker">Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
@@ -316,7 +339,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
     """Tabla de una columna con N filas para Top dimensión RND."""
     grid = '1fr 90px 70px 75px 70px'
     rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
-    for label in [dim_label,'Tráfico','BKGS','%NoDispo','RPM']:
+    for label in [dim_label,'Tráfico','BKGS','%NoDispo','IPM']:
         align = 'left' if label==dim_label else 'right'
         color = '#EA0074' if label==dim_label else 'var(--ink-muted)'
         rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
@@ -398,8 +421,8 @@ def render_plan_accion():
                    f'Plan de saneamiento para <strong>{fmt_int_es(n_critmas)} hoteles Crítica/Súper Crítica</strong> de %NoDispo · separar por canasta y trabajar primero CUG y B2B-OP (weight 0,6).',
                    f'{int(n_critmas*0.5)} migrados a Revisar')
     rows += action('Supply Comercial / Wholesale', 'Mid Priority', 'MP2', '2 semanas',
-                   f'Revisión de RPM en <strong>CUG</strong> ({fmt_num2(M["CUG (UOP)_w18"]["rpm"])}, {cug_rpm_wow:+.1f}% WoW) · canasta de mayor weight con deterioro pronunciado en GB.'.replace('+,','+').replace('.', ',', 1),
-                   'RPM &gt; 600')
+                   f'Revisión de IPM en <strong>CUG</strong> ({fmt_num2(M["CUG (UOP)_w18"]["rpm"])}, {cug_rpm_wow:+.1f}% WoW) · canasta de mayor weight con deterioro pronunciado en GB.'.replace('+,','+').replace('.', ',', 1),
+                   'IPM &gt; 600')
     rows += action('Supply Comercial / Supply Optimization', 'Estratégica', 'ES1', 'Q3',
                    f'Reducir <strong>cohorte Sin Conversión</strong> en P80 ({fmt_int_es(n_sc)} hoteles, {n_sc/len(p80_hotel)*100:.0f}% del P80) · proyecto trimestral de remediación técnica + comercial.',
                    '-30% vs baseline')
@@ -422,8 +445,8 @@ def render_plan_accion():
 
 # Render parte 2 completa
 RESUMEN = render_resumen_ej()
-SEV_ND = render_severity_nodispo()
-SEV_RPM = render_severity_rpm()
+SEV_COMBINADA = render_severities_combinadas()
+
 DEMANDA_NC = render_demanda_nc()
 BAJO_REND = render_bajo_rend()
 NO_CONV = render_no_convierten()
@@ -431,7 +454,7 @@ NO_CONV = render_no_convierten()
 # Top 5 por dimensión
 def kicker_corp():
     top1 = TOP['corps'].iloc[0]
-    return f'Distribución por corporativo. <strong>{top1["CorpName"]}</strong> lidera tráfico ({fmt_big(top1["Trafico"])}) con %NoDispo {fmt_pct2(top1["%NoDispo"])} y RPM {fmt_num2(top1["RPM"])}.'
+    return f'Distribución por corporativo. <strong>{top1["CorpName"]}</strong> lidera tráfico ({fmt_big(top1["Trafico"])}) con %NoDispo {fmt_pct2(top1["%NoDispo"])} y IPM ${fmt_num2(top1["RPM"])}.'
 def kicker_dest():
     top1 = TOP['destinos'].iloc[0]
     return f'Distribución por destino. <strong>{top1["Destino"]}</strong> concentra {fmt_big(top1["Trafico"])} en búsquedas con %NoDispo {fmt_pct2(top1["%NoDispo"])} (banda {top1["BandaNoDispo"]}).'
@@ -445,7 +468,7 @@ POR_PAIS = render_top_dimension('09','Por país', TOP['paises_10'], 'PaisDestino
 
 PLAN_ACCION = render_plan_accion()
 
-PART2 = RESUMEN + SEV_ND + SEV_RPM + DEMANDA_NC + BAJO_REND + NO_CONV + POR_CORP + POR_DEST + POR_PAIS + PLAN_ACCION
+PART2 = RESUMEN + SEV_COMBINADA + DEMANDA_NC + BAJO_REND + NO_CONV + POR_CORP + POR_DEST + POR_PAIS + PLAN_ACCION
 
 with open('part2_rnd.html','w') as f:
     f.write(PART2)

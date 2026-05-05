@@ -131,15 +131,15 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
         ('canasta', TAB_EF['canasta']),
     ]:
         if t_key == 'channel':
-            # Split en Producto Propio + Third Party
-            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False)
-            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('CR_Unicos', ascending=False)
+            # Split en Producto Propio + Third Party (ordenado peor→mejor por Eficacia)
+            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('Eficacia').reset_index(drop=True)
+            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('Eficacia').reset_index(drop=True)
             rows_pp = ''
-            for _, r in df_pp.iterrows():
-                rows_pp += f'<div><strong>{r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
+            for i, r in df_pp.iterrows():
+                rows_pp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
             rows_tp = ''
-            for _, r in df_tp.iterrows():
-                rows_tp += f'<div><strong>{r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
+            for i, r in df_tp.iterrows():
+                rows_tp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
@@ -148,17 +148,30 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        rows = ''
-        for _, r in df_t.iterrows():
+        # Tabs en 2 columnas · 1-5 izquierda, 6-10 derecha · ya vienen ordenadas peor→mejor (sort_values('Eficacia'))
+        rows_left, rows_right = '', ''
+        for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['Eficacia']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 36); val = r['Eficacia']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['Eficacia']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 36); val = r['Eficacia']
-            rows += f'<div><strong>{lab}</strong> <span>{fmt_pct2(val)}</span></div>'
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{rows}</div>'
+                lab = truncate(r[col], 30); val = r['Eficacia']
+            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+            if i < 5:
+                rows_left += cell
+            else:
+                rows_right += cell
+        if rows_right:
+            panel_html = (
+                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+                f'<div>{rows_left}</div><div>{rows_right}</div>'
+                f'</div>'
+            )
+        else:
+            panel_html = rows_left
+        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
@@ -209,14 +222,15 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
         ('canasta', TAB_CV['canasta']),
     ]:
         if t_key == 'channel':
-            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False)
-            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('CR_Unicos', ascending=False)
+            # Split en Producto Propio + Third Party (peor→mejor por ConvRate)
+            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('ConvRate').reset_index(drop=True)
+            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('ConvRate').reset_index(drop=True)
             rows_pp = ''
-            for _, r in df_pp.iterrows():
-                rows_pp += f'<div><strong>{r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
+            for i, r in df_pp.iterrows():
+                rows_pp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
             rows_tp = ''
-            for _, r in df_tp.iterrows():
-                rows_tp += f'<div><strong>{r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
+            for i, r in df_tp.iterrows():
+                rows_tp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
@@ -225,17 +239,30 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        rows = ''
-        for _, r in df_t.iterrows():
+        # 2 columnas · 1-5 izquierda, 6-10 derecha · peor→mejor
+        rows_left, rows_right = '', ''
+        for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['ConvRate']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 36); val = r['ConvRate']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['ConvRate']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 36); val = r['ConvRate']
-            rows += f'<div><strong>{lab}</strong> <span>{fmt_pct2(val)}</span></div>'
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{rows}</div>'
+                lab = truncate(r[col], 30); val = r['ConvRate']
+            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+            if i < 5:
+                rows_left += cell
+            else:
+                rows_right += cell
+        if rows_right:
+            panel_html = (
+                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+                f'<div>{rows_left}</div><div>{rows_right}</div>'
+                f'</div>'
+            )
+        else:
+            panel_html = rows_left
+        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-cv-destino" name="tabs-cv" style="display:none;" type="radio"/>
