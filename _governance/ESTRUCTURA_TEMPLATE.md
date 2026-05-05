@@ -167,3 +167,112 @@ Cuando el pipeline necesite leer el template, el path es:
 - RND: `rates-nodispo/_template/_TEMPLATE_RatesNoDispo_Reporte.html`
 - CR: `checkrates/_template/_TEMPLATE_CheckRates_Reporte.html`
 - Hub: `_template/_TEMPLATE_Hub.html`
+
+---
+
+## 🔄 Reorganización Week 18 (mejora post lanzamiento)
+
+A partir de Week 18 (sesión cierre · post mejoras de canasta), las **secciones globales** del editorial pasan de **6 secciones apiladas** a **2 bloques con tabs**:
+
+### RND · estructura actualizada
+
+```
+Sección 01 · Resumen Ejecutivo (sin cambio)
+Sección 02 · Severidad (NoDispo + IPM en 2 cols, sin cambio)
+
+Sección 03 · Análisis por hotel (NUEVO · 3 tabs)
+   ├── Tab DEMANDA NC   · Top 10 hoteles con mayor demanda no convertida
+   ├── Tab BAJO REND    · Top 10 hoteles con BKGS>0 y IPM Crítica/Revisar
+   └── Tab SIN CONV     · Top 10 hoteles con BKGS=0 (cohorte estructural)
+
+Sección 04 · Por dimensión (NUEVO · 3 tabs)
+   ├── Tab CORPORATIVO  · Top 10 corporativos por tráfico
+   ├── Tab DESTINO      · Top 10 destinos por tráfico
+   └── Tab PAÍS         · Top 10 países por tráfico
+
+Sección 05 · Plan de Acción (sin cambio)
+Sección 06+ · Análisis por canasta (sin cambio · 3 canastas)
+```
+
+### CR · estructura actualizada
+
+```
+Sección 01 · Resumen Ejecutivo
+Sección 02 · Severidad (Eficacia + Conv Rate en 2 cols)
+Sección 03 · Channel agrupado (Producto Propio · Third Party · sin cambio)
+
+Sección 04 · Análisis por hotel (NUEVO · 4 tabs)
+   ├── Tab CRÍTICOS        · peor Eficacia con BKGS>0
+   ├── Tab BAJO REND       · alto volumen + ConvRate Crítica/Revisar
+   ├── Tab SIN CONV        · BKGS=0
+   └── Tab MENOR CONVRATE  · Top 10 peores conversores absolutos
+
+Sección 05 · Por dimensión (NUEVO · 3 tabs)
+   ├── Tab CORPORATIVO  · Top 10 corp por CR únicos
+   ├── Tab DESTINO      · Top 10 destinos por CR únicos
+   └── Tab CHANNEL      · split Producto Propio + Third Party (todos los channels)
+
+Sección 06 · Plan de Acción
+Sección 07+ · Análisis por canasta (3 canastas)
+```
+
+---
+
+## Snippet literal · estructura de bloque con tabs
+
+```html
+<section id="por-hotel">
+  <div class="section-head">
+    <div>
+      <div class="section-num">Sección 03</div>
+      <h2 class="section-title">Análisis por hotel</h2>
+      <span class="section-subtitle">Top 10 · 3 ópticas analíticas</span>
+      <p class="section-kicker">Descripción general del bloque...</p>
+    </div>
+  </div>
+  
+  <div class="tabs-block">
+    <input checked id="tab-h-dnc" name="tabs-h" type="radio">
+    <input id="tab-h-br" name="tabs-h" type="radio">
+    <input id="tab-h-sc" name="tabs-h" type="radio">
+    
+    <div class="tabs-row">
+      <label class="tab-label" for="tab-h-dnc">Demanda NC</label>
+      <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
+      <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
+    </div>
+    
+    <div class="tab-panels">
+      <div class="tab-panel" data-tab="dnc">
+        <p class="tab-kicker">Kicker específico del tab activo...</p>
+        <!-- Tabla Top 10 a 2 columnas (5 izq / 5 der) -->
+      </div>
+      <!-- ... más paneles -->
+    </div>
+  </div>
+  
+  <div class="detail-callout">
+    <div>
+      <div class="lbl">Detalle completo</div>
+      <div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto.</div>
+    </div>
+    <a class="badge-link" href="Analisis_..._7d.xlsx">Excel ↗</a>
+  </div>
+</section>
+```
+
+### CSS clave para los tabs
+
+```css
+.tabs-block{border:1px solid var(--rule);background:var(--paper-soft);border-radius:6px;padding:18px 22px;}
+.tabs-block .tab-panel{display:none;}
+.tabs-block #tab-h-dnc:checked ~ .tab-panels .tab-panel[data-tab="dnc"]{display:block !important;}
+/* Importante: !important + selector con .tabs-block prefix porque .tab-panel{display:none} */
+/* del CSS hero tiene mismo nivel de especificidad y aparece después en la cascada. */
+```
+
+### Implementación en código
+
+- `render_rnd_p2.py` → `render_bloque_hoteles()` y `render_bloque_dimensiones()`
+- `render_cr_p2.py` → `render_bloque_hoteles_cr()` y `render_bloque_dimensiones_cr()`
+- `asset_rnd_head.html` y `asset_cr_head.html` → CSS de los tabs

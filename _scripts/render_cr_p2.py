@@ -574,9 +574,180 @@ def render_por_channel_split():
 POR_CHAN = render_por_channel_split()
 
 CHAN_AGR = render_channel_agrupado()
+
+# ============ NUEVO · BLOQUES CON TABS (post mejora secciones globales) ============
+def _render_panel_top_table_cr(df, cols):
+    df1 = df.iloc[:5].reset_index(drop=True)
+    df2 = df.iloc[5:10].reset_index(drop=True) if len(df)>5 else None
+    col1 = render_top_table_cr(df1, cols)
+    if df2 is not None and len(df2)>0:
+        df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
+        col2 = render_top_table_cr(df2_renum, cols)
+        return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
+    return f'<div>{col1}</div>'
+
+def render_bloque_hoteles_cr():
+    """Sección 04 · 4 tabs: Críticos · Bajo Rend · Sin Conv · Menor CR."""
+    cols_main = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
+        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+    ]
+    cols_sc = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
+        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
+    ]
+    
+    df_crit = pd.concat([TOP['criticos'], TOP['criticos_extra']], ignore_index=True)
+    df_crit.index = range(len(df_crit))
+    panel_crit = _render_panel_top_table_cr(df_crit, cols_main)
+    
+    df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
+    df_br.index = range(len(df_br))
+    panel_br = _render_panel_top_table_cr(df_br, cols_main)
+    
+    df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
+    df_sc.index = range(len(df_sc))
+    panel_sc = _render_panel_top_table_cr(df_sc, cols_sc)
+    
+    df_mcv = TOP['menor_cv'].head(10).reset_index(drop=True)
+    panel_mcv = _render_panel_top_table_cr(df_mcv, cols_main)
+    
+    n_total_sc = (p80_hotel['Bookings']==0).sum()
+    
+    k_crit = 'Hoteles del P80 con mayor severidad por Eficacia. Combinan volumen CR alto con tasa de errores elevada — primer foco de remediación técnica.'
+    k_br = 'Hoteles con tráfico significativo pero ConvRate insuficiente. Convierten, pero por debajo del target ≥2,5% — oportunidad de tunning de pricing/disponibilidad.'
+    k_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings pese a tener volumen de check-rates. Diagnóstico técnico (errores de carga, mapping, inventario) o contractual.'
+    k_mcv = 'Top 10 hoteles con BKGS&gt;0 ordenados por menor ConvRate · listados sin importar volumen, foco directo en conversión.'
+    
+    panels = (
+        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{k_crit}</p>{panel_crit}</div>'
+        f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{k_br}</p>{panel_br}</div>'
+        f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{k_sc}</p>{panel_sc}</div>'
+        f'<div class="tab-panel" data-tab="mcv"><p class="tab-kicker">{k_mcv}</p>{panel_mcv}</div>'
+    )
+    
+    return f'''<section id="por-hotel" style="margin-bottom:64px;">
+<div class="section-head">
+<div>
+<div class="section-num">Sección 04</div>
+<h2 class="section-title">Análisis por hotel</h2>
+<span class="section-subtitle" style="color:{CR_ACCENT}">Top 10 · 4 ópticas analíticas</span>
+<p class="section-kicker">Hoteles del P80 vistos desde cuatro ángulos analíticos: críticos (peor eficacia con BKGS&gt;0), bajo rendimiento (ConvRate insuficiente con volumen), sin conversión (BKGS=0), y menor ConvRate (peores conversores absolutos).</p>
+</div>
+</div>
+<div class="tabs-block">
+<input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-mcv" name="tabs-h" style="display:none" type="radio"/>
+<div class="tabs-row">
+<label class="tab-label" for="tab-h-crit">Críticos</label>
+<label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
+<label class="tab-label" for="tab-h-sc">Sin Conversión</label>
+<label class="tab-label" for="tab-h-mcv">Menor ConvRate</label>
+</div>
+<div class="tab-panels">{panels}</div>
+</div>
+<div class="detail-callout" style="margin-top:18px;">
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto.</div></div>
+<a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
+</div>
+</section>
+'''
+
+def render_bloque_dimensiones_cr():
+    """Sección 05 · 3 tabs: Corporativo · Destino · Channel (split PP/TP integrado en panel)."""
+    
+    def panel_for_dim(df_full, dim_col, dim_label):
+        df_top10 = df_full.head(10).reset_index(drop=True)
+        df1 = df_top10.iloc[:5].reset_index(drop=True)
+        df2 = df_top10.iloc[5:10].reset_index(drop=True)
+        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0)
+        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
+        if col2:
+            return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
+        return f'<div>{col1}</div>'
+    
+    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo')
+    panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino')
+    
+    # Channel · split PP/TP en el mismo panel
+    PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+    THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    df_chan = TOP['channels']
+    df_pp = df_chan[df_chan['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    df_tp = df_chan[df_chan['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    
+    def render_chan_table(df, color_b):
+        grid = '1fr 90px 70px 75px 70px'
+        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {color_b};margin-bottom:4px;">'
+        for label in ['Channel','CR únicos','BKGS','Eficacia','ConvRate']:
+            align = 'left' if label=='Channel' else 'right'
+            color = color_b if label=='Channel' else 'var(--ink-muted)'
+            rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
+        rows += '</div>'
+        for i, r in df.iterrows():
+            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {truncate(r["ExternalProviderName"],28)}</div></div>'
+                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
+            rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
+        return rows
+    
+    panel_chan = (
+        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">'
+        f'<div><div style="font-size:11px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;">🏠 Producto Propio</div>{render_chan_table(df_pp, "#5C469C")}</div>'
+        f'<div><div style="font-size:11px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;">🔌 Third Party</div>{render_chan_table(df_tp, "#4FC3F4")}</div>'
+        f'</div>'
+    )
+    
+    top_corp = TOP['corps_10'].iloc[0]
+    top_dest = TOP['destinos'].iloc[0]
+    
+    k_corp = f'Top corporativos por volumen CR. <strong>{top_corp["CorpName"]}</strong> lidera con {fmt_int_es(top_corp["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_corp["Eficacia"])} (banda {top_corp["BandaEficacia"]}) y ConvRate {fmt_pct2(top_corp["ConvRate"])}.'
+    k_dest = f'Top destinos por volumen CR. <strong>{top_dest["Destino"]}</strong> con {fmt_int_es(top_dest["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_dest["Eficacia"])} y ConvRate {fmt_pct2(top_dest["ConvRate"])}.'
+    k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {len(df_pp)} channels · <strong style="color:#4FC3F4;">Third Party</strong>: {len(df_tp)} channels.'
+    
+    panels = (
+        f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
+        f'<div class="tab-panel" data-tab="dest"><p class="tab-kicker">{k_dest}</p>{panel_dest}</div>'
+        f'<div class="tab-panel" data-tab="chan"><p class="tab-kicker">{k_chan}</p>{panel_chan}</div>'
+    )
+    
+    return f'''<section id="por-dimension" style="margin-bottom:64px;">
+<div class="section-head">
+<div>
+<div class="section-num">Sección 05</div>
+<h2 class="section-title">Por dimensión</h2>
+<span class="section-subtitle" style="color:{CR_ACCENT}">Top 10 agregados · ordenado por CR únicos ↓</span>
+<p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
+</div>
+</div>
+<div class="tabs-block">
+<input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
+<input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
+<input id="tab-d-chan" name="tabs-d" style="display:none" type="radio"/>
+<div class="tabs-row">
+<label class="tab-label" for="tab-d-corp">Corporativo</label>
+<label class="tab-label" for="tab-d-dest">Destino</label>
+<label class="tab-label" for="tab-d-chan">Channel</label>
+</div>
+<div class="tab-panels">{panels}</div>
+</div>
+</section>
+'''
+
+BLOQUE_HOTELES_CR = render_bloque_hoteles_cr()
+BLOQUE_DIM_CR = render_bloque_dimensiones_cr()
+
 PLAN_ACCION = render_plan_accion()
 
-PART2 = RESUMEN + SEV_COMBINADA + CRITICOS + BAJO_REND + SIN_CONV + CHAN_AGR + POR_CORP + POR_DEST + POR_CHAN + PLAN_ACCION
+PART2 = RESUMEN + SEV_COMBINADA + BLOQUE_HOTELES_CR + CHAN_AGR + BLOQUE_DIM_CR + PLAN_ACCION
 
 with open('part2_cr.html','w') as f:
     f.write(PART2)

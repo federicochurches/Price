@@ -283,6 +283,52 @@ for key in ['b2c','op','cug']:
     add_table(ws_sn, df_sn[cols_sn], start_row=5,
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0'},
               banda_col='BandaNoDispo')
+    
+    # 5. Demanda No Convertida por canasta · Top 50 hoteles con mayor tráfico no convertido
+    ws_dn = wb.create_sheet(f'Canasta {short} · Demanda NC')
+    add_title(ws_dn, f'Canasta {short} · Top 50 Demanda No Convertida',
+              f'{c["name"]} · tráfico × %NoDispo · ordenado por demanda perdida ↓')
+    df_dn = c['agg_hotel'].copy()
+    df_dn['DemandaNC'] = df_dn['Trafico'] * df_dn['%NoDispo']
+    df_dn = df_dn.sort_values('DemandaNC', ascending=False).head(50).reset_index(drop=True)
+    df_dn.insert(0,'Rk', range(1, len(df_dn)+1))
+    cols_dn = [col for col in ['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','DemandaNC','Bookings','RPM','BandaNoDispo'] if col in df_dn.columns]
+    add_table(ws_dn, df_dn[cols_dn], start_row=5,
+              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','DemandaNC':'#,##0','RPM':'$0.00'},
+              banda_col='BandaNoDispo')
+    
+    # 6. Por Corporativo por canasta · Top 50
+    ws_co = wb.create_sheet(f'Canasta {short} · Por Corp')
+    add_title(ws_co, f'Canasta {short} · Por Corporativo',
+              f'{c["name"]} · Top 50 corp · ordenado por tráfico ↓')
+    df_co = c['agg_corp'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
+    df_co.insert(0,'Rk', range(1, len(df_co)+1))
+    cols_co = [col for col in ['Rk','CorpName','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_co.columns]
+    add_table(ws_co, df_co[cols_co], start_row=5,
+              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
+              banda_col='BandaNoDispo')
+    
+    # 7. Por Destino por canasta · Top 50
+    ws_de = wb.create_sheet(f'Canasta {short} · Por Destino')
+    add_title(ws_de, f'Canasta {short} · Por Destino',
+              f'{c["name"]} · Top 50 destinos · ordenado por tráfico ↓')
+    df_de = c['agg_destino'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
+    df_de.insert(0,'Rk', range(1, len(df_de)+1))
+    cols_de = [col for col in ['Rk','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_de.columns]
+    add_table(ws_de, df_de[cols_de], start_row=5,
+              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
+              banda_col='BandaNoDispo')
+    
+    # 8. Por País por canasta · todos los países
+    ws_pa = wb.create_sheet(f'Canasta {short} · Por País')
+    add_title(ws_pa, f'Canasta {short} · Por País',
+              f'{c["name"]} · todos los países · ordenado por tráfico ↓')
+    df_pa = c['agg_pais'].copy().sort_values('Trafico', ascending=False).reset_index(drop=True)
+    df_pa.insert(0,'Rk', range(1, len(df_pa)+1))
+    cols_pa = [col for col in ['Rk','PaisDestino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_pa.columns]
+    add_table(ws_pa, df_pa[cols_pa], start_row=5,
+              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','RPM':'$0.00'},
+              banda_col='BandaNoDispo')
 
 # Save
 out = '/mnt/user-data/outputs/Analisis_Rates_NoDispo_W18.xlsx'

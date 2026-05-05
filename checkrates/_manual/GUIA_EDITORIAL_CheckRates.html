@@ -33,6 +33,19 @@ ul li { margin-bottom: 6px; }
 <!-- ===== ACTUALIZACIONES WEEK 18 ===== -->
 <div style="margin:32px 0;padding:20px 24px;background:#FFF8E5;border-left:4px solid #D4A878;border-radius:4px;font-size:13px;line-height:1.55;color:#5C469C;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;color:#A86A1D;">⚠ Actualizaciones Week 18 · Mayo 2026</div>
+
+<!-- ===== ACTUALIZACIÓN POST WEEK 18 · TABS GLOBALES ===== -->
+<div style="margin:32px 0;padding:20px 24px;background:#EDE8F7;border-left:4px solid #5C469C;border-radius:4px;font-size:13px;line-height:1.55;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;color:#5C469C;">📐 Reorganización secciones globales · Mayo 2026</div>
+<p style="margin:0 0 10px;">A partir de la mejora post Week 18, las secciones globales se organizan en <strong>2 bloques con tabs</strong> en lugar de 6 secciones apiladas.</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Bloque "Análisis por hotel"</strong> · agrupa todas las ópticas que muestran hoteles individuales (Demanda NC · Bajo Rend · Sin Conv · Menor ConvRate en CR).</li>
+<li><strong>Bloque "Por dimensión"</strong> · agrupa todos los listados agregados (Corporativo · Destino · País en RND · Channel en CR).</li>
+<li>Cada tab muestra Top 10 a 2 columnas (1-5 izquierda · 6-10 derecha) con un kicker dinámico que da contexto.</li>
+<li>La sección "Channel agrupado" en CR (cards comparadoras Producto Propio vs Third Party) se mantiene independiente porque es comparador, no listado.</li>
+</ul>
+<p style="margin:10px 0 0;font-size:12px;color:#5C469C;font-style:italic;">Ver <code>_governance/ESTRUCTURA_TEMPLATE.md</code> para snippet HTML literal y CSS de los tabs.</p>
+</div>
 <ul style="margin:0;padding-left:20px;">
 <li><strong>Pestaña "Ficha Técnica" eliminada del Excel.</strong> El Excel arranca directo con Severity. Las KPIs globales viven solo en el reporte editorial HTML (header + métricas inline + cards hero).</li>
 <li><strong>RPM redefinido como GBM USD/M</strong> (Gross Booking USD por millón de búsquedas). Bandas calibradas: <code>&lt;$200 Crítica · $200-$650 Revisar · $650-$1500 Aceptable · ≥$1500 Exitosa</code>. <strong>Target ≥ $650.</strong></li>

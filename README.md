@@ -97,7 +97,9 @@ Price/
 
 ### Estructura post Week 18
 
-**Header** (masthead) → **Métricas globales inline** → **Cards Hero** (KPI principal + secundario con tabs País/Destino/Corp/Hotel/Canasta/Channel) → **Alertas Críticas** (3 cards) → **Resumen Ejecutivo** (10 findings · 2 columnas con valor numérico destacado) → **Severidad** → **Top 5/10 listings por sección** → **Plan de Acción** (6 acciones · 2 columnas · catálogo Áreas Accountable v2) → **Análisis por Canasta** (B2C · B2B-OP · CUG, cada una con su propio bloque interno completo)
+**Header** (masthead) → **Métricas globales inline** → **Cards Hero** (KPI principal + secundario con tabs País/Destino/Corp/Hotel/Canasta/Channel) → **Alertas Críticas** (3 cards) → **Resumen Ejecutivo** (10 findings · 2 columnas con valor numérico destacado) → **Severidad** (2 columnas combinadas) → **Análisis por hotel** (bloque con tabs · Demanda NC/BR/SC/Menor CV) → **Por dimensión** (bloque con tabs · Corp/Dest/País-Channel) → **Plan de Acción** (6 acciones · 2 columnas · catálogo Áreas Accountable v2) → **Análisis por Canasta** (B2C · B2B-OP · CUG, cada una con su propio bloque interno completo)
+
+> **Mejora post Week 18:** las 6 secciones globales apiladas (Demanda NC · Bajo Rend · Sin Conv · Por Corp · Por Dest · Por País) se consolidaron en 2 bloques con tabs, reduciendo ~40% la altura del editorial.
 
 **Cada canasta contiene:** KPI block · Alertas Críticas · Resumen Ejecutivo · Severidad · Tabs por dimensión · Top 10 Bajo Rendimiento · Top 10 Sin Conversión · Síntesis ejecutiva · Plan de Acción
 

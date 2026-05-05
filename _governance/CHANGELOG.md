@@ -62,3 +62,53 @@
 - Plantillas H1 narrativo a 2 líneas
 - Pills Súper Crítica con transparencia 80%
 - Channel agrupado en CR (Producto Propio vs Third Party)
+
+---
+
+## 📌 Pendientes para Week 19
+
+- **Eliminar duplicación de outputs.** El pipeline genera 4 archivos preview en `/mnt/user-data/outputs/` con nombres `Supply_*_W18.html` y `Analisis_*_W18.xlsx` que son idénticos a los del repo. Para Week 19, los renderers y excel writers deben escribir directo con el nombre estándar del repo:
+  - `Supply_RatesNoDispo_W18.html` → `RatesNoDispo_Reporte_Editorial.html`
+  - `Supply_CheckRates_W18.html` → `CheckRates_Reporte_Editorial.html`
+  - `Analisis_Rates_NoDispo_W18.xlsx` → `Analisis_Rates_NoDispo_7d.xlsx`
+  - `Analisis_CheckRates_W18.xlsx` → `Analisis_Checkrates_7d.xlsx`
+  
+  Tocar: `assemble_cr.py`, `assemble_rnd.py`, `excel_cr.py`, `excel_rnd.py`, `build_package.py`.
+
+---
+
+## 🆕 Mejora · Reorganización secciones globales (post Week 18)
+
+**Fecha:** 5 mayo 2026 (sesión continuación Week 18)
+
+### Antes
+6 secciones globales apiladas en cada reporte (RND y CR), cada una con su `<h2>`, kicker y tabla multi-columna. Resultado: ~1200px de scroll vertical solo en globales.
+
+### Ahora
+2 bloques con tabs por reporte:
+
+**RND:**
+- Sección 03 · Análisis por hotel · 3 tabs (Demanda NC · Bajo Rend · Sin Conv)
+- Sección 04 · Por dimensión · 3 tabs (Corp · Destino · País)
+
+**CR:**
+- Sección 04 · Análisis por hotel · 4 tabs (Críticos · Bajo Rend · Sin Conv · Menor ConvRate)
+- Sección 05 · Por dimensión · 3 tabs (Corp · Destino · Channel con split PP/TP)
+
+### Beneficios
+- Reduce ~40% la altura del reporte editorial
+- Misma información disponible (Top 10 a 2 cols)
+- Tab Channel del bloque dimensión integra el split Producto Propio + Third Party que antes era sección separada
+- Channel agrupado (cards comparadoras PP vs TP) se mantiene como sección independiente porque NO es un listado, es un comparador
+
+### Trade-offs aceptados
+- Ctrl+F en el navegador solo encuentra contenido del tab activo (mitigado por Excel Top 50 con todo)
+- Imprimir sale solo la tab activa (mitigado: nadie imprime el editorial, los Excels son el deliverable de detalle)
+
+### Archivos modificados
+- `render_rnd_p2.py` · funciones `render_bloque_hoteles()` y `render_bloque_dimensiones()` reemplazan las 6 funciones viejas
+- `render_cr_p2.py` · idem con `_cr` suffix
+- `asset_rnd_head.html` y `asset_cr_head.html` · CSS de los tabs nuevos (especificidad con `!important` para vencer regla base `.tab-panel{display:none}`)
+
+### CSS clave aprendido
+La regla `.tab-panel{display:none}` del CSS hero original tiene la misma especificidad que la regla `:checked ~ .tab-panels .tab-panel[data-tab="x"]{display:block}`. Como CSS prioriza la última declarada en orden, el `display:none` ganaba. Solución: prefijar con `.tabs-block` Y usar `!important`. Documentado en ESTRUCTURA_TEMPLATE.md.

@@ -271,6 +271,50 @@ for c_key in ['b2c','op','cug']:
     add_table(ws_sn, df_sn[['Rk','Hotel','CorpName','Destino','CR_Unicos','Success','Bookings','Eficacia','BandaEficacia']],
               start_row=5, num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
               banda_col='BandaEficacia')
+    
+    # 6. Por Corporativo por canasta · Top 50 ordenado por volumen CR
+    ws_co = wb.create_sheet(f'Canasta {short} · Por Corp')
+    add_title(ws_co, f'Canasta {short} · Por Corporativo',
+              f'{c["name"]} · Top 50 corp · ordenado por CR únicos ↓')
+    df_co = c['agg_corp'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+    df_co.insert(0,'Rk', range(1, len(df_co)+1))
+    cols_co = [col for col in ['Rk','CorpName','CR_Unicos','Success','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_co.columns]
+    add_table(ws_co, df_co[cols_co], start_row=5,
+              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
+              banda_col='BandaEficacia')
+    
+    # 7. Por Destino por canasta · Top 50
+    ws_de = wb.create_sheet(f'Canasta {short} · Por Destino')
+    add_title(ws_de, f'Canasta {short} · Por Destino',
+              f'{c["name"]} · Top 50 destinos · ordenado por CR únicos ↓')
+    df_de = c['agg_destino'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+    df_de.insert(0,'Rk', range(1, len(df_de)+1))
+    cols_de = [col for col in ['Rk','Destino','CR_Unicos','Success','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
+    add_table(ws_de, df_de[cols_de], start_row=5,
+              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
+              banda_col='BandaEficacia')
+    
+    # 8. Por Channel por canasta · todos los channels disponibles
+    ws_ch = wb.create_sheet(f'Canasta {short} · Por Channel')
+    add_title(ws_ch, f'Canasta {short} · Por Channel',
+              f'{c["name"]} · todos los channels · ordenado por CR únicos ↓')
+    df_ch = c['agg_channel'].copy().sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    df_ch.insert(0,'Rk', range(1, len(df_ch)+1))
+    cols_ch = [col for col in ['Rk','ExternalProviderName','CR_Unicos','Success','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_ch.columns]
+    add_table(ws_ch, df_ch[cols_ch], start_row=5,
+              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Success':'#,##0'},
+              banda_col='BandaEficacia')
+    
+    # 9. Menor Conv Rate por canasta · Top 50 hoteles BKGS>0 con peor ConvRate
+    ws_mc = wb.create_sheet(f'Canasta {short} · Menor CR')
+    add_title(ws_mc, f'Canasta {short} · Top 50 Menor Conv Rate',
+              f'{c["name"]} · BKGS>0 · peor ConvRate · ordenado ↑')
+    df_mc = c['agg_hotel'].copy()
+    df_mc = df_mc[df_mc['Bookings']>0].sort_values('ConvRate').head(50).reset_index(drop=True)
+    df_mc.insert(0,'Rk', range(1, len(df_mc)+1))
+    add_table(ws_mc, df_mc[['Rk','Hotel','CorpName','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
+              start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
+              banda_col='BandaConvRate')
 
 out = '/mnt/user-data/outputs/Analisis_CheckRates_W18.xlsx'
 wb.save(out)

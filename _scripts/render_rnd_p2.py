@@ -443,32 +443,156 @@ def render_plan_accion():
 </section>
 '''
 
+# ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
+def _render_panel_top_table(df, cols, idx_offset=0):
+    """Renderiza una tabla Top 5 a 2 cols dentro de un panel de tab."""
+    df1 = df.iloc[:5].reset_index(drop=True)
+    df2 = df.iloc[5:10].reset_index(drop=True) if len(df)>5 else None
+    col1 = render_top_table('','',df1,cols)
+    if df2 is not None and len(df2)>0:
+        df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
+        col2 = render_top_table('','',df2_renum,cols)
+        return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
+    return f'<div>{col1}</div>'
+
+def render_bloque_hoteles():
+    """Sección 03 · 3 tabs: Demanda NC · Bajo Rend · Sin Conv."""
+    # Demanda NC
+    cols_dnc = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
+        {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
+        {'key':'dnc','label':'Pérdidas','width':'80px','fmt':lambda r:fmt_big(r['DemandaNoConvertida'])},
+    ]
+    df_dnc = pd.concat([TOP['demanda_nc'], TOP['demanda_nc_extra']], ignore_index=True)
+    df_dnc.index = range(len(df_dnc))
+    panel_dnc = _render_panel_top_table(df_dnc, cols_dnc)
+    top1_dnc = df_dnc.iloc[0]
+    kicker_dnc = f'Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(top1_dnc["Hotel"],38)}</strong> ({fmt_big(top1_dnc["DemandaNoConvertida"])} búsquedas perdidas).'
+    
+    # Bajo Rendimiento
+    cols_br = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
+        {'key':'bk','label':'BKGS','width':'55px','fmt':lambda r:fmt_int_es(r['Bookings'])},
+        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
+    ]
+    df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
+    df_br.index = range(len(df_br))
+    panel_br = _render_panel_top_table(df_br, cols_br)
+    kicker_br = 'Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.'
+    
+    # Sin Conversión
+    cols_sc = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
+        {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
+        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r.get('Destino',''),18)},
+    ]
+    df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
+    df_sc.index = range(len(df_sc))
+    panel_sc = _render_panel_top_table(df_sc, cols_sc)
+    n_total_sc = (p80_hotel['Bookings']==0).sum()
+    kicker_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de IPM.'
+    
+    panels = (
+        f'<div class="tab-panel" data-tab="dnc"><p class="tab-kicker">{kicker_dnc}</p>{panel_dnc}</div>'
+        f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{kicker_br}</p>{panel_br}</div>'
+        f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{kicker_sc}</p>{panel_sc}</div>'
+    )
+    
+    return f'''<section id="por-hotel" style="margin-bottom:64px;">
+<div class="section-head">
+<div>
+<div class="section-num">Sección 03</div>
+<h2 class="section-title">Análisis por hotel</h2>
+<span class="section-subtitle" style="color:#EA0074">Top 10 · 3 ópticas analíticas</span>
+<p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
+</div>
+</div>
+<div class="tabs-block">
+<input checked id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
+<div class="tabs-row">
+<label class="tab-label" for="tab-h-dnc">Demanda NC</label>
+<label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
+<label class="tab-label" for="tab-h-sc">Sin Conversión</label>
+</div>
+<div class="tab-panels">{panels}</div>
+</div>
+<div class="detail-callout" style="margin-top:18px;">
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica (Demanda NC · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
+<a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
+</div>
+</section>
+'''
+
+def render_bloque_dimensiones():
+    """Sección 04 · 3 tabs: Corporativo · Destino · País."""
+    
+    def panel_for_dim(df_full, dim_col, dim_label):
+        df_top10 = df_full.head(10).reset_index(drop=True)
+        df1 = df_top10.iloc[:5].reset_index(drop=True)
+        df2 = df_top10.iloc[5:10].reset_index(drop=True)
+        col1 = _render_dim_table_rnd(df1, dim_col, dim_label, start_idx=0)
+        col2 = _render_dim_table_rnd(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
+        if col2:
+            return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
+        return f'<div>{col1}</div>'
+    
+    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo')
+    panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino')
+    panel_pais = panel_for_dim(TOP['paises_10'], 'PaisDestino', 'País')
+    
+    # Kickers
+    top_corp = TOP['corps'].iloc[0]
+    top_dest = TOP['destinos'].iloc[0]
+    top_pais = TOP['paises'].iloc[0]
+    k_corp = f'Distribución por corporativo. <strong>{top_corp["CorpName"]}</strong> lidera tráfico ({fmt_big(top_corp["Trafico"])}) con %NoDispo {fmt_pct2(top_corp["%NoDispo"])} y IPM ${fmt_num2(top_corp["RPM"])}.'
+    k_dest = f'Distribución por destino. <strong>{top_dest["Destino"]}</strong> concentra {fmt_big(top_dest["Trafico"])} en búsquedas con %NoDispo {fmt_pct2(top_dest["%NoDispo"])} (banda {top_dest["BandaNoDispo"]}).'
+    k_pais = f'Distribución por país. <strong>{top_pais["PaisDestino"]}</strong> concentra {fmt_big(top_pais["Trafico"])} de búsquedas con %NoDispo {fmt_pct2(top_pais["%NoDispo"])}.'
+    
+    panels = (
+        f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
+        f'<div class="tab-panel" data-tab="dest"><p class="tab-kicker">{k_dest}</p>{panel_dest}</div>'
+        f'<div class="tab-panel" data-tab="pais"><p class="tab-kicker">{k_pais}</p>{panel_pais}</div>'
+    )
+    
+    return f'''<section id="por-dimension" style="margin-bottom:64px;">
+<div class="section-head">
+<div>
+<div class="section-num">Sección 04</div>
+<h2 class="section-title">Por dimensión</h2>
+<span class="section-subtitle" style="color:#EA0074">Top 10 agregados · ordenado por tráfico ↓</span>
+<p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
+</div>
+</div>
+<div class="tabs-block">
+<input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
+<input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
+<input id="tab-d-pais" name="tabs-d" style="display:none" type="radio"/>
+<div class="tabs-row">
+<label class="tab-label" for="tab-d-corp">Corporativo</label>
+<label class="tab-label" for="tab-d-dest">Destino</label>
+<label class="tab-label" for="tab-d-pais">País</label>
+</div>
+<div class="tab-panels">{panels}</div>
+</div>
+</section>
+'''
+
 # Render parte 2 completa
 RESUMEN = render_resumen_ej()
 SEV_COMBINADA = render_severities_combinadas()
 
-DEMANDA_NC = render_demanda_nc()
-BAJO_REND = render_bajo_rend()
-NO_CONV = render_no_convierten()
-
-# Top 5 por dimensión
-def kicker_corp():
-    top1 = TOP['corps'].iloc[0]
-    return f'Distribución por corporativo. <strong>{top1["CorpName"]}</strong> lidera tráfico ({fmt_big(top1["Trafico"])}) con %NoDispo {fmt_pct2(top1["%NoDispo"])} y IPM ${fmt_num2(top1["RPM"])}.'
-def kicker_dest():
-    top1 = TOP['destinos'].iloc[0]
-    return f'Distribución por destino. <strong>{top1["Destino"]}</strong> concentra {fmt_big(top1["Trafico"])} en búsquedas con %NoDispo {fmt_pct2(top1["%NoDispo"])} (banda {top1["BandaNoDispo"]}).'
-def kicker_pais():
-    top1 = TOP['paises'].iloc[0]
-    return f'Distribución por país. <strong>{top1["PaisDestino"]}</strong> concentra {fmt_big(top1["Trafico"])} de búsquedas con %NoDispo {fmt_pct2(top1["%NoDispo"])}.'
-
-POR_CORP = render_top_dimension('07','Por corporativo', TOP['corps_10'], 'CorpName','Corporativo', kicker_corp(), 'corp')
-POR_DEST = render_top_dimension('08','Por destino', TOP['destinos_10'], 'Destino','Destino', kicker_dest(), 'dest')
-POR_PAIS = render_top_dimension('09','Por país', TOP['paises_10'], 'PaisDestino','País', kicker_pais(), 'pais')
+# === NUEVO · 2 bloques con tabs (reemplazan 6 secciones apiladas) ===
+BLOQUE_HOTELES = render_bloque_hoteles()
+BLOQUE_DIM = render_bloque_dimensiones()
 
 PLAN_ACCION = render_plan_accion()
 
-PART2 = RESUMEN + SEV_COMBINADA + DEMANDA_NC + BAJO_REND + NO_CONV + POR_CORP + POR_DEST + POR_PAIS + PLAN_ACCION
+PART2 = RESUMEN + SEV_COMBINADA + BLOQUE_HOTELES + BLOQUE_DIM + PLAN_ACCION
 
 with open('part2_rnd.html','w') as f:
     f.write(PART2)
