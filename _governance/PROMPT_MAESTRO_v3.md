@@ -32,7 +32,7 @@ Tu objetivo no es describir datos — es **detectar fugas de revenue, priorizar 
 ### Templates HTML (referencia visual)
 | Archivo | Descripción |
 |---|---|
-| `_TEMPLATE_Hub.html` | Template del hub Netlify |
+| `_TEMPLATE_Hub.html` | Template del hub Netlify · **post Week 18:** sin `lock-so-block`, cards como `div onclick`, sin Syne |
 | `_TEMPLATE_RatesNoDispo_Reporte.html` | Estructura editorial RND |
 | `_TEMPLATE_CheckRates_Reporte.html` | Estructura editorial CR |
 | `GUIA_EDITORIAL_RatesNoDispo.html` | Guía de estilo RND |
@@ -509,6 +509,8 @@ df_cug = df[df['DistributionCategory'] == 'CUG (UOP)']
 3. **banda_rpm thresholds viejos** · `engine.py` tenía 1/2.5/4. Fix: $200/$650/$1500 USD/M.
 4. **CSS `--amber` en CR** · estaba `#EA0074` (magenta RND). Fix: `#5C469C` (violet) en `asset_cr_head.html`.
 5. **Sev_dict pandas Series vs dict** · `sum(sev_dict.values())` falla con Series. Fix: `int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))`.
+6. **Merge conflict `index.html` publicado** · cuando Claude genera `index.html` y el repo tiene cambios locales sin mergear, los conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>>`) se publican como texto plano visible. Fix: sobreescribir el archivo limpio directamente y hacer push sin merge. Ver `COMMIT_GUIDE.md` para el procedimiento.
+7. **Placeholders `{{}}` sin resolver en `index.html`** · al hacer `str_replace` quirúrgico en el template, los placeholders fuera de las cards (`.hub-sub`, `.lock-footer-url`) pueden quedar sin reemplazar. Fix: usar `sed -i 's/{{SEMANA}}/Week NN/g'` global sobre el archivo completo, o confiar en el `.replace()` de `build_package.py` que ya lo hace correctamente.
 
 ---
 
@@ -531,4 +533,4 @@ df_cug = df[df['DistributionCategory'] == 'CUG (UOP)']
 
 ---
 
-**Última actualización:** Mayo 2026 · post Week 18 · v3 single-sheet datasets
+**Última actualización:** Mayo 2026 · post Week 18 · v3 single-sheet datasets · bugs #6 y #7 documentados
