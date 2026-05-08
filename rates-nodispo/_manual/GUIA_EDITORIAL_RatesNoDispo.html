@@ -123,7 +123,16 @@ ul li { margin-bottom: 6px; }
   </table>
   Para agregar más reemplazos, editar <code>_PAIS_REPLACEMENTS</code> en <code>render_helpers.py</code>.
 </li>
-<li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card). Semántica: para %NoDispo baja=mejora (verde <code>#2F6C34</code>/<code>#EAF3DE</code>), sube=deterioro (rojo <code>#C0392B</code>/<code>#FCE8E6</code>). Para IPM es inverso: sube=mejora. Pill 8px, sin borde, formato <code>↑+X,Xpp</code> o <code>↓-X,X%</code>. Si no hay dato W17, la pill se omite silenciosamente.</li>
+<li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card).
+  <table>
+    <tr><th>Clase CSS</th><th>Contexto</th><th>Color texto</th><th>Fondo</th><th>Cuándo</th></tr>
+    <tr><td><code>em.wow-pill.up</code></td><td>%NoDispo sube / IPM baja</td><td><code>#C0392B</code></td><td><code>#FCE8E6</code></td><td>Deterioro</td></tr>
+    <tr><td><code>em.wow-pill.dn</code></td><td>%NoDispo baja / IPM sube</td><td><code>#2F6C34</code></td><td><code>#EAF3DE</code></td><td>Mejora</td></tr>
+    <tr><td><code>em.wow-pill.nd</code></td><td>Sin dato W17</td><td><code>#8A8377</code></td><td><code>#F2EEE6</code></td><td>N/D → muestra "—"</td></tr>
+  </table>
+  <strong>Implementación:</strong> las pills usan <code>&lt;em&gt;</code> (no <code>&lt;span&gt;</code>) para evitar conflicto con el selector <code>.tab-panel div span</code> que aplica <code>color:#EA0074 !important</code>. Los colores vienen 100% del CSS con <code>!important</code>, no del inline style.
+  <strong>Layout de filas:</strong> <code>display:grid;grid-template-columns:1fr 52px 44px</code> — columnas fijas para nombre / valor / pill, garantizando alineación perfecta independientemente de si hay pill o no.
+</li>
 </ul>
 
 <h2>2. Bandas de Severity</h2>
