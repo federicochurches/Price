@@ -1,5 +1,31 @@
 # CHANGELOG · Reportes Supply Optimization
 
+## Week 19 · Mayo 2026 · Pack de mejoras pre-release
+
+### 🎨 Cambios visuales
+
+- **Hub `index.html`:** eliminado `.rpt-name` (repetía el nombre del reporte ya visible en la pill). `.rpt-week` subido a 15px/700 como título visual. Fondo cards y archivo-links cambiado de `#fff` a `#F8F4EC` (paper cálido, consistente con los reportes).
+- **Alertas globales RND:** pills IPM diferenciadas de %NoDispo. %NoDispo = magenta (`#EA0074`/`#FCE4F1`). IPM = amber (`#A86A1D`/`#FEF3E2`). Antes ambas eran magenta.
+- **Alertas globales RND:** nombres de hotel/destino/corp en una sola línea (`white-space:nowrap; overflow:hidden; text-overflow:ellipsis`). Evita cards asimétricas.
+- **Resumen Ejecutivo global RND:** pills de banda inline en lugar de texto plano (ej. `banda Aceptable` → pill visual). Pills de delta WoW con color semántico (verde=mejora, rojo=deterioro). Mayúscula después de cada `·`. Finding #6 → RIU como corp con mayor %NoDispo + delta WoW + transversalidad canastas. Finding #9 → hoteles con NoDispo >90% (Hard Rock London, Rixos Radamis, Grand Hyatt Istanbul) + Iberostar 61,12%.
+- **Tabs KPI hero RND:** delta WoW por ítem en tabs País, Destino y Corp (no en Hotel ni Canasta). Sistema de pills `<em>` con 3 clases: `wow-pill up` (rojo, deterioro), `wow-pill dn` (verde, mejora), `wow-pill nd` (gris "—", sin dato W17). Layout de filas cambiado de `flex` a `grid` con columnas fijas `1fr 52px 44px` para alineación perfecta.
+- **Normalización nombres de país:** `Estados Unidos de América` → `United States`, `Reino Unido` → `United Kingdom`, `República Dominicana` → `R. Dominicana`, `Emiratos Árabes Unidos` → `Emirates`. Función `clean_pais_name()` centralizada en `render_helpers.py`.
+
+### 🔧 Cambios de cálculo
+
+- **`calc_rnd.py`:** TAB_NoDispo y TAB_RPM enriquecidos con columnas WoW (`NoDispo_WoW_pp`, `RPM_WoW_pct`) via merge con aggregates W17 por dimensión.
+
+### 🐛 Bugs corregidos
+
+- **CSS `em.wow-pill`:** el selector `.tab-panel div span` con `!important` sobreescribía el color de las pills. Fix: cambiar pills de `<span>` a `<em>` + definir colores en clases CSS `em.wow-pill.up/dn/nd` con `!important`.
+- **Selector CSS amber:** agregadas exclusiones `:not(.wow-pill):not(.wow-spacer)` en ambas ocurrencias del selector en `asset_rnd_head.html` y templates.
+
+### 📁 Archivos modificados
+
+`render_helpers.py` · `calc_rnd.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `asset_rnd_head.html` · `_TEMPLATE_RatesNoDispo_Reporte.html` · `_TEMPLATE_Hub.html` · `GUIA_EDITORIAL_RatesNoDispo.html` · `index.html` (hub W18)
+
+---
+
 ## Week 18 · Mayo 2026
 
 ### 🐛 Bugs corregidos
@@ -112,47 +138,3 @@
 
 ### CSS clave aprendido
 La regla `.tab-panel{display:none}` del CSS hero original tiene la misma especificidad que la regla `:checked ~ .tab-panels .tab-panel[data-tab="x"]{display:block}`. Como CSS prioriza la última declarada en orden, el `display:none` ganaba. Solución: prefijar con `.tabs-block` Y usar `!important`. Documentado en ESTRUCTURA_TEMPLATE.md.
-
----
-
-## 🆕 Banner descarga Excel por canasta (post Week 18 · vuelta final)
-
-**Fecha:** 5 mayo 2026
-
-### Cambio
-Cada canasta del editorial ahora tiene un banner minimalista al final con link directo a un Excel filtrado **solo de esa canasta**.
-
-**Antes:** un solo Excel global con 33 (RND) o 37 (CR) pestañas.
-
-**Ahora:**
-- Excel global se mantiene (todas las pestañas, para análisis cruzado)
-- + 3 Excels solo-canasta por reporte (B2C, OP, CUG) con 8 (RND) o 9 (CR) pestañas cada uno
-
-### Archivos generados por reporte (4 cada uno · total 8)
-```
-checkrates/week-18/
-├── Analisis_Checkrates_7d.xlsx       (37 pestañas · global)
-├── Analisis_Checkrates_B2C_7d.xlsx   (9 pestañas)
-├── Analisis_Checkrates_OP_7d.xlsx    (9 pestañas)
-└── Analisis_Checkrates_CUG_7d.xlsx   (9 pestañas)
-
-rates-nodispo/week-18/
-├── Analisis_Rates_NoDispo_7d.xlsx       (33 pestañas · global)
-├── Analisis_Rates_NoDispo_B2C_7d.xlsx   (8 pestañas)
-├── Analisis_Rates_NoDispo_OP_7d.xlsx    (8 pestañas)
-└── Analisis_Rates_NoDispo_CUG_7d.xlsx   (8 pestañas)
-```
-
-### Banner visual
-Al final de cada canasta del editorial (después del Plan de Acción), un banner sutil de una fila:
-```
-📥  Descargar análisis completo · Canasta {nombre}     N pestañas · Top 50 por dimensión    [EXCEL ↗]
-```
-Color del CTA según reporte: violeta `#5C469C` (CR), rosa `#EA0074` (RND).
-
-### Implementación
-- `excel_cr.py` y `excel_rnd.py` refactorizados: lógica canasta extraída a función reutilizable `add_canasta_sheets()` que recibe el workbook destino y un `prefix` opcional. Una llamada para el global (con prefix `Canasta {short} ·`) y tres llamadas para los solo-canasta (sin prefix, nombres cortos).
-- `render_cr_p3.py` y `render_rnd_p3.py`: variable `banner_descarga_canasta` construida en `render_canasta_block()` con map `idx_str → file_suffix` para el filename correcto.
-
-### Para Week 19+
-El nuevo flujo es automático. Cada vez que se generen los Excel se crearán los 4 archivos. No requiere ajuste adicional.

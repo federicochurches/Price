@@ -111,7 +111,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 .tab-panel div:has(> strong + span){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
-.tab-panel div span:not(.tab-key){color:var(--amber);font-weight:700;}
+.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:var(--amber);font-weight:700;}
 #tab-nd-destino:checked ~ .tabs-row label[for="tab-nd-destino"],
 #tab-nd-corp:checked ~ .tabs-row label[for="tab-nd-corp"],
 #tab-nd-hotel:checked ~ .tabs-row label[for="tab-nd-hotel"],
@@ -267,6 +267,10 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .kpi-card input[type="radio"][id*="-pais"]:checked ~ .tab-panels .tab-panel[data-tab="pais"]{
   display:block;
 }
-.tab-panel div span:not(.tab-key){color:#EA0074 !important;font-weight:700;}
+.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:#EA0074 !important;font-weight:700;}
+em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;}
+em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
+em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
+em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </style>
 </head>
