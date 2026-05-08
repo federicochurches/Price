@@ -418,20 +418,20 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # CSS tabs de canasta para hotel y dimensión
     extra_css = f'''<style>
-.tabs-block input#tab-{idx_str}-h-dnc:checked ~ .tabs-row label[for="tab-{idx_str}-h-dnc"],
-.tabs-block input#tab-{idx_str}-h-br:checked ~ .tabs-row label[for="tab-{idx_str}-h-br"],
-.tabs-block input#tab-{idx_str}-h-sc:checked ~ .tabs-row label[for="tab-{idx_str}-h-sc"],
-.tabs-block input#tab-{idx_str}-d-corp:checked ~ .tabs-row label[for="tab-{idx_str}-d-corp"],
-.tabs-block input#tab-{idx_str}-d-dest:checked ~ .tabs-row label[for="tab-{idx_str}-d-dest"],
-.tabs-block input#tab-{idx_str}-d-pais:checked ~ .tabs-row label[for="tab-{idx_str}-d-pais"]{{
+#tab-{idx_str}-h-dnc:checked ~ .tabs-row label[for="tab-{idx_str}-h-dnc"],
+#tab-{idx_str}-h-br:checked ~ .tabs-row label[for="tab-{idx_str}-h-br"],
+#tab-{idx_str}-h-sc:checked ~ .tabs-row label[for="tab-{idx_str}-h-sc"],
+#tab-{idx_str}-d-corp:checked ~ .tabs-row label[for="tab-{idx_str}-d-corp"],
+#tab-{idx_str}-d-dest:checked ~ .tabs-row label[for="tab-{idx_str}-d-dest"],
+#tab-{idx_str}-d-pais:checked ~ .tabs-row label[for="tab-{idx_str}-d-pais"]{{
   background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }}
-.tabs-block input#tab-{idx_str}-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
-.tabs-block input#tab-{idx_str}-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
-.tabs-block input#tab-{idx_str}-h-sc:checked  ~ .tab-panels .tab-panel-c[data-tab="sc"],
-.tabs-block input#tab-{idx_str}-d-corp:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
-.tabs-block input#tab-{idx_str}-d-dest:checked ~ .tab-panels .tab-panel-c[data-tab="dest"],
-.tabs-block input#tab-{idx_str}-d-pais:checked ~ .tab-panels .tab-panel-c[data-tab="pais"]{{display:block !important;}}
+#tab-{idx_str}-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
+#tab-{idx_str}-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
+#tab-{idx_str}-h-sc:checked  ~ .tab-panels .tab-panel-c[data-tab="sc"],
+#tab-{idx_str}-d-corp:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
+#tab-{idx_str}-d-dest:checked ~ .tab-panels .tab-panel-c[data-tab="dest"],
+#tab-{idx_str}-d-pais:checked ~ .tab-panels .tab-panel-c[data-tab="pais"]{{display:block !important;}}
 /* KPI tabs canasta */
 .kpi-card input[id*="{idx_str}-nd-"]:checked ~ .tabs-row label[for*="{idx_str}-nd-"],
 .kpi-card input[id*="{idx_str}-rpm-"]:checked ~ .tabs-row label[for*="{idx_str}-rpm-"]{{
