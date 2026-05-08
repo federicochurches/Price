@@ -134,74 +134,204 @@ def _render_canasta_alertas_rnd(c, accent_color='#EA0074'):
 def render_canasta_block(canasta_data, idx_str='b2c'):
     from template_resumen import render_resumen_ejecutivo
     from template_severity import render_severity_block, render_severity_2cols, make_severity_levels, LEVELS_NODISPO, LEVELS_RPM
-    
+
     c = canasta_data
     m18 = c['m18']; m17 = c['m17']
     pct_w18 = m18['pct_nodispo']; pct_w17 = m17['pct_nodispo']
     rpm_w18 = m18['rpm']; rpm_w17 = m17['rpm']
     pct_wow = (pct_w18 - pct_w17) * 100
     rpm_wow = (rpm_w18/rpm_w17 - 1) * 100 if rpm_w17 else 0
-    
+
     banda_nd = banda_nodispo(pct_w18)
     banda_rp = banda_rpm(rpm_w18, m18['bookings'])
-    
-    n_crit = c['n_critica']
+
     n_p80 = len(c['p80'])
     n_sc = (c['p80']['Bookings']==0).sum()
     n_sc_total = (c['agg_hotel']['Bookings']==0).sum()
-    
-    # KPI hero (versión compacta para canasta)
-    pill_nd = banda_pill(banda_nd, target='&lt; 3%', font_size='9px')
-    pill_rp = banda_pill(banda_rp, target='≥ $650', font_size='9px')
-    
-    wow_color_nd = '#2F6C34' if pct_wow < 0 else '#C0392B'
-    wow_color_rp = '#2F6C34' if rpm_wow > 0 else '#C0392B'
-    wow_str_nd = (f'↓ {pct_wow:+.2f}pp' if pct_wow < 0 else (f'↑ +{pct_wow:.2f}pp' if pct_wow > 0 else '= 0,00pp')).replace('.', ',')
-    wow_str_rp = (f'↑ {rpm_wow:+.1f}%' if rpm_wow > 0 else (f'↓ {rpm_wow:+.1f}%' if rpm_wow < 0 else '= 0%')).replace('.', ',')
-    
-    kpi_block = f'''<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-<div style="border:1px solid var(--rule);padding:16px 18px;border-radius:3px;background:var(--paper);">
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% No Dispo</div>
-<div style="display:flex;align-items:baseline;gap:12px;margin-top:6px;">
-<div style="font-size:36px;font-weight:600;color:#EA0074;letter-spacing:-.02em;">{fmt_pct2(pct_w18)}</div>
-{pill_nd}
+
+    # ── Helpers pills ────────────────────────────────────────────────────────
+    def get_pill(name, wow_map):
+        for key, (txt, mejora) in wow_map.items():
+            if key.lower() in name.lower() or name.lower() in key.lower():
+                if txt is None:
+                    return '<em class="wow-pill nd">—</em>'
+                return f'<em class="wow-pill {"dn" if mejora else "up"}">{txt}</em>'
+        return '<em class="wow-pill nd">—</em>'
+
+    # WoW por dimensión de canasta (datos del merge en calc_rnd)
+    tab_nd  = c.get('tab_nd',  {})   # dict con keys pais/destino/corp → DataFrame con NoDispo_WoW_pp
+    tab_rpm = c.get('tab_rpm', {})   # idem con RPM_WoW_pct
+
+    # ── KPI cards con gauge + wow_box + tabs ─────────────────────────────────
+    def wow_box_canasta(v17, v18, wow_str, wow_color, accent):
+        return f'''<div style="margin-top:14px;background:var(--paper-soft);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
+<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>
+  <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
 </div>
-<div style="margin-top:10px;display:flex;gap:12px;font-size:11px;color:var(--ink-soft);">
-<span>Week 17: <strong>{fmt_pct2(pct_w17)}</strong></span>
-<span style="color:{wow_color_nd};font-weight:700;">{wow_str_nd}</span>
+<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W18</div>
+  <div style="font-size:16px;font-weight:700;color:{accent};margin-top:2px;">{v18}</div>
 </div>
-</div>
-<div style="border:1px solid var(--rule);padding:16px 18px;border-radius:3px;background:var(--paper);">
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million USD</span></div>
-<div style="display:flex;align-items:baseline;gap:12px;margin-top:6px;">
-<div style="font-size:36px;font-weight:600;color:#EA0074;letter-spacing:-.02em;">${fmt_num2(rpm_w18)}</div>
-{pill_rp}
-</div>
-<div style="margin-top:10px;display:flex;gap:12px;font-size:11px;color:var(--ink-soft);">
-<span>Week 17: <strong>${fmt_num2(rpm_w17)}</strong></span>
-<span style="color:{wow_color_rp};font-weight:700;">{wow_str_rp}</span>
-</div>
+<div style="flex:1;text-align:center;background:{'#E0F0E2' if wow_color=='#2F6C34' else '#FCE4F1'};padding:8px 4px;border-radius:3px;">
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>
+  <div style="font-size:16px;font-weight:700;color:{wow_color};margin-top:2px;">{wow_str}</div>
 </div>
 </div>'''
+
+    def gauge_canasta(banda, tipo):
+        return gauge_5levels(banda, tipo)
+
+    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False):
+        """Genera filas de tab con grid 1fr 52px 44px + pills WoW."""
+        rows_l, rows_r = '', ''
+        df10 = df.head(10).reset_index(drop=True)
+        for i, r in df10.iterrows():
+            raw = r[dim_col]
+            if parse_hotel:
+                lab = truncate(clean_hotel_name(raw), 26)
+            elif dim_col == 'PaisDestino':
+                lab = clean_pais_name(raw, max_len=22)
+            else:
+                lab = truncate(raw, 26)
+            val = r[val_col] if val_col in r else 0
+            val_str = (f'${fmt_num2(val)}' if is_rpm else fmt_pct2(val))
+            apply_wow = wow_map is not None and dim_col != 'Hotel' and dim_col != 'Canasta'
+            pill = get_pill(str(raw), wow_map) if apply_wow else '<em class="wow-pill nd">—</em>' if not parse_hotel else ''
+            pill_html = pill if apply_wow or parse_hotel == False else ''
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                    f'<span style="text-align:right;">{val_str}</span>'
+                    f'{pill_html}</div>')
+            if i < 5:
+                rows_l += cell
+            else:
+                rows_r += cell
+        if rows_r:
+            return (f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+                    f'<div>{rows_l}</div><div>{rows_r}</div></div>')
+        return rows_l
+
+    def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
+                          gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
+        pill = banda_pill(banda, target=pill_target, font_size='9px')
+        gauge = gauge_canasta(banda, gauge_tipo)
+        val18_str = f'{prefix}{fmt_pct2(val18)}' if not prefix else f'${fmt_num2(val18)}'
+        val17_str = f'{prefix}{fmt_pct2(val17)}' if not prefix else f'${fmt_num2(val17)}'
+        if prefix == '':
+            val18_str = fmt_pct2(val18)
+            val17_str = fmt_pct2(val17)
+        wb = wow_box_canasta(val17_str, val18_str, wow_str, wow_color, '#EA0074')
+        # Tabs
+        tabs_labels = ''.join(f'<label class="tab-label" for="tab-{card_id}-{tk}">{tl}</label>'
+                               for tk, tl, _, _, _ in tab_configs)
+        tabs_inputs = ''.join(
+            f'<input {"checked " if i==0 else ""}id="tab-{card_id}-{tk}" name="tabs-{card_id}" style="display:none;" type="radio"/>'
+            for i,(tk,_,_,_,_) in enumerate(tab_configs)
+        )
+        panels = ''
+        for tk, tl, df_t, wm, is_rpm in tab_configs:
+            dim_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(tk, tk)
+            parse_hotel = tk == 'hotel'
+            val_col = 'RPM' if is_rpm else '%NoDispo'
+            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm)
+            panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
+        return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+{tabs_inputs}
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
+<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-top:4px;">{val18_str}</div>
+<div style="margin-top:10px;">{pill}</div>
+{gauge}
+{wb}
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
+<div class="tab-panels">{panels}</div>
+</div>'''
+
+    # Datos de tabs para canasta
+    df_dest = c.get('top_dest', c['agg_dest'].sort_values('%NoDispo', ascending=False).head(10))
+    df_corp = c.get('top_corp', c['agg_corp'].sort_values('%NoDispo', ascending=False).head(10))
+    df_hot  = c.get('top_hot',  c['p80'].sort_values('%NoDispo', ascending=False).head(10))
+    df_pais = c.get('top_pais', c['agg_pais'].sort_values('%NoDispo', ascending=False).head(10)) if 'agg_pais' in c else c['agg_dest'].head(10)
+    df_dest_rpm = c.get('top_dest_rpm', c['agg_dest'][c['agg_dest']['RPM']>0].sort_values('RPM').head(10))
+    df_corp_rpm = c.get('top_corp_rpm', c['agg_corp'][c['agg_corp']['RPM']>0].sort_values('RPM').head(10))
+    df_hot_rpm  = c.get('top_hot_rpm',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM').head(10))
+    df_pais_rpm = c.get('top_pais_rpm', df_pais)
+
+    wow_nd_dest = tab_nd.get('destino', {}); wow_nd_corp = tab_nd.get('corp', {}); wow_nd_pais = tab_nd.get('pais', {})
+    wow_rpm_dest = tab_rpm.get('destino', {}); wow_rpm_corp = tab_rpm.get('corp', {}); wow_rpm_pais = tab_rpm.get('pais', {})
+
+    wow_color_nd = '#2F6C34' if pct_wow < 0 else '#C0392B'
+    wow_color_rp = '#2F6C34' if rpm_wow > 0 else '#C0392B'
+    wow_str_nd = (f'↓ {abs(pct_wow):.2f}pp' if pct_wow < 0 else f'↑ +{pct_wow:.2f}pp').replace('.', ',')
+    wow_str_rp = (f'↑ +{rpm_wow:.1f}%' if rpm_wow > 0 else f'↓ {rpm_wow:.1f}%').replace('.', ',')
+
+    tabs_nd = [
+        ('pais',    'País',    df_pais,     wow_nd_pais,  False),
+        ('destino', 'Destino', df_dest,     wow_nd_dest,  False),
+        ('corp',    'Corp',    df_corp,     wow_nd_corp,  False),
+        ('hotel',   'Hotel',   df_hot,      None,         False),
+    ]
+    tabs_rpm = [
+        ('pais',    'País',    df_pais_rpm, wow_rpm_pais, True),
+        ('destino', 'Destino', df_dest_rpm, wow_rpm_dest, True),
+        ('corp',    'Corp',    df_corp_rpm, wow_rpm_corp, True),
+        ('hotel',   'Hotel',   df_hot_rpm,  None,         True),
+    ]
+
+    card_nd  = kpi_card_canasta('% de No Dispo', pct_w18, pct_w17, banda_nd, '&lt; 3%',
+                                 wow_str_nd, wow_color_nd, 'nodispo', df_dest, tabs_nd,
+                                 prefix='', card_id=f'{idx_str}-nd')
+    card_rpm = kpi_card_canasta('IPM · Income Per Million USD', rpm_w18, rpm_w17, banda_rp, '≥ $650',
+                                 wow_str_rp, wow_color_rp, 'rpm', df_dest_rpm, tabs_rpm,
+                                 prefix='$', card_id=f'{idx_str}-rpm')
+
+    kpi_block = f'<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">{card_nd}{card_rpm}</div>'
     
     # === ALERTAS Críticas dentro de canasta ===
     alertas_canasta_html = _render_canasta_alertas_rnd(c)
-    
-    # === RESUMEN EJECUTIVO dentro de canasta · 10 findings 2 cols ===
-    findings = _build_canasta_findings_rnd(c)
+
+    # === RESUMEN EJECUTIVO con pills de banda y WoW ===
+    def pill_b(nombre):
+        COLORS = {'Exitosa':('#0D7A99','#E8F7FD'),'Aceptable':('#5C469C','#EDE8F7'),
+                  'Revisar':('#A86A1D','#FFF4E0'),'Crítica':('#C0392B','#FCE4F1'),
+                  'Súper Crítica':('#ffffff','rgba(22,22,22,.80)'),'Sin Conv':('#8A8377','#F2EEE6')}
+        ct, cb = COLORS.get(nombre, ('#161616','#F2EEE6'))
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;'
+                f'text-transform:uppercase;padding:2px 7px;border-radius:3px;background:{cb};color:{ct};'
+                f'vertical-align:middle;margin:0 2px;">{nombre}</span>')
+    def pill_d(texto, mejora):
+        color = '#2F6C34' if mejora else '#C0392B'
+        bg    = '#EAF3DE' if mejora else '#FCE8E6'
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
+                f'border-radius:3px;background:{bg};color:{color};vertical-align:middle;margin:0 2px;">{texto}</span>')
+
+    findings_raw = _build_canasta_findings_rnd(c)
+    # Enriquecer findings con pills
+    for i, f in enumerate(findings_raw):
+        titulo = f['titulo']; desc = f['desc']
+        if i == 0:  # %NoDispo
+            titulo = f'% NoDispo · {pill_b(banda_nd)}'
+            desc = f'{pill_d(wow_str_nd, pct_wow<0)} · {desc}'
+        elif i == 1:  # IPM
+            titulo = f'IPM · {pill_b(banda_rp)}'
+            desc = f'{pill_d(wow_str_rp, rpm_wow>0)} · {desc}'
+        # Mayúscula después de ·
+        desc = '. '.join(s.strip().capitalize() if j>0 else s for j,s in enumerate(desc.split('. ')))
+        findings_raw[i] = {**f, 'titulo': titulo, 'desc': desc}
+
     resumen_canasta_html = render_resumen_ejecutivo(
-        findings, accent_color='#EA0074', scope='canasta',
+        findings_raw, accent_color='#EA0074', scope='canasta',
         header_title=f'Resumen Ejecutivo · Canasta {c["short"]}'
     )
-    
-    # === SEVERIDAD dentro de canasta · 2 cols ===
-    levels_nd = make_severity_levels(c['sev_nd'], LEVELS_NODISPO)
+
+    # === SEVERIDAD ===
+    levels_nd  = make_severity_levels(c['sev_nd'],  LEVELS_NODISPO)
     levels_rpm = make_severity_levels(c['sev_rpm'], LEVELS_RPM)
-    sev_block_nd = render_severity_block('% NoDispo', '●', '#EA0074', levels_nd, n_p80)
+    sev_block_nd  = render_severity_block('% NoDispo', '●', '#EA0074', levels_nd,  n_p80)
     sev_block_rpm = render_severity_block('IPM (Income Per Million USD)', '●', '#A86A1D', levels_rpm, n_p80)
     severity_canasta_html = render_severity_2cols(sev_block_nd, sev_block_rpm)
-    
-    # === Tabs (Destino, Corp, Hotel, País) — Top 10 a 2 columnas, borde folder ===
+
+    # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
         rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>BKGS</span></div>'
         for i, r in df.iterrows():
@@ -211,55 +341,110 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 label = clean_pais_name(label)
             label = truncate(label, 28)
             rows += (f'<div class="panel-row">'
-                     f'<span class="label">{start_idx + i + 1}. {label}</span>'
+                     f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
                      f'<span class="cr">{fmt_int_es(r["Bookings"])}</span>'
                      f'</div>')
         return rows
-    
-    def tab_panel(t_key, df_full, dim_col, dim_label, parse_hotel=False):
-        df_top10 = df_full.head(10).reset_index(drop=True)
-        df1 = df_top10.iloc[:5].reset_index(drop=True)
-        df2 = df_top10.iloc[5:10].reset_index(drop=True)
+
+    def tab_panel_hotel(t_key, df_full, dim_col, dim_label, parse_hotel=False):
+        df10 = df_full.head(10).reset_index(drop=True)
+        df1  = df10.iloc[:5].reset_index(drop=True)
+        df2  = df10.iloc[5:10].reset_index(drop=True)
         col1 = panel_inner_rnd(df1, dim_col, dim_label, parse_hotel, start_idx=0)
         col2 = panel_inner_rnd(df2, dim_col, dim_label, parse_hotel, start_idx=5) if len(df2)>0 else ''
         body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
                 if col2 else f'<div>{col1}</div>')
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
-    
-    tabs_html = f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Tabs por dimensión</h3>
-<div class="canasta-tabs canasta-tabs-{idx_str}" style="margin:8px 0 24px;">
-<input checked="" id="tab-{idx_str}-destino" name="tabs-{idx_str}" type="radio"/>
-<input id="tab-{idx_str}-corp" name="tabs-{idx_str}" type="radio"/>
-<input id="tab-{idx_str}-hotel" name="tabs-{idx_str}" type="radio"/>
-<input id="tab-{idx_str}-pais" name="tabs-{idx_str}" type="radio"/>
-<div class="tabs-row">
-<label class="tab-label tab-folder" for="tab-{idx_str}-destino">Destino</label>
-<label class="tab-label tab-folder" for="tab-{idx_str}-corp">Corporativo</label>
-<label class="tab-label tab-folder" for="tab-{idx_str}-hotel">Hotel</label>
-<label class="tab-label tab-folder" for="tab-{idx_str}-pais">País</label>
+
+    df_dnc_c = c['p80'].copy()
+    df_dnc_c['DemandaNoConvertida'] = df_dnc_c['Trafico'] * df_dnc_c['%NoDispo']
+    df_dnc_c = df_dnc_c.sort_values('DemandaNoConvertida', ascending=False).head(10).reset_index(drop=True)
+    df_br_c  = c.get('bajo_rend',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM').head(10))
+    df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False).head(10))
+
+    bloque_hotel_html = f'''<div style="margin:32px 0 24px;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Hotel</div>
+<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
+<input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
+<input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
+<input id="tab-{idx_str}-h-sc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
+<div class="tabs-row" style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:0;">
+<label class="tab-label" for="tab-{idx_str}-h-dnc">Demanda No Convertida</label>
+<label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
+<label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
-<div class="tab-panels" style="border-top:1px solid var(--rule);padding-top:16px;">
-{tab_panel('destino', c['top_dest'], 'Destino', 'Destino')}
-{tab_panel('corp', c['top_corp'], 'CorpName', 'Corporativo')}
-{tab_panel('hotel', c['top_hot'], 'Hotel', 'Hotel', parse_hotel=True)}
-{tab_panel('pais', c['top_pais'], 'PaisDestino', 'País')}
+<div class="tab-panels">
+{tab_panel_hotel('dnc', df_dnc_c, 'Hotel', 'Hotel', parse_hotel=True)}
+{tab_panel_hotel('br',  df_br_c,  'Hotel', 'Hotel', parse_hotel=True)}
+{tab_panel_hotel('sc',  df_sc_c,  'Hotel', 'Hotel', parse_hotel=True)}
+</div>
 </div>
 </div>'''
-    
+
+    # === ANÁLISIS POR DIMENSIÓN · 3 tabs (Corp · Destino · País) ===
+    def tab_panel_dim(t_key, df_full, dim_col, dim_label):
+        df10 = df_full.head(10).reset_index(drop=True)
+        df1  = df10.iloc[:5].reset_index(drop=True)
+        df2  = df10.iloc[5:10].reset_index(drop=True)
+        col1 = panel_inner_rnd(df1, dim_col, dim_label, parse_hotel=False, start_idx=0)
+        col2 = panel_inner_rnd(df2, dim_col, dim_label, parse_hotel=False, start_idx=5) if len(df2)>0 else ''
+        body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
+                if col2 else f'<div>{col1}</div>')
+        return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
+
+    df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
+    df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_dest' in c else df_dest
+    df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_pais' in c else df_pais
+
+    bloque_dim_html = f'''<div style="margin:32px 0 24px;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Dimensión</div>
+<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
+<input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
+<input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
+<input id="tab-{idx_str}-d-pais" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
+<div class="tabs-row" style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:0;">
+<label class="tab-label" for="tab-{idx_str}-d-corp">Corporativo</label>
+<label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
+<label class="tab-label" for="tab-{idx_str}-d-pais">País</label>
+</div>
+<div class="tab-panels">
+{tab_panel_dim('corp', df_corp_dim, 'CorpName', 'Corporativo')}
+{tab_panel_dim('dest', df_dest_dim, 'Destino',  'Destino')}
+{tab_panel_dim('pais', df_pais_dim, 'PaisDestino', 'País')}
+</div>
+</div>
+</div>'''
+
+    # CSS tabs de canasta para hotel y dimensión
     extra_css = f'''<style>
-.canasta-tabs-{idx_str} input#tab-{idx_str}-destino:checked ~ .tabs-row label[for="tab-{idx_str}-destino"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-corp:checked ~ .tabs-row label[for="tab-{idx_str}-corp"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-hotel:checked ~ .tabs-row label[for="tab-{idx_str}-hotel"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-pais:checked ~ .tabs-row label[for="tab-{idx_str}-pais"]{{
-  color:var(--ink);background:var(--paper);border-color:var(--rule);border-bottom-color:var(--paper);
+.tabs-block input#tab-{idx_str}-h-dnc:checked ~ .tabs-row label[for="tab-{idx_str}-h-dnc"],
+.tabs-block input#tab-{idx_str}-h-br:checked ~ .tabs-row label[for="tab-{idx_str}-h-br"],
+.tabs-block input#tab-{idx_str}-h-sc:checked ~ .tabs-row label[for="tab-{idx_str}-h-sc"],
+.tabs-block input#tab-{idx_str}-d-corp:checked ~ .tabs-row label[for="tab-{idx_str}-d-corp"],
+.tabs-block input#tab-{idx_str}-d-dest:checked ~ .tabs-row label[for="tab-{idx_str}-d-dest"],
+.tabs-block input#tab-{idx_str}-d-pais:checked ~ .tabs-row label[for="tab-{idx_str}-d-pais"]{{
+  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }}
-.canasta-tabs-{idx_str} input#tab-{idx_str}-destino:checked ~ .tab-panels .tab-panel-c[data-tab="destino"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-corp:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-hotel:checked ~ .tab-panels .tab-panel-c[data-tab="hotel"],
-.canasta-tabs-{idx_str} input#tab-{idx_str}-pais:checked ~ .tab-panels .tab-panel-c[data-tab="pais"]{{display:block;}}
-.canasta-tabs-{idx_str} .tab-panel-c .panel-row .label{{color:#EA0074;}}
-.canasta-tabs-{idx_str} .tab-panel-c .panel-row .cr{{color:var(--ink);}}
+.tabs-block input#tab-{idx_str}-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
+.tabs-block input#tab-{idx_str}-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
+.tabs-block input#tab-{idx_str}-h-sc:checked  ~ .tab-panels .tab-panel-c[data-tab="sc"],
+.tabs-block input#tab-{idx_str}-d-corp:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
+.tabs-block input#tab-{idx_str}-d-dest:checked ~ .tab-panels .tab-panel-c[data-tab="dest"],
+.tabs-block input#tab-{idx_str}-d-pais:checked ~ .tab-panels .tab-panel-c[data-tab="pais"]{{display:block !important;}}
+/* KPI tabs canasta */
+.kpi-card input[id*="{idx_str}-nd-"]:checked ~ .tabs-row label[for*="{idx_str}-nd-"],
+.kpi-card input[id*="{idx_str}-rpm-"]:checked ~ .tabs-row label[for*="{idx_str}-rpm-"]{{
+  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+}}
+.kpi-card input[id^="tab-{idx_str}-nd-"]:checked ~ .tab-panels .tab-panel[data-tab="pais"],
+.kpi-card input[id^="tab-{idx_str}-nd-destino"]:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+.kpi-card input[id^="tab-{idx_str}-nd-corp"]:checked   ~ .tab-panels .tab-panel[data-tab="corp"],
+.kpi-card input[id^="tab-{idx_str}-nd-hotel"]:checked  ~ .tab-panels .tab-panel[data-tab="hotel"],
+.kpi-card input[id^="tab-{idx_str}-rpm-pais"]:checked   ~ .tab-panels .tab-panel[data-tab="pais"],
+.kpi-card input[id^="tab-{idx_str}-rpm-destino"]:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+.kpi-card input[id^="tab-{idx_str}-rpm-corp"]:checked   ~ .tab-panels .tab-panel[data-tab="corp"],
+.kpi-card input[id^="tab-{idx_str}-rpm-hotel"]:checked  ~ .tab-panels .tab-panel[data-tab="hotel"]{{display:block !important;}}
 </style>'''
     
     # === Bajo Rendimiento + Sin Conversión a 10 en 2 columnas ===
@@ -390,9 +575,8 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 {alertas_canasta_html}
 {resumen_canasta_html}
 {severity_canasta_html}
-{tabs_html}
-
-
+{bloque_hotel_html}
+{bloque_dim_html}
 {sintesis_html}
 {plan_canasta_html}
 {banner_descarga_canasta}

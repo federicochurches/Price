@@ -207,6 +207,19 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .canasta-tabs input[id$="-corp"]:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
 .canasta-tabs input[id$="-hotel"]:checked ~ .tab-panels .tab-panel-c[data-tab="hotel"],
 .canasta-tabs input[id$="-provider"]:checked ~ .tab-panels .tab-panel-c[data-tab="provider"]{display:block;}
+/* Tabs-block canasta: Análisis por Hotel + Análisis por Dimensión */
+.tabs-block .tab-panel-c{display:none;}
+.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
+.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;}
+.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;padding:6px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;}
+.tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
+.tabs-block .tab-panel-c .panel-header span:first-child{color:#EA0074;}
+.tabs-block .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
+.tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:0;margin-bottom:12px;}
+.tabs-block .tab-label{padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;user-select:none;transition:all .15s;margin-bottom:-1px;}
+.tabs-block .tab-label:hover{color:var(--ink);}
 
 /* Banner alertas dentro de canasta */
 .canasta-alert-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#FCE4F1;border:1px solid #EA0074;border-radius:3px;margin-bottom:24px;}

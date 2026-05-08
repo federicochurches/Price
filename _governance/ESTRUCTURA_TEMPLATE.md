@@ -237,7 +237,7 @@ Sección 07+ · Análisis por canasta (3 canastas)
     <input id="tab-h-sc" name="tabs-h" type="radio">
     
     <div class="tabs-row">
-      <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
+      <label class="tab-label" for="tab-h-dnc">Demanda NC</label>
       <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
       <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
     </div>
@@ -273,7 +273,13 @@ Sección 07+ · Análisis por canasta (3 canastas)
 
 ### Implementación en código
 
-- `render_rnd_p2.py` → `render_bloque_hoteles()` y `render_bloque_dimensiones()`
+- `render_rnd_p2.py` → `render_bloque_hoteles()` y `render_bloque_dimensiones()` (bloques globales)
+- `render_rnd_p3.py` → `render_canasta_block()` — cada canasta replica la estructura global:
+  - KPI cards con gauge 5 niveles + tabs (País · Destino · Corp · Hotel) + pills WoW
+  - Resumen Ejecutivo con pills de banda y delta WoW
+  - Bloque Análisis por Hotel (3 tabs: Demanda No Convertida · Bajo Rendimiento · Sin Conversión)
+  - Bloque Análisis por Dimensión (3 tabs: Corporativo · Destino · País)
+  - Síntesis · Plan de Acción · Banner Excel
 - `render_cr_p2.py` → `render_bloque_hoteles_cr()` y `render_bloque_dimensiones_cr()`
 - `asset_rnd_head.html` y `asset_cr_head.html` → CSS de los tabs
 

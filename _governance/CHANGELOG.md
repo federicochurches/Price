@@ -2,6 +2,13 @@
 
 ## Week 19 · Mayo 2026 · Pack de mejoras pre-release
 
+### 📐 Estructura de canastas RND igualada al global
+- **KPI cards de canasta:** gauge bar 5 niveles + wow_box (W17/W18/WoW) + tabs (País · Destino · Corp · Hotel) con pills WoW. Antes eran cards compactas sin gauge ni tabs.
+- **Resumen Ejecutivo de canasta:** findings #1 y #2 con pills de banda y pills de delta WoW, igual que el global.
+- **Bloque Análisis por Hotel:** 3 tabs (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) reemplaza listados estáticos.
+- **Bloque Análisis por Dimensión:** 3 tabs (Corporativo · Destino · País) reemplaza "Tabs por dimensión" anterior.
+- **CSS `.tabs-block`** base agregado a `asset_rnd_head.html`. Selectores inline en `render_rnd_p3.py`.
+
 ### 🎨 Cambios visuales
 
 - **Hub `index.html`:** eliminado `.rpt-name` (repetía el nombre del reporte ya visible en la pill). `.rpt-week` subido a 15px/700 como título visual. Fondo cards y archivo-links cambiado de `#fff` a `#F8F4EC` (paper cálido, consistente con los reportes).
@@ -15,10 +22,6 @@
 
 - **`calc_rnd.py`:** TAB_NoDispo y TAB_RPM enriquecidos con columnas WoW (`NoDispo_WoW_pp`, `RPM_WoW_pct`) via merge con aggregates W17 por dimensión.
 
-### W19 · Cambio adicional post-pack
-- **Pestaña Análisis por Hotel:** `Demanda NC` → `Demanda No Convertida`
-- **Plan de Acción RND:** 6 → 10 acciones. Nuevas: QW3 (RIU bloqueos), MP3 (Iberostar deep dive), ES3 (Wholesale hoteles agencias), ES4 (tráfico bots B2C). Áreas: Supply Optimization · Supply Comercial · Wholesale.
-
 ### 🐛 Bugs corregidos
 
 - **CSS `em.wow-pill`:** el selector `.tab-panel div span` con `!important` sobreescribía el color de las pills. Fix: cambiar pills de `<span>` a `<em>` + definir colores en clases CSS `em.wow-pill.up/dn/nd` con `!important`.
@@ -31,10 +34,6 @@
 ---
 
 ## Week 18 · Mayo 2026
-
-### W19 · Cambio adicional post-pack
-- **Pestaña Análisis por Hotel:** `Demanda NC` → `Demanda No Convertida`
-- **Plan de Acción RND:** 6 → 10 acciones. Nuevas: QW3 (RIU bloqueos), MP3 (Iberostar deep dive), ES3 (Wholesale hoteles agencias), ES4 (tráfico bots B2C). Áreas: Supply Optimization · Supply Comercial · Wholesale.
 
 ### 🐛 Bugs corregidos
 

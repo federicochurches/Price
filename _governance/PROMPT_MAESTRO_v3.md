@@ -183,7 +183,7 @@ Severity NO se aplica uniformemente · **separamos hoteles "procesables" (con co
 01 · Resumen Ejecutivo (10 findings · 2 cols)
 02 · Severity (NoDispo + IPM en 2 cols · NoDispo magenta · IPM amber)
 03 · Análisis por hotel (NUEVO · bloque con 3 tabs)
-     ├── Demanda No Convertida
+     ├── Demanda NC
      ├── Bajo Rendimiento
      └── Sin Conversión
 04 · Análisis por dimensión (NUEVO · bloque con 3 tabs)
@@ -193,11 +193,12 @@ Severity NO se aplica uniformemente · **separamos hoteles "procesables" (con co
 05 · Plan de Acción (6 acciones · 2 cols)
 06+ · Análisis por canasta (B2C · B2B-OP · CUG)
        Cada canasta tiene:
-       - KPIs hero · 2 cards (NoDispo + IPM)
+       - KPIs hero · 2 cards (NoDispo + IPM) con gauge bar 5 niveles + tabs (País · Destino · Corp · Hotel) con pills WoW
        - Alertas críticas (3 cards · Hoteles · Destinos · Corp)
-       - Resumen Ejecutivo de canasta (10 findings)
+       - Resumen Ejecutivo de canasta (10 findings) con pills de banda + pills de delta WoW
        - Severity (2 cols · NoDispo magenta · IPM amber)
-       - Tabs por dimensión (Destino · Corp · Hotel · País)
+       - Análisis por Hotel (3 tabs: Demanda No Convertida · Bajo Rendimiento · Sin Conversión)
+       - Análisis por Dimensión (3 tabs: Corporativo · Destino · País)
        - Síntesis ejecutiva
        - Plan de Acción de canasta (6 acciones)
        - 📥 Banner descarga Excel filtrado
@@ -287,7 +288,7 @@ Fondo: `#F6EFE0` (cálido · diferenciado del banner Excel `--paper-soft`)
 #### RND · 4 Excels (1 global + 3 canasta)
 
 **Global · 33 pestañas (`Analisis_Rates_NoDispo_7d.xlsx`):**
-- 9 globales: Severity %NoDispo · Severity IPM · Demanda No Convertida · Bajo Rend · Sin Conv · Por Corp · Por Destino · Por País · Plan
+- 9 globales: Severity %NoDispo · Severity IPM · Demanda NC · Bajo Rend · Sin Conv · Por Corp · Por Destino · Por País · Plan
 - 24 canasta: 8 pestañas × 3 canastas
 
 **Por canasta · 8 pestañas cada uno:**
@@ -295,7 +296,7 @@ Fondo: `#F6EFE0` (cálido · diferenciado del banner Excel `--paper-soft`)
 2. Sev IPM
 3. BajoRend
 4. Sin Conv
-5. Demanda No Convertida
+5. Demanda NC
 6. Por Corp
 7. Por Destino
 8. Por País
@@ -351,7 +352,7 @@ Columnas obligatorias:
 - `IPM = gb_usd / Trafico * 1M` (Income Per Million USD)
 - `%NoDispo` = proporción de búsquedas sin disponibilidad
 - `Conversión = Bookings / Trafico`
-- `Demanda No Convertida = Trafico × %NoDispo`
+- `Demanda NC = Trafico × %NoDispo`
 
 ### Muestra: P80 (Top hoteles que acumulan 80% del tráfico global)
 
