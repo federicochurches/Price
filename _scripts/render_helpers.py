@@ -146,3 +146,22 @@ def fmt_num2(x):
 def fmt_int_es(x):
     if pd.isna(x): return '-'
     return f'{int(round(x)):,}'.replace(',', '.')
+
+# ── Normalización de nombres de país para display en tabs ─────────────────────
+_PAIS_REPLACEMENTS = {
+    'Estados Unidos de América': 'United States',
+    'Estados Unidos':            'United States',
+    'Reino Unido':               'United Kingdom',
+    'República Dominicana':      'R. Dominicana',
+    'Emiratos Árabes Unidos':    'Emirates',
+}
+
+def clean_pais_name(name, max_len=22):
+    """Normaliza nombres de país largos para display en tabs y trunca."""
+    if not name:
+        return name
+    for old, new in _PAIS_REPLACEMENTS.items():
+        if old in name:
+            name = name.replace(old, new)
+            break
+    return truncate(name, max_len)

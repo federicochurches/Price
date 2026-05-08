@@ -207,6 +207,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         for i, r in df.iterrows():
             raw = r[dim_col]
             label = clean_hotel_name(raw) if parse_hotel else raw
+            if dim_col == 'PaisDestino':
+                label = clean_pais_name(label)
             label = truncate(label, 28)
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx + i + 1}. {label}</span>'

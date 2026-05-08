@@ -112,7 +112,18 @@ ul li { margin-bottom: 6px; }
   <li>Card izquierda: <strong>% de No Dispo</strong></li>
   <li>Card derecha: <strong>Conv Rate en RPM</strong></li>
   <li>Cada card incluye: valor grande · pill severity · gauge bar 5 niveles · comparativa Week N-1/WoW/Week N · tabs (PAÍS · DESTINO · CORP · HOTEL · CANASTA)</li>
-  <li><strong>WoW por ítem en tabs · post W19:</strong> cada fila de las tabs muestra una pill de delta WoW inline después del valor. Semántica: para %NoDispo baja=mejora (verde <code>#2F6C34</code>/<code>#EAF3DE</code>), sube=deterioro (rojo <code>#C0392B</code>/<code>#FCE8E6</code>). Para IPM es inverso: sube=mejora. La pill es 8px, sin borde, formato <code>↑+X,Xpp</code> o <code>↓-X,X%</code>. Si no hay dato W17 para el ítem, la pill se omite silenciosamente. Columnas con <code>display:flex;align-items:baseline</code> para mantener alineación nombre/valor/pill en una línea.</li>
+  <li><strong>Normalización de nombres de país · post W19:</strong> los nombres largos se reemplazan antes de mostrar en tabs y tablas. El mapa vive en <code>render_helpers.clean_pais_name()</code> y aplica en <code>render_rnd_p1</code>, <code>p2</code> y <code>p3</code>:
+  <table>
+    <tr><th>Original</th><th>Display</th></tr>
+    <tr><td>Estados Unidos de América</td><td>United States</td></tr>
+    <tr><td>Estados Unidos</td><td>United States</td></tr>
+    <tr><td>Reino Unido</td><td>United Kingdom</td></tr>
+    <tr><td>República Dominicana</td><td>R. Dominicana</td></tr>
+    <tr><td>Emiratos Árabes Unidos</td><td>Emirates</td></tr>
+  </table>
+  Para agregar más reemplazos, editar <code>_PAIS_REPLACEMENTS</code> en <code>render_helpers.py</code>.
+</li>
+<li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card). Semántica: para %NoDispo baja=mejora (verde <code>#2F6C34</code>/<code>#EAF3DE</code>), sube=deterioro (rojo <code>#C0392B</code>/<code>#FCE8E6</code>). Para IPM es inverso: sube=mejora. Pill 8px, sin borde, formato <code>↑+X,Xpp</code> o <code>↓-X,X%</code>. Si no hay dato W17, la pill se omite silenciosamente.</li>
 </ul>
 
 <h2>2. Bandas de Severity</h2>
