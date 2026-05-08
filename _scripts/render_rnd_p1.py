@@ -317,7 +317,7 @@ def render_alerts_block():
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_nd['Hotel']),38),'sub':f'{h_nd["CorpName"]} · {h_nd["Destino"]}',
          'value':fmt_pct2(h_nd['%NoDispo']),'foot':f'{fmt_big(h_nd["Trafico"])} · {int(h_nd["Bookings"])} BKGS'},
-        {'pill':'IPM','pill_color':'#A86A1D','pill_bg':'#FEF3E2',
+        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE8F7',
          'name':truncate(clean_hotel_name(h_rpm['Hotel']),38),'sub':f'{h_rpm["CorpName"]} · {h_rpm["Destino"]}',
          'value':fmt_num2(h_rpm['RPM']),'foot':f'{fmt_big(h_rpm["Trafico"])} · {int(h_rpm["Bookings"])} BKGS'},
     ]
@@ -325,7 +325,7 @@ def render_alerts_block():
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_nd['Destino'],38),'sub':f'{fmt_big(d_nd["Trafico"])} · {int(d_nd["Bookings"])} BKGS',
          'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'IPM {fmt_num2(d_nd["RPM"])}'},
-        {'pill':'IPM','pill_color':'#A86A1D','pill_bg':'#FEF3E2',
+        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE8F7',
          'name':truncate(d_rpm['Destino'],38),'sub':f'{fmt_big(d_rpm["Trafico"])} · {int(d_rpm["Bookings"])} BKGS',
          'value':fmt_num2(d_rpm['RPM']),'foot':f'%ND {fmt_pct2(d_rpm["%NoDispo"])}'},
     ]
@@ -333,7 +333,7 @@ def render_alerts_block():
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_nd['CorpName'],38),'sub':f'{fmt_big(c_nd["Trafico"])} · {int(c_nd["Bookings"])} BKGS',
          'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'IPM {fmt_num2(c_nd["RPM"])}'},
-        {'pill':'IPM','pill_color':'#A86A1D','pill_bg':'#FEF3E2',
+        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE8F7',
          'name':truncate(c_rpm['CorpName'],38),'sub':f'{fmt_big(c_rpm["Trafico"])} · {int(c_rpm["Bookings"])} BKGS',
          'value':fmt_num2(c_rpm['RPM']),'foot':f'%ND {fmt_pct2(c_rpm["%NoDispo"])}'},
     ]
