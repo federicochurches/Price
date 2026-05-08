@@ -170,7 +170,25 @@ ul li { margin-bottom: 6px; }
 <h3>3.3 H1 vs Pestañas · coherencia</h3>
 <p>Los corps mencionados en el H1 deben coincidir con los Top 3 de la pestaña Corp en card NoDispo. Si la pestaña usa filtro tráfico &gt; 50M, el H1 debe basarse en el mismo conjunto.</p>
 
-<h2>4. Sección "Detalle por Canasta"</h2>
+<h2>4. Alertas · Casos Críticos de la Semana</h2>
+
+<h3>4.0 Reglas de color de pills en alertas · post W19</h3>
+<p>Las alertas muestran 3 cards (Hoteles · Destinos · Corp), cada una con 2 subcells: una para <strong>% NoDispo</strong> y otra para <strong>IPM</strong>. Los colores son diferenciados:</p>
+<table>
+  <tr><th>Métrica</th><th>Pill bg</th><th>Pill color</th><th>Valor numérico</th></tr>
+  <tr><td><strong>% NoDispo</strong></td><td><code>#FCE4F1</code> magenta soft</td><td><code>#EA0074</code> magenta</td><td><code>#EA0074</code></td></tr>
+  <tr><td><strong>IPM</strong></td><td><code>#FEF3E2</code> amber soft</td><td><code>#A86A1D</code> amber</td><td><code>#A86A1D</code></td></tr>
+</table>
+<div class="warn">
+  <strong>⚠ Bug W18 corregido en W19:</strong> las pills IPM usaban el mismo color magenta que % NoDispo (<code>#EA0074</code>/<code>#FCE4F1</code>). Desde W19 IPM es siempre amber (<code>#A86A1D</code>/<code>#FEF3E2</code>) — consistente con la columna IPM en Severity. NO usar magenta para IPM en alertas.
+</div>
+
+<h3>4.0b Nowrap en nombres · post W19</h3>
+<p>El nombre del hotel, destino o corporativo en cada subcell de alerta debe ir en una sola línea para evitar cards asimétricas. CSS obligatorio en el div del nombre y subtítulo:</p>
+<pre><code>white-space:nowrap; overflow:hidden; text-overflow:ellipsis;</code></pre>
+<p>Aplica tanto a subcells de % NoDispo como de IPM, y tanto en alertas globales como en alertas por canasta.</p>
+
+<h2>4b. Sección "Detalle por Canasta"</h2>
 
 <h3>4.1 Estructura</h3>
 <p>3 elementos <code>&lt;details&gt;</code> colapsables (B2C, OP, CUG). Cada uno contiene:</p>
