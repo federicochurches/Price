@@ -5,7 +5,7 @@
 Las 6 secciones globales apiladas se consolidaron en 2 bloques con tabs:
 
 **RND:**
-- Sección 03 · Análisis por hotel (3 tabs · Demanda NC · Bajo Rend · Sin Conv)
+- Sección 03 · Análisis por hotel (3 tabs · Demanda No Convertida · Bajo Rend · Sin Conv)
 - Sección 04 · Por dimensión (3 tabs · Corp · Destino · País)
 
 **CR:**

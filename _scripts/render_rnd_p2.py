@@ -430,6 +430,18 @@ def render_plan_accion():
     rows += action('Supply Comercial / Wholesale', 'Estratégica', 'ES2', 'Q3',
                    'Definir <strong>SLAs de %NoDispo por corporativo</strong> para Top 10 corp por tráfico · contratos con cláusulas de severity-based pricing.',
                    'SLAs firmados')
+    rows += action('Supply Optimization', 'Quick Win', 'QW3', '1 semana',
+                   f'Investigar si el %NoDispo de <strong>RIU ({fmt_pct2(TAB_NoDispo["corp"].iloc[0]["%NoDispo"] if "RIU" in TAB_NoDispo["corp"]["CorpName"].values else 0.191)})</strong> se debe a bloqueos de contrato y si el patrón es transversal en B2C · B2B-OP · CUG o concentrado en una canasta específica.',
+                   '%NoDispo RIU &lt; 10%')
+    rows += action('Supply Comercial / Supply Optimization', 'Mid Priority', 'MP3', '2 semanas',
+                   '<strong>Deep Dive Iberostar</strong> · segundo corporativo con mayor %NoDispo · analizar causas (bloqueos, tarifas, paridad) y definir plan de saneamiento por canasta con Supply Comercial.',
+                   '%NoDispo Iberostar &lt; 5%')
+    rows += action('Wholesale', 'Estratégica', 'ES3', 'Q3',
+                   'Resolver la forma en que <strong>Wholesale sirve hoteles a las agencias</strong> para evitar que consulten hoteles y/o contratos no disponibles para cotizar · reducir tráfico inválido estructural.',
+                   'Tráfico inválido &lt; 15%')
+    rows += action('Wholesale', 'Estratégica', 'ES4', 'Q3',
+                   'Identificar y separar el <strong>tráfico de bots del tráfico orgánico</strong> generado por agencias · con foco en canasta B2C que concentra mayor ruido en métricas de %NoDispo e IPM.',
+                   'Bots identificados y filtrados')
     
     return f'''<section id="plan-accion">
 <div class="section-head">
@@ -457,8 +469,8 @@ def _render_panel_top_table(df, cols, idx_offset=0):
     return f'<div>{col1}</div>'
 
 def render_bloque_hoteles():
-    """Sección 03 · 3 tabs: Demanda NC · Bajo Rend · Sin Conv."""
-    # Demanda NC
+    """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
+    # Demanda No Convertida
     cols_dnc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
@@ -516,14 +528,14 @@ def render_bloque_hoteles():
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
 <div class="tabs-row">
-<label class="tab-label" for="tab-h-dnc">Demanda NC</label>
+<label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
 <div class="detail-callout" style="margin-top:18px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica (Demanda NC · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
 </div>
 </section>

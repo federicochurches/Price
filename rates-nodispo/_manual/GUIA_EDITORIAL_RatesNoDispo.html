@@ -40,7 +40,7 @@ ul li { margin-bottom: 6px; }
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;color:#5C469C;">📐 Reorganización secciones globales · Mayo 2026</div>
 <p style="margin:0 0 10px;">A partir de la mejora post Week 18, las secciones globales se organizan en <strong>2 bloques con tabs</strong> en lugar de 6 secciones apiladas.</p>
 <ul style="margin:0;padding-left:20px;">
-<li><strong>Bloque "Análisis por hotel"</strong> · agrupa todas las ópticas que muestran hoteles individuales (Demanda NC · Bajo Rend · Sin Conv · Menor ConvRate en CR).</li>
+<li><strong>Bloque "Análisis por hotel"</strong> · agrupa todas las ópticas que muestran hoteles individuales (Demanda No Convertida · Bajo Rend · Sin Conv · Menor ConvRate en CR).</li>
 <li><strong>Bloque "Por dimensión"</strong> · agrupa todos los listados agregados (Corporativo · Destino · País en RND · Channel en CR).</li>
 <li>Cada tab muestra Top 10 a 2 columnas (1-5 izquierda · 6-10 derecha) con un kicker dinámico que da contexto.</li>
 <li>La sección "Channel agrupado" en CR (cards comparadoras Producto Propio vs Third Party) se mantiene independiente porque es comparador, no listado.</li>
@@ -365,7 +365,7 @@ assert len(cards) == 2  # debe ser 2</code></pre>
   <tr><td>7</td><td><strong>Por Corporativo</strong></td><td>Agregado · ordenado por %NoDispo</td></tr>
   <tr><td>8</td><td><strong>Por Destino</strong></td><td>Top 50 destinos críticos</td></tr>
   <tr><td>9</td><td><strong>Por País</strong></td><td>Agregado por país</td></tr>
-  <tr><td>10</td><td><strong>Plan de Acción</strong></td><td>10 acciones priorizadas</td></tr>
+  <tr><td>10</td><td><strong>Plan de Acción</strong></td><td>10 acciones priorizadas (QW1-3 · MP1-3 · ES1-4)</td></tr>
   <tr><td>11</td><td><strong>Canasta B2C · Bajo Rend</strong></td><td>Top 50 B2C con %NoDispo &gt; 20%</td></tr>
   <tr><td>12</td><td><strong>Canasta OP · Bajo Rend</strong></td><td>Top 50 OP con %NoDispo &gt; 20%</td></tr>
   <tr><td>13</td><td><strong>Canasta CUG · Bajo Rend</strong></td><td>Top 50 CUG con %NoDispo &gt; 20%</td></tr>
@@ -385,5 +385,16 @@ assert len(cards) == 2  # debe ser 2</code></pre>
   <li>Pestaña "Sin Conversión" SIEMPRE separada</li>
 </ul>
 
+
+<h2>Plan de Acción · Acciones canónicas post W19</h2>
+<p>El Plan de Acción global tiene 10 acciones desde W19 (antes 6). Las 4 nuevas:</p>
+<table>
+  <tr><th>Código</th><th>Área</th><th>Horizonte</th><th>Acción</th><th>Métrica</th></tr>
+  <tr><td>QW3</td><td>Supply Optimization</td><td>Quick Win · 1 semana</td><td>Investigar %NoDispo RIU — bloqueos + transversalidad en las 3 canastas</td><td>%NoDispo RIU &lt; 10%</td></tr>
+  <tr><td>MP3</td><td>Supply Comercial / Supply Optimization</td><td>Mid Priority · 2 semanas</td><td>Deep Dive Iberostar — causas %NoDispo + plan de saneamiento por canasta</td><td>%NoDispo Iberostar &lt; 5%</td></tr>
+  <tr><td>ES3</td><td>Wholesale</td><td>Estratégica · Q3</td><td>Resolver cómo Wholesale sirve hoteles a agencias para evitar consultas de contratos no disponibles</td><td>Tráfico inválido &lt; 15%</td></tr>
+  <tr><td>ES4</td><td>Wholesale</td><td>Estratégica · Q3</td><td>Identificar tráfico de bots vs orgánico en agencias — foco canasta B2C</td><td>Bots identificados y filtrados</td></tr>
+</table>
+<p>La pestaña del bloque Análisis por Hotel se renombró de <strong>Demanda No Convertida</strong> → <strong>Demanda No Convertida</strong> para mayor claridad.</p>
 </body>
 </html>

@@ -15,6 +15,10 @@
 
 - **`calc_rnd.py`:** TAB_NoDispo y TAB_RPM enriquecidos con columnas WoW (`NoDispo_WoW_pp`, `RPM_WoW_pct`) via merge con aggregates W17 por dimensión.
 
+### W19 · Cambio adicional post-pack
+- **Pestaña Análisis por Hotel:** `Demanda NC` → `Demanda No Convertida`
+- **Plan de Acción RND:** 6 → 10 acciones. Nuevas: QW3 (RIU bloqueos), MP3 (Iberostar deep dive), ES3 (Wholesale hoteles agencias), ES4 (tráfico bots B2C). Áreas: Supply Optimization · Supply Comercial · Wholesale.
+
 ### 🐛 Bugs corregidos
 
 - **CSS `em.wow-pill`:** el selector `.tab-panel div span` con `!important` sobreescribía el color de las pills. Fix: cambiar pills de `<span>` a `<em>` + definir colores en clases CSS `em.wow-pill.up/dn/nd` con `!important`.
@@ -27,6 +31,10 @@
 ---
 
 ## Week 18 · Mayo 2026
+
+### W19 · Cambio adicional post-pack
+- **Pestaña Análisis por Hotel:** `Demanda NC` → `Demanda No Convertida`
+- **Plan de Acción RND:** 6 → 10 acciones. Nuevas: QW3 (RIU bloqueos), MP3 (Iberostar deep dive), ES3 (Wholesale hoteles agencias), ES4 (tráfico bots B2C). Áreas: Supply Optimization · Supply Comercial · Wholesale.
 
 ### 🐛 Bugs corregidos
 

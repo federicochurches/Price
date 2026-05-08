@@ -237,7 +237,7 @@ Sección 07+ · Análisis por canasta (3 canastas)
     <input id="tab-h-sc" name="tabs-h" type="radio">
     
     <div class="tabs-row">
-      <label class="tab-label" for="tab-h-dnc">Demanda NC</label>
+      <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
       <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
       <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
     </div>

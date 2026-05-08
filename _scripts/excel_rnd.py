@@ -289,7 +289,7 @@ def add_canasta_sheets_rnd(wb_target, key, c, prefix=None):
               banda_col='BandaNoDispo')
     
     # 5. Demanda No Convertida
-    ws_dn = wb_target.create_sheet(full_name('Demanda NC'))
+    ws_dn = wb_target.create_sheet(full_name('Demanda No Convertida'))
     add_title(ws_dn, f'Canasta {short} · Top 50 Demanda No Convertida',
               f'{c["name"]} · tráfico × %NoDispo · ordenado por demanda perdida ↓')
     df_dn = c['agg_hotel'].copy()
