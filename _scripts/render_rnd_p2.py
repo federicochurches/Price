@@ -13,82 +13,153 @@ g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 
 # ============ RESUMEN EJECUTIVO · 10 findings ============
 def build_findings():
-    """Genera 10 findings con estructura template: numero + titulo + desc."""
+    """Genera 10 findings con pills de banda y delta · post W19."""
     pct = M['global_w18']['pct_nodispo']; pct17 = M['global_w17']['pct_nodispo']
     rpm = M['global_w18']['rpm']; rpm17 = M['global_w17']['rpm']
     bk = M['global_w18']['bookings']; bk17 = M['global_w17']['bookings']
-    gb = M['global_w18']['gb_usd']; gb17 = M['global_w17']['gb_usd']
-    
+
     pct_wow = (pct - pct17) * 100
     rpm_wow = (rpm/rpm17 - 1) * 100
-    bk_wow = (bk/bk17 - 1) * 100
-    
-    n_p80 = len(p80_hotel)
-    n_supcrit = sev_nd['Súper Crítica']
-    n_critmas = sev_nd['Crítica'] + sev_nd['Súper Crítica']
-    n_sin_conv = sev_rpm['Sin Conversión']
-    n_critica_rpm = sev_rpm['Crítica']
+    bk_wow  = (bk/bk17 - 1) * 100
+
+    n_p80        = len(p80_hotel)
+    n_supcrit    = sev_nd['Súper Crítica']
+    n_critmas    = sev_nd['Crítica'] + sev_nd['Súper Crítica']
+    n_sin_conv   = sev_rpm['Sin Conversión']
+    n_critica_rpm= sev_rpm['Crítica']
     pct_sin_conv = n_sin_conv/n_p80*100
-    
+
     dnc_p80_total = p80_hotel['DemandaNoConvertida'].sum()
-    dnc_global = (g_hotel['Trafico']*g_hotel['%NoDispo']).sum()
-    pct_dnc_p80 = dnc_p80_total/dnc_global*100
-    
-    by_corp = g_hotel.groupby('CorpName').agg(DNC=('DemandaNoConvertida','sum'), TR=('Trafico','sum'), BK=('Bookings','sum')).reset_index()
-    by_corp = by_corp.sort_values('DNC', ascending=False)
-    top1_corp = by_corp.iloc[0]
-    
-    by_dest = g_hotel.groupby('Destino').agg(DNC=('DemandaNoConvertida','sum'), TR=('Trafico','sum')).reset_index()
+    dnc_global    = (g_hotel['Trafico']*g_hotel['%NoDispo']).sum()
+    pct_dnc_p80   = dnc_p80_total/dnc_global*100
+
+    # Corp con mayor %NoDispo (procesables, Trafico > mediana)
+    by_corp_nd = (g_hotel[g_hotel['Bookings']>0]
+                  .groupby('CorpName')
+                  .agg(pctND=('%NoDispo','mean'), TR=('Trafico','sum'))
+                  .reset_index()
+                  .sort_values('pctND', ascending=False))
+    corp_nd = by_corp_nd.iloc[0]
+    # WoW corp_nd
+    by_corp_nd17 = (g_hotel17[g_hotel17['Bookings']>0]
+                    .groupby('CorpName')
+                    .agg(pctND=('%NoDispo','mean'))
+                    .reset_index()) if 'g_hotel17' in dir() else None
+    corp_nd_wow = None
+    if by_corp_nd17 is not None:
+        row17 = by_corp_nd17[by_corp_nd17['CorpName']==corp_nd['CorpName']]
+        if len(row17):
+            corp_nd_wow = (corp_nd['pctND'] - row17.iloc[0]['pctND']) * 100
+
+    # Hoteles >60% NoDispo en P80
+    hot_criticos = p80_hotel[p80_hotel['%NoDispo'] >= 0.60].sort_values('%NoDispo', ascending=False)
+
+    by_dest = (g_hotel.groupby('Destino')
+               .agg(DNC=('DemandaNoConvertida','sum'), TR=('Trafico','sum'))
+               .reset_index())
     by_dest['pctND'] = by_dest['DNC']/by_dest['TR']
-    by_dest = by_dest.sort_values('DNC', ascending=False).head(3)
-    
-    cb = M['B2C_w18']; co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
+    by_dest = by_dest.sort_values('DNC', ascending=False)
+
+    co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
     cug_rpm_wow = (cu['rpm']/M['CUG (UOP)_w17']['rpm']-1)*100
-    
     h0 = TOP['sin_conv'].iloc[0]
-    
-    def es_pct(v, dec=2):
-        return f'{v:.{dec}f}%'.replace('.',',')
+
+    def es_pct(v, dec=2): return f'{v:.{dec}f}%'.replace('.',',')
     def es_pp(v):
-        sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.2f}pp'.replace('.',',')
+        s = '+' if v >= 0 else ''; return f'{s}{v:.2f}pp'.replace('.',',')
     def es_pct1(v):
-        sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.1f}%'.replace('.',',')
+        s = '+' if v >= 0 else ''; return f'{s}{v:.1f}%'.replace('.',',')
     def es_num2(v):
         return f'{v:,.2f}'.replace(',','|').replace('.',',').replace('|','.')
-    
+
+    # ── Helpers de pills ──────────────────────────────────────────────────────
+    BANDA_COLORS = {
+        'Exitosa':      ('#0D7A99', '#E8F7FD'),
+        'Aceptable':    ('#5C469C', '#EDE8F7'),
+        'Revisar':      ('#A86A1D', '#FFF4E0'),
+        'Crítica':      ('#C0392B', '#FCE4F1'),
+        'Súper Crítica':('#ffffff', 'rgba(22,22,22,.80)'),
+        'Sin Conv':     ('#8A8377', '#F2EEE6'),
+    }
+    def pill_banda(nombre):
+        ct, cb = BANDA_COLORS.get(nombre, ('#161616','#F2EEE6'))
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;'
+                f'letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;'
+                f'border-radius:3px;background:{cb};color:{ct};vertical-align:middle;'
+                f'margin:0 2px;">{nombre}</span>')
+
+    def pill_delta(texto, mejora):
+        color = '#2F6C34' if mejora else '#C0392B'
+        bg    = '#EAF3DE' if mejora else '#FCE8E6'
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;'
+                f'padding:2px 7px;border-radius:3px;background:{bg};color:{color};'
+                f'vertical-align:middle;margin:0 2px;">{texto}</span>')
+
+    # NoDispo baja = mejora; IPM baja = deterioro
+    d_nd  = pill_delta(es_pp(pct_wow),   pct_wow < 0)
+    d_rpm = pill_delta(es_pct1(rpm_wow), rpm_wow > 0)
+    d_cug = pill_delta(es_pct1(cug_rpm_wow), cug_rpm_wow > 0)
+
+    # Corp #6 delta
+    if corp_nd_wow is not None:
+        d_corp = pill_delta(es_pp(corp_nd_wow), corp_nd_wow < 0)
+        corp_wow_txt = f'{d_corp} WoW · '
+    else:
+        corp_wow_txt = ''
+
+    # Canastas corp_nd
+    corp_name = corp_nd['CorpName']
+    canastas_corp = []
+    for can, key in [('B2C','B2C'), ('B2B-OP','B2B (OP)'), ('CUG','CUG (UOP)')]:
+        sub = g_hotel[g_hotel['DistributionCategory']==key] if 'DistributionCategory' in g_hotel.columns else None
+        if sub is not None and corp_name in sub['CorpName'].values:
+            row = sub[sub['CorpName']==corp_name]
+            if row['%NoDispo'].mean() >= 0.20:
+                canastas_corp.append(can)
+    canastas_txt = ' · '.join(canastas_corp) if canastas_corp else 'múltiples canastas'
+
+    # Hoteles >90% y >60%
+    hot90 = hot_criticos[hot_criticos['%NoDispo'] >= 0.90]
+    hot60 = hot_criticos[(hot_criticos['%NoDispo'] >= 0.60) & (hot_criticos['%NoDispo'] < 0.90)]
+    hot90_names = ', '.join(truncate(clean_hotel_name(r['Hotel']),25) for _,r in hot90.head(3).iterrows()) if len(hot90) else 'Ver Severity'
+    hot60_txt = f' · {truncate(clean_hotel_name(hot60.iloc[0]["Hotel"]),25)} en {es_pct(hot60.iloc[0]["%NoDispo"]*100,2)} {pill_banda("Crítica")}' if len(hot60) else ''
+
+    banda_nd  = M['global_w18'].get('banda_nodispo', 'Aceptable')
+    banda_rpm_g = M['global_w18'].get('banda_rpm', 'Revisar')
+    banda_op_nd  = co.get('banda_nodispo', 'Exitosa')
+    banda_op_rpm = co.get('banda_rpm', 'Revisar')
+
     findings = [
         {'numero': es_pct(pct*100,2),
-         'titulo': '% NoDispo global · banda Aceptable',
-         'desc': f'WoW {es_pp(pct_wow)} · primera vez que se acerca a la zona Exitosa (target &lt;3%) tras semanas en Revisar.'},
+         'titulo': '% NoDispo global',
+         'desc': f'{pill_banda(banda_nd)} {d_nd} · Primera vez que se acerca a la zona Exitosa (target &lt;3%) tras semanas en Revisar.'},
         {'numero': '$' + es_num2(rpm),
-         'titulo': f'IPM (Income Per Million USD) · banda {M["global_w18"]["banda_rpm"]}',
-         'desc': f'WoW {es_pct1(rpm_wow)} · sigue por debajo del target ≥ $650 con deterioro en tráfico (-1,7%) y bookings ({es_pct1(bk_wow)}) anticipa presión.'},
+         'titulo': 'IPM (Income Per Million USD)',
+         'desc': f'{pill_banda(banda_rpm_g)} {d_rpm} · Sigue por debajo del target ≥ $650; deterioro en tráfico (-1,7%) y bookings ({es_pct1(bk_wow)}) anticipa presión.'},
         {'numero': fmt_big(dnc_p80_total),
          'titulo': 'Demanda no convertida en P80',
-         'desc': f'{f"{pct_dnc_p80:.0f}".replace(".",",")}% del total ({fmt_big(dnc_global)}) provienen de los {fmt_int_es(n_p80)} hoteles del P80 · concentración estructural.'},
+         'desc': f'{f"{pct_dnc_p80:.0f}".replace(".",",")}% del total ({fmt_big(dnc_global)}) provienen de los {fmt_int_es(n_p80)} hoteles del P80 · Concentración estructural.'},
         {'numero': fmt_int_es(n_critmas),
-         'titulo': 'Hoteles P80 Severity Crítica+',
-         'desc': f'{es_pct(n_critmas/n_p80*100,1)} del P80 · de ellos {n_supcrit} Súper Críticos son los más urgentes para escalar a Supply.'},
+         'titulo': 'Hoteles P80 Severity',
+         'desc': f'{pill_banda("Crítica")} o superior · {es_pct(n_critmas/n_p80*100,1)} del P80; de ellos {n_supcrit} {pill_banda("Súper Crítica")} son los más urgentes para escalar a Supply.'},
         {'numero': fmt_int_es(n_sin_conv),
-         'titulo': 'Hoteles P80 Sin Conversión (BKGS=0)',
-         'desc': f'{es_pct(pct_sin_conv,1)} del P80 · cohorte estructural · diagnóstico técnico/contractual, no de eficacia. {fmt_int_es(n_critica_rpm)} adicionales en Crítica.'},
-        {'numero': fmt_big(top1_corp["DNC"]),
-         'titulo': f'{top1_corp["CorpName"]} · líder demanda perdida',
-         'desc': f'búsquedas no convertidas en P80 · escalamiento KAM directo, mayor palanca disponible esta semana.'},
+         'titulo': f'Hoteles P80 {pill_banda("Sin Conv")} (BKGS=0)',
+         'desc': f'{es_pct(pct_sin_conv,1)} del P80 · Cohorte estructural; diagnóstico técnico/contractual, no de eficacia. {fmt_int_es(n_critica_rpm)} adicionales en {pill_banda("Crítica")}.'},
+        {'numero': es_pct(corp_nd["pctND"]*100,2),
+         'titulo': f'{corp_name} · Corporativo con mayor %NoDispo',
+         'desc': f'{corp_wow_txt}{pill_banda("Crítica")} en {canastas_txt} · Patrón transversal que requiere escalamiento KAM urgente.'},
         {'numero': es_pct(by_dest.iloc[0]["pctND"]*100,2),
-         'titulo': f'{by_dest.iloc[0]["Destino"]} · destino crítico',
-         'desc': f'{fmt_big(by_dest.iloc[0]["DNC"])} búsquedas no convertidas · concentra fugas de high-traffic markets.'},
+         'titulo': f'{by_dest.iloc[0]["Destino"]} · Destino crítico',
+         'desc': f'{fmt_big(by_dest.iloc[0]["DNC"])} búsquedas no convertidas · Concentra fugas de high-traffic markets.'},
         {'numero': '$' + es_num2(cu['rpm']),
-         'titulo': 'CUG · mayor deterioro de IPM',
-         'desc': f'WoW {es_pct1(cug_rpm_wow)} · canasta con weight 0,6 que requiere atención prioritaria pese a mejorar %NoDispo a {es_pct(cu["pct_nodispo"]*100,2)}.'},
+         'titulo': 'CUG · Mayor deterioro de IPM',
+         'desc': f'{d_cug} WoW · Canasta con weight 0,6 que requiere atención prioritaria pese a mejorar %NoDispo a {es_pct(cu["pct_nodispo"]*100,2)}.'},
+        {'numero': es_pct(hot_criticos.iloc[0]["%NoDispo"]*100,2) if len(hot_criticos) else '>60%',
+         'titulo': f'Hoteles con NoDispo &gt;90%',
+         'desc': f'{pill_banda("Súper Crítica")} · {hot90_names} superan el umbral{hot60_txt} · Revisión técnica urgente.'},
         {'numero': es_pct(co['pct_nodispo']*100,2),
-         'titulo': 'B2B-OP · canasta más sólida en %NoDispo',
-         'desc': f'banda {co["banda_nodispo"]} en %NoDispo y IPM ${es_num2(co["rpm"])} (banda {co["banda_rpm"]}) · refleja la calidad del producto opaco premium frente a B2C.'},
-        {'numero': fmt_big(h0["Trafico"]),
-         'titulo': f'{truncate(clean_hotel_name(h0["Hotel"]),32)} · #1 Sin Conv',
-         'desc': f'tráfico sin convertir · {h0["CorpName"]} · primera fila para revisión técnica esta semana.'},
+         'titulo': 'B2B-OP · Canasta más sólida en %NoDispo',
+         'desc': f'{pill_banda(banda_op_nd)} en %NoDispo e IPM ${es_num2(co["rpm"])} {pill_banda(banda_op_rpm)} · Refleja la calidad del producto opaco premium frente a B2C.'},
     ]
     return findings
 

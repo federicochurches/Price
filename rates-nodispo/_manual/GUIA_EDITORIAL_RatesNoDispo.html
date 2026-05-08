@@ -52,6 +52,27 @@ ul li { margin-bottom: 6px; }
 <li><strong>RPM redefinido como GBM USD/M</strong> (Gross Booking USD por millón de búsquedas). Bandas calibradas: <code>&lt;$200 Crítica · $200-$650 Revisar · $650-$1500 Aceptable · ≥$1500 Exitosa</code>. <strong>Target ≥ $650.</strong></li>
 <li><strong>Estructura completa por canasta:</strong> KPI + Alertas + Resumen Ejecutivo + Severidad + Tabs + Top 10 Bajo Rend + Top 10 Sin Conv + Síntesis + Plan. Cada canasta es un mini-reporte completo.</li>
 <li><strong>Resumen Ejecutivo</strong> con estructura template literal: header overline "🎯 Resumen Ejecutivo" fuera del card, card border-top 3px negro, grid 2 columnas, findings con número + valor numérico destacado + título + descripción. Sin highlights <code>.hl</code>.</li>
+<li><strong>Pills en Resumen Ejecutivo · post W19:</strong>
+  <ul>
+    <li>Toda mención a una banda de severity → pill visual inline (ej: <code>pill_banda('Aceptable')</code>). NO escribir "banda Aceptable" como texto plano.</li>
+    <li>Toda mención a un delta WoW → pill con color: verde si mejora (<code>#2F6C34</code>/<code>#EAF3DE</code>), rojo si deteriora (<code>#C0392B</code>/<code>#FCE8E6</code>). Para %NoDispo: baja = mejora. Para IPM: sube = mejora.</li>
+    <li>Texto después de <code>·</code> en cada finding → siempre con Mayúscula inicial.</li>
+  </ul>
+</li>
+<li><strong>Findings globales · estructura canónica · post W19:</strong>
+  <ol>
+    <li>%NoDispo global + pill banda + pill delta WoW</li>
+    <li>IPM global + pill banda + pill delta WoW</li>
+    <li>Demanda no convertida en P80</li>
+    <li>Hoteles P80 Severity Crítica+ (con pills Crítica y Súper Crítica)</li>
+    <li>Hoteles P80 Sin Conv BKGS=0 (con pill Sin Conv)</li>
+    <li><strong>Corp con mayor %NoDispo</strong> + pill banda + pill delta WoW + nota transversalidad canastas</li>
+    <li>Destino crítico por DNC</li>
+    <li>CUG · mayor deterioro IPM + pill delta</li>
+    <li><strong>Hoteles con NoDispo &gt;90%</strong> (pill Súper Crítica) + hoteles &gt;60% (pill Crítica)</li>
+    <li>B2B-OP · canasta más sólida (pills banda NoDispo + IPM)</li>
+  </ol>
+</li>
 <li><strong>H1 narrativo eliminado</strong> del hero. El reporte arranca directo con la línea de métricas globales y los cards.</li>
 <li><strong>Catálogo Áreas Accountable v2:</strong> Supply Optimization · Supply Optimization / TPS · Supply Comercial / Supply Optimization · Supply Comercial / Wholesale.</li>
 </ul>
