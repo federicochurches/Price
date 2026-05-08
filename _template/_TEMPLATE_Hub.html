@@ -126,7 +126,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:40px;}
 
 /* ── Card de reporte ── */
-.rpt-card{background:var(--white);border:1px solid var(--rule);border-radius:0;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;}
+.rpt-card{background:#F8F4EC;border:1px solid var(--rule);border-radius:0;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;}
 .rpt-card:hover{border-color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.07);}
 
 .rpt-card-top{padding:20px 20px 16px;flex:1;}
@@ -151,7 +151,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .archivo-grupo{}
 .archivo-grupo-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
 .archivo-links{display:flex;flex-direction:column;gap:5px;}
-.archivo-link{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border:1px solid var(--rule);background:var(--white);text-decoration:none;color:var(--ink);font-size:12px;transition:border-color .12s;}
+.archivo-link{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border:1px solid var(--rule);background:#F8F4EC;text-decoration:none;color:var(--ink);font-size:12px;transition:border-color .12s;}
 .archivo-link:hover{border-color:var(--ink);}
 .aw{font-weight:600;}
 .ap{font-size:11px;color:var(--muted);}
@@ -208,8 +208,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
     <div class="rpt-card" onclick="location.href='rates-nodispo/{{WEEK_NUM_RAW}}/RatesNoDispo_Reporte_Editorial.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(234,0,116,.12);color:var(--rnd);">Supply · Rates No Dispo</span>
-        <div class="rpt-name">Supply Rates No Dispo</div>
-        <div class="rpt-week" style="color:var(--rnd);">{{SEMANA}} · {{PERIODO}}</div>
+        <div class="rpt-week" style="color:var(--rnd);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{{SEMANA}} · {{PERIODO}}</div>
         <div class="rpt-meta">{{ND_META}}</div>
       </div>
       <div class="rpt-pills">
@@ -225,8 +224,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
     <div class="rpt-card" onclick="location.href='checkrates/{{WEEK_NUM_RAW}}/CheckRates_Reporte_Editorial.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(92,70,156,.12);color:var(--cr);">Supply · CheckRates</span>
-        <div class="rpt-name">Supply CheckRates</div>
-        <div class="rpt-week" style="color:var(--cr);">{{SEMANA}} · {{PERIODO}}</div>
+        <div class="rpt-week" style="color:var(--cr);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{{SEMANA}} · {{PERIODO}}</div>
         <div class="rpt-meta">{{CK_META}}</div>
       </div>
       <div class="rpt-pills">
@@ -243,8 +241,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
     <a href="pricing/{{WEEK_NUM_RAW}}/Pricing_Reporte_Editorial.html" class="rpt-card">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(31,139,110,.12);color:#1F8B6E;">Supply · Pricing</span>
-        <div class="rpt-name">Supply Pricing</div>
-        <div class="rpt-week" style="color:#1F8B6E;">{{SEMANA}} · {{PERIODO}}</div>
+        <div class="rpt-week" style="color:#1F8B6E;font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{{SEMANA}} · {{PERIODO}}</div>
         <div class="rpt-meta">{{PRC_META}}</div>
       </div>
       <div class="rpt-pills">
