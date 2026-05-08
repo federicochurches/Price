@@ -96,6 +96,25 @@ TAB_NoDispo['canasta'] = pd.DataFrame([
     {'Canasta':'CUG (UOP)','%NoDispo':M['CUG (UOP)_w18']['pct_nodispo']},
 ]).sort_values('%NoDispo', ascending=False).reset_index(drop=True)
 
+# ── WoW por dimensión para TAB_NoDispo ──────────────────────────────────────
+def _merge_wow_nd(tab, df17, key_col):
+    """Agrega columna NoDispo_W17 y NoDispo_WoW_pp al TAB."""
+    ref = df17[[key_col, '%NoDispo']].rename(columns={'%NoDispo': 'NoDispo_W17'})
+    merged = tab.merge(ref, on=key_col, how='left')
+    merged['NoDispo_WoW_pp'] = (merged['%NoDispo'] - merged['NoDispo_W17']) * 100
+    return merged
+
+TAB_NoDispo['pais']    = _merge_wow_nd(TAB_NoDispo['pais'],    g_pais_w17,    'PaisDestino')
+TAB_NoDispo['destino'] = _merge_wow_nd(TAB_NoDispo['destino'], g_destino_w17, 'Destino')
+TAB_NoDispo['corp']    = _merge_wow_nd(TAB_NoDispo['corp'],    g_corp_w17,    'CorpName')
+TAB_NoDispo['hotel']   = _merge_wow_nd(TAB_NoDispo['hotel'],   g_hotel_w17,   'Hotel')
+# Canasta WoW
+TAB_NoDispo['canasta']['NoDispo_WoW_pp'] = [
+    (M['B2C_w18']['pct_nodispo']      - M['B2C_w17']['pct_nodispo'])      * 100,
+    (M['B2B (OP)_w18']['pct_nodispo'] - M['B2B (OP)_w17']['pct_nodispo']) * 100,
+    (M['CUG (UOP)_w18']['pct_nodispo']- M['CUG (UOP)_w17']['pct_nodispo'])* 100,
+]
+
 # --------- Para tabs KPI Hero RPM: top 10 con menor RPM positivo (BKGS>0, RPM>0) ----------
 TAB_RPM = {}
 TAB_RPM['pais']    = g_pais_w18[(g_pais_w18['Bookings']>10) & (g_pais_w18['RPM']>0) & (g_pais_w18['Trafico']>50_000_000)].sort_values('RPM').head(10).reset_index(drop=True)
@@ -107,6 +126,25 @@ TAB_RPM['canasta'] = pd.DataFrame([
     {'Canasta':'B2B (OP)', 'RPM':M['B2B (OP)_w18']['rpm']},
     {'Canasta':'CUG (UOP)','RPM':M['CUG (UOP)_w18']['rpm']},
 ]).sort_values('RPM').reset_index(drop=True)
+
+# ── WoW por dimensión para TAB_RPM ──────────────────────────────────────────
+def _merge_wow_rpm(tab, df17, key_col):
+    """Agrega columna RPM_W17 y RPM_WoW_pct al TAB."""
+    ref = df17[[key_col, 'RPM']].rename(columns={'RPM': 'RPM_W17'})
+    merged = tab.merge(ref, on=key_col, how='left')
+    merged['RPM_WoW_pct'] = (merged['RPM'] / merged['RPM_W17'] - 1) * 100
+    return merged
+
+TAB_RPM['pais']    = _merge_wow_rpm(TAB_RPM['pais'],    g_pais_w17,    'PaisDestino')
+TAB_RPM['destino'] = _merge_wow_rpm(TAB_RPM['destino'], g_destino_w17, 'Destino')
+TAB_RPM['corp']    = _merge_wow_rpm(TAB_RPM['corp'],    g_corp_w17,    'CorpName')
+TAB_RPM['hotel']   = _merge_wow_rpm(TAB_RPM['hotel'],   g_hotel_w17,   'Hotel')
+# Canasta WoW
+TAB_RPM['canasta']['RPM_WoW_pct'] = [
+    (M['B2C_w18']['rpm']      / M['B2C_w17']['rpm']      - 1) * 100,
+    (M['B2B (OP)_w18']['rpm'] / M['B2B (OP)_w17']['rpm'] - 1) * 100,
+    (M['CUG (UOP)_w18']['rpm']/ M['CUG (UOP)_w17']['rpm']- 1) * 100,
+]
 
 # --------- Datos por canasta para sección "Análisis por Canasta" ----------
 CANASTA = {}
@@ -193,4 +231,4 @@ print(f"%NoDispo: {fmt_pct(M['global_w18']['pct_nodispo'],2)} (W17 {fmt_pct(M['g
 print(f"RPM: {fmt_num(M['global_w18']['rpm'],2)} (W17 {fmt_num(M['global_w17']['rpm'],2)})")
 print(f"Hoteles P80: {len(p80_hotel_w18):,}")
 print(f"\nSeverity %NoDispo (P80): {sev_nd.to_dict()}")
-print(f"Severity IPM (P80): {sev_rpm.to_dict()}")
+print(f"Severity RPM (P80): {sev_rpm.to_dict()}")

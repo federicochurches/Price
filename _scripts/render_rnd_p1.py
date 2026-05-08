@@ -142,7 +142,24 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             else:
                 col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 30); val = r['%NoDispo']
-            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+            # pill WoW · NoDispo baja = mejora (verde)
+            wow_pp = r.get('NoDispo_WoW_pp', None)
+            if wow_pp is not None and not (wow_pp != wow_pp):  # not NaN
+                mejora = wow_pp < 0
+                wow_color = '#2F6C34' if mejora else '#C0392B'
+                wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
+                arrow = '↓' if wow_pp < 0 else '↑'
+                wow_txt = f'{arrow}{abs(wow_pp):.1f}pp'.replace('.', ',')
+                wow_pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;'
+                            f'padding:1px 5px;border-radius:3px;background:{wow_bg};'
+                            f'color:{wow_color};margin-left:4px;flex-shrink:0;">{wow_txt}</span>')
+            else:
+                wow_pill = ''
+            cell = (f'<div style="display:flex;align-items:baseline;gap:0;">'
+                    f'<strong style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+                    f'{i+1}. {lab}</strong>'
+                    f'<span style="flex-shrink:0;margin-left:6px;">{fmt_pct2(val)}</span>'
+                    f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
             else:
@@ -210,7 +227,24 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             else:
                 col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 30); val = r['RPM']
-            cell = f'<div><strong>{i+1}. {lab}</strong> <span>${fmt_num2(val)}</span></div>'
+            # pill WoW · IPM sube = mejora (verde)
+            wow_pct = r.get('RPM_WoW_pct', None)
+            if wow_pct is not None and not (wow_pct != wow_pct):  # not NaN
+                mejora = wow_pct > 0
+                wow_color = '#2F6C34' if mejora else '#C0392B'
+                wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
+                arrow = '↑' if wow_pct > 0 else '↓'
+                wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
+                wow_pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;'
+                            f'padding:1px 5px;border-radius:3px;background:{wow_bg};'
+                            f'color:{wow_color};margin-left:4px;flex-shrink:0;">{wow_txt}</span>')
+            else:
+                wow_pill = ''
+            cell = (f'<div style="display:flex;align-items:baseline;gap:0;">'
+                    f'<strong style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+                    f'{i+1}. {lab}</strong>'
+                    f'<span style="flex-shrink:0;margin-left:6px;">${fmt_num2(val)}</span>'
+                    f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
             else:
