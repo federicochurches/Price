@@ -156,10 +156,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_txt = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
                     css_cls = "wow-pill up" if not mejora else "wow-pill dn"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-            cell = (f'<div style="display:flex;align-items:baseline;gap:0;">'
-                    f'<strong style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
                     f'{i+1}. {lab}</strong>'
-                    f'<span style="flex-shrink:0;margin-left:6px;">{fmt_pct2(val)}</span>'
+                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
                     f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
@@ -242,10 +242,10 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
                     css_cls = "wow-pill up" if not mejora else "wow-pill dn"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-            cell = (f'<div style="display:flex;align-items:baseline;gap:0;">'
-                    f'<strong style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
                     f'{i+1}. {lab}</strong>'
-                    f'<span style="flex-shrink:0;margin-left:6px;">${fmt_num2(val)}</span>'
+                    f'<span style="text-align:right;">${fmt_num2(val)}</span>'
                     f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
