@@ -4,6 +4,7 @@ Renderer CR W18 parte 2: Resumen Ejecutivo, Severity Eficacia/CR, Top 5
 import pickle, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
+from render_cr_p1 import render_alerts_block
 
 with open('cr_w18_data.pkl','rb') as f:
     D = pickle.load(f)
@@ -16,6 +17,7 @@ g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
 g_corp_w17 = D.get('g_corp_w17', None)
 g_dest_w17 = D.get('g_dest_w17', None)
 g_hotel_w17 = D.get('g_hotel_w17', None)
+g_channel_w17 = D.get('g_channel_w17', None)
 hotel_channel_map = D.get('hotel_channel_map', {})
 
 # Enriquecer TOP hoteles con WoW Eficacia/ConvRate y Channel
@@ -297,7 +299,7 @@ def render_severities_combinadas():
     n_crit_cv = int(sev_cv_p80.get('Crítica',0))
     n_proc = total_cv - n_sc
     
-    return f'''<section id="severity-combinada" style="border-top:1px solid var(--rule);padding-top:48px;">
+    return f'''<section id="severity-combinada" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
@@ -321,11 +323,15 @@ def render_severities_combinadas():
 '''
 
 
+_WOW_NEUTRO = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+
 def _fmt_wow(v):
-    """Formatea delta WoW en pp con arrow y guion para NaN/0."""
+    """Formatea delta WoW: pill verde/rojo o pill gris neutro."""
     import math
-    if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))): return '—'
-    if abs(v) < 0.05: return '—'
+    if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
+        return _WOW_NEUTRO
+    if abs(v) < 0.05:
+        return _WOW_NEUTRO
     arrow = '↑' if v > 0 else '↓'
     wc = '#2F6C34' if v > 0 else '#C0392B'
     wb = '#EAF3DE' if v > 0 else '#FCE8E6'
@@ -354,7 +360,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
                 sub = clean_corp_name(r.get('CorpName',''))
                 chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
                 sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
-                row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
+                row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                               f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub_line}</div></div>')
             elif c.get('key') == 'wow':
                 row_cells += f'<span style="text-align:right;">{val}</span>'
@@ -369,6 +375,7 @@ def render_criticos():
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
@@ -376,7 +383,7 @@ def render_criticos():
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
     col2 = render_top_table_cr(df2_renum, cols)
     
-    return f'''<section id="hoteles-criticos" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="hoteles-criticos" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
 <h2 class="section-title">Hoteles críticos</h2>
@@ -398,6 +405,7 @@ def render_bajo_rendimiento():
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
@@ -405,7 +413,7 @@ def render_bajo_rendimiento():
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
     col2 = render_top_table_cr(df2_renum, cols)
     
-    return f'''<section id="bajo-rendimiento" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="bajo-rendimiento" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
 <h2 class="section-title">Bajo rendimiento</h2>
@@ -428,7 +436,7 @@ def render_sin_conv():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     col1 = render_top_table_cr(df1, cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -438,7 +446,7 @@ def render_sin_conv():
     body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
             if col2 else f'<div>{col1}</div>')
     
-    return f'''<section id="sin-conversion" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="sin-conversion" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 06</div>
 <h2 class="section-title">Sin conversión</h2>
@@ -497,9 +505,9 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
                     txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                     wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};text-align:right;">{txt}</em>'
                 else:
-                    wow_html = '<span style="text-align:right;color:var(--ink-muted);font-size:10px;">—</span>'
+                    wow_html = _WOW_NEUTRO
             except:
-                wow_html = '<span style="text-align:right;color:var(--ink-muted);font-size:10px;">—</span>'
+                wow_html = _WOW_NEUTRO
             cells += wow_html
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
@@ -516,7 +524,7 @@ def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='h
     body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
             if col2 else f'<div>{col1}</div>')
     
-    return f'''<section id="top-{key}" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="top-{key}" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección {num}</div>
 <h2 class="section-title">{title}</h2>
@@ -556,12 +564,12 @@ def render_channel_agrupado():
                 f'<div style="margin-top:4px;">{pill_banda(g["BandaConvRate"])}</div></div>'
                 f'</div></div>')
     
-    cards = grupo_card(g_pp,'#5C469C','🏠') + grupo_card(g_tp,'#4FC3F4','🔌')
+    cards = grupo_card(g_pp,'#5C469C','🏠') + grupo_card(g_tp, CR_ACCENT,'🔌')
     
     cv_gap = (g_pp['ConvRate'] - g_tp['ConvRate'])*100
     cr_share_tp = g_tp['CR_Unicos']/(g_pp['CR_Unicos']+g_tp['CR_Unicos'])*100
     
-    return f'''<section id="channel-agrupado" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="channel-agrupado" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 07</div>
 <h2 class="section-title">🔌 Análisis por tipo de producto</h2>
@@ -667,7 +675,7 @@ def render_por_channel_split():
     
     # Color de cada split: PP = violet (color principal CR), TP = cyan (CUG / complementario)
     COLOR_PP = '#5C469C'
-    COLOR_TP = '#4FC3F4'
+    COLOR_TP = CR_ACCENT
     
     def render_split_table(df, dim_col, color_b):
         grid = '1fr 90px 70px 75px 70px'
@@ -700,7 +708,7 @@ def render_por_channel_split():
     
     kicker = f'Channels segregados por familia (decisión post Week 17). <strong style="color:{COLOR_PP};">Producto Propio</strong>: {len(df_pp)} channels · <strong style="color:{COLOR_TP};">Third Party</strong>: {len(df_tp)} channels.'
     
-    return f'''<section id="top-channel" style="margin-bottom:80px;"><div class="section-head">
+    return f'''<section id="top-channel" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 10</div>
 <h2 class="section-title">Por channel</h2>
@@ -741,6 +749,7 @@ def render_bloque_hoteles_cr():
     cols_main = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
@@ -748,7 +757,7 @@ def render_bloque_hoteles_cr():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     
     df_crit = pd.concat([TOP['criticos'], TOP['criticos_extra']], ignore_index=True)
@@ -780,7 +789,7 @@ def render_bloque_hoteles_cr():
         f'<div class="tab-panel" data-tab="mcv"><p class="tab-kicker">{k_mcv}</p>{panel_mcv}</div>'
     )
     
-    return f'''<section id="por-hotel" style="margin-bottom:64px;">
+    return f'''<section id="por-hotel" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
@@ -840,30 +849,50 @@ def render_bloque_dimensiones_cr():
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
     THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
     df_chan = TOP['channels']
+
+    # Merge WoW channel con g_channel_w17
+    g_ch_w17 = g_channel_w17
+    if g_ch_w17 is not None:
+        df_chan = df_chan.merge(
+            g_ch_w17[['ExternalProviderName','Eficacia_W17']],
+            on='ExternalProviderName', how='left'
+        )
+        df_chan['Eficacia_WoW_pp'] = (df_chan['Eficacia'] - df_chan['Eficacia_W17']) * 100
+
     df_pp = df_chan[df_chan['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
     df_tp = df_chan[df_chan['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    
+
     def render_chan_table(df, color_b):
-        grid = '1fr 90px 70px 75px 70px'
+        import math
+        has_wow = 'Eficacia_WoW_pp' in df.columns
+        grid = '1fr 90px 70px 70px 75px 50px' if has_wow else '1fr 90px 70px 70px 75px'
+        headers = ['Channel','CR únicos','BKGS','ConvRate','Eficacia']
+        if has_wow: headers.append('WoW')
         rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {color_b};margin-bottom:4px;">'
-        for label in ['Channel','CR únicos','BKGS','Eficacia','ConvRate']:
+        for label in headers:
             align = 'left' if label=='Channel' else 'right'
             color = color_b if label=='Channel' else 'var(--ink-muted)'
             rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
         rows += '</div>'
         for i, r in df.iterrows():
+            cv_val = r.get('ConvRate', None)
+            cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and (math.isnan(cv_val) or math.isinf(cv_val))) else '—'
+            ef_val = r.get('Eficacia', None)
+            ef_str = fmt_pct2(ef_val) if ef_val is not None and not (isinstance(ef_val, float) and (math.isnan(ef_val) or math.isinf(ef_val))) else '—'
             cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {truncate(r["ExternalProviderName"],28)}</div></div>'
                      f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{ef_str}</span>')
+            if has_wow:
+                cells += _fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))
             rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
         return rows
     
     panel_chan = (
         f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">'
         f'<div><div style="font-size:11px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;">🏠 Producto Propio</div>{render_chan_table(df_pp, "#5C469C")}</div>'
-        f'<div><div style="font-size:11px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;">🔌 Third Party</div>{render_chan_table(df_tp, "#4FC3F4")}</div>'
+        f'<div><div style="font-size:11px;font-weight:700;color:var(--ink-muted);letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;">🔌 Third Party</div>{render_chan_table(df_tp, CR_ACCENT)}</div>'
         f'</div>'
     )
     
@@ -872,7 +901,7 @@ def render_bloque_dimensiones_cr():
     
     k_corp = f'Top corporativos por volumen CR. <strong>{top_corp["CorpName"]}</strong> lidera con {fmt_int_es(top_corp["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_corp["Eficacia"])} (banda {top_corp["BandaEficacia"]}) y ConvRate {fmt_pct2(top_corp["ConvRate"])}.'
     k_dest = f'Top destinos por volumen CR. <strong>{top_dest["Destino"]}</strong> con {fmt_int_es(top_dest["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_dest["Eficacia"])} y ConvRate {fmt_pct2(top_dest["ConvRate"])}.'
-    k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {len(df_pp)} channels · <strong style="color:#4FC3F4;">Third Party</strong>: {len(df_tp)} channels.'
+    k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {len(df_pp)} channels · <strong style="color:{CR_ACCENT};">Third Party</strong>: {len(df_tp)} channels.'
     
     panels = (
         f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
@@ -880,7 +909,7 @@ def render_bloque_dimensiones_cr():
         f'<div class="tab-panel" data-tab="chan"><p class="tab-kicker">{k_chan}</p>{panel_chan}</div>'
     )
     
-    return f'''<section id="por-dimension" style="margin-bottom:64px;">
+    return f'''<section id="por-dimension" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
@@ -908,7 +937,8 @@ BLOQUE_DIM_CR = render_bloque_dimensiones_cr()
 
 PLAN_ACCION = render_plan_accion()
 
-PART2 = RESUMEN + SEV_COMBINADA + BLOQUE_HOTELES_CR + CHAN_AGR + BLOQUE_DIM_CR + PLAN_ACCION
+ALERTAS_GLOBAL = render_alerts_block()
+PART2 = RESUMEN + ALERTAS_GLOBAL + SEV_COMBINADA + BLOQUE_HOTELES_CR + CHAN_AGR + BLOQUE_DIM_CR + PLAN_ACCION
 
 with open('part2_cr.html','w') as f:
     f.write(PART2)

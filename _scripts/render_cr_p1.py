@@ -147,20 +147,27 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
                 else:
                     val_str = fmt_pct2(raw_val)
                 wow_col = val_col + '_WoW_pp'
-                wow_pill = '<em style="font-style:normal;color:var(--ink-muted);font-size:9px;margin-left:4px;">—</em>'
+                # Pill WoW: verde con = si val==100%, gris si delta<0.05, color si delta>=0.05
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v and abs(wow_v) >= 0.05:  # ignorar ±0,0
+                    if wow_v != wow_v: raise ValueError
+                    if raw_val is not None and not math.isnan(float(raw_val)) and abs(raw_val - 1.0) < 0.0001:
+                        # 100% exacto → pill verde neutra con =
+                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EAF3DE;color:#2F6C34;margin-left:4px;min-width:28px;text-align:center;">= 0,0</em>'
+                    elif abs(wow_v) >= 0.05:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
                         arrow = '↑' if wow_v > 0 else '↓'
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;">{wow_txt}</em>'
-                except: pass
-                return (f'<div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px;">'
-                        f'<strong style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {r["ExternalProviderName"]}</strong>'
-                        f'<span style="text-align:right;">{val_str}</span>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;min-width:28px;text-align:center;">{wow_txt}</em>'
+                    else:
+                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
+                except:
+                    wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
+                return (f'<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
+                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {r["ExternalProviderName"]}</span>'
+                        f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
             rows_pp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_pp.iterrows())
@@ -277,20 +284,23 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
                 else:
                     val_str = fmt_pct2(raw_val)
                 wow_col = val_col + '_WoW_pp'
-                wow_pill = '<em style="font-style:normal;color:var(--ink-muted);font-size:9px;margin-left:4px;">—</em>'
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v and abs(wow_v) >= 0.05:
+                    if wow_v != wow_v: raise ValueError
+                    if abs(wow_v) >= 0.05:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
-                        wb = '#EAF3EA' if mejora else '#FCE8E6'
+                        wb = '#EAF3DE' if mejora else '#FCE8E6'
                         arrow = '↑' if wow_v > 0 else '↓'
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;">{wow_txt}</em>'
-                except: pass
-                return (f'<div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px;">'
-                        f'<strong style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {r["ExternalProviderName"]}</strong>'
-                        f'<span style="text-align:right;">{val_str}</span>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;min-width:28px;text-align:center;">{wow_txt}</em>'
+                    else:
+                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
+                except:
+                    wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
+                return (f'<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
+                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {r["ExternalProviderName"]}</span>'
+                        f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
             rows_pp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_pp.iterrows())
@@ -393,14 +403,14 @@ def render_alerts_block():
     def alert_card(title, icon, color_b, items):
         cells = ''
         for it in items:
-            cells += (f'<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">'
+            cells += (f'<div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">'
                       f'<div style="font-size:8px;font-weight:700;color:{it["pill_color"]};background:{it["pill_bg"]};padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">{it["pill"]}</div>'
                       f'<div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["name"]}</div>'
                       f'<div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">{it["sub"]}</div>'
                       f'<div style="font-size:18px;font-weight:600;color:{it["pill_color"]};margin-top:6px;letter-spacing:-.02em;line-height:1;">{it["value"]}</div>'
                       f'<div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">{it["foot"]}</div>'
                       f'</div>')
-        return (f'<div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid {color_b};">'
+        return (f'<div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid {color_b};">'
                 f'<div style="font-size:10px;font-weight:700;color:{color_b};letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
                 f'<span>{icon}</span><span>{title}</span></div>'
                 f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">{cells}</div></div>')
@@ -448,7 +458,6 @@ HERO = f'''<section class="hero">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow)}
 {render_kpi_card_convrate(cv18, cv17, cv_wow)}
 </div>
-{render_alerts_block()}
 </section>
 '''
 

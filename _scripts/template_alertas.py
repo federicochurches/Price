@@ -15,7 +15,7 @@ API:
 """
 
 def render_alert_subcell(badge_label, badge_color, badge_bg, name, value, value_color):
-    return f'''<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">
+    return f'''<div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
 <div style="font-size:9px;font-weight:700;color:{badge_color};background:{badge_bg};padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">{badge_label}</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">{name}</div>
 <div style="font-size:18px;font-weight:600;color:{value_color};margin-top:6px;letter-spacing:-.02em;line-height:1;">{value}</div>
@@ -23,7 +23,7 @@ def render_alert_subcell(badge_label, badge_color, badge_bg, name, value, value_
 
 def render_alert_card(title, icon, accent_color, subcell1, subcell2):
     """subcell1, subcell2: HTML strings de render_alert_subcell."""
-    return f'''<div style="background:var(--paper-soft);border-radius:4px;padding:10px;border-top:3px solid {accent_color};">
+    return f'''<div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid {accent_color};">
 <div style="font-size:10px;font-weight:700;color:{accent_color};letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
 <span>{icon}</span><span>{title}</span>
 </div>

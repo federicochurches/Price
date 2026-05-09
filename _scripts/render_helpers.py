@@ -202,12 +202,15 @@ _AREA_SUFFIX = _re.compile(
     _re.IGNORECASE
 )
 
+# Destinos compuestos "Ciudad - Descripción" → solo "Ciudad"
+_CITY_DASH_PATTERN = _re.compile(r'^([A-Za-zÀ-ÿ]+)\s*-\s*.{8,}$')
+
 def clean_destino_name(name, max_len=28):
     """Normaliza nombres de destino:
     · 'Las Vegas (and vicinity), NV, US' → 'Las Vegas'
     · 'Toronto Area' → 'Toronto'
+    · 'Bourgas - South Black Sea Coast Area' → 'Bourgas'
     · 'Gargano - Foggia Area' → 'Gargano - Foggia'
-    · 'Bourgas - South Black Sea Coast Area' → 'Bourgas - South Black Sea Coast'
     """
     if not name:
         return name
@@ -220,4 +223,8 @@ def clean_destino_name(name, max_len=28):
         # Quitar sufijo Area / Region / etc. salvo excepciones
         if not any(exc in s for exc in _AREA_EXCEPTIONS):
             s = _AREA_SUFFIX.sub('', s).strip()
+        # Destinos "Ciudad - Descripción larga" → solo "Ciudad"
+        m2 = _CITY_DASH_PATTERN.match(s)
+        if m2:
+            s = m2.group(1)
     return truncate(s, max_len)

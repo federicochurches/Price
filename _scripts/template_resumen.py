@@ -36,7 +36,7 @@ def render_resumen_ejecutivo(findings, accent_color, scope='global', header_titl
     accent_color: '#EA0074' (RND) o '#5C469C' (CR).
     scope: 'global' o 'canasta' (para ajustar margin-top).
     """
-    margin_top = '64px' if scope == 'global' else '32px'
+    margin_top = '24px' if scope == 'global' else '16px'
     
     col1_items = ''.join(render_finding(i, f, accent_color) for i, f in enumerate(findings[:5]))
     col2_items = ''.join(render_finding(i+5, f, accent_color) for i, f in enumerate(findings[5:10]))
@@ -45,7 +45,7 @@ def render_resumen_ejecutivo(findings, accent_color, scope='global', header_titl
 <div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
 <span style="color:{accent_color};">🎯</span><span>{header_title}</span>
 </div>
-<div style="padding:28px 32px;background:var(--paper-soft);border:1px solid var(--rule);border-top:3px solid #161616;border-radius:6px;margin-bottom:24px;">
+<div style="padding:28px 32px;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:6px;margin-bottom:24px;">
 <div class="exec-2cols" style="display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;">
 <ol style="list-style:none;padding:0;margin:0;">
 {col1_items}
