@@ -89,15 +89,19 @@ def agg_dim(df, col):
     g['BandaConvRate'] = g.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
     return g
 
-g_corp    = agg_dim(df18, 'CorpName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-g_destino = agg_dim(df18, 'Destino').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-g_channel = agg_dim(df18, 'ExternalProviderName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+# Dimensiones globales sobre P80 (metodología consistente con RND)
+df18_p80 = df18[df18['Hotel'].isin(p80_hotels)].copy()
+df17_p80 = df17[df17['Hotel'].isin(p80_hotels)].copy()
+g_corp    = agg_dim(df18_p80, 'CorpName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+g_destino = agg_dim(df18_p80, 'Destino').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+g_channel = agg_dim(df18_p80, 'ExternalProviderName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
 
 # Grupo Producto Propio / Third Party
 df18['Grupo'] = df18['ExternalProviderName'].apply(
     lambda x: 'Producto Propio' if x in PRODUCTO_PROPIO else ('Third Party' if x in THIRD_PARTY else 'Otro')
 )
-g_grupo = df18[df18['Grupo'].isin(['Producto Propio','Third Party'])].groupby('Grupo', as_index=False).agg(
+df18_p80['Grupo'] = df18_p80['ExternalProviderName'].apply(lambda x: 'Producto Propio' if x in PRODUCTO_PROPIO else ('Third Party' if x in THIRD_PARTY else 'Otro'))
+g_grupo = df18_p80[df18_p80['Grupo'].isin(['Producto Propio','Third Party'])].groupby('Grupo', as_index=False).agg(
     CR_Unicos=('CR_Unicos','sum'),
     Bookings=('Bookings','sum'),
     Successful=('Successful UniqueChkRts','sum'),
@@ -125,14 +129,14 @@ def canasta_metrics(df, cat):
     return global_metrics(sub)
 
 M = {
-    'global_w18': global_metrics(df18),
-    'global_w17': global_metrics(df17),
-    'B2C_w18':    canasta_metrics(df18, 'B2C'),
-    'B2B (OP)_w18': canasta_metrics(df18, 'B2B (OP)'),
-    'CUG (UOP)_w18': canasta_metrics(df18, 'CUG (UOP)'),
-    'B2C_w17':    canasta_metrics(df17, 'B2C'),
-    'B2B (OP)_w17': canasta_metrics(df17, 'B2B (OP)'),
-    'CUG (UOP)_w17': canasta_metrics(df17, 'CUG (UOP)'),
+    'global_w18': global_metrics(df18_p80),
+    'global_w17': global_metrics(df17_p80),
+    'B2C_w18':    canasta_metrics(df18_p80, 'B2C'),
+    'B2B (OP)_w18': canasta_metrics(df18_p80, 'B2B (OP)'),
+    'CUG (UOP)_w18': canasta_metrics(df18_p80, 'CUG (UOP)'),
+    'B2C_w17':    canasta_metrics(df17_p80, 'B2C'),
+    'B2B (OP)_w17': canasta_metrics(df17_p80, 'B2B (OP)'),
+    'CUG (UOP)_w17': canasta_metrics(df17_p80, 'CUG (UOP)'),
 }
 
 # ── SEVERITY (P80) ─────────────────────────────────────────────────────────────
@@ -176,19 +180,19 @@ def _add_wow_channel(g_ch, metric_col):
     return merged.sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
 
 def tab_eficacia():
-    """Aggregados para tabs del KPI Eficacia."""
-    g_d = df18.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    """Aggregados para tabs del KPI Eficacia — Destino/Corp sobre P80."""
+    g_d = df18_p80.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_d['Eficacia'] = g_d['Successful']/g_d['CR_Unicos']
-    g_c = df18.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_c = df18_p80.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
     g_c.rename(columns={'CorpName':'CorpName'}, inplace=True)
     # Hotel (P80)
     g_h = p80_hotel.copy()
-    # Channel
+    # Channel — sobre dataset completo (channel no se filtra por hotel)
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
     # Canasta
-    g_can = df18.groupby('DistributionCategory', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_can = df18_p80.groupby('DistributionCategory', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_can['Eficacia'] = g_can['Successful']/g_can['CR_Unicos']
     g_can.rename(columns={'DistributionCategory':'Canasta'}, inplace=True)
     # Asegurar ambas métricas
@@ -217,18 +221,18 @@ def tab_eficacia():
     }
 
 def tab_convrate():
-    """Aggregados para tabs del KPI ConvRate."""
-    g_d = df18.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    """Aggregados para tabs del KPI ConvRate — Destino/Corp sobre P80."""
+    g_d = df18_p80.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_d['ConvRate'] = g_d['Bookings']/g_d['CR_Unicos']
     g_d['Eficacia'] = g_d['Successful']/g_d['CR_Unicos']
-    g_c = df18.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_c = df18_p80.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_c['ConvRate'] = g_c['Bookings']/g_c['CR_Unicos']
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
     g_h = p80_hotel.copy()
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['ConvRate'] = g_ch['Bookings']/g_ch['CR_Unicos']
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
-    g_can = df18.groupby('DistributionCategory', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_can = df18_p80.groupby('DistributionCategory', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_can['ConvRate'] = g_can['Bookings']/g_can['CR_Unicos']
     g_can['Eficacia'] = g_can['Successful']/g_can['CR_Unicos']
     g_can.rename(columns={'DistributionCategory':'Canasta'}, inplace=True)
@@ -269,34 +273,36 @@ def canasta_data(cat, short, df18=df18, df17=df17):
     p80_list = g_h[g_h['cum'].shift(1, fill_value=0) < 0.80]['Hotel'].tolist()
     
     p80_can = agg_hotel(sub18, p80_list)
-    
+
     sev_ef = p80_can['BandaEficacia'].value_counts()
     sev_cv = p80_can['BandaConvRate'].value_counts()
-    
-    cr18 = sub18['CR_Unicos'].sum()
-    bk18 = sub18['Bookings'].sum()
-    su18 = sub18['Successful UniqueChkRts'].sum()
-    cr17 = sub17['CR_Unicos'].sum()
-    bk17 = sub17['Bookings'].sum()
-    su17 = sub17['Successful UniqueChkRts'].sum()
-    
+
+    # Tops sobre P80
+    df_crit = p80_can[(p80_can['Bookings']>0) & (p80_can['Eficacia']>0)].sort_values('Eficacia').reset_index(drop=True)
+    df_br   = p80_can[(p80_can['Bookings']>0) & (p80_can['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    df_sc   = p80_can[p80_can['Bookings']==0].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    df_mcv  = p80_can[p80_can['Bookings']>0].sort_values('ConvRate').reset_index(drop=True)
+
+    # Dimensiones sobre P80 de la canasta
+    p80_set = set(p80_list)
+    sub18_p80 = sub18[sub18['Hotel'].isin(p80_set)].copy()
+    sub17_p80 = sub17[sub17['Hotel'].isin(p80_set)].copy()
+
+    g_corp_can = agg_dim(sub18_p80, 'CorpName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    g_dest_can = agg_dim(sub18_p80, 'Destino').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    g_chan_can = agg_dim(sub18_p80, 'ExternalProviderName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+
+    # Métricas de canasta sobre P80
+    cr18 = sub18_p80['CR_Unicos'].sum(); bk18 = sub18_p80['Bookings'].sum(); su18 = sub18_p80['Successful UniqueChkRts'].sum()
+    cr17 = sub17_p80['CR_Unicos'].sum(); bk17 = sub17_p80['Bookings'].sum(); su17 = sub17_p80['Successful UniqueChkRts'].sum()
+
     ef_val = su18/cr18 if cr18 else 0
     cv_val = bk18/cr18 if cr18 else 0
     m18 = {'cr_unicos':int(cr18),'bookings':int(bk18),'eficacia':ef_val,'conv_rate':cv_val,
             'banda_eficacia':banda_eficacia(ef_val),
             'banda_convrate':banda_convrate(cv_val, int(bk18))}
     m17 = {'cr_unicos':int(cr17),'bookings':int(bk17),'eficacia':su17/cr17 if cr17 else 0,'conv_rate':bk17/cr17 if cr17 else 0}
-    
-    # Tops
-    df_crit = p80_can[(p80_can['Bookings']>0) & (p80_can['Eficacia']>0)].sort_values('Eficacia').reset_index(drop=True)
-    df_br   = p80_can[(p80_can['Bookings']>0) & (p80_can['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    df_sc   = p80_can[p80_can['Bookings']==0].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    df_mcv  = p80_can[p80_can['Bookings']>0].sort_values('ConvRate').reset_index(drop=True)
-    
-    g_corp_can = agg_dim(sub18, 'CorpName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    g_dest_can = agg_dim(sub18, 'Destino').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    g_chan_can = agg_dim(sub18, 'ExternalProviderName').sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    
+
     n_critica = int((p80_can['BandaEficacia'].isin(['Crítica','Súper Crítica'])).sum())
     cat_labels = {'B2C':'B2C','B2B (OP)':'B2B Opaco','CUG (UOP)':'CUG'}
     return {
