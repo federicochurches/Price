@@ -534,85 +534,59 @@ df_cug = df[df['DistributionCategory'] == 'CUG (UOP)']
 
 ---
 
-**Última actualización:** Mayo 2026 · post Week 18 · v3 single-sheet datasets · bugs #6 y #7 documentados
-
 ---
 
-## 📝 Cambios post W19 · RND (sesión Mayo 2026)
+## 📝 Cambios post W18 · CR (sesión validación visual Mayo 2026)
+
+### Orden de secciones globales CR
+- **RE movido antes de alertas**: `render_cr_p1.py` ya no incluye alertas en el HERO · `render_cr_p2.py` importa `render_alerts_block` de p1 y lo agrega en PART2 → orden: RE → Alertas → Severity → Hoteles → Dimensión → Plan
 
 ### Visual / UX
-- **Pills severity**: fondo tenue + texto color + `!important` para evitar herencia CSS
-  - Exitosa: `color:#4FC3F4 bg:#E8F7FD` · Aceptable: `color:#5C469C bg:#EDE8F7`
-  - Revisar: `color:#A86A1D bg:#FFF4E0` · Crítica: `color:#C0392B bg:#FCE4F1`
-  - Sin Conv: `color:#8A8377 bg:#F2EEE6` · Súper Crítica: `color:#fff bg:rgba(22,22,22,.80)`
-- **Síntesis ejecutiva**: eliminada de las 3 canastas (inestabilidad de renderizado)
-- **Iconos subtítulos canasta**: 🏨 Análisis por Hotel · 📊 Análisis por Dimensión
-- **"Demanda NC" → "Demanda No Convertida"** en todos los labels de tabs
-- **Nombres hotel en cards alertas**: `white-space:nowrap;overflow:hidden;text-overflow:ellipsis` → 1 sola línea
+- **Pills WoW neutras**: `_WOW_NEUTRO` como variable `<em>` con `bg:#F2EEE6 color:#8A8377` en lugar de texto plano `—` · en p1, p2, p3
+- **Channel hero 100% eficacia**: pill verde `= 0,0` en lugar de `—` para Siteminder/Travelclick/Omnibees
+- **Sin Conv Análisis por hotel global**: columna Destino → WoW · columnas: Hotel · Checkrates · Eficacia · WoW
+- **Nombres hotel en Sin Conv**: `white-space:nowrap` para 1 sola línea
+- **Pills severity canasta KPI**: eliminadas de tabs · grid limpio `1fr 46px 36px` (nombre · valor · WoW)
+- **Color Third Party**: cyan `#4FC3F4` → violet `#5C469C` en Análisis por Dimensión global y canastas
+- **WoW en Análisis por Hotel canasta**: `panel_inner_cr` con 4 cols (Hotel · ConvRate · Eficacia · WoW) · sin BKGS · `_add_hotel_wow()` enriquece df_crit_c/df_br_c/df_sc_c
+- **WoW en Channel dim canasta**: `panel_inner_chan` reescrito con merge `g_channel_w17` + grid `1fr 65px 60px 65px 45px`
+- **WoW en Channel dim global**: `render_chan_table` con merge `g_channel_w17` + orden ConvRate→Eficacia→WoW
+
+### Fondos · sistema unificado
+- **`--paper-soft`**: `#EFEADD` → `#F2EDE0` en `asset_cr_head.html` · canastas y elementos que usan esta variable se actualizan automáticamente
+- **Cards alerta contenedor**: `var(--paper-soft)` → `#F2EDE0`
+- **Sub-cards dentro de alertas**: `var(--paper)` → `#FAF7F2` + `border:1px solid var(--rule-soft)`
+- **tabs-block CSS**: `#F6EFE0` → `var(--paper)` en `asset_cr_head.html`
+- **RE card**: `var(--paper-soft)` → `var(--paper)` · `border-top:3px solid #161616` → `border-top:3px solid {accent_color}`
+- **Wrapper WoW hero canasta**: `var(--paper-soft)` → `var(--paper)`
 
 ### Espaciado
-- **CSS base**: `section { margin-bottom:64px }` uniforme (antes 80px)
-- **Hero**: `padding:16px 0 24px; border-bottom:none; margin-bottom:0`
-- **RE**: `margin-top:0` (pegado a las alertas)
-- **Línea divisoria**: `border-top:1px solid var(--rule)` al inicio de cada sección global
-- **Análisis por Dimensión**: título directo sobre tabs-block (sin div intermedio)
-- **Plan de Acción canasta**: `margin-top:48px; padding-top:40px; border-top:1px solid var(--rule)`
-- **Details canasta**: `margin-bottom:32px` entre canastas
+- **RE margin-top**: global 64px→24px · canasta 32px→16px (`template_resumen.py`)
+- **`panel-row` CSS**: `1fr 80px 60px` → `1fr 70px 70px 48px` (4 cols: Hotel · ConvRate · Eficacia · WoW) en `asset_cr_head.html`
 
-### Normalización de nombres
-- **Hyatt Inclusive Collection → HIC**: función `clean_corp_name()` en `render_helpers.py`
-- **Estados Unidos / Estados Unidos de América → United States**: `clean_pais_name()` ya existía
+### Normalización destinos
+- **`_CITY_DASH_PATTERN`** en `render_helpers.py`: destinos "Ciudad - Descripción larga" → solo "Ciudad" · ej: "Bourgas - South Black Sea Coast" → "Bourgas"
 
-### Dimensión global (render_rnd_p2.py)
-- Grid 6 columnas: `1fr 90px 70px 70px 75px 44px` (Nombre · Tráfico · BKGS · IPM · %NoDispo · WoW)
-- Nombres de filas en `color:var(--ink)` (no magenta)
-- Pills de banda como elementos hermanos del nombre (no hijos)
-- WoW completados para los 10 items en los 3 tabs
+### Bugs documentados
+- **Bug #8**: `_WOW_NEUTRO` como string literal `'_WOW_NEUTRO'` en `_render_dim_table` en vez de variable. Fix: reemplazar strings literales por la variable.
+- **Bug #9**: `g_channel_w17` no disponible dentro de funciones de render porque `D` no era variable global. Fix: cargar explícitamente `g_channel_w17 = D.get('g_channel_w17', None)` al nivel de módulo en `render_cr_p2.py`.
+- **Bug #10**: `sin_conv` no tenía `Eficacia_WoW_pp` porque `_enrich_hotel_df` requiere `g_hotel_w17` en pickle. Fix: verificado — el enriquecimiento sí ocurre en render, el pickle no necesita cambiarse.
 
-### Archivos modificados en pack RND W19
+### Optimización proyecto Claude
+- **Eliminados**: `_TEMPLATE_CheckRates_Reporte.html` + `_TEMPLATE_RatesNoDispo_Reporte.html` + 4 snippets (~722KB liberados)
+- **CHECKLIST**: actualizado de 51 → 41 archivos esperados
+
+### Archivos modificados en esta sesión CR
 | Archivo | Cambios principales |
 |---|---|
-| `render_rnd_p1.py` | Nombres hotel nowrap en cards alertas |
-| `render_rnd_p2.py` | Pills !important, grid 6 cols, nombres ink, clean_corp_name |
-| `render_rnd_p3.py` | pill_b !important, sin síntesis, iconos, plan border-top, Demanda No Convertida |
-| `render_helpers.py` | clean_corp_name(), HIC, United States |
-| `asset_rnd_head.html` | section 64px, hero sin border, margin 0 |
-| `GUIA_EDITORIAL_RatesNoDispo.html` | HIC, síntesis eliminada, pills, espaciado, iconos documentados |
-| `_TEMPLATE_RatesNoDispo_Reporte.html` | section 64px, hero, severity border-top, iconos |
+| `render_cr_p1.py` | alertas movidas a p2 · `alert_card` fondos · pill `= 0,0` · `chan_row` flex+nowrap |
+| `render_cr_p2.py` | importa `render_alerts_block` · orden PART2 · `cols_sc` sin Destino · `_WOW_NEUTRO` variable · `render_chan_table` WoW · `g_channel_w17` global |
+| `render_cr_p3.py` | `tab_rows_canasta` sin pills banda · grid `1fr 46px 36px` · `panel_inner_cr` WoW · `panel_inner_chan` WoW · `dim_table_with_wow` grid `minmax(0,1fr)` |
+| `render_helpers.py` | `_CITY_DASH_PATTERN` · Bourgas → ciudad sola |
+| `template_resumen.py` | margin-top 24px/16px · `var(--paper)` · border-top accent |
+| `template_alertas.py` | fondos `#F2EDE0` / `#FAF7F2` + borde |
+| `asset_cr_head.html` | `--paper-soft:#F2EDE0` · `panel-row` 4 cols · tabs-block `var(--paper)` |
 
 ---
 
-## 📝 Cambios post W19 · CR (sesión Mayo 2026)
-
-### Pack visual CR (equivalente al pack RND)
-- **`asset_cr_head.html` creado**: CSS base CR independiente · `--accent:#5C469C` violet · 4 tabs hoteles (crit/br/sc/mcv) · 3 tabs dimensiones (corp/dest/chan)
-- **Pills severity con `!important`**: `render_cr_p2.py` y `template_severity.py`
-- **Nowrap en cards alertas**: nombres hotel/destino en 1 línea · `render_cr_p1.py`
-- **Iconos**: `🏨 Análisis por hotel` · `📊 Análisis por dimensión` · `render_cr_p2.py` y `render_cr_p3.py`
-- **Líneas divisorias**: `border-top:1px solid var(--rule); padding-top:48px` en secciones globales
-- **Plan de Acción canasta**: `margin-top:48px; padding-top:40px; border-top:1px solid var(--rule)`
-- **margin-bottom:32px** en `<details class="canasta-block">`
-- **clean_corp_name()** en `_render_dim_table` (render_cr_p2) y `panel_inner` (render_cr_p3)
-- **Síntesis ejecutiva se mantiene en CR** (no se eliminó como en RND)
-
-### Excel CR · Columna Channel
-- **Columna "Channel"** agregada en posición 5 en todas las pestañas de nivel hotel
-- Pestañas afectadas: Críticos · Bajo Rendimiento · Sin Conversión · Menor Conv Rate (global + 3 canastas = 16 pestañas)
-- `build_hotel_channel_map()` en `excel_cr.py`: cascada Dataset raw → pickle → fallback N/D
-- Para activar lookup limpio en W19+: agregar `df_hotel_channel` al pickle en `calc_cr.py`
-
-### Archivos modificados en pack CR W19
-| Archivo | Cambios principales |
-|---|---|
-| `asset_cr_head.html` | NUEVO · CSS base CR violet |
-| `render_cr_p1.py` | nowrap alertas |
-| `render_cr_p2.py` | pills !important · iconos · border-top · clean_corp_name |
-| `render_cr_p3.py` | iconos · plan border-top · margin-bottom canasta · clean_corp_name |
-| `template_severity.py` | pills !important (compartido RND+CR) |
-| `render_helpers.py` | clean_corp_name() |
-| `excel_cr.py` | columna Channel en 16 pestañas |
-| `GUIA_EDITORIAL_CheckRates.html` | bloque W19 documentado |
-
----
-
-**Última actualización:** Mayo 2026 · post Week 19 · pack visual CR + columna Channel Excel · bugs #8 #9 #10 documentados
+**Última actualización:** Mayo 2026 · post W18 · validación visual CR · bugs #8 #9 #10 · optimización proyecto
