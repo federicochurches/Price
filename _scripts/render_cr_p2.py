@@ -115,7 +115,7 @@ def render_severity_eficacia():
         bg = "rgba(22,22,22,.80)" if name=="Súper Crítica" else BANDA_COLORS[name]["bg"]
         fg = "#FFFFFF" if name=="Súper Crítica" else BANDA_COLORS[name]["fg"]
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{bg};color:{fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                 f'<span style="display:inline-block;padding:3px 8px;background:{bg} !important;color:{fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                  f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                  f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -154,7 +154,7 @@ def render_severities_combinadas():
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]} !important;color:{BANDA_COLORS[name]["fg"]} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                      f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -186,7 +186,7 @@ def render_severities_combinadas():
     n_crit_cv = int(sev_cv_p80.get('Crítica',0))
     n_proc = total_cv - n_sc
     
-    return f'''<section id="severity-combinada">
+    return f'''<section id="severity-combinada" style="border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
@@ -344,9 +344,9 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0):
         bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E8F7FD')
         bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
-                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
+                f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
         n = start_idx + i + 1
-        cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};line-height:1.3;">{n}. {truncate(r[dim_col],28)}{pill}</div></div>'
+        cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};line-height:1.3;">{n}. {clean_corp_name(truncate(r[dim_col],28)) if dim_col=="CorpName" else truncate(r[dim_col],28)}{pill}</div></div>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
@@ -630,11 +630,11 @@ def render_bloque_hoteles_cr():
         f'<div class="tab-panel" data-tab="mcv"><p class="tab-kicker">{k_mcv}</p>{panel_mcv}</div>'
     )
     
-    return f'''<section id="por-hotel" style="margin-bottom:64px;">
+    return f'''<section id="por-hotel" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
-<h2 class="section-title">Análisis por hotel</h2>
+<h2 class="section-title">🏨 Análisis por hotel</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Top 10 · 4 ópticas analíticas</span>
 <p class="section-kicker">Hoteles del P80 vistos desde cuatro ángulos analíticos: críticos (peor eficacia con BKGS&gt;0), bajo rendimiento (ConvRate insuficiente con volumen), sin conversión (BKGS=0), y menor ConvRate (peores conversores absolutos).</p>
 </div>
@@ -719,11 +719,11 @@ def render_bloque_dimensiones_cr():
         f'<div class="tab-panel" data-tab="chan"><p class="tab-kicker">{k_chan}</p>{panel_chan}</div>'
     )
     
-    return f'''<section id="por-dimension" style="margin-bottom:64px;">
+    return f'''<section id="por-dimension" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
-<h2 class="section-title">Análisis por dimensión</h2>
+<h2 class="section-title">📊 Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Top 10 agregados · ordenado por CR únicos ↓</span>
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>

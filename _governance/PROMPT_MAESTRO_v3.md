@@ -535,3 +535,84 @@ df_cug = df[df['DistributionCategory'] == 'CUG (UOP)']
 ---
 
 **Última actualización:** Mayo 2026 · post Week 18 · v3 single-sheet datasets · bugs #6 y #7 documentados
+
+---
+
+## 📝 Cambios post W19 · RND (sesión Mayo 2026)
+
+### Visual / UX
+- **Pills severity**: fondo tenue + texto color + `!important` para evitar herencia CSS
+  - Exitosa: `color:#4FC3F4 bg:#E8F7FD` · Aceptable: `color:#5C469C bg:#EDE8F7`
+  - Revisar: `color:#A86A1D bg:#FFF4E0` · Crítica: `color:#C0392B bg:#FCE4F1`
+  - Sin Conv: `color:#8A8377 bg:#F2EEE6` · Súper Crítica: `color:#fff bg:rgba(22,22,22,.80)`
+- **Síntesis ejecutiva**: eliminada de las 3 canastas (inestabilidad de renderizado)
+- **Iconos subtítulos canasta**: 🏨 Análisis por Hotel · 📊 Análisis por Dimensión
+- **"Demanda NC" → "Demanda No Convertida"** en todos los labels de tabs
+- **Nombres hotel en cards alertas**: `white-space:nowrap;overflow:hidden;text-overflow:ellipsis` → 1 sola línea
+
+### Espaciado
+- **CSS base**: `section { margin-bottom:64px }` uniforme (antes 80px)
+- **Hero**: `padding:16px 0 24px; border-bottom:none; margin-bottom:0`
+- **RE**: `margin-top:0` (pegado a las alertas)
+- **Línea divisoria**: `border-top:1px solid var(--rule)` al inicio de cada sección global
+- **Análisis por Dimensión**: título directo sobre tabs-block (sin div intermedio)
+- **Plan de Acción canasta**: `margin-top:48px; padding-top:40px; border-top:1px solid var(--rule)`
+- **Details canasta**: `margin-bottom:32px` entre canastas
+
+### Normalización de nombres
+- **Hyatt Inclusive Collection → HIC**: función `clean_corp_name()` en `render_helpers.py`
+- **Estados Unidos / Estados Unidos de América → United States**: `clean_pais_name()` ya existía
+
+### Dimensión global (render_rnd_p2.py)
+- Grid 6 columnas: `1fr 90px 70px 70px 75px 44px` (Nombre · Tráfico · BKGS · IPM · %NoDispo · WoW)
+- Nombres de filas en `color:var(--ink)` (no magenta)
+- Pills de banda como elementos hermanos del nombre (no hijos)
+- WoW completados para los 10 items en los 3 tabs
+
+### Archivos modificados en pack RND W19
+| Archivo | Cambios principales |
+|---|---|
+| `render_rnd_p1.py` | Nombres hotel nowrap en cards alertas |
+| `render_rnd_p2.py` | Pills !important, grid 6 cols, nombres ink, clean_corp_name |
+| `render_rnd_p3.py` | pill_b !important, sin síntesis, iconos, plan border-top, Demanda No Convertida |
+| `render_helpers.py` | clean_corp_name(), HIC, United States |
+| `asset_rnd_head.html` | section 64px, hero sin border, margin 0 |
+| `GUIA_EDITORIAL_RatesNoDispo.html` | HIC, síntesis eliminada, pills, espaciado, iconos documentados |
+| `_TEMPLATE_RatesNoDispo_Reporte.html` | section 64px, hero, severity border-top, iconos |
+
+---
+
+## 📝 Cambios post W19 · CR (sesión Mayo 2026)
+
+### Pack visual CR (equivalente al pack RND)
+- **`asset_cr_head.html` creado**: CSS base CR independiente · `--accent:#5C469C` violet · 4 tabs hoteles (crit/br/sc/mcv) · 3 tabs dimensiones (corp/dest/chan)
+- **Pills severity con `!important`**: `render_cr_p2.py` y `template_severity.py`
+- **Nowrap en cards alertas**: nombres hotel/destino en 1 línea · `render_cr_p1.py`
+- **Iconos**: `🏨 Análisis por hotel` · `📊 Análisis por dimensión` · `render_cr_p2.py` y `render_cr_p3.py`
+- **Líneas divisorias**: `border-top:1px solid var(--rule); padding-top:48px` en secciones globales
+- **Plan de Acción canasta**: `margin-top:48px; padding-top:40px; border-top:1px solid var(--rule)`
+- **margin-bottom:32px** en `<details class="canasta-block">`
+- **clean_corp_name()** en `_render_dim_table` (render_cr_p2) y `panel_inner` (render_cr_p3)
+- **Síntesis ejecutiva se mantiene en CR** (no se eliminó como en RND)
+
+### Excel CR · Columna Channel
+- **Columna "Channel"** agregada en posición 5 en todas las pestañas de nivel hotel
+- Pestañas afectadas: Críticos · Bajo Rendimiento · Sin Conversión · Menor Conv Rate (global + 3 canastas = 16 pestañas)
+- `build_hotel_channel_map()` en `excel_cr.py`: cascada Dataset raw → pickle → fallback N/D
+- Para activar lookup limpio en W19+: agregar `df_hotel_channel` al pickle en `calc_cr.py`
+
+### Archivos modificados en pack CR W19
+| Archivo | Cambios principales |
+|---|---|
+| `asset_cr_head.html` | NUEVO · CSS base CR violet |
+| `render_cr_p1.py` | nowrap alertas |
+| `render_cr_p2.py` | pills !important · iconos · border-top · clean_corp_name |
+| `render_cr_p3.py` | iconos · plan border-top · margin-bottom canasta · clean_corp_name |
+| `template_severity.py` | pills !important (compartido RND+CR) |
+| `render_helpers.py` | clean_corp_name() |
+| `excel_cr.py` | columna Channel en 16 pestañas |
+| `GUIA_EDITORIAL_CheckRates.html` | bloque W19 documentado |
+
+---
+
+**Última actualización:** Mayo 2026 · post Week 19 · pack visual CR + columna Channel Excel · bugs #8 #9 #10 documentados

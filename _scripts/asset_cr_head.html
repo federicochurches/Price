@@ -10,7 +10,7 @@
   --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
   --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
   --amber:#5C469C;--amber-soft:#EDE8F7;--green:#4FC3F4;--green-soft:#E8F7FD;
-  --navy:#161616;--navy-soft:#F2EEE6;--red:#EA0074;--red-soft:#FCE4F1;
+  --navy:#161616;--navy-soft:#F2EEE6;--red:#C0392B;--red-soft:#FCE4F1;
   --maxw:1280px;
 }
 *{box-sizing:border-box;}
@@ -21,7 +21,7 @@ html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-famil
 .masthead-top-rule{height:3px;background:var(--ink);}
 .report-tag{display:inline-block;background:#5C469C;color:#fff;padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;}
 .masthead-sub{display:flex;justify-content:space-between;padding:7px 0;font-size:10px;font-weight:500;color:var(--ink-muted);letter-spacing:0.09em;text-transform:uppercase;border-bottom:3px solid var(--ink);}
-.hero{padding:16px 0 64px;border-bottom:1px solid var(--rule);margin-bottom:80px;}
+.hero{padding:16px 0 24px;border-bottom:none;margin-bottom:0;}
 .hero h1{font-size:clamp(22px,2.4vw,32px);font-weight:700;line-height:1.2;letter-spacing:-0.02em;margin:0 0 28px;max-width:100%;}
 .hero h1 .accent{color:var(--accent);}
 .hero-lede{font-size:20px;line-height:1.5;font-weight:400;color:var(--ink-soft);margin-bottom:24px;}
@@ -36,7 +36,7 @@ html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-famil
 .meta-bar-fill{height:100%;background:var(--accent);}
 .meta-hl{color:var(--accent);font-weight:700;}
 .meta-sub{font-size:11px;color:var(--ink-muted);}
-section{margin-bottom:80px;scroll-margin-top:24px;}
+section{margin-bottom:64px;scroll-margin-top:24px;}
 .section-head{margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid var(--rule);}
 .section-head > div{display:grid;grid-template-columns:1fr;gap:0;}
 .section-num{font-size:11px;color:var(--ink-muted);font-weight:700;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:6px;}
@@ -98,30 +98,30 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
 .tab-panel{display:none;}
 .tab-panel > div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+#tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
+#tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-nd-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-nd-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-nd-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
+#tab-rpm-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
+#tab-rpm-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-rpm-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-rpm-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;}
+.tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 .tab-panel div:has(> strong + span){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
-.tab-panel div span:not(.tab-key){color:var(--amber);font-weight:700;}
-#tab-ef-destino:checked ~ .tabs-row label[for="tab-ef-destino"],
-#tab-ef-corp:checked ~ .tabs-row label[for="tab-ef-corp"],
-#tab-ef-hotel:checked ~ .tabs-row label[for="tab-ef-hotel"],
-#tab-ef-canasta:checked ~ .tabs-row label[for="tab-ef-canasta"],
-#tab-ef-channel:checked ~ .tabs-row label[for="tab-ef-channel"],
-#tab-cv-destino:checked ~ .tabs-row label[for="tab-cv-destino"],
-#tab-cv-corp:checked ~ .tabs-row label[for="tab-cv-corp"],
-#tab-cv-hotel:checked ~ .tabs-row label[for="tab-cv-hotel"],
-#tab-cv-canasta:checked ~ .tabs-row label[for="tab-cv-canasta"],
-#tab-cv-channel:checked ~ .tabs-row label[for="tab-cv-channel"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
-#tab-ef-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
-#tab-ef-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
-#tab-ef-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
-#tab-ef-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
-#tab-ef-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"],
-#tab-cv-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
-#tab-cv-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
-#tab-cv-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
-#tab-cv-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
-#tab-cv-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"]{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;}
-.tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
+.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:var(--amber);font-weight:700;}
+#tab-nd-destino:checked ~ .tabs-row label[for="tab-nd-destino"],
+#tab-nd-corp:checked ~ .tabs-row label[for="tab-nd-corp"],
+#tab-nd-hotel:checked ~ .tabs-row label[for="tab-nd-hotel"],
+#tab-nd-canasta:checked ~ .tabs-row label[for="tab-nd-canasta"],
+#tab-nd-channel:checked ~ .tabs-row label[for="tab-nd-channel"],
+#tab-rpm-destino:checked ~ .tabs-row label[for="tab-rpm-destino"],
+#tab-rpm-corp:checked ~ .tabs-row label[for="tab-rpm-corp"],
+#tab-rpm-hotel:checked ~ .tabs-row label[for="tab-rpm-hotel"],
+#tab-rpm-canasta:checked ~ .tabs-row label[for="tab-rpm-canasta"],
+#tab-rpm-channel:checked ~ .tabs-row label[for="tab-rpm-channel"]{background:var(--paper);color:var(--amber);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
 /* === BLOQUES con tabs (Análisis por hotel + Por dimensión) === */
 .tabs-block{border:1px solid var(--rule);background:#F6EFE0;border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);}
@@ -131,7 +131,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tabs-block .tab-panel > div{display:block;padding:0;}
 .tab-kicker{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0 0 14px;font-style:italic;}
 
-/* Hoteles · 4 tabs */
+/* Hoteles · 4 tabs CR (Críticos · Bajo Rend · Sin Conv · Menor ConvRate) */
 .tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
 .tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
 .tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"],
@@ -139,15 +139,15 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-h-crit:checked ~ .tabs-row label[for="tab-h-crit"],
 #tab-h-br:checked ~ .tabs-row label[for="tab-h-br"],
 #tab-h-sc:checked ~ .tabs-row label[for="tab-h-sc"],
-#tab-h-mcv:checked ~ .tabs-row label[for="tab-h-mcv"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+#tab-h-mcv:checked ~ .tabs-row label[for="tab-h-mcv"]{background:var(--paper);color:#5C469C;border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
-/* Dimensiones · 3 tabs */
+/* Dimensiones · 3 tabs CR (Corp · Destino · Channel) */
 .tabs-block #tab-d-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
 .tabs-block #tab-d-dest:checked ~ .tab-panels .tab-panel[data-tab="dest"],
 .tabs-block #tab-d-chan:checked ~ .tab-panels .tab-panel[data-tab="chan"]{display:block !important;}
 #tab-d-corp:checked ~ .tabs-row label[for="tab-d-corp"],
 #tab-d-dest:checked ~ .tabs-row label[for="tab-d-dest"],
-#tab-d-chan:checked ~ .tabs-row label[for="tab-d-chan"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+#tab-d-chan:checked ~ .tabs-row label[for="tab-d-chan"]{background:var(--paper);color:#5C469C;border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
 /* Canastas colapsables · card con +/- */
 .canasta-block{margin-top:24px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s;}
@@ -175,7 +175,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .exec-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 24px;}
 .exec-mini-card{background:var(--paper-soft);padding:16px 18px;border-radius:3px;display:flex;flex-direction:column;gap:6px;}
 .exec-mini-card.qw{border-left:3px solid #4FC3F4;}
-.exec-mini-card.mp{border-left:3px solid #EA0074;}
+.exec-mini-card.mp{border-left:3px solid #5C469C;}
 .exec-mini-card.es{border-left:3px solid var(--ink);}
 .exec-mini-card .num-big{font-size:11px;font-weight:700;color:var(--ink-muted);letter-spacing:.10em;text-transform:uppercase;margin-bottom:2px;}
 .exec-mini-card .title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35;}
@@ -190,31 +190,45 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .canasta-tabs .tab-label:hover{color:var(--ink);}
 .canasta-tabs .tab-panels{padding:18px 0 0;}
 .canasta-tabs .tab-panel-c{display:none;}
-.canasta-tabs .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
-.canasta-tabs .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;}
-.canasta-tabs .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
-.canasta-tabs .tab-panel-c .panel-row .cr{text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;}
-.canasta-tabs .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;padding:6px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;}
-.canasta-tabs .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
-.canasta-tabs .tab-panel-c .panel-header span:first-child{color:#EA0074;}
-.canasta-tabs .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
+.tabs-block .tab-panel-c{display:none;}
+.canasta-tabs .tab-panel-c .panel-row,.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 80px 60px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
+.canasta-tabs .tab-panel-c .panel-row .label,.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#5C469C;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.canasta-tabs .tab-panel-c .panel-row .efic,.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.canasta-tabs .tab-panel-c .panel-row .cr,.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;}
+.canasta-tabs .tab-panel-c .panel-header,.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 80px 60px;gap:8px;padding:4px 0 6px;border-bottom:2px solid #5C469C;margin-bottom:4px;}
+.canasta-tabs .tab-panel-c .panel-header span,.tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
+.canasta-tabs .tab-panel-c .panel-header span:first-child,.tabs-block .tab-panel-c .panel-header span:first-child{color:#5C469C;}
+.canasta-tabs .tab-panel-c .panel-header span:not(:first-child),.tabs-block .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
 
 /* Default: el primer radio activo · destino seleccionado */
 .canasta-tabs input[id$="-destino"]:checked ~ .tabs-row label[for$="-destino"],
 .canasta-tabs input[id$="-corp"]:checked ~ .tabs-row label[for$="-corp"],
 .canasta-tabs input[id$="-hotel"]:checked ~ .tabs-row label[for$="-hotel"],
-.canasta-tabs input[id$="-provider"]:checked ~ .tabs-row label[for$="-provider"]{color:var(--ink);border-bottom-color:#EA0074;}
+.canasta-tabs input[id$="-provider"]:checked ~ .tabs-row label[for$="-provider"]{color:var(--ink);border-bottom-color:#5C469C;}
 
 .canasta-tabs input[id$="-destino"]:checked ~ .tab-panels .tab-panel-c[data-tab="destino"],
 .canasta-tabs input[id$="-corp"]:checked ~ .tab-panels .tab-panel-c[data-tab="corp"],
 .canasta-tabs input[id$="-hotel"]:checked ~ .tab-panels .tab-panel-c[data-tab="hotel"],
 .canasta-tabs input[id$="-provider"]:checked ~ .tab-panels .tab-panel-c[data-tab="provider"]{display:block;}
+/* Tabs-block canasta: Análisis por Hotel + Análisis por Dimensión */
+.tabs-block .tab-panel-c{display:none;}
+.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
+.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#5C469C;}
+.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:#5C469C;font-weight:600;font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;padding:6px 0;border-bottom:2px solid #5C469C;margin-bottom:4px;}
+.tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
+.tabs-block .tab-panel-c .panel-header span:first-child{color:#5C469C;}
+.tabs-block .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
+.tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:0;margin-bottom:12px;}
+.tabs-block .tab-label{padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;user-select:none;transition:all .15s;margin-bottom:-1px;}
+.tabs-block .tab-label:hover{color:var(--ink);}
 
 /* Banner alertas dentro de canasta */
-.canasta-alert-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#FCE4F1;border:1px solid #EA0074;border-radius:3px;margin-bottom:24px;}
+.canasta-alert-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#EDE8F7;border:1px solid #5C469C;border-radius:3px;margin-bottom:24px;}
 .canasta-alert-bar .alert-cell{padding:12px 16px;border-right:1px solid rgba(234,0,116,.2);}
 .canasta-alert-bar .alert-cell:last-child{border-right:none;}
-.canasta-alert-bar .alert-cell .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin-bottom:4px;}
+.canasta-alert-bar .alert-cell .label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#5C469C;margin-bottom:4px;}
 .canasta-alert-bar .alert-cell .value{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3;}
 .canasta-alert-bar .alert-cell .desc{font-size:10px;color:var(--ink-soft);margin-top:2px;}
 
@@ -250,16 +264,29 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .metodo-section-dark .card-action .arrow{color:#FF4DA0;font-weight:700;}
 
 
-/* CR Canasta tabs · sistema folder */
-#tab-cb-b2c-ef-destino:checked ~ .tabs-cb-b2c-ef label[for="tab-cb-b2c-ef-destino"],#tab-cb-b2c-ef-corp:checked ~ .tabs-cb-b2c-ef label[for="tab-cb-b2c-ef-corp"],#tab-cb-b2c-ef-hotel:checked ~ .tabs-cb-b2c-ef label[for="tab-cb-b2c-ef-hotel"],#tab-cb-b2c-ef-channel:checked ~ .tabs-cb-b2c-ef label[for="tab-cb-b2c-ef-channel"],#tab-cb-b2c-cr-destino:checked ~ .tabs-cb-b2c-cr label[for="tab-cb-b2c-cr-destino"],#tab-cb-b2c-cr-corp:checked ~ .tabs-cb-b2c-cr label[for="tab-cb-b2c-cr-corp"],#tab-cb-b2c-cr-hotel:checked ~ .tabs-cb-b2c-cr label[for="tab-cb-b2c-cr-hotel"],#tab-cb-b2c-cr-channel:checked ~ .tabs-cb-b2c-cr label[for="tab-cb-b2c-cr-channel"],#tab-cb-op-ef-destino:checked ~ .tabs-cb-op-ef label[for="tab-cb-op-ef-destino"],#tab-cb-op-ef-corp:checked ~ .tabs-cb-op-ef label[for="tab-cb-op-ef-corp"],#tab-cb-op-ef-hotel:checked ~ .tabs-cb-op-ef label[for="tab-cb-op-ef-hotel"],#tab-cb-op-ef-channel:checked ~ .tabs-cb-op-ef label[for="tab-cb-op-ef-channel"],#tab-cb-op-cr-destino:checked ~ .tabs-cb-op-cr label[for="tab-cb-op-cr-destino"],#tab-cb-op-cr-corp:checked ~ .tabs-cb-op-cr label[for="tab-cb-op-cr-corp"],#tab-cb-op-cr-hotel:checked ~ .tabs-cb-op-cr label[for="tab-cb-op-cr-hotel"],#tab-cb-op-cr-channel:checked ~ .tabs-cb-op-cr label[for="tab-cb-op-cr-channel"],#tab-cb-cug-ef-destino:checked ~ .tabs-cb-cug-ef label[for="tab-cb-cug-ef-destino"],#tab-cb-cug-ef-corp:checked ~ .tabs-cb-cug-ef label[for="tab-cb-cug-ef-corp"],#tab-cb-cug-ef-hotel:checked ~ .tabs-cb-cug-ef label[for="tab-cb-cug-ef-hotel"],#tab-cb-cug-ef-channel:checked ~ .tabs-cb-cug-ef label[for="tab-cb-cug-ef-channel"],#tab-cb-cug-cr-destino:checked ~ .tabs-cb-cug-cr label[for="tab-cb-cug-cr-destino"],#tab-cb-cug-cr-corp:checked ~ .tabs-cb-cug-cr label[for="tab-cb-cug-cr-corp"],#tab-cb-cug-cr-hotel:checked ~ .tabs-cb-cug-cr label[for="tab-cb-cug-cr-hotel"],#tab-cb-cug-cr-channel:checked ~ .tabs-cb-cug-cr label[for="tab-cb-cug-cr-channel"] {
+
+/* RND v4 · selectores prefijo-agnósticos para tabs */
+.kpi-card input[type="radio"][id*="-destino"]:checked ~ .tabs-row label[for*="-destino"],
+.kpi-card input[type="radio"][id*="-corp"]:checked ~ .tabs-row label[for*="-corp"],
+.kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tabs-row label[for*="-hotel"],
+.kpi-card input[type="radio"][id*="-canasta"]:checked ~ .tabs-row label[for*="-canasta"],
+.kpi-card input[type="radio"][id*="-channel"]:checked ~ .tabs-row label[for*="-channel"]{
   background:var(--paper);
   color:#5C469C;
   border:1px solid var(--rule);
   border-bottom:1px solid var(--paper);
-  border-radius:6px 6px 0 0;
 }
-#tab-cb-b2c-ef-destino:checked ~ .tabs-panels-cb-b2c-ef .tab-panel[data-tab="destino"],#tab-cb-b2c-ef-corp:checked ~ .tabs-panels-cb-b2c-ef .tab-panel[data-tab="corp"],#tab-cb-b2c-ef-hotel:checked ~ .tabs-panels-cb-b2c-ef .tab-panel[data-tab="hotel"],#tab-cb-b2c-ef-channel:checked ~ .tabs-panels-cb-b2c-ef .tab-panel[data-tab="channel"],#tab-cb-b2c-cr-destino:checked ~ .tabs-panels-cb-b2c-cr .tab-panel[data-tab="destino"],#tab-cb-b2c-cr-corp:checked ~ .tabs-panels-cb-b2c-cr .tab-panel[data-tab="corp"],#tab-cb-b2c-cr-hotel:checked ~ .tabs-panels-cb-b2c-cr .tab-panel[data-tab="hotel"],#tab-cb-b2c-cr-channel:checked ~ .tabs-panels-cb-b2c-cr .tab-panel[data-tab="channel"],#tab-cb-op-ef-destino:checked ~ .tabs-panels-cb-op-ef .tab-panel[data-tab="destino"],#tab-cb-op-ef-corp:checked ~ .tabs-panels-cb-op-ef .tab-panel[data-tab="corp"],#tab-cb-op-ef-hotel:checked ~ .tabs-panels-cb-op-ef .tab-panel[data-tab="hotel"],#tab-cb-op-ef-channel:checked ~ .tabs-panels-cb-op-ef .tab-panel[data-tab="channel"],#tab-cb-op-cr-destino:checked ~ .tabs-panels-cb-op-cr .tab-panel[data-tab="destino"],#tab-cb-op-cr-corp:checked ~ .tabs-panels-cb-op-cr .tab-panel[data-tab="corp"],#tab-cb-op-cr-hotel:checked ~ .tabs-panels-cb-op-cr .tab-panel[data-tab="hotel"],#tab-cb-op-cr-channel:checked ~ .tabs-panels-cb-op-cr .tab-panel[data-tab="channel"],#tab-cb-cug-ef-destino:checked ~ .tabs-panels-cb-cug-ef .tab-panel[data-tab="destino"],#tab-cb-cug-ef-corp:checked ~ .tabs-panels-cb-cug-ef .tab-panel[data-tab="corp"],#tab-cb-cug-ef-hotel:checked ~ .tabs-panels-cb-cug-ef .tab-panel[data-tab="hotel"],#tab-cb-cug-ef-channel:checked ~ .tabs-panels-cb-cug-ef .tab-panel[data-tab="channel"],#tab-cb-cug-cr-destino:checked ~ .tabs-panels-cb-cug-cr .tab-panel[data-tab="destino"],#tab-cb-cug-cr-corp:checked ~ .tabs-panels-cb-cug-cr .tab-panel[data-tab="corp"],#tab-cb-cug-cr-hotel:checked ~ .tabs-panels-cb-cug-cr .tab-panel[data-tab="hotel"],#tab-cb-cug-cr-channel:checked ~ .tabs-panels-cb-cug-cr .tab-panel[data-tab="channel"] {
+.kpi-card input[type="radio"][id*="-destino"]:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+.kpi-card input[type="radio"][id*="-corp"]:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+.kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+.kpi-card input[type="radio"][id*="-canasta"]:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
+.kpi-card input[type="radio"][id*="-channel"]:checked ~ .tab-panels .tab-panel[data-tab="channel"]{
   display:block;
 }
+.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:#5C469C !important;font-weight:700;}
+em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;}
+em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
+em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
+em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </style>
 </head>

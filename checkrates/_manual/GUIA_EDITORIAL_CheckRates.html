@@ -39,7 +39,7 @@ ul li { margin-bottom: 6px; }
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;color:#5C469C;">📐 Reorganización secciones globales · Mayo 2026</div>
 <p style="margin:0 0 10px;">A partir de la mejora post Week 18, las secciones globales se organizan en <strong>2 bloques con tabs</strong> en lugar de 6 secciones apiladas.</p>
 <ul style="margin:0;padding-left:20px;">
-<li><strong>Bloque "Análisis por hotel"</strong> · agrupa todas las ópticas que muestran hoteles individuales (Demanda No Convertida · Bajo Rend · Sin Conv · Menor ConvRate en CR).</li>
+<li><strong>Bloque "Análisis por hotel"</strong> · agrupa todas las ópticas que muestran hoteles individuales (Demanda NC · Bajo Rend · Sin Conv · Menor ConvRate en CR).</li>
 <li><strong>Bloque "Por dimensión"</strong> · agrupa todos los listados agregados (Corporativo · Destino · País en RND · Channel en CR).</li>
 <li>Cada tab muestra Top 10 a 2 columnas (1-5 izquierda · 6-10 derecha) con un kicker dinámico que da contexto.</li>
 <li>La sección "Channel agrupado" en CR (cards comparadoras Producto Propio vs Third Party) se mantiene independiente porque es comparador, no listado.</li>
@@ -231,6 +231,27 @@ ul li { margin-bottom: 6px; }
   <li>Top 50 en cada pestaña (no Top 20)</li>
   <li>Pestaña "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento" (cohorte estructural distinta)</li>
 </ul>
+
+</body>
+</html>
+
+<!-- ===== ACTUALIZACIÓN POST WEEK 19 · CAMBIOS VISUALES CR ===== -->
+<div style="margin:40px 0;padding:20px 24px;background:#EDE8F7;border-left:4px solid #5C469C;border-radius:4px;font-size:13px;line-height:1.55;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;color:#5C469C;">🎨 Pack visual · Post Week 19 · Mayo 2026 · Equivalente al pack RND</div>
+<p style="margin:0 0 10px;"><strong>Cambios aplicados para igualar el nivel visual del reporte CR al de RND:</strong></p>
+<ul style="margin:0;padding-left:20px;">
+  <li><strong>asset_cr_head.html creado</strong> · CSS base CR independiente del RND. Acento <code>#5C469C</code> (violet). Tab activa hero en violet. Bloques globales: 4 tabs hoteles (Críticos · Bajo Rend · Sin Conv · Menor ConvRate) + 3 tabs dimensión (Corp · Destino · Channel). Fondo tabs-block <code>#F6EFE0</code>.</li>
+  <li><strong>Pills severity con <code>!important</code></strong> · <code>render_cr_p2.py</code> y <code>template_severity.py</code>: <code>background:{bg} !important; color:{fg} !important</code>. Evita herencia de color del contenedor. Aplica a severity global y a severity de canastas.</li>
+  <li><strong>Nowrap en nombres de cards alertas</strong> · <code>render_cr_p1.py</code>: nombres hotel y destino con <code>white-space:nowrap; overflow:hidden; text-overflow:ellipsis</code> → 1 sola línea, cards simétricas.</li>
+  <li><strong>Iconos en subtítulos</strong> · <code>render_cr_p2.py</code>: <code>🏨 Análisis por hotel</code> · <code>📊 Análisis por dimensión</code>. <code>render_cr_p3.py</code>: <code>📊 Análisis por dimensión</code> en tabs de canasta.</li>
+  <li><strong>Líneas divisorias entre secciones globales</strong> · <code>render_cr_p2.py</code>: <code>border-top:1px solid var(--rule); padding-top:48px</code> en <code>#severity-combinada</code>, <code>#por-hotel</code> y <code>#por-dimension</code>.</li>
+  <li><strong>Plan de Acción canasta con separador</strong> · <code>render_cr_p3.py</code>: <code>margin-top:48px; padding-top:40px; border-top:1px solid var(--rule)</code> igual que en RND.</li>
+  <li><strong>margin-bottom:32px en canastas</strong> · <code>render_cr_p3.py</code>: <code>&lt;details class="canasta-block" style="margin-bottom:32px;"&gt;</code>.</li>
+  <li><strong>clean_corp_name() en tablas dimensión CR</strong> · <code>_render_dim_table</code> en <code>render_cr_p2.py</code> y <code>panel_inner</code> en <code>render_cr_p3.py</code> aplican <code>clean_corp_name()</code> cuando <code>dim_col=="CorpName"</code> → "Hyatt Inclusive Collection" → "HIC".</li>
+  <li><strong>Síntesis ejecutiva se mantiene en CR</strong> · A diferencia de RND (donde se eliminó por inestabilidad), CR conserva la síntesis narrativa antes del Plan en cada canasta.</li>
+</ul>
+<p style="margin:12px 0 0;font-size:12px;color:#5C469C;font-style:italic;">Archivos modificados: <code>asset_cr_head.html</code> (nuevo) · <code>render_cr_p1.py</code> · <code>render_cr_p2.py</code> · <code>render_cr_p3.py</code> · <code>template_severity.py</code> · <code>GUIA_EDITORIAL_CheckRates.html</code></p>
+</div>
 
 </body>
 </html>

@@ -11,7 +11,7 @@ API:
 def render_severity_row(label, banda_bg, banda_fg, rango, distribution_pct, count, total):
     pct_label = f'{count/total*100:.1f}%'.replace('.',',') if total > 0 else '0,0%'
     return f'''<div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:{banda_bg};color:{banda_fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
+<span style="display:inline-block;padding:3px 8px;background:{banda_bg} !important;color:{banda_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rango}</span>
 <div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{distribution_pct}%;background:{banda_fg};"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{count:,}</span>
