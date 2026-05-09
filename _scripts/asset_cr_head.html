@@ -131,6 +131,30 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tabs-block .tab-panel > div{display:block;padding:0;}
 .tab-kicker{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0 0 14px;font-style:italic;}
 
+/* KPI Hero · tabs Eficacia (tab-ef-*) */
+#tab-ef-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-ef-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-ef-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-ef-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"],
+#tab-ef-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block !important;}
+#tab-ef-destino:checked ~ .tabs-row label[for="tab-ef-destino"],
+#tab-ef-corp:checked ~ .tabs-row label[for="tab-ef-corp"],
+#tab-ef-hotel:checked ~ .tabs-row label[for="tab-ef-hotel"],
+#tab-ef-channel:checked ~ .tabs-row label[for="tab-ef-channel"],
+#tab-ef-canasta:checked ~ .tabs-row label[for="tab-ef-canasta"]{background:var(--paper);color:#5C469C;border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+
+/* KPI Hero · tabs ConvRate (tab-cv-*) */
+#tab-cv-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-cv-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-cv-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-cv-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"],
+#tab-cv-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block !important;}
+#tab-cv-destino:checked ~ .tabs-row label[for="tab-cv-destino"],
+#tab-cv-corp:checked ~ .tabs-row label[for="tab-cv-corp"],
+#tab-cv-hotel:checked ~ .tabs-row label[for="tab-cv-hotel"],
+#tab-cv-channel:checked ~ .tabs-row label[for="tab-cv-channel"],
+#tab-cv-canasta:checked ~ .tabs-row label[for="tab-cv-canasta"]{background:var(--paper);color:#5C469C;border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+
 /* Hoteles · 4 tabs CR (Críticos · Bajo Rend · Sin Conv · Menor ConvRate) */
 .tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
 .tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
