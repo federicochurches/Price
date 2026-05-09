@@ -125,12 +125,16 @@ ul li { margin-bottom: 6px; }
 
   Para agregar más reemplazos de países, editar <code>_PAIS_REPLACEMENTS</code> en <code>render_helpers.py</code>.</li>
 
+<li><strong>Pills de severity · sistema post W19:</strong> Fondo tenue + texto de color + <code>!important</code> para evitar herencia del span contenedor. Colores: Exitosa <code>#4FC3F4</code> bg <code>#E8F7FD</code> · Aceptable <code>#5C469C</code> bg <code>#EDE8F7</code> · Revisar <code>#A86A1D</code> bg <code>#FFF4E0</code> · Crítica <code>#C0392B</code> bg <code>#FCE4F1</code> · Sin Conv <code>#8A8377</code> bg <code>#F2EEE6</code>. Implementado en <code>pill_b()</code> de <code>render_rnd_p3.py</code> y <code>_render_dim_table_rnd()</code> de <code>render_rnd_p2.py</code>.</li>
+
 <li><strong>Normalización de nombres de corporativo · post W19:</strong> los corporativos con nombres largos se abrevian antes de mostrar en tabs y tablas. El mapa vive en <code>render_helpers.clean_corp_name()</code> y aplica en <code>render_rnd_p2</code> y <code>p3</code>:
   <table>
     <tr><th>Original</th><th>Display</th></tr>
     <tr><td>Hyatt Inclusive Collection</td><td>HIC</td></tr>
   </table>
-  Para agregar más abreviaturas, editar <code>_CORP_REPLACEMENTS</code> en <code>render_helpers.py</code>.<li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card).
+  Para agregar más abreviaturas, editar <code>_CORP_REPLACEMENTS</code> en <code>render_helpers.py</code>.
+
+<li><strong>Síntesis ejecutiva · eliminada post W19:</strong> El bloque de síntesis fue eliminado de las 3 canastas por inestabilidad de renderizado. La variable <code>sintesis_html</code> fue removida de <code>render_rnd_p3.py</code> y del ensamblado del <code>render_canasta_block()</code>.</li><li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card).
   <table>
     <tr><th>Clase CSS</th><th>Contexto</th><th>Color texto</th><th>Fondo</th><th>Cuándo</th></tr>
     <tr><td><code>em.wow-pill.up</code></td><td>%NoDispo sube / IPM baja</td><td><code>#C0392B</code></td><td><code>#FCE8E6</code></td><td>Deterioro</td></tr>

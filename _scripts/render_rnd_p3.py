@@ -292,12 +292,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # === RESUMEN EJECUTIVO con pills de banda y WoW ===
     def pill_b(nombre):
-        COLORS = {'Exitosa':('#0D7A99','#E8F7FD'),'Aceptable':('#5C469C','#EDE8F7'),
+        COLORS = {'Exitosa':('#4FC3F4','#E8F7FD'),'Aceptable':('#5C469C','#EDE8F7'),
                   'Revisar':('#A86A1D','#FFF4E0'),'Crítica':('#C0392B','#FCE4F1'),
                   'Súper Crítica':('#ffffff','rgba(22,22,22,.80)'),'Sin Conv':('#8A8377','#F2EEE6')}
         ct, cb = COLORS.get(nombre, ('#161616','#F2EEE6'))
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;'
-                f'text-transform:uppercase;padding:2px 7px;border-radius:3px;background:{cb};color:{ct};'
+                f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
+                f'background:{cb} !important;color:{ct} !important;'
                 f'vertical-align:middle;margin:0 2px;">{nombre}</span>')
     def pill_d(texto, mejora):
         color = '#2F6C34' if mejora else '#C0392B'
@@ -363,7 +364,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_br_c  = c.get('bajo_rend',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM').head(10))
     df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False).head(10))
 
-    bloque_hotel_html = f'''<div style="margin:32px 0 24px;">
+    bloque_hotel_html = f'''<div style="margin:40px 0 24px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Hotel</div>
 <div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -397,7 +398,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_dest' in c else df_dest
     df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_pais' in c else df_pais
 
-    bloque_dim_html = f'''<div style="margin:32px 0 24px;">
+    bloque_dim_html = f'''<div style="margin:40px 0 24px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Dimensión</div>
 <div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -482,16 +483,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     bajo_rows = render_top10_2cols_rnd(c['bajo_rend'], f'Top 10 · Bajo Rendimiento · Canasta {c["short"]}', 'BKGS', 'Bookings', 'IPM', 'RPM')
     sin_rows = render_top10_2cols_rnd(c['sin_conv'], f'Top 10 · Sin Conversión · Canasta {c["short"]}', '%NoDispo', '%NoDispo')
     
-    # === Síntesis ejecutiva ===
-    n_critmas_local = c['sev_nd'].get('Súper Crítica',0) + c['sev_nd'].get('Crítica',0)
-    pct_critmas = n_critmas_local / max(n_p80,1) * 100
-    pct_sc = n_sc_total / max(len(c['agg_hotel']),1) * 100
-    
-    sintesis_html = f'''<div style="margin-top:32px;padding:16px 20px;background:var(--paper-soft);border-left:3px solid #EA0074;border-radius:3px;font-size:13px;line-height:1.55;color:var(--ink-soft);">
-<div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">📝 Síntesis ejecutiva</div>
-Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_critmas_local)} en Severity Crítica+ por %NoDispo</strong> ({f"{pct_critmas:.1f}".replace(".",",")}% del P80) y <strong>{fmt_int_es(int(n_sc_total))} sin conversión</strong> ({f"{pct_sc:.1f}".replace(".",",")}% del total). %NoDispo {fmt_pct2(pct_w18)} (banda {m18["banda_nodispo"]}) y IPM ${fmt_num2(rpm_w18)} (banda {m18["banda_rpm"]}). Las acciones del Plan siguiente ordenan por horizonte (Quick Win → Estratégica) y Área Accountable.
-</div>'''
-    
     # === Plan de Acción (mantengo estructura existente, ya está en 2 cols) ===
     canasta_label = c['short']
     weight_str = '0,1' if 'B2C' in c['name'] else '0,6'
@@ -544,7 +535,7 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
         f'</div>'
     )
     
-    plan_canasta_html = f'''<div style="margin-top:24px;">
+    plan_canasta_html = f'''<div style="margin-top:48px;">
 <h3 style="font-size:13px;font-weight:700;color:#EA0074;text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">Plan de Acción · canasta {canasta_label}</h3>
 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">{plan_canasta_rows}</div>
 </div>'''
@@ -562,7 +553,7 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 <a href="{excel_canasta_url}" style="display:inline-block;padding:6px 14px;background:#EA0074;color:#fff;font-size:11px;font-weight:600;text-decoration:none;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;">Excel ↗</a>
 </div>'''
     
-    return f'''{extra_css}<details class="canasta-block">
+    return f'''{extra_css}<details class="canasta-block" style="margin-bottom:32px;">
 <summary>
 <div class="summary-title">
 <h2>Canasta {c['short']}</h2>
@@ -577,7 +568,6 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 {severity_canasta_html}
 {bloque_hotel_html}
 {bloque_dim_html}
-{sintesis_html}
 {plan_canasta_html}
 {banner_descarga_canasta}
 </div>

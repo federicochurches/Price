@@ -337,9 +337,9 @@ def render_no_convierten():
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
     """Tabla de una columna con N filas para Top dimensión RND."""
-    grid = '1fr 90px 70px 75px 70px'
+    grid = '1fr 90px 70px 70px 75px 44px'
     rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
-    for label in [dim_label,'Tráfico','BKGS','%NoDispo','IPM']:
+    for label in [dim_label,'Tráfico','BKGS','IPM','%NoDispo','WoW']:
         align = 'left' if label==dim_label else 'right'
         color = '#EA0074' if label==dim_label else 'var(--ink-muted)'
         rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
@@ -350,15 +350,20 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg','#EA0074')
         bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd!='Súper Crítica' else 'rgba(22,22,22,.80)'
         bnd_fg = '#FFFFFF' if bnd=='Súper Crítica' else bnd_color
-        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
-                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
+        pill = (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                f'background:{bnd_bg} !important;color:{bnd_fg} !important;'
+                f'text-transform:uppercase;letter-spacing:.05em;margin-left:5px;vertical-align:middle;">{bnd}</span>')
         n = start_idx + i + 1
         raw_label = clean_pais_name(r[dim_col]) if dim_col == 'PaisDestino' else r[dim_col]
-        cells = (f'<div><div style="font-weight:600;color:#EA0074;line-height:1.3;">{n}. {truncate(raw_label,28)}{pill}</div></div>'
-                 f'<span style="text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>'
+        if dim_col == 'CorpName':
+            from render_helpers import clean_corp_name
+            raw_label = clean_corp_name(raw_label)
+        cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;">{n}. {truncate(raw_label,28)} {pill}</div>'
+                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_num2(r["RPM"])}</span>')
+                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_num2(r["RPM"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
+                 f'<div style="text-align:right;"></div>')
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
 
