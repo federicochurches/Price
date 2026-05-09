@@ -165,3 +165,21 @@ def clean_pais_name(name, max_len=22):
             name = name.replace(old, new)
             break
     return truncate(name, max_len)
+
+# ── Normalización de nombres de corporativo ───────────────────────────────────
+_CORP_REPLACEMENTS = {
+    'Hyatt Inclusive Collection': 'HIC',
+}
+
+def clean_corp_name(name, max_len=28):
+    """Normaliza nombres de corporativo para display en tabs y trunca.
+    Reglas activas:
+      · 'Hyatt Inclusive Collection' → 'HIC'
+    """
+    if not name:
+        return name
+    for old, new in _CORP_REPLACEMENTS.items():
+        if old in str(name):
+            name = str(name).replace(old, new)
+            break
+    return truncate(str(name), max_len)
