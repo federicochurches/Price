@@ -11,6 +11,11 @@ with open('rnd_w18_data.pkl','rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
 CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
+
+# Alias para funciones no definidas en esta versión
+def fmt_usd(v):
+    """Alias de fmt_num2 para compatibilidad."""
+    return fmt_num2(v)
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 
 # Cargar head y footer

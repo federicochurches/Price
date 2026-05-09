@@ -164,7 +164,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── KPI cards con gauge + wow_box + tabs ─────────────────────────────────
     def wow_box_canasta(v17, v18, wow_str, wow_color, accent):
-        return f'''<div style="margin-top:14px;background:var(--paper-soft);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
+        return f'''<div style="margin-top:14px;background:var(--paper);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
 <div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
   <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>
   <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
@@ -366,7 +366,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_hotel_html = f'''<div style="margin:32px 0 0;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
-<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
+<div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-sc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -400,7 +400,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_dim_html = f'''<div style="margin:32px 0 32px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
-<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
+<div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-pais" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -490,6 +490,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     h_top_sc = c['sin_conv'].iloc[0] if len(c['sin_conv']) > 0 else None
     
     plan_canasta_rows = ''
+    sev_c = c.get('sev_nd', {})
+    n_critmas_local = int(sev_c.get('Crítica', 0) + sev_c.get('Súper Crítica', 0))
+    rpm_w18 = c['m18'].get('rpm', c['m18'].get('ipm', 0))
     if h_top_dnc is not None:
         plan_canasta_rows += (
             f'<div class="action-row qw">'
@@ -579,7 +582,7 @@ CANASTA_SECTION = '''<section id="por-canasta">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 11</div>
-<h2 class="section-title">Análisis por canasta</h2>
+<h2 class="section-title">📦 Análisis por canasta</h2>
 <span class="section-subtitle" style="color:#EA0074">B2C · B2B-OP · CUG</span>
 <p class="section-kicker">Métricas, severidad y casos críticos por canasta. CUG y B2B-OP tienen weight 0,6 (prioridad estratégica). B2C tiene weight 0,1 pero no se elimina del análisis.</p>
 </div>
