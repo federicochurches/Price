@@ -96,11 +96,11 @@ def render_hero():
           f'<span class="accent">{top_corp[1]}</span> y '
           f'<span class="accent">{top_corp[2]}</span> son los corporativos con mayor demanda no convertida.</span>')
     
-    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> Tráfico · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</strong> hoteles · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</strong> Bookings · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</strong> hoteles P80.')
+    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</span> Tráfico · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</span> hoteles · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</span> Bookings · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</span> GB · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</span> hoteles P80.')
     
     return h1, subhead, pct, rpm, pct17, rpm17, pct_wow, rpm_wow
 
@@ -146,22 +146,26 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['%NoDispo']
             # pill WoW · solo en País, Destino, Corp (no Hotel ni Canasta)
-            wow_pill = '<em class="wow-pill nd">—</em>'
-            if t_key in ('pais', 'destino', 'corp'):
+            show_wow = t_key in ('pais', 'destino', 'corp')
+            wow_pill = ''
+            if show_wow:
                 wow_pp = r.get('NoDispo_WoW_pp', None)
-                if wow_pp is not None and not (wow_pp != wow_pp):  # not NaN
+                if wow_pp is not None and not (wow_pp != wow_pp) and abs(wow_pp) >= 0.05:
                     mejora = wow_pp < 0
                     wow_color = '#2F6C34' if mejora else '#C0392B'
                     wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
                     arrow = '↓' if wow_pp < 0 else '↑'
                     wow_txt = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
-                    css_cls = "wow-pill up" if not mejora else "wow-pill dn"
+                    css_cls = "wow-pill dn" if mejora else "wow-pill up"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
-                    f'{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
-                    f'{wow_pill}</div>')
+                else:
+                    wow_pill = '<em class="wow-pill nd">—</em>'
+            grid = '1fr 52px 44px' if show_wow else '1fr 52px'
+            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);">'
+                    f'{i+1}. {lab}</span>'
+                    f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
+                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5:
                 rows_left += cell
             else:
@@ -233,22 +237,25 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = rpm_val
             # pill WoW · solo en País, Destino, Corp (no Hotel ni Canasta)
-            wow_pill = '<em class="wow-pill nd">—</em>'
-            if t_key in ('pais', 'destino', 'corp'):
-                wow_pct = r.get('RPM_WoW_pct', None)
-                if wow_pct is not None and not (wow_pct != wow_pct):  # not NaN
-                    mejora = wow_pct > 0
-                    wow_color = '#2F6C34' if mejora else '#C0392B'
-                    wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
-                    arrow = '↑' if wow_pct > 0 else '↓'
-                    wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
-                    css_cls = "wow-pill up" if not mejora else "wow-pill dn"
+            show_wow = t_key in ('pais', 'destino', 'corp')
+            wow_pill = ''
+            if show_wow:
+                wow_v = r.get('IPM_WoW_pp', r.get('RPM_WoW_pct', None))
+                ipm_w17 = r.get('IPM_W17', 0)
+                if wow_v is not None and not (wow_v != wow_v) and abs(wow_v) > 0.1 and ipm_w17 > 0:
+                    mejora = wow_v > 0
+                    arrow = '↑' if wow_v > 0 else '↓'
+                    wow_txt = f'{arrow}${abs(wow_v):.0f}'.replace('.', ',')
+                    css_cls = "wow-pill dn" if mejora else "wow-pill up"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
-                    f'{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">${fmt_num2(val)}</span>'
-                    f'{wow_pill}</div>')
+                else:
+                    wow_pill = '<em class="wow-pill nd">—</em>'
+            grid = '1fr 52px 44px' if show_wow else '1fr 52px'
+            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);">'
+                    f'{i+1}. {lab}</span>'
+                    f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
+                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5:
                 rows_left += cell
             else:
