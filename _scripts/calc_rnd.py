@@ -11,7 +11,7 @@ def load_rnd(path, week):
     if df.columns[0] != 'CorpName':
         df = df.rename(columns={df.columns[0]: 'CorpName'})
     df = df[df['DistributionCategory'].isin(['B2C','B2B (OP)','CUG (UOP)'])].copy()
-    df['Hotel']   = df['Hotel'].astype(str).str.strip()
+    df['Hotel']   = df['Hotel'].astype(str).str.strip().str.replace(r'	','',regex=True).str.strip()
     df['CorpName']= df['CorpName'].astype(str).str.strip()
     df['Destino'] = df['Destino'].astype(str).str.strip()
     df['TraficoNoDispo'] = df['Trafico'] * df['%NoDispo']
@@ -32,7 +32,8 @@ def agg_hotel(df):
         gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
     ).reset_index()
     g['%NoDispo']            = (g['TraficoNoDispo']/g['Trafico'].replace(0,np.nan)).fillna(0)
-    g['IPM']                 = (g['gb_usd']/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
+    g['gb_usd_pos']          = g['gb_usd'].clip(lower=0)  # ignorar cancelaciones negativas
+    g['IPM']                 = (g['gb_usd_pos']/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
     g['RPM']                 = g['IPM']
     g['ConvRate']            = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
     g['DemandaNoConvertida'] = g['TraficoNoDispo']
@@ -46,7 +47,7 @@ def agg_dim(df, col):
         gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
     ).reset_index()
     g['%NoDispo'] = (g['TraficoNoDispo']/g['Trafico'].replace(0,np.nan)).fillna(0)
-    g['IPM']      = (g['gb_usd']/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
+    g['IPM']      = (g['gb_usd'].clip(lower=0)/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
     g['RPM']      = g['IPM']
     g['ConvRate'] = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
     g['BandaNoDispo'] = g['%NoDispo'].apply(banda_nodispo)
@@ -56,7 +57,8 @@ def agg_dim(df, col):
 def metrics_global(df):
     t = df['Trafico'].sum(); nd = df['TraficoNoDispo'].sum()
     bk = df['Bookings'].sum(); gb = df['gb_usd'].sum()
-    ipm = gb/t*1_000_000 if t else 0
+    gb_pos = max(gb, 0)  # ignorar cancelaciones negativas
+    ipm = gb_pos/t*1_000_000 if t else 0
     return {
         'trafico':t,'bookings':bk,'gb_usd':gb,
         'nodispo':nd/t if t else 0,'pct_nodispo':nd/t if t else 0,

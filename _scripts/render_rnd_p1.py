@@ -135,12 +135,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         # 2 columnas · 1-5 izquierda, 6-10 derecha · peor→mejor (ya viene ordenado descendente)
         rows_left, rows_right = '', ''
         for i, r in df_t.iterrows():
+            nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
             if t_key=='canasta':
-                lab = r['Canasta']; val = r['%NoDispo']
+                lab = r['Canasta']; val = nd_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['%NoDispo']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = nd_val
             elif t_key=='pais':
-                lab = clean_pais_name(r['PaisDestino']); val = r['%NoDispo']
+                lab = clean_pais_name(r['PaisDestino']); val = nd_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['%NoDispo']
@@ -221,15 +222,16 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         # 2 columnas peor→mejor (TAB_RPM ya viene ordenado ascendente: peor RPM primero)
         rows_left, rows_right = '', ''
         for i, r in df_t.iterrows():
+            rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
             if t_key=='canasta':
-                lab = r['Canasta']; val = r['RPM']
+                lab = r['Canasta']; val = rpm_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['RPM']
+                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = rpm_val
             elif t_key=='pais':
-                lab = clean_pais_name(r['PaisDestino']); val = r['RPM']
+                lab = clean_pais_name(r['PaisDestino']); val = rpm_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 26); val = r['RPM']
+                lab = truncate(r[col], 26); val = rpm_val
             # pill WoW · solo en País, Destino, Corp (no Hotel ni Canasta)
             wow_pill = '<em class="wow-pill nd">—</em>'
             if t_key in ('pais', 'destino', 'corp'):
