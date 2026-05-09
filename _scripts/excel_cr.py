@@ -158,10 +158,14 @@ add_table(ws8, g_dest[['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia
 # ==================== 9. POR CHANNEL (Fix #9 NUEVO) ====================
 ws9 = wb.create_sheet('Por Channel')
 add_title(ws9, 'Por Channel · todos los providers',
-          'Agregado por ExternalProviderName · 11 channels')
+          'Agregado por Channel · Producto Propio vs Third Party')
 df_chan = g_channel.sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
 df_chan.insert(0,'Rk', range(1, len(df_chan)+1))
-add_table(ws9, df_chan[['Rk','ExternalProviderName','Grupo','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']] if 'Grupo' in df_chan.columns else df_chan,
+# Agregar columna Grupo PP/TP
+PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+df_chan['Grupo'] = df_chan['ExternalProviderName'].apply(lambda x: 'Producto Propio' if x in PP else 'Third Party')
+df_chan = df_chan.rename(columns={'ExternalProviderName':'Channel'})
+add_table(ws9, df_chan[['Rk','Channel','Grupo','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
           banda_col='BandaEficacia')
 
@@ -302,7 +306,10 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
               f'{c["name"]} · todos los channels · ordenado por CR únicos ↓')
     df_ch = c['agg_channel'].copy().sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
     df_ch.insert(0,'Rk', range(1, len(df_ch)+1))
-    cols_ch = [col for col in ['Rk','ExternalProviderName','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_ch.columns]
+    PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+    df_ch['Grupo'] = df_ch['ExternalProviderName'].apply(lambda x: 'Producto Propio' if x in PP else 'Third Party')
+    df_ch = df_ch.rename(columns={'ExternalProviderName':'Channel'})
+    cols_ch = [col for col in ['Rk','Channel','Grupo','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_ch.columns]
     add_table(ws_ch, df_ch[cols_ch], start_row=5,
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
               banda_col='BandaEficacia')
