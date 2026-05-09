@@ -582,7 +582,7 @@ CANASTA_SECTION = f'''<section id="por-canasta">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 12</div>
-<h2 class="section-title">Análisis por canasta</h2>
+<h2 class="section-title">📦 Análisis por canasta</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">B2C · B2B-OP · CUG</span>
 <p class="section-kicker">Métricas, severidad y casos críticos por canasta. CUG y B2B-OP tienen weight 0,6 (prioridad estratégica). B2C tiene weight 0,1 pero no se elimina del análisis.</p>
 </div>
