@@ -361,6 +361,11 @@ D = {
     'g_corp_w17': g_corp_w17,
     'g_dest_w17': g_dest_w17,
     'g_channel_w17': g_channel_w17,
+    'hotel_channel_map': (
+        df18.groupby(['Hotel','ExternalProviderName'])['CR_Unicos'].sum()
+            .reset_index().sort_values('CR_Unicos', ascending=False)
+            .drop_duplicates('Hotel').set_index('Hotel')['ExternalProviderName'].to_dict()
+    ),
 }
 
 with open('cr_w18_data.pkl','wb') as f:

@@ -12,6 +12,7 @@ with open('cr_w18_data.pkl','rb') as f:
 M = D['M']; CANASTA = D['CANASTA']
 df18 = D.get('df18', None)
 df17 = D.get('df17', None)
+hotel_channel_map_global = D.get('hotel_channel_map', {})
 
 CR_ACCENT = '#5C469C'
 
@@ -423,20 +424,30 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     severity_canasta_html = render_severity_2cols(sev_blk_ef, sev_blk_cv)
 
     # ── Bloque Hotel · 3 tabs: Críticos · Bajo Rend · Sin Conv ───────────────
+    hotel_channel_map = hotel_channel_map_global
+
     def panel_inner_cr(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>Eficacia</span><span>BKGS</span></div>'
+        rows = f'<div class="panel-header"><span>{dim_label}</span><span>ConvRate</span><span>Eficacia</span><span>BKGS</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
                 label = truncate(clean_hotel_name(raw), 28)
+                corp = clean_corp_name(r.get('CorpName',''))
+                chan = hotel_channel_map.get(raw, '')
+                sub = f'{corp} · {chan}' if chan and chan != corp else corp
             elif dim_col == 'CorpName':
                 label = truncate(clean_corp_name(raw), 28)
+                sub = ''
             elif dim_col == 'Destino':
                 label = clean_destino_name(raw, 28)
+                sub = ''
             else:
                 label = truncate(str(raw), 28)
+                sub = ''
+            sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div>' if sub else ''
             rows += (f'<div class="panel-row">'
-                     f'<span class="label">{start_idx+i+1}. {label}</span>'
+                     f'<span class="label"><div>{start_idx+i+1}. {label}</div>{sub_html}</span>'
+                     f'<span class="efic">{fmt_pct2(r["ConvRate"]) if "ConvRate" in r.index else "—"}</span>'
                      f'<span class="efic">{fmt_pct2(r["Eficacia"])}</span>'
                      f'<span class="cr">{fmt_int_es(r["Bookings"])}</span>'
                      f'</div>')

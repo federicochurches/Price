@@ -15,6 +15,7 @@ g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
 g_corp_w17 = D.get('g_corp_w17', None)
 g_dest_w17 = D.get('g_dest_w17', None)
+hotel_channel_map = D.get('hotel_channel_map', {})
 
 CR_ACCENT = '#5C469C'
 
@@ -323,8 +324,10 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
             if c.get('key') == 'hotel':
                 hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36)
                 sub = clean_corp_name(r.get('CorpName',''))
+                chan = hotel_channel_map.get(r.get('Hotel',''), '')
+                sub_line = f'{sub} · {chan}' if chan and chan != sub else sub
                 row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
-                              f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div></div>')
+                              f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub_line}</div></div>')
             else:
                 row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{row_cells}</div>'
@@ -336,8 +339,8 @@ def render_criticos():
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
     ]
     col1 = render_top_table_cr(df1, cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -365,8 +368,8 @@ def render_bajo_rendimiento():
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
     ]
     col1 = render_top_table_cr(df1, cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -702,8 +705,8 @@ def render_bloque_hoteles_cr():
     cols_main = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
     ]
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},

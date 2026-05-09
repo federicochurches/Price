@@ -136,7 +136,8 @@ def fmt_pct_short(x):
     return f'{x*100:.1f}%'.replace('.', ',')
 
 def fmt_pct2(x):
-    if pd.isna(x): return '-'
+    import math
+    if pd.isna(x) or (isinstance(x, float) and math.isinf(x)): return '—'
     return f'{x*100:.2f}%'.replace('.', ',')
 
 def fmt_num2(x):

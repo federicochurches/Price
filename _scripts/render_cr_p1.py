@@ -140,12 +140,17 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
             df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('Eficacia').reset_index(drop=True)
 
             def chan_row(i, r, val_col):
-                val_str = fmt_pct2(r[val_col]) if val_col in r and r[val_col] == r[val_col] else '—'
+                import math
+                raw_val = r[val_col] if val_col in r.index else float('nan')
+                if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
+                    val_str = '—'
+                else:
+                    val_str = fmt_pct2(raw_val)
                 wow_col = val_col + '_WoW_pp'
-                wow_pill = ''
+                wow_pill = '<em style="font-style:normal;color:var(--ink-muted);font-size:9px;margin-left:4px;">—</em>'
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v:
+                    if wow_v == wow_v and abs(wow_v) >= 0.05:  # ignorar ±0,0
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -265,15 +270,20 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
             df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('ConvRate').reset_index(drop=True)
 
             def chan_row_cv(i, r, val_col):
-                val_str = fmt_pct2(r[val_col]) if val_col in r and r[val_col] == r[val_col] else '—'
+                import math
+                raw_val = r[val_col] if val_col in r.index else float('nan')
+                if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
+                    val_str = '—'
+                else:
+                    val_str = fmt_pct2(raw_val)
                 wow_col = val_col + '_WoW_pp'
-                wow_pill = ''
+                wow_pill = '<em style="font-style:normal;color:var(--ink-muted);font-size:9px;margin-left:4px;">—</em>'
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v:
+                    if wow_v == wow_v and abs(wow_v) >= 0.05:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
-                        wb = '#EAF3DE' if mejora else '#FCE8E6'
+                        wb = '#EAF3EA' if mejora else '#FCE8E6'
                         arrow = '↑' if wow_v > 0 else '↓'
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;">{wow_txt}</em>'
