@@ -10,6 +10,8 @@ from render_helpers import *
 with open('cr_w18_data.pkl','rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
+df18 = D.get('df18', None)
+df17 = D.get('df17', None)
 
 CR_ACCENT = '#5C469C'
 
@@ -82,10 +84,10 @@ def _build_canasta_findings_cr(c):
     findings = [
         {'numero': es_pct(ef*100,2),
          'titulo': f'Eficacia · banda {m18["banda_eficacia"]}',
-         'desc': f'Tasa de éxito de CheckRates en canasta {canasta_label}. WoW {es_pp(ef_wow)} · target ≥ 97%.'},
+         'desc': f'Tasa de éxito de CheckRates en canasta {canasta_label}. Target ≥ 97%.'},
         {'numero': es_pct(cv*100,2),
          'titulo': f'Conv Rate · banda {m18["banda_convrate"]}',
-         'desc': f'Bookings / CR únicos en canasta {canasta_label}. WoW {es_pp(cv_wow)} · target ≥ 2,5%.'},
+         'desc': f'Bookings / CR únicos en canasta {canasta_label}. Target ≥ 2,5%.'},
         {'numero': es_int(n_critmas_ef),
          'titulo': 'Hoteles Severity Eficacia Crítica+',
          'desc': f'Eficacia &lt; 85% · {n_supcrit_ef} Súper Críticos requieren escalamiento técnico inmediato.'},
@@ -403,15 +405,83 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>'''
 
     # ── Bloque Dimensión · 3 tabs: Corp · Destino · Channel ──────────────────
-    def tab_panel_dim_cr(t_key, df_full, dim_col, dim_label):
+    def dim_table_with_wow(df, dim_col, dim_label, start_idx=0):
+        """Tabla dimensión con columnas: Nombre · CR · BKGS · Eficacia · ConvRate · WoW.
+        pill de banda en nombre + pill WoW al final."""
+        grid = '1fr 80px 60px 70px 70px 50px'
+        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:6px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
+        for h in [dim_label, 'CR', 'BKGS', 'Eficacia', 'ConvRate', 'WoW']:
+            align = 'left' if h == dim_label else 'right'
+            color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
+            rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
+        rows += '</div>'
+        for i, r in df.iterrows():
+            raw = r[dim_col]
+            if dim_col == 'CorpName':
+                lab = truncate(clean_corp_name(raw), 22)
+            else:
+                lab = truncate(str(raw), 22)
+            bnd = banda_eficacia(r['Eficacia'])
+            c = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
+            bg = 'rgba(22,22,22,.80)' if bnd == 'Súper Crítica' else c['bg']
+            fg = '#FFFFFF' if bnd == 'Súper Crítica' else c['fg']
+            pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
+                         f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;margin-left:4px;vertical-align:middle;">{bnd}</span>')
+            # WoW pill
+            try:
+                wow_v = r['Eficacia_WoW_pp']
+                if wow_v != wow_v: wow_v = None  # NaN check
+            except (KeyError, TypeError):
+                wow_v = None
+            if wow_v is not None:
+                mejora = wow_v > 0
+                wc = '#2F6C34' if mejora else '#C0392B'
+                wb = '#EAF3DE' if mejora else '#FCE8E6'
+                arrow = '↑' if wow_v > 0 else '↓'
+                wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                wow_cell = f'<span style="text-align:right;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{wow_txt}</span>'
+            else:
+                wow_cell = f'<span style="text-align:right;color:var(--ink-muted);font-size:9px;">—</span>'
+            n = start_idx + i + 1
+            rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
+                     f'<div style="font-weight:600;color:{CR_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}{pill_banda}</div>'
+                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+                     f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>'
+                     f'{wow_cell}'
+                     f'</div>')
+        return rows
+
+    def tab_panel_dim_cr(t_key, df_full, dim_col, dim_label, ref_w17=None):
         df10 = df_full.head(10).reset_index(drop=True)
-        df1  = df10.iloc[:5].reset_index(drop=True)
-        df2  = df10.iloc[5:10].reset_index(drop=True)
-        col1 = panel_inner_cr(df1, dim_col, dim_label, parse_hotel=False, start_idx=0)
-        col2 = panel_inner_cr(df2, dim_col, dim_label, parse_hotel=False, start_idx=5) if len(df2)>0 else ''
+        # Merge WoW si hay ref W17
+        if ref_w17 is not None and dim_col in ref_w17.columns:
+            df10 = df10.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
+            df10['Eficacia_WoW_pp'] = (df10['Eficacia'] - df10['Eficacia_W17']) * 100
+        df1 = df10.iloc[:5].reset_index(drop=True)
+        df2 = df10.iloc[5:10].reset_index(drop=True)
+        col1 = dim_table_with_wow(df1, dim_col, dim_label, start_idx=0)
+        col2 = dim_table_with_wow(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
         body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
                 if col2 else f'<div>{col1}</div>')
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
+
+    # Datos W17 de canasta para WoW — usar refs globales del pickle
+    g_corp_w17_local = D.get('g_corp_w17', None)
+    g_dest_w17_local = D.get('g_dest_w17', None)
+
+    # Filtrar por canasta si es posible, sino usar global
+    def make_ref_canasta_w17(dim_col):
+        """Crea ref W17 filtrada por canasta desde el pickle."""
+        key = 'g_corp_w17' if dim_col == 'CorpName' else 'g_dest_w17'
+        ref = D.get(key, None)
+        if ref is None: return None
+        # ref ya tiene Eficacia_W17 calculada globalmente — usarla directo
+        return ref
+
+    ref_corp = make_ref_canasta_w17('CorpName')
+    ref_dest = make_ref_canasta_w17('Destino')
 
     df_corp_dim = agg_corp.sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True)
     df_dest_dim = agg_dest.sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True)
@@ -452,8 +522,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
 </div>
 <div class="tab-panels">
-{tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo')}
-{tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino')}
+{tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
+{tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}
 {panel_chan}
 </div>
 </div>
