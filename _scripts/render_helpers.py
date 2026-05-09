@@ -183,3 +183,26 @@ def clean_corp_name(name, max_len=28):
             name = str(name).replace(old, new)
             break
     return truncate(str(name), max_len)
+
+# ── Normalización de nombres de destino ───────────────────────────────────────
+import re as _re
+_DESTINO_PATTERN = _re.compile(
+    r'^(Las Vegas|Los Angeles|New York|San Francisco|San Diego|San Antonio'
+    r'|Salt Lake City|Kansas City|Oklahoma City|Mexico City|Quebec City'
+    r'|Cape Town|Hong Kong)\s*\(.*?\)',
+    _re.IGNORECASE
+)
+
+def clean_destino_name(name, max_len=28):
+    """Normaliza nombres de destino con sufijos tipo '(and vicinity), State, US'.
+    Ejemplos:
+      'Las Vegas (and vicinity), NV, US' → 'Las Vegas'
+      'Los Angeles (and vicinity), CA, US' → 'Los Angeles'
+    """
+    if not name:
+        return name
+    s = str(name).strip()
+    m = _DESTINO_PATTERN.match(s)
+    if m:
+        s = m.group(1)
+    return truncate(s, max_len)

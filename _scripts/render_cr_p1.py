@@ -345,7 +345,7 @@ def render_alerts_block():
         for it in items:
             cells += (f'<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">'
                       f'<div style="font-size:8px;font-weight:700;color:{it["pill_color"]};background:{it["pill_bg"]};padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">{it["pill"]}</div>'
-                      f'<div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">{it["name"]}</div>'
+                      f'<div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["name"]}</div>'
                       f'<div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">{it["sub"]}</div>'
                       f'<div style="font-size:18px;font-weight:600;color:{it["pill_color"]};margin-top:6px;letter-spacing:-.02em;line-height:1;">{it["value"]}</div>'
                       f'<div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">{it["foot"]}</div>'
@@ -365,10 +365,10 @@ def render_alerts_block():
     ]
     d_items = [
         {'pill':'Eficacia','pill_color':'#EA0074','pill_bg':'#FCE4F1',
-         'name':truncate(d_ef['Destino'],38),'sub':f'{fmt_int_es(d_ef["CR_Unicos"])} CR · {int(d_ef["Bookings"])} BKGS',
+         'name':clean_destino_name(d_ef['Destino'],38),'sub':f'{fmt_int_es(d_ef["CR_Unicos"])} CR · {int(d_ef["Bookings"])} BKGS',
          'value':fmt_pct2(d_ef['Eficacia']),'foot':f'CR {fmt_pct2(d_ef["ConvRate"])}'},
         {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EDE8F7',
-         'name':truncate(d_cv['Destino'],38),'sub':f'{fmt_int_es(d_cv["CR_Unicos"])} CR · {int(d_cv["Bookings"])} BKGS',
+         'name':clean_destino_name(d_cv['Destino'],38),'sub':f'{fmt_int_es(d_cv["CR_Unicos"])} CR · {int(d_cv["Bookings"])} BKGS',
          'value':fmt_pct2(d_cv['ConvRate']),'foot':f'Ef {fmt_pct2(d_cv["Eficacia"])}'},
     ]
     ch_items = [

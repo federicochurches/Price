@@ -122,21 +122,71 @@ def render_resumen_ej():
         sign = '+' if v >= 0 else ''
         return f'{sign}{v:.2f}pp'.replace('.', ',')
 
+    def es_pct(v, dec=2):
+        return f'{v:.{dec}f}%'.replace('.', ',')
+
     wow_str_ef = es_pp(ef_wow)
     wow_str_cv = es_pp(cv_wow)
 
     findings = build_findings()
 
-    # Enriquecer finding 0 (Eficacia) y finding 1 (Conv Rate) con pills
+    # Variables necesarias para enriquecer findings con pills
+    cb = M['B2C_w18']; co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
+    g_pp = g_grupo[g_grupo['Grupo']=='Producto Propio'].iloc[0]
+    g_tp = g_grupo[g_grupo['Grupo']=='Third Party'].iloc[0]
+    top1_corp = TOP['corps_10'].iloc[0]
+
+    # Calcular bandas de todos los elementos con pills
+    banda_tp_cv = banda_convrate(g_tp["ConvRate"], 1)
+    banda_pp_cv = banda_convrate(g_pp["ConvRate"], 1)
+    banda_top1_ef = top1_corp["BandaEficacia"]
+    banda_cug_cv = banda_convrate(cu["conv_rate"], cu["bookings"])
+    banda_b2c_cv = banda_convrate(cb["conv_rate"], cb["bookings"])
+    banda_op_cv  = banda_convrate(co["conv_rate"], co["bookings"])
+
+    # Enriquecer finding 0 (Eficacia) con pill banda + WoW
     f0 = findings[0]
     findings[0] = {**f0,
         'titulo': f'Eficacia global · {pill_b(banda_ef)}',
         'desc':   f'{pill_d(wow_str_ef, ef_wow > 0)} · {f0["desc"]}'
     }
+    # Enriquecer finding 1 (Conv Rate) con pill banda + WoW
     f1 = findings[1]
     findings[1] = {**f1,
         'titulo': f'Conv Rate · {pill_b(banda_cv)}',
         'desc':   f'{pill_d(wow_str_cv, cv_wow > 0)} · {f1["desc"]}'
+    }
+    # Finding 2 (Severity Crítica+) — pill Crítica
+    f2 = findings[2]
+    findings[2] = {**f2,
+        'titulo': f'Hoteles P80 Severity Eficacia · {pill_b("Crítica")}+',
+    }
+    # Finding 3 (Sin Conversión) — pill Sin Conversión
+    f3 = findings[3]
+    findings[3] = {**f3,
+        'titulo': f'Hoteles P80 · {pill_b("Sin Conversión")} (BKGS=0)',
+    }
+    # Finding 4 (Third Party ConvRate) — pill banda TP
+    f4 = findings[4]
+    findings[4] = {**f4,
+        'titulo': f'Channel Third Party · {pill_b(banda_tp_cv)}',
+        'desc': f'frente a Producto Propio {es_pct(g_pp["ConvRate"]*100,2)} {pill_b(banda_pp_cv)} · brecha sistémica que requiere auditoría comercial + técnica.'
+    }
+    # Finding 6 (corp líder) — pill banda eficacia del corp
+    f6 = findings[6]
+    findings[6] = {**f6,
+        'desc': f'Eficacia {es_pct(top1_corp["Eficacia"]*100,2)} {pill_b(banda_top1_ef)} · su tamaño hace que cualquier mejora tenga impacto outsized.'
+    }
+    # Finding 7 (CUG) — pill banda CUG
+    f7 = findings[7]
+    findings[7] = {**f7,
+        'titulo': f'CUG · única canasta con Conv Rate · {pill_b(banda_cug_cv)}',
+        'desc': f'B2C {es_pct(cb["conv_rate"]*100,2)} {pill_b(banda_b2c_cv)} · B2B-OP {es_pct(co["conv_rate"]*100,2)} {pill_b(banda_op_cv)} · canasta opaca premium opera mejor.'
+    }
+    # Finding 8 (B2C) — pill banda B2C
+    f8 = findings[8]
+    findings[8] = {**f8,
+        'titulo': f'B2C Conv Rate · {pill_b(banda_b2c_cv)}',
     }
 
     return render_resumen_ejecutivo(findings, accent_color=CR_ACCENT, scope='global')
@@ -393,7 +443,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
                 f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
         n = start_idx + i + 1
-        label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else truncate(r[dim_col], 28)
+        label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};line-height:1.3;">{n}. {label_val}{pill}</div></div>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'

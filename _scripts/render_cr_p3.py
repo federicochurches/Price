@@ -168,12 +168,12 @@ def _render_canasta_alertas_cr(c, accent_color=CR_ACCENT):
         if ef_obj is None or cv_obj is None: return ''
         sub_ef = render_alert_subcell(
             'Eficacia', '#EA0074', '#FCE4F1',
-            truncate(clean_hotel_name(str(ef_obj[name_col])) if name_col=='Hotel' else str(ef_obj[name_col]), 22),
+            truncate(clean_hotel_name(str(ef_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(ef_obj[name_col])) if name_col=='Destino' else str(ef_obj[name_col])), 22),
             fmt_pct2(ef_obj['Eficacia']), '#EA0074'
         )
         sub_cv = render_alert_subcell(
             'ConvRate', CR_ACCENT, '#EDE8F7',
-            truncate(clean_hotel_name(str(cv_obj[name_col])) if name_col=='Hotel' else str(cv_obj[name_col]), 22),
+            truncate(clean_hotel_name(str(cv_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(cv_obj[name_col])) if name_col=='Destino' else str(cv_obj[name_col])), 22),
             fmt_pct2(cv_obj['ConvRate']), CR_ACCENT
         )
         return render_alert_card(title, icon, accent_color, sub_ef, sub_cv)
@@ -362,6 +362,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 label = truncate(clean_hotel_name(raw), 28)
             elif dim_col == 'CorpName':
                 label = truncate(clean_corp_name(raw), 28)
+            elif dim_col == 'Destino':
+                label = clean_destino_name(raw, 28)
             else:
                 label = truncate(str(raw), 28)
             rows += (f'<div class="panel-row">'
@@ -419,6 +421,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             raw = r[dim_col]
             if dim_col == 'CorpName':
                 lab = truncate(clean_corp_name(raw), 22)
+            elif dim_col == 'Destino':
+                lab = clean_destino_name(raw, 22)
             else:
                 lab = truncate(str(raw), 22)
             bnd = banda_eficacia(r['Eficacia'])
