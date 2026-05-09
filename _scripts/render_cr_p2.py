@@ -13,6 +13,8 @@ CANASTA = D['CANASTA']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
+g_corp_w17 = D.get('g_corp_w17', None)
+g_dest_w17 = D.get('g_dest_w17', None)
 
 CR_ACCENT = '#5C469C'
 
@@ -59,10 +61,10 @@ def build_findings():
     findings = [
         {'numero': es_pct(ef*100,2),
          'titulo': 'Eficacia global · banda Aceptable',
-         'desc': f'WoW {es_pp(ef_wow)} · sigue por debajo del target ≥97%, primera prioridad en remediación técnica.'},
+         'desc': f'sigue por debajo del target ≥97%, primera prioridad en remediación técnica.'},
         {'numero': es_pct(cv*100,2),
          'titulo': 'Conv Rate cae a banda Revisar',
-         'desc': f'WoW {es_pp(cv_wow)} · deterioro neto pese al crecimiento del volumen CR ({es_pct1(cr_wow)}) — más demanda no se traduce en bookings ({es_pct1(bk_wow)}).'},
+         'desc': f'deterioro neto pese al crecimiento del volumen CR ({es_pct1(cr_wow)}) — más demanda no se traduce en bookings ({es_pct1(bk_wow)}).'},
         {'numero': fmt_int_es(n_critmas_ef),
          'titulo': 'Hoteles P80 Severity Eficacia Crítica+',
          'desc': f'{es_pct(n_critmas_ef/n_p80*100,1)} del P80 · de ellos {n_supcrit_ef} Súper Críticos son los casos más urgentes para escalamiento técnico.'},
@@ -94,7 +96,49 @@ def render_resumen_ej():
     """Resumen Ejecutivo siguiendo estructura template:
     header overline + card border-top + grid 2 cols + findings con valor destacado."""
     from template_resumen import render_resumen_ejecutivo
+
+    ef = M['global_w18']['eficacia']; ef17 = M['global_w17']['eficacia']
+    cv = M['global_w18']['conv_rate']; cv17 = M['global_w17']['conv_rate']
+    ef_wow = (ef - ef17) * 100
+    cv_wow = (cv - cv17) * 100
+    banda_ef = banda_eficacia(ef)
+    banda_cv = banda_convrate(cv, M['global_w18']['bookings'])
+
+    def pill_b(nombre):
+        c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
+        bg = 'rgba(22,22,22,.80)' if nombre == 'Súper Crítica' else c['bg']
+        fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
+                f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
+                f'text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;margin:0 2px;">{nombre}</span>')
+
+    def pill_d(texto, mejora):
+        color = '#2F6C34' if mejora else '#C0392B'
+        bg    = '#EAF3DE' if mejora else '#FCE8E6'
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
+                f'border-radius:3px;background:{bg};color:{color};vertical-align:middle;margin:0 2px;">{texto}</span>')
+
+    def es_pp(v):
+        sign = '+' if v >= 0 else ''
+        return f'{sign}{v:.2f}pp'.replace('.', ',')
+
+    wow_str_ef = es_pp(ef_wow)
+    wow_str_cv = es_pp(cv_wow)
+
     findings = build_findings()
+
+    # Enriquecer finding 0 (Eficacia) y finding 1 (Conv Rate) con pills
+    f0 = findings[0]
+    findings[0] = {**f0,
+        'titulo': f'Eficacia global · {pill_b(banda_ef)}',
+        'desc':   f'{pill_d(wow_str_ef, ef_wow > 0)} · {f0["desc"]}'
+    }
+    f1 = findings[1]
+    findings[1] = {**f1,
+        'titulo': f'Conv Rate · {pill_b(banda_cv)}',
+        'desc':   f'{pill_d(wow_str_cv, cv_wow > 0)} · {f1["desc"]}'
+    }
+
     return render_resumen_ejecutivo(findings, accent_color=CR_ACCENT, scope='global')
 
 # ============ SECCIÓN SEVERITY EFICACIA ============
@@ -328,16 +372,19 @@ def render_sin_conv():
 '''
 
 # ============ SECCIÓN POR DIMENSIÓN (Corp / Destino / Channel) ============
-def _render_dim_table(df, dim_col, dim_label, start_idx=0):
+def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
     """Renderiza una tabla (1 columna) con N filas. start_idx para numerar continuo."""
-    grid = '1fr 90px 70px 75px 70px'
+    has_wow = wow_col and wow_col in df.columns
+    grid = '1fr 90px 70px 75px 70px 50px' if has_wow else '1fr 90px 70px 75px 70px'
+    headers = [dim_label,'CR únicos','BKGS','Eficacia','ConvRate']
+    if has_wow: headers.append('WoW')
     rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
-    for label in [dim_label,'CR únicos','BKGS','Eficacia','ConvRate']:
+    for label in headers:
         align = 'left' if label==dim_label else 'right'
         color = CR_ACCENT if label==dim_label else 'var(--ink-muted)'
         rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
     rows += '</div>'
-    
+
     for i, r in df.iterrows():
         bnd = r.get('BandaEficacia','')
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg', CR_ACCENT)
@@ -352,6 +399,18 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0):
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
+        if has_wow:
+            wow_v = r.get(wow_col, None)
+            if wow_v is not None and wow_v == wow_v:  # not NaN
+                mejora = wow_v > 0
+                wc = '#2F6C34' if mejora else '#C0392B'
+                wbg = '#EAF3DE' if mejora else '#FCE8E6'
+                arrow = '↑' if wow_v > 0 else '↓'
+                txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};text-align:right;">{txt}</em>'
+            else:
+                wow_html = '<span style="text-align:right;color:var(--ink-muted);font-size:10px;">—</span>'
+            cells += wow_html
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
 
@@ -415,7 +474,7 @@ def render_channel_agrupado():
     return f'''<section id="channel-agrupado" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 07</div>
-<h2 class="section-title">Análisis por tipo de producto</h2>
+<h2 class="section-title">🔌 Análisis por tipo de producto</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Producto Propio vs Third Party</span>
 <p class="section-kicker">Vista consolidada por familia de canal según decisión post Week 17. Producto Propio: DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees. Third Party: Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate.</p>
 </div>
@@ -441,7 +500,7 @@ def render_plan_accion():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 11</div>
-<h2 class="section-title">Plan de acción</h2>
+<h2 class="section-title">📋 Plan de acción</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Acciones priorizadas · agrupadas por Área Accountable</span>
 <p class="section-kicker">El badge superior identifica al Área Accountable de cada acción. La etiqueta de horizonte (Quick Win · Mid Priority · Estratégica) y el código de seguimiento van debajo.</p>
 </div>
@@ -662,19 +721,30 @@ def render_bloque_hoteles_cr():
 
 def render_bloque_dimensiones_cr():
     """Sección 05 · 3 tabs: Corporativo · Destino · Channel (split PP/TP integrado en panel)."""
-    
-    def panel_for_dim(df_full, dim_col, dim_label):
+
+    def _add_wow(df_top10, dim_col, ref_df, ef_col='Eficacia_W17', cv_col='ConvRate_W17'):
+        """Merge WoW W17 al dataframe de dimensión."""
+        if ref_df is None: return df_top10, None
+        merged = df_top10.merge(ref_df[[dim_col, ef_col, cv_col]], on=dim_col, how='left')
+        merged['Eficacia_WoW_pp'] = (merged['Eficacia'] - merged[ef_col]) * 100
+        merged['BandaEficacia'] = merged['Eficacia'].apply(banda_eficacia)
+        return merged, 'Eficacia_WoW_pp'
+
+    def panel_for_dim(df_full, dim_col, dim_label, ref_df=None):
         df_top10 = df_full.head(10).reset_index(drop=True)
-        df1 = df_top10.iloc[:5].reset_index(drop=True)
-        df2 = df_top10.iloc[5:10].reset_index(drop=True)
-        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0)
-        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
+        df_top10_wow, wow_col = _add_wow(df_top10, dim_col, ref_df)
+        if 'BandaEficacia' not in df_top10_wow.columns:
+            df_top10_wow['BandaEficacia'] = df_top10_wow['Eficacia'].apply(banda_eficacia)
+        df1 = df_top10_wow.iloc[:5].reset_index(drop=True)
+        df2 = df_top10_wow.iloc[5:10].reset_index(drop=True)
+        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0, wow_col=wow_col)
+        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5, wow_col=wow_col) if len(df2)>0 else ''
         if col2:
             return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
         return f'<div>{col1}</div>'
-    
-    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo')
-    panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino')
+
+    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', ref_df=g_corp_w17)
+    panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino', ref_df=g_dest_w17)
     
     # Channel · split PP/TP en el mismo panel
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']

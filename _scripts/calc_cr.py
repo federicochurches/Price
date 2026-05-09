@@ -5,8 +5,6 @@ Genera pickle cr_w18_data.pkl con todos los agregados necesarios.
 import pickle
 import pandas as pd
 import numpy as np
-import sys
-sys.path.insert(0, '/home/claude/w18')
 
 from engine import banda_eficacia, banda_convrate
 
@@ -34,6 +32,21 @@ def load_and_clean(path):
 
 df18 = load_and_clean('Dataset_CheckRates_W18.xlsx')
 df17 = load_and_clean('Dataset_CheckRates_W17.xlsx')
+
+# ── Agregados W17 para merge WoW en tabs del hero ─────────────────────────
+def _agg_dim_w17(df, col):
+    g = df.groupby(col, as_index=False).agg(
+        CR_Unicos_W17=('CR_Unicos','sum'),
+        Bookings_W17=('Bookings','sum'),
+        Successful_W17=('Successful UniqueChkRts','sum')
+    )
+    g['Eficacia_W17']  = g['Successful_W17']/g['CR_Unicos_W17']
+    g['ConvRate_W17']  = g['Bookings_W17']/g['CR_Unicos_W17']
+    return g
+
+g_dest_w17  = _agg_dim_w17(df17, 'Destino')
+g_corp_w17  = _agg_dim_w17(df17, 'CorpName')
+g_hotel_w17 = _agg_dim_w17(df17, 'Hotel')
 
 # ── P80 GLOBAL ────────────────────────────────────────────────────────────────
 def calc_p80(df):
@@ -169,10 +182,24 @@ def tab_eficacia():
     # Asegurar ambas métricas
     for g in [g_d,g_c,g_ch,g_can]:
         if 'ConvRate' not in g.columns: g['ConvRate']=g['Bookings']/g['CR_Unicos']
+    # Filtro P50 para excluir destinos/corps de volumen insignificante
+    p50_d = g_d['CR_Unicos'].quantile(0.50)
+    p50_c = g_c['CR_Unicos'].quantile(0.50)
+    p50_h = g_h['CR_Unicos'].quantile(0.50)
+    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(10).reset_index(drop=True)
+    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
+    # Merge WoW
+    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17']], on='Destino', how='left')
+    df_d['Eficacia_WoW_pp'] = (df_d['Eficacia'] - df_d['Eficacia_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17']], on='CorpName', how='left')
+    df_c['Eficacia_WoW_pp'] = (df_c['Eficacia'] - df_c['Eficacia_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17']], on='Hotel', how='left')
+    df_h['Eficacia_WoW_pp'] = (df_h['Eficacia'] - df_h['Eficacia_W17']) * 100
     return {
-        'destino': g_d.sort_values('Eficacia').head(10).reset_index(drop=True),
-        'corp':    g_c.sort_values('Eficacia').head(10).reset_index(drop=True),
-        'hotel':   g_h.sort_values('Eficacia').head(10).reset_index(drop=True),
+        'destino': df_d,
+        'corp':    df_c,
+        'hotel':   df_h,
         'channel': g_ch.sort_values('CR_Unicos', ascending=False).reset_index(drop=True),
         'canasta': g_can.sort_values('Eficacia').reset_index(drop=True),
     }
@@ -193,10 +220,24 @@ def tab_convrate():
     g_can['ConvRate'] = g_can['Bookings']/g_can['CR_Unicos']
     g_can['Eficacia'] = g_can['Successful']/g_can['CR_Unicos']
     g_can.rename(columns={'DistributionCategory':'Canasta'}, inplace=True)
+    # Filtro P50 para excluir destinos/corps de volumen insignificante
+    p50_d = g_d['CR_Unicos'].quantile(0.50)
+    p50_c = g_c['CR_Unicos'].quantile(0.50)
+    p50_h = g_h['CR_Unicos'].quantile(0.50)
+    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('ConvRate').head(10).reset_index(drop=True)
+    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(10).reset_index(drop=True)
+    # Merge WoW
+    df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17']], on='Destino', how='left')
+    df_d['ConvRate_WoW_pp'] = (df_d['ConvRate'] - df_d['ConvRate_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','ConvRate_W17']], on='CorpName', how='left')
+    df_c['ConvRate_WoW_pp'] = (df_c['ConvRate'] - df_c['ConvRate_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','ConvRate_W17']], on='Hotel', how='left')
+    df_h['ConvRate_WoW_pp'] = (df_h['ConvRate'] - df_h['ConvRate_W17']) * 100
     return {
-        'destino': g_d.sort_values('ConvRate').head(10).reset_index(drop=True),
-        'corp':    g_c.sort_values('ConvRate').head(10).reset_index(drop=True),
-        'hotel':   g_h.sort_values('ConvRate').head(10).reset_index(drop=True),
+        'destino': df_d,
+        'corp':    df_c,
+        'hotel':   df_h,
         'channel': g_ch.sort_values('CR_Unicos', ascending=False).reset_index(drop=True),
         'canasta': g_can.sort_values('ConvRate').reset_index(drop=True),
     }
@@ -305,6 +346,8 @@ D = {
     'df18': df18,
     'df17': df17,
     'p80_hotels': p80_hotels,
+    'g_corp_w17': g_corp_w17,
+    'g_dest_w17': g_dest_w17,
 }
 
 with open('cr_w18_data.pkl','wb') as f:

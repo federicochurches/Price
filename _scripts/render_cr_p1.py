@@ -158,11 +158,25 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['Eficacia']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['Eficacia']
+                lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['Eficacia']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 30); val = r['Eficacia']
-            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+                lab = truncate(r[col], 26); val = r['Eficacia']
+            # Pill WoW · solo en destino y corp (tienen merge W17)
+            wow_pill = ''
+            if t_key in ('destino', 'corp', 'hotel'):
+                wow_pp = r.get('Eficacia_WoW_pp', None)
+                if wow_pp is not None and wow_pp == wow_pp:  # not NaN
+                    mejora = wow_pp > 0  # Eficacia: mejora si sube
+                    color = '#2F6C34' if mejora else '#C0392B'
+                    bg    = '#EAF3DE' if mejora else '#FCE8E6'
+                    arrow = '↑' if wow_pp > 0 else '↓'
+                    txt   = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
+                    wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{bg};color:{color};margin-left:4px;vertical-align:middle;">{txt}</em>'
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
+                    f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
             else:
@@ -249,11 +263,25 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['ConvRate']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = r['ConvRate']
+                lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['ConvRate']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 30); val = r['ConvRate']
-            cell = f'<div><strong>{i+1}. {lab}</strong> <span>{fmt_pct2(val)}</span></div>'
+                lab = truncate(r[col], 26); val = r['ConvRate']
+            # Pill WoW · solo en destino, corp y hotel (tienen merge W17)
+            wow_pill = ''
+            if t_key in ('destino', 'corp', 'hotel'):
+                wow_pp = r.get('ConvRate_WoW_pp', None)
+                if wow_pp is not None and wow_pp == wow_pp:  # not NaN
+                    mejora = wow_pp > 0  # ConvRate: mejora si sube
+                    color = '#2F6C34' if mejora else '#C0392B'
+                    bg    = '#EAF3DE' if mejora else '#FCE8E6'
+                    arrow = '↑' if wow_pp > 0 else '↓'
+                    txt   = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
+                    wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{bg};color:{color};margin-left:4px;vertical-align:middle;">{txt}</em>'
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
+                    f'{wow_pill}</div>')
             if i < 5:
                 rows_left += cell
             else:
