@@ -194,17 +194,29 @@ _DESTINO_PATTERN = _re.compile(
     r'|Cape Town|Hong Kong)\s*\(.*?\)',
     _re.IGNORECASE
 )
+# Sufijos a eliminar de destinos (con excepciones para topónimos que incluyen Area)
+_AREA_EXCEPTIONS = {'El Cairo', 'Dubai', 'Istanbul', 'Abu Dhabi', 'Adjara', 'Ras Al Khaimah'}
+_AREA_SUFFIX = _re.compile(
+    r'\s+Area$|\s+Area\s*,.*$|\s+Metropolitan Area$|\s+Region$|\s+Province$|\s+District$',
+    _re.IGNORECASE
+)
 
 def clean_destino_name(name, max_len=28):
-    """Normaliza nombres de destino con sufijos tipo '(and vicinity), State, US'.
-    Ejemplos:
-      'Las Vegas (and vicinity), NV, US' → 'Las Vegas'
-      'Los Angeles (and vicinity), CA, US' → 'Los Angeles'
+    """Normaliza nombres de destino:
+    · 'Las Vegas (and vicinity), NV, US' → 'Las Vegas'
+    · 'Toronto Area' → 'Toronto'
+    · 'Gargano - Foggia Area' → 'Gargano - Foggia'
+    · 'Bourgas - South Black Sea Coast Area' → 'Bourgas - South Black Sea Coast'
     """
     if not name:
         return name
     s = str(name).strip()
+    # Patrón ciudad (and vicinity)
     m = _DESTINO_PATTERN.match(s)
     if m:
         s = m.group(1)
+    else:
+        # Quitar sufijo Area / Region / etc. salvo excepciones
+        if not any(exc in s for exc in _AREA_EXCEPTIONS):
+            s = _AREA_SUFFIX.sub('', s).strip()
     return truncate(s, max_len)

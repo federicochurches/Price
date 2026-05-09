@@ -269,10 +269,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};flex-shrink:0;">{wow_txt}</em>'
                 except: pass
-            cell = (f'<div style="display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:3px;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">{i+1}. {lab}</strong>'
+            cell = (f'<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
+                    f'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:600;">{i+1}. {lab}</span>'
                     f'{pill_bnd}'
-                    f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
+                    f'<span style="flex-shrink:0;font-size:11px;text-align:right;min-width:40px;">{val_str}</span>'
                     f'{wow_pill}</div>')
             if i < 5:
                 rows_l += cell
@@ -380,6 +380,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── Resumen Ejecutivo con pills ───────────────────────────────────────────
     findings_raw = _build_canasta_findings_cr(c)
+
+    # Calcular bandas necesarias para findings 3-10
+    banda_crit_ef  = 'Crítica'
+    banda_sc       = 'Sin Conversión'
+    banda_crit_cv  = 'Crítica'
+
     for i, f in enumerate(findings_raw):
         titulo = f['titulo']; desc = f['desc']
         if i == 0:  # Eficacia
@@ -388,6 +394,20 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         elif i == 1:  # Conv Rate
             titulo = f'Conv Rate · {pill_b(banda_cv)}'
             desc   = f'{pill_d(wow_str_cv, cv_wow > 0)} · {desc}'
+        elif i == 2:  # Hoteles Severity Crítica+
+            titulo = f'Hoteles Severity Eficacia · {pill_b("Crítica")}+'
+        elif i == 3:  # Sin Conversión
+            titulo = f'Hoteles P80 · {pill_b("Sin Conversión")} (BKGS=0)'
+        elif i == 4:  # ConvRate Crítica
+            titulo = f'Hoteles Severity ConvRate · {pill_b("Crítica")}'
+        elif i == 5 and 'peor Eficacia' in titulo:  # Hotel peor Eficacia
+            bnd_h = banda_eficacia(c['p80'][(c['p80']['Bookings']>0)&(c['p80']['Eficacia']>0)].sort_values('Eficacia').iloc[0]['Eficacia']) if (c['p80']['Bookings']>0).any() else 'Crítica'
+            titulo = titulo.replace('· peor Eficacia', f'· peor Eficacia {pill_b(bnd_h)}')
+        elif i == 7 and 'peor ConvRate' in titulo:  # Hotel peor ConvRate
+            bnd_cv_h = banda_convrate(c['p80'][c['p80']['Bookings']>0].sort_values('ConvRate').iloc[0]['ConvRate'], 1) if (c['p80']['Bookings']>0).any() else 'Crítica'
+            titulo = titulo.replace('· peor ConvRate', f'· peor ConvRate {pill_b(bnd_cv_h)}')
+        elif i == 8 and '#1 Sin Conv' in titulo:  # Hotel #1 Sin Conv
+            titulo = titulo.replace('· #1 Sin Conv', f'· {pill_b("Sin Conversión")}')
         findings_raw[i] = {**f, 'titulo': titulo, 'desc': desc}
 
     resumen_canasta_html = render_resumen_ejecutivo(
