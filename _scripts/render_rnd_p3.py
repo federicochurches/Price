@@ -535,7 +535,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         f'</div>'
     )
     
-    plan_canasta_html = f'''<div style="margin-top:48px;">
+    plan_canasta_html = f'''<div style="margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);">
 <h3 style="font-size:13px;font-weight:700;color:#EA0074;text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">Plan de Acción · canasta {canasta_label}</h3>
 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">{plan_canasta_rows}</div>
 </div>'''
