@@ -183,36 +183,57 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return gauge_5levels(banda, tipo)
 
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False):
-        """Genera filas de tab con grid 1fr 52px 44px + pills WoW."""
+        """Genera filas de tab con grid 1fr 52px 44px + pills WoW real desde NoDispo_WoW_pp."""
+        import math
         rows_l, rows_r = '', ''
-        df10 = df.head(10).reset_index(drop=True)
+        df10 = df.head(10).reset_index(drop=True)  # máximo 10, siempre
         for i, r in df10.iterrows():
             raw = r[dim_col]
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw), 26)
+                lab = truncate(clean_hotel_name(str(raw)), 22)
             elif dim_col == 'PaisDestino':
-                lab = clean_pais_name(raw, max_len=22)
+                lab = clean_pais_name(str(raw), max_len=20)
             elif dim_col == 'Destino':
-                lab = clean_destino_name(raw, 22)
+                lab = clean_destino_name(str(raw), 20)
             elif dim_col == 'CorpName':
-                lab = clean_corp_name(raw, 24)
+                lab = clean_corp_name(str(raw), 22)
             else:
-                lab = truncate(raw, 26)
-            val = r[val_col] if val_col in r else 0
-            val_str = (f'${fmt_num2(val)}' if is_rpm else fmt_pct2(val))
-            apply_wow = wow_map is not None and dim_col != 'Hotel' and dim_col != 'Canasta'
-            pill = get_pill(str(raw), wow_map) if apply_wow else '<em class="wow-pill nd">—</em>' if not parse_hotel else ''
-            pill_html = pill if apply_wow or parse_hotel == False else ''
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">{val_str}</span>'
-                    f'{pill_html}</div>')
+                lab = truncate(str(raw), 22)
+            val = r.get(val_col, 0)
+            if is_rpm:
+                val = max(val, 0)  # sin negativos
+                val_str = f'${fmt_num2(val)}'
+            else:
+                val_str = fmt_pct2(val)
+            # WoW directo desde columna NoDispo_WoW_pp o IPM_WoW_pp
+            wow_col = 'IPM_WoW_pp' if is_rpm else 'NoDispo_WoW_pp'
+            wow_v = r.get(wow_col, None)
+            if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))):
+                wow_html = '<em class="wow-pill nd">—</em>'
+            elif is_rpm:
+                if abs(wow_v) < 1:
+                    wow_html = '<em class="wow-pill nd">—</em>'
+                else:
+                    mejora = wow_v > 0
+                    cls = 'dn' if mejora else 'up'
+                    wow_html = f'<em class="wow-pill {cls}">{"↑" if wow_v>0 else "↓"}${abs(wow_v):.0f}</em>'
+            else:
+                if abs(wow_v) < 0.05:
+                    wow_html = '<em class="wow-pill nd">—</em>'
+                else:
+                    mejora = wow_v < 0  # bajar NoDispo = mejora
+                    cls = 'dn' if mejora else 'up'
+                    wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">{i+1}. {lab}</strong>'
+                    f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
+                    f'{wow_html}</div>')
             if i < 5:
                 rows_l += cell
             else:
                 rows_r += cell
         if rows_r:
-            return (f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+            return (f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
                     f'<div>{rows_l}</div><div>{rows_r}</div></div>')
         return rows_l
 
@@ -251,15 +272,30 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <div class="tab-panels">{panels}</div>
 </div>'''
 
-    # Datos de tabs para canasta
-    df_dest = c.get('top_dest', c['agg_dest'].sort_values('%NoDispo', ascending=False).head(10))
-    df_corp = c.get('top_corp', c['agg_corp'].sort_values('%NoDispo', ascending=False).head(10))
-    df_hot  = c.get('top_hot',  c['p80'].sort_values('%NoDispo', ascending=False).head(10))
-    df_pais = c.get('top_pais', c['agg_pais'].sort_values('%NoDispo', ascending=False).head(10)) if 'agg_pais' in c else c['agg_dest'].head(10)
-    df_dest_rpm = c.get('top_dest_rpm', c['agg_dest'][c['agg_dest']['RPM']>0].sort_values('RPM').head(10))
-    df_corp_rpm = c.get('top_corp_rpm', c['agg_corp'][c['agg_corp']['RPM']>0].sort_values('RPM').head(10))
-    df_hot_rpm  = c.get('top_hot_rpm',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM').head(10))
-    df_pais_rpm = c.get('top_pais_rpm', df_pais)
+    # Datos de tabs para canasta — con WoW desde agg_corp/dest/pais
+    def _enrich_wow(df_tab, df_agg, col):
+        """Merge WoW desde agg si no está en df_tab."""
+        if 'NoDispo_WoW_pp' not in df_tab.columns and 'NoDispo_WoW_pp' in df_agg.columns:
+            df_tab = df_tab.merge(df_agg[[col,'NoDispo_WoW_pp']].drop_duplicates(col), on=col, how='left')
+        if 'IPM_WoW_pp' not in df_tab.columns and 'IPM_W17' in df_agg.columns:
+            if 'IPM_W17' not in df_tab.columns:
+                df_tab = df_tab.merge(df_agg[[col,'IPM_W17']].drop_duplicates(col), on=col, how='left')
+            if 'IPM' in df_tab.columns:
+                df_tab['IPM_WoW_pp'] = df_tab['IPM'] - df_tab.get('IPM_W17', df_tab['IPM'])
+        return df_tab
+
+    agg_dest = c.get('agg_dest', D['g_dest'])
+    agg_corp = c.get('agg_corp', D['g_corp'])
+    agg_pais = c.get('agg_pais', D['g_pais'])
+
+    df_dest = _enrich_wow(c.get('agg_dest', agg_dest).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp = _enrich_wow(c.get('agg_corp', agg_corp).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_corp, 'CorpName')
+    df_hot  = c['p80'].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
+    df_pais = _enrich_wow(c.get('agg_pais', agg_pais).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
+    df_dest_rpm = _enrich_wow(c.get('agg_dest', agg_dest)[c.get('agg_dest', agg_dest)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp_rpm = _enrich_wow(c.get('agg_corp', agg_corp)[c.get('agg_corp', agg_corp)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_corp, 'CorpName')
+    df_hot_rpm  = c['p80'][(c['p80']['Bookings']>0)&(c['p80']['IPM']>0)].sort_values('IPM').head(10).reset_index(drop=True)
+    df_pais_rpm = _enrich_wow(c.get('agg_pais', agg_pais)[c.get('agg_pais', agg_pais)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
 
     wow_nd_dest = tab_nd.get('destino', {}); wow_nd_corp = tab_nd.get('corp', {}); wow_nd_pais = tab_nd.get('pais', {})
     wow_rpm_dest = tab_rpm.get('destino', {}); wow_rpm_corp = tab_rpm.get('corp', {}); wow_rpm_pais = tab_rpm.get('pais', {})
