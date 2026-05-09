@@ -153,3 +153,28 @@ Ver `destinatarios.md` para la lista actualizada. Si cambian destinatarios, edit
 ## Última actualización
 
 W18 · 4 mayo 2026 · Vol. 04 · flujo `Gmail:create_draft` MCP
+
+---
+
+## 🗂️ Paso 6 · ZIP delta proyecto Claude (post W18)
+
+Al final de cada sesión semanal, Claude genera automáticamente:
+
+```
+PRICE_proyecto_delta_WNN.zip
+```
+
+**Qué contiene:** solo los archivos que el pipeline tocó esa semana (típicamente 3-8 scripts). No incluye los archivos que no cambiaron.
+
+**Qué hacer con él:**
+1. Descargar el ZIP
+2. Descomprimir
+3. Arrastrar los archivos al proyecto Claude → reemplazar los anteriores
+
+**Por qué:** el proyecto Claude tiene un límite de espacio. Subir el ZIP completo cada semana acumula archivos duplicados. El ZIP delta mantiene el proyecto limpio y actualizado.
+
+**Cuándo se genera:** automáticamente al final del pipeline, junto con el ZIP del repo. Claude lo anuncia con:
+```
+📦 ZIP delta proyecto listo: PRICE_proyecto_delta_WNN.zip
+   Archivos modificados: render_cr_p2.py · template_alertas.py · excel_cr.py (3 archivos)
+```

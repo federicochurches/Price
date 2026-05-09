@@ -402,6 +402,7 @@ Federico adjunta `Dataset_RatesNoDispo_WNN.xlsx` y `Dataset_CheckRates_WNN.xlsx`
 3. Genera screenshots de validación
 4. Empaca ZIP final con estructura repo
 5. Mantiene scripts en proyecto Claude actualizados si hubo cambios
+6. **Genera ZIP delta del proyecto** → `PRICE_proyecto_delta_WNN.zip` con solo los archivos modificados en la sesión para que Federico los suba al proyecto Claude y reemplace los anteriores
 
 ### Comando único de mail
 ```
