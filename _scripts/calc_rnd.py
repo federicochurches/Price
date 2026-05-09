@@ -56,9 +56,10 @@ def agg_dim(df, col):
 
 def metrics_global(df):
     t = df['Trafico'].sum(); nd = df['TraficoNoDispo'].sum()
-    bk = df['Bookings'].sum(); gb = df['gb_usd'].sum()
-    gb_pos = max(gb, 0)  # ignorar cancelaciones negativas
+    bk = df['Bookings'].sum()
+    gb_pos = df['gb_usd'].clip(lower=0).sum()  # clip por fila, no por suma
     ipm = gb_pos/t*1_000_000 if t else 0
+    gb = df['gb_usd'].sum()  # para compatibilidad
     return {
         'trafico':t,'bookings':bk,'gb_usd':gb,
         'nodispo':nd/t if t else 0,'pct_nodispo':nd/t if t else 0,
@@ -88,24 +89,35 @@ p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
 p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W17']) * 100
 p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W17']
 
-# ── Métricas globales ─────────────────────────────────────────────
-M = {'global_w18': metrics_global(df18), 'global_w17': metrics_global(df17)}
+# ── Métricas globales · basadas en P80 (metodología) ─────────────
+# Las cards globales muestran métricas del P80, no del dataset completo
+# Para W17: reconstruimos p80 equivalente por hoteles que también están en el p80 W18
+hotel_p80_names = set(p80_hotel['Hotel'].unique())
+df17_p80 = df17[df17['Hotel'].isin(hotel_p80_names)].copy()
+
+M = {
+    'global_w18': metrics_global(p80_hotel),  # P80 W18
+    'global_w17': metrics_global(df17_p80),   # hoteles del P80 W18 en W17
+}
 for cat in ['B2C','B2B (OP)','CUG (UOP)']:
-    key = cat.replace(' (OP)','').replace(' (UOP)','').replace('(','').replace(')','').replace(' ','')
-    m18 = metrics_global(df18[df18['DistributionCategory']==cat])
-    m17 = metrics_global(df17[df17['DistributionCategory']==cat])
+    p80_cat_18 = p80_hotel[p80_hotel['DistributionCategory']==cat] if 'DistributionCategory' in p80_hotel.columns else df18[df18['DistributionCategory']==cat]
+    # p80 no tiene DistributionCategory porque viene del agg_hotel — usar df18 filtrado al P80
+    df18_p80_cat = df18[(df18['Hotel'].isin(hotel_p80_names)) & (df18['DistributionCategory']==cat)]
+    df17_p80_cat = df17[(df17['Hotel'].isin(hotel_p80_names)) & (df17['DistributionCategory']==cat)]
+    m18 = metrics_global(df18_p80_cat)
+    m17 = metrics_global(df17_p80_cat)
     m18['n_hoteles'] = len(p80_hotel)
     m17['n_hoteles'] = len(p80_hotel)
-    M[f'B2C_w18']         = m18 if cat=='B2C' else M.get('B2C_w18', m18)
-    M[f'B2C_w17']         = m17 if cat=='B2C' else M.get('B2C_w17', m17)
-    M[f'B2B (OP)_w18']    = m18 if cat=='B2B (OP)' else M.get('B2B (OP)_w18', m18)
-    M[f'B2B (OP)_w17']    = m17 if cat=='B2B (OP)' else M.get('B2B (OP)_w17', m17)
-    M[f'CUG (UOP)_w18']   = m18 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w18', m18)
-    M[f'CUG (UOP)_w17']   = m17 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w17', m17)
-    M[f'B2B-OP_w18']      = M['B2B (OP)_w18']
-    M[f'B2B-OP_w17']      = M['B2B (OP)_w17']
-    M[f'CUG_w18']         = M['CUG (UOP)_w18']
-    M[f'CUG_w17']         = M['CUG (UOP)_w17']
+    M[f'B2C_w18']        = m18 if cat=='B2C'       else M.get('B2C_w18', m18)
+    M[f'B2C_w17']        = m17 if cat=='B2C'       else M.get('B2C_w17', m17)
+    M[f'B2B (OP)_w18']   = m18 if cat=='B2B (OP)'  else M.get('B2B (OP)_w18', m18)
+    M[f'B2B (OP)_w17']   = m17 if cat=='B2B (OP)'  else M.get('B2B (OP)_w17', m17)
+    M[f'CUG (UOP)_w18']  = m18 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w18', m18)
+    M[f'CUG (UOP)_w17']  = m17 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w17', m17)
+    M[f'B2B-OP_w18']     = M['B2B (OP)_w18']
+    M[f'B2B-OP_w17']     = M['B2B (OP)_w17']
+    M[f'CUG_w18']        = M['CUG (UOP)_w18']
+    M[f'CUG_w17']        = M['CUG (UOP)_w17']
 
 for k in M: M[k]['n_hoteles'] = len(p80_hotel)
 
@@ -116,20 +128,37 @@ sev_rpm = {b: int((p80_hotel['BandaRPM']==b).sum()) for b in BANDAS}
 
 # ── Agregados dimensión global ────────────────────────────────────
 g_hotel = agg_hotel(df18)
-g_corp  = agg_dim(df18,'CorpName').merge(g_corp_w17, on='CorpName', how='left')
-g_dest  = agg_dim(df18,'Destino').merge(g_dest_w17, on='Destino', how='left')
-g_pais  = agg_dim(df18,'PaisDestino').merge(g_pais_w17, on='PaisDestino', how='left')
+# Agregados dimensión globales sobre P80 (hoteles que acumulan 80% tráfico)
+df18_p80 = df18[df18['Hotel'].isin(hotel_p80_names)].copy()
+df17_p80 = df17[df17['Hotel'].isin(hotel_p80_names)].copy()
+
+g_corp  = agg_dim(df18_p80,'CorpName').merge(g_corp_w17, on='CorpName', how='left')
+g_dest  = agg_dim(df18_p80,'Destino').merge(g_dest_w17, on='Destino', how='left')
+g_pais  = agg_dim(df18_p80,'PaisDestino').merge(g_pais_w17, on='PaisDestino', how='left')
+# Drop duplicados post-merge
 for g in [g_corp, g_dest, g_pais]:
+    g.drop_duplicates(subset=[g.columns[0]], keep='first', inplace=True)
+    g.reset_index(drop=True, inplace=True)
     g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W17', g['%NoDispo'])) * 100
+    if 'IPM_W17' in g.columns and 'IPM_WoW_pp' not in g.columns:
+        g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W17']
 
 # ── TABs para KPI hero ────────────────────────────────────────────
-def make_tab(df, col, sort_col, asc=False):
-    return df.sort_values(sort_col, ascending=asc).head(10).reset_index(drop=True)
+def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
+    sub = df.copy()
+    if min_ipm:
+        sub = sub[sub['IPM'] > 0]
+    if min_trafico:
+        sub = sub[sub['Trafico'] >= min_trafico]
+    return sub.sort_values(sort_col, ascending=asc).head(10).reset_index(drop=True)
+
+# Umbral mínimo de tráfico para tabs de dimensión (evita outliers de bajo volumen)
+MIN_TRAFICO_DIM = 500_000
 
 TAB_NoDispo = {
-    'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False),
-    'destino': make_tab(g_dest,'Destino','%NoDispo',False),
-    'corp':    make_tab(g_corp,'CorpName','%NoDispo',False),
+    'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
+    'destino': make_tab(g_dest,'Destino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
+    'corp':    make_tab(g_corp,'CorpName','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
     'hotel':   make_tab(p80_hotel,'Hotel','%NoDispo',False),
     'canasta': pd.DataFrame([
         {'Canasta':'B2C',      **{k:v for k,v in M['B2C_w18'].items()}},
@@ -138,12 +167,11 @@ TAB_NoDispo = {
     ]).sort_values('pct_nodispo', ascending=False).reset_index(drop=True),
 }
 
-
 TAB_RPM = {
-    'pais':    make_tab(g_pais,'PaisDestino','IPM',True),
-    'destino': make_tab(g_dest,'Destino','IPM',True),
-    'corp':    make_tab(g_corp,'CorpName','IPM',True),
-    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True),
+    'pais':    make_tab(g_pais,'PaisDestino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
+    'destino': make_tab(g_dest,'Destino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
+    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
+    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True),
     'canasta': TAB_NoDispo['canasta'],
 }
 # Alias RPM en TABs
@@ -198,19 +226,30 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     nc_c   = p80c[p80c['Bookings']==0]
     sev_nd_c  = {b:int((p80c['BandaNoDispo']==b).sum()) for b in BANDAS}
     sev_rpm_c = {b:int((p80c['BandaRPM']==b).sum()) for b in BANDAS}
-    ac = agg_dim(sub18,'CorpName').merge(
-        agg_dim(sub17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['CorpName','%NoDispo_W17','IPM_W17']],
+    # Dimensiones calculadas sobre el P80 de la canasta
+    p80c_hotels = set(p80c['Hotel'].unique())
+    sub18_p80 = sub18[sub18['Hotel'].isin(p80c_hotels)].copy()
+    sub17_p80 = sub17[sub17['Hotel'].isin(p80c_hotels)].copy()
+    ac = agg_dim(sub18_p80,'CorpName').merge(
+        agg_dim(sub17_p80,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['CorpName','%NoDispo_W17','IPM_W17']],
         on='CorpName', how='left')
-    ad = agg_dim(sub18,'Destino').merge(
-        agg_dim(sub17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Destino','%NoDispo_W17','IPM_W17']],
+    ad = agg_dim(sub18_p80,'Destino').merge(
+        agg_dim(sub17_p80,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Destino','%NoDispo_W17','IPM_W17']],
         on='Destino', how='left')
-    ap = agg_dim(sub18,'PaisDestino').merge(
-        agg_dim(sub17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['PaisDestino','%NoDispo_W17','IPM_W17']],
+    ap = agg_dim(sub18_p80,'PaisDestino').merge(
+        agg_dim(sub17_p80,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['PaisDestino','%NoDispo_W17','IPM_W17']],
         on='PaisDestino', how='left')
+    # Drop duplicados post-merge
+    for g in [ac, ad, ap]:
+        g.drop_duplicates(subset=[g.columns[0]], keep='first', inplace=True)
+        g.reset_index(drop=True, inplace=True)
+        g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W17', g['%NoDispo'])) * 100
+        if 'IPM_W17' in g.columns:
+            g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W17']
     top_dnc = proc_c.sort_values('TraficoNoDispo',ascending=False).head(50).reset_index(drop=True)
     top_br  = proc_c[proc_c['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
     top_sc  = nc_c.sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
-    m18c = metrics_global(sub18); m17c = metrics_global(sub17)
+    m18c = metrics_global(sub18_p80); m17c = metrics_global(sub17_p80)
     m18c['n_hoteles'] = len(p80c); m17c['n_hoteles'] = len(p80c)
     c_data = {
         'name':c_name,'short':c_short,'filter':c_filter,'weight':c_weight,

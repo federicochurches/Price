@@ -58,37 +58,70 @@ def build_findings():
     def es_num2(v):
         return f'{v:,.2f}'.replace(',','|').replace('.',',').replace('|','.')
     
+    def pill_banda(banda, target=''):
+        COLORS = {
+            'Exitosa':       ('#0D7A99','#E8F7FD','#4FC3F4'),
+            'Aceptable':     ('#3B2F7A','#EEE9FF','#5C469C'),
+            'Revisar':       ('#7A4A10','#FFF3E0','#A86A1D'),
+            'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
+            'Súper Crítica': ('#FFFFFF','rgba(22,22,22,.80)','#161616'),
+            'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
+        }
+        c = COLORS.get(banda, ('#8A8377','#F2EEE6','#8A8377'))
+        tgt = f' <span style="font-weight:400;opacity:.8;font-size:8px;">· {target}</span>' if target else ''
+        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.04em;'
+                f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
+                f'background:{c[1]};color:{c[0]};border:1px solid {c[2]};">{banda}{tgt}</span>')
+
+    def pill_wow_nd(v):
+        """Pill WoW para %NoDispo: verde si baja."""
+        if abs(v) < 0.05: return ''
+        mejora = v < 0
+        col = '#2F6C34' if mejora else '#C0392B'
+        bg  = '#EAF3DE' if mejora else '#FCE8E6'
+        txt = f'{"↓" if v<0 else "↑"}{abs(v):.2f}pp'.replace('.',',')
+        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:{bg};color:{col};">{txt}</span>'
+
+    def pill_wow_ipm(v):
+        """Pill WoW para IPM: verde si sube."""
+        if abs(v) < 0.5: return ''
+        mejora = v > 0
+        col = '#2F6C34' if mejora else '#C0392B'
+        bg  = '#EAF3DE' if mejora else '#FCE8E6'
+        txt = f'{"↑" if v>0 else "↓"}{abs(v):.1f}%'.replace('.',',')
+        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:{bg};color:{col};">{txt}</span>'
+
     findings = [
         {'numero': es_pct(pct*100,2),
-         'titulo': '% NoDispo global · banda Aceptable',
-         'desc': f'WoW {es_pp(pct_wow)} · primera vez que se acerca a la zona Exitosa (target &lt;3%) tras semanas en Revisar.'},
+         'titulo': f'%NoDispo global · {pill_banda(M["global_w18"]["banda_nd"],"&lt;3%")} {pill_wow_nd(pct_wow)}',
+         'desc': 'Primera vez que se acerca a la zona Exitosa tras semanas en Revisar — mejora estructural sostenida.'},
         {'numero': '$' + es_num2(rpm),
-         'titulo': f'IPM (Income Per Million USD) · banda {M["global_w18"]["banda_rpm"]}',
-         'desc': f'WoW {es_pct1(rpm_wow)} · sigue por debajo del target ≥ $650 con deterioro en tráfico (-1,7%) y bookings ({es_pct1(bk_wow)}) anticipa presión.'},
+         'titulo': f'IPM · {pill_banda(M["global_w18"]["banda_rpm"],"≥$650")} {pill_wow_ipm(rpm_wow)}',
+         'desc': f'Sigue por debajo del target ≥$650. Bookings {es_pct1(bk_wow)} WoW anticipa presión adicional.'},
         {'numero': fmt_big(dnc_p80_total),
          'titulo': 'Demanda no convertida en P80',
-         'desc': f'{f"{pct_dnc_p80:.0f}".replace(".",",")}% del total ({fmt_big(dnc_global)}) provienen de los {fmt_int_es(n_p80)} hoteles del P80 · concentración estructural.'},
+         'desc': f'{f"{pct_dnc_p80:.0f}".replace(".",",")}% del total ({fmt_big(dnc_global)}) en los {fmt_int_es(n_p80)} hoteles del P80 · concentración estructural.'},
         {'numero': fmt_int_es(n_critmas),
-         'titulo': 'Hoteles P80 Severity Crítica+',
-         'desc': f'{es_pct(n_critmas/n_p80*100,1)} del P80 · de ellos {n_supcrit} Súper Críticos son los más urgentes para escalar a Supply.'},
+         'titulo': f'Hoteles P80 Severity Crítica+ · {pill_banda("Crítica")}',
+         'desc': f'{es_pct(n_critmas/n_p80*100,1)} del P80 · {n_supcrit} Súper Críticos requieren escalamiento inmediato a Supply.'},
         {'numero': fmt_int_es(n_sin_conv),
-         'titulo': 'Hoteles P80 Sin Conversión (BKGS=0)',
-         'desc': f'{es_pct(pct_sin_conv,1)} del P80 · cohorte estructural · diagnóstico técnico/contractual, no de eficacia. {fmt_int_es(n_critica_rpm)} adicionales en Crítica.'},
+         'titulo': f'Hoteles Sin Conversión · {pill_banda("Sin Conversión")}',
+         'desc': f'{es_pct(pct_sin_conv,1)} del P80 · cohorte estructural · diagnóstico técnico/contractual. {fmt_int_es(n_critica_rpm)} adicionales en Crítica IPM.'},
         {'numero': fmt_big(top1_corp["DNC"]),
-         'titulo': f'{top1_corp["CorpName"]} · líder demanda perdida',
-         'desc': f'búsquedas no convertidas en P80 · escalamiento KAM directo, mayor palanca disponible esta semana.'},
+         'titulo': f'{clean_corp_name(top1_corp["CorpName"])} · líder demanda perdida',
+         'desc': 'Búsquedas no convertidas en P80 · escalamiento KAM directo, mayor palanca disponible esta semana.'},
         {'numero': es_pct(by_dest.iloc[0]["pctND"]*100,2),
-         'titulo': f'{by_dest.iloc[0]["Destino"]} · destino crítico',
+         'titulo': f'{clean_destino_name(by_dest.iloc[0]["Destino"],28)} · destino crítico',
          'desc': f'{fmt_big(by_dest.iloc[0]["DNC"])} búsquedas no convertidas · concentra fugas de high-traffic markets.'},
         {'numero': '$' + es_num2(cu['rpm']),
-         'titulo': 'CUG · mayor deterioro de IPM',
-         'desc': f'WoW {es_pct1(cug_rpm_wow)} · canasta con weight 0,6 que requiere atención prioritaria pese a mejorar %NoDispo a {es_pct(cu["pct_nodispo"]*100,2)}.'},
+         'titulo': f'CUG · IPM {pill_banda(cu["banda_rpm"])} {pill_wow_ipm(cug_rpm_wow)}',
+         'desc': f'Canasta weight 0,6 · deterioro IPM pese a mejora en %NoDispo ({es_pct(cu["pct_nodispo"]*100,2)}) · atención prioritaria.'},
         {'numero': es_pct(co['pct_nodispo']*100,2),
-         'titulo': 'B2B-OP · canasta más sólida en %NoDispo',
-         'desc': f'banda {co["banda_nodispo"]} en %NoDispo y IPM ${es_num2(co["rpm"])} (banda {co["banda_rpm"]}) · refleja la calidad del producto opaco premium frente a B2C.'},
+         'titulo': f'B2B-OP · %NoDispo {pill_banda(co["banda_nodispo"])}',
+         'desc': f'IPM ${es_num2(co["rpm"])} ({pill_banda(co["banda_rpm"])}) · canasta más sólida · refleja calidad del producto opaco premium.'},
         {'numero': fmt_big(h0["Trafico"]),
-         'titulo': f'{truncate(clean_hotel_name(h0["Hotel"]),32)} · #1 Sin Conv',
-         'desc': f'tráfico sin convertir · {h0["CorpName"]} · primera fila para revisión técnica esta semana.'},
+         'titulo': f'{truncate(clean_hotel_name(h0["Hotel"]),28)} · #1 Sin Conv',
+         'desc': f'{h0["CorpName"]} · {fmt_big(h0["Trafico"])} búsquedas sin conversión · primera fila para revisión técnica.'},
     ]
     return findings
 
@@ -199,7 +232,7 @@ def render_severities_combinadas():
 {rows_nd}
 </div>
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#A86A1D;margin:0 0 12px;">IPM (USD)</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">IPM (USD)</h3>
 {rows_ipm}
 </div>
 </div>
@@ -336,53 +369,49 @@ def render_no_convierten():
 '''
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
-    """Tabla de una columna con N filas para Top dimensión RND."""
+    """Tabla de una columna: Dim · %NoDispo · IPM · WoW (4 cols)."""
     import math
-    grid = '1fr 90px 70px 70px 75px 44px'
-    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
-    for label in [dim_label,'Tráfico','BKGS','IPM','%NoDispo','WoW ND']:
-        align = 'left' if label==dim_label else 'right'
-        color = '#EA0074' if label==dim_label else 'var(--ink-muted)'
-        rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
-    rows += '</div>'
+    grid = '1fr 68px 60px 46px'
+    headers = [dim_label, '%NoDispo', 'IPM', 'WoW']
+    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
+    for h in headers:
+        align = 'left' if h == dim_label else 'right'
+        color = '#EA0074' if h == dim_label else 'var(--ink-muted)'
+        hrow += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{h}</span>'
+    hrow += '</div>'
+    rows = hrow
 
     for i, r in df.iterrows():
-        bnd = r.get('BandaNoDispo','')
+        bnd = r.get('BandaNoDispo', '')
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg','#EA0074')
-        bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd!='Súper Crítica' else 'rgba(22,22,22,.80)'
-        bnd_fg = '#FFFFFF' if bnd=='Súper Crítica' else bnd_color
+        bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd != 'Súper Crítica' else 'rgba(22,22,22,.80)'
+        bnd_fg = '#FFFFFF' if bnd == 'Súper Crítica' else bnd_color
         pill = (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                f'background:{bnd_bg} !important;color:{bnd_fg} !important;'
-                f'text-transform:uppercase;letter-spacing:.05em;margin-left:5px;vertical-align:middle;">{bnd}</span>')
+                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:4px;">{bnd}</span>')
         n = start_idx + i + 1
         if dim_col == 'PaisDestino':
             raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino':
-            raw_label = clean_destino_name(r[dim_col], 28)
+            raw_label = clean_destino_name(r[dim_col], 26)
         elif dim_col == 'CorpName':
-            from render_helpers import clean_corp_name
             raw_label = clean_corp_name(r[dim_col])
         else:
             raw_label = r[dim_col]
-        # WoW %NoDispo — verde si baja (mejora), rojo si sube
+        ipm_val = max(r.get('IPM', r.get('RPM', 0)), 0)
+        # WoW %NoDispo
         wow_v = r.get('NoDispo_WoW_pp', None)
-        if wow_v is None or (isinstance(wow_v, float) and (math.isnan(wow_v) or math.isinf(wow_v))):
-            wow_html = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-        elif abs(wow_v) < 0.05:
-            wow_html = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        if wow_v is None or (isinstance(wow_v, float) and (math.isnan(wow_v) or math.isinf(wow_v))) or abs(wow_v) < 0.05:
+            wow_html = '<em class="wow-pill nd">—</em>'
         else:
-            mejora = wow_v < 0  # bajar NoDispo es bueno
-            wc = '#2F6C34' if mejora else '#C0392B'
-            wb = '#EAF3DE' if mejora else '#FCE8E6'
+            mejora = wow_v < 0
+            cls = 'dn' if mejora else 'up'
             arrow = '↓' if wow_v < 0 else '↑'
-            wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{arrow}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
-        cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;">{n}. {truncate(raw_label,28)} {pill}</div>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
-                 f'{wow_html}')
-        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
+            wow_html = f'<em class="wow-pill {cls}">{arrow}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
+        cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {truncate(raw_label,26)} {pill}</div>'
+                 f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
+                 f'<span style="text-align:right;">{wow_html}</span>')
+        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):

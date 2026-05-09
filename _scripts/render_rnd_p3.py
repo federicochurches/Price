@@ -103,28 +103,44 @@ def _build_canasta_findings_rnd(c):
 def _render_canasta_alertas_rnd(c, accent_color='#EA0074'):
     """Alertas Críticas dentro de canasta RND · 3 cards (Hoteles · Destinos · Corp)."""
     from template_alertas import render_alertas_block, render_alert_card, render_alert_subcell
-    
-    def card_for(card_title, icon, nd_obj, rpm_obj, label_field):
+
+    p80 = c['p80']
+    agg_dest = c.get('agg_dest', None)
+    agg_corp = c.get('agg_corp', None)
+
+    def worst_nd(df, col):
+        return df.sort_values('%NoDispo', ascending=False).iloc[0] if len(df) > 0 else None
+
+    def worst_ipm(df, col):
+        sub = df[df.get('IPM', df.get('RPM', 0).__class__(0)) > 0] if 'IPM' in df.columns else df
+        if len(sub) == 0: sub = df
+        return sub[sub['IPM'] > 0].sort_values('IPM', ascending=True).iloc[0] if len(sub[sub['IPM'] > 0]) > 0 else None
+
+    def card_for(card_title, icon, df, label_col, label_fn=None):
+        nd_obj  = worst_nd(df, label_col)
+        rpm_obj = worst_ipm(df, label_col)
         if nd_obj is None or rpm_obj is None:
             return ''
+        lbl_nd  = label_fn(nd_obj[label_col])  if label_fn else truncate(str(nd_obj[label_col]), 22)
+        lbl_rpm = label_fn(rpm_obj[label_col]) if label_fn else truncate(str(rpm_obj[label_col]), 22)
         sub_nd = render_alert_subcell(
-            '% NoDispo', '#EA0074', '#FCE4F1',
-            truncate(clean_hotel_name(str(nd_obj[label_field])), 22) if label_field=='Hotel' else truncate(str(nd_obj[label_field]),22),
-            f'{nd_obj["%NoDispo"]*100:.2f}%'.replace('.',','),
-            '#EA0074'
+            '% NoDispo', '#EA0074', '#FCE4F1', lbl_nd,
+            f'{nd_obj["%NoDispo"]*100:.2f}%'.replace('.',','), '#EA0074'
         )
+        ipm_val = max(rpm_obj.get('IPM', rpm_obj.get('RPM', 0)), 0)
         sub_rpm = render_alert_subcell(
-            'IPM', '#5C469C', '#EDE8F7',
-            truncate(clean_hotel_name(str(rpm_obj[label_field])), 22) if label_field=='Hotel' else truncate(str(rpm_obj[label_field]),22),
-            f'${fmt_num2(rpm_obj["RPM"])}',
-            '#5C469C'
+            'IPM', '#5C469C', '#EDE8F7', lbl_rpm,
+            f'${fmt_num2(ipm_val)}', '#5C469C'
         )
         return render_alert_card(card_title, icon, accent_color, sub_nd, sub_rpm)
-    
-    card_h = card_for('Hoteles', '🏨', c.get('alert_h_nd'), c.get('alert_h_rpm'), 'Hotel')
-    card_d = card_for('Destinos', '📍', c.get('alert_d_nd'), c.get('alert_d_rpm'), 'Destino')
-    card_co = card_for('Corp', '🏢', c.get('alert_co_nd'), c.get('alert_co_rpm'), 'CorpName')
-    
+
+    card_h  = card_for('Hoteles',  '🏨', p80, 'Hotel',
+                        lambda x: truncate(clean_hotel_name(str(x)), 22))
+    card_d  = card_for('Destinos', '📍', agg_dest, 'Destino',
+                        lambda x: clean_destino_name(str(x), 22)) if agg_dest is not None else ''
+    card_co = card_for('Corp',     '🏢', agg_corp, 'CorpName',
+                        lambda x: clean_corp_name(str(x), 22)) if agg_corp is not None else ''
+
     return render_alertas_block(
         f'Alertas · Casos Críticos · Canasta {c["short"]}',
         accent_color, card_h, card_d, card_co
@@ -225,7 +241,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     cls = 'dn' if mejora else 'up'
                     wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
             cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">{i+1}. {lab}</strong>'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink);font-weight:400;">{i+1}. {lab}</span>'
                     f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
                     f'{wow_html}</div>')
             if i < 5:
@@ -253,18 +269,19 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
   var inputs = card.querySelectorAll('input[name="tabs-{card_id}"]');
   function activate(inp){{
     card.querySelectorAll('.tp-{card_id}').forEach(function(p){{p.style.display='none';}});
-    card.querySelectorAll('.tl-{card_id}').forEach(function(l){{l.style.color='var(--ink-muted)';l.style.borderBottom='2px solid transparent';l.style.fontWeight='600';}});
+    card.querySelectorAll('label[for^="tab-{card_id}"]').forEach(function(l){{
+      l.style.color='';l.style.borderColor='transparent';l.style.background='';
+    }});
     var panel = card.querySelector('.tp-{card_id}[data-tab="'+inp.dataset.tab+'"]');
     if(panel) panel.style.display='block';
-    var lbl = card.querySelector('.tl-{card_id}[data-for="'+inp.id+'"]');
-    if(lbl){{lbl.style.color='#EA0074';lbl.style.borderBottom='2px solid #EA0074';lbl.style.fontWeight='700';}}
+    var lbl = card.querySelector('label[for="'+inp.id+'"]');
+    if(lbl){{lbl.style.color='#EA0074';lbl.style.borderColor='#EA0074';lbl.style.background='var(--paper)';}}
   }}
   inputs.forEach(function(inp){{
     inp.addEventListener('change',function(){{activate(inp);}});
-    if(inp.checked) activate(inp);
   }});
-  // Activar primer tab si ninguno checked
-  if(inputs.length && !card.querySelector('input:checked')) activate(inputs[0]);
+  var first = card.querySelector('input[checked]')||inputs[0];
+  if(first) activate(first);
 }})();
 </script>'''
 
@@ -273,7 +290,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             for i,(tk,_,_,_,_) in enumerate(tab_configs)
         )
         tabs_labels = ''.join(
-            f'<label class="tl-{card_id}" data-for="tab-{card_id}-{tk}" for="tab-{card_id}-{tk}" style="cursor:pointer;padding:4px 10px 6px;font-size:11px;font-weight:600;color:var(--ink-muted);border-bottom:2px solid transparent;transition:color .15s;">{tl}</label>'
+            f'<label class="tab-label" for="tab-{card_id}-{tk}">{tl}</label>'
             for tk, tl, _, _, _ in tab_configs
         )
         panels = ''
@@ -312,14 +329,16 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     agg_corp = c.get('agg_corp', D['g_corp'])
     agg_pais = c.get('agg_pais', D['g_pais'])
 
-    df_dest = _enrich_wow(c.get('agg_dest', agg_dest).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp = _enrich_wow(c.get('agg_corp', agg_corp).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_corp, 'CorpName')
+    MIN_T = 500_000  # mínimo tráfico para tabs de dimensión
+
+    df_dest = _enrich_wow(agg_dest[agg_dest['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp = _enrich_wow(agg_corp[agg_corp['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_corp, 'CorpName')
     df_hot  = c['p80'].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
-    df_pais = _enrich_wow(c.get('agg_pais', agg_pais).sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
-    df_dest_rpm = _enrich_wow(c.get('agg_dest', agg_dest)[c.get('agg_dest', agg_dest)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp_rpm = _enrich_wow(c.get('agg_corp', agg_corp)[c.get('agg_corp', agg_corp)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_corp, 'CorpName')
+    df_pais = _enrich_wow(agg_pais[agg_pais['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
+    df_dest_rpm = _enrich_wow(agg_dest[(agg_dest['IPM']>0)&(agg_dest['Trafico']>=MIN_T)].sort_values('IPM').head(10).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp_rpm = _enrich_wow(agg_corp[(agg_corp['IPM']>0)&(agg_corp['Trafico']>=MIN_T)].sort_values('IPM').head(10).reset_index(drop=True), agg_corp, 'CorpName')
     df_hot_rpm  = c['p80'][(c['p80']['Bookings']>0)&(c['p80']['IPM']>0)].sort_values('IPM').head(10).reset_index(drop=True)
-    df_pais_rpm = _enrich_wow(c.get('agg_pais', agg_pais)[c.get('agg_pais', agg_pais)['IPM']>0].sort_values('IPM').head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
+    df_pais_rpm = _enrich_wow(agg_pais[(agg_pais['IPM']>0)&(agg_pais['Trafico']>=MIN_T)].sort_values('IPM').head(10).reset_index(drop=True), agg_pais, 'PaisDestino')
 
     wow_nd_dest = tab_nd.get('destino', {}); wow_nd_corp = tab_nd.get('corp', {}); wow_nd_pais = tab_nd.get('pais', {})
     wow_rpm_dest = tab_rpm.get('destino', {}); wow_rpm_corp = tab_rpm.get('corp', {}); wow_rpm_pais = tab_rpm.get('pais', {})
@@ -392,14 +411,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === SEVERIDAD ===
     levels_nd  = make_severity_levels(c['sev_nd'],  LEVELS_NODISPO)
     levels_rpm = make_severity_levels(c['sev_rpm'], LEVELS_RPM)
-    sev_block_nd  = render_severity_block('% NoDispo', '●', '#EA0074', levels_nd,  n_p80)
-    sev_block_rpm = render_severity_block('IPM (Income Per Million USD)', '●', '#A86A1D', levels_rpm, n_p80)
+    sev_block_nd  = render_severity_block('🚨 % NoDispo', '●', '#EA0074', levels_nd,  n_p80)
+    sev_block_rpm = render_severity_block('🚨 IPM (Income Per Million USD)', '●', '#EA0074', levels_rpm, n_p80)
     severity_canasta_html = render_severity_2cols(sev_block_nd, sev_block_rpm)
 
     # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
         import math
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM · WoW</span></div>'
+        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM</span><span>WoW</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
@@ -423,11 +442,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
                 wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
-            ipm_display = f'<span style="font-size:10px;">${fmt_num2(ipm_val)}</span> {wow_html}'
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
-                     f'<span class="cr" style="display:flex;align-items:center;justify-content:flex-end;gap:3px;">{ipm_display}</span>'
+                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
+                     f'<span class="cr">{wow_html}</span>'
                      f'</div>')
         return rows
 
