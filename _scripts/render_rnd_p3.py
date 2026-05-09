@@ -241,18 +241,40 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
         pill = banda_pill(banda, target=pill_target, font_size='9px')
         gauge = gauge_canasta(banda, gauge_tipo)
-        val18_str = f'{prefix}{fmt_pct2(val18)}' if not prefix else f'${fmt_num2(val18)}'
-        val17_str = f'{prefix}{fmt_pct2(val17)}' if not prefix else f'${fmt_num2(val17)}'
-        if prefix == '':
-            val18_str = fmt_pct2(val18)
-            val17_str = fmt_pct2(val17)
+        val18_str = fmt_pct2(val18) if prefix == '' else f'${fmt_num2(val18)}'
+        val17_str = fmt_pct2(val17) if prefix == '' else f'${fmt_num2(val17)}'
         wb = wow_box_canasta(val17_str, val18_str, wow_str, wow_color, '#EA0074')
-        # Tabs
-        tabs_labels = ''.join(f'<label class="tab-label" for="tab-{card_id}-{tk}">{tl}</label>'
-                               for tk, tl, _, _, _ in tab_configs)
+
+        # CSS + JS para pestaña activa — JS es más robusto dentro de divs anidados
+        js_tabs = f'''<script>
+(function(){{
+  var card = document.getElementById('kpi-{card_id}');
+  if(!card) return;
+  var inputs = card.querySelectorAll('input[name="tabs-{card_id}"]');
+  function activate(inp){{
+    card.querySelectorAll('.tp-{card_id}').forEach(function(p){{p.style.display='none';}});
+    card.querySelectorAll('.tl-{card_id}').forEach(function(l){{l.style.color='var(--ink-muted)';l.style.borderBottom='2px solid transparent';l.style.fontWeight='600';}});
+    var panel = card.querySelector('.tp-{card_id}[data-tab="'+inp.dataset.tab+'"]');
+    if(panel) panel.style.display='block';
+    var lbl = card.querySelector('.tl-{card_id}[data-for="'+inp.id+'"]');
+    if(lbl){{lbl.style.color='#EA0074';lbl.style.borderBottom='2px solid #EA0074';lbl.style.fontWeight='700';}}
+  }}
+  inputs.forEach(function(inp){{
+    inp.addEventListener('change',function(){{activate(inp);}});
+    if(inp.checked) activate(inp);
+  }});
+  // Activar primer tab si ninguno checked
+  if(inputs.length && !card.querySelector('input:checked')) activate(inputs[0]);
+}})();
+</script>'''
+
         tabs_inputs = ''.join(
-            f'<input {"checked " if i==0 else ""}id="tab-{card_id}-{tk}" name="tabs-{card_id}" style="display:none;" type="radio"/>'
+            f'<input {"checked " if i==0 else ""}id="tab-{card_id}-{tk}" data-tab="{tk}" name="tabs-{card_id}" style="display:none;" type="radio"/>'
             for i,(tk,_,_,_,_) in enumerate(tab_configs)
+        )
+        tabs_labels = ''.join(
+            f'<label class="tl-{card_id}" data-for="tab-{card_id}-{tk}" for="tab-{card_id}-{tk}" style="cursor:pointer;padding:4px 10px 6px;font-size:11px;font-weight:600;color:var(--ink-muted);border-bottom:2px solid transparent;transition:color .15s;">{tl}</label>'
+            for tk, tl, _, _, _ in tab_configs
         )
         panels = ''
         for tk, tl, df_t, wm, is_rpm in tab_configs:
@@ -260,16 +282,18 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             parse_hotel = tk == 'hotel'
             val_col = 'RPM' if is_rpm else '%NoDispo'
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm)
-            panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
-        return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+            panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
+
+        return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-top:4px;">{val18_str}</div>
 <div style="margin-top:10px;">{pill}</div>
 {gauge}
 {wb}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
-<div class="tab-panels">{panels}</div>
+<div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);">{tabs_labels}</div>
+{panels}
+{js_tabs}
 </div>'''
 
     # Datos de tabs para canasta — con WoW desde agg_corp/dest/pais
@@ -375,7 +399,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
         import math
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM</span><span>WoW ND</span></div>'
+        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM · WoW</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
@@ -399,11 +423,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
                 wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
+            ipm_display = f'<span style="font-size:10px;">${fmt_num2(ipm_val)}</span> {wow_html}'
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
-                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
-                     f'<span class="cr">{wow_html}</span>'
+                     f'<span class="cr" style="display:flex;align-items:center;justify-content:flex-end;gap:3px;">{ipm_display}</span>'
                      f'</div>')
         return rows
 

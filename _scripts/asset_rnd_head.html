@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --paper:#F8F4EC;--paper-soft:#EFEADD;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+  --paper:#F8F4EC;--paper-soft:#F2EDE0;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
   --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#EA0074;--accent-soft:#FCE4F1;
   --amber:#EA0074;--amber-soft:#FCE4F1;--green:#4FC3F4;--green-soft:#E8F7FD;
   --navy:#161616;--navy-soft:#F2EEE6;--red:#EA0074;--red-soft:#FCE4F1;
@@ -124,7 +124,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-rpm-channel:checked ~ .tabs-row label[for="tab-rpm-channel"]{background:var(--paper);color:var(--amber);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
 /* === BLOQUES con tabs (Análisis por hotel + Por dimensión) === */
-.tabs-block{border:1px solid var(--rule);background:#F6EFE0;border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);}
+.tabs-block{border:1px solid var(--rule);background:var(--paper);border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);}
 .tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;margin-bottom:14px;}
 .tabs-block .tab-panels{padding-top:6px;font-size:12px;color:var(--ink);line-height:1.5;min-height:auto;}
 .tabs-block .tab-panel{display:none;}
@@ -189,11 +189,11 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .canasta-tabs .tab-panels{padding:18px 0 0;}
 .canasta-tabs .tab-panel-c{display:none;}
 .tabs-block .tab-panel-c{display:none;}
-.canasta-tabs .tab-panel-c .panel-row,.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 80px 60px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
+.canasta-tabs .tab-panel-c .panel-row,.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 75px 65px 48px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
 .canasta-tabs .tab-panel-c .panel-row .label,.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .canasta-tabs .tab-panel-c .panel-row .efic,.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
 .canasta-tabs .tab-panel-c .panel-row .cr,.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;}
-.canasta-tabs .tab-panel-c .panel-header,.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 80px 60px;gap:8px;padding:4px 0 6px;border-bottom:2px solid #EA0074;margin-bottom:4px;}
+.canasta-tabs .tab-panel-c .panel-header,.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 75px 65px 48px;gap:6px;padding:4px 0 6px;border-bottom:2px solid #EA0074;margin-bottom:4px;}
 .canasta-tabs .tab-panel-c .panel-header span,.tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
 .canasta-tabs .tab-panel-c .panel-header span:first-child,.tabs-block .tab-panel-c .panel-header span:first-child{color:#EA0074;}
 .canasta-tabs .tab-panel-c .panel-header span:not(:first-child),.tabs-block .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
@@ -210,7 +210,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .canasta-tabs input[id$="-provider"]:checked ~ .tab-panels .tab-panel-c[data-tab="provider"]{display:block;}
 /* Tabs-block canasta: Análisis por Hotel + Análisis por Dimensión */
 .tabs-block .tab-panel-c{display:none;}
-.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
+.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 75px 65px 48px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
 .tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;}
 .tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
 .tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;}
