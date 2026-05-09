@@ -247,22 +247,24 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 lab = truncate(str(raw), 24)
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
-            # Pill de banda
+            # Pill de banda (4 chars máx)
             bnd = banda_eficacia(r['Eficacia']) if 'Eficacia' in r.index else None
             if bnd:
                 bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
                 bbg = 'rgba(22,22,22,.80)' if bnd=='Súper Crítica' else bc['bg']
                 bfg = '#FFFFFF' if bnd=='Súper Crítica' else bc['fg']
+                bnd_short = {'Súper Crítica':'SÚPE','Crítica':'CRIT','Revisar':'REVI','Aceptable':'ACEP','Exitosa':'EXIT','Sin Conversión':'S/CV'}.get(bnd, bnd[:4])
                 pill_bnd = (f'<span style="display:inline-block;font-size:7px;font-weight:700;padding:1px 4px;border-radius:2px;'
-                           f'background:{bbg} !important;color:{bfg} !important;text-transform:uppercase;flex-shrink:0;">{bnd[:4]}</span>')
+                           f'background:{bbg} !important;color:{bfg} !important;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">{bnd_short}</span>')
             else:
-                pill_bnd = ''
-            # Pill WoW
+                pill_bnd = '<span style="display:inline-block;width:30px;"></span>'
+            # Pill WoW con umbral mínimo
             wow_pill = ''
             if wow_col and wow_col in r.index:
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v and wow_v is not None:
+                    import math
+                    if wow_v == wow_v and wow_v is not None and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.05:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb2 = '#EAF3DE' if mejora else '#FCE8E6'
@@ -488,11 +490,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── Bloque Dimensión · 3 tabs: Corp · Destino · Channel ──────────────────
     def dim_table_with_wow(df, dim_col, dim_label, start_idx=0):
-        """Tabla dimensión con columnas: Nombre · CR · BKGS · Eficacia · ConvRate · WoW.
-        pill de banda en nombre + pill WoW al final."""
+        """Tabla dimensión con columnas: Nombre · CR · BKGS · ConvRate · Eficacia · WoW."""
+        import math
         grid = '1fr 80px 60px 70px 70px 50px'
         rows = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:6px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
-        for h in [dim_label, 'CR', 'BKGS', 'Eficacia', 'ConvRate', 'WoW']:
+        for h in [dim_label, 'CR', 'BKGS', 'ConvRate', 'Eficacia', 'WoW']:
             align = 'left' if h == dim_label else 'right'
             color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
             rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
@@ -506,18 +508,18 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else:
                 lab = truncate(str(raw), 22)
             bnd = banda_eficacia(r['Eficacia'])
-            c = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-            bg = 'rgba(22,22,22,.80)' if bnd == 'Súper Crítica' else c['bg']
-            fg = '#FFFFFF' if bnd == 'Súper Crítica' else c['fg']
+            c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
+            bg = 'rgba(22,22,22,.80)' if bnd == 'Súper Crítica' else c_bnd['bg']
+            fg = '#FFFFFF' if bnd == 'Súper Crítica' else c_bnd['fg']
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
                          f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
-            # WoW pill
+            # WoW pill con umbral
             try:
                 wow_v = r['Eficacia_WoW_pp']
-                if wow_v != wow_v: wow_v = None  # NaN check
-            except (KeyError, TypeError):
+                if wow_v != wow_v or math.isnan(float(wow_v)): wow_v = None
+            except (KeyError, TypeError, ValueError):
                 wow_v = None
-            if wow_v is not None:
+            if wow_v is not None and abs(wow_v) >= 0.05:
                 mejora = wow_v > 0
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -526,14 +528,16 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wow_cell = f'<span style="text-align:right;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{wow_txt}</span>'
             else:
                 wow_cell = f'<span style="text-align:right;color:var(--ink-muted);font-size:9px;">—</span>'
+            cv_val = r.get('ConvRate', None)
+            cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
             n = start_idx + i + 1
             rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
                      f'<div style="display:flex;align-items:center;gap:4px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
                      f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}</span>{pill_banda}</div>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>'
                      f'{wow_cell}'
                      f'</div>')
         return rows

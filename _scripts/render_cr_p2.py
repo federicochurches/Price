@@ -457,9 +457,10 @@ def render_sin_conv():
 # ============ SECCIÓN POR DIMENSIÓN (Corp / Destino / Channel) ============
 def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
     """Renderiza una tabla (1 columna) con N filas. start_idx para numerar continuo."""
+    import math
     has_wow = wow_col and wow_col in df.columns
-    grid = '1fr 90px 70px 75px 70px 50px' if has_wow else '1fr 90px 70px 75px 70px'
-    headers = [dim_label,'CR únicos','BKGS','Eficacia','ConvRate']
+    grid = '1fr 90px 70px 70px 75px 50px' if has_wow else '1fr 90px 70px 70px 75px'
+    headers = [dim_label,'CR únicos','BKGS','ConvRate','Eficacia']
     if has_wow: headers.append('WoW')
     rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
     for label in headers:
@@ -477,22 +478,27 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
                 f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;">{bnd}</span>')
         n = start_idx + i + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
+        cv_val = r.get('ConvRate', None)
+        cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
         cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};display:flex;align-items:center;gap:4px;min-width:0;">'
                  f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {label_val}</span>{pill}</div></div>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
+                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                 f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
         if has_wow:
             wow_v = r.get(wow_col, None)
-            if wow_v is not None and wow_v == wow_v:  # not NaN
-                mejora = wow_v > 0
-                wc = '#2F6C34' if mejora else '#C0392B'
-                wbg = '#EAF3DE' if mejora else '#FCE8E6'
-                arrow = '↑' if wow_v > 0 else '↓'
-                txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};text-align:right;">{txt}</em>'
-            else:
+            try:
+                if wow_v is not None and wow_v == wow_v and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.05:
+                    mejora = wow_v > 0
+                    wc = '#2F6C34' if mejora else '#C0392B'
+                    wbg = '#EAF3DE' if mejora else '#FCE8E6'
+                    arrow = '↑' if wow_v > 0 else '↓'
+                    txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                    wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};text-align:right;">{txt}</em>'
+                else:
+                    wow_html = '<span style="text-align:right;color:var(--ink-muted);font-size:10px;">—</span>'
+            except:
                 wow_html = '<span style="text-align:right;color:var(--ink-muted);font-size:10px;">—</span>'
             cells += wow_html
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
