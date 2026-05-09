@@ -364,8 +364,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_br_c  = c.get('bajo_rend',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM').head(10))
     df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False).head(10))
 
-    bloque_hotel_html = f'''<div style="margin:40px 0 24px;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Hotel</div>
+    bloque_hotel_html = f'''<div style="margin:32px 0 0;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
 <div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -398,8 +398,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_dest' in c else df_dest
     df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_pais' in c else df_pais
 
-    bloque_dim_html = f'''<div style="margin:40px 0 24px;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;">Análisis por Dimensión</div>
+    bloque_dim_html = f'''<div style="margin:32px 0 0;">
+<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">📊 Análisis por Dimensión</div>
 <div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>

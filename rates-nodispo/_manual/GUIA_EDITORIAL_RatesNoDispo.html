@@ -134,6 +134,28 @@ ul li { margin-bottom: 6px; }
   </table>
   Para agregar más abreviaturas, editar <code>_CORP_REPLACEMENTS</code> en <code>render_helpers.py</code>.
 
+<li><strong>Espaciado entre secciones · post W19:</strong>
+  <ul>
+    <li>Hero: <code>padding-bottom:40px; margin-bottom:40px</code> (antes 64px/80px)</li>
+    <li>Severity: <code>margin-top:48px</code> para separarse del RE</li>
+    <li>Análisis por Canasta (<code>por-canasta</code>): <code>margin-top:48px</code> para separarse del Plan global</li>
+    <li>Dentro de canasta: wrapper Hotel/Dimensión <code>margin:32px 0 0</code>, Plan de Acción <code>margin-top:48px</code></li>
+    <li>CSS base: <code>section { margin-bottom:64px }</code> uniforme</li>
+  </ul>
+</li>
+
+<li><strong>Iconos de subtítulos en canasta · post W19:</strong>
+  <ul>
+    <li>🏨 Análisis por Hotel</li>
+    <li>📊 Análisis por Dimensión</li>
+  </ul>
+  Consistencia visual con el ícono de Plan de Acción. Implementado en <code>render_rnd_p3.py</code>.
+</li>
+
+<li><strong>"Demanda NC" → "Demanda No Convertida" · post W19:</strong>
+  Renombrado en todos los labels de tabs de hotel (canastas y global). Implementado en <code>render_rnd_p3.py</code> y <code>render_rnd_p2.py</code>.
+</li>
+
 <li><strong>Síntesis ejecutiva · eliminada post W19:</strong> El bloque de síntesis fue eliminado de las 3 canastas por inestabilidad de renderizado. La variable <code>sintesis_html</code> fue removida de <code>render_rnd_p3.py</code> y del ensamblado del <code>render_canasta_block()</code>.</li><li><strong>WoW por ítem en tabs · post W19:</strong> pill de delta WoW inline después del valor, solo en tabs <strong>País · Destino · Corp</strong>. NO aplica en Hotel (alta rotación, muchos sin dato W17) ni en Canasta (WoW ya visible en wow_box de la card).
   <table>
     <tr><th>Clase CSS</th><th>Contexto</th><th>Color texto</th><th>Fondo</th><th>Cuándo</th></tr>
