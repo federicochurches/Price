@@ -15,7 +15,23 @@ g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
 g_corp_w17 = D.get('g_corp_w17', None)
 g_dest_w17 = D.get('g_dest_w17', None)
+g_hotel_w17 = D.get('g_hotel_w17', None)
 hotel_channel_map = D.get('hotel_channel_map', {})
+
+# Enriquecer TOP hoteles con WoW Eficacia/ConvRate y Channel
+def _enrich_hotel_df(df):
+    out = df.copy()
+    if g_hotel_w17 is not None and 'Hotel' in out.columns:
+        out = out.merge(g_hotel_w17[['Hotel','Eficacia_W17','ConvRate_W17']], on='Hotel', how='left')
+        out['Eficacia_WoW_pp'] = (out['Eficacia'] - out['Eficacia_W17']) * 100
+        out['ConvRate_WoW_pp'] = (out['ConvRate'] - out['ConvRate_W17']) * 100 if 'ConvRate' in out.columns else None
+    if hotel_channel_map:
+        out['Channel'] = out['Hotel'].map(hotel_channel_map).fillna('N/D')
+    return out
+
+for _key in ['criticos','criticos_extra','bajo_rend','bajo_rend_extra','sin_conv','sin_conv_extra','menor_cv']:
+    if _key in TOP:
+        TOP[_key] = _enrich_hotel_df(TOP[_key])
 
 CR_ACCENT = '#5C469C'
 
@@ -304,6 +320,18 @@ def render_severities_combinadas():
 </section>
 '''
 
+
+def _fmt_wow(v):
+    """Formatea delta WoW en pp con arrow y guion para NaN/0."""
+    import math
+    if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))): return '—'
+    if abs(v) < 0.05: return '—'
+    arrow = '↑' if v > 0 else '↓'
+    wc = '#2F6C34' if v > 0 else '#C0392B'
+    wb = '#EAF3DE' if v > 0 else '#FCE8E6'
+    txt = f'{arrow}{abs(v):.1f}'.replace('.', ',')
+    return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
+
 # ============ SECCIÓN TOP 5 helper ============
 def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
     grid = ' '.join(c['width'] for c in cols_def)
@@ -324,10 +352,12 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
             if c.get('key') == 'hotel':
                 hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36)
                 sub = clean_corp_name(r.get('CorpName',''))
-                chan = hotel_channel_map.get(r.get('Hotel',''), '')
-                sub_line = f'{sub} · {chan}' if chan and chan != sub else sub
+                chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
+                sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
                 row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                               f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub_line}</div></div>')
+            elif c.get('key') == 'wow':
+                row_cells += f'<span style="text-align:right;">{val}</span>'
             else:
                 row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{row_cells}</div>'
@@ -338,9 +368,9 @@ def render_criticos():
     df2 = TOP['criticos_extra']
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     col1 = render_top_table_cr(df1, cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -367,9 +397,9 @@ def render_bajo_rendimiento():
     df2 = TOP['bajo_rend_extra']
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     col1 = render_top_table_cr(df1, cols)
     df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
@@ -396,7 +426,7 @@ def render_sin_conv():
     df2 = TOP['sin_conv_extra']
     cols = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
     ]
@@ -704,13 +734,13 @@ def render_bloque_hoteles_cr():
     """Sección 04 · 4 tabs: Críticos · Bajo Rend · Sin Conv · Menor CR."""
     cols_main = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
-        {'key':'cv','label':'ConvRate','width':'70px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
+        {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'cr','label':'CR únicos','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
+        {'key':'cr','label':'Checkrates','width':'80px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'70px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
     ]

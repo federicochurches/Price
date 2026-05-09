@@ -366,6 +366,7 @@ D = {
             .reset_index().sort_values('CR_Unicos', ascending=False)
             .drop_duplicates('Hotel').set_index('Hotel')['ExternalProviderName'].to_dict()
     ),
+    'g_hotel_w17': g_hotel_w17,
 }
 
 with open('cr_w18_data.pkl','wb') as f:
