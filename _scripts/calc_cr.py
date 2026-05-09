@@ -44,9 +44,10 @@ def _agg_dim_w17(df, col):
     g['ConvRate_W17']  = g['Bookings_W17']/g['CR_Unicos_W17']
     return g
 
-g_dest_w17  = _agg_dim_w17(df17, 'Destino')
-g_corp_w17  = _agg_dim_w17(df17, 'CorpName')
-g_hotel_w17 = _agg_dim_w17(df17, 'Hotel')
+g_dest_w17    = _agg_dim_w17(df17, 'Destino')
+g_corp_w17    = _agg_dim_w17(df17, 'CorpName')
+g_hotel_w17   = _agg_dim_w17(df17, 'Hotel')
+g_channel_w17 = _agg_dim_w17(df17, 'ExternalProviderName')
 
 # ── P80 GLOBAL ────────────────────────────────────────────────────────────────
 def calc_p80(df):
@@ -163,6 +164,17 @@ TOP = {
 }
 
 # ── TABS HERO (Eficacia + ConvRate) ────────────────────────────────────────────
+
+def _add_wow_channel(g_ch, metric_col):
+    """Merge WoW W17 a g_channel por ExternalProviderName."""
+    ref_col = metric_col + '_W17'
+    merged = g_ch.merge(
+        g_channel_w17[['ExternalProviderName', ref_col]],
+        on='ExternalProviderName', how='left'
+    )
+    merged[metric_col + '_WoW_pp'] = (merged[metric_col] - merged[ref_col]) * 100
+    return merged.sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+
 def tab_eficacia():
     """Aggregados para tabs del KPI Eficacia."""
     g_d = df18.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
@@ -200,7 +212,7 @@ def tab_eficacia():
         'destino': df_d,
         'corp':    df_c,
         'hotel':   df_h,
-        'channel': g_ch.sort_values('CR_Unicos', ascending=False).reset_index(drop=True),
+        'channel': _add_wow_channel(g_ch, 'Eficacia'),
         'canasta': g_can.sort_values('Eficacia').reset_index(drop=True),
     }
 
@@ -238,7 +250,7 @@ def tab_convrate():
         'destino': df_d,
         'corp':    df_c,
         'hotel':   df_h,
-        'channel': g_ch.sort_values('CR_Unicos', ascending=False).reset_index(drop=True),
+        'channel': _add_wow_channel(g_ch, 'ConvRate'),
         'canasta': g_can.sort_values('ConvRate').reset_index(drop=True),
     }
 
@@ -348,6 +360,7 @@ D = {
     'p80_hotels': p80_hotels,
     'g_corp_w17': g_corp_w17,
     'g_dest_w17': g_dest_w17,
+    'g_channel_w17': g_channel_w17,
 }
 
 with open('cr_w18_data.pkl','wb') as f:

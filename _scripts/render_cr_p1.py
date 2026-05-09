@@ -138,12 +138,28 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
             # Split en Producto Propio + Third Party (ordenado peor→mejor por Eficacia)
             df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('Eficacia').reset_index(drop=True)
             df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('Eficacia').reset_index(drop=True)
-            rows_pp = ''
-            for i, r in df_pp.iterrows():
-                rows_pp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
-            rows_tp = ''
-            for i, r in df_tp.iterrows():
-                rows_tp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["Eficacia"])}</span></div>'
+
+            def chan_row(i, r, val_col):
+                val_str = fmt_pct2(r[val_col]) if val_col in r and r[val_col] == r[val_col] else '—'
+                wow_col = val_col + '_WoW_pp'
+                wow_pill = ''
+                try:
+                    wow_v = r[wow_col]
+                    if wow_v == wow_v:
+                        mejora = wow_v > 0
+                        wc = '#2F6C34' if mejora else '#C0392B'
+                        wb = '#EAF3DE' if mejora else '#FCE8E6'
+                        arrow = '↑' if wow_v > 0 else '↓'
+                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;">{wow_txt}</em>'
+                except: pass
+                return (f'<div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px;">'
+                        f'<strong style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {r["ExternalProviderName"]}</strong>'
+                        f'<span style="text-align:right;">{val_str}</span>'
+                        f'{wow_pill}</div>')
+
+            rows_pp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_pp.iterrows())
+            rows_tp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_tp.iterrows())
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
@@ -247,12 +263,28 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
             # Split en Producto Propio + Third Party (peor→mejor por ConvRate)
             df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('ConvRate').reset_index(drop=True)
             df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('ConvRate').reset_index(drop=True)
-            rows_pp = ''
-            for i, r in df_pp.iterrows():
-                rows_pp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
-            rows_tp = ''
-            for i, r in df_tp.iterrows():
-                rows_tp += f'<div><strong>{i+1}. {r["ExternalProviderName"]}</strong> <span>{fmt_pct2(r["ConvRate"])}</span></div>'
+
+            def chan_row_cv(i, r, val_col):
+                val_str = fmt_pct2(r[val_col]) if val_col in r and r[val_col] == r[val_col] else '—'
+                wow_col = val_col + '_WoW_pp'
+                wow_pill = ''
+                try:
+                    wow_v = r[wow_col]
+                    if wow_v == wow_v:
+                        mejora = wow_v > 0
+                        wc = '#2F6C34' if mejora else '#C0392B'
+                        wb = '#EAF3DE' if mejora else '#FCE8E6'
+                        arrow = '↑' if wow_v > 0 else '↓'
+                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;">{wow_txt}</em>'
+                except: pass
+                return (f'<div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:4px;">'
+                        f'<strong style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {r["ExternalProviderName"]}</strong>'
+                        f'<span style="text-align:right;">{val_str}</span>'
+                        f'{wow_pill}</div>')
+
+            rows_pp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_pp.iterrows())
+            rows_tp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_tp.iterrows())
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
