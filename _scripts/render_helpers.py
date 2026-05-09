@@ -169,6 +169,8 @@ def clean_pais_name(name, max_len=22):
 # ── Normalización de nombres de corporativo ───────────────────────────────────
 _CORP_REPLACEMENTS = {
     'Hyatt Inclusive Collection': 'HIC',
+    'Caesars Entertainment':      'Caesars',
+    'MGM Resorts':                'MGM',
 }
 
 def clean_corp_name(name, max_len=28):

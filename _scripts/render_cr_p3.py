@@ -231,25 +231,49 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>'''
 
     # ── Tab rows con pills WoW ────────────────────────────────────────────────
-    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='Eficacia', is_cv=False):
+    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False):
         rows_l, rows_r = '', ''
         df10 = df.head(10).reset_index(drop=True)
         for i, r in df10.iterrows():
             raw = r[dim_col]
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw), 26)
+                lab = truncate(clean_hotel_name(raw), 24)
             elif dim_col == 'CorpName':
-                lab = truncate(clean_corp_name(raw), 26)
+                lab = truncate(clean_corp_name(raw), 24)
+            elif dim_col == 'Destino':
+                lab = clean_destino_name(raw, 24)
             else:
-                lab = truncate(str(raw), 26)
+                lab = truncate(str(raw), 24)
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
-            apply_wow = wow_map is not None and not parse_hotel
-            pill = get_pill_wow(str(raw), wow_map) if apply_wow else ''
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">{val_str}</span>'
-                    f'{pill}</div>')
+            # Pill de banda
+            bnd = banda_eficacia(r['Eficacia']) if 'Eficacia' in r.index else None
+            if bnd:
+                bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
+                bbg = 'rgba(22,22,22,.80)' if bnd=='Súper Crítica' else bc['bg']
+                bfg = '#FFFFFF' if bnd=='Súper Crítica' else bc['fg']
+                pill_bnd = (f'<span style="display:inline-block;font-size:7px;font-weight:700;padding:1px 4px;border-radius:2px;'
+                           f'background:{bbg} !important;color:{bfg} !important;text-transform:uppercase;flex-shrink:0;">{bnd[:4]}</span>')
+            else:
+                pill_bnd = ''
+            # Pill WoW
+            wow_pill = ''
+            if wow_col and wow_col in r.index:
+                try:
+                    wow_v = r[wow_col]
+                    if wow_v == wow_v and wow_v is not None:
+                        mejora = wow_v > 0
+                        wc = '#2F6C34' if mejora else '#C0392B'
+                        wb2 = '#EAF3DE' if mejora else '#FCE8E6'
+                        arrow = '↑' if wow_v > 0 else '↓'
+                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};flex-shrink:0;">{wow_txt}</em>'
+                except: pass
+            cell = (f'<div style="display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:3px;">'
+                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">{i+1}. {lab}</strong>'
+                    f'{pill_bnd}'
+                    f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
+                    f'{wow_pill}</div>')
             if i < 5:
                 rows_l += cell
             else:
@@ -280,7 +304,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             dim_col = {'destino':'Destino','corp':'CorpName','hotel':'Hotel','channel':'ExternalProviderName'}.get(tk, tk)
             parse_hotel = tk == 'hotel'
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
-            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col)
+            # wm es ahora el nombre de la columna WoW (string) o None
+            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col)
             panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
         return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
@@ -299,21 +324,45 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     agg_dest = c['agg_destino'] if 'agg_destino' in c else c['g_dest']
     agg_chan  = c['agg_channel']
 
-    df_dest_ef = agg_dest.sort_values('Eficacia').head(10).reset_index(drop=True)
-    df_corp_ef = agg_corp.sort_values('Eficacia').head(10).reset_index(drop=True)
-    df_hot_ef  = p80.sort_values('Eficacia').head(10).reset_index(drop=True)
-    df_dest_cv = agg_dest.sort_values('ConvRate').head(10).reset_index(drop=True)
-    df_corp_cv = agg_corp.sort_values('ConvRate').head(10).reset_index(drop=True)
-    df_hot_cv  = p80.sort_values('ConvRate').head(10).reset_index(drop=True)
+    # Filtro P50 para excluir volumen insignificante
+    p50_d = agg_dest['CR_Unicos'].quantile(0.50)
+    p50_c = agg_corp['CR_Unicos'].quantile(0.50)
+    p50_h = p80['CR_Unicos'].quantile(0.50)
+
+    # Merge WoW con refs globales W17
+    ref_corp_w17 = D.get('g_corp_w17', None)
+    ref_dest_w17 = D.get('g_dest_w17', None)
+
+    def add_wow_to_tab(df, dim_col, metric_col, ref_w17, wow_col):
+        if ref_w17 is None: return df
+        df = df.merge(ref_w17[[dim_col, wow_col.replace('_WoW_pp','_W17')]], on=dim_col, how='left')
+        ref_val_col = wow_col.replace('_WoW_pp','_W17')
+        df[wow_col] = (df[metric_col] - df[ref_val_col]) * 100
+        return df
+
+    d_ef = agg_dest[agg_dest['CR_Unicos']>=p50_d].sort_values('Eficacia').head(10).reset_index(drop=True)
+    d_ef = add_wow_to_tab(d_ef, 'Destino', 'Eficacia', ref_dest_w17, 'Eficacia_WoW_pp')
+    c_ef = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
+    c_ef = add_wow_to_tab(c_ef, 'CorpName', 'Eficacia', ref_corp_w17, 'Eficacia_WoW_pp')
+    h_ef = p80[p80['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
+
+    d_cv = agg_dest[agg_dest['CR_Unicos']>=p50_d].sort_values('ConvRate').head(10).reset_index(drop=True)
+    d_cv = add_wow_to_tab(d_cv, 'Destino', 'ConvRate', ref_dest_w17, 'ConvRate_WoW_pp')
+    c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
+    c_cv = add_wow_to_tab(c_cv, 'CorpName', 'ConvRate', ref_corp_w17, 'ConvRate_WoW_pp')
+    h_cv = p80[p80['CR_Unicos']>=p50_h].sort_values('ConvRate').head(10).reset_index(drop=True)
+
+    df_dest_ef = d_ef; df_corp_ef = c_ef; df_hot_ef = h_ef
+    df_dest_cv = d_cv; df_corp_cv = c_cv; df_hot_cv = h_cv
 
     tabs_ef = [
-        ('destino', 'Destino', df_dest_ef, None),
-        ('corp',    'Corp',    df_corp_ef, None),
+        ('destino', 'Destino', df_dest_ef, 'Eficacia_WoW_pp'),
+        ('corp',    'Corp',    df_corp_ef, 'Eficacia_WoW_pp'),
         ('hotel',   'Hotel',   df_hot_ef,  None),
     ]
     tabs_cv = [
-        ('destino', 'Destino', df_dest_cv, None),
-        ('corp',    'Corp',    df_corp_cv, None),
+        ('destino', 'Destino', df_dest_cv, 'ConvRate_WoW_pp'),
+        ('corp',    'Corp',    df_corp_cv, 'ConvRate_WoW_pp'),
         ('hotel',   'Hotel',   df_hot_cv,  None),
     ]
 
@@ -430,7 +479,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             bg = 'rgba(22,22,22,.80)' if bnd == 'Súper Crítica' else c['bg']
             fg = '#FFFFFF' if bnd == 'Súper Crítica' else c['fg']
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
-                         f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;margin-left:4px;vertical-align:middle;">{bnd}</span>')
+                         f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
             # WoW pill
             try:
                 wow_v = r['Eficacia_WoW_pp']
@@ -448,7 +497,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wow_cell = f'<span style="text-align:right;color:var(--ink-muted);font-size:9px;">—</span>'
             n = start_idx + i + 1
             rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
-                     f'<div style="font-weight:600;color:{CR_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}{pill_banda}</div>'
+                     f'<div style="display:flex;align-items:center;gap:4px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
+                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}</span>{pill_banda}</div>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'

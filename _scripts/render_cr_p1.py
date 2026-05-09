@@ -159,6 +159,10 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
                 lab = r['Canasta']; val = r['Eficacia']
             elif t_key=='hotel':
                 lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['Eficacia']
+            elif t_key=='corp':
+                lab = truncate(clean_corp_name(r['CorpName']), 26); val = r['Eficacia']
+            elif t_key=='destino':
+                lab = clean_destino_name(r['Destino'], 26); val = r['Eficacia']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['Eficacia']
@@ -264,6 +268,10 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
                 lab = r['Canasta']; val = r['ConvRate']
             elif t_key=='hotel':
                 lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['ConvRate']
+            elif t_key=='corp':
+                lab = truncate(clean_corp_name(r['CorpName']), 26); val = r['ConvRate']
+            elif t_key=='destino':
+                lab = clean_destino_name(r['Destino'], 26); val = r['ConvRate']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['ConvRate']

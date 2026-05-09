@@ -322,7 +322,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
             color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink)'
             if c.get('key') == 'hotel':
                 hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36)
-                sub = r.get('CorpName','')
+                sub = clean_corp_name(r.get('CorpName',''))
                 row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                               f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div></div>')
             else:
@@ -441,10 +441,11 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
         bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E8F7FD')
         bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
-                f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
+                f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;">{bnd}</span>')
         n = start_idx + i + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
-        cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};line-height:1.3;">{n}. {label_val}{pill}</div></div>'
+        cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};display:flex;align-items:center;gap:4px;min-width:0;">'
+                 f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {label_val}</span>{pill}</div></div>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                  f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
