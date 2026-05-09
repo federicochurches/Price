@@ -345,7 +345,7 @@ for c_key in ['B2C','B2B-OP','CUG']:
     add_canasta_sheets(wb, c_key, CANASTA[c_key])
 
 # Save Excel global
-out = '/mnt/user-data/outputs/Analisis_CheckRates_W18.xlsx'
+out = '/mnt/user-data/outputs/Analisis_Checkrates_7d.xlsx'
 wb.save(out)
 print(f'Excel CR escrito: {out}')
 print(f'Pestañas: {len(wb.sheetnames)}')
@@ -357,7 +357,7 @@ for c_key in ['B2C','B2B-OP','CUG']:
     wb_c = WB2()
     wb_c.remove(wb_c.active)  # Sacar Sheet por default
     add_canasta_sheets(wb_c, c_key, CANASTA[c_key], prefix='')
-    out_c = f'/mnt/user-data/outputs/Analisis_CheckRates_{canasta_filename[c_key]}_W18.xlsx'
+    out_c = f'/mnt/user-data/outputs/Analisis_Checkrates_{canasta_filename[c_key]}_7d.xlsx'
     wb_c.save(out_c)
     print(f'  ✓ Excel canasta {canasta_filename[c_key]}: {len(wb_c.sheetnames)} pestañas')
 for s in wb.sheetnames: print(f'  - {s}')
