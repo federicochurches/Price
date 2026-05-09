@@ -209,7 +209,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         rows = f'<div class="panel-header"><span>{dim_label}</span><span>{val_label}</span><span>BKGS</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
-            label = clean_hotel_name(raw) if parse_hotel else raw
+            if parse_hotel:
+                label = clean_hotel_name(raw)
+            elif dim_col == 'CorpName':
+                label = clean_corp_name(raw)
+            else:
+                label = raw
             label = truncate(label, 28)
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx + i + 1}. {label}</span>'
@@ -238,7 +243,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         body = f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col_pp}</div><div>{col_tp}</div></div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
     
-    tabs_html = f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">Tabs por dimensión</h3>
+    tabs_html = f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 12px;color:var(--ink);">📊 Análisis por dimensión</h3>
 <div class="canasta-tabs canasta-tabs-{idx_str}" style="margin:8px 0 24px;">
 <input checked="" id="tab-cb-{idx_str}-destino" name="tabs-cb-{idx_str}" type="radio"/>
 <input id="tab-cb-{idx_str}-corp" name="tabs-cb-{idx_str}" type="radio"/>
@@ -370,7 +375,7 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
         f'</div>'
     )
     
-    plan_canasta_html = f'''<div style="margin-top:24px;">
+    plan_canasta_html = f'''<div style="margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);">
 <h3 style="font-size:13px;font-weight:700;color:{CR_ACCENT};text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">Plan de Acción · canasta {canasta_label}</h3>
 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">{plan_canasta_rows}</div>
 </div>'''
@@ -388,7 +393,7 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 <a href="{excel_canasta_url}" style="display:inline-block;padding:6px 14px;background:{CR_ACCENT};color:#fff;font-size:11px;font-weight:600;text-decoration:none;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;">Excel ↗</a>
 </div>'''
     
-    return f'''{extra_css}<details class="canasta-block">
+    return f'''{extra_css}<details class="canasta-block" style="margin-bottom:32px;">
 <summary>
 <div class="summary-title">
 <h2>Canasta {c['short']}</h2>
@@ -403,8 +408,6 @@ Canasta {c["short"]} con {fmt_int_es(n_p80)} hoteles P80. <strong>{fmt_int_es(n_
 {severity_canasta_html}
 {tabs_html}
 
-
-{sintesis_html}
 {plan_canasta_html}
 {banner_descarga_canasta}
 </div>
