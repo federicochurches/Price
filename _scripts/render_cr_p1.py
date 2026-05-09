@@ -23,7 +23,11 @@ with open('asset_cr_head.html') as f: HEAD = f.read()
 # ============ MASTHEAD ============
 def render_masthead():
     import re
-    with open('/mnt/project/_TEMPLATE_CheckRates_Reporte.html') as f:
+    import os
+    tmpl_cr = '/mnt/project/_TEMPLATE_CheckRates_Reporte.html'
+    tmpl_rnd = '/mnt/project/_TEMPLATE_RatesNoDispo_Reporte.html'
+    tmpl_path = tmpl_cr if os.path.exists(tmpl_cr) else tmpl_rnd
+    with open(tmpl_path) as f:
         tmpl = f.read()
     m = re.search(r'src="(data:image/png;base64,[^"]+)"', tmpl)
     LOGO = m.group(1) if m else ''
@@ -313,8 +317,8 @@ def render_alerts_block():
         for it in items:
             cells += (f'<div style="background:var(--paper);padding:8px 10px;border-radius:3px;">'
                       f'<div style="font-size:8px;font-weight:700;color:{it["pill_color"]};background:{it["pill_bg"]};padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">{it["pill"]}</div>'
-                      f'<div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["name"]}</div>'
-                      f'<div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["sub"]}</div>'
+                      f'<div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">{it["name"]}</div>'
+                      f'<div style="font-size:7px;color:var(--ink-muted);margin-top:1px;">{it["sub"]}</div>'
                       f'<div style="font-size:18px;font-weight:600;color:{it["pill_color"]};margin-top:6px;letter-spacing:-.02em;line-height:1;">{it["value"]}</div>'
                       f'<div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">{it["foot"]}</div>'
                       f'</div>')
