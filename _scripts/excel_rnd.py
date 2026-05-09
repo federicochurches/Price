@@ -9,7 +9,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
 
-with open('/home/claude/rnd_w18_data.pkl','rb') as f:
+with open('/home/claude/final_w18/rnd_w18_data.pkl','rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; CANASTA = D['CANASTA']
 sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
@@ -81,7 +81,7 @@ def add_table(ws, df, start_row=5, num_formats=None, banda_col=None):
 # ==================== HOJA 1: SEVERITY %NoDispo ====================
 ws2 = wb.create_sheet('Severity %NoDispo')
 add_title(ws2, 'Severity · %NoDispo', f'P80 · {len(p80_hotel)} hoteles · target <3%')
-total = int(sev_nd.sum())
+total = int(sum(sev_nd.values()))
 data = []
 for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']:
     rng = {'Súper Crítica':'>60%','Crítica':'20-60%','Revisar':'5-20%','Aceptable':'3-5%','Exitosa':'<3%'}[n]
@@ -93,7 +93,7 @@ add_table(ws2, df_sev, start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
 # ==================== HOJA 2: SEVERITY IPM (Income Per Million USD) ====================
 ws3 = wb.create_sheet('Severity IPM')
 add_title(ws3, 'Severity · IPM (Income Per Million USD)', f'P80 · {len(p80_hotel)} hoteles · target ≥ $650')
-total_rpm = int(sev_rpm.sum())
+total_rpm = int(sum(sev_rpm.values()))
 data = []
 for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
     rng = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200-$650','Aceptable':'$650-$1500','Exitosa':'≥$1500'}[n]
@@ -316,7 +316,7 @@ def add_canasta_sheets_rnd(wb_target, key, c, prefix=None):
     ws_de = wb_target.create_sheet(full_name('Por Destino'))
     add_title(ws_de, f'Canasta {short} · Por Destino',
               f'{c["name"]} · Top 50 destinos · ordenado por tráfico ↓')
-    df_de = c['agg_destino'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
+    df_de = c['agg_dest'].copy().sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
     df_de.insert(0,'Rk', range(1, len(df_de)+1))
     cols_de = [col for col in ['Rk','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_de.columns]
     add_table(ws_de, df_de[cols_de], start_row=5,

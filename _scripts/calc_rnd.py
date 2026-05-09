@@ -1,234 +1,256 @@
 """
-Cálculo final · todas las métricas, rankings, deltas RND W18
+calc_rnd v2 · lee directamente de Excel W18 + W17 · calcula WoW reales
 """
-import pandas as pd, numpy as np
-import pickle
-from engine import *
+import pandas as pd, numpy as np, pickle, sys, os
+sys.path.insert(0, os.path.dirname(__file__))
+from engine import banda_nodispo, banda_rpm
 
-rnd_w18 = clean_rnd(pd.read_pickle('rnd_w18.pkl'))
-rnd_w17 = clean_rnd(pd.read_pickle('rnd_w17.pkl'))
+# ── Cargar datasets ───────────────────────────────────────────────
+def load_rnd(path, week):
+    df = pd.read_excel(path)
+    if df.columns[0] != 'CorpName':
+        df = df.rename(columns={df.columns[0]: 'CorpName'})
+    df = df[df['DistributionCategory'].isin(['B2C','B2B (OP)','CUG (UOP)'])].copy()
+    df['Hotel']   = df['Hotel'].astype(str).str.strip()
+    df['CorpName']= df['CorpName'].astype(str).str.strip()
+    df['Destino'] = df['Destino'].astype(str).str.strip()
+    df['TraficoNoDispo'] = df['Trafico'] * df['%NoDispo']
+    df['IPM'] = (df['gb_usd'] / df['Trafico'].replace(0,np.nan) * 1_000_000).fillna(0)
+    df['ConvRate'] = (df['Bookings'] / df['Trafico'].replace(0,np.nan)).fillna(0)
+    df['DemandaNoConvertida'] = df['TraficoNoDispo']
+    print(f'  W{week}: {len(df):,} filas · {df["DistributionCategory"].value_counts().to_dict()}')
+    return df
 
-# --------- métricas globales y por canasta ----------
-M = {}
-M['global_w18'] = metrics_rnd_global(rnd_w18)
-M['global_w17'] = metrics_rnd_global(rnd_w17)
-for c in ['B2C','B2B (OP)','CUG (UOP)']:
-    M[f'{c}_w18'] = metrics_rnd_global(rnd_w18[rnd_w18['DistributionCategory']==c])
-    M[f'{c}_w17'] = metrics_rnd_global(rnd_w17[rnd_w17['DistributionCategory']==c])
+print('Cargando datasets...')
+df18 = load_rnd('Dataset_RatesNoDispo_W18.xlsx', 18)
+df17 = load_rnd('Dataset_RatesNoDispo_W17.xlsx', 17)
 
-# --------- aggregados por nivel (TODOS) ----------
-def make_hotel_agg(df):
+# ── Funciones de agregación ───────────────────────────────────────
+def agg_hotel(df):
     g = df.groupby(['Hotel','CorpName','PaisDestino','Destino']).agg(
-        Trafico=('Trafico','sum'),
-        Bookings=('Bookings','sum'),
-        gb_usd=('gb_usd','sum'),
-        TraficoNoDispo=('Trafico', lambda x: (x * df.loc[x.index, '%NoDispo']).sum()),
+        Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
+        gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
     ).reset_index()
-    g['%NoDispo'] = (g['TraficoNoDispo'] / g['Trafico'].replace(0, np.nan)).fillna(0)
-    g['RPM'] = (g['gb_usd'] / g['Trafico'].replace(0, np.nan) * 1_000_000).fillna(0)
-    g['ConvRate'] = (g['Bookings'] / g['Trafico'].replace(0, np.nan)).fillna(0)
-    g['BandaNoDispo'] = g['%NoDispo'].apply(banda_nodispo)
-    g['BandaRPM'] = g.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
-    g['DemandaNoConvertida'] = g['Trafico'] * g['%NoDispo']
+    g['%NoDispo']            = (g['TraficoNoDispo']/g['Trafico'].replace(0,np.nan)).fillna(0)
+    g['IPM']                 = (g['gb_usd']/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
+    g['RPM']                 = g['IPM']
+    g['ConvRate']            = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
+    g['DemandaNoConvertida'] = g['TraficoNoDispo']
+    g['BandaNoDispo']        = g['%NoDispo'].apply(banda_nodispo)
+    g['BandaRPM']            = g['IPM'].apply(banda_rpm)
     return g
 
-g_hotel_w18 = make_hotel_agg(rnd_w18)
-g_hotel_w17 = make_hotel_agg(rnd_w17)
-g_destino_w18 = aggregate_rnd(rnd_w18, 'Destino')
-g_destino_w17 = aggregate_rnd(rnd_w17, 'Destino')
-g_corp_w18 = aggregate_rnd(rnd_w18, 'CorpName')
-g_corp_w17 = aggregate_rnd(rnd_w17, 'CorpName')
-g_pais_w18 = aggregate_rnd(rnd_w18, 'PaisDestino')
-g_pais_w17 = aggregate_rnd(rnd_w17, 'PaisDestino')
+def agg_dim(df, col):
+    g = df.groupby(col).agg(
+        Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
+        gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
+    ).reset_index()
+    g['%NoDispo'] = (g['TraficoNoDispo']/g['Trafico'].replace(0,np.nan)).fillna(0)
+    g['IPM']      = (g['gb_usd']/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
+    g['RPM']      = g['IPM']
+    g['ConvRate'] = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
+    g['BandaNoDispo'] = g['%NoDispo'].apply(banda_nodispo)
+    g['BandaRPM']     = g['IPM'].apply(banda_rpm)
+    return g
 
-# --------- P80 ----------
-p80_hotel_w18 = pareto_p80(g_hotel_w18, 'Trafico')
-
-# --------- Severity counts (en P80) ----------
-sev_nd = p80_hotel_w18['BandaNoDispo'].value_counts().reindex(
-    ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']).fillna(0).astype(int)
-sev_rpm = p80_hotel_w18['BandaRPM'].value_counts().reindex(
-    ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']).fillna(0).astype(int)
-
-# --------- TOP 5 listas ----------
-TOP = {}
-# Demanda no convertida
-TOP['demanda_nc'] = g_hotel_w18.sort_values('DemandaNoConvertida', ascending=False).head(5).reset_index(drop=True)
-TOP['demanda_nc_extra'] = g_hotel_w18.sort_values('DemandaNoConvertida', ascending=False).iloc[5:10].reset_index(drop=True)
-
-# Bajo Rendimiento (P80, BKGS>0, RPM>0, RPM por debajo del P50 procesable)
-proc_p80 = p80_hotel_w18[(p80_hotel_w18['Bookings']>0) & (p80_hotel_w18['RPM']>0)]
-rpm_p50_proc = proc_p80['RPM'].quantile(0.50)
-mask_br = (p80_hotel_w18['Bookings'] > 0) & (p80_hotel_w18['RPM'] > 0) & (p80_hotel_w18['RPM'] < rpm_p50_proc)
-TOP['bajo_rend'] = p80_hotel_w18[mask_br].sort_values('Trafico', ascending=False).head(5).reset_index(drop=True)
-TOP['bajo_rend_extra'] = p80_hotel_w18[mask_br].sort_values('Trafico', ascending=False).iloc[5:10].reset_index(drop=True)
-
-# Sin Conversión (P80, BKGS=0)
-TOP['sin_conv'] = p80_hotel_w18[p80_hotel_w18['Bookings']==0].sort_values('Trafico', ascending=False).head(5).reset_index(drop=True)
-TOP['sin_conv_extra'] = p80_hotel_w18[p80_hotel_w18['Bookings']==0].sort_values('Trafico', ascending=False).iloc[5:10].reset_index(drop=True)
-
-# Por destino (Top 5 por tráfico)
-TOP['destinos'] = g_destino_w18.sort_values('Trafico', ascending=False).head(5).reset_index(drop=True)
-TOP['destinos_10'] = g_destino_w18.sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
-
-# Por corp (Top 5)
-TOP['corps'] = g_corp_w18.sort_values('Trafico', ascending=False).head(5).reset_index(drop=True)
-TOP['corps_10'] = g_corp_w18.sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
-
-# Por país (Top 5)
-TOP['paises'] = g_pais_w18.sort_values('Trafico', ascending=False).head(5).reset_index(drop=True)
-TOP['paises_10'] = g_pais_w18.sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
-
-# Top hoteles
-TOP['hoteles'] = g_hotel_w18.sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
-
-# --------- Para tabs KPI Hero %NoDispo: top 5 con peor %NoDispo (filtro de tráfico mínimo) ----------
-# Tráfico mínimo para entrar en ranking de "peor": top 20% por tráfico
-min_traf = g_hotel_w18['Trafico'].quantile(0.80)
-TAB_NoDispo = {}
-TAB_NoDispo['pais']    = g_pais_w18[g_pais_w18['Trafico']>50_000_000].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
-TAB_NoDispo['destino'] = g_destino_w18[g_destino_w18['Trafico']>20_000_000].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
-TAB_NoDispo['corp']    = g_corp_w18[g_corp_w18['Trafico']>50_000_000].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
-TAB_NoDispo['hotel']   = g_hotel_w18[g_hotel_w18['Trafico']>min_traf].sort_values('%NoDispo', ascending=False).head(10).reset_index(drop=True)
-TAB_NoDispo['canasta'] = pd.DataFrame([
-    {'Canasta':'B2C',      '%NoDispo':M['B2C_w18']['pct_nodispo']},
-    {'Canasta':'B2B (OP)', '%NoDispo':M['B2B (OP)_w18']['pct_nodispo']},
-    {'Canasta':'CUG (UOP)','%NoDispo':M['CUG (UOP)_w18']['pct_nodispo']},
-]).sort_values('%NoDispo', ascending=False).reset_index(drop=True)
-
-# ── WoW por dimensión para TAB_NoDispo ──────────────────────────────────────
-def _merge_wow_nd(tab, df17, key_col):
-    """Agrega columna NoDispo_W17 y NoDispo_WoW_pp al TAB."""
-    ref = df17[[key_col, '%NoDispo']].rename(columns={'%NoDispo': 'NoDispo_W17'})
-    merged = tab.merge(ref, on=key_col, how='left')
-    merged['NoDispo_WoW_pp'] = (merged['%NoDispo'] - merged['NoDispo_W17']) * 100
-    return merged
-
-TAB_NoDispo['pais']    = _merge_wow_nd(TAB_NoDispo['pais'],    g_pais_w17,    'PaisDestino')
-TAB_NoDispo['destino'] = _merge_wow_nd(TAB_NoDispo['destino'], g_destino_w17, 'Destino')
-TAB_NoDispo['corp']    = _merge_wow_nd(TAB_NoDispo['corp'],    g_corp_w17,    'CorpName')
-TAB_NoDispo['hotel']   = _merge_wow_nd(TAB_NoDispo['hotel'],   g_hotel_w17,   'Hotel')
-# Canasta WoW
-TAB_NoDispo['canasta']['NoDispo_WoW_pp'] = [
-    (M['B2C_w18']['pct_nodispo']      - M['B2C_w17']['pct_nodispo'])      * 100,
-    (M['B2B (OP)_w18']['pct_nodispo'] - M['B2B (OP)_w17']['pct_nodispo']) * 100,
-    (M['CUG (UOP)_w18']['pct_nodispo']- M['CUG (UOP)_w17']['pct_nodispo'])* 100,
-]
-
-# --------- Para tabs KPI Hero RPM: top 10 con menor RPM positivo (BKGS>0, RPM>0) ----------
-TAB_RPM = {}
-TAB_RPM['pais']    = g_pais_w18[(g_pais_w18['Bookings']>10) & (g_pais_w18['RPM']>0) & (g_pais_w18['Trafico']>50_000_000)].sort_values('RPM').head(10).reset_index(drop=True)
-TAB_RPM['destino'] = g_destino_w18[(g_destino_w18['Bookings']>10) & (g_destino_w18['RPM']>0) & (g_destino_w18['Trafico']>20_000_000)].sort_values('RPM').head(10).reset_index(drop=True)
-TAB_RPM['corp']    = g_corp_w18[(g_corp_w18['Bookings']>10) & (g_corp_w18['RPM']>0) & (g_corp_w18['Trafico']>50_000_000)].sort_values('RPM').head(10).reset_index(drop=True)
-TAB_RPM['hotel']   = g_hotel_w18[(g_hotel_w18['Bookings']>0) & (g_hotel_w18['RPM']>0) & (g_hotel_w18['Trafico']>min_traf)].sort_values('RPM').head(10).reset_index(drop=True)
-TAB_RPM['canasta'] = pd.DataFrame([
-    {'Canasta':'B2C',      'RPM':M['B2C_w18']['rpm']},
-    {'Canasta':'B2B (OP)', 'RPM':M['B2B (OP)_w18']['rpm']},
-    {'Canasta':'CUG (UOP)','RPM':M['CUG (UOP)_w18']['rpm']},
-]).sort_values('RPM').reset_index(drop=True)
-
-# ── WoW por dimensión para TAB_RPM ──────────────────────────────────────────
-def _merge_wow_rpm(tab, df17, key_col):
-    """Agrega columna RPM_W17 y RPM_WoW_pct al TAB."""
-    ref = df17[[key_col, 'RPM']].rename(columns={'RPM': 'RPM_W17'})
-    merged = tab.merge(ref, on=key_col, how='left')
-    merged['RPM_WoW_pct'] = (merged['RPM'] / merged['RPM_W17'] - 1) * 100
-    return merged
-
-TAB_RPM['pais']    = _merge_wow_rpm(TAB_RPM['pais'],    g_pais_w17,    'PaisDestino')
-TAB_RPM['destino'] = _merge_wow_rpm(TAB_RPM['destino'], g_destino_w17, 'Destino')
-TAB_RPM['corp']    = _merge_wow_rpm(TAB_RPM['corp'],    g_corp_w17,    'CorpName')
-TAB_RPM['hotel']   = _merge_wow_rpm(TAB_RPM['hotel'],   g_hotel_w17,   'Hotel')
-# Canasta WoW
-TAB_RPM['canasta']['RPM_WoW_pct'] = [
-    (M['B2C_w18']['rpm']      / M['B2C_w17']['rpm']      - 1) * 100,
-    (M['B2B (OP)_w18']['rpm'] / M['B2B (OP)_w17']['rpm'] - 1) * 100,
-    (M['CUG (UOP)_w18']['rpm']/ M['CUG (UOP)_w17']['rpm']- 1) * 100,
-]
-
-# --------- Datos por canasta para sección "Análisis por Canasta" ----------
-CANASTA = {}
-for c, key in [('B2C','b2c'), ('B2B (OP)','op'), ('CUG (UOP)','cug')]:
-    sub18 = rnd_w18[rnd_w18['DistributionCategory']==c]
-    sub17 = rnd_w17[rnd_w17['DistributionCategory']==c]
-    g_h = make_hotel_agg(sub18)
-    g_d = aggregate_rnd(sub18, 'Destino')
-    g_co = aggregate_rnd(sub18, 'CorpName')
-    g_p = aggregate_rnd(sub18, 'PaisDestino')
-    p80 = pareto_p80(g_h, 'Trafico')
-    
-    # KPIs
-    m18 = metrics_rnd_global(sub18)
-    m17 = metrics_rnd_global(sub17)
-    
-    # Tabs Top 5 por nivel (% NoDispo) — los peores
-    tt_dest = g_d[(g_d['Trafico']>5_000_000) & (g_d['BandaNoDispo'].isin(['Crítica','Súper Crítica','Revisar']))].sort_values('%NoDispo', ascending=False).head(10)
-    if len(tt_dest) < 10:
-        tt_dest = g_d[g_d['Trafico']>5_000_000].sort_values('%NoDispo', ascending=False).head(10)
-    tt_corp = g_co[g_co['Trafico']>10_000_000].sort_values('%NoDispo', ascending=False).head(10)
-    tt_hot  = g_h[g_h['Trafico']>g_h['Trafico'].quantile(0.95)].sort_values('%NoDispo', ascending=False).head(10)
-    tt_pais = g_p[g_p['Trafico']>30_000_000].sort_values('%NoDispo', ascending=False).head(10)
-    
-    # Bajo rendimiento canasta · BKGS>0, RPM>0 (excluir refunds), por debajo del P50 procesable de la canasta
-    proc_canasta = p80[(p80['Bookings']>0) & (p80['RPM']>0)]
-    rpm_p50 = proc_canasta['RPM'].quantile(0.50) if len(proc_canasta)>0 else 0
-    bajo = p80[(p80['Bookings']>0) & (p80['RPM']>0) & (p80['RPM'] < rpm_p50)].sort_values('Trafico', ascending=False).head(10)
-    sin_conv = p80[p80['Bookings']==0].sort_values('Trafico', ascending=False).head(10)
-    
-    # Sev count
-    n_critica = (g_h['BandaNoDispo']=='Crítica').sum() + (g_h['BandaNoDispo']=='Súper Crítica').sum()
-    
-    # Severity por canasta (sobre P80)
-    sev_nd_canasta = p80['BandaNoDispo'].value_counts().reindex(
-        ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']).fillna(0).astype(int)
-    sev_rpm_canasta = p80['BandaRPM'].value_counts().reindex(
-        ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']).fillna(0).astype(int)
-    
-    # Alertas por canasta · peor hotel/destino/corp por %NoDispo y por RPM
-    alert_h_nd_pool = p80[p80['Trafico']>p80['Trafico'].quantile(0.50)]
-    alert_h_nd = alert_h_nd_pool.sort_values('%NoDispo', ascending=False).iloc[0] if len(alert_h_nd_pool)>0 else None
-    alert_h_rpm_pool = p80[(p80['Bookings']>0) & (p80['RPM']>0) & (p80['Trafico']>p80['Trafico'].quantile(0.50))]
-    alert_h_rpm = alert_h_rpm_pool.sort_values('RPM').iloc[0] if len(alert_h_rpm_pool)>0 else None
-    
-    alert_d_nd_pool = g_d[g_d['Trafico']>5_000_000]
-    alert_d_nd = alert_d_nd_pool.sort_values('%NoDispo', ascending=False).iloc[0] if len(alert_d_nd_pool)>0 else None
-    alert_d_rpm_pool = g_d[(g_d['Bookings']>0) & (g_d['RPM']>0) & (g_d['Trafico']>5_000_000)]
-    alert_d_rpm = alert_d_rpm_pool.sort_values('RPM').iloc[0] if len(alert_d_rpm_pool)>0 else None
-    
-    alert_co_nd_pool = g_co[g_co['Trafico']>10_000_000]
-    alert_co_nd = alert_co_nd_pool.sort_values('%NoDispo', ascending=False).iloc[0] if len(alert_co_nd_pool)>0 else None
-    alert_co_rpm_pool = g_co[(g_co['Bookings']>0) & (g_co['RPM']>0) & (g_co['Trafico']>10_000_000)]
-    alert_co_rpm = alert_co_rpm_pool.sort_values('RPM').iloc[0] if len(alert_co_rpm_pool)>0 else None
-    
-    CANASTA[key] = {
-        'name': c, 'short': {'B2C':'B2C','B2B (OP)':'B2B Opaco','CUG (UOP)':'CUG'}[c],
-        'm18': m18, 'm17': m17,
-        'agg_hotel': g_h, 'agg_destino': g_d, 'agg_corp': g_co, 'agg_pais': g_p,
-        'p80': p80,
-        'top_dest': tt_dest.reset_index(drop=True), 'top_corp': tt_corp.reset_index(drop=True),
-        'top_hot': tt_hot.reset_index(drop=True), 'top_pais': tt_pais.reset_index(drop=True),
-        'bajo_rend': bajo.reset_index(drop=True), 'sin_conv': sin_conv.reset_index(drop=True),
-        'n_critica': int(n_critica),
-        'sev_nd': sev_nd_canasta.to_dict(),
-        'sev_rpm': sev_rpm_canasta.to_dict(),
-        'alert_h_nd': alert_h_nd, 'alert_h_rpm': alert_h_rpm,
-        'alert_d_nd': alert_d_nd, 'alert_d_rpm': alert_d_rpm,
-        'alert_co_nd': alert_co_nd, 'alert_co_rpm': alert_co_rpm,
+def metrics_global(df):
+    t = df['Trafico'].sum(); nd = df['TraficoNoDispo'].sum()
+    bk = df['Bookings'].sum(); gb = df['gb_usd'].sum()
+    ipm = gb/t*1_000_000 if t else 0
+    return {
+        'trafico':t,'bookings':bk,'gb_usd':gb,
+        'nodispo':nd/t if t else 0,'pct_nodispo':nd/t if t else 0,
+        'ipm':ipm,'rpm':ipm,'conv_rate':bk/t if t else 0,'conversion':bk/t if t else 0,
+        'banda_rpm':banda_rpm(ipm),'banda_nd':banda_nodispo(nd/t if t else 0),
+        'banda_nodispo':banda_nodispo(nd/t if t else 0),
     }
 
-# Guardar
-with open('rnd_w18_data.pkl','wb') as f:
-    pickle.dump({'M':M,'TOP':TOP,'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
-                 'CANASTA':CANASTA,'sev_nd':sev_nd,'sev_rpm':sev_rpm,
-                 'g_hotel':g_hotel_w18,'p80_hotel':p80_hotel_w18}, f)
+# ── P80 global ────────────────────────────────────────────────────
+print('Calculando P80...')
+g_hotel_all = agg_hotel(df18).sort_values('Trafico', ascending=False)
+cumsum = g_hotel_all['Trafico'].cumsum(); total = g_hotel_all['Trafico'].sum()
+p80_hotel = g_hotel_all[cumsum <= total*0.80].copy()
 
-# Resumen para validar
-print(f"\n=== RND W18 · Resumen Globales ===")
-print(f"Tráfico: {fmt_int(M['global_w18']['trafico'])}")
-print(f"Bookings: {fmt_int(M['global_w18']['bookings'])} (W17 {fmt_int(M['global_w17']['bookings'])})")
-print(f"GB: {fmt_usd(M['global_w18']['gb_usd'])} (W17 {fmt_usd(M['global_w17']['gb_usd'])})")
-print(f"%NoDispo: {fmt_pct(M['global_w18']['pct_nodispo'],2)} (W17 {fmt_pct(M['global_w17']['pct_nodispo'],2)})")
-print(f"RPM: {fmt_num(M['global_w18']['rpm'],2)} (W17 {fmt_num(M['global_w17']['rpm'],2)})")
-print(f"Hoteles P80: {len(p80_hotel_w18):,}")
-print(f"\nSeverity %NoDispo (P80): {sev_nd.to_dict()}")
-print(f"Severity RPM (P80): {sev_rpm.to_dict()}")
+# ── Agregados globales W17 para WoW ───────────────────────────────
+g_hotel_w17 = agg_hotel(df17).rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17','RPM':'RPM_W17'})\
+    [['Hotel','%NoDispo_W17','IPM_W17','RPM_W17']]
+g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
+    [['CorpName','%NoDispo_W17','IPM_W17']]
+g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
+    [['Destino','%NoDispo_W17','IPM_W17']]
+g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
+    [['PaisDestino','%NoDispo_W17','IPM_W17']]
+
+# Enriquecer p80 con WoW
+p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
+p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W17']) * 100
+p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W17']
+
+# ── Métricas globales ─────────────────────────────────────────────
+M = {'global_w18': metrics_global(df18), 'global_w17': metrics_global(df17)}
+for cat in ['B2C','B2B (OP)','CUG (UOP)']:
+    key = cat.replace(' (OP)','').replace(' (UOP)','').replace('(','').replace(')','').replace(' ','')
+    m18 = metrics_global(df18[df18['DistributionCategory']==cat])
+    m17 = metrics_global(df17[df17['DistributionCategory']==cat])
+    m18['n_hoteles'] = len(p80_hotel)
+    m17['n_hoteles'] = len(p80_hotel)
+    M[f'B2C_w18']         = m18 if cat=='B2C' else M.get('B2C_w18', m18)
+    M[f'B2C_w17']         = m17 if cat=='B2C' else M.get('B2C_w17', m17)
+    M[f'B2B (OP)_w18']    = m18 if cat=='B2B (OP)' else M.get('B2B (OP)_w18', m18)
+    M[f'B2B (OP)_w17']    = m17 if cat=='B2B (OP)' else M.get('B2B (OP)_w17', m17)
+    M[f'CUG (UOP)_w18']   = m18 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w18', m18)
+    M[f'CUG (UOP)_w17']   = m17 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w17', m17)
+    M[f'B2B-OP_w18']      = M['B2B (OP)_w18']
+    M[f'B2B-OP_w17']      = M['B2B (OP)_w17']
+    M[f'CUG_w18']         = M['CUG (UOP)_w18']
+    M[f'CUG_w17']         = M['CUG (UOP)_w17']
+
+for k in M: M[k]['n_hoteles'] = len(p80_hotel)
+
+# ── Severity ─────────────────────────────────────────────────────
+BANDAS = ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica','Sin Conversión']
+sev_nd  = {b: int((p80_hotel['BandaNoDispo']==b).sum()) for b in BANDAS}
+sev_rpm = {b: int((p80_hotel['BandaRPM']==b).sum()) for b in BANDAS}
+
+# ── Agregados dimensión global ────────────────────────────────────
+g_hotel = agg_hotel(df18)
+g_corp  = agg_dim(df18,'CorpName').merge(g_corp_w17, on='CorpName', how='left')
+g_dest  = agg_dim(df18,'Destino').merge(g_dest_w17, on='Destino', how='left')
+g_pais  = agg_dim(df18,'PaisDestino').merge(g_pais_w17, on='PaisDestino', how='left')
+for g in [g_corp, g_dest, g_pais]:
+    g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W17', g['%NoDispo'])) * 100
+
+# ── TABs para KPI hero ────────────────────────────────────────────
+def make_tab(df, col, sort_col, asc=False):
+    return df.sort_values(sort_col, ascending=asc).head(10).reset_index(drop=True)
+
+TAB_NoDispo = {
+    'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False),
+    'destino': make_tab(g_dest,'Destino','%NoDispo',False),
+    'corp':    make_tab(g_corp,'CorpName','%NoDispo',False),
+    'hotel':   make_tab(p80_hotel,'Hotel','%NoDispo',False),
+    'canasta': pd.DataFrame([
+        {'Canasta':'B2C',      **{k:v for k,v in M['B2C_w18'].items()}},
+        {'Canasta':'B2B (OP)', **{k:v for k,v in M['B2B (OP)_w18'].items()}},
+        {'Canasta':'CUG (UOP)',**{k:v for k,v in M['CUG (UOP)_w18'].items()}},
+    ]).sort_values('pct_nodispo', ascending=False).reset_index(drop=True),
+}
+
+
+TAB_RPM = {
+    'pais':    make_tab(g_pais,'PaisDestino','IPM',True),
+    'destino': make_tab(g_dest,'Destino','IPM',True),
+    'corp':    make_tab(g_corp,'CorpName','IPM',True),
+    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True),
+    'canasta': TAB_NoDispo['canasta'],
+}
+# Alias RPM en TABs
+for tab in [TAB_NoDispo, TAB_RPM]:
+    for k in tab:
+        t = tab[k]
+        if 'IPM' in t.columns and 'RPM' not in t.columns:
+            t['RPM'] = t['IPM']
+
+# ── TOP global ────────────────────────────────────────────────────
+proc = p80_hotel[p80_hotel['Bookings'] > 0]
+no_conv = p80_hotel[p80_hotel['Bookings'] == 0]
+top50_dnc  = proc.sort_values('TraficoNoDispo', ascending=False).head(50).reset_index(drop=True)
+top50_br   = proc[proc['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
+top50_sc   = no_conv.sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
+
+TOP = {
+    'demanda_nc':       top50_dnc.head(10).reset_index(drop=True),
+    'demanda_nc_extra': top50_dnc.iloc[10:].reset_index(drop=True),
+    'bajo_rend':        top50_br.head(10).reset_index(drop=True),
+    'bajo_rend_extra':  top50_br.iloc[10:].reset_index(drop=True),
+    'sin_conv':         top50_sc.head(10).reset_index(drop=True),
+    'sin_conv_extra':   top50_sc.iloc[10:].reset_index(drop=True),
+    'corps':   g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'destinos':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'paises':  g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'corps_10':g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'destinos_10':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'paises_10':g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+}
+
+# ── Canastas ─────────────────────────────────────────────────────
+print('Calculando canastas...')
+CANASTA_DATA = {}
+for c_key, c_filter, c_name, c_short, c_weight in [
+    ('B2C','B2C','B2C','B2C',0.1),
+    ('B2B-OP','B2B (OP)','B2B Opaco','OP',0.6),
+    ('CUG','CUG (UOP)','CUG','CUG',0.6),
+]:
+    sub18 = df18[df18['DistributionCategory']==c_filter].copy()
+    sub17 = df17[df17['DistributionCategory']==c_filter].copy()
+    gh = agg_hotel(sub18).sort_values('Trafico',ascending=False)
+    cs = gh['Trafico'].cumsum(); tot = gh['Trafico'].sum()
+    p80c = gh[cs<=tot*0.80].copy()
+    # WoW por hotel en canasta
+    gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Hotel','%NoDispo_W17','IPM_W17']]
+    p80c = p80c.merge(gh17, on='Hotel', how='left')
+    p80c['NoDispo_WoW_pp'] = (p80c['%NoDispo'] - p80c['%NoDispo_W17']) * 100
+    p80c['IPM_WoW_pp']     = p80c['IPM'] - p80c['IPM_W17']
+    p80c['RPM'] = p80c['IPM']
+    proc_c = p80c[p80c['Bookings']>0]
+    nc_c   = p80c[p80c['Bookings']==0]
+    sev_nd_c  = {b:int((p80c['BandaNoDispo']==b).sum()) for b in BANDAS}
+    sev_rpm_c = {b:int((p80c['BandaRPM']==b).sum()) for b in BANDAS}
+    ac = agg_dim(sub18,'CorpName').merge(
+        agg_dim(sub17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['CorpName','%NoDispo_W17','IPM_W17']],
+        on='CorpName', how='left')
+    ad = agg_dim(sub18,'Destino').merge(
+        agg_dim(sub17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Destino','%NoDispo_W17','IPM_W17']],
+        on='Destino', how='left')
+    ap = agg_dim(sub18,'PaisDestino').merge(
+        agg_dim(sub17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['PaisDestino','%NoDispo_W17','IPM_W17']],
+        on='PaisDestino', how='left')
+    top_dnc = proc_c.sort_values('TraficoNoDispo',ascending=False).head(50).reset_index(drop=True)
+    top_br  = proc_c[proc_c['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
+    top_sc  = nc_c.sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
+    m18c = metrics_global(sub18); m17c = metrics_global(sub17)
+    m18c['n_hoteles'] = len(p80c); m17c['n_hoteles'] = len(p80c)
+    c_data = {
+        'name':c_name,'short':c_short,'filter':c_filter,'weight':c_weight,
+        'agg_hotel':gh,'p80_hotel':p80c,'p80':p80c,
+        'agg_corp':ac,'agg_dest':ad,'agg_pais':ap,
+        'top_hot':    p80c.sort_values('%NoDispo',ascending=False).head(10).reset_index(drop=True),
+        'top_hot_rpm':p80c[(p80c['Bookings']>0)&(p80c['RPM']>0)].sort_values('RPM').head(10).reset_index(drop=True),
+        'top_dnc':top_dnc.head(10).reset_index(drop=True),'top_dnc_extra':top_dnc.iloc[10:].reset_index(drop=True),
+        'top_br': top_br.head(10).reset_index(drop=True), 'top_br_extra': top_br.iloc[10:].reset_index(drop=True),
+        'top_sc': top_sc.head(10).reset_index(drop=True), 'top_sc_extra': top_sc.iloc[10:].reset_index(drop=True),
+        'demanda_nc':top_dnc.head(10),'demanda_nc_extra':top_dnc.iloc[10:].reset_index(drop=True),
+        'bajo_rend':top_br.head(10), 'bajo_rend_extra': top_br.iloc[10:].reset_index(drop=True),
+        'sin_conv':top_sc.head(10),  'sin_conv_extra':  top_sc.iloc[10:].reset_index(drop=True),
+        'sev_nd':sev_nd_c,'sev_rpm':sev_rpm_c,
+        'corps_10':ac.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+        'destinos_10':ad.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+        'paises_10':ap.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+        'm18':m18c,'m17':m17c,'tab_nd':{},
+    }
+    CANASTA_DATA[c_key] = c_data
+    CANASTA_DATA[c_key.lower()] = c_data
+    if c_key == 'B2B-OP': CANASTA_DATA['op'] = c_data
+    if c_key == 'CUG': CANASTA_DATA['cug'] = c_data
+    if c_key == 'B2C': CANASTA_DATA['b2c'] = c_data
+
+# ── Guardar pickle ────────────────────────────────────────────────
+D = {
+    'df18':df18,'df17':df17,
+    'M':M,'TOP':TOP,'CANASTA':CANASTA_DATA,
+    'p80_hotel':p80_hotel,'g_hotel':g_hotel,
+    'g_corp':g_corp,'g_dest':g_dest,'g_pais':g_pais,
+    'sev_nd':sev_nd,'sev_rpm':sev_rpm,
+    'sev_nd_p80':sev_nd,'sev_rpm_p80':sev_rpm,
+    'g_hotel_w17':g_hotel_w17,'g_corp_w17':g_corp_w17,
+    'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
+    'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
+}
+with open('rnd_w18_data.pkl','wb') as f: pickle.dump(D, f)
+
+t18=df18['Trafico'].sum(); nd18=df18['TraficoNoDispo'].sum()
+t17=df17['Trafico'].sum(); nd17=df17['TraficoNoDispo'].sum()
+pct18=nd18/t18*100; pct17=nd17/t17*100
+print(f'✅ RND W18 calculado con deltas WoW')
+print(f'   %NoDispo W18: {pct18:.2f}% | W17: {pct17:.2f}% | WoW: {pct18-pct17:+.2f}pp')
+print(f'   Hoteles P80: {len(p80_hotel):,}')
