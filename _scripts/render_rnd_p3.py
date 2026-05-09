@@ -400,7 +400,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_dim_html = f'''<div style="margin:32px 0 32px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
-<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:16px;">
+<div class="tabs-block" style="background:#F6EFE0;border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-pais" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
