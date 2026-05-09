@@ -129,7 +129,7 @@ def render_severity_nodispo():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severity · % NoDispo</h2>
+<h2 class="section-title">🚨 Severity · % NoDispo</h2>
 <span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total)} hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo. El target es &lt;3% (banda Exitosa).</p>
 </div>
@@ -188,7 +188,7 @@ def render_severities_combinadas():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
-<h2 class="section-title">Severity</h2>
+<h2 class="section-title">🚨 Severity</h2>
 <span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total_nd)} hoteles</span>
 <p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo (target &lt;3%) e IPM (Income Per Million USD · target ≥ $650). Sin Conversión es cohorte aparte (BKGS=0); Severity IPM se aplica solo a procesables.</p>
 </div>
@@ -260,7 +260,7 @@ def render_demanda_nc():
     return f'''<section id="demanda-nc" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
-<h2 class="section-title">Demanda no convertida</h2>
+<h2 class="section-title">🔍 Demanda no convertida</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 · ordenado por búsquedas perdidas ↓</span>
 <p class="section-kicker">Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(df1.iloc[0]["Hotel"],38)}</strong> ({fmt_big(df1.iloc[0]["DemandaNoConvertida"])} búsquedas perdidas).</p>
 </div>
@@ -289,7 +289,7 @@ def render_bajo_rend():
     return f'''<section id="bajo-rendimiento" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 05</div>
-<h2 class="section-title">Bajo rendimiento</h2>
+<h2 class="section-title">📉 Bajo rendimiento</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · IPM Crítica/Revisar · ordenado por tráfico ↓</span>
 <p class="section-kicker">Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.</p>
 </div>
@@ -322,7 +322,7 @@ def render_no_convierten():
     return f'''<section id="sin-conversion" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección 06</div>
-<h2 class="section-title">Sin conversión</h2>
+<h2 class="section-title">⭕ Sin conversión</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · 0 BKGS · ordenado por tráfico ↓</span>
 <p class="section-kicker">{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de Conv Rate.</p>
 </div>
@@ -337,14 +337,15 @@ def render_no_convierten():
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
     """Tabla de una columna con N filas para Top dimensión RND."""
+    import math
     grid = '1fr 90px 70px 70px 75px 44px'
     rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
-    for label in [dim_label,'Tráfico','BKGS','IPM','%NoDispo','WoW']:
+    for label in [dim_label,'Tráfico','BKGS','IPM','%NoDispo','WoW ND']:
         align = 'left' if label==dim_label else 'right'
         color = '#EA0074' if label==dim_label else 'var(--ink-muted)'
         rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
     rows += '</div>'
-    
+
     for i, r in df.iterrows():
         bnd = r.get('BandaNoDispo','')
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg','#EA0074')
@@ -354,16 +355,33 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
                 f'background:{bnd_bg} !important;color:{bnd_fg} !important;'
                 f'text-transform:uppercase;letter-spacing:.05em;margin-left:5px;vertical-align:middle;">{bnd}</span>')
         n = start_idx + i + 1
-        raw_label = clean_pais_name(r[dim_col]) if dim_col == 'PaisDestino' else r[dim_col]
-        if dim_col == 'CorpName':
+        if dim_col == 'PaisDestino':
+            raw_label = clean_pais_name(r[dim_col])
+        elif dim_col == 'Destino':
+            raw_label = clean_destino_name(r[dim_col], 28)
+        elif dim_col == 'CorpName':
             from render_helpers import clean_corp_name
-            raw_label = clean_corp_name(raw_label)
+            raw_label = clean_corp_name(r[dim_col])
+        else:
+            raw_label = r[dim_col]
+        # WoW %NoDispo — verde si baja (mejora), rojo si sube
+        wow_v = r.get('NoDispo_WoW_pp', None)
+        if wow_v is None or (isinstance(wow_v, float) and (math.isnan(wow_v) or math.isinf(wow_v))):
+            wow_html = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        elif abs(wow_v) < 0.05:
+            wow_html = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        else:
+            mejora = wow_v < 0  # bajar NoDispo es bueno
+            wc = '#2F6C34' if mejora else '#C0392B'
+            wb = '#EAF3DE' if mejora else '#FCE8E6'
+            arrow = '↓' if wow_v < 0 else '↑'
+            wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{arrow}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
         cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;">{n}. {truncate(raw_label,28)} {pill}</div>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_num2(r["RPM"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
-                 f'<div style="text-align:right;"></div>')
+                 f'{wow_html}')
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
 
@@ -382,7 +400,7 @@ def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='h
     return f'''<section id="top-{key}" style="margin-bottom:80px;"><div class="section-head">
 <div>
 <div class="section-num">Sección {num}</div>
-<h2 class="section-title">{title}</h2>
+<h2 class="section-title">{icon} {title}</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 · ordenado por tráfico ↓</span>
 <p class="section-kicker">{kicker}</p>
 </div>
@@ -452,7 +470,7 @@ def render_plan_accion():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 10</div>
-<h2 class="section-title">Plan de acción</h2>
+<h2 class="section-title">📋 Plan de acción</h2>
 <span class="section-subtitle" style="color:#EA0074">Acciones priorizadas · agrupadas por Área Accountable</span>
 <p class="section-kicker">El badge superior identifica al Área Accountable de cada acción. La etiqueta de horizonte (Quick Win · Mid Priority · Estratégica) y el código de seguimiento van debajo.</p>
 </div>
@@ -476,11 +494,30 @@ def _render_panel_top_table(df, cols, idx_offset=0):
 def render_bloque_hoteles():
     """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
     # Demanda No Convertida
+    def _fmt_wow_rnd(v, mejora_si_negativo=False):
+        """Pill WoW para RND: verde si baja %NoDispo, rojo si sube."""
+        import math
+        if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
+            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        if abs(v) < 0.05:
+            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        # Para %NoDispo: bajar es bueno (verde si negativo)
+        # Para IPM: subir es bueno (verde si positivo)
+        if mejora_si_negativo:
+            mejora = v < 0
+        else:
+            mejora = v > 0
+        wc = '#2F6C34' if mejora else '#C0392B'
+        wb = '#EAF3DE' if mejora else '#FCE8E6'
+        arrow = '↓' if v < 0 else '↑'
+        txt = f'{arrow}{abs(v):.2f}'.replace('.', ',')
+        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
+
     cols_dnc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'dnc','label':'Pérdidas','width':'80px','fmt':lambda r:fmt_big(r['DemandaNoConvertida'])},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
     ]
     df_dnc = pd.concat([TOP['demanda_nc'], TOP['demanda_nc_extra']], ignore_index=True)
     df_dnc.index = range(len(df_dnc))
@@ -492,8 +529,8 @@ def render_bloque_hoteles():
     cols_br = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'bk','label':'BKGS','width':'55px','fmt':lambda r:fmt_int_es(r['Bookings'])},
-        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
+        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('IPM_WoW_pp'), mejora_si_negativo=False)},
     ]
     df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
     df_br.index = range(len(df_br))
@@ -505,7 +542,7 @@ def render_bloque_hoteles():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r.get('Destino',''),18)},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
     ]
     df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
     df_sc.index = range(len(df_sc))
@@ -523,7 +560,7 @@ def render_bloque_hoteles():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 03</div>
-<h2 class="section-title">Análisis por hotel</h2>
+<h2 class="section-title">🏨 Análisis por hotel</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 · 3 ópticas analíticas</span>
 <p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
 </div>
@@ -581,7 +618,7 @@ def render_bloque_dimensiones():
 <div class="section-head">
 <div>
 <div class="section-num">Sección 04</div>
-<h2 class="section-title">Análisis por dimensión</h2>
+<h2 class="section-title">📊 Análisis por dimensión</h2>
 <span class="section-subtitle" style="color:#EA0074">Top 10 agregados · ordenado por tráfico ↓</span>
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>

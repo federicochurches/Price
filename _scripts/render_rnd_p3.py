@@ -192,6 +192,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 lab = truncate(clean_hotel_name(raw), 26)
             elif dim_col == 'PaisDestino':
                 lab = clean_pais_name(raw, max_len=22)
+            elif dim_col == 'Destino':
+                lab = clean_destino_name(raw, 22)
+            elif dim_col == 'CorpName':
+                lab = clean_corp_name(raw, 24)
             else:
                 lab = truncate(raw, 26)
             val = r[val_col] if val_col in r else 0
@@ -334,17 +338,36 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>BKGS</span></div>'
+        import math
+        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM</span><span>WoW ND</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
-            label = clean_hotel_name(raw) if parse_hotel else raw
-            if dim_col == 'PaisDestino':
-                label = clean_pais_name(label)
-            label = truncate(label, 28)
+            if parse_hotel:
+                label = truncate(clean_hotel_name(raw), 26)
+            elif dim_col == 'PaisDestino':
+                label = clean_pais_name(raw)
+            elif dim_col == 'Destino':
+                label = clean_destino_name(raw, 26)
+            elif dim_col == 'CorpName':
+                label = clean_corp_name(raw)
+            else:
+                label = truncate(str(raw), 26)
+            # IPM sin negativos
+            ipm_val = max(r.get('RPM', r.get('IPM', 0)), 0)
+            # WoW %NoDispo
+            wow_v = r.get('NoDispo_WoW_pp', None)
+            if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))) or abs(wow_v) < 0.05:
+                wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+            else:
+                mejora = wow_v < 0
+                wc = '#2F6C34' if mejora else '#C0392B'
+                wb = '#EAF3DE' if mejora else '#FCE8E6'
+                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
-                     f'<span class="cr">{fmt_int_es(r["Bookings"])}</span>'
+                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
+                     f'<span class="cr">{wow_html}</span>'
                      f'</div>')
         return rows
 
@@ -449,39 +472,64 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </style>'''
     
     # === Bajo Rendimiento + Sin Conversión a 10 en 2 columnas ===
-    def render_top10_2cols_rnd(df, title, val_left_label, val_left_col, val_right_label=None, val_right_col=None):
+    def _fmt_wow_nd(v):
+        """WoW para %NoDispo: verde si baja."""
+        import math
+        if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))) or abs(v) < 0.05:
+            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        mejora = v < 0
+        wc = '#2F6C34' if mejora else '#C0392B'
+        wb = '#EAF3DE' if mejora else '#FCE8E6'
+        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if v<0 else "↑"}{abs(v):.2f}'.replace('.',',') + '</em>'
+
+    def _fmt_wow_ipm(v):
+        """WoW para IPM: verde si sube."""
+        import math
+        if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))) or abs(v) < 1:
+            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        mejora = v > 0
+        wc = '#2F6C34' if mejora else '#C0392B'
+        wb = '#EAF3DE' if mejora else '#FCE8E6'
+        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↑" if v>0 else "↓"}${abs(v):.0f}</em>'
+
+    def render_top10_2cols_rnd(df, title, mode='dnc'):
+        """mode: dnc | br | sc"""
         if len(df) == 0: return ''
         df = df.head(10).reset_index(drop=True)
         df1 = df.iloc[:5].reset_index(drop=True)
         df2 = df.iloc[5:10].reset_index(drop=True)
-        
+
         def render_col(sub, start_idx):
-            cols_grid = '1fr 70px 60px 60px' if val_right_col else '1fr 70px 60px'
+            # Columnas según modo: Tráfico · métrica · WoW
+            cols_grid = '1fr 70px 65px 44px'
             html = ''
             for i, r in sub.iterrows():
-                cells = (f'<div><div style="color:#EA0074;font-weight:600;line-height:1.3;">{start_idx+i+1}. {truncate(clean_hotel_name(r["Hotel"]),28)}</div>'
-                         f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;">{r["CorpName"]}</div></div>'
-                         f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_big(r["Trafico"])}</span>')
-                if val_left_col == '%NoDispo':
-                    cells += f'<span style="text-align:right;color:var(--ink);font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
-                else:
-                    cells += f'<span style="text-align:right;color:var(--ink);font-weight:600;">{fmt_int_es(r[val_left_col])}</span>'
-                if val_right_col:
-                    if val_right_col == 'RPM':
-                        cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">${fmt_num2(r["RPM"])}</span>'
-                    else:
-                        cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_num2(r[val_right_col])}</span>'
-                html += f'<div style="display:grid;grid-template-columns:{cols_grid};gap:8px;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">{cells}</div>'
+                hotel_name = truncate(clean_hotel_name(r['Hotel']), 26)
+                corp = r.get('CorpName','')
+                cells = (f'<div><div style="color:#EA0074;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{start_idx+i+1}. {hotel_name}</div>'
+                         f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;">{clean_corp_name(corp)}</div></div>'
+                         f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>')
+                if mode == 'dnc':
+                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
+                    cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))
+                elif mode == 'br':
+                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">${fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
+                    cells += _fmt_wow_ipm(r.get('IPM_WoW_pp'))
+                elif mode == 'sc':
+                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
+                    cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))
+                html += f'<div style="display:grid;grid-template-columns:{cols_grid};gap:6px;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">{cells}</div>'
             return html
-        
+
         col1 = render_col(df1, 0)
         col2 = render_col(df2, 5) if len(df2)>0 else ''
         body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
                 if col2 else f'<div>{col1}</div>')
         return f'<div style="margin-top:24px;"><h3 style="font-size:13px;font-weight:700;color:#EA0074;text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">{title}</h3>{body}</div>'
-    
-    bajo_rows = render_top10_2cols_rnd(c['bajo_rend'], f'Top 10 · Bajo Rendimiento · Canasta {c["short"]}', 'BKGS', 'Bookings', 'IPM', 'RPM')
-    sin_rows = render_top10_2cols_rnd(c['sin_conv'], f'Top 10 · Sin Conversión · Canasta {c["short"]}', '%NoDispo', '%NoDispo')
+
+    bajo_rows = render_top10_2cols_rnd(c.get('bajo_rend', c['p80'][(c['p80']['Bookings']>0)].sort_values('IPM').head(10)), f'Top 10 · Bajo Rendimiento · Canasta {c["short"]}', mode='br')
+    sin_rows  = render_top10_2cols_rnd(c.get('sin_conv',  c['p80'][c['p80']['Bookings']==0].sort_values('Trafico',ascending=False).head(10)), f'Top 10 · Sin Conversión · Canasta {c["short"]}', mode='sc')
+    dnc_rows  = render_top10_2cols_rnd(c.get('demanda_nc', c.get('top_dnc', c['p80'].sort_values('DemandaNoConvertida',ascending=False).head(10))), f'Top 10 · Demanda No Convertida · Canasta {c["short"]}', mode='dnc')
     
     # === Plan de Acción (mantengo estructura existente, ya está en 2 cols) ===
     canasta_label = c['short']

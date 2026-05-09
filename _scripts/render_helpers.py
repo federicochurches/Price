@@ -152,7 +152,9 @@ def fmt_int_es(x):
 _PAIS_REPLACEMENTS = {
     'Estados Unidos de América': 'United States',
     'Estados Unidos':            'United States',
-    'Reino Unido':               'United Kingdom',
+    'Reino Unido':               'UK',
+    'Gran Bretaña (UK)':         'UK',
+    'Gran Bretaña':              'UK',
     'República Dominicana':      'R. Dominicana',
     'Emiratos Árabes Unidos':    'Emirates',
 }
@@ -192,9 +194,16 @@ import re as _re
 _DESTINO_PATTERN = _re.compile(
     r'^(Las Vegas|Los Angeles|New York|San Francisco|San Diego|San Antonio'
     r'|Salt Lake City|Kansas City|Oklahoma City|Mexico City|Quebec City'
-    r'|Cape Town|Hong Kong)\s*\(.*?\)',
+    r'|Cape Town|Hong Kong|Chicago|Miami|Boston|Seattle|Denver|Phoenix'
+    r'|Atlanta|Dallas|Houston|Orlando|Nashville|Minneapolis|Portland'
+    r'|Washington|Baltimore|Detroit|Cleveland|Pittsburgh|Tampa|Austin)\s*\(.*?\)',
     _re.IGNORECASE
 )
+# Mapa específico de destinos compuestos → nombre corto
+_DESTINO_MAP = {
+    'Mexico City - Central Mexico': 'Mexico City',
+    'Mexico City (and vicinity)':   'Mexico City',
+}
 # Sufijos a eliminar de destinos (con excepciones para topónimos que incluyen Area)
 _AREA_EXCEPTIONS = {'El Cairo', 'Dubai', 'Istanbul', 'Abu Dhabi', 'Adjara', 'Ras Al Khaimah'}
 _AREA_SUFFIX = _re.compile(
@@ -210,11 +219,16 @@ def clean_destino_name(name, max_len=28):
     · 'Las Vegas (and vicinity), NV, US' → 'Las Vegas'
     · 'Toronto Area' → 'Toronto'
     · 'Bourgas - South Black Sea Coast Area' → 'Bourgas'
+    · 'Mexico City - Central Mexico' → 'Mexico City'
     · 'Gargano - Foggia Area' → 'Gargano - Foggia'
     """
     if not name:
         return name
     s = str(name).strip()
+    # Mapa directo de destinos compuestos conocidos
+    for k, v in _DESTINO_MAP.items():
+        if k in s:
+            return truncate(v, max_len)
     # Patrón ciudad (and vicinity)
     m = _DESTINO_PATTERN.match(s)
     if m:
