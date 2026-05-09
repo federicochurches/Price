@@ -162,7 +162,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = '<em class="wow-pill nd">—</em>'
             grid = '1fr 52px 44px' if show_wow else '1fr 52px'
             cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
-                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);">'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
                     f'{i+1}. {lab}</span>'
                     f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
@@ -252,7 +252,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = '<em class="wow-pill nd">—</em>'
             grid = '1fr 52px 44px' if show_wow else '1fr 52px'
             cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
-                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);">'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
                     f'{i+1}. {lab}</span>'
                     f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))

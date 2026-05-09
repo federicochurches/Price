@@ -111,7 +111,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 .tab-panel div:has(> strong + span){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
-.tab-panel div span.tab-val{color:var(--amber);font-weight:700;}
+.tab-panel div span.tab-val{color:var(--amber);font-weight:600;}
 #tab-nd-destino:checked ~ .tabs-row label[for="tab-nd-destino"],
 #tab-nd-corp:checked ~ .tabs-row label[for="tab-nd-corp"],
 #tab-nd-hotel:checked ~ .tabs-row label[for="tab-nd-hotel"],
@@ -190,8 +190,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .canasta-tabs .tab-panel-c{display:none;}
 .tabs-block .tab-panel-c{display:none;}
 .canasta-tabs .tab-panel-c .panel-row,.tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 62px 62px 46px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
-.canasta-tabs .tab-panel-c .panel-row .label,.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.canasta-tabs .tab-panel-c .panel-row .efic,.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
+.canasta-tabs .tab-panel-c .panel-row .label,.tabs-block .tab-panel-c .panel-row .label{font-weight:400;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.canasta-tabs .tab-panel-c .panel-row .efic,.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:#EA0074;font-weight:700;font-variant-numeric:tabular-nums;}
 .canasta-tabs .tab-panel-c .panel-row .cr,.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;}
 .canasta-tabs .tab-panel-c .panel-header,.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 62px 62px 46px;gap:6px;padding:4px 0 6px;border-bottom:2px solid #EA0074;margin-bottom:4px;}
 .canasta-tabs .tab-panel-c .panel-header span,.tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
@@ -211,10 +211,10 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 /* Tabs-block canasta: Análisis por Hotel + Análisis por Dimensión */
 .tabs-block .tab-panel-c{display:none;}
 .tabs-block .tab-panel-c .panel-row{display:grid;grid-template-columns:1fr 62px 62px 46px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;}
-.tabs-block .tab-panel-c .panel-row .label{font-weight:600;color:#EA0074;}
-.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;}
-.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:#EA0074;font-weight:600;font-variant-numeric:tabular-nums;}
-.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 110px 80px;gap:12px;padding:6px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;}
+.tabs-block .tab-panel-c .panel-row .label{font-weight:400;color:var(--ink);}
+.tabs-block .tab-panel-c .panel-row .efic{text-align:right;color:#EA0074;font-weight:700;font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-row .cr{text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;}
+.tabs-block .tab-panel-c .panel-header{display:grid;grid-template-columns:1fr 62px 62px 46px;gap:6px;padding:4px 0 6px;border-bottom:2px solid #EA0074;margin-bottom:4px;}
 .tabs-block .tab-panel-c .panel-header span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);}
 .tabs-block .tab-panel-c .panel-header span:first-child{color:#EA0074;}
 .tabs-block .tab-panel-c .panel-header span:not(:first-child){text-align:right;}
@@ -281,7 +281,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .kpi-card input[type="radio"][id*="-pais"]:checked ~ .tab-panels .tab-panel[data-tab="pais"]{
   display:block;
 }
-.tab-panel div span.tab-val{color:#EA0074 !important;font-weight:700;}
+.tab-panel div span.tab-val{color:#EA0074 !important;font-weight:600;}
 em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;}
 em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
 em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
