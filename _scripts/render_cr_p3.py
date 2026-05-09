@@ -340,13 +340,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         df[wow_col] = (df[metric_col] - df[ref_val_col]) * 100
         return df
 
-    d_ef = agg_dest[agg_dest['CR_Unicos']>=p50_d].sort_values('Eficacia').head(10).reset_index(drop=True)
+    d_ef = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Eficacia']>0)].sort_values('Eficacia').head(10).reset_index(drop=True)
     d_ef = add_wow_to_tab(d_ef, 'Destino', 'Eficacia', ref_dest_w17, 'Eficacia_WoW_pp')
     c_ef = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
     c_ef = add_wow_to_tab(c_ef, 'CorpName', 'Eficacia', ref_corp_w17, 'Eficacia_WoW_pp')
     h_ef = p80[p80['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
 
-    d_cv = agg_dest[agg_dest['CR_Unicos']>=p50_d].sort_values('ConvRate').head(10).reset_index(drop=True)
+    d_cv = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Bookings']>0)].sort_values('ConvRate').head(10).reset_index(drop=True)
     d_cv = add_wow_to_tab(d_cv, 'Destino', 'ConvRate', ref_dest_w17, 'ConvRate_WoW_pp')
     c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
     c_cv = add_wow_to_tab(c_cv, 'CorpName', 'ConvRate', ref_corp_w17, 'ConvRate_WoW_pp')
