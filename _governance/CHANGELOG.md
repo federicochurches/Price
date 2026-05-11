@@ -2,142 +2,114 @@
 
 ---
 
-## Week 19 · Mayo 2026
+## Post W19 · Mayo 2026 · sesión fixes Excel + HTML
+
+### 🐛 Bugs corregidos
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #28 | `excel_cr.py` | Pestañas Críticos no ordenadas por Eficacia ↑ — fix: `sort_values('Eficacia', ascending=True)` global + canastas |
+| #29 | `excel_cr.py` | `Por Corporativo` (global + canastas) sin columna Channel — fix: groupby `hotel_channel_map` → columna `Channels` con valores únicos |
+| #30 | `excel_rnd.py` | Columnas `RPM` y `BandaRPM` visibles en Excel — fix: `.rename()` → `IPM (USD/M)` y `Banda IPM` en todas las hojas |
+| #31 | `excel_rnd.py` | Colores de banda IPM no se aplicaban — fix: `banda_col2` en `add_table()` para colorear dos columnas de banda por fila |
+| #32 | `excel_rnd.py` | `Sin Conversión` sin color en `BAND_FONTS` — fix: `Font(..., color='8A8377')` |
+| #33 | `render_cr_p2.py` | Header tab hotel `'Checkrates'` → `'CR Únicos'`, `'ConvRate'` → `'Conv Rate'` (5 ocurrencias) |
+| #34 | `render_cr_p2.py` | Header tabla dim `'CR'` → `'CR Únicos'`, `'CV'` → `'Conv Rate'` (Corp + Dest + Channel) |
+| #35 | `render_cr_p3.py` | Header dim canastas `'CR'` → `'CR Únicos'`, `'CV'` → `'Conv Rate'` |
+| #36 | `calc_rnd.py` | `ZeroDivisionError` en print final cuando dataset W18 vacío — fix: guard `if t17>0` |
+
+### 🗂 Archivos modificados
+`excel_cr.py` · `excel_rnd.py` · `render_cr_p2.py` · `render_cr_p3.py` · `calc_rnd.py`
+
+---
+## Week 19 · Mayo 2026 · sesión fixes visuales + features
+
+### 🐛 Bugs corregidos
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #16 | `render_mail_v3.py` | Dependencia de `metrics_recalc.pkl` inexistente |
+| #17 | `excel_rnd.py` | Path hardcodeado `/home/claude/final_w18/rnd_w19_data.pkl` |
+| #18 | `build_package.py` | ZIP con prefijo `Price_WNN/` |
+| #19 | `calc_rnd.py` | `df17` cargaba W19 en lugar de W18 — WoW era 0 |
+| #20 | `render_rnd_p1.py` | Card IPM: condición `ipm_w17 > 0` siempre False (columna `IPM_W17` inexistente) |
+| #21 | `render_rnd_p3.py` | `_enrich_wow` buscaba `IPM_W17` en vez de `IPM_W18` |
+| #22 | `render_rnd_p1/p2/p3.py` | WoW IPM en USD absoluto (`↑$105`) — fix: convertir a % |
+| #23 | `render_rnd_p1/p2/p3.py` | WoW %NoDispo sin unidad (`+4,58`) — fix: sufijo `pp` |
+| #24 | `render_cr/rnd_p1.py` | Header masthead "Week 18" hardcodeado — fix: leer `VOL_NUM` del pickle |
+| #25 | `render_cr_p2.py` | `_fmt_wow_cv` faltaba — syntax error en concatenación |
+| #26 | `calc_cr.py` | Pickle salía como `cr_w18_data.pkl` — fix: `cr_w19_data.pkl` |
+| #27 | `calc_cr.py` | `df17` buscaba `Dataset_CheckRates_W17.xlsx` inexistente — fix: W18 |
 
 ### ✨ Nuevas features
 
-#### Hub index.html integrado al pipeline como Paso 6
-- **`build_package.py` reescrito** — ahora es el Paso 6 obligatorio del pipeline semanal
-- Genera `index.html` del hub **automáticamente** a partir de los pickles (`rnd_wNN_data.pkl` + `cr_wNN_data.pkl`)
-- El HTML del hub incluye:
-  - Login overlay con credenciales (sessionStorage · no persiste entre sesiones)
-  - **Card featured** (semana actual): KPI strip 4 métricas (% NoDispo · IPM · Eficacia · Conv Rate) con bandas y WoW calculados desde pickle
-  - **Severity pills** RND y CR con counts exactos del P80
-  - Links directos a reportes editoriales y Excels globales
-  - **Card historial** (semana anterior): KPIs compactos desde W(N-1) del pickle + links
-- `index.html` **nunca se edita manualmente** — siempre se regenera con `build_package.py`
-- `index.html` se incluye en la raíz del ZIP de release
+#### WoW con unidades claras en RND (global + canastas)
+- `%NoDispo WoW` siempre con sufijo `pp`
+- `IPM WoW` en porcentaje relativo (no USD absoluto)
+- Aplica en p1 (hero), p2 (dim global), p3 (canastas)
 
-#### ZIP con estructura completa del repo
-- `build_package.py` genera `Price_WNN.zip` con la estructura exacta del repo:
-  ```
-  Price_WNN/
-  ├── index.html
-  ├── checkrates/week-NN/  (5 archivos)
-  ├── rates-nodispo/week-NN/  (5 archivos)
-  └── _email/week-NN/Mail_WNN.html
-  ```
-- El ZIP es el único deliverable para commit — no hay que mover archivos manualmente
+#### Tabla Análisis por Dimensión RND — 2 columnas WoW separadas
+- Orden: `Nombre · %NoDispo · WoW · IPM · WoW`
+- Grid: `1fr 62px 36px 58px 36px`
+- `asset_rnd_head.html` CSS actualizado
 
-### 🔧 Fixes
+#### WoW ConvRate en tabla Análisis por Dimensión CR
+- Orden: `Nombre · CR únicos · BKGS · ConvRate · WoW · Eficacia · WoW`
+- Grid: `1fr 80px 60px 68px 38px 68px 38px`
+- Helper `_fmt_wow_cv` (pp) en `render_cr_p2.py`
 
-#### render_mail_v3.py — eliminada dependencia de metrics_recalc.pkl
-- `metrics_recalc.pkl` nunca existió en el pipeline normal — causaba error en cada ejecución
-- IPM y GBM ahora derivados directamente de `rnd_wNN_data.pkl` (`M['global_w18']['ipm']` y `M['global_w18']['gb_usd']`)
-- Bloque `# CONFIG SEMANAL` al tope del archivo — solo cambiar 6 variables por semana
-- Marcadores `<!-- DRAFT_BODY_START -->` y `<!-- DRAFT_BODY_END -->` para el comando de draft Gmail
-- Renombrado internamente RPM → IPM en el cuerpo del mail
+#### Tab Hotel Conv Rate — filtro Sin Conversión
+- Solo `Bookings > 0` — Sin Conversión tiene su tab propia
+- Fix en `render_cr_p1.py` y `calc_cr.py`
 
-#### excel_rnd.py — path del pickle corregido
-- Tenía hardcodeado `/home/claude/final_w18/rnd_w18_data.pkl` → corregido a ruta relativa `rnd_wNN_data.pkl`
+#### Plan de Acción + Sistema Carryover
+- `template_seguimiento.py`: genera bloque HTML de carryover
+- `build_package.py`: genera `plan_seguimiento_WNN.md`
+- Lógica: ES/MP → `## OPEN` (auto), QW → `## PENDIENTE_QW` (revisión manual)
+- Visual: separador "📋 Carryover", badge `CARRYOVER` gris, badge `desde WNN`
+- Aplica en global + canastas de CR y RND
 
-### 📝 Dataset W19 RND — incidencia y resolución
-- Primera versión del dataset llegó con solo 5 columnas (faltaban `CorpName`, `PaisDestino`, `Destino`, `gb_usd`)
-- Resolución: se solicitó dataset corregido al equipo de Data
-- Segunda versión completa con 9 columnas, 157.994 filas, 0 nulls
-- 8.581 filas con `DistributionCategory` = `-` o `HTML` (< 0.2% del tráfico) — filtradas automáticamente por el pipeline
-- **Documentado para W20+:** validar columnas del dataset RND antes de correr el pipeline
+#### Estructura ZIP repo corregida
+- `_governance/_seguimiento/plan_seguimiento_WNN.md`
+- Datasets crudos incluidos automáticamente
 
-### 📊 KPIs W19
+#### Semana dinámica en masthead
+- `VOL_NUM`, `PERIODO`, `MES_AÑO` almacenados en pickle y leídos en render p1
+
+### 📊 KPIs W19 (valores finales post-fixes)
 | Métrica | W19 | WoW |
 |---|---|---|
-| % NoDispo (global P80) | 2,42% | ▼ 0,03pp |
-| IPM (global P80) | $597 | ▼ 7,4% |
-| Eficacia CR (global P80) | 93,88% | ▼ 0,25pp |
-| Conv Rate CR (global P80) | 1,32% | ▲ 0,05pp |
+| % NoDispo (P80) | 2,42% | ▼ 0,55pp |
+| IPM (P80) | $597 | ▼ 7,4% |
+| Eficacia CR (P80) | 93,88% | ▼ 0,25pp |
+| Conv Rate CR (P80) | 1,32% | ▲ 0,05pp |
 
-### 🗂 Archivos modificados / creados
-| Archivo | Cambio |
-|---|---|
-| `build_package.py` | Reescrito · genera index.html + ZIP · Paso 6 obligatorio |
-| `render_mail_v3.py` | v3.2 · sin metrics_recalc.pkl · CONFIG SEMANAL · IPM |
-| `excel_rnd.py` | Fix path pickle |
-| `README.md` | Pipeline actualizado con Paso 6 · sección Hub · estructura ZIP |
-| `CHECKLIST_PROYECTO_CLAUDE.md` | build_package.py como Paso 6 · 42 archivos esperados |
-| `MAPA_DEPENDENCIAS.md` | Sección Hub expandida · reglas build_package.py |
-| `CHANGELOG.md` | Este archivo |
+### 🗂 Archivos modificados
+`calc_cr.py` · `calc_rnd.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `asset_rnd_head.html` · `build_package.py` · `template_seguimiento.py` · `MAIL_DRAFT_FLUJO.md`
 
 ---
 
-## Week 18 · Mayo 2026 · sesión validación visual CR + RND completo
+## Week 19 · Mayo 2026 · sesión inicial pipeline
 
-### 🐛 Bugs corregidos (CR)
-- **Bug #8:** `_WOW_NEUTRO` como string literal en `_render_dim_table` en vez de variable
-- **Bug #9:** `g_channel_w17` no disponible dentro de funciones de render — fix: cargar explícitamente al nivel de módulo en `render_cr_p2.py`
-- **Bug #10:** verificado que `sin_conv` tiene `Eficacia_WoW_pp` correctamente
+### Nuevas features
+- `build_package.py` Paso 6: genera `index.html` hub + `Price_WNN.zip`
+- `render_mail_v3.py` v3.2: sin `metrics_recalc.pkl`, CONFIG SEMANAL, marcadores DRAFT
 
-### 🐛 Bugs corregidos (RND)
-- **Bug #11:** `TAB_RPM` con `IPM=0` — fix: `min_ipm=True` en `make_tab()`
-- **Bug #12:** Corps con tráfico <500K con NoDispo extrema — fix: `MIN_T=500_000`
-- **Bug #13:** `panel-header` 3 cols vs `panel-row` 4 cols — fix: unificar a `1fr 62px 62px 46px`
-- **Bug #14:** Regla CSS pintaba todos los nombres en magenta — fix: `.tab-panel div span.tab-val`
-- **Bug #15:** Métricas globales calculadas sobre `df18` completo — fix: usar `p80_hotel`
+### Fixes
+- `excel_rnd.py` path pickle · ZIP sin prefijo de carpeta
 
-### ✨ Nuevas features (CR)
-- Pills WoW neutras con `_WOW_NEUTRO` visual (bg #F2EEE6 · color muted)
-- Channel hero 100% eficacia: pill verde `= 0,0`
-- Color Third Party: cyan → violet en dimensión global y canastas
-- WoW en Análisis por Hotel canasta (4 cols: Hotel · ConvRate · Eficacia · WoW)
-- WoW en Channel dimensión (global y canasta)
-- Normalización destinos con `_CITY_DASH_PATTERN`
-- RE margin-top reducido: 64px→24px global · 32px→16px canasta
-- Fondos unificados: `--paper-soft: #F2EDE0` · tabs-block `var(--paper)`
+### Incidencia dataset RND
+- Primera versión con 5 columnas → solicitado corregido antes de pipeline
 
-### ✨ Nuevas features (RND)
-- `calc_rnd.py` reescrito: lee Excel directamente, P80 consistente en todas las dimensiones
-- WoW real en tabs globales y canasta
-- `MIN_T = 500_000` en tabs de dimensión
-- 4 cols en `panel-row` (Nombre · %NoDispo · IPM · WoW)
-- `section-title` negro (no hereda magenta)
+---
 
-### 📁 Archivos modificados
-`render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `calc_rnd.py` · `calc_cr.py` · `render_helpers.py` · `template_resumen.py` · `template_alertas.py` · `asset_cr_head.html` · `asset_rnd_head.html`
+## Week 18 · Mayo 2026
 
-### 🗂 Optimización proyecto Claude
-- Eliminados `_TEMPLATE_CheckRates_Reporte.html` + `_TEMPLATE_RatesNoDispo_Reporte.html` + 4 snippets (~722KB)
-- CHECKLIST: 51 → 41 archivos esperados
+### Bugs #8–#15 corregidos (ver versiones anteriores)
+### Features CR: WoW neutro, Third Party violet, WoW hotel canasta y channel
+### Features RND: calc_rnd reescrito, WoW real, MIN_T=500K, 4 cols panel-row
 
 ---
 
 ## Week 17 · Abril 2026
-
-(no aplicaba changelog formal)
-
-- Sistema de bandas D introducido
-- Sin Conversión separada como cohorte aparte
-- Pills Súper Crítica con transparencia 80%
-- Channel agrupado en CR (Producto Propio vs Third Party)
-- Tabs hero estilo folder
-
----
-
-## 🆕 Mejora · Reorganización secciones globales (post Week 18)
-
-**Fecha:** 5 mayo 2026
-
-### Antes
-6 secciones globales apiladas en cada reporte.
-
-### Ahora
-2 bloques con tabs por reporte:
-
-**RND:**
-- Sección 03 · Análisis por hotel · 3 tabs (Demanda NC · Bajo Rend · Sin Conv)
-- Sección 04 · Por dimensión · 3 tabs (Corp · Destino · País)
-
-**CR:**
-- Sección 04 · Análisis por hotel · 4 tabs (Críticos · Bajo Rend · Sin Conv · Menor ConvRate)
-- Sección 05 · Por dimensión · 3 tabs (Corp · Destino · Channel con split PP/TP)
-
-### CSS clave aprendido
-La regla `.tab-panel{display:none}` del CSS hero original tiene la misma especificidad que `:checked ~ .tab-panels .tab-panel{display:block}`. Solución: prefijar con `.tabs-block` + `!important`. Documentado en ESTRUCTURA_TEMPLATE.md.
+- Bandas D, Sin Conversión separada, pills Súper Crítica, Channel agrupado CR, tabs hero
