@@ -428,7 +428,36 @@ Mail_WNN.html      ← en _email/week-NN/
 
 ---
 
-## 📝 Cambios post W19 · Mayo 2026
+## 📝 Cambios post W19 · Mayo 2026 (sesión fixes visuales)
+
+### WoW con unidades claras (RND)
+- `pp` en %NoDispo, `%` relativo en IPM — en p1, p2, p3
+- Tabla Análisis por Dimensión: 2 cols WoW separadas (`%NoDispo · WoW · IPM · WoW`)
+- CSS grid: `1fr 62px 36px 58px 36px`
+
+### WoW ConvRate en tabla dim CR
+- Orden: `CR únicos · BKGS · ConvRate · WoW · Eficacia · WoW`
+- Helper `_fmt_wow_cv` (pp) en `render_cr_p2.py`
+
+### Tab Hotel Conv Rate — solo Bookings > 0
+- Sin Conversión excluida del card Conv Rate (tiene su propia tab)
+
+### Plan de Acción con Carryover
+- `template_seguimiento.py`: bloque HTML Carryover con badge gris + `desde WNN`
+- `build_package.py`: genera `plan_seguimiento_WNN.md`
+- ES/MP → OPEN (auto) · QW → PENDIENTE_QW (revisión manual)
+- Aplica global + canastas CR y RND
+
+### Semana dinámica en masthead
+- `VOL_NUM`, `PERIODO`, `MES_AÑO` en pickle (`calc_cr.py` y `calc_rnd.py`)
+
+### CONFIG SEMANAL para W20
+Cambiar en `calc_cr.py`: `WEEK='W20'`, `PERIODO`, `MES_AÑO`, `VOL_NUM`, rutas datasets W20 y W19
+Cambiar en `calc_rnd.py`: mismo patrón
+
+---
+
+## 📝 Cambios post W19 · Mayo 2026 (sesión inicial pipeline)
 
 ### Pipeline · Paso 6 nuevo: build_package.py
 - Genera `index.html` del hub automáticamente desde los pickles (KPIs, WoW, bandas, severity counts)
@@ -496,3 +525,38 @@ Mail_WNN.html      ← en _email/week-NN/
 ---
 
 **Última actualización:** Mayo 2026 · post W19 · build_package + hub pipeline · bugs #16 #17 #18 · destinatarios 15
+
+## 📝 Cambios post W19 · Mayo 2026 (sesión fixes Excel + HTML)
+
+### Excels CheckRates (CR)
+- **Críticos** (global + canastas): sort explícito `sort_values('Eficacia', ascending=True)` — menor Eficacia primero
+- **Por Corporativo** (global + canastas): agrega columna `Channels` con los canales únicos del corp via `hotel_channel_map`
+
+### Excels Rates No Dispo (RND)
+- **RPM → IPM (USD/M)**: todas las columnas de display renombradas — `.rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})`
+- **Colores de banda IPM**: nuevo parámetro `banda_col2` en `add_table()` permite colorear dos columnas de banda por fila
+- **Sin Conversión**: agrega `Font(..., color='8A8377')` en `BAND_FONTS` para color muted correcto
+
+### Reportes HTML CR
+- **Headers tab hotel**: `'Checkrates'` → `'CR Únicos'` · `'ConvRate'` → `'Conv Rate'` (global + canastas)
+- **Headers tabla dim**: `'CR'` → `'CR Únicos'` · `'CV'` → `'Conv Rate'` (Corp + Dest + Channel, global + canastas)
+
+### Bugs corregidos
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #28 | `excel_cr.py` | Sort Críticos sin `ascending=True` explícito |
+| #29 | `excel_cr.py` | Por Corporativo sin columna Channel |
+| #30 | `excel_rnd.py` | Columnas `RPM`/`BandaRPM` visibles en Excel |
+| #31 | `excel_rnd.py` | Colores banda IPM no aplicaban (`banda_col2`) |
+| #32 | `excel_rnd.py` | `Sin Conversión` sin color en `BAND_FONTS` |
+| #33 | `render_cr_p2.py` | Header tab hotel `Checkrates`/`ConvRate` |
+| #34 | `render_cr_p2.py` | Header tabla dim `CR`/`CV` |
+| #35 | `render_cr_p3.py` | Header dim canastas `CR`/`CV` |
+| #36 | `calc_rnd.py` | `ZeroDivisionError` cuando dataset W(N-1) vacío |
+
+### Archivos modificados
+`excel_cr.py` · `excel_rnd.py` · `render_cr_p2.py` · `render_cr_p3.py` · `calc_rnd.py`
+
+---
+
+**Última actualización:** Mayo 2026 · post W19 · fixes Excel IPM/CR Únicos/Corp Channel · bugs #28–#36
