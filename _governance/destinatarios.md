@@ -5,7 +5,7 @@
 ```
 rafael.durand@pricetravel.com
 bellanira.hernandez@pricetravel.com
-maria.alejandra.rico@pricetravel.com
+maria.rico@pricetravel.com
 javier.parra@pricetravel.com
 alonso.mis@pricetravel.com
 ingrid.kuhnne@pricetravel.com
