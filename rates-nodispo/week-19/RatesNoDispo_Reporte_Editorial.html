@@ -586,13 +586,23 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </div>
 </div>
 <style>
+/* Base tab-label estado inactivo — asegura efecto folder en canastas */
+#tab-op-h-dnc ~ .tabs-row label[for^="tab-op-h-"],
+#tab-op-d-corp ~ .tabs-row label[for^="tab-op-d-"]{
+  padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;
+  letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;
+  border:1px solid transparent;border-bottom:none;user-select:none;
+  transition:all .15s;margin-bottom:-1px;display:inline-block;
+}
+/* Tab activo — estilo folder conectado */
 #tab-op-h-dnc:checked ~ .tabs-row label[for="tab-op-h-dnc"],
 #tab-op-h-br:checked ~ .tabs-row label[for="tab-op-h-br"],
 #tab-op-h-sc:checked ~ .tabs-row label[for="tab-op-h-sc"],
 #tab-op-d-corp:checked ~ .tabs-row label[for="tab-op-d-corp"],
 #tab-op-d-dest:checked ~ .tabs-row label[for="tab-op-d-dest"],
 #tab-op-d-pais:checked ~ .tabs-row label[for="tab-op-d-pais"]{
-  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+  background:var(--paper);color:#EA0074;font-weight:700;
+  border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }
 #tab-op-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
 #tab-op-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
@@ -963,13 +973,23 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </div>
 </details>
 <style>
+/* Base tab-label estado inactivo — asegura efecto folder en canastas */
+#tab-cug-h-dnc ~ .tabs-row label[for^="tab-cug-h-"],
+#tab-cug-d-corp ~ .tabs-row label[for^="tab-cug-d-"]{
+  padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;
+  letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;
+  border:1px solid transparent;border-bottom:none;user-select:none;
+  transition:all .15s;margin-bottom:-1px;display:inline-block;
+}
+/* Tab activo — estilo folder conectado */
 #tab-cug-h-dnc:checked ~ .tabs-row label[for="tab-cug-h-dnc"],
 #tab-cug-h-br:checked ~ .tabs-row label[for="tab-cug-h-br"],
 #tab-cug-h-sc:checked ~ .tabs-row label[for="tab-cug-h-sc"],
 #tab-cug-d-corp:checked ~ .tabs-row label[for="tab-cug-d-corp"],
 #tab-cug-d-dest:checked ~ .tabs-row label[for="tab-cug-d-dest"],
 #tab-cug-d-pais:checked ~ .tabs-row label[for="tab-cug-d-pais"]{
-  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+  background:var(--paper);color:#EA0074;font-weight:700;
+  border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }
 #tab-cug-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
 #tab-cug-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
@@ -1340,13 +1360,23 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </div>
 </details>
 <style>
+/* Base tab-label estado inactivo — asegura efecto folder en canastas */
+#tab-b2c-h-dnc ~ .tabs-row label[for^="tab-b2c-h-"],
+#tab-b2c-d-corp ~ .tabs-row label[for^="tab-b2c-d-"]{
+  padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;
+  letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;
+  border:1px solid transparent;border-bottom:none;user-select:none;
+  transition:all .15s;margin-bottom:-1px;display:inline-block;
+}
+/* Tab activo — estilo folder conectado */
 #tab-b2c-h-dnc:checked ~ .tabs-row label[for="tab-b2c-h-dnc"],
 #tab-b2c-h-br:checked ~ .tabs-row label[for="tab-b2c-h-br"],
 #tab-b2c-h-sc:checked ~ .tabs-row label[for="tab-b2c-h-sc"],
 #tab-b2c-d-corp:checked ~ .tabs-row label[for="tab-b2c-d-corp"],
 #tab-b2c-d-dest:checked ~ .tabs-row label[for="tab-b2c-d-dest"],
 #tab-b2c-d-pais:checked ~ .tabs-row label[for="tab-b2c-d-pais"]{
-  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+  background:var(--paper);color:#EA0074;font-weight:700;
+  border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }
 #tab-b2c-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
 #tab-b2c-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
