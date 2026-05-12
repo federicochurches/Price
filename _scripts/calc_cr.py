@@ -9,10 +9,10 @@ import numpy as np
 from engine import banda_eficacia, banda_convrate
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
-WEEK = 'W18'
-PERIODO = '27 abr – 3 may 2026'
+WEEK = 'W19'
+PERIODO = '5–11 may 2026'
 MES_AÑO = 'Mayo 2026'
-VOL_NUM = '18'
+VOL_NUM = '19'
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
 THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
@@ -30,8 +30,8 @@ def load_and_clean(path):
     df['ConvRate']  = df['ConvRate'].clip(0)
     return df
 
-df18 = load_and_clean('Dataset_CheckRates_W18.xlsx')
-df17 = load_and_clean('Dataset_CheckRates_W17.xlsx')
+df18 = load_and_clean('Dataset_CheckRates_W19.xlsx')  # semana actual
+df17 = load_and_clean('Dataset_CheckRates_W18.xlsx')  # semana anterior para WoW
 
 # ── Agregados W17 para merge WoW en tabs del hero ─────────────────────────
 def _agg_dim_w17(df, col):
@@ -187,7 +187,7 @@ def tab_eficacia():
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
     g_c.rename(columns={'CorpName':'CorpName'}, inplace=True)
     # Hotel (P80)
-    g_h = p80_hotel.copy()
+    g_h = p80_hotel[p80_hotel['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
     # Channel — sobre dataset completo (channel no se filtra por hotel)
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
@@ -228,7 +228,7 @@ def tab_convrate():
     g_c = df18_p80.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_c['ConvRate'] = g_c['Bookings']/g_c['CR_Unicos']
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
-    g_h = p80_hotel.copy()
+    g_h = p80_hotel[p80_hotel['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['ConvRate'] = g_ch['Bookings']/g_ch['CR_Unicos']
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
@@ -375,10 +375,10 @@ D = {
     'g_hotel_w17': g_hotel_w17,
 }
 
-with open('cr_w18_data.pkl','wb') as f:
+with open('cr_w19_data.pkl','wb') as f:
     pickle.dump(D, f)
 
-print(f"✅ Pickle guardado: cr_w18_data.pkl")
+print(f"✅ Pickle guardado: cr_w19_data.pkl")
 print(f"   Eficacia global W18: {M['global_w18']['eficacia']:.4f} ({M['global_w18']['eficacia']*100:.2f}%)")
 print(f"   ConvRate global W18: {M['global_w18']['conv_rate']:.4f} ({M['global_w18']['conv_rate']*100:.2f}%)")
 print(f"   CR únicos W18: {M['global_w18']['cr_unicos']:,}")

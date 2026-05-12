@@ -2,6 +2,29 @@
 
 ---
 
+## FIX #47 · 11 Mayo 2026 · Post-Audit · calc_cr.py CONFIG alineado
+
+### 🐛 Bug corregido
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #47 | `calc_cr.py` | CONFIG decía WEEK='W18' pero generaba cr_w19_data.pkl · desalineamiento — fix: WEEK='W19' + print message correcto |
+
+**Problema detectado:** En audit pre-W20, calc_cr.py tenía CONFIG WEEK='W18' pero leía datasets W19 y generaba cr_w19_data.pkl. Mismatch confuso.
+
+**Solución:** 
+- Línea 12: `WEEK = 'W18'` → `WEEK = 'W19'`
+- Línea 381: print message → `cr_w19_data.pkl`
+
+**Status:** ✅ Aplicado · calc_cr.py ahora 100% alineado con pipeline W19
+
+**Impacto:** Zero impacto en W19 (pipeline funcional por casualidad). W20 comenzará con CONFIG correcta desde inicio.
+
+### 📝 Archivos modificados
+`calc_cr.py` · `PROMPT_MAESTRO_v3.md`
+
+---
+
 ## Post W19 · Mayo 2026 · sesión fixes Excel + HTML
 
 ### 🐛 Bugs corregidos
