@@ -187,3 +187,11 @@ _scripts/
 ├── index.html              ← generado por build_package.py
 └── Price_WNN.zip           ← ZIP final para commit
 ```
+
+
+## Bugs críticos a recordar para W20+
+
+- **`calc_rnd.py` CONFIG SEMANAL**: cambiar `df18` → W(N) y `df17` → W(N-1). Si ambos apuntan al mismo archivo el WoW es todo cero (Bug #19).
+- **`calc_cr.py` CONFIG SEMANAL**: `df18` → W(N), `df17` → W(N-1). El pickle se llama `cr_wNN_data.pkl`.
+- **Header masthead** toma `VOL_NUM` del pickle — no hay que tocarlo manualmente.
+- **plan_seguimiento** se genera en `_governance/_seguimiento/` — editar antes del pipeline para mover QW resueltos a `## CERRADO`.
