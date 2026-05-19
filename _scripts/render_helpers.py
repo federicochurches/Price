@@ -4,10 +4,11 @@ Sistema bandas D · post W17
 """
 import pandas as pd
 import numpy as np
-from engine import *
+from _helpers.engine import *
 
 # ============ CONFIG W18 ============
-WEEK_NUM = "W18"
+import os
+WEEK_NUM = os.getenv('WEEK', 'W20')
 PERIODO  = "27 abr – 3 may 2026"
 PERIODO_LABEL = "Lunes 27 De Abril De 2026"
 MES_AÑO  = "Mayo 2026"

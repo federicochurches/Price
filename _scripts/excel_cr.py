@@ -1,5 +1,5 @@
 """
-Excel Análisis CR W18 · 17 pestañas Top 100 (estructura post-Fix #9 y #11)
+Excel Análisis CR · 17 pestañas Top 100 (estructura post-Fix #9 y #11)
 Ficha Técnica + Severity (2) + Top 100 listings (4) + Por Corp/Destino/Channel (3) +
 Menor Conv Rate + Plan Acción + Canastas (Críticos+BajoRend × 3 = 6) = 17
 """

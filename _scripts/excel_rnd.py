@@ -1,5 +1,5 @@
 """
-Excel Análisis RND W18 · 13 pestañas Top 100
+Excel Análisis RND · 13 pestañas Top 100
 Estructura post W17: Ficha Técnica + Severity (2) + Top 100 listings (5) +
 Por Corp/Dest/País (3) + Plan Acción + Canastas Bajo Rend (3) = 13
 """
