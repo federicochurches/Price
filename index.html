@@ -58,6 +58,8 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .aw{font-weight:600;}
 .ap{font-size:11px;color:var(--muted);}
 .archivo-link.disabled{opacity:.35;pointer-events:none;}
+.archivo-link[data-week]{transition:all .3s ease;cursor:pointer;}
+.archivo-link[data-week]:hover{filter:blur(0px)!important;opacity:1!important;}
 </style>
 </head>
 <body>
@@ -131,15 +133,15 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
   </div>
 
   <div class="archivo">
-    <div class="archivo-title">Archivo · Semanas anteriores</div>
+    <div class="archivo-title">Últimas semanas</div>
     <div class="archivo-grid">
       <div class="archivo-grupo">
         <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
         <div class="archivo-links">
-          <a href="rates-nodispo/week-19/RatesNoDispo_Reporte_Editorial.html" class="archivo-link">
+          <a href="rates-nodispo/week-19/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="19">
             <span class="aw">Week 19</span><span class="ap">5–11 may 2026</span>
           </a>
-          <a href="rates-nodispo/week-18/RatesNoDispo_Reporte_Editorial.html" class="archivo-link">
+          <a href="rates-nodispo/week-18/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="18">
             <span class="aw">Week 18</span><span class="ap">27 abr – 3 may 2026</span>
           </a>
         </div>
@@ -147,12 +149,50 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
       <div class="archivo-grupo">
         <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
         <div class="archivo-links">
-          <a href="checkrates/week-19/CheckRates_Reporte_Editorial.html" class="archivo-link">
+          <a href="checkrates/week-19/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="19">
             <span class="aw">Week 19</span><span class="ap">5–11 may 2026</span>
           </a>
-          <a href="checkrates/week-18/CheckRates_Reporte_Editorial.html" class="archivo-link">
+          <a href="checkrates/week-18/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="18">
             <span class="aw">Week 18</span><span class="ap">27 abr – 3 may 2026</span>
           </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="archivo">
+    <button id="toggleHistoric" style="width:100%;padding:12px 20px;border:1px solid var(--rule);background:transparent;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;transition:background .15s;">
+      ▼ Histórico completo (semanas anteriores)
+    </button>
+    <div id="historicContent" style="display:none;margin-top:16px;">
+      <div class="archivo-grid">
+        <div class="archivo-grupo">
+          <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
+          <div class="archivo-links">
+            <a href="rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+              <span class="aw">Week 17</span><span class="ap">20–26 abr 2026</span>
+            </a>
+            <a href="rates-nodispo/week-16/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.5;">
+              <span class="aw">Week 16</span><span class="ap">13–19 abr 2026</span>
+            </a>
+            <a href="rates-nodispo/week-15/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.4;">
+              <span class="aw">Week 15</span><span class="ap">6–12 abr 2026</span>
+            </a>
+          </div>
+        </div>
+        <div class="archivo-grupo">
+          <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
+          <div class="archivo-links">
+            <a href="checkrates/week-17/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+              <span class="aw">Week 17</span><span class="ap">20–26 abr 2026</span>
+            </a>
+            <a href="checkrates/week-16/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.5;">
+              <span class="aw">Week 16</span><span class="ap">13–19 abr 2026</span>
+            </a>
+            <a href="checkrates/week-15/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.4;">
+              <span class="aw">Week 15</span><span class="ap">6–12 abr 2026</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -179,6 +219,32 @@ function showHub() {
 }
 if (localStorage.getItem(SESSION_KEY)) showHub();
 document.addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+
+// Aplicar SOLO opacidad sutil a últimas 3 semanas (sin blur)
+document.addEventListener('DOMContentLoaded', () => {
+  const recentLinks = document.querySelectorAll('.recent-link[data-week]');
+  const currentWeek = 20;
+  const minOpacity = 0.92;
+  
+  recentLinks.forEach(link => {
+    const week = parseInt(link.getAttribute('data-week'));
+    const weeksBack = currentWeek - week;
+    const opacity = minOpacity + ((weeksBack / 3) * (1 - minOpacity));
+    
+    link.style.opacity = opacity;
+    link.style.transition = 'opacity 0.3s ease';
+  });
+  
+  // Toggle acordeón histórico
+  const toggleBtn = document.getElementById('toggleHistoric');
+  const historicContent = document.getElementById('historicContent');
+  
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = historicContent.style.display !== 'none';
+    historicContent.style.display = isOpen ? 'none' : 'block';
+    toggleBtn.textContent = isOpen ? '▶ Histórico completo (semanas anteriores)' : '▼ Histórico completo (semanas anteriores)';
+  });
+});
 </script>
 </body>
 </html>
