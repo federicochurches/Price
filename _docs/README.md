@@ -48,7 +48,47 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 ---
 
-## 🚀 Pipeline semanal · orden de ejecución
+---
+
+## 🚀 FLUJO EJECUTABLE W21+ · 1 COMANDO (NUEVO - Mayo 2026)
+
+### ✨ Pipeline automatizado con YAML
+
+**ANTES (W20):** Editar scripts + ejecutar 6 pasos manualmente (35 min)  
+**AHORA (W21+):** 1 comando automático (20 min)
+
+```bash
+# Setup (2 min)
+cp WEEK_CONFIG_W20.yml WEEK_CONFIG_W21.yml
+vim WEEK_CONFIG_W21.yml  # Cambiar: week, vol_num, periodo, fecha_pub, week_prev, periodo_prev, week_prev2
+
+# Ejecutar (15 min · completamente automático)
+python3 run_pipeline.py WEEK_CONFIG_W21.yml
+
+# Output
+✅ PIPELINE COMPLETADO EXITOSAMENTE
+   ZIP: /mnt/user-data/outputs/Price_W21.zip
+   Log: /mnt/user-data/outputs/pipeline_W21_run_*.log
+   Summary: /mnt/user-data/outputs/pipeline_W21_summary.json
+```
+
+### Cómo funciona
+
+1. **run_pipeline.py** lee `WEEK_CONFIG_W21.yml`
+2. Inyecta variables de entorno: `WEEK`, `VOL_NUM`, `PERIODO`, `PICKLE_RND`, `PICKLE_CR`, etc.
+3. Ejecuta 6 pasos en secuencia:
+   - Validación pre-ejecución (verifica 4 datasets)
+   - `calc_rnd.py` + `calc_cr.py` (cálculos)
+   - `render_*_p*.py` (rendering HTML)
+   - `assemble_*.py` (ensamble)
+   - `excel_*.py` (Excels)
+   - `render_mail_v3.py` + `build_package.py` (mail + hub + ZIP)
+4. Genera logs detallados + resumen JSON
+5. **Listo para GitHub commit**
+
+---
+
+## 🚀 Pipeline clásico (manual, si necesitas)
 
 ```bash
 # CONFIG en cada script: cambiar WEEK, PERIODO, PICKLE_* al inicio de cada archivo
@@ -66,8 +106,8 @@ python render_cr_p2.py   # → part2_cr.html
 python render_cr_p3.py   # → part3_cr.html
 
 # 3. Ensamblado · une parciales en reportes finales
-python assemble_rnd.py   # → Supply_RatesNoDispo_WNN.html
-python assemble_cr.py    # → Supply_CheckRates_WNN.html
+python assemble_rnd.py   # → RatesNoDispo_Reporte_Editorial.html
+python assemble_cr.py    # → CheckRates_Reporte_Editorial.html
 
 # 4. Excel · genera 4 archivos por reporte (8 total)
 python excel_rnd.py      # → Analisis_Rates_NoDispo_7d.xlsx + 3 canasta
@@ -76,8 +116,8 @@ python excel_cr.py       # → Analisis_Checkrates_7d.xlsx + 3 canasta
 # 5. Mail
 python render_mail_v3.py # → Mail_WNN.html
 
-# 6. Hub + ZIP · NUEVO desde W19
-python build_package.py  # → index.html (hub actualizado) + Price_WNN.zip
+# 6. Hub + ZIP
+python build_package.py  # → index.html + Price_WNN.zip
 ```
 
 > **Paso 6 es el paso final obligatorio.** Genera el `index.html` del hub con KPIs y severity pills extraídos automáticamente del pickle, y empaqueta todos los archivos en el ZIP con la estructura correcta del repo lista para commit.

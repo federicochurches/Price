@@ -2,6 +2,27 @@
 
 ---
 
+## Week 20 · 19 Mayo 2026 · MIN_CR=100 + Metodología consolidada + Fixes críticos
+
+### 🎯 Cambios Arquitectónicos (CRÍTICOS)
+
+**MIN_CR = Universo operacionalmente relevante:**
+- ✅ `calc_cr.py` línea 62: `MIN_CR = 100` (hoteles con ≥100 CheckRates/semana)
+- ✅ `calc_rnd.py` línea 85: `MIN_TRAFICO = 50000` (equivalente en RND)
+- ✅ Filtro aplicado ANTES de calcular percentiles (P90)
+- ✅ Elimina ruido de hoteles pequeños, una métrica única y honesta
+- ✅ Impacto: Iberostar OP ahora consistente (99.25%, 3 hoteles ≥100 CR)
+
+**P90 + Nota de Metodología:**
+- ✅ `assemble_cr.py`: Agrega caja informativa sobre P90 + MIN_CR
+- ✅ `assemble_rnd.py`: Idem
+- ✅ Documentación clara en reportes HTML
+
+**Destinatarios actualizados:**
+- ✅ `destinatarios.md`: 28 personas (15 originales + 13 nuevos)
+
+---
+
 ## Week 20 · 19 Mayo 2026 · Fixes críticos + creación de nuevos scripts
 
 ### 🐛 Bugs corregidos (8 total)
