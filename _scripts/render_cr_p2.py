@@ -1,5 +1,5 @@
 """
-Renderer CR W18 parte 2: Resumen Ejecutivo, Severity Eficacia/CR, Top 5
+Renderer CR W20 parte 2: Resumen Ejecutivo, Severity Eficacia/CR, Top 5
 """
 import sys
 if "/mnt/project/_scripts" not in sys.path:
