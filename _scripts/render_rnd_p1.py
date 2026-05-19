@@ -62,6 +62,7 @@ WEEK_DISPLAY  = f'Week {WEEK_NUM}'
 PERIODO_LABEL = D.get('PERIODO', '5–11 may 2026')
 VOL_NUM       = D.get('VOL_NUM', WEEK_NUM)
 MES_AÑO       = D.get('MES_AÑO', 'Mayo 2026')
+FECHA_PUB     = D.get('FECHA_PUB', 'LUNES 18 de Mayo de 2026')
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Cargar head y footer
@@ -91,6 +92,7 @@ def render_masthead():
 </div>
 </div>
 <div class="masthead-sub">
+<span>{FECHA_PUB}</span>
 <span>Vol. {VOL_NUM}</span>
 </div>
 </header>

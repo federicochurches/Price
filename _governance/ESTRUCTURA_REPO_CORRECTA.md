@@ -2,27 +2,40 @@
 
 **Este documento es la FUENTE DE VERDAD para armar ZIPs**
 
+## ⚠️ REGLA DE ORO - MÁS IMPORTANTE
+
+**RAÍZ = COMPLETAMENTE VACÍA**
+
+```
+❌ NO COPIAR NADA A RAÍZ
+❌ NO INCLUIR README.md en raíz
+❌ NO INCLUIR CHANGELOG.md en raíz
+❌ NO INCLUIR PROMPT_MAESTRO_v3.md en raíz
+❌ NO INCLUIR NADA en raíz
+
+✅ RAÍZ DEBE ESTAR 100% VACÍA
+```
+
+---
+
 ## Estructura real en GitHub (federicochurches/Price)
 
 ```
 Price/
-├── README.md                                    ✅ RAÍZ
-├── CHANGELOG.md                                 ✅ RAÍZ (ACTUALIZAR AQUÍ)
-├── PROMPT_MAESTRO_v3.md                         ✅ RAÍZ (si existe)
-│
 ├── _email/                                      ✅ CARPETA EN RAÍZ
+│   ├── destinatarios.md
 │   └── week-NN/
 │       └── Mail_WNN.html
 │
 ├── _governance/                                 ✅ CARPETA EN RAÍZ
-│   ├── CHANGELOG.md                              (copy de raíz)
+│   ├── CHANGELOG.md
 │   └── COMMIT_GUIDE.md
 │
-├── _scripts/                                    ✅ CARPETA EN RAÍZ (LOCAL)
-│   ├── *.py                                      (40+ archivos Python)
+├── _scripts/                                    ✅ CARPETA EN RAÍZ
+│   ├── *.py                                      (28 archivos Python)
 │   ├── *.sh                                      (shell scripts)
-│   ├── asset_*.html                              (HTML assets VAN AQUÍ)
-│   ├── GUIA_EDITORIAL_*.html                     (guías VAN AQUÍ)
+│   ├── asset_*.html                              (HTML assets)
+│   ├── GUIA_EDITORIAL_*.html                     (guías)
 │   └── __init__.py
 │
 ├── rates-nodispo/
@@ -35,8 +48,7 @@ Price/
 │       ├── Analisis_Rates_NoDispo_7d.xlsx
 │       ├── Analisis_Rates_NoDispo_B2C_7d.xlsx
 │       ├── Analisis_Rates_NoDispo_OP_7d.xlsx
-│       ├── Analisis_Rates_NoDispo_CUG_7d.xlsx
-│       └── Dataset_RatesNoDispo_W20.xlsx         (opcional)
+│       └── Analisis_Rates_NoDispo_CUG_7d.xlsx
 │
 └── checkrates/
     ├── _manual/
@@ -48,8 +60,22 @@ Price/
         ├── Analisis_Checkrates_7d.xlsx
         ├── Analisis_Checkrates_B2C_7d.xlsx
         ├── Analisis_Checkrates_OP_7d.xlsx
-        ├── Analisis_Checkrates_CUG_7d.xlsx
-        └── Dataset_CheckRates_W20.xlsx           (opcional)
+        └── Analisis_Checkrates_CUG_7d.xlsx
+```
+
+**NOTA:** La raíz está VACÍA. README, CHANGELOG y PROMPT_MAESTRO no van en el repo.
+
+---
+
+## ❌ ARCHIVOS QUE NUNCA VAN EN RAÍZ
+
+```
+❌ README.md                 (NO va en repo)
+❌ CHANGELOG.md              (NO va en repo, va en _governance/)
+❌ PROMPT_MAESTRO_v3.md      (NO va en repo, es documentación local)
+❌ FIXES_W20_FINAL.md        (NO va en repo)
+❌ READY_W21.md              (NO va en repo)
+❌ Cualquier otro .md        (van en _governance/ si es gobernanza)
 ```
 
 ---
@@ -64,38 +90,24 @@ Price/
 
 ---
 
-## ✅ ARCHIVOS QUE VAN EN RAÍZ
+## ✅ _GOVERNANCE/ - 2 ARCHIVOS
 
-| Archivo | Qué hace | Incluir en ZIP |
-|---------|----------|----------------|
-| `README.md` | Descripción del proyecto | ✅ SÍ |
-| `CHANGELOG.md` | Historial de cambios | ✅ SÍ (ACTUALIZAR) |
-| `PROMPT_MAESTRO_v3.md` | Documentación del proyecto | ✅ SÍ (si existe) |
-| `FIXES_W20_FINAL.md` | Guía de bugs W20 | ⚠️ SOLO para W20 |
-| `READY_W21.md` | Guía ejecutable W21 | ⚠️ SOLO para W21+ |
+| Archivo | Origen | Incluir |
+|---------|--------|---------|
+| `CHANGELOG.md` | /mnt/project/_docs/ | ✅ SÍ |
+| `COMMIT_GUIDE.md` | /mnt/project/_docs/ | ✅ SÍ |
 
 ---
 
-## ✅ ARCHIVOS QUE VAN EN _GOVERNANCE/
+## ✅ _EMAIL/ - 1 ARCHIVO
 
-| Archivo | Origen | Incluir en ZIP |
-|---------|--------|----------------|
-| `CHANGELOG.md` | Copy de raíz | ✅ SÍ |
-| `COMMIT_GUIDE.md` | Copy de /mnt/project/_docs | ✅ SÍ |
-| `EXCLUSIONES_ZIP.md` | Copy de /mnt/project/_docs | ❓ OPCIONAL |
+| Archivo | Origen | Incluir |
+|---------|--------|---------|
+| `destinatarios.md` | /mnt/project/destinatarios.md | ✅ SÍ |
 
 ---
 
-## ✅ ARCHIVOS QUE VAN EN _EMAIL/
-
-| Archivo | Origen | Incluir en ZIP |
-|---------|--------|----------------|
-| `destinatarios.md` | Lista de 15 destinatarios | ✅ SÍ |
-| `week-NN/Mail_WNN.html` | Mail generado semanal | ✅ SÍ (generado) |
-
----
-
-## ✅ ARCHIVOS QUE VAN EN _SCRIPTS/
+## ✅ _SCRIPTS/ - 40+ ARCHIVOS
 
 ### Python scripts (INCLUIR SIEMPRE)
 ```
@@ -117,7 +129,7 @@ release_week.py
 
 ### HTML assets (INCLUIR SIEMPRE en _scripts, NO en _assets)
 ```
-asset_rnd_masthead.html ✅ (actualizado W20: fecha removida)
+asset_rnd_masthead.html
 asset_rnd_head.html
 asset_rnd_footer.html
 asset_cr_masthead.html
@@ -137,7 +149,7 @@ package_project.sh
 
 ---
 
-## ✅ ARCHIVOS QUE VAN EN rates-nodispo/week-NN/
+## ✅ rates-nodispo/week-NN/ - 5 ARCHIVOS
 
 ```
 RatesNoDispo_Reporte_Editorial.html        ✅ REPORTE FINAL
@@ -149,7 +161,7 @@ Analisis_Rates_NoDispo_CUG_7d.xlsx          ✅ Canasta CUG (8 pestañas)
 
 ---
 
-## ✅ ARCHIVOS QUE VAN EN checkrates/week-NN/
+## ✅ checkrates/week-NN/ - 5 ARCHIVOS
 
 ```
 CheckRates_Reporte_Editorial.html           ✅ REPORTE FINAL
@@ -170,87 +182,85 @@ Analisis_Checkrates_CUG_7d.xlsx             ✅ Canasta CUG (9 pestañas)
 ❌ *.pyc                                     (compiled Python)
 ❌ Datasets (Dataset_*.xlsx)                 (entrada, no output)
 ❌ Mail_WNN.html en raíz                     (va en _email/week-NN/)
-❌ Archivos de /mnt/project/ no mencionados  (son locales, no repo)
+❌ README.md en raíz                         (NO va en repo)
+❌ CHANGELOG.md en raíz                      (va solo en _governance/)
+❌ PROMPT_MAESTRO_v3.md en raíz              (NO va en repo)
 ```
 
 ---
 
-## 📋 CHECKLIST PARA ARMAR ZIP
-
-Antes de crear un ZIP, verificar:
+## 📋 CHECKLIST PARA ARMAR ZIP (RÁPIDO Y CORRECTO)
 
 ```bash
-# 1. Copiar SOLO estos archivos a raíz
-✅ README.md
-✅ CHANGELOG.md (ACTUALIZADO con entrada WNN)
-✅ PROMPT_MAESTRO_v3.md (si existe)
+# 0. LIMPIAR ESTRUCTURA TEMPORAL
+rm -rf /tmp/Price_Final
+mkdir -p /tmp/Price_Final
 
-# 2. Copiar SOLO estos a _governance/
-✅ _governance/CHANGELOG.md (copy de raíz)
-✅ _governance/COMMIT_GUIDE.md
+# 1. CREAR CARPETAS (NO ARCHIVOS EN RAÍZ)
+mkdir -p /tmp/Price_Final/_scripts
+mkdir -p /tmp/Price_Final/_governance
+mkdir -p /tmp/Price_Final/_email
+mkdir -p /tmp/Price_Final/rates-nodispo/week-NN
+mkdir -p /tmp/Price_Final/checkrates/week-NN
 
-# 3. Copiar a _email/
-✅ _email/destinatarios.md
+# 2. ❌ NO COPIAR NADA A RAÍZ
+# (La raíz queda vacía)
 
-# 4. Copiar a _scripts/ (40+ archivos)
-✅ _scripts/*.py (todos los scripts)
-✅ _scripts/*.sh (todos los shells)
-✅ _scripts/asset_*.html (HTML assets)
-✅ _scripts/GUIA_EDITORIAL_*.html
-✅ _scripts/__init__.py
+# 3. COPIAR _GOVERNANCE (2 archivos)
+cp /mnt/project/_docs/CHANGELOG.md /tmp/Price_Final/_governance/
+cp /mnt/project/_docs/COMMIT_GUIDE.md /tmp/Price_Final/_governance/
 
-# 5. Copiar a rates-nodispo/week-NN/
-✅ RatesNoDispo_Reporte_Editorial.html
-✅ Analisis_Rates_NoDispo_7d.xlsx
-✅ Analisis_Rates_NoDispo_B2C_7d.xlsx
-✅ Analisis_Rates_NoDispo_OP_7d.xlsx
-✅ Analisis_Rates_NoDispo_CUG_7d.xlsx
+# 4. COPIAR _EMAIL (1 archivo)
+cp /mnt/project/destinatarios.md /tmp/Price_Final/_email/
 
-# 6. Copiar a checkrates/week-NN/
-✅ CheckRates_Reporte_Editorial.html
-✅ Analisis_Checkrates_7d.xlsx
-✅ Analisis_Checkrates_B2C_7d.xlsx
-✅ Analisis_Checkrates_OP_7d.xlsx
-✅ Analisis_Checkrates_CUG_7d.xlsx
+# 5. COPIAR _SCRIPTS (28 Python + 4 shells + 8 HTML)
+cp /mnt/project/_scripts/*.py /tmp/Price_Final/_scripts/
+cp /mnt/project/_scripts/*.sh /tmp/Price_Final/_scripts/
+cp /mnt/project/_scripts/__init__.py /tmp/Price_Final/_scripts/
+cp /mnt/project/_scripts/asset_*.html /tmp/Price_Final/_scripts/
+cp /mnt/project/_scripts/GUIA_EDITORIAL_*.html /tmp/Price_Final/_scripts/
 
-# 7. Limpiar ANTES de zipar
-❌ Eliminar *.pkl
-❌ Eliminar part*.html
-❌ Eliminar __pycache__/
-❌ Eliminar *.pyc
-❌ Eliminar _assets/ (NO EXISTE en repo)
-❌ Eliminar _docs/ (NO EXISTE en repo)
-❌ Eliminar _config/ (NO EXISTE en repo)
-❌ Eliminar _helpers* (NO EXISTEN en repo)
+# 6. COPIAR REPORTES Y EXCELS
+cp /mnt/user-data/outputs/RatesNoDispo_Reporte_Editorial.html /tmp/Price_Final/rates-nodispo/week-NN/
+cp /mnt/user-data/outputs/CheckRates_Reporte_Editorial.html /tmp/Price_Final/checkrates/week-NN/
+cp /mnt/user-data/outputs/Analisis_Rates_NoDispo_*.xlsx /tmp/Price_Final/rates-nodispo/week-NN/
+cp /mnt/user-data/outputs/Analisis_Checkrates_*.xlsx /tmp/Price_Final/checkrates/week-NN/
 
-# 8. Crear ZIP sin carpeta contenedora
-cd /tmp/Price_Final && zip -r ../Price_WNN_FINAL.zip . -q
+# 7. CREAR ZIP (sin carpeta contenedora)
+cd /tmp/Price_Final && zip -r /mnt/user-data/outputs/Price_WNN_FINAL.zip . -q
+
+# 8. VERIFICAR QUE RAÍZ ESTÁ VACÍA
+unzip -l /mnt/user-data/outputs/Price_WNN_FINAL.zip | grep "^.*[A-Z].*\.md$" | grep -v "/" && echo "❌ ERROR: Hay archivos en raíz" || echo "✅ OK: Raíz vacío"
+
+# 9. LIMPIAR
+rm -rf /tmp/Price_Final
 ```
 
 ---
 
-## 🎯 RESUMEN
+## 🎯 RESUMEN EN UNA TABLA
 
-| Qué | Dónde | Incluir ZIP |
-|-----|-------|------------|
-| Scripts Python | `_scripts/` | ✅ SÍ |
-| HTML assets | `_scripts/` | ✅ SÍ (NO en _assets) |
-| Shell scripts | `_scripts/` | ✅ SÍ |
-| README, CHANGELOG, PROMPT | Raíz | ✅ SÍ |
-| CHANGELOG copy | `_governance/` | ✅ SÍ |
-| COMMIT_GUIDE | `_governance/` | ✅ SÍ |
-| destinatarios.md | `_email/` | ✅ SÍ |
-| Reportes HTML | `rates-nodispo/week-NN/` | ✅ SÍ |
-| Excels RND | `rates-nodispo/week-NN/` | ✅ SÍ |
-| Reportes HTML | `checkrates/week-NN/` | ✅ SÍ |
-| Excels CR | `checkrates/week-NN/` | ✅ SÍ |
-| **Pickles** | **NINGÚN LADO** | ❌ NO |
-| **Parciales HTML** | **NINGÚN LADO** | ❌ NO |
-| **_assets/** | **NO EXISTE** | ❌ NO |
-| **_docs/** | **NO EXISTE** | ❌ NO |
-| **_config/** | **NO EXISTE** | ❌ NO |
+| Qué | Dónde | Incluir | Cantidad |
+|-----|-------|---------|----------|
+| **RAÍZ** | **VACÍO** | ❌ NO | 0 |
+| README.md | Raíz | ❌ NO | 0 |
+| CHANGELOG.md | Raíz | ❌ NO | 0 |
+| PROMPT_MAESTRO_v3.md | Raíz | ❌ NO | 0 |
+| CHANGELOG.md | _governance/ | ✅ SÍ | 1 |
+| COMMIT_GUIDE.md | _governance/ | ✅ SÍ | 1 |
+| destinatarios.md | _email/ | ✅ SÍ | 1 |
+| *.py | _scripts/ | ✅ SÍ | 28 |
+| *.sh | _scripts/ | ✅ SÍ | 4 |
+| asset_*.html | _scripts/ | ✅ SÍ | 6 |
+| GUIA_EDITORIAL_*.html | _scripts/ | ✅ SÍ | 2 |
+| __init__.py | _scripts/ | ✅ SÍ | 1 |
+| Reporte HTML | rates-nodispo/week-NN/ | ✅ SÍ | 1 |
+| Excels RND | rates-nodispo/week-NN/ | ✅ SÍ | 4 |
+| Reporte HTML | checkrates/week-NN/ | ✅ SÍ | 1 |
+| Excels CR | checkrates/week-NN/ | ✅ SÍ | 4 |
+| **TOTAL** | | | **60** |
 
 ---
 
 **Última actualización:** Mayo 19, 2026
-**Status:** 🟢 ESTRUCTURA CORRECTA DEFINIDA
+**Status:** 🟢 ESTRUCTURA CORRECTA DEFINIDA - RAÍZ VACÍA

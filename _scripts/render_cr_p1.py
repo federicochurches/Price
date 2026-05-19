@@ -15,6 +15,13 @@ with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']
 
+# ── Cargar configuración semanal ──────────────────────────────────────────────────
+VOL_NUM   = D.get('VOL_NUM', '20')
+PERIODO   = D.get('PERIODO', '12–18 may 2026')
+MES_AÑO   = D.get('MES_AÑO', 'Mayo 2026')
+FECHA_PUB = D.get('FECHA_PUB', 'LUNES 18 de Mayo de 2026')
+# ─────────────────────────────────────────────────────────────────────────────────
+
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
 WEEK_PREV_INT = WEEK_NUM_INT - 1
@@ -30,16 +37,6 @@ sev_ef = D['sev_ef']; sev_cv = D['sev_cv']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
-
-
-# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
-WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
-WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
-M['global_current'] = M['global_current']
-M['global_w17'] = M['global_prev']
-# ─────────────────────────────────────────────────────────────────────────────
 
 # Cargar head
 with open('asset_cr_head.html') as f: HEAD = f.read()
@@ -67,6 +64,7 @@ def render_masthead():
 </div>
 </div>
 <div class="masthead-sub">
+<span>{FECHA_PUB}</span>
 <span>Vol. {VOL_NUM}</span>
 </div>
 </header>

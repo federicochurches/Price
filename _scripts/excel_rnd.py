@@ -1,10 +1,9 @@
 """
-Excel Análisis RND · 13 pestañas Top 100
-Estructura post W17: Ficha Técnica + Severity (2) + Top 100 listings (5) +
-Por Corp/Dest/País (3) + Plan Acción + Canastas Bajo Rend (3) = 13
+Excel Análisis RND · Pestañas con TOP 50
+Estructura: Ficha + TOP 50 (Demanda NC, Bajo Rend, Sin Conv) + Por Dim (Corp/Dest/País) + Canastas
 """
 import pickle
-import os, pandas as pd
+import os, pandas as pd, numpy as np
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
@@ -13,8 +12,31 @@ from datetime import datetime
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as _f:
     D = pickle.load(_f)
 M = D['M']; TOP = D['TOP']; CANASTA = D['CANASTA']
+df18 = D['df18']; df17 = D.get('df17', df18)
 sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
+
+# CALCULAR BANDAS para df18
+from engine import banda_nodispo, banda_rpm
+
+df18['BandaNoDispo'] = df18['%NoDispo'].apply(banda_nodispo)
+df18['BandaRPM'] = df18.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
+
+# CREAR TOP 50 para cada categoría
+# 1. DEMANDA NO CONVERTIDA (TraficoNoDispo > 0, ordenado por DemandaNoConvertida DESC)
+df_dnc = df18[df18['TraficoNoDispo'] > 0].copy()
+df_dnc_top50 = df_dnc.nlargest(50, 'DemandaNoConvertida')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].reset_index(drop=True)
+df_dnc_top50.insert(0, 'Rk', range(1, len(df_dnc_top50)+1))
+
+# 2. BAJO RENDIMIENTO (Bookings > 0, BandaRPM in Crítica/Revisar, ordenado por Trafico DESC)
+df_br = df18[(df18['Bookings'] > 0) & (df18['BandaRPM'].isin(['Crítica','Revisar']))].copy()
+df_br_top50 = df_br.nlargest(50, 'Trafico')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].reset_index(drop=True)
+df_br_top50.insert(0, 'Rk', range(1, len(df_br_top50)+1))
+
+# 3. SIN CONVERSIÓN (Bookings = 0, ordenado por Trafico DESC)
+df_sc = df18[df18['Bookings'] == 0].copy()
+df_sc_top50 = df_sc.nlargest(50, 'Trafico')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','BandaNoDispo']].reset_index(drop=True)
+df_sc_top50.insert(0, 'Rk', range(1, len(df_sc_top50)+1))
 
 wb = Workbook()
 wb.remove(wb.active)
@@ -110,37 +132,31 @@ for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
 df_rpm = pd.DataFrame(data)
 add_table(ws3, df_rpm, start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
 
-# ==================== HOJA 4: DEMANDA NO CONVERTIDA Top 100 ====================
+# ==================== HOJA 4: DEMANDA NO CONVERTIDA Top 50 ====================
 ws4 = wb.create_sheet('Demanda No Convertida')
-add_title(ws4, 'Top 100 · Demanda No Convertida',
-          'Hoteles del P80 con mayor volumen de búsquedas perdidas (TraficoNoDispo)')
-df_dnc = p80_hotel.sort_values('DemandaNoConvertida', ascending=False).head(100).reset_index(drop=True)
-df_dnc.insert(0, 'Rk', range(1, len(df_dnc)+1))
-df_dnc_out = df_dnc[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
+add_title(ws4, 'Top 50 · Demanda No Convertida',
+          f'Hoteles con mayor volumen de búsquedas perdidas (TraficoNoDispo) · Total: {len(df_dnc)} hoteles con demanda NC')
+df_dnc_out = df_dnc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
 add_table(ws4, df_dnc_out,
           start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0','DemandaNoConvertida':'#,##0'},
           banda_col='BandaNoDispo', banda_col2='Banda IPM')
 
-# ==================== HOJA 5: BAJO RENDIMIENTO Top 100 ====================
+# ==================== HOJA 5: BAJO RENDIMIENTO Top 50 ====================
 ws5 = wb.create_sheet('Bajo Rendimiento')
-add_title(ws5, 'Top 100 · Bajo Rendimiento',
-          'Hoteles del P80 con BKGS>0 pero IPM en banda Crítica/Revisar (<$650) · ordenado por tráfico ↓')
-mask_proc = (p80_hotel['Bookings']>0) & (p80_hotel['BandaRPM'].isin(['Crítica','Revisar']))
-df_br = p80_hotel[mask_proc].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-df_br.insert(0, 'Rk', range(1, len(df_br)+1))
-df_br_out = df_br[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaRPM']].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
+add_title(ws5, 'Top 50 · Bajo Rendimiento',
+          f'Hoteles con BKGS>0 pero IPM en banda Crítica/Revisar (<$650) · Total: {len(df_br)} hoteles')
+df_br_out = df_br_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
 add_table(ws5, df_br_out,
           start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
           banda_col='BandaNoDispo', banda_col2='Banda IPM')
 
-# ==================== HOJA 6: SIN CONVERSIÓN Top 100 ====================
+# ==================== HOJA 6: SIN CONVERSIÓN Top 50 ====================
 ws6 = wb.create_sheet('Sin Conversión')
-add_title(ws6, 'Top 100 · Sin Conversión',
-          'Hoteles del P80 con BKGS=0 · cohorte estructural separada de Severity · ordenado por tráfico ↓')
-df_sc = p80_hotel[p80_hotel['Bookings']==0].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-df_sc.insert(0, 'Rk', range(1, len(df_sc)+1))
-add_table(ws6, df_sc[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','BandaNoDispo']],
-          start_row=5, num_formats={'%NoDispo':'0.00%','Trafico':'#,##0'},
+add_title(ws6, 'Top 50 · Sin Conversión',
+          f'Hoteles con Bookings=0 · Total: {len(df_sc)} hoteles sin conversión · cohorte estructural')
+df_sc_out = df_sc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','BandaNoDispo']].rename(columns={'Trafico':'Tráfico'})
+add_table(ws6, df_sc_out,
+          start_row=5, num_formats={'%NoDispo':'0.00%','Tráfico':'#,##0'},
           banda_col='BandaNoDispo')
 
 # ==================== HOJA 7: POR CORPORATIVO Top 100 ====================
@@ -156,7 +172,6 @@ g_corp = g_hotel.groupby('CorpName').agg(
 g_corp['%NoDispo'] = g_corp['TraficoNoDispo'] / g_corp['Trafico']
 g_corp['RPM'] = g_corp['gb_usd'] / g_corp['Trafico'] * 1_000_000
 g_corp['ConvRate'] = g_corp['Bookings'] / g_corp['Trafico']
-from .._helpers.engine import banda_nodispo, banda_rpm
 g_corp['BandaNoDispo'] = g_corp['%NoDispo'].apply(banda_nodispo)
 g_corp['BandaRPM'] = g_corp.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
 g_corp = g_corp.sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)

@@ -9,7 +9,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
-from .._helpers.engine import banda_eficacia, banda_convrate
+from engine import banda_eficacia, banda_convrate
 
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as _f:
     D = pickle.load(_f)

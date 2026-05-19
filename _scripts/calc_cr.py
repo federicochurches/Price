@@ -15,6 +15,7 @@ WEEK = os.getenv('WEEK', 'W20')
 PERIODO = os.getenv('PERIODO', '12–18 may 2026')
 MES_AÑO = os.getenv('MES_AÑO', 'Mayo 2026')
 VOL_NUM = os.getenv('VOL_NUM', '20')
+FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 18 de Mayo de 2026')  # Día de publicación del reporte
 
 # Derivar números de semana
 WEEK_NUM = int(WEEK.replace('W', ''))
@@ -353,9 +354,11 @@ sev_cv_p80_b2c  = CANASTA['B2C']['sev_cv']
 
 # ── GUARDAR PICKLE ────────────────────────────────────────────────────────────
 D = {
+    'WEEK': WEEK,
     'VOL_NUM': VOL_NUM,
     'PERIODO': PERIODO,
     'MES_AÑO': MES_AÑO,
+    'FECHA_PUB': FECHA_PUB,
     'M': M,
     'TOP': TOP,
     'TAB_EF': TAB_EF,

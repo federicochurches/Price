@@ -27,6 +27,7 @@ WEEK     = os.getenv('WEEK', 'W20')
 VOL_NUM  = os.getenv('VOL_NUM', '20')
 PERIODO  = os.getenv('PERIODO', '12–18 may 2026')
 MES_AÑO  = os.getenv('MES_AÑO', 'Mayo 2026')
+FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 18 de Mayo de 2026')  # Día de publicación del reporte
 
 # Derivar números de semana desde strings
 WEEK_NUM = int(WEEK.replace('W', ''))
@@ -293,6 +294,7 @@ D = {
     'VOL_NUM': VOL_NUM,
     'PERIODO': PERIODO,
     'MES_AÑO': MES_AÑO,
+    'FECHA_PUB': FECHA_PUB,
     'df18':df18,'df17':df17,
     'M':M,'TOP':TOP,'CANASTA':CANASTA_DATA,
     'p80_hotel':p80_hotel,'g_hotel':g_hotel,
