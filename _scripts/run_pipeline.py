@@ -178,7 +178,8 @@ def run_step(step_name, script_cmd, config, env, logger):
     """Ejecutar un paso individual del pipeline"""
     logger.section(f"🔄 PASO: {step_name.upper()}")
     
-    project_dir = Path(config['paths']['project'])
+    # Ejecutar desde _scripts/ donde están los scripts
+    project_dir = Path(config['paths']['project']) / '_scripts'
     
     # Comando a ejecutar
     if isinstance(script_cmd, str):
