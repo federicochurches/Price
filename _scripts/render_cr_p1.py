@@ -1,5 +1,5 @@
 """
-Renderer · Reporte Editorial CR W18
+Renderer · Reporte Editorial CR W20
 Genera HTML completo · sistema bandas D · post W17
 """
 import sys
@@ -25,8 +25,8 @@ FECHA_PUB = D.get('FECHA_PUB', 'LUNES 18 de Mayo de 2026')
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
 WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', {})
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', {})
 M['global_current'] = M['global_current']
 M['global_w17'] = M['global_prev']
 # ─────────────────────────────────────────────────────────────────────────────
