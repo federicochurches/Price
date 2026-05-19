@@ -2,12 +2,13 @@
 Renderer · Reporte Editorial CR W18
 Genera HTML completo · sistema bandas D · post W17
 """
-import pickle, pandas as pd, numpy as np
-from engine import *
-from render_helpers import *
+import pickle
+import os, pandas as pd, numpy as np
+from .._helpers.engine import *
+from .._helpers.render_helpers import *
 
 # Cargar datos
-with open('cr_w18_data.pkl','rb') as f:
+with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']
 TAB_EF = D['TAB_EF']; TAB_CV = D['TAB_CV']
@@ -43,7 +44,6 @@ def render_masthead():
 </div>
 </div>
 <div class="masthead-sub">
-<span>{PERIODO_LABEL}</span>
 <span>Vol. {VOL_NUM}</span>
 </div>
 </header>
@@ -147,7 +147,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
                     if raw_val is not None and not math.isnan(float(raw_val)) and abs(raw_val - 1.0) < 0.0001:
                         # 100% exacto → pill verde neutra con =
                         wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EAF3DE;color:#2F6C34;margin-left:4px;min-width:28px;text-align:center;">= 0,0</em>'
-                    elif abs(wow_v) >= 0.05:
+                    elif abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -260,7 +260,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
     for t_key, df_t in [
         ('destino', TAB_CV['destino']),
         ('corp', TAB_CV['corp']),
-        ('hotel', TAB_CV['hotel']),
+        ('hotel', TAB_CV['hotel'][TAB_CV['hotel']['Bookings'] > 0].sort_values('ConvRate').reset_index(drop=True)),
         ('channel', TAB_CV['channel']),
         ('canasta', TAB_CV['canasta']),
     ]:
@@ -280,7 +280,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
                 try:
                     wow_v = r[wow_col]
                     if wow_v != wow_v: raise ValueError
-                    if abs(wow_v) >= 0.05:
+                    if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'

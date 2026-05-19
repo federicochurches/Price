@@ -2,12 +2,13 @@
 Renderer · Reporte Editorial RND W18
 Genera HTML completo · sistema bandas D · post W17
 """
-import pickle, pandas as pd, numpy as np
-from engine import *
-from render_helpers import *
+import pickle
+import os, pandas as pd, numpy as np
+from .._helpers.engine import *
+from .._helpers.render_helpers import *
 
 # Cargar datos
-with open('rnd_w18_data.pkl','rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
 CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
@@ -17,6 +18,14 @@ def fmt_usd(v):
     """Alias de fmt_num2 para compatibilidad."""
     return fmt_num2(v)
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
+
+# ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
+WEEK_NUM      = D.get('VOL_NUM', '19')
+WEEK_DISPLAY  = f'Week {WEEK_NUM}'
+PERIODO_LABEL = D.get('PERIODO', '5–11 may 2026')
+VOL_NUM       = D.get('VOL_NUM', WEEK_NUM)
+MES_AÑO       = D.get('MES_AÑO', 'Mayo 2026')
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Cargar head y footer
 with open('asset_rnd_head.html') as f: HEAD = f.read()
@@ -32,8 +41,8 @@ def render_masthead():
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
 <span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">RatesNoDispo</span>
-<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week 18</div>
-<div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">27 abr – 3 may {MES_AÑO}</div>
+<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">{WEEK_DISPLAY}</div>
+<div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{PERIODO_LABEL}</div>
 </div>
 </div>
 <div style="display:table-cell;vertical-align:middle;text-align:right;white-space:nowrap;">
@@ -45,7 +54,6 @@ def render_masthead():
 </div>
 </div>
 <div class="masthead-sub">
-<span>{PERIODO_LABEL}</span>
 <span>Vol. {VOL_NUM}</span>
 </div>
 </header>
@@ -155,7 +163,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_color = '#2F6C34' if mejora else '#C0392B'
                     wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
                     arrow = '↓' if wow_pp < 0 else '↑'
-                    wow_txt = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
+                    wow_txt = f'{arrow}{abs(wow_pp):.2f}'.replace('.', ',')
                     css_cls = "wow-pill dn" if mejora else "wow-pill up"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
@@ -241,11 +249,12 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             wow_pill = ''
             if show_wow:
                 wow_v = r.get('IPM_WoW_pp', r.get('RPM_WoW_pct', None))
-                ipm_w17 = r.get('IPM_W17', 0)
-                if wow_v is not None and not (wow_v != wow_v) and abs(wow_v) > 0.1 and ipm_w17 > 0:
-                    mejora = wow_v > 0
-                    arrow = '↑' if wow_v > 0 else '↓'
-                    wow_txt = f'{arrow}${abs(wow_v):.0f}'.replace('.', ',')
+                ipm_prev = r.get('IPM_W18', r.get('IPM_W17', 0))  # semana anterior
+                if wow_v is not None and not (wow_v != wow_v) and abs(wow_v) > 0.1 and ipm_prev > 0:
+                    wow_pct = (wow_v / ipm_prev) * 100  # convertir diferencia absoluta → %
+                    mejora = wow_pct > 0
+                    arrow = '↑' if wow_pct > 0 else '↓'
+                    wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
                     css_cls = "wow-pill dn" if mejora else "wow-pill up"
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
