@@ -23,15 +23,8 @@ with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']
 
-# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
-WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
-WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
-M['global_current'] = M['global_current']
-M['global_w17'] = M['global_prev']
-# ─────────────────────────────────────────────────────────────────────────────
 
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 TAB_EF = D['TAB_EF']; TAB_CV = D['TAB_CV']
 CANASTA = D['CANASTA']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
@@ -51,8 +44,8 @@ SEGUIMIENTO_FILE = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
 WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', {})
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', {})
 M['global_current'] = M['global_current']
 M['global_w17'] = M['global_prev']
 # ─────────────────────────────────────────────────────────────────────────────
