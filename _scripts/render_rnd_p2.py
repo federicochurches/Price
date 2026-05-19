@@ -232,8 +232,9 @@ def render_severities_combinadas():
     ]
     levels_ipm = [
         ('Sin Conversión','BKGS=0','#8A8377'),
-        ('Crítica','< $200','#C0392B'),
-        ('Revisar','$200–$650','#D4A878'),
+        ('Crítica','< $199','#C0392B'),
+        ('Revisar','$200–$499','#D4A878'),
+        ('Aceptable','$500–$649','#5C469C'),
         ('Exitosa','≥ $650','#4FC3F4'),
     ]
     

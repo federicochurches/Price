@@ -89,8 +89,9 @@ LEVELS_NODISPO = [
 
 LEVELS_RPM = [
     {'label':'Exitosa', 'rango':'≥ $650', 'bg':'#E8F7FD', 'fg':'#4FC3F4'},
-    {'label':'Revisar', 'rango':'$200–$650', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
-    {'label':'Crítica', 'rango':'< $200', 'bg':'#FCE4F1', 'fg':'#C0392B'},
+    {'label':'Aceptable', 'rango':'$500–$649', 'bg':'#EDE8F7', 'fg':'#5C469C'},
+    {'label':'Revisar', 'rango':'$200–$499', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
+    {'label':'Crítica', 'rango':'< $199', 'bg':'#FCE4F1', 'fg':'#C0392B'},
     {'label':'Sin Conv', 'rango':'BKGS=0', 'bg':'#F2EEE6', 'fg':'#8A8377'},
 ]
 
