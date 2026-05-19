@@ -109,8 +109,8 @@ hotel_p80_names = set(p80_hotel['Hotel'].unique())
 df17_p80 = df17[df17['Hotel'].isin(hotel_p80_names)].copy()
 
 M = {
-    'global_w18': metrics_global(p80_hotel),  # P80 W19
-    'global_w17': metrics_global(df17_p80),   # hoteles del P80 W19 en W18
+    f'global_w{WEEK_NUM}': metrics_global(p80_hotel),  # P80 semana actual
+    f'global_w{VOL_NUM_PREV}': metrics_global(df17_p80),   # P80 semana anterior
 }
 for cat in ['B2C','B2B (OP)','CUG (UOP)']:
     p80_cat_18 = p80_hotel[p80_hotel['DistributionCategory']==cat] if 'DistributionCategory' in p80_hotel.columns else df18[df18['DistributionCategory']==cat]
@@ -121,16 +121,16 @@ for cat in ['B2C','B2B (OP)','CUG (UOP)']:
     m17 = metrics_global(df17_p80_cat)
     m18['n_hoteles'] = len(p80_hotel)
     m17['n_hoteles'] = len(p80_hotel)
-    M[f'B2C_w18']        = m18 if cat=='B2C'       else M.get('B2C_w18', m18)
-    M[f'B2C_w17']        = m17 if cat=='B2C'       else M.get('B2C_w17', m17)
-    M[f'B2B (OP)_w18']   = m18 if cat=='B2B (OP)'  else M.get('B2B (OP)_w18', m18)
-    M[f'B2B (OP)_w17']   = m17 if cat=='B2B (OP)'  else M.get('B2B (OP)_w17', m17)
-    M[f'CUG (UOP)_w18']  = m18 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w18', m18)
-    M[f'CUG (UOP)_w17']  = m17 if cat=='CUG (UOP)' else M.get('CUG (UOP)_w17', m17)
-    M[f'B2B-OP_w18']     = M['B2B (OP)_w18']
-    M[f'B2B-OP_w17']     = M['B2B (OP)_w17']
-    M[f'CUG_w18']        = M['CUG (UOP)_w18']
-    M[f'CUG_w17']        = M['CUG (UOP)_w17']
+    M[f'B2C_w{WEEK_NUM}']        = m18 if cat=='B2C'       else M.get(f'B2C_w{WEEK_NUM}', m18)
+    M[f'B2C_w{VOL_NUM_PREV}']        = m17 if cat=='B2C'       else M.get(f'B2C_w{VOL_NUM_PREV}', m17)
+    M[f'B2B (OP)_w{WEEK_NUM}']   = m18 if cat=='B2B (OP)'  else M.get(f'B2B (OP)_w{WEEK_NUM}', m18)
+    M[f'B2B (OP)_w{VOL_NUM_PREV}']   = m17 if cat=='B2B (OP)'  else M.get(f'B2B (OP)_w{VOL_NUM_PREV}', m17)
+    M[f'CUG (UOP)_w{WEEK_NUM}']  = m18 if cat=='CUG (UOP)' else M.get(f'CUG (UOP)_w{WEEK_NUM}', m18)
+    M[f'CUG (UOP)_w{VOL_NUM_PREV}']  = m17 if cat=='CUG (UOP)' else M.get(f'CUG (UOP)_w{VOL_NUM_PREV}', m17)
+    M[f'B2B-OP_w{WEEK_NUM}']     = M[f'B2B (OP)_w{WEEK_NUM}']
+    M[f'B2B-OP_w{VOL_NUM_PREV}']     = M[f'B2B (OP)_w{VOL_NUM_PREV}']
+    M[f'CUG_w{WEEK_NUM}']        = M[f'CUG (UOP)_w{WEEK_NUM}']
+    M[f'CUG_w{VOL_NUM_PREV}']        = M[f'CUG (UOP)_w{VOL_NUM_PREV}']
 
 for k in M: M[k]['n_hoteles'] = len(p80_hotel)
 
@@ -174,9 +174,9 @@ TAB_NoDispo = {
     'corp':    make_tab(g_corp,'CorpName','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
     'hotel':   make_tab(p80_hotel,'Hotel','%NoDispo',False),
     'canasta': pd.DataFrame([
-        {'Canasta':'B2C',      **{k:v for k,v in M['B2C_w18'].items()}},
-        {'Canasta':'B2B (OP)', **{k:v for k,v in M['B2B (OP)_w18'].items()}},
-        {'Canasta':'CUG (UOP)',**{k:v for k,v in M['CUG (UOP)_w18'].items()}},
+        {'Canasta':'B2C',      **{k:v for k,v in M[f'B2C_w{WEEK_NUM}'].items()}},
+        {'Canasta':'B2B (OP)', **{k:v for k,v in M[f'B2B (OP)_w{WEEK_NUM}'].items()}},
+        {'Canasta':'CUG (UOP)',**{k:v for k,v in M[f'CUG (UOP)_w{WEEK_NUM}'].items()}},
     ]).sort_values('pct_nodispo', ascending=False).reset_index(drop=True),
 }
 
@@ -305,7 +305,7 @@ D = {
     'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
     'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
 }
-with open(f'/mnt/project/rnd_w{VOL_NUM}_data.pkl','wb') as f: pickle.dump(D, f)
+with open(f'/mnt/project/_scripts/rnd_w{VOL_NUM}_data.pkl','wb') as f: pickle.dump(D, f)
 
 t18=df18['Trafico'].sum(); nd18=df18['TraficoNoDispo'].sum()
 t17=df17['Trafico'].sum(); nd17=df17['TraficoNoDispo'].sum()

@@ -136,14 +136,14 @@ def canasta_metrics(df, cat):
     return global_metrics(sub)
 
 M = {
-    'global_w18': global_metrics(df18_p80),
-    'global_w17': global_metrics(df17_p80),
-    'B2C_w18':    canasta_metrics(df18_p80, 'B2C'),
-    'B2B (OP)_w18': canasta_metrics(df18_p80, 'B2B (OP)'),
-    'CUG (UOP)_w18': canasta_metrics(df18_p80, 'CUG (UOP)'),
-    'B2C_w17':    canasta_metrics(df17_p80, 'B2C'),
-    'B2B (OP)_w17': canasta_metrics(df17_p80, 'B2B (OP)'),
-    'CUG (UOP)_w17': canasta_metrics(df17_p80, 'CUG (UOP)'),
+    f'global_w{WEEK_NUM}': global_metrics(df18_p80),
+    f'global_w{VOL_NUM_PREV}': global_metrics(df17_p80),
+    f'B2C_w{WEEK_NUM}':    canasta_metrics(df18_p80, 'B2C'),
+    f'B2B (OP)_w{WEEK_NUM}': canasta_metrics(df18_p80, 'B2B (OP)'),
+    f'CUG (UOP)_w{WEEK_NUM}': canasta_metrics(df18_p80, 'CUG (UOP)'),
+    f'B2C_w{VOL_NUM_PREV}':    canasta_metrics(df17_p80, 'B2C'),
+    f'B2B (OP)_w{VOL_NUM_PREV}': canasta_metrics(df17_p80, 'B2B (OP)'),
+    f'CUG (UOP)_w{VOL_NUM_PREV}': canasta_metrics(df17_p80, 'CUG (UOP)'),
 }
 
 # ── SEVERITY (P80) ─────────────────────────────────────────────────────────────
@@ -387,15 +387,15 @@ D = {
     'g_hotel_w17': g_hotel_w17,
 }
 
-with open(f'/mnt/project/cr_w{VOL_NUM}_data.pkl','wb') as f:
+with open(f'/mnt/project/_scripts/cr_w{VOL_NUM}_data.pkl','wb') as f:
     pickle.dump(D, f)
 
 print(f"✅ Pickle guardado: cr_w20_data.pkl")
-print(f"   Eficacia global W18: {M['global_w18']['eficacia']:.4f} ({M['global_w18']['eficacia']*100:.2f}%)")
-print(f"   ConvRate global W18: {M['global_w18']['conv_rate']:.4f} ({M['global_w18']['conv_rate']*100:.2f}%)")
-print(f"   CR únicos W18: {M['global_w18']['cr_unicos']:,}")
-print(f"   Bookings W18:  {M['global_w18']['bookings']:,}")
+print(f"   Eficacia global W{WEEK_NUM}: {M[f'global_w{WEEK_NUM}']['eficacia']:.4f} ({M[f'global_w{WEEK_NUM}']['eficacia']*100:.2f}%)")
+print(f"   ConvRate global W{WEEK_NUM}: {M[f'global_w{WEEK_NUM}']['conv_rate']:.4f} ({M[f'global_w{WEEK_NUM}']['conv_rate']*100:.2f}%)")
+print(f"   CR únicos W{WEEK_NUM}: {M[f'global_w{WEEK_NUM}']['cr_unicos']:,}")
+print(f"   Bookings W{WEEK_NUM}:  {M[f'global_w{WEEK_NUM}']['bookings']:,}")
 print(f"   Hoteles P80:   {len(p80_hotel)}")
 print(f"   Severity Ef P80: {dict(sev_ef_p80)}")
 print(f"   Severity CV P80: {dict(sev_cv_p80)}")
-print(f"   Canastas: B2C={M['B2C_w18']['cr_unicos']:,} | OP={M['B2B (OP)_w18']['cr_unicos']:,} | CUG={M['CUG (UOP)_w18']['cr_unicos']:,}")
+print(f"   Canastas: B2C={M[f'B2C_w{WEEK_NUM}']['cr_unicos']:,} | OP={M[f'B2B (OP)_w{WEEK_NUM}']['cr_unicos']:,} | CUG={M[f'CUG (UOP)_w{WEEK_NUM}']['cr_unicos']:,}")
