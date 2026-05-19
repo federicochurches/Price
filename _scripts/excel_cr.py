@@ -1,17 +1,18 @@
 """
-Excel Análisis CR W18 · 17 pestañas Top 50 (estructura post-Fix #9 y #11)
-Ficha Técnica + Severity (2) + Top 50 listings (4) + Por Corp/Destino/Channel (3) +
+Excel Análisis CR W18 · 17 pestañas Top 100 (estructura post-Fix #9 y #11)
+Ficha Técnica + Severity (2) + Top 100 listings (4) + Por Corp/Destino/Channel (3) +
 Menor Conv Rate + Plan Acción + Canastas (Críticos+BajoRend × 3 = 6) = 17
 """
-import pickle, pandas as pd
+import pickle
+import os, pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
-from engine import banda_eficacia, banda_convrate
+from .._helpers.engine import banda_eficacia, banda_convrate
 
-with open('cr_w18_data.pkl','rb') as f:
-    D = pickle.load(f)
+with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as _f:
+    D = pickle.load(_f)
 M = D['M']; TOP = D['TOP']; CANASTA = D['CANASTA']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
@@ -53,8 +54,20 @@ def add_title(ws, title, subtitle=''):
     ws['A3'] = f'Generado: {datetime.now().strftime("%d/%m/%Y %H:%M")} · W18 · 27 abr – 3 may 2026'
     ws['A3'].font = META_FONT
 
+DISPLAY_RENAME = {
+    'CR_Unicos': 'Checkrates',
+    'ConvRate':  'Conv Rate',
+}
+
 def add_table(ws, df, start_row=5, num_formats=None, banda_col=None):
     if num_formats is None: num_formats = {}
+    # Renombrar columnas para display
+    df = df.rename(columns=DISPLAY_RENAME)
+    # Actualizar banda_col si fue renombrada
+    if banda_col and banda_col in DISPLAY_RENAME:
+        banda_col = DISPLAY_RENAME[banda_col]
+    # Actualizar num_formats si alguna key fue renombrada
+    num_formats = {DISPLAY_RENAME.get(k, k): v for k, v in num_formats.items()}
     cols = list(df.columns)
     for j, c in enumerate(cols, 1):
         cell = ws.cell(row=start_row, column=j, value=c)
@@ -101,50 +114,60 @@ for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
     data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total})
 add_table(ws3, pd.DataFrame(data), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
 
-# ==================== 4. HOTELES CRÍTICOS Top 50 ====================
+# ==================== 4. HOTELES CRÍTICOS Top 100 ====================
 ws4 = wb.create_sheet('Críticos')
-add_title(ws4, 'Top 50 · Hoteles Críticos',
-          'Hoteles del P80 con BKGS>0 · peor Eficacia · ordenado por Eficacia ↑')
+add_title(ws4, 'Top 100 · Hoteles Críticos',
+          'Hoteles del P80 con BKGS>0 · peor Eficacia · ordenado por Eficacia ↑ (menor primero)')
 mask = (p80_hotel['Bookings']>0) & (p80_hotel['BandaEficacia'].isin(['Crítica','Súper Crítica']))
-df_crit = p80_hotel[mask].sort_values('Eficacia').head(50).reset_index(drop=True)
+df_crit = p80_hotel[mask].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
 df_crit.insert(0, 'Rk', range(1, len(df_crit)+1))
 add_table(ws4, df_crit[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
           banda_col='BandaEficacia')
 
-# ==================== 5. BAJO RENDIMIENTO Top 50 ====================
+# ==================== 5. BAJO RENDIMIENTO Top 100 ====================
 ws5 = wb.create_sheet('Bajo Rendimiento')
-add_title(ws5, 'Top 50 · Bajo Rendimiento',
+add_title(ws5, 'Top 100 · Bajo Rendimiento',
           'Hoteles del P80 con BKGS>0 y ConvRate Crítica/Revisar · ordenado por CR únicos ↓')
 mask = (p80_hotel['Bookings']>0) & (p80_hotel['BandaConvRate'].isin(['Crítica','Revisar']))
-df_br = p80_hotel[mask].sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+df_br = p80_hotel[mask].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
 df_br.insert(0, 'Rk', range(1, len(df_br)+1))
 add_table(ws5, df_br[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
           banda_col='BandaConvRate')
 
-# ==================== 6. SIN CONVERSIÓN Top 50 ====================
+# ==================== 6. SIN CONVERSIÓN Top 100 ====================
 ws6 = wb.create_sheet('Sin Conversión')
-add_title(ws6, 'Top 50 · Sin Conversión',
+add_title(ws6, 'Top 100 · Sin Conversión',
           'Hoteles del P80 con BKGS=0 · cohorte estructural separada de Severity · ordenado por CR ↓')
-df_sc = p80_hotel[p80_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+df_sc = p80_hotel[p80_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
 df_sc.insert(0, 'Rk', range(1, len(df_sc)+1))
 add_table(ws6, df_sc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Successful','Eficacia','BandaEficacia']],
           start_row=5, num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Successful':'#,##0'},
           banda_col='BandaEficacia')
 
-# ==================== 7. POR CORPORATIVO Top 50 ====================
+# ==================== 7. POR CORPORATIVO Top 100 ====================
 ws7 = wb.create_sheet('Por Corporativo')
-add_title(ws7, 'Top 50 · Por Corporativo', 'Agregado por CorpName · ordenado por CR únicos ↓')
-df_corp = g_corp.sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+add_title(ws7, 'Top 100 · Por Corporativo', 'Agregado por CorpName · ordenado por CR únicos ↓')
+df_corp = g_corp.sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
 df_corp.insert(0,'Rk', range(1, len(df_corp)+1))
-add_table(ws7, df_corp[['Rk','CorpName','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']],
+# Agregar columna Channel (canales únicos del corp)
+if hotel_channel_map:
+    corp_channels = (p80_hotel.groupby('CorpName')
+                     .apply(lambda x: ', '.join(sorted(x['Hotel'].map(hotel_channel_map).fillna('—').unique())))
+                     .reset_index().rename(columns={0:'Channels'}))
+    df_corp = df_corp.merge(corp_channels, on='CorpName', how='left')
+    cols_corp = ['Rk','CorpName','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
+else:
+    cols_corp = ['Rk','CorpName','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
+cols_corp = [col for col in cols_corp if col in df_corp.columns]
+add_table(ws7, df_corp[cols_corp],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
           banda_col='BandaEficacia')
 
-# ==================== 8. POR DESTINO Top 50 (Fix #9 NUEVO) ====================
+# ==================== 8. POR DESTINO Top 100 (Fix #9 NUEVO) ====================
 ws8 = wb.create_sheet('Por Destino')
-add_title(ws8, 'Top 50 · Por Destino', 'Agregado por Destino · ordenado por CR únicos ↓')
+add_title(ws8, 'Top 100 · Por Destino', 'Agregado por Destino · ordenado por CR únicos ↓')
 g_dest = g_hotel.groupby('Destino').agg(
     CR_Unicos=('CR_Unicos','sum'),
     Successful=('Successful','sum'),
@@ -155,7 +178,7 @@ g_dest['Eficacia'] = g_dest['Successful']/g_dest['CR_Unicos'].replace(0,1)
 g_dest['ConvRate'] = g_dest['Bookings']/g_dest['CR_Unicos'].replace(0,1)
 g_dest['BandaEficacia'] = g_dest['Eficacia'].apply(banda_eficacia)
 g_dest['BandaConvRate'] = g_dest.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
-g_dest = g_dest.sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+g_dest = g_dest.sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
 g_dest.insert(0,'Rk', range(1, len(g_dest)+1))
 add_table(ws8, g_dest[['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
@@ -175,12 +198,12 @@ add_table(ws9, df_chan[['Rk','Channel','Grupo','CR_Unicos','Successful','Booking
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
           banda_col='BandaEficacia')
 
-# ==================== 10. MENOR CONV RATE Top 50 ====================
+# ==================== 10. MENOR CONV RATE Top 100 ====================
 ws10 = wb.create_sheet('Menor Conv Rate')
-add_title(ws10, 'Top 50 · Menor Conv Rate',
+add_title(ws10, 'Top 100 · Menor Conv Rate',
           'Hoteles del P80 con BKGS>0 · ordenado por ConvRate ↑')
 mask = (p80_hotel['Bookings']>0)
-df_mc = p80_hotel[mask].sort_values('ConvRate').head(50).reset_index(drop=True)
+df_mc = p80_hotel[mask].sort_values('ConvRate').head(100).reset_index(drop=True)
 df_mc.insert(0, 'Rk', range(1, len(df_mc)+1))
 add_table(ws10, df_mc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
@@ -251,14 +274,14 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     
     # 3. Críticos
     ws_c = wb_target.create_sheet(f'{p}Críticos' if prefix is not None else f'Canasta {short} · Críticos')
-    add_title(ws_c, f'Canasta {short} · Top 50 Críticos',
-              f'{c["name"]} · BKGS>0 · peor Eficacia · ordenado ↑')
+    add_title(ws_c, f'Canasta {short} · Top 100 Críticos',
+              f'{c["name"]} · BKGS>0 · peor Eficacia · ordenado por Eficacia ↑ (menor primero)')
     df_c = c['agg_hotel'].copy()
     # Agregar Channel desde hotel_channel_map
     if hotel_channel_map and 'Channel' not in df_c.columns:
         df_c['Channel'] = df_c['Hotel'].map(hotel_channel_map).fillna('—')
     mask = (df_c['Bookings']>0) & (df_c['BandaEficacia'].isin(['Crítica','Súper Crítica']))
-    df_c = df_c[mask].sort_values('Eficacia').head(50).reset_index(drop=True)
+    df_c = df_c[mask].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_c.insert(0,'Rk', range(1, len(df_c)+1))
     add_table(ws_c, df_c[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia']],
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
@@ -266,13 +289,13 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     
     # 4. Bajo Rendimiento
     ws_b = wb_target.create_sheet(f'{p}BajoRend' if prefix is not None else f'Canasta {short} · BajoRend')
-    add_title(ws_b, f'Canasta {short} · Top 50 Bajo Rendimiento',
+    add_title(ws_b, f'Canasta {short} · Top 100 Bajo Rendimiento',
               f'{c["name"]} · BKGS>0 · ConvRate Crítica/Revisar · ordenado por CR ↓')
     df_b = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_b.columns:
         df_b['Channel'] = df_b['Hotel'].map(hotel_channel_map).fillna('—')
     mask = (df_b['Bookings']>0) & (df_b['BandaConvRate'].isin(['Crítica','Revisar']))
-    df_b = df_b[mask].sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+    df_b = df_b[mask].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
     df_b.insert(0,'Rk', range(1, len(df_b)+1))
     add_table(ws_b, df_b[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
@@ -280,12 +303,12 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     
     # 5. Sin Conversión
     ws_sn = wb_target.create_sheet(f'{p}Sin Conv' if prefix is not None else f'Canasta {short} · Sin Conv')
-    add_title(ws_sn, f'Canasta {short} · Top 50 Sin Conversión',
+    add_title(ws_sn, f'Canasta {short} · Top 100 Sin Conversión',
               f'{c["name"]} · BKGS=0 · ordenado por CR ↓ · cohorte estructural')
     df_sn = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_sn.columns:
         df_sn['Channel'] = df_sn['Hotel'].map(hotel_channel_map).fillna('—')
-    df_sn = df_sn[df_sn['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+    df_sn = df_sn[df_sn['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
     df_sn.insert(0,'Rk', range(1, len(df_sn)+1))
     add_table(ws_sn, df_sn[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Successful','Bookings','Eficacia','BandaEficacia']],
               start_row=5, num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
@@ -294,10 +317,21 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     # 6. Por Corporativo
     ws_co = wb_target.create_sheet(f'{p}Por Corp' if prefix is not None else f'Canasta {short} · Por Corp')
     add_title(ws_co, f'Canasta {short} · Por Corporativo',
-              f'{c["name"]} · Top 50 corp · ordenado por CR únicos ↓')
-    df_co = c['agg_corp'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+              f'{c["name"]} · Top 100 corp · ordenado por CR únicos ↓')
+    df_co = c['agg_corp'].copy().sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
     df_co.insert(0,'Rk', range(1, len(df_co)+1))
-    cols_co = [col for col in ['Rk','CorpName','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_co.columns]
+    # Agregar columna Channels (canales únicos del corp en esta canasta)
+    if hotel_channel_map:
+        agg_h = c['agg_hotel'].copy()
+        if 'Channel' not in agg_h.columns:
+            agg_h['Channel'] = agg_h['Hotel'].map(hotel_channel_map).fillna('—')
+        corp_channels = (agg_h.groupby('CorpName')
+                         .apply(lambda x: ', '.join(sorted(x['Channel'].unique())))
+                         .reset_index().rename(columns={0:'Channels'}))
+        df_co = df_co.merge(corp_channels, on='CorpName', how='left')
+        cols_co = [col for col in ['Rk','CorpName','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_co.columns]
+    else:
+        cols_co = [col for col in ['Rk','CorpName','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_co.columns]
     add_table(ws_co, df_co[cols_co], start_row=5,
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
               banda_col='BandaEficacia')
@@ -305,8 +339,8 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     # 7. Por Destino
     ws_de = wb_target.create_sheet(f'{p}Por Destino' if prefix is not None else f'Canasta {short} · Por Destino')
     add_title(ws_de, f'Canasta {short} · Por Destino',
-              f'{c["name"]} · Top 50 destinos · ordenado por CR únicos ↓')
-    df_de = c['agg_destino'].copy().sort_values('CR_Unicos', ascending=False).head(50).reset_index(drop=True)
+              f'{c["name"]} · Top 100 destinos · ordenado por CR únicos ↓')
+    df_de = c['agg_destino'].copy().sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
     df_de.insert(0,'Rk', range(1, len(df_de)+1))
     cols_de = [col for col in ['Rk','Destino','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
     add_table(ws_de, df_de[cols_de], start_row=5,
@@ -329,12 +363,12 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     
     # 9. Menor Conv Rate
     ws_mc = wb_target.create_sheet(f'{p}Menor CR' if prefix is not None else f'Canasta {short} · Menor CR')
-    add_title(ws_mc, f'Canasta {short} · Top 50 Menor Conv Rate',
+    add_title(ws_mc, f'Canasta {short} · Top 100 Menor Conv Rate',
               f'{c["name"]} · BKGS>0 · peor ConvRate · ordenado ↑')
     df_mc = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_mc.columns:
         df_mc['Channel'] = df_mc['Hotel'].map(hotel_channel_map).fillna('—')
-    df_mc = df_mc[df_mc['Bookings']>0].sort_values('ConvRate').head(50).reset_index(drop=True)
+    df_mc = df_mc[df_mc['Bookings']>0].sort_values('ConvRate').head(100).reset_index(drop=True)
     df_mc.insert(0,'Rk', range(1, len(df_mc)+1))
     add_table(ws_mc, df_mc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
               start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
