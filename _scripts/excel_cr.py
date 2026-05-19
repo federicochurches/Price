@@ -148,8 +148,8 @@ add_table(ws6, df_sc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','S
 
 # ==================== 7. POR CORPORATIVO Top 100 ====================
 ws7 = wb.create_sheet('Por Corporativo')
-add_title(ws7, 'Top 100 · Por Corporativo', 'Agregado por CorpName · ordenado por CR únicos ↓')
-df_corp = g_corp.sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
+add_title(ws7, 'Top 100 · Por Corporativo', 'Agregado por CorpName · ordenado por Eficacia ↑ (menor a mayor)')
+df_corp = g_corp.sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
 df_corp.insert(0,'Rk', range(1, len(df_corp)+1))
 # Agregar columna Channel (canales únicos del corp)
 if hotel_channel_map:
@@ -317,8 +317,8 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     # 6. Por Corporativo
     ws_co = wb_target.create_sheet(f'{p}Por Corp' if prefix is not None else f'Canasta {short} · Por Corp')
     add_title(ws_co, f'Canasta {short} · Por Corporativo',
-              f'{c["name"]} · Top 100 corp · ordenado por CR únicos ↓')
-    df_co = c['agg_corp'].copy().sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
+              f'{c["name"]} · Top 100 corp · ordenado por Eficacia ↑ (menor a mayor)')
+    df_co = c['agg_corp'].copy().sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_co.insert(0,'Rk', range(1, len(df_co)+1))
     # Agregar columna Channels (canales únicos del corp en esta canasta)
     if hotel_channel_map:
