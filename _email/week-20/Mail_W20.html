@@ -35,23 +35,6 @@
   .exec-summary p { margin: 0 0 10px; }
   .exec-summary p:last-child { margin-bottom: 0; }
 
-  .area-group { margin-bottom: 22px; }
-  .area-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #EAEAEA; flex-wrap: wrap; }
-  .area-name  { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; color: #161616; background: #EAEAEA; padding: 4px 10px; border-radius: 3px; }
-  .area-count { font-size: 11px; color: #8A8377; font-weight: 600; }
-
-  .action-item { display: grid; grid-template-columns: 60px 1fr; gap: 14px; padding: 10px 0; border-bottom: 1px solid #F0EBDF; align-items: start; }
-  .action-item:last-child { border-bottom: none; }
-  .action-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 6px; border-radius: 2px; text-align: center; line-height: 1.3; }
-  .tag-qw { background: #E0F0E2; color: #2F6C34; }
-  .tag-mp { background: #FFF4E0; color: #A86A1D; }
-  .tag-es { background: #EDE8F7; color: #5C469C; }
-  .action-text { font-size: 13px; line-height: 1.5; }
-  .action-text .src { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 1px 5px; border-radius: 2px; margin-left: 6px; vertical-align: middle; }
-  .src-rnd { background: #FCE4F1; color: #EA0074; }
-  .src-cr  { background: #EDE8F7; color: #5C469C; }
-  .action-meta { font-size: 11px; color: #8A8377; margin-top: 3px; }
-
   .reports-row { background: #FAFAFA; border: 1px solid #EDE8E0; border-radius: 6px; padding: 18px 22px; margin: 24px 0 12px; }
   .reports-row p { margin: 0 0 10px; font-size: 13px; color: #8A8377; }
 
@@ -65,14 +48,14 @@
   1. Copiá el "Asunto" y pegalo en el campo asunto del compose.<br>
   2. Hacé click adentro del área blanca, seleccioná todo (Ctrl+A) y copiá (Ctrl+C).<br>
   3. Pegá (Ctrl+V) en el body del compose de Gmail/Outlook. El formato se mantiene.<br>
-  4. Verificá las URLs y agregá los destinatarios en CCO (ver destinatarios.md).
+  4. Verificá las URLs y agregá los destinatarios en CCO (ver destinatarios.md en _email/).
 </div>
 
 <div class="field-label">Asunto</div>
 <div class="field-box subject">Supply Optimization · W20 · Resumen + Plan de Acción</div>
 
 <div class="field-label">Preheader</div>
-<div class="field-box">RND % de No Disponibilidad 2,86%. CR Eficacia 93,33% · Conv Rate 1,29%. Plan de Acción consolidado por Área Accountable.</div>
+<div class="field-box">RND % de No Disponibilidad 2,74%. CR Eficacia 92,75% · Conv Rate 1,19%. MIN_CR=100 consolidado.</div>
 
 <hr class="divider">
 
@@ -92,129 +75,21 @@
 <h2>📌 Resumen Ejecutivo</h2>
 
 <div class="exec-summary">
-<p><strong>RND:</strong> <span class="hl-rnd">% de No Disponibilidad 2,86%</span>
-  (<span class="delta-down">▼ 0,34pp WoW</span>).
+<p><strong>RND:</strong> <span class="hl-rnd">% de No Disponibilidad 2,74%</span>
+  (<span class="delta-down">▲ 0,41pp WoW</span>).
   IPM 1.183 USD/M
-  (<span class="delta-up">▲ 80,2% WoW</span>).
-  <strong>21 hoteles Súper Críticos</strong> · 371 en Crítica o peor ·
-  0% del P80 sin Bookings.</p>
+  (<span class="delta-up">▲ 13,1% WoW</span>).
+  <strong>Universo P80:</strong> 18.788 hoteles (MIN_TRAFICO=50K).
+  <strong>Metodología:</strong> MIN_CR=100 + P90 consolidados desde W20.</p>
 
-<p><strong>CR:</strong> Eficacia <span class="hl-cr">93,33%</span>
-  (<span class="delta-down">+-0,56pp</span>).
-  Conv Rate <strong>1,29%</strong>
-  (<span class="delta-down">-0,06pp</span>) — banda Revisar.
-  <strong>65 hoteles Súper Críticos</strong> eficacia ·
-  Third Party Conv Rate 0,19% vs Producto Propio 1,31%.</p>
+<p><strong>CR:</strong> Eficacia <span class="hl-cr">92,75%</span>
+  (<span class="delta-down">▼ 0,58pp WoW</span>).
+  Conv Rate <strong>1,19%</strong>
+  (<span class="delta-down">▼ 0,10pp</span>) — banda Revisar.
+  <strong>Universo P80:</strong> 2.080 hoteles (MIN_CR=100).
+  <strong>CR Únicos:</strong> 1.492.747 · <strong>Bookings:</strong> 17.720.</p>
 
-<p><strong>Prioridades:</strong> 86 hoteles Súper Críticos entre ambos reportes ·
-  brecha Third Party sistémica ·
-  cohorte Sin Conversión (0 RND + 1.183 CR).</p>
-</div>
-
-<h2>🎯 Plan de Acción · por Área Accountable</h2>
-
-<p style="font-size: 12px; color: #8A8377; margin-bottom: 18px;">
-  <strong style="color:#2F6C34">QW</strong> Quick Win &lt;1 semana ·
-  <strong style="color:#A86A1D">MP</strong> Mid Priority 2-4 semanas ·
-  <strong style="color:#5C469C">ES</strong> Estratégica trimestre
-</p>
-
-<div class="area-group">
-  <div class="area-header">
-    <span class="area-name">Supply Optimization</span>
-    <span class="area-count">3 acciones</span>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-qw">QW</span>
-    <div>
-      <div class="action-text">Escalar <strong>65 hoteles Súper Críticos de Eficacia</strong> (&lt;60%) — revisión técnica de conectividad y errores.<span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: 5 días · Métrica: Eficacia &gt; 85%</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-mp">MP</span>
-    <div>
-      <div class="action-text">Plan de saneamiento <strong>468 hoteles Crítica/Súper Crítica</strong> de Eficacia · priorizar CUG y B2B-OP (weight 0,6).<span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: 3 semanas · Métrica: 50% migrado a Revisar</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-mp">MP</span>
-    <div>
-      <div class="action-text">Plan de saneamiento <strong>371 hoteles Crítica/Súper Crítica</strong> de % NoDispo · CUG y B2B-OP primero.<span class="src src-rnd">RND</span></div>
-      <div class="action-meta">Plazo: 3 semanas · Métrica: 50% migrado a Revisar</div>
-    </div>
-  </div>
-</div>
-
-<div class="area-group">
-  <div class="area-header">
-    <span class="area-name">Supply Optimization / TPS</span>
-    <span class="area-count">3 acciones</span>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-qw">QW</span>
-    <div>
-      <div class="action-text">Diagnóstico técnico Top 10 <strong>Sin Conversión</strong> de alto tráfico — mapping, paridad, inventario, tarifas.<span class="src src-rnd">RND</span><span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: 1 semana · Universo: 0 RND + 1.183 CR sin Bookings</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-qw">QW</span>
-    <div>
-      <div class="action-text">Escalar <strong>21 hoteles Súper Críticos de % NoDispo</strong> (&gt;60%) — remediación técnica urgente.<span class="src src-rnd">RND</span></div>
-      <div class="action-meta">Plazo: 5 días · Métrica: % NoDispo &lt; 20%</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-mp">MP</span>
-    <div>
-      <div class="action-text">Auditar canal <strong>Third Party</strong> (Conv Rate 0,19% banda Crítica) — paridad tarifas y latencia con Expedia y HotelBeds.<span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: 2 semanas · Métrica: Conv Rate &gt; 0,8%</div>
-    </div>
-  </div>
-</div>
-
-<div class="area-group">
-  <div class="area-header">
-    <span class="area-name">Supply Comercial / Supply Optimization</span>
-    <span class="area-count">1 acción</span>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-es">ES</span>
-    <div>
-      <div class="action-text">Reducir <strong>cohorte Sin Conversión en P80</strong> — proyecto trimestral de remediación técnica + comercial coordinado RND y CR.<span class="src src-rnd">RND</span><span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: Q3 · Métrica: -25% vs baseline · Universo: 1.183 hoteles</div>
-    </div>
-  </div>
-</div>
-
-<div class="area-group">
-  <div class="area-header">
-    <span class="area-name">Supply Comercial / Wholesale</span>
-    <span class="area-count">3 acciones</span>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-mp">MP</span>
-    <div>
-      <div class="action-text">Revisión de <strong>IPM en CUG</strong> (mayor weight · IPM $1.498 vs $715 semana anterior · 109,5% WoW).<span class="src src-rnd">RND</span></div>
-      <div class="action-meta">Plazo: 2 semanas · Métrica: IPM ≥ $650 (banda Aceptable)</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-es">ES</span>
-    <div>
-      <div class="action-text">Revisión integral del producto <strong>B2C</strong> (Conv Rate Crítica 0,33%) — pricing, UX, mapping, fee structure.<span class="src src-cr">CR</span></div>
-      <div class="action-meta">Plazo: Q3 · Métrica: Conv Rate &gt; 1,5%</div>
-    </div>
-  </div>
-  <div class="action-item">
-    <span class="action-tag tag-es">ES</span>
-    <div>
-      <div class="action-text">Definir <strong>SLAs de % NoDispo por corporativo</strong> — Top 10 corp por tráfico con cláusulas de severity-based pricing.<span class="src src-rnd">RND</span></div>
-      <div class="action-meta">Plazo: Q3 · Métrica: SLAs firmados con Top 10 corp</div>
-    </div>
-  </div>
+<p><strong>Prioridades:</strong> Eficacia en B2B-OP · Conv Rate en CUG · Third Party sistémica · cohorte Sin Conversión (385 hoteles CR).</p>
 </div>
 
 <h2>🔍 Detalle en el Hub</h2>
