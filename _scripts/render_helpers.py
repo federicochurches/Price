@@ -65,8 +65,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', 'BKGS=0',      '#161616'),
             ('Crítica',        '< $200',      '#C0392B'),
             ('Revisar',        '$200–$650',   '#D4A878'),
-            ('Aceptable',      '$650–$1000',  '#5C469C'),
-            ('Exitosa',        '≥ $1000',     '#4FC3F4'),
+            ('Exitosa',        '≥ $650',      '#4FC3F4'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [

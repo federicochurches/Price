@@ -143,7 +143,7 @@ for canasta_key, canasta_data in CANASTA.items():
         data = []
         if isinstance(sev_rpm, dict):
             for n in ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica']:
-                rng = {'Exitosa':'≥$1000','Aceptable':'$650-$1000','Revisar':'$200-$650','Crítica':'<$200','Súper Crítica':'$0'}[n]
+                rng = {'Exitosa':'≥$650','Revisar':'$200-$650','Crítica':'<$200','Súper Crítica':'$0'}[n]
                 cnt = int(sev_rpm.get(n, 0))
                 data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total if total else 0})
         df_sev = pd.DataFrame(data)
