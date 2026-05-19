@@ -1,35 +1,47 @@
 """
 build_package.py · Paso 6 del pipeline semanal
-Genera index.html del hub + ZIP con estructura completa del repo
+Genera index.html del hub (respetando _TEMPLATE_Hub.html) + ZIP con estructura del repo
 
 Uso:
     python build_package.py
 
-CONFIG SEMANAL — solo cambiar esto cada semana:
+CONFIG SEMANAL — solo cambiar este bloque cada semana:
 """
 import pickle, zipfile, shutil
+import sys, os
 from pathlib import Path
 
+# Agregar raíz del proyecto a sys.path (para imports de _helpers/)
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Imports desde _helpers/
+from _helpers.template_seguimiento import generar_archivo_seguimiento
+
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
-WEEK        = 19          # número entero
-PERIODO     = '5–11 may 2026'
-FECHA_PUB   = 'Lunes 12 mayo 2026'
+# Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
+WEEK        = int(os.getenv('VOL_NUM', '20'))
+PERIODO     = os.getenv('PERIODO', '12–18 may 2026')
+FECHA_PUB   = os.getenv('FECHA_PUB', 'Lunes 19 mayo 2026')
 
-# Semana anterior (para historial en el hub)
-WEEK_PREV        = 18
-PERIODO_PREV     = '27 abr – 3 may 2026'
+WEEK_PREV        = int(os.getenv('VOL_NUM_PREV', '19')) if os.getenv('VOL_NUM_PREV') else WEEK - 1
+PERIODO_PREV     = os.getenv('PERIODO_PREV', '5–11 may 2026')
+WEEK_PREV2       = WEEK_PREV - 1
+PERIODO_PREV2    = '27 abr – 3 may 2026'  # Fallback simple
 
-# Pickles (generados por calc_*.py)
-PICKLE_RND  = 'rnd_w19_data.pkl'
-PICKLE_CR   = 'cr_w19_data.pkl'
+PICKLE_RND  = os.getenv('PICKLE_RND', f'rnd_w{WEEK}_data.pkl')
+PICKLE_CR   = os.getenv('PICKLE_CR', f'cr_w{WEEK}_data.pkl')
 
-# Outputs del pipeline (generados por assemble_*.py y excel_*.py)
-OUTPUTS     = Path('/mnt/user-data/outputs')
+OUTPUTS     = Path(os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs'))
+PROJECT     = Path(os.getenv('PROJECT_DIR', '/mnt/project'))
 # ─────────────────────────────────────────────────────────────────────────────
 
-WEEK_STR      = f'week-{WEEK}'
-WEEK_PREV_STR = f'week-{WEEK_PREV}'
-WEEK_LABEL    = f'W{WEEK}'
+WEEK_STR       = f'week-{WEEK}'
+WEEK_PREV_STR  = f'week-{WEEK_PREV}'
+WEEK_PREV2_STR = f'week-{WEEK_PREV2}'
+SEMANA         = f'Week {WEEK}'
+SEMANA_PREV    = f'Week {WEEK_PREV}'
+SEMANA_PREV2   = f'Week {WEEK_PREV2}'
 
 # ── Cargar KPIs desde pickles ─────────────────────────────────────────────────
 with open(PICKLE_RND, 'rb') as f:
@@ -37,354 +49,288 @@ with open(PICKLE_RND, 'rb') as f:
 with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
 
-mr   = DR['M']['global_w18']   # W actual
-mr17 = DR['M']['global_w17']   # W anterior
+mr   = DR['M']['global_w18']
+mr17 = DR['M']['global_w17']
 mc   = DC['M']['global_w18']
 mc17 = DC['M']['global_w17']
 
-# RND
-rnd_pct     = mr['pct_nodispo'] * 100
-rnd_pct_wow = (mr['pct_nodispo'] - mr17['pct_nodispo']) * 100
-rnd_ipm     = mr['ipm']
-rnd_ipm_wow = (rnd_ipm / mr17['ipm'] - 1) * 100 if mr17['ipm'] > 0 else 0
-rnd_band_nd  = mr['banda_nd']
-rnd_band_ipm = mr['banda_rpm']   # variable interna sigue siendo rpm
+rnd_pct  = mr['pct_nodispo'] * 100
+rnd_ipm  = mr['ipm']
+cr_ef    = mc['eficacia'] * 100
+cr_cv    = mc['conv_rate'] * 100
 
 sev_nd  = DR['sev_nd']
-rnd_supc   = int(sev_nd.get('Súper Crítica', 0))
-rnd_crit   = int(sev_nd.get('Crítica', 0))
-rnd_rev    = int(sev_nd.get('Revisar', 0))
-rnd_acep   = int(sev_nd.get('Aceptable', 0))
-rnd_exit   = int(sev_nd.get('Exitosa', 0))
-
-# CR
-cr_ef      = mc['eficacia'] * 100
-cr_ef_wow  = (mc['eficacia'] - mc17['eficacia']) * 100
-cr_cv      = mc['conv_rate'] * 100
-cr_cv_wow  = (mc['conv_rate'] - mc17['conv_rate']) * 100
-
-sev_ef = DC['sev_ef_p80']
+sev_ef  = DC['sev_ef_p80']
+rnd_supc = int(sev_nd.get('Súper Crítica', 0))
+rnd_crit = int(sev_nd.get('Crítica', 0))
 cr_supc  = int(sev_ef.get('Súper Crítica', 0))
 cr_crit  = int(sev_ef.get('Crítica', 0))
-cr_rev   = int(sev_ef.get('Revisar', 0))
-cr_acep  = int(sev_ef.get('Aceptable', 0))
-cr_exit  = int(sev_ef.get('Exitosa', 0))
 
-# Prev week (from pickles — mismos datos como W17 del siguiente ciclo)
-rnd_pct_prev = mr17['pct_nodispo'] * 100
-rnd_ipm_prev = mr17['ipm']
-cr_ef_prev   = mc17['eficacia'] * 100
-cr_cv_prev   = mc17['conv_rate'] * 100
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 def es(x, d=2):
     s = f'{x:,.{d}f}'
     return s.replace(',', '|').replace('.', ',').replace('|', '.')
 
-def wow_cls(val, invert=False):
-    if invert:
-        return 'wow-up' if val < 0 else ('wow-flat' if val == 0 else 'wow-down')
-    return 'wow-up' if val > 0 else ('wow-flat' if val == 0 else 'wow-down')
-
-def wow_arrow(val, invert=False):
-    effective = -val if invert else val
-    return '▲' if effective > 0 else ('▼' if effective < 0 else '—')
-
-def band_css(band):
-    m = {
-        'Exitosa': 'band-exitosa',
-        'Aceptable': 'band-aceptable',
-        'Revisar': 'band-revisar',
-        'Crítica': 'band-critica',
-        'Súper Crítica': 'band-superc',
-    }
-    return m.get(band, 'band-revisar')
+# Logo PriceTravel — extraído de _TEMPLATE_Hub.html · no regenerar
+with open('logo_b64.txt') as _f:
+    _LOGO_B64 = _f.read().strip()
 
 
-# ── Generar index.html ────────────────────────────────────────────────────────
+# ── Generar index.html respetando _TEMPLATE_Hub.html ─────────────────────────
 def build_index():
+    nd_meta = (
+        f'{len(DR["p80_hotel"]):,} hoteles P80 · '
+        f'%NoDispo {es(rnd_pct)}% · '
+        f'IPM ${es(rnd_ipm, 0)} · '
+        f'GB ${es(mr["gb_usd"]/1e6, 2)}M · '
+        f'{rnd_supc} Súper Críticos / {rnd_crit} Críticos'
+    )
+    ck_meta = (
+        f'{len(DC["p80_hotel"]):,} hoteles P80 · '
+        f'Eficacia {es(cr_ef)}% · '
+        f'Conv Rate {es(cr_cv)}% · '
+        f'{cr_supc} Súper Críticos / {cr_crit} Críticos eficacia'
+    )
+
+    LOGO = "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"
+
     html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Supply Analytics Hub · PriceTravel</title>
+<title>PriceTravel · Supply Optimization</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {{
-    --ink:#161616; --ink-soft:#4A4540; --ink-muted:#8A8377;
-    --paper:#FAF7F2; --paper-soft:#F2EDE0;
-    --rule:#C9C1B0; --rule-soft:#E5E0D2;
-    --magenta:#EA0074; --violet:#5C469C; --cyan:#4FC3F4;
-    --amber:#A86A1D; --green:#2F6C34; --red:#C0392B;
-  }}
-  *{{box-sizing:border-box;margin:0;padding:0;}}
-  body{{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;min-height:100vh;}}
-
-  /* ── Login ── */
-  #login-overlay{{position:fixed;inset:0;z-index:9999;background:#161616;display:flex;align-items:center;justify-content:center;}}
-  .login-box{{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:40px 48px;width:360px;text-align:center;}}
-  .login-logo{{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:24px;}}
-  .login-box h2{{font-size:20px;font-weight:700;margin-bottom:6px;}}
-  .login-box p{{font-size:13px;color:var(--ink-muted);margin-bottom:28px;}}
-  .login-box input{{width:100%;padding:10px 14px;margin-bottom:12px;border:1px solid var(--rule);border-radius:4px;font-size:14px;background:#fff;color:var(--ink);}}
-  .login-box input:focus{{outline:2px solid var(--violet);border-color:var(--violet);}}
-  .login-box button{{width:100%;padding:11px;background:var(--ink);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;margin-top:4px;transition:background .15s;}}
-  .login-box button:hover{{background:#2a2a2a;}}
-  .login-error{{font-size:12px;color:var(--red);margin-top:10px;display:none;}}
-
-  /* ── Layout ── */
-  .hub-wrap{{max-width:960px;margin:0 auto;padding:0 32px 80px;}}
-
-  /* ── Header ── */
-  .hub-header{{padding:40px 0 32px;border-bottom:1px solid var(--rule);margin-bottom:48px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}}
-  .hub-kicker{{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px;}}
-  .hub-title{{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}}
-  .hub-sub{{font-size:13px;color:var(--ink-muted);margin-top:6px;}}
-  .hub-header-right{{font-size:12px;color:var(--ink-muted);text-align:right;line-height:1.7;}}
-  .hub-header-right strong{{color:var(--ink);}}
-
-  /* ── Section label ── */
-  .section-label{{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--rule-soft);}}
-
-  /* ── Featured card ── */
-  .featured-card{{background:#fff;border:1px solid var(--rule);border-top:4px solid var(--ink);border-radius:6px;padding:32px 36px;margin-bottom:48px;cursor:pointer;transition:box-shadow .15s,border-color .15s;}}
-  .featured-card:hover{{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:var(--ink-soft);}}
-  .featured-top{{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px;}}
-  .featured-week{{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}}
-  .featured-title{{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1.2;}}
-  .featured-period{{font-size:12px;color:var(--ink-muted);margin-top:4px;}}
-  .featured-badge{{display:inline-block;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;border-radius:20px;background:var(--ink);color:#fff;white-space:nowrap;align-self:flex-start;}}
-
-  /* ── KPI strip ── */
-  .kpi-strip{{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:4px;overflow:hidden;margin-bottom:28px;}}
-  .kpi-cell{{background:var(--paper-soft);padding:14px 16px;}}
-  .kpi-label{{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}}
-  .kpi-value{{font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;}}
-  .kpi-wow{{font-size:11px;font-weight:600;margin-top:3px;}}
-  .kpi-band{{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;padding:2px 7px;border-radius:2px;display:inline-block;}}
-
-  .color-rnd{{color:var(--magenta);}} .color-cr{{color:var(--violet);}}
-  .color-ipm{{color:var(--amber);}}  .color-cv{{color:var(--violet);}}
-  .band-exitosa{{background:rgba(79,195,244,.15);color:#0B7CA8;}}
-  .band-aceptable{{background:rgba(92,70,156,.15);color:var(--violet);}}
-  .band-revisar{{background:rgba(168,106,29,.15);color:var(--amber);}}
-  .band-critica{{background:rgba(192,57,43,.15);color:var(--red);}}
-  .band-superc{{background:rgba(22,22,22,.15);color:var(--ink);}}
-  .wow-up{{color:var(--green);}} .wow-down{{color:var(--red);}} .wow-flat{{color:var(--ink-muted);}}
-
-  /* ── Severity pills ── */
-  .sev-group{{margin-bottom:24px;}}
-  .sev-group-label{{font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:8px;}}
-  .sev-strip{{display:flex;gap:6px;flex-wrap:wrap;}}
-  .sev-pill{{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:3px;display:flex;align-items:center;gap:5px;}}
-  .sev-pill .sev-n{{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;}}
-  .sev-label{{font-size:9px;letter-spacing:.08em;}}
-  .sev-groups-row{{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:24px;}}
-
-  /* ── Report links ── */
-  .report-links{{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}}
-  .report-btn{{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:opacity .15s;cursor:pointer;}}
-  .report-btn:hover{{opacity:.85;}}
-  .btn-cr{{background:var(--violet);color:#fff;}} .btn-rnd{{background:var(--magenta);color:#fff;}}
-  .report-btn-ghost{{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid var(--rule);color:var(--ink-soft);transition:border-color .15s,color .15s;cursor:pointer;}}
-  .report-btn-ghost:hover{{border-color:var(--ink);color:var(--ink);}}
-
-  /* ── History grid ── */
-  .history-grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}}
-  @media(max-width:600px){{.history-grid{{grid-template-columns:1fr;}}}}
-  .history-card{{background:#fff;border:1px solid var(--rule-soft);border-radius:6px;padding:20px 22px;cursor:pointer;transition:box-shadow .15s,border-color .15s;}}
-  .history-card:hover{{box-shadow:0 2px 10px rgba(0,0,0,.06);border-color:var(--rule);}}
-  .hcard-week{{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}}
-  .hcard-period{{font-size:12px;color:var(--ink-muted);margin-bottom:14px;}}
-  .hcard-kpis{{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}}
-  .hcard-kpi{{display:flex;flex-direction:column;gap:2px;}}
-  .hcard-kpi-label{{font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;}}
-  .hcard-kpi-value{{font-size:16px;font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums;}}
-  .hcard-links{{display:flex;gap:8px;flex-wrap:wrap;}}
-  .hcard-link{{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:5px 10px;border-radius:3px;transition:opacity .15s;}}
-  .hcard-link:hover{{opacity:.8;}}
-  .hlink-cr{{background:rgba(92,70,156,.12);color:var(--violet);}}
-  .hlink-rnd{{background:rgba(234,0,116,.10);color:var(--magenta);}}
-
-  /* ── Footer ── */
-  .hub-footer{{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}}
-  .hub-footer-left{{font-size:11px;color:var(--ink-muted);line-height:1.6;}}
-  .hub-footer-right{{font-size:11px;color:var(--ink-muted);}}
+:root{{--paper:#F8F4EC;--ink:#161616;--muted:#8A8377;--rule:#C9C1B0;--rnd:#EA0074;--cr:#5C469C;--white:#ffffff;}}
+*{{box-sizing:border-box;margin:0;padding:0;}}
+body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;}}
+#lock{{width:100%;max-width:420px;padding:0;display:flex;flex-direction:column;min-height:100vh;justify-content:center;position:relative;}}
+.lock-bg-accent{{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#EA0074 0%,#5C469C 100%);z-index:10;}}
+.lock-inner{{padding:48px 40px 40px;background:var(--paper);}}
+.lock-logo-wrap{{margin-bottom:20px;}}
+.lock-logo-wrap img{{height:40px;display:block;filter:saturate(0) brightness(0);}}
+.lock-headline{{font-size:12px;color:var(--muted);font-weight:400;margin-bottom:28px;line-height:1.5;}}
+.lock-form-group{{margin-bottom:12px;position:relative;}}
+.lock-label{{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}}
+.lock-field{{width:100%;padding:13px 16px;border:1px solid var(--rule);background:var(--white);font-family:'Geist',sans-serif;font-size:15px;color:var(--ink);outline:none;border-radius:0;transition:border-color .15s;}}
+.lock-field:focus{{border-color:#EA0074;}}
+.lock-field::placeholder{{color:#BDB8B0;}}
+.lock-btn{{width:100%;padding:15px;background:var(--ink);color:#fff;border:none;font-family:'Geist',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:background .15s;margin-top:4px;}}
+.lock-btn:hover{{background:#EA0074;}}
+.lock-btn:active{{transform:scale(.99);}}
+.lock-error{{font-size:11px;color:#C0392B;margin-top:10px;display:none;padding:10px 14px;border-left:3px solid #C0392B;background:rgba(192,57,43,.06);font-weight:500;}}
+.lock-footer{{padding:18px 40px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;}}
+.lock-footer-tag{{font-size:10px;color:var(--muted);}}
+.lock-footer-url{{font-size:10px;color:var(--muted);}}
+@media(max-width:480px){{.lock-inner{{padding:36px 24px 28px;}}.lock-footer{{padding:14px 24px;}}}}
+#hub{{display:none;width:100%;max-width:1000px;padding:40px 40px 60px;}}
+.hub-header{{border-top:3px solid var(--ink);padding-top:16px;margin-bottom:40px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}}
+.hub-tag{{display:inline-block;background:var(--muted);color:#fff;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;}}
+.hub-title{{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}}
+.hub-title span{{font-weight:300;color:var(--muted);}}
+.hub-sub{{font-size:12px;color:var(--muted);margin-top:8px;}}
+.hub-logo img{{height:40px;opacity:.8;display:block;}}
+.hub-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:40px;}}
+.rpt-card{{background:#F8F4EC;border:1px solid var(--rule);border-radius:0;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;}}
+.rpt-card:hover{{border-color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.07);}}
+.rpt-card-top{{padding:20px 20px 16px;flex:1;}}
+.rpt-accent{{display:inline-block;padding:3px 8px;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;margin-bottom:12px;}}
+.rpt-week{{font-size:13px;font-weight:600;margin-bottom:2px;}}
+.rpt-meta{{font-size:12px;color:var(--muted);line-height:1.5;border-top:1px solid var(--rule);padding-top:10px;}}
+.rpt-pills{{padding:12px 20px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}}
+.rpt-pills-label{{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px;}}
+.pill{{font-size:10px;font-weight:600;padding:3px 8px;border:1px solid var(--rule);border-radius:20px;text-decoration:none;color:var(--muted);background:transparent;transition:border-color .12s,color .12s;}}
+.pill:hover{{color:var(--ink);border-color:var(--ink);}}
+.pill.active{{color:var(--white);border-color:transparent;}}
+.pill.disabled{{opacity:.35;pointer-events:none;}}
+.archivo{{border-top:1px solid var(--rule);padding-top:24px;}}
+.archivo-title{{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}}
+.archivo-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}}
+.archivo-grupo-label{{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}}
+.archivo-links{{display:flex;flex-direction:column;gap:5px;}}
+.archivo-link{{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border:1px solid var(--rule);background:#F8F4EC;text-decoration:none;color:var(--ink);font-size:12px;transition:border-color .12s;}}
+.archivo-link:hover{{border-color:var(--ink);}}
+.aw{{font-weight:600;}}
+.ap{{font-size:11px;color:var(--muted);}}
+.archivo-link.disabled{{opacity:.35;pointer-events:none;}}
+.archivo-link.recent-link{{transition:opacity 0.3s ease;}}
 </style>
 </head>
 <body>
 
-<!-- ── Login overlay ── -->
-<div id="login-overlay">
-  <div class="login-box">
-    <div class="login-logo">PriceTravel · Supply Analytics</div>
-    <h2>Acceso al Hub</h2>
-    <p>Reportes semanales de Supply Optimization</p>
-    <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
-    <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password">
-    <button onclick="doLogin()">Ingresar →</button>
-    <div class="login-error" id="login-error">Usuario o contraseña incorrectos.</div>
+<!-- ══ LOCK SCREEN ══ -->
+<div id="lock">
+  <div class="lock-bg-accent"></div>
+  <div class="lock-inner">
+    <div class="lock-logo-wrap">
+      <img src="data:image/png;base64,{LOGO}" alt="PriceTravel" class="dark-invert">
+    </div>
+    <div class="lock-headline">Acceso restringido al equipo de Supply.<br>Ingresá tus credenciales para continuar.</div>
+    <div class="lock-form-group">
+      <label class="lock-label" for="user">Usuario</label>
+      <input type="text" id="user" class="lock-field" placeholder="tu.usuario" autocomplete="username" />
+    </div>
+    <div class="lock-form-group">
+      <label class="lock-label" for="pass">Contraseña</label>
+      <input type="password" id="pass" class="lock-field" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="lock-btn" onclick="checkAuth()">Ingresar →</button>
+    <div class="lock-error" id="error">Usuario o contraseña incorrectos. Intentá de nuevo.</div>
+  </div>
+  <div class="lock-footer">
+    <span class="lock-footer-tag">analytics-desk.netlify.app</span>
+    <span class="lock-footer-url">{SEMANA}</span>
   </div>
 </div>
 
-<!-- ── Hub content ── -->
-<div class="hub-wrap" id="hub-content" style="display:none;">
-
-  <header class="hub-header">
-    <div>
-      <div class="hub-kicker">PriceTravel · Supply Optimization</div>
-      <div class="hub-title">Supply Analytics Hub</div>
-      <div class="hub-sub">Rates No Dispo · CheckRates · Semana actual: <strong>Week {WEEK}</strong></div>
+<!-- ══ HUB ══ -->
+<div id="hub">
+  <div class="hub-header">
+    <div class="hub-header-left">
+      <div class="hub-tag">Supply Optimization</div>
+      <div class="hub-title">PriceTravel <span>· Weekly Reports</span></div>
+      <div class="hub-sub">{SEMANA} · {PERIODO}</div>
     </div>
-    <div class="hub-header-right">
-      <strong>Última publicación</strong><br>
-      Week {WEEK} · {PERIODO}<br>
-      {FECHA_PUB}
+    <div class="hub-logo">
+      <img src="data:image/png;base64,{LOGO}" alt="PriceTravel">
     </div>
-  </header>
+  </div>
 
-  <!-- ── Featured: W{WEEK} ── -->
-  <div class="section-label">Semana actual</div>
-
-  <div class="featured-card" onclick="window.location='checkrates/{WEEK_STR}/CheckRates_Reporte_Editorial.html'">
-
-    <div class="featured-top">
-      <div>
-        <div class="featured-week">Week {WEEK}</div>
-        <div class="featured-title">Supply Optimization · {PERIODO}</div>
-        <div class="featured-period">Análisis semanal · Rates No Dispo + CheckRates · P80 global</div>
+  <div class="hub-grid">
+    <div class="rpt-card" onclick="location.href='rates-nodispo/{WEEK_STR}/RatesNoDispo_Reporte_Editorial.html'">
+      <div class="rpt-card-top">
+        <span class="rpt-accent" style="background:rgba(234,0,116,.12);color:var(--rnd);">Supply · Rates No Dispo</span>
+        <div class="rpt-week" style="color:var(--rnd);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{SEMANA} · {PERIODO}</div>
+        <div class="rpt-meta">{nd_meta}</div>
       </div>
-      <span class="featured-badge">Publicado</span>
-    </div>
-
-    <div class="kpi-strip">
-      <div class="kpi-cell">
-        <div class="kpi-label color-rnd">% No Dispo</div>
-        <div class="kpi-value color-rnd">{es(rnd_pct)}%</div>
-        <div class="kpi-wow {wow_cls(rnd_pct_wow, invert=True)}">{wow_arrow(rnd_pct_wow, invert=True)} {es(abs(rnd_pct_wow))}pp WoW</div>
-        <span class="kpi-band {band_css(rnd_band_nd)}">{rnd_band_nd}</span>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-label color-ipm">IPM (USD)</div>
-        <div class="kpi-value" style="color:var(--amber);">${es(rnd_ipm, 0)}</div>
-        <div class="kpi-wow {wow_cls(rnd_ipm_wow)}">{wow_arrow(rnd_ipm_wow)} {es(abs(rnd_ipm_wow), 1)}% WoW</div>
-        <span class="kpi-band {band_css(rnd_band_ipm)}">{rnd_band_ipm}</span>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-label color-cr">Eficacia CR</div>
-        <div class="kpi-value color-cr">{es(cr_ef)}%</div>
-        <div class="kpi-wow {wow_cls(cr_ef_wow)}">{wow_arrow(cr_ef_wow)} {es(abs(cr_ef_wow))}pp WoW</div>
-        <span class="kpi-band {band_css('Aceptable')}">Aceptable</span>
-      </div>
-      <div class="kpi-cell">
-        <div class="kpi-label color-cv">Conv Rate</div>
-        <div class="kpi-value color-cv">{es(cr_cv)}%</div>
-        <div class="kpi-wow {wow_cls(cr_cv_wow)}">{wow_arrow(cr_cv_wow)} {es(abs(cr_cv_wow))}pp WoW</div>
-        <span class="kpi-band {band_css('Revisar')}">Revisar</span>
+      <div class="rpt-pills">
+        <span class="rpt-pills-label">Historial</span>
+        <span class="pill active" style="background:var(--rnd);border-color:var(--rnd);">{SEMANA}</span>
+        <a href="rates-nodispo/{WEEK_PREV_STR}/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
+        <a href="rates-nodispo/{WEEK_PREV2_STR}/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
       </div>
     </div>
 
-    <div class="sev-groups-row">
-      <div class="sev-group">
-        <div class="sev-group-label">RND · Severity %NoDispo · P80</div>
-        <div class="sev-strip">
-          <div class="sev-pill" style="background:rgba(22,22,22,.80);color:#fff;"><span class="sev-n">{rnd_supc:,}</span><span class="sev-label">Súper Crit.</span></div>
-          <div class="sev-pill" style="background:rgba(192,57,43,.15);color:var(--red);"><span class="sev-n">{rnd_crit:,}</span><span class="sev-label">Crítica</span></div>
-          <div class="sev-pill" style="background:rgba(168,106,29,.15);color:var(--amber);"><span class="sev-n">{rnd_rev:,}</span><span class="sev-label">Revisar</span></div>
-          <div class="sev-pill" style="background:rgba(92,70,156,.12);color:var(--violet);"><span class="sev-n">{rnd_acep:,}</span><span class="sev-label">Aceptable</span></div>
-          <div class="sev-pill" style="background:rgba(79,195,244,.15);color:#0B7CA8;"><span class="sev-n">{rnd_exit:,}</span><span class="sev-label">Exitosa</span></div>
+    <div class="rpt-card" onclick="location.href='checkrates/{WEEK_STR}/CheckRates_Reporte_Editorial.html'">
+      <div class="rpt-card-top">
+        <span class="rpt-accent" style="background:rgba(92,70,156,.12);color:var(--cr);">Supply · CheckRates</span>
+        <div class="rpt-week" style="color:var(--cr);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{SEMANA} · {PERIODO}</div>
+        <div class="rpt-meta">{ck_meta}</div>
+      </div>
+      <div class="rpt-pills">
+        <span class="rpt-pills-label">Historial</span>
+        <span class="pill active" style="background:var(--cr);border-color:var(--cr);">{SEMANA}</span>
+        <a href="checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
+        <a href="checkrates/{WEEK_PREV2_STR}/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="archivo">
+    <div class="archivo-title">Últimas semanas</div>
+    <div class="archivo-grid">
+      <div class="archivo-grupo">
+        <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
+        <div class="archivo-links">
+          <a href="rates-nodispo/{WEEK_PREV_STR}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV}">
+            <span class="aw">{SEMANA_PREV}</span><span class="ap">{PERIODO_PREV}</span>
+          </a>
+          <a href="rates-nodispo/{WEEK_PREV2_STR}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
+            <span class="aw">{SEMANA_PREV2}</span><span class="ap">{PERIODO_PREV2}</span>
+          </a>
         </div>
       </div>
-      <div class="sev-group">
-        <div class="sev-group-label">CR · Severity Eficacia · P80</div>
-        <div class="sev-strip">
-          <div class="sev-pill" style="background:rgba(22,22,22,.80);color:#fff;"><span class="sev-n">{cr_supc:,}</span><span class="sev-label">Súper Crit.</span></div>
-          <div class="sev-pill" style="background:rgba(192,57,43,.15);color:var(--red);"><span class="sev-n">{cr_crit:,}</span><span class="sev-label">Crítica</span></div>
-          <div class="sev-pill" style="background:rgba(168,106,29,.15);color:var(--amber);"><span class="sev-n">{cr_rev:,}</span><span class="sev-label">Revisar</span></div>
-          <div class="sev-pill" style="background:rgba(92,70,156,.12);color:var(--violet);"><span class="sev-n">{cr_acep:,}</span><span class="sev-label">Aceptable</span></div>
-          <div class="sev-pill" style="background:rgba(79,195,244,.15);color:#0B7CA8;"><span class="sev-n">{cr_exit:,}</span><span class="sev-label">Exitosa</span></div>
+      <div class="archivo-grupo">
+        <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
+        <div class="archivo-links">
+          <a href="checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV}">
+            <span class="aw">{SEMANA_PREV}</span><span class="ap">{PERIODO_PREV}</span>
+          </a>
+          <a href="checkrates/{WEEK_PREV2_STR}/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
+            <span class="aw">{SEMANA_PREV2}</span><span class="ap">{PERIODO_PREV2}</span>
+          </a>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="report-links" onclick="event.stopPropagation()">
-      <a class="report-btn btn-cr"  href="checkrates/{WEEK_STR}/CheckRates_Reporte_Editorial.html">→ CheckRates W{WEEK}</a>
-      <a class="report-btn btn-rnd" href="rates-nodispo/{WEEK_STR}/RatesNoDispo_Reporte_Editorial.html">→ Rates No Dispo W{WEEK}</a>
-      <a class="report-btn-ghost"   href="checkrates/{WEEK_STR}/Analisis_Checkrates_7d.xlsx">↓ Excel CR (37 pests.)</a>
-      <a class="report-btn-ghost"   href="rates-nodispo/{WEEK_STR}/Analisis_Rates_NoDispo_7d.xlsx">↓ Excel RND (33 pests.)</a>
-    </div>
-
-  </div><!-- /featured-card -->
-
-  <!-- ── Historial ── -->
-  <div class="section-label" style="margin-top:8px;">Historial</div>
-  <div class="history-grid">
-
-    <div class="history-card" onclick="window.location='checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html'">
-      <div class="hcard-week">Week {WEEK_PREV}</div>
-      <div class="hcard-period">{PERIODO_PREV}</div>
-      <div class="hcard-kpis">
-        <div class="hcard-kpi">
-          <span class="hcard-kpi-label color-rnd">% No Dispo</span>
-          <span class="hcard-kpi-value color-rnd">{es(rnd_pct_prev)}%</span>
+  <div class="archivo">
+    <button id="toggleHistoric" style="width:100%;padding:12px 20px;border:1px solid var(--rule);background:transparent;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;transition:background .15s;">
+      ▼ Histórico completo (semanas anteriores)
+    </button>
+    <div id="historicContent" style="display:none;margin-top:16px;">
+      <div class="archivo-grid">
+        <div class="archivo-grupo">
+          <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
+          <div class="archivo-links">
+            <a href="rates-nodispo/week-{WEEK_PREV2-1}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+              <span class="aw">Semanas anteriores</span><span class="ap">Week {WEEK_PREV2-1} y antes</span>
+            </a>
+          </div>
         </div>
-        <div class="hcard-kpi">
-          <span class="hcard-kpi-label color-ipm">IPM</span>
-          <span class="hcard-kpi-value" style="color:var(--amber);">${es(rnd_ipm_prev, 0)}</span>
-        </div>
-        <div class="hcard-kpi">
-          <span class="hcard-kpi-label color-cr">Eficacia</span>
-          <span class="hcard-kpi-value color-cr">{es(cr_ef_prev)}%</span>
-        </div>
-        <div class="hcard-kpi">
-          <span class="hcard-kpi-label color-cv">Conv Rate</span>
-          <span class="hcard-kpi-value color-cv">{es(cr_cv_prev)}%</span>
+        <div class="archivo-grupo">
+          <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
+          <div class="archivo-links">
+            <a href="checkrates/week-{WEEK_PREV2-1}/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+              <span class="aw">Semanas anteriores</span><span class="ap">Week {WEEK_PREV2-1} y antes</span>
+            </a>
+          </div>
         </div>
       </div>
-      <div class="hcard-links" onclick="event.stopPropagation()">
-        <a class="hcard-link hlink-cr"  href="checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html">CheckRates →</a>
-        <a class="hcard-link hlink-rnd" href="rates-nodispo/{WEEK_PREV_STR}/RatesNoDispo_Reporte_Editorial.html">Rates No Dispo →</a>
-      </div>
     </div>
-
-    <div class="history-card" style="opacity:.4;cursor:default;pointer-events:none;">
-      <div class="hcard-week">Week {WEEK_PREV - 1}</div>
-      <div style="font-size:12px;color:var(--ink-muted);margin-top:8px;">No disponible en este hub.</div>
-    </div>
-
-  </div><!-- /history-grid -->
-
-  <footer class="hub-footer">
-    <div class="hub-footer-left">
-      <strong>PriceTravel · Supply Optimization</strong><br>
-      Última actualización: Week {WEEK} · {PERIODO}
-    </div>
-    <div class="hub-footer-right">analytics-desk.netlify.app</div>
-  </footer>
-
-</div><!-- /hub-wrap -->
+  </div>
+</div>
 
 <script>
-(function(){{
-  if(sessionStorage.getItem('hub_auth')==='1'){{
-    document.getElementById('login-overlay').style.display='none';
-    document.getElementById('hub-content').style.display='block';
-  }}
-  document.getElementById('login-pass').addEventListener('keydown',function(e){{
-    if(e.key==='Enter') doLogin();
-  }});
-}})();
-function doLogin(){{
-  var u=document.getElementById('login-user').value.trim();
-  var p=document.getElementById('login-pass').value.trim();
-  if(u==='pricetravel'&&p==='supply2026'){{
-    sessionStorage.setItem('hub_auth','1');
-    document.getElementById('login-overlay').style.display='none';
-    document.getElementById('hub-content').style.display='block';
-  }}else{{
-    document.getElementById('login-error').style.display='block';
+const CREDS = {{ user: 'pricetravel', pass: 'supply2026' }};
+const SESSION_KEY = 'pt_analytics_auth';
+function checkAuth() {{
+  const u = document.getElementById('user').value.trim().toLowerCase();
+  const p = document.getElementById('pass').value;
+  if (u === CREDS.user && p === CREDS.pass) {{
+    localStorage.setItem(SESSION_KEY, '1');
+    showHub();
+  }} else {{
+    document.getElementById('error').style.display = 'block';
   }}
 }}
+function showHub() {{
+  document.getElementById('lock').style.display = 'none';
+  document.getElementById('hub').style.display = 'block';
+  document.body.style.alignItems = 'flex-start';
+}}
+if (localStorage.getItem(SESSION_KEY)) showHub();
+document.addEventListener('keydown', e => {{ if (e.key === 'Enter') checkAuth(); }});
+
+// Aplicar SOLO opacidad sutil a últimas 3 semanas (sin blur)
+document.addEventListener('DOMContentLoaded', () => {{
+  const recentLinks = document.querySelectorAll('.recent-link[data-week]');
+  const currentWeek = {WEEK};
+  const minOpacity = 0.92;
+  
+  recentLinks.forEach(link => {{
+    const week = parseInt(link.getAttribute('data-week'));
+    const weeksBack = currentWeek - week;
+    const opacity = minOpacity + ((weeksBack / 3) * (1 - minOpacity));
+    
+    link.style.opacity = opacity;
+    link.style.transition = 'opacity 0.3s ease';
+  }});
+  
+  // Toggle acordeón histórico
+  const toggleBtn = document.getElementById('toggleHistoric');
+  const historicContent = document.getElementById('historicContent');
+  
+  if (toggleBtn && historicContent) {{
+    toggleBtn.addEventListener('click', () => {{
+      const isOpen = historicContent.style.display !== 'none';
+      historicContent.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.textContent = isOpen ? 
+        '▶ Histórico completo (semanas anteriores)' : 
+        '▼ Histórico completo (semanas anteriores)';
+    }});
+  }}
+}});
 </script>
 </body>
 </html>"""
@@ -398,32 +344,142 @@ index_path.write_text(index_html, encoding='utf-8')
 print(f'✅ index.html generado · {len(index_html):,} chars')
 
 
-# ── Armar ZIP con estructura del repo ────────────────────────────────────────
-ZIP_ROOT = Path(f'/home/claude/Price_W{WEEK}')
-ZIP_ROOT.mkdir(parents=True, exist_ok=True)
-
-dirs = [
-    ZIP_ROOT / 'checkrates' / WEEK_STR,
-    ZIP_ROOT / 'rates-nodispo' / WEEK_STR,
-    ZIP_ROOT / '_email' / WEEK_STR,
+# ── Generar archivo de seguimiento para la próxima semana ────────────────────
+SEGUIMIENTO_ITEMS_RND = [
+    {'cluster':'QW','report':'RND','text':f'Escalar {rnd_supc} hoteles Súper Críticos %NoDispo (>60%) — remediación técnica urgente'},
+    {'cluster':'QW','report':'AMBOS','text':'Diagnóstico técnico Top 10 Sin Conversión de alto tráfico — mapping, paridad, inventario'},
+    {'cluster':'MP','report':'RND','text':f'Saneamiento {rnd_crit + rnd_supc} hoteles Crítica/Súper Crítica %NoDispo — priorizar CUG y B2B-OP'},
+    {'cluster':'MP','report':'RND','text':f'Revisión IPM en CUG ({es(rnd_ipm,0)} USD/M) — canasta de mayor weight'},
+    {'cluster':'ES','report':'RND','text':'Reducir cohorte Sin Conversión en P80 — proyecto trimestral técnico + comercial'},
+    {'cluster':'ES','report':'RND','text':'Definir SLAs de %NoDispo por corporativo — Top 10 corp por tráfico'},
 ]
-for d in dirs:
+SEGUIMIENTO_ITEMS_CR = [
+    {'cluster':'QW','report':'CR','text':f'Escalar {cr_supc} hoteles Súper Críticos de Eficacia (<60%) — revisión técnica conectividad'},
+    {'cluster':'QW','report':'CR','text':'Auditar canal Third Party — paridad tarifas y latencia con Expedia y HotelBeds'},
+    {'cluster':'MP','report':'CR','text':f'Saneamiento {cr_crit + cr_supc} hoteles Crítica/Súper Crítica Eficacia — CUG y B2B-OP primero'},
+    {'cluster':'ES','report':'CR','text':'Revisión integral B2C (Conv Rate Crítica) — pricing, UX, mapping, fee structure'},
+]
+SEGUIMIENTO_ITEMS = SEGUIMIENTO_ITEMS_RND + SEGUIMIENTO_ITEMS_CR
+
+seg_dir = OUTPUTS / '_governance' / '_seguimiento'
+seg_dir.mkdir(parents=True, exist_ok=True)
+seguimiento_path = seg_dir / f'plan_seguimiento_W{WEEK}.md'
+generar_archivo_seguimiento(SEGUIMIENTO_ITEMS, f'W{WEEK}', seguimiento_path)
+print(f'✅ plan_seguimiento_W{WEEK}.md generado · {len(SEGUIMIENTO_ITEMS)} items OPEN')
+
+# ── Armar ZIP con estructura del repo ─────────────────────────────────────────
+# Estructura exacta del repo GitHub:
+#
+# Price/
+# ├── index.html
+# ├── _email/week-NN/Mail_WNN.html
+# ├── _governance/
+# │   ├── CHANGELOG.md
+# │   ├── COMMIT_GUIDE.md
+# │   └── _seguimiento/plan_seguimiento_WNN.md
+# ├── checkrates/week-NN/
+# │   ├── CheckRates_Reporte_Editorial.html
+# │   ├── Analisis_Checkrates_7d.xlsx
+# │   ├── Analisis_Checkrates_B2C_7d.xlsx
+# │   ├── Analisis_Checkrates_OP_7d.xlsx
+# │   ├── Analisis_Checkrates_CUG_7d.xlsx
+# │   └── Dataset_CheckRates_WNN.xlsx
+# └── rates-nodispo/week-NN/
+#     ├── RatesNoDispo_Reporte_Editorial.html
+#     ├── Analisis_Rates_NoDispo_7d.xlsx
+#     ├── Analisis_Rates_NoDispo_B2C_7d.xlsx
+#     ├── Analisis_Rates_NoDispo_OP_7d.xlsx
+#     ├── Analisis_Rates_NoDispo_CUG_7d.xlsx
+#     └── Dataset_RatesNoDispo_WNN.xlsx
+
+ZIP_ROOT = Path(f'/home/claude/Price_W{WEEK}')
+if ZIP_ROOT.exists():
+    shutil.rmtree(ZIP_ROOT)
+ZIP_ROOT.mkdir(parents=True)
+
+# Crear todas las carpetas necesarias
+for d in [
+    ZIP_ROOT / 'checkrates'   / WEEK_STR,
+    ZIP_ROOT / 'rates-nodispo' / WEEK_STR,
+    ZIP_ROOT / '_email'        / WEEK_STR,
+    ZIP_ROOT / '_governance'   / '_seguimiento',
+]:
     d.mkdir(parents=True, exist_ok=True)
 
+# Datasets crudos (input) — se copian desde uploads si existen
+UPLOADS = Path(os.getenv('UPLOADS_DIR', '/mnt/user-data/uploads'))
+
+# Intentar desde uploads, si no, desde proyecto
+cr_dataset_uploads = UPLOADS / f'Dataset_CheckRates_W{WEEK}.xlsx'
+cr_dataset_project = PROJECT / f'Dataset_CheckRates_W{WEEK}.xlsx'
+cr_dataset = cr_dataset_uploads if cr_dataset_uploads.exists() else cr_dataset_project
+
+rnd_dataset_uploads = UPLOADS / f'Dataset_RatesNoDispo_W{WEEK}.xlsx'
+rnd_dataset_project = PROJECT / f'Dataset_RatesNoDispo_W{WEEK}.xlsx'
+rnd_dataset = rnd_dataset_uploads if rnd_dataset_uploads.exists() else rnd_dataset_project
+
 files = {
-    OUTPUTS / 'Supply_CheckRates_W19.html':        ZIP_ROOT / 'checkrates' / WEEK_STR / 'CheckRates_Reporte_Editorial.html',
-    OUTPUTS / 'Analisis_Checkrates_7d.xlsx':        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_B2C_7d.xlsx':    ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_OP_7d.xlsx':     ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_CUG_7d.xlsx':    ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_CUG_7d.xlsx',
-    OUTPUTS / 'Supply_RatesNoDispo_W19.html':       ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'RatesNoDispo_Reporte_Editorial.html',
-    OUTPUTS / 'Analisis_Rates_NoDispo_7d.xlsx':     ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_B2C_7d.xlsx': ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_OP_7d.xlsx':  ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx': ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
-    OUTPUTS / f'Mail_W{WEEK}.html':                 ZIP_ROOT / '_email' / WEEK_STR / f'Mail_W{WEEK}.html',
-    OUTPUTS / 'index.html':                         ZIP_ROOT / 'index.html',
+    # ── index.html (raíz) ──────────────────────────────────────────────────
+    OUTPUTS / 'index.html':
+        ZIP_ROOT / 'index.html',
+
+    # ── _email ──────────────────────────────────────────────────────────────
+    OUTPUTS / f'Mail_W{WEEK}.html':
+        ZIP_ROOT / '_email' / WEEK_STR / f'Mail_W{WEEK}.html',
+
+    # ── _governance/_seguimiento ────────────────────────────────────────────
+    OUTPUTS / f'plan_seguimiento_W{WEEK}.md':
+        ZIP_ROOT / '_governance' / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md',
+
+    # ── checkrates/week-NN ──────────────────────────────────────────────────
+    OUTPUTS / 'CheckRates_Reporte_Editorial.html':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / 'CheckRates_Reporte_Editorial.html',
+    OUTPUTS / 'Analisis_Checkrates_7d.xlsx':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_B2C_7d.xlsx':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_B2C_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_OP_7d.xlsx':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_OP_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_CUG_7d.xlsx':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_CUG_7d.xlsx',
+
+    # ── rates-nodispo/week-NN ───────────────────────────────────────────────
+    OUTPUTS / 'RatesNoDispo_Reporte_Editorial.html':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'RatesNoDispo_Reporte_Editorial.html',
+    OUTPUTS / 'Analisis_Rates_NoDispo_7d.xlsx':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_B2C_7d.xlsx':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_B2C_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_OP_7d.xlsx':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+    # ── _governance (docs) ─────────────────────────────────────────────────────
+    Path('/mnt/project/CHANGELOG.md'):
+        ZIP_ROOT / '_governance' / 'CHANGELOG.md',
+    Path('/mnt/project/COMMIT_GUIDE.md'):
+        ZIP_ROOT / '_governance' / 'COMMIT_GUIDE.md',
+    
+    # ── Documentación YAML (raíz) ───────────────────────────────────────────
+    Path('/mnt/project/YAML_PIPELINE_GUIDE.md'):
+        ZIP_ROOT / 'YAML_PIPELINE_GUIDE.md',
+    Path('/mnt/project/IMPLEMENTACION_YAML_COMPLETADA.md'):
+        ZIP_ROOT / 'IMPLEMENTACION_YAML_COMPLETADA.md',
+    Path('/mnt/project/QUICK_REFERENCE_YAML.md'):
+        ZIP_ROOT / 'QUICK_REFERENCE_YAML.md',
+    
+    # ── Scripts YAML (raíz) ─────────────────────────────────────────────────
+    Path('/mnt/project/run_pipeline.py'):
+        ZIP_ROOT / 'run_pipeline.py',
+    Path('/mnt/project/WEEK_CONFIG_W21.yml'):
+        ZIP_ROOT / 'WEEK_CONFIG_W21.yml',
 }
+
+# Agregar datasets crudos si están disponibles
+if cr_dataset.exists():
+    files[cr_dataset] = ZIP_ROOT / 'checkrates' / WEEK_STR / f'Dataset_CheckRates_W{WEEK}.xlsx'
+if rnd_dataset.exists():
+    files[rnd_dataset] = ZIP_ROOT / 'rates-nodispo' / WEEK_STR / f'Dataset_RatesNoDispo_W{WEEK}.xlsx'
 
 print('\nCopiando archivos al ZIP...')
 missing = []
@@ -439,13 +495,12 @@ zip_path = OUTPUTS / f'Price_W{WEEK}.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
     for f in sorted(ZIP_ROOT.rglob('*')):
         if f.is_file():
-            zf.write(f, f.relative_to(ZIP_ROOT.parent))
+            zf.write(f, f.relative_to(ZIP_ROOT))
 
 print(f'\n✅ ZIP generado: {zip_path}')
 print(f'   Tamaño: {zip_path.stat().st_size / 1024:.0f} KB')
-print(f'   Archivos: {sum(1 for _ in ZIP_ROOT.rglob("*") if _.is_file())}')
 if missing:
-    print(f'\n⚠️  Faltantes (no incluidos en ZIP): {missing}')
+    print(f'\n⚠️  Faltantes: {missing}')
 
 print(f'\n📦 Estructura del ZIP:')
 with zipfile.ZipFile(zip_path, 'r') as zf:
@@ -454,5 +509,29 @@ with zipfile.ZipFile(zip_path, 'r') as zf:
         print(f'   {name}  ({info.file_size/1024:.0f} KB)')
 
 print(f'\n✅ build_package.py completado · Week {WEEK}')
-print(f'   Próximo paso: commit con mensaje:')
-print(f'   "feat: Week {WEEK} · RatesNoDispo + CheckRates + hub index · {PERIODO}"')
+print(f'   Commit: "feat: Week {WEEK} · RatesNoDispo + CheckRates + hub index · {PERIODO}"')
+
+# ── Limpiar outputs intermedios (quedan solo los dos ZIPs) ────────────────────
+CLEANUP = [
+    OUTPUTS / 'CheckRates_Reporte_Editorial.html',
+    OUTPUTS / 'RatesNoDispo_Reporte_Editorial.html',
+    OUTPUTS / 'Analisis_Checkrates_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_B2C_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_OP_7d.xlsx',
+    OUTPUTS / 'Analisis_Checkrates_CUG_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_B2C_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
+    OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+    OUTPUTS / f'Mail_W{WEEK}.html',
+    OUTPUTS / 'index.html',
+    OUTPUTS / f'plan_seguimiento_W{WEEK}.md',
+]
+cleaned = 0
+for f in CLEANUP:
+    if f.exists():
+        f.unlink()
+        cleaned += 1
+if cleaned:
+    print(f'\n🧹 Limpiados {cleaned} archivos intermedios de outputs/')
+print(f'   Outputs finales: Price_W{WEEK}.zip · ProyectoClaude_PRICE_WNN.zip')
