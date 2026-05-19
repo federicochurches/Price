@@ -18,17 +18,6 @@ barbara.rodriguez@pricetravel.com
 jordi.pena@pricetravel.com
 sergio.sanchez@pricetravel.com
 monica.delateja@pricetravel.com
-jeison.barros@pricetravel.com
-brenda.pacheco@pricetravel.com
-gabriela.garcia@pricetravel.com
-lizette.urrea@pricetravel.com
-pedro.vargas@pricetravel.com
-seiji.komori@pricetravel.com
-edgar.ic@pricetravel.com
-sofia.quintal@pricetravel.com
-stivalis.alcantara@pricetravel.com
-araceli.lopez@pricetravel.com
-
 
 ```
 

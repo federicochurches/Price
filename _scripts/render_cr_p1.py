@@ -2,21 +2,44 @@
 Renderer · Reporte Editorial CR W18
 Genera HTML completo · sistema bandas D · post W17
 """
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
 import pickle
 import os, pandas as pd, numpy as np
-from .._helpers.engine import *
-from .._helpers.render_helpers import *
+from engine import *
+from render_helpers import *
 
 # Cargar datos
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
 TAB_EF = D['TAB_EF']; TAB_CV = D['TAB_CV']
 CANASTA = D['CANASTA']
 sev_ef = D['sev_ef']; sev_cv = D['sev_cv']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
+
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Cargar head
 with open('asset_cr_head.html') as f: HEAD = f.read()
@@ -52,8 +75,8 @@ def render_masthead():
 # ============ HERO H1 + KPIs + ALERTS ============
 def calc_h1_data():
     """H1 narrativo CR: 2 líneas alineadas."""
-    ef = M['global_w18']['eficacia']
-    cv = M['global_w18']['conv_rate']
+    ef = M['global_current']['eficacia']
+    cv = M['global_current']['conv_rate']
     # Top 3 destinos por volumen CR (sobre P80)
     g_d_p80 = p80_hotel.groupby('Destino').agg(
         CR=('CR_Unicos','sum'),
@@ -72,9 +95,9 @@ def render_hero():
     ef, cv, top_dest, top_corp = calc_h1_data()
     ef17 = M['global_w17']['eficacia']
     cv17 = M['global_w17']['conv_rate']
-    bk18 = M['global_w18']['bookings']; bk17 = M['global_w17']['bookings']
-    cr18 = M['global_w18']['cr_unicos']
-    n_hot = M['global_w18']['n_hoteles']
+    bk18 = M['global_current']['bookings']; bk17 = M['global_w17']['bookings']
+    cr18 = M['global_current']['cr_unicos']
+    n_hot = M['global_current']['n_hoteles']
     n_p80 = len(p80_hotel)
     
     ef_wow = (ef - ef17) * 100  # pp
@@ -236,7 +259,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
 </div>'''
 
 def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
-    banda = banda_convrate(cv_w18, M['global_w18']['bookings'])
+    banda = banda_convrate(cv_w18, M['global_current']['bookings'])
     target = "≥ 2,5%"
     pill = banda_pill(banda, target=target)
     gauge = gauge_5levels(banda, 'convrate')

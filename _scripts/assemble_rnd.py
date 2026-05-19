@@ -1,4 +1,7 @@
 """Ensambla reporte RND WNN final — lee semana y hoteles del pickle."""
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
 import pickle
 import os
 from pathlib import Path

@@ -5,14 +5,20 @@ Genera pickle cr_w18_data.pkl con todos los agregados necesarios.
 import pickle
 import pandas as pd
 import numpy as np
+import os
 
 from engine import banda_eficacia, banda_convrate
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
-WEEK = 'W19'
-PERIODO = '5–11 may 2026'
-MES_AÑO = 'Mayo 2026'
-VOL_NUM = '19'
+# Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
+WEEK = os.getenv('WEEK', 'W20')
+PERIODO = os.getenv('PERIODO', '12–18 may 2026')
+MES_AÑO = os.getenv('MES_AÑO', 'Mayo 2026')
+VOL_NUM = os.getenv('VOL_NUM', '20')
+
+# Derivar números de semana
+WEEK_NUM = int(WEEK.replace('W', ''))
+VOL_NUM_PREV = int(VOL_NUM) - 1
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
 THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
@@ -30,8 +36,8 @@ def load_and_clean(path):
     df['ConvRate']  = df['ConvRate'].clip(0)
     return df
 
-df18 = load_and_clean('Dataset_CheckRates_W19.xlsx')  # semana actual
-df17 = load_and_clean('Dataset_CheckRates_W18.xlsx')  # semana anterior para WoW
+df18 = load_and_clean(f'/mnt/project/Dataset_CheckRates_W{WEEK_NUM}.xlsx' if os.path.exists(f'/mnt/project/Dataset_CheckRates_W{WEEK_NUM}.xlsx') else f'/mnt/user-data/uploads/Dataset_CheckRates_W{WEEK_NUM}.xlsx')  # semana actual
+df17 = load_and_clean(f'/mnt/user-data/uploads/Dataset_CheckRates_W{VOL_NUM_PREV}.xlsx')  # semana anterior para WoW
 
 # ── Agregados W17 para merge WoW en tabs del hero ─────────────────────────
 def _agg_dim_w17(df, col):
@@ -347,6 +353,9 @@ sev_cv_p80_b2c  = CANASTA['B2C']['sev_cv']
 
 # ── GUARDAR PICKLE ────────────────────────────────────────────────────────────
 D = {
+    'VOL_NUM': VOL_NUM,
+    'PERIODO': PERIODO,
+    'MES_AÑO': MES_AÑO,
     'M': M,
     'TOP': TOP,
     'TAB_EF': TAB_EF,
@@ -375,10 +384,10 @@ D = {
     'g_hotel_w17': g_hotel_w17,
 }
 
-with open('cr_w19_data.pkl','wb') as f:
+with open(f'/mnt/project/cr_w{VOL_NUM}_data.pkl','wb') as f:
     pickle.dump(D, f)
 
-print(f"✅ Pickle guardado: cr_w19_data.pkl")
+print(f"✅ Pickle guardado: cr_w20_data.pkl")
 print(f"   Eficacia global W18: {M['global_w18']['eficacia']:.4f} ({M['global_w18']['eficacia']*100:.2f}%)")
 print(f"   ConvRate global W18: {M['global_w18']['conv_rate']:.4f} ({M['global_w18']['conv_rate']*100:.2f}%)")
 print(f"   CR únicos W18: {M['global_w18']['cr_unicos']:,}")

@@ -1,5 +1,5 @@
 """
-calc_rnd v2 · lee directamente de Excel W18 + W17 · calcula WoW reales
+calc_rnd v2 · lee directamente de Excel W19 + W18 · calcula WoW reales
 """
 import pandas as pd, numpy as np, pickle, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
@@ -21,9 +21,21 @@ def load_rnd(path, week):
     print(f'  W{week}: {len(df):,} filas · {df["DistributionCategory"].value_counts().to_dict()}')
     return df
 
+# ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
+# Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
+WEEK     = os.getenv('WEEK', 'W20')
+VOL_NUM  = os.getenv('VOL_NUM', '20')
+PERIODO  = os.getenv('PERIODO', '12–18 may 2026')
+MES_AÑO  = os.getenv('MES_AÑO', 'Mayo 2026')
+
+# Derivar números de semana desde strings
+WEEK_NUM = int(WEEK.replace('W', ''))
+VOL_NUM_PREV = int(VOL_NUM) - 1
+# ─────────────────────────────────────────────────────────────────────────────
+
 print('Cargando datasets...')
-df18 = load_rnd('Dataset_RatesNoDispo_W18.xlsx', 18)
-df17 = load_rnd('Dataset_RatesNoDispo_W17.xlsx', 17)
+df18 = load_rnd(f'/mnt/user-data/uploads/Dataset_RatesNoDispo_W{WEEK_NUM}.xlsx', WEEK_NUM)
+df17 = load_rnd(f'/mnt/user-data/uploads/Dataset_RatesNoDispo_W{VOL_NUM_PREV}.xlsx', VOL_NUM_PREV)
 
 # ── Funciones de agregación ───────────────────────────────────────
 def agg_hotel(df):
@@ -38,7 +50,7 @@ def agg_hotel(df):
     g['ConvRate']            = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
     g['DemandaNoConvertida'] = g['TraficoNoDispo']
     g['BandaNoDispo']        = g['%NoDispo'].apply(banda_nodispo)
-    g['BandaRPM']            = g['IPM'].apply(banda_rpm)
+    g['BandaRPM']            = g.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
     return g
 
 def agg_dim(df, col):
@@ -51,7 +63,7 @@ def agg_dim(df, col):
     g['RPM']      = g['IPM']
     g['ConvRate'] = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
     g['BandaNoDispo'] = g['%NoDispo'].apply(banda_nodispo)
-    g['BandaRPM']     = g['IPM'].apply(banda_rpm)
+    g['BandaRPM']     = g.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
     return g
 
 def metrics_global(df):
@@ -74,30 +86,30 @@ g_hotel_all = agg_hotel(df18).sort_values('Trafico', ascending=False)
 cumsum = g_hotel_all['Trafico'].cumsum(); total = g_hotel_all['Trafico'].sum()
 p80_hotel = g_hotel_all[cumsum <= total*0.80].copy()
 
-# ── Agregados globales W17 para WoW ───────────────────────────────
-g_hotel_w17 = agg_hotel(df17).rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17','RPM':'RPM_W17'})\
-    [['Hotel','%NoDispo_W17','IPM_W17','RPM_W17']]
-g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
-    [['CorpName','%NoDispo_W17','IPM_W17']]
-g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
-    [['Destino','%NoDispo_W17','IPM_W17']]
-g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})\
-    [['PaisDestino','%NoDispo_W17','IPM_W17']]
+# ── Agregados globales W18 para WoW ───────────────────────────────
+g_hotel_w17 = agg_hotel(df17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','RPM':'RPM_W18'})\
+    [['Hotel','%NoDispo_W18','IPM_W18','RPM_W18']]
+g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
+    [['CorpName','%NoDispo_W18','IPM_W18']]
+g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
+    [['Destino','%NoDispo_W18','IPM_W18']]
+g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
+    [['PaisDestino','%NoDispo_W18','IPM_W18']]
 
 # Enriquecer p80 con WoW
 p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
-p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W17']) * 100
-p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W17']
+p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W18']) * 100
+p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W18']
 
 # ── Métricas globales · basadas en P80 (metodología) ─────────────
 # Las cards globales muestran métricas del P80, no del dataset completo
-# Para W17: reconstruimos p80 equivalente por hoteles que también están en el p80 W18
+# Para W18: reconstruimos p80 equivalente por hoteles que también están en el p80 W19
 hotel_p80_names = set(p80_hotel['Hotel'].unique())
 df17_p80 = df17[df17['Hotel'].isin(hotel_p80_names)].copy()
 
 M = {
-    'global_w18': metrics_global(p80_hotel),  # P80 W18
-    'global_w17': metrics_global(df17_p80),   # hoteles del P80 W18 en W17
+    'global_w18': metrics_global(p80_hotel),  # P80 W19
+    'global_w17': metrics_global(df17_p80),   # hoteles del P80 W19 en W18
 }
 for cat in ['B2C','B2B (OP)','CUG (UOP)']:
     p80_cat_18 = p80_hotel[p80_hotel['DistributionCategory']==cat] if 'DistributionCategory' in p80_hotel.columns else df18[df18['DistributionCategory']==cat]
@@ -139,9 +151,9 @@ g_pais  = agg_dim(df18_p80,'PaisDestino').merge(g_pais_w17, on='PaisDestino', ho
 for g in [g_corp, g_dest, g_pais]:
     g.drop_duplicates(subset=[g.columns[0]], keep='first', inplace=True)
     g.reset_index(drop=True, inplace=True)
-    g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W17', g['%NoDispo'])) * 100
-    if 'IPM_W17' in g.columns and 'IPM_WoW_pp' not in g.columns:
-        g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W17']
+    g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W18', g['%NoDispo'])) * 100
+    if 'IPM_W18' in g.columns and 'IPM_WoW_pp' not in g.columns:
+        g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W18']
 
 # ── TABs para KPI hero ────────────────────────────────────────────
 def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
@@ -217,10 +229,10 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     cs = gh['Trafico'].cumsum(); tot = gh['Trafico'].sum()
     p80c = gh[cs<=tot*0.80].copy()
     # WoW por hotel en canasta
-    gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Hotel','%NoDispo_W17','IPM_W17']]
+    gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['Hotel','%NoDispo_W18','IPM_W18']]
     p80c = p80c.merge(gh17, on='Hotel', how='left')
-    p80c['NoDispo_WoW_pp'] = (p80c['%NoDispo'] - p80c['%NoDispo_W17']) * 100
-    p80c['IPM_WoW_pp']     = p80c['IPM'] - p80c['IPM_W17']
+    p80c['NoDispo_WoW_pp'] = (p80c['%NoDispo'] - p80c['%NoDispo_W18']) * 100
+    p80c['IPM_WoW_pp']     = p80c['IPM'] - p80c['IPM_W18']
     p80c['RPM'] = p80c['IPM']
     proc_c = p80c[p80c['Bookings']>0]
     nc_c   = p80c[p80c['Bookings']==0]
@@ -231,21 +243,21 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     sub18_p80 = sub18[sub18['Hotel'].isin(p80c_hotels)].copy()
     sub17_p80 = sub17[sub17['Hotel'].isin(p80c_hotels)].copy()
     ac = agg_dim(sub18_p80,'CorpName').merge(
-        agg_dim(sub17_p80,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['CorpName','%NoDispo_W17','IPM_W17']],
+        agg_dim(sub17_p80,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['CorpName','%NoDispo_W18','IPM_W18']],
         on='CorpName', how='left')
     ad = agg_dim(sub18_p80,'Destino').merge(
-        agg_dim(sub17_p80,'Destino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['Destino','%NoDispo_W17','IPM_W17']],
+        agg_dim(sub17_p80,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['Destino','%NoDispo_W18','IPM_W18']],
         on='Destino', how='left')
     ap = agg_dim(sub18_p80,'PaisDestino').merge(
-        agg_dim(sub17_p80,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W17','IPM':'IPM_W17'})[['PaisDestino','%NoDispo_W17','IPM_W17']],
+        agg_dim(sub17_p80,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['PaisDestino','%NoDispo_W18','IPM_W18']],
         on='PaisDestino', how='left')
     # Drop duplicados post-merge
     for g in [ac, ad, ap]:
         g.drop_duplicates(subset=[g.columns[0]], keep='first', inplace=True)
         g.reset_index(drop=True, inplace=True)
-        g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W17', g['%NoDispo'])) * 100
-        if 'IPM_W17' in g.columns:
-            g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W17']
+        g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W18', g['%NoDispo'])) * 100
+        if 'IPM_W18' in g.columns:
+            g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W18']
     top_dnc = proc_c.sort_values('TraficoNoDispo',ascending=False).head(50).reset_index(drop=True)
     top_br  = proc_c[proc_c['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
     top_sc  = nc_c.sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
@@ -277,6 +289,10 @@ for c_key, c_filter, c_name, c_short, c_weight in [
 
 # ── Guardar pickle ────────────────────────────────────────────────
 D = {
+    'WEEK': WEEK,
+    'VOL_NUM': VOL_NUM,
+    'PERIODO': PERIODO,
+    'MES_AÑO': MES_AÑO,
     'df18':df18,'df17':df17,
     'M':M,'TOP':TOP,'CANASTA':CANASTA_DATA,
     'p80_hotel':p80_hotel,'g_hotel':g_hotel,
@@ -287,11 +303,12 @@ D = {
     'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
     'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
 }
-with open('rnd_w18_data.pkl','wb') as f: pickle.dump(D, f)
+with open(f'/mnt/project/rnd_w{VOL_NUM}_data.pkl','wb') as f: pickle.dump(D, f)
 
 t18=df18['Trafico'].sum(); nd18=df18['TraficoNoDispo'].sum()
 t17=df17['Trafico'].sum(); nd17=df17['TraficoNoDispo'].sum()
-pct18=nd18/t18*100; pct17=nd17/t17*100
-print(f'✅ RND W18 calculado con deltas WoW')
-print(f'   %NoDispo W18: {pct18:.2f}% | W17: {pct17:.2f}% | WoW: {pct18-pct17:+.2f}pp')
+pct18=nd18/t18*100 if t18>0 else 0
+pct17=nd17/t17*100 if t17>0 else 0
+print(f'✅ RND W{VOL_NUM} calculado con deltas WoW')
+print(f'   %NoDispo W19: {pct18:.2f}% | W18: {pct17:.2f}% | WoW: {pct18-pct17:+.2f}pp')
 print(f'   Hoteles P80: {len(p80_hotel):,}')

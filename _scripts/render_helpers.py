@@ -2,9 +2,12 @@
 Generador del reporte editorial RatesNoDispo W18
 Sistema bandas D · post W17
 """
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
 import pandas as pd
 import numpy as np
-from _helpers.engine import *
+from engine import *
 
 # ============ CONFIG W18 ============
 import os

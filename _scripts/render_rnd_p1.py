@@ -2,16 +2,53 @@
 Renderer · Reporte Editorial RND W18
 Genera HTML completo · sistema bandas D · post W17
 """
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
 import pickle
 import os, pandas as pd, numpy as np
-from .._helpers.engine import *
-from .._helpers.render_helpers import *
+from engine import *
+from render_helpers import *
 
 # Cargar datos
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
 CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
+
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+# Los pickles usan global_w18/w17 pero W18 es realmente W_current y W17 es W_prev
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+
+# Crear alias dinámicos que apunten a los datos correctos
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+
+# Para compatibilidad backwards, también mantener los viejos keys
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
 
 # Alias para funciones no definidas en esta versión
 def fmt_usd(v):
@@ -62,8 +99,8 @@ def render_masthead():
 # ============ HERO H1 + KPI HERO + ALERTS ============
 def calc_h1_data():
     """Construye H1 narrativo de 2 líneas."""
-    pct = M['global_w18']['pct_nodispo']
-    rpm = M['global_w18']['rpm']
+    pct = M['global_current']['pct_nodispo']
+    rpm = M['global_current']['rpm']
     # Top 3 destinos por demanda no convertida
     g_d = TAB_NoDispo['destino']
     top_dest = []
@@ -87,10 +124,10 @@ def render_hero():
     pct, rpm, top_dest, top_corp = calc_h1_data()
     pct17 = M['global_w17']['pct_nodispo']
     rpm17 = M['global_w17']['rpm']
-    bk18 = M['global_w18']['bookings']; bk17 = M['global_w17']['bookings']
-    gb18 = M['global_w18']['gb_usd']; gb17 = M['global_w17']['gb_usd']
-    tr18 = M['global_w18']['trafico']
-    n_hot = M['global_w18']['n_hoteles']
+    bk18 = M['global_current']['bookings']; bk17 = M['global_w17']['bookings']
+    gb18 = M['global_current']['gb_usd']; gb17 = M['global_w17']['gb_usd']
+    tr18 = M['global_current']['trafico']
+    n_hot = M['global_current']['n_hoteles']
     n_p80 = len(p80_hotel)
     
     pct_wow = (pct - pct17) * 100
@@ -208,7 +245,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 </div>'''
 
 def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
-    banda = banda_rpm(rpm_w18, M['global_w18']['bookings'])
+    banda = banda_rpm(rpm_w18, M['global_current']['bookings'])
     target = "≥ $650"
     pill = banda_pill(banda, target=target)
     gauge = gauge_5levels(banda, 'rpm')

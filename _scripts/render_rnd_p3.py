@@ -2,15 +2,39 @@
 Renderer RND parte 3: Análisis por Canasta (B2C, B2B-OP, CUG)
 Cards colapsables con KPIs hero + tabs Top 5
 """
-import pickle, pandas as pd, numpy as np
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
+import pickle
+import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
-with open('rnd_w18_data.pkl','rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
 
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 with open('asset_rnd_footer.html') as f: FOOTER = f.read()
+
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _build_canasta_findings_rnd(c):
     """10 findings para Resumen Ejecutivo dentro de canasta RND."""
@@ -42,7 +66,7 @@ def _build_canasta_findings_rnd(c):
     def es_pct(v, dec=2): return f'{v:.{dec}f}%'.replace('.',',')
     def es_pp(v):
         sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.2f}pp'.replace('.',',')
+        return f'{sign}{v:.2f}'.replace('.',',')
     def es_pct1(v):
         sign = '+' if v >= 0 else ''
         return f'{sign}{v:.1f}%'.replace('.',',')
@@ -182,11 +206,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def wow_box_canasta(v17, v18, wow_str, wow_color, accent):
         return f'''<div style="margin-top:14px;background:var(--paper);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
 <div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT-1}</div>
   <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
 </div>
 <div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W18</div>
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT}</div>
   <div style="font-size:16px;font-weight:700;color:{accent};margin-top:2px;">{v18}</div>
 </div>
 <div style="flex:1;text-align:center;background:{'#E0F0E2' if wow_color=='#2F6C34' else '#FCE4F1'};padding:8px 4px;border-radius:3px;">
@@ -227,19 +251,21 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))):
                 wow_html = '<em class="wow-pill nd">—</em>'
             elif is_rpm:
-                if abs(wow_v) < 1:
+                ipm_base = r.get('IPM_W18', 0)
+                if abs(wow_v) < 1 or ipm_base <= 0:
                     wow_html = '<em class="wow-pill nd">—</em>'
                 else:
-                    mejora = wow_v > 0
+                    wow_pct = (wow_v / ipm_base) * 100
+                    mejora = wow_pct > 0
                     cls = 'dn' if mejora else 'up'
-                    wow_html = f'<em class="wow-pill {cls}">{"↑" if wow_v>0 else "↓"}${abs(wow_v):.0f}</em>'
+                    wow_html = f'<em class="wow-pill {cls}">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
             else:
                 if abs(wow_v) < 0.05:
                     wow_html = '<em class="wow-pill nd">—</em>'
                 else:
                     mejora = wow_v < 0  # bajar NoDispo = mejora
                     cls = 'dn' if mejora else 'up'
-                    wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
+                    wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
             cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;">'
                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink);font-weight:400;">{i+1}. {lab}</span>'
                     f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
@@ -318,11 +344,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         """Merge WoW desde agg si no está en df_tab."""
         if 'NoDispo_WoW_pp' not in df_tab.columns and 'NoDispo_WoW_pp' in df_agg.columns:
             df_tab = df_tab.merge(df_agg[[col,'NoDispo_WoW_pp']].drop_duplicates(col), on=col, how='left')
-        if 'IPM_WoW_pp' not in df_tab.columns and 'IPM_W17' in df_agg.columns:
-            if 'IPM_W17' not in df_tab.columns:
-                df_tab = df_tab.merge(df_agg[[col,'IPM_W17']].drop_duplicates(col), on=col, how='left')
+        if 'IPM_WoW_pp' not in df_tab.columns and 'IPM_W18' in df_agg.columns:
+            if 'IPM_W18' not in df_tab.columns:
+                df_tab = df_tab.merge(df_agg[[col,'IPM_W18']].drop_duplicates(col), on=col, how='left')
             if 'IPM' in df_tab.columns:
-                df_tab['IPM_WoW_pp'] = df_tab['IPM'] - df_tab.get('IPM_W17', df_tab['IPM'])
+                df_tab['IPM_WoW_pp'] = df_tab['IPM'] - df_tab.get('IPM_W18', df_tab['IPM'])
         return df_tab
 
     agg_dest = c.get('agg_dest', D['g_dest'])
@@ -418,7 +444,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
         import math
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>IPM</span><span>WoW</span></div>'
+        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>WoW</span><span>IPM</span><span>WoW</span></div>'
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
@@ -441,12 +467,27 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 mejora = wow_v < 0
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
-                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}'.replace('.',',') + '</em>'
+                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
+            # WoW IPM
+            ipm_base = r.get('IPM_W18', 0)
+            wow_ipm_v = r.get('IPM_WoW_pp')
+            if wow_ipm_v is not None and not (isinstance(wow_ipm_v,float) and math.isnan(wow_ipm_v)) and ipm_base > 0:
+                wow_pct = (wow_ipm_v / ipm_base) * 100
+                if abs(wow_pct) >= 0.5:
+                    wc2 = '#2F6C34' if wow_pct > 0 else '#C0392B'
+                    wb2 = '#EAF3DE' if wow_pct > 0 else '#FCE8E6'
+                    wow_ipm_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc2};">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
+                else:
+                    wow_ipm_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+            else:
+                wow_ipm_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+
             rows += (f'<div class="panel-row">'
                      f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
-                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
                      f'<span class="cr">{wow_html}</span>'
+                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
+                     f'<span class="cr">{wow_ipm_html}</span>'
                      f'</div>')
         return rows
 
@@ -521,13 +562,23 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # CSS tabs de canasta para hotel y dimensión
     extra_css = f'''<style>
+/* Base tab-label estado inactivo — asegura efecto folder en canastas */
+#tab-{idx_str}-h-dnc ~ .tabs-row label[for^="tab-{idx_str}-h-"],
+#tab-{idx_str}-d-corp ~ .tabs-row label[for^="tab-{idx_str}-d-"]{{
+  padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;
+  letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;
+  border:1px solid transparent;border-bottom:none;user-select:none;
+  transition:all .15s;margin-bottom:-1px;display:inline-block;
+}}
+/* Tab activo — estilo folder conectado */
 #tab-{idx_str}-h-dnc:checked ~ .tabs-row label[for="tab-{idx_str}-h-dnc"],
 #tab-{idx_str}-h-br:checked ~ .tabs-row label[for="tab-{idx_str}-h-br"],
 #tab-{idx_str}-h-sc:checked ~ .tabs-row label[for="tab-{idx_str}-h-sc"],
 #tab-{idx_str}-d-corp:checked ~ .tabs-row label[for="tab-{idx_str}-d-corp"],
 #tab-{idx_str}-d-dest:checked ~ .tabs-row label[for="tab-{idx_str}-d-dest"],
 #tab-{idx_str}-d-pais:checked ~ .tabs-row label[for="tab-{idx_str}-d-pais"]{{
-  background:var(--paper);color:#EA0074;border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+  background:var(--paper);color:#EA0074;font-weight:700;
+  border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }}
 #tab-{idx_str}-h-dnc:checked ~ .tab-panels .tab-panel-c[data-tab="dnc"],
 #tab-{idx_str}-h-br:checked  ~ .tab-panels .tab-panel-c[data-tab="br"],
@@ -561,15 +612,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         wb = '#EAF3DE' if mejora else '#FCE8E6'
         return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if v<0 else "↑"}{abs(v):.2f}'.replace('.',',') + '</em>'
 
-    def _fmt_wow_ipm(v):
-        """WoW para IPM: verde si sube."""
+    def _fmt_wow_ipm(v_abs, ipm_prev=0):
+        """WoW para IPM en %: verde si sube. v_abs=diferencia absoluta USD, ipm_prev=base."""
         import math
-        if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))) or abs(v) < 1:
+        if v_abs is None or (isinstance(v_abs,float) and (math.isnan(v_abs) or math.isinf(v_abs))) or ipm_prev <= 0:
             return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+        v = (v_abs / ipm_prev) * 100  # convertir a %
+        if abs(v) < 0.5: return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
         mejora = v > 0
         wc = '#2F6C34' if mejora else '#C0392B'
         wb = '#EAF3DE' if mejora else '#FCE8E6'
-        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↑" if v>0 else "↓"}${abs(v):.0f}</em>'
+        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↑" if v>0 else "↓"}{abs(v):.1f}%</em>'.replace('.',',',-1)
 
     def render_top10_2cols_rnd(df, title, mode='dnc'):
         """mode: dnc | br | sc"""
@@ -593,7 +646,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))
                 elif mode == 'br':
                     cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">${fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
-                    cells += _fmt_wow_ipm(r.get('IPM_WoW_pp'))
+                    cells += _fmt_wow_ipm(r.get('IPM_WoW_pp'), ipm_prev=r.get('IPM_W18', 0))
                 elif mode == 'sc':
                     cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
                     cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))

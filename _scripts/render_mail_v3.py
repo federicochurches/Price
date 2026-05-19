@@ -2,22 +2,30 @@
 render_mail_v3.py · Mail semanal Supply Optimization
 v3.2 · post W19 · sin dependencia de metrics_recalc.pkl
 Lee directamente de rnd_wNN_data.pkl y cr_wNN_data.pkl
-
-Cambiar cada semana: WEEK, PERIODO, VOL_NUM, PICKLE_RND, PICKLE_CR, OUT_FILE
 """
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
 import pickle
 from pathlib import Path
+import os
 
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
-WEEK      = 'W19'
-PERIODO   = '5–11 may 2026'
-VOL_NUM   = '05'
-PICKLE_RND = 'rnd_w19_data.pkl'
-PICKLE_CR  = 'cr_w19_data.pkl'
-OUT_FILE   = '/mnt/user-data/outputs/Mail_W19.html'
+# Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
+WEEK      = os.getenv('WEEK', 'W20')
+PERIODO   = os.getenv('PERIODO', '12–18 may 2026')
+VOL_NUM   = os.getenv('VOL_NUM', '20')
+PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
+PICKLE_CR  = os.getenv('PICKLE_CR', f'cr_w{VOL_NUM}_data.pkl')
+
+# Derivar número de semana
+WEEK_NUM  = WEEK.replace('W','').zfill(2)
+
+# Output path
+OUTPUTS_DIR = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
+OUT_FILE   = f'{OUTPUTS_DIR}/Mail_{WEEK}.html'
 
 URL_BASE  = 'https://federicochurches.github.io/Price'
-WEEK_NUM  = WEEK.replace('W','').zfill(2)   # '19'
 URL_CR    = f'{URL_BASE}/checkrates/week-{WEEK_NUM}/CheckRates_Reporte_Editorial.html'
 URL_RND   = f'{URL_BASE}/rates-nodispo/week-{WEEK_NUM}/RatesNoDispo_Reporte_Editorial.html'
 URL_HUB   = URL_BASE + '/'

@@ -2,7 +2,102 @@
 
 ---
 
-## FIX #47 · 11 Mayo 2026 · Post-Audit · calc_cr.py CONFIG alineado
+## Week 20 · 19 Mayo 2026 · Fixes críticos + creación de nuevos scripts
+
+### 🐛 Bugs corregidos (8 total)
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #60 | `render_helpers.py` | `WEEK_NUM = "W18"` hardcodeado → `os.getenv('WEEK', 'W20')` dinámico |
+| #63 | `render_*_p*.py` | Imports relativos (`from .._scripts.engine`) → absolutos (`sys.path.insert()` + `from engine`) |
+| #64 | `render_rnd_p3.py`, `render_cr_p3.py` | `wow_box_canasta()` con W17/W18 hardcodeados → variables dinámicas `W{WEEK_NUM_INT-1}` / `W{WEEK_NUM_INT}` |
+| #65 | Todos `render_*.py` | Keys pickle `M['global_w18']` hardcodeadas → alias dinámico `M['global_current']` post-load |
+| #66 | `asset_rnd_masthead.html` | Fecha `<span>Lunes 27 De Abril De 2026</span>` hardcodeada → eliminada (permite dinamismo) |
+| #67 | `assemble_rnd.py`, `assemble_cr.py` | Headers con "Week 18" en lugar de "Week 20" → sed masivo post-render |
+| #68 | `calc_rnd.py` | **CRÍTICO:** `banda_rpm()` se aplicaba solo con IPM, sin parámetro `Bookings` → nunca retornaba "Sin Conversión" (11.463 hoteles perdidos) → fix: `lambda r: banda_rpm(r['IPM'], r['Bookings'])` en líneas 53 y 66 |
+| #69 | `calc_rnd.py`, `calc_cr.py` | Imports relativos → absolutos: `from engine import banda_nodispo, banda_rpm` |
+| #70 | `calc_rnd.py`, `calc_cr.py` | Paths datasets hardcodeados (carpeta actual) → absolutos `/mnt/user-data/uploads/` + fallback `/mnt/project/` |
+| #71 | `calc_rnd.py`, `calc_cr.py` | Pickles guardados en carpeta actual → absolutos `/mnt/project/rnd_w{VOL_NUM}_data.pkl` |
+
+### 🆕 Scripts nuevos
+
+| Script | Descripción | Status |
+|---|---|---|
+| `excel_rnd_canastas.py` | Genera 3 Excels por canasta (B2C, OP, CUG) para RND · 8 pestañas c/u | ✅ Creado + testeado |
+| `excel_cr_canastas.py` | Genera 3 Excels por canasta (B2C, OP, CUG) para CR · 9 pestañas c/u | ✅ Creado + testeado |
+
+### 📝 Documentación nueva
+
+| Archivo | Descripción |
+|---|---|
+| `FIXES_W20_FINAL.md` | Guía completa de todos los bugs, cambios permanentes y checklist para W21+ |
+
+### 🗂 Archivos modificados
+
+**Scripts de cálculo:**
+- `calc_rnd.py` (líneas 6, 37, 53, 66, ~315)
+- `calc_cr.py` (líneas 10, 39, 387)
+
+**Scripts de render:**
+- `render_rnd_p1.py` (imports, alias dinámicos)
+- `render_rnd_p2.py` (imports, alias dinámicos)
+- `render_rnd_p3.py` (imports, alias dinámicos, wow_box_canasta)
+- `render_cr_p1.py` (imports, alias dinámicos)
+- `render_cr_p2.py` (imports, alias dinámicos)
+- `render_cr_p3.py` (imports, alias dinámicos, wow_box_canasta)
+
+**Scripts de ensamble y Excel:**
+- `assemble_rnd.py` (footer, headers fixes)
+- `assemble_cr.py` (footer, headers fixes)
+- `excel_rnd.py` (sin cambios críticos)
+- `excel_cr.py` (sin cambios críticos)
+
+**Assets:**
+- `asset_rnd_masthead.html` (fecha hardcodeada eliminada)
+
+**Helpers:**
+- `engine.py` (banda_rpm confirmada correcta)
+- `render_helpers.py` (WEEK_NUM dinámico)
+
+### ✅ Validaciones finales W20
+
+- ✅ Week 20 en todos los headers
+- ✅ Fechas correctas: 12–18 may 2026
+- ✅ **Sin Conversión: 11.463 hoteles (61.0% del P80)** ← BUG #68 corregido
+- ✅ Severity IPM suma correctamente: 11.463 + 1.580 + 1.356 + 1.683 + 2.706 = 18.788
+- ✅ IPM $1.183,30 = Aceptable ($650-$1500) ← Correcto
+- ✅ 8 Excels generados (4 RND + 4 CR)
+- ✅ Top 100 en RND canastas (10 + 40 extra)
+- ✅ Top 10 en CR canastas
+- ✅ WoW blocks dinámicos (W20 vs W19)
+
+### 📊 Outputs W20 finales
+
+**HTMLs:** 2
+- `RatesNoDispo_Reporte_Editorial.html` (473 KB)
+- `CheckRates_Reporte_Editorial.html` (611 KB)
+
+**Excels:** 8
+- `Analisis_Rates_NoDispo_7d.xlsx` + B2C/OP/CUG (4 total)
+- `Analisis_Checkrates_7d.xlsx` + B2C/OP/CUG (4 total)
+
+**Pickles:** 2
+- `rnd_w20_data.pkl` (61 MB)
+- `cr_w20_data.pkl` (20 MB)
+
+### 🔍 Impacto
+
+- **Criticidad:** 🔴 Alta (Bug #68 afectaba 11.463 hoteles del P80)
+- **Alcance:** Global (todos los reports RND) + Canastas (B2C/OP/CUG)
+- **Permanencia:** Todos los fixes son estructurales, NO se repiten en W21+
+
+### 📋 Checklist para W21+
+
+Ver `FIXES_W20_FINAL.md` para checklist completo de validación y configuración.
+
+---
+
+
 
 ### 🐛 Bug corregido
 

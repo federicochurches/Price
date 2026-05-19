@@ -3,21 +3,70 @@ Renderer CR parte 3: Análisis por Canasta (B2C, B2B-OP, CUG)
 Cards colapsables con KPIs Eficacia/ConvRate + tabs WoW + RE con pills + bloques hotel/dimensión
 Post W19 · port del patrón RND p3
 """
-import pickle, pandas as pd, numpy as np
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
+import pickle
+import sys
+import os, pandas as pd, numpy as np
+
+# Setup paths
+if '/mnt/project/_scripts' not in sys.path:
+    sys.path.insert(0, '/mnt/project/_scripts')
+if '/mnt/project/_helpers' not in sys.path:
+    sys.path.insert(0, '/mnt/project/_helpers')
+
+import sys
+sys.path.insert(0, "/mnt/project/_scripts")
 from engine import *
 from render_helpers import *
+def _fmt_wow_cv(v):
+    """WoW ConvRate en pp — verde si sube."""
+    import math
+    if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))) or abs(v) < 0.001:
+        return '<em class="wow-pill nd">—</em>'
+    mejora = v > 0
+    cls = 'dn' if mejora else 'up'
+    arrow = '↑' if v > 0 else '↓'
+    return f'<em class="wow-pill {cls}">{arrow}{abs(v):.2f}</em>'.replace('.',',')
+from template_seguimiento import render_seguimiento_block
 
-with open('cr_w18_data.pkl','rb') as f:
+with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+WEEK_NUM_CR   = D.get('VOL_NUM', '19')
+WEEK_PREV_CR  = str(int(WEEK_NUM_CR) - 1)
+SEGUIMIENTO_FILE_CR = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_CR}.md'
 df18 = D.get('df18', None)
 df17 = D.get('df17', None)
 hotel_channel_map_global = D.get('hotel_channel_map', {})
+g_channel_w17 = D.get('g_channel_w17', None)
 
 CR_ACCENT = '#5C469C'
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
 THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
 
 # ── Helpers de pills WoW ─────────────────────────────────────────────────────
 def get_pill_wow(name, wow_map):
@@ -76,7 +125,7 @@ def _build_canasta_findings_cr(c):
     def es_pct(v, dec=2): return f'{v:.{dec}f}%'.replace('.',',')
     def es_pp(v):
         sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.2f}pp'.replace('.',',')
+        return f'{sign}{v:.2f}'.replace('.',',')
     def es_pct1(v):
         sign = '+' if v >= 0 else ''
         return f'{sign}{v:.1f}%'.replace('.',',')
@@ -218,11 +267,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         bg_wow = '#E0F0E2' if wow_color == '#2F6C34' else '#FCE4F1'
         return f'''<div style="margin-top:14px;background:var(--paper);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
 <div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT-1}</div>
   <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
 </div>
 <div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W18</div>
+  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT}</div>
   <div style="font-size:16px;font-weight:700;color:{accent};margin-top:2px;">{v18}</div>
 </div>
 <div style="flex:1;text-align:center;background:{bg_wow};padding:8px 4px;border-radius:3px;">
@@ -253,7 +302,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if wow_col and wow_col in r.index:
                 try:
                     wow_v = r[wow_col]
-                    if wow_v == wow_v and wow_v is not None and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.05:
+                    if wow_v == wow_v and wow_v is not None and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb2 = '#EAF3DE' if mejora else '#FCE8E6'
@@ -263,7 +312,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 except: pass
             # Grid limpio: nombre | valor | WoW
             cell = (f'<div style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;">'
-                    f'<span style="font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                    f'<span style="font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
                     f'<span style="font-size:10px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);">{val_str}</span>'
                     f'{wow_pill}</div>')
             if i < 5:
@@ -343,25 +392,54 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
     c_cv = add_wow_to_tab(c_cv, 'CorpName', 'ConvRate', ref_corp_w17, 'ConvRate_WoW_pp')
     h_cv = p80[p80['CR_Unicos']>=p50_h].sort_values('ConvRate').head(10).reset_index(drop=True)
+    # Enriquecer h_cv con WoW ConvRate desde g_hotel_w17
+    _hw17 = D.get('g_hotel_w17', None)
+    if _hw17 is not None and 'Hotel' in h_cv.columns and 'ConvRate_W17' in _hw17.columns:
+        h_cv = h_cv.merge(_hw17[['Hotel','ConvRate_W17']], on='Hotel', how='left')
+        h_cv['ConvRate_WoW_pp'] = (h_cv['ConvRate'] - h_cv['ConvRate_W17']) * 100
 
     df_dest_ef = d_ef; df_corp_ef = c_ef; df_hot_ef = h_ef
     df_dest_cv = d_cv; df_corp_cv = c_cv; df_hot_cv = h_cv
+
+    # Channel para tabs de canasta — mergear con g_channel_w17 para WoW
+    g_chan = c.get('agg_channel', c.get('g_chan', None))
+    if g_chan is not None and len(g_chan) > 0:
+        g_chan = g_chan.copy()
+        g_chan['BandaEficacia'] = g_chan['Eficacia'].apply(banda_eficacia)
+        g_chan['BandaConvRate'] = g_chan.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
+        # Merge WoW desde g_channel_w17 global
+        if g_channel_w17 is not None:
+            w17_cols = ['ExternalProviderName','Eficacia_W17']
+            if 'ConvRate_W17' in g_channel_w17.columns: w17_cols.append('ConvRate_W17')
+            g_chan = g_chan.merge(g_channel_w17[w17_cols], on='ExternalProviderName', how='left')
+            g_chan['Eficacia_WoW_pp'] = (g_chan['Eficacia'] - g_chan['Eficacia_W17']) * 100
+            if 'ConvRate_W17' in g_chan.columns:
+                g_chan['ConvRate_WoW_pp'] = (g_chan['ConvRate'] - g_chan['ConvRate_W17']) * 100
+        df_chan_ef = g_chan.sort_values('Eficacia').head(10).reset_index(drop=True)
+        df_chan_cv = g_chan[g_chan['Bookings']>0].sort_values('ConvRate').head(10).reset_index(drop=True)
+        has_chan = True
+    else:
+        df_chan_ef = df_chan_cv = None
+        has_chan = False
 
     tabs_ef = [
         ('destino', 'Destino', df_dest_ef, 'Eficacia_WoW_pp'),
         ('corp',    'Corp',    df_corp_ef, 'Eficacia_WoW_pp'),
         ('hotel',   'Hotel',   df_hot_ef,  None),
     ]
+    if has_chan: tabs_ef.append(('channel', 'Channel', df_chan_ef, 'Eficacia_WoW_pp'))
+
     tabs_cv = [
         ('destino', 'Destino', df_dest_cv, 'ConvRate_WoW_pp'),
         ('corp',    'Corp',    df_corp_cv, 'ConvRate_WoW_pp'),
-        ('hotel',   'Hotel',   df_hot_cv,  None),
+        ('hotel',   'Hotel',   df_hot_cv,  'ConvRate_WoW_pp'),
     ]
+    if has_chan: tabs_cv.append(('channel', 'Channel', df_chan_cv, 'ConvRate_WoW_pp'))
 
     card_ef = kpi_card_canasta('Eficacia', ef_w18, ef_w17, banda_ef, '≥ 97%',
                                 wow_str_ef, wow_color_ef, 'eficacia', tabs_ef,
                                 card_id=f'{idx_str}-ef')
-    card_cv = kpi_card_canasta('Conv Rate', cv_w18, cv_w17, banda_cv, '≥ 2,5%',
+    card_cv = kpi_card_canasta('ConvRate', cv_w18, cv_w17, banda_cv, '≥ 2,5%',
                                 wow_str_cv, wow_color_cv, 'convrate', tabs_cv,
                                 card_id=f'{idx_str}-cv')
 
@@ -411,7 +489,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     levels_ef  = make_severity_levels(c['sev_ef'],  LEVELS_EFICACIA)
     levels_cv  = make_severity_levels(c['sev_cv'],  LEVELS_CONVRATE)
     sev_blk_ef = render_severity_block('Eficacia',  '●', '#EA0074', levels_ef, n_p80)
-    sev_blk_cv = render_severity_block('Conv Rate', '●', CR_ACCENT, levels_cv, n_p80)
+    sev_blk_cv = render_severity_block('ConvRate', '●', CR_ACCENT, levels_cv, n_p80)
     severity_canasta_html = render_severity_2cols(sev_blk_ef, sev_blk_cv)
 
     # ── Bloque Hotel · 3 tabs: Críticos · Bajo Rend · Sin Conv ───────────────
@@ -441,7 +519,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             try:
                 wow_v = r.get('Eficacia_WoW_pp', None) if hasattr(r, 'get') else r['Eficacia_WoW_pp']
                 if wow_v is None or (isinstance(wow_v, float) and math.isnan(wow_v)): raise ValueError
-                if abs(wow_v) >= 0.05:
+                if abs(wow_v) >= 0.005:
                     mejora = wow_v > 0
                     wc = '#2F6C34' if mejora else '#C0392B'
                     wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -503,9 +581,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def dim_table_with_wow(df, dim_col, dim_label, start_idx=0):
         """Tabla dimensión con columnas: Nombre · CR · BKGS · ConvRate · Eficacia · WoW."""
         import math
-        grid = 'minmax(0,1fr) 72px 62px 68px 68px 46px'
+        grid = 'minmax(0,1fr) 68px 56px 62px 36px 62px 36px'
         rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:6px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
-        for h in [dim_label, 'CR', 'BKGS', 'ConvRate', 'Eficacia', 'WoW']:
+        for h in [dim_label, 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']:
             align = 'left' if h == dim_label else 'right'
             color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
             rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
@@ -530,7 +608,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 if wow_v != wow_v or math.isnan(float(wow_v)): wow_v = None
             except (KeyError, TypeError, ValueError):
                 wow_v = None
-            if wow_v is not None and abs(wow_v) >= 0.05:
+            if wow_v is not None and abs(wow_v) >= 0.005:
                 mejora = wow_v > 0
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -548,6 +626,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                     f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))}'
                      f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
                      f'{wow_cell}'
                      f'</div>')
@@ -602,7 +681,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         has_wow = 'Eficacia_WoW_pp' in df.columns
         grid = '1fr 65px 60px 65px 45px' if has_wow else '1fr 65px 60px 65px'
         rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:5px 0;border-bottom:2px solid {color};margin-bottom:4px;">'
-        for h in (['Channel','CR','BKGS','Eficacia','WoW'] if has_wow else ['Channel','CR','BKGS','Eficacia']):
+        for h in (['Channel','Checkrates','BKGS','Eficacia','WoW'] if has_wow else ['Channel','Checkrates','BKGS','Eficacia']):
             align = 'left' if h == 'Channel' else 'right'
             c_h = color if h == 'Channel' else 'var(--ink-muted)'
             rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{c_h};text-align:{align};">{h}</span>'
@@ -617,7 +696,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     if wow_v != wow_v or math.isnan(float(wow_v)): raise ValueError
                     if ef_val is not None and abs(float(ef_val) - 1.0) < 0.0001:
                         wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 3px;border-radius:3px;background:#EAF3DE;color:#2F6C34;text-align:center;">= 0,0</em>'
-                    elif abs(wow_v) >= 0.05:
+                    elif abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
@@ -629,7 +708,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 except:
                     wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 3px;border-radius:3px;background:#F2EEE6;color:#8A8377;text-align:center;">—</em>'
             rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
-                     f'<span style="font-weight:600;color:{color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {truncate(r["ExternalProviderName"],20)}</span>'
+                     f'<span style="font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {truncate(r["ExternalProviderName"],20)}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{ef_str}</span>'
@@ -667,13 +746,23 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── CSS dinámico por canasta ──────────────────────────────────────────────
     extra_css = f'''<style>
+/* Base tab-label estado inactivo — asegura efecto folder en canastas */
+#tab-{idx_str}-h-crit ~ .tabs-row label[for^="tab-{idx_str}-h-"],
+#tab-{idx_str}-d-corp  ~ .tabs-row label[for^="tab-{idx_str}-d-"]{{
+  padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;
+  letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;
+  border:1px solid transparent;border-bottom:none;user-select:none;
+  transition:all .15s;margin-bottom:-1px;display:inline-block;
+}}
+/* Tab activo — estilo folder conectado */
 #tab-{idx_str}-h-crit:checked ~ .tabs-row label[for="tab-{idx_str}-h-crit"],
 #tab-{idx_str}-h-br:checked   ~ .tabs-row label[for="tab-{idx_str}-h-br"],
 #tab-{idx_str}-h-sc:checked   ~ .tabs-row label[for="tab-{idx_str}-h-sc"],
 #tab-{idx_str}-d-corp:checked    ~ .tabs-row label[for="tab-{idx_str}-d-corp"],
 #tab-{idx_str}-d-dest:checked    ~ .tabs-row label[for="tab-{idx_str}-d-dest"],
 #tab-{idx_str}-d-channel:checked ~ .tabs-row label[for="tab-{idx_str}-d-channel"]{{
-  background:var(--paper);color:{CR_ACCENT};border:1px solid var(--rule);border-bottom:1px solid var(--paper);
+  background:var(--paper);color:{CR_ACCENT};font-weight:700;
+  border:1px solid var(--rule);border-bottom:1px solid var(--paper);
 }}
 #tab-{idx_str}-h-crit:checked ~ .tab-panels .tab-panel-c[data-tab="crit"],
 #tab-{idx_str}-h-br:checked   ~ .tab-panels .tab-panel-c[data-tab="br"],
@@ -746,6 +835,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     plan_canasta_html = f'''<div style="margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);">
 <h3 style="font-size:13px;font-weight:700;color:{CR_ACCENT};text-transform:uppercase;letter-spacing:.10em;margin:0 0 10px;">Plan de Acción · canasta {canasta_label}</h3>
 <div class="action-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">{plan_rows}</div>
+{render_seguimiento_block(SEGUIMIENTO_FILE_CR, accent_color=CR_ACCENT)}
 </div>'''
 
     # ── Banner Excel ──────────────────────────────────────────────────────────

@@ -28,7 +28,14 @@ def banda_convrate(cv, bookings=1):
     return 'Exitosa'
 
 def banda_rpm(rpm, bookings=1):
-    """IPM (antes RPM) · sistema D · Sin Conversión separada."""
+    """IPM (antes RPM) · sistema D · Sin Conversión separada.
+    Bandas:
+    - Sin Conversión: BKGS=0
+    - Crítica: < $200
+    - Revisar: $200–$650
+    - Aceptable: $650–$1500
+    - Exitosa: ≥ $1500
+    """
     if bookings == 0: return 'Sin Conversión'
     if rpm < 200: return 'Crítica'
     if rpm < 650: return 'Revisar'

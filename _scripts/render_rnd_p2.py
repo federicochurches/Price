@@ -1,23 +1,52 @@
 """
 Renderer RND parte 2: Resumen Ejecutivo, Severity, Top 5
 """
-import pickle, pandas as pd, numpy as np
+import sys
+if "/mnt/project/_scripts" not in sys.path:
+    sys.path.insert(0, "/mnt/project/_scripts")
+import pickle
+import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
+from template_seguimiento import render_seguimiento_block
 
-with open('rnd_w18_data.pkl','rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
 CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
 g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 
+WEEK_NUM      = D.get('VOL_NUM', '19')
+WEEK_PREV_NUM = str(int(WEEK_NUM) - 1)
+SEGUIMIENTO_FILE = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
+
 # ============ RESUMEN EJECUTIVO · 10 findings ============
+
+# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
+WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
+WEEK_PREV_INT = WEEK_NUM_INT - 1
+M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
+M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
+M['global_current'] = M['global_current']
+M['global_w17'] = M['global_prev']
+# ─────────────────────────────────────────────────────────────────────────────
+
 def build_findings():
     """Genera 10 findings con estructura template: numero + titulo + desc."""
-    pct = M['global_w18']['pct_nodispo']; pct17 = M['global_w17']['pct_nodispo']
-    rpm = M['global_w18']['rpm']; rpm17 = M['global_w17']['rpm']
-    bk = M['global_w18']['bookings']; bk17 = M['global_w17']['bookings']
-    gb = M['global_w18']['gb_usd']; gb17 = M['global_w17']['gb_usd']
+    pct = M['global_current']['pct_nodispo']; pct17 = M['global_w17']['pct_nodispo']
+    rpm = M['global_current']['rpm']; rpm17 = M['global_w17']['rpm']
+    bk = M['global_current']['bookings']; bk17 = M['global_w17']['bookings']
+    gb = M['global_current']['gb_usd']; gb17 = M['global_w17']['gb_usd']
     
     pct_wow = (pct - pct17) * 100
     rpm_wow = (rpm/rpm17 - 1) * 100
@@ -51,7 +80,7 @@ def build_findings():
         return f'{v:.{dec}f}%'.replace('.',',')
     def es_pp(v):
         sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.2f}pp'.replace('.',',')
+        return f'{sign}{v:.2f}'.replace('.',',')
     def es_pct1(v):
         sign = '+' if v >= 0 else ''
         return f'{sign}{v:.1f}%'.replace('.',',')
@@ -79,7 +108,7 @@ def build_findings():
         mejora = v < 0
         col = '#2F6C34' if mejora else '#C0392B'
         bg  = '#EAF3DE' if mejora else '#FCE8E6'
-        txt = f'{"↓" if v<0 else "↑"}{abs(v):.2f}pp'.replace('.',',')
+        txt = f'{"↓" if v<0 else "↑"}{abs(v):.2f}'.replace('.',',')
         return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:{bg};color:{col};">{txt}</span>'
 
     def pill_wow_ipm(v):
@@ -369,10 +398,10 @@ def render_no_convierten():
 '''
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
-    """Tabla de una columna: Dim · %NoDispo · IPM · WoW (4 cols)."""
+    """Tabla de una columna: Dim · %NoDispo · IPM · WoW ND · WoW IPM (5 cols)."""
     import math
-    grid = '1fr 68px 60px 46px'
-    headers = [dim_label, '%NoDispo', 'IPM', 'WoW']
+    grid = '1fr 62px 36px 58px 36px'
+    headers = [dim_label, '%NoDispo', 'WoW', 'IPM', 'WoW']
     hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
     for h in headers:
         align = 'left' if h == dim_label else 'right'
@@ -398,19 +427,28 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
         else:
             raw_label = r[dim_col]
         ipm_val = max(r.get('IPM', r.get('RPM', 0)), 0)
-        # WoW %NoDispo
-        wow_v = r.get('NoDispo_WoW_pp', None)
-        if wow_v is None or (isinstance(wow_v, float) and (math.isnan(wow_v) or math.isinf(wow_v))) or abs(wow_v) < 0.05:
-            wow_html = '<em class="wow-pill nd">—</em>'
-        else:
-            mejora = wow_v < 0
+        def _wow_pill(v, invert=False, pct_base=None, is_pct_val=True):
+            """invert=True: verde si baja (NoDispo). pct_base: convierte abs a pct."""
+            import math
+            if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))):
+                return '<em class="wow-pill nd">—</em>'
+            val = (v / pct_base * 100) if (pct_base and pct_base > 0 and not is_pct_val) else v
+            if abs(val) < 0.05: return '<em class="wow-pill nd">—</em>'
+            mejora = (val < 0) if invert else (val > 0)
             cls = 'dn' if mejora else 'up'
-            arrow = '↓' if wow_v < 0 else '↑'
-            wow_html = f'<em class="wow-pill {cls}">{arrow}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
+            arrow = '↓' if val < 0 else '↑'
+            txt = f'{arrow}{abs(val):.1f}%'.replace('.', ',')
+            return f'<em class="wow-pill {cls}">{txt}</em>'
+
+        wow_nd  = _wow_pill(r.get('NoDispo_WoW_pp'), invert=True, is_pct_val=True)
+        ipm_base = r.get('IPM_W18', 0)
+        wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
+
         cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {truncate(raw_label,26)} {pill}</div>'
                  f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
+                 f'<span style="text-align:right;">{wow_nd}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
-                 f'<span style="text-align:right;">{wow_html}</span>')
+                 f'<span style="text-align:right;">{wow_ipm}</span>')
         rows += f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
     return rows
 
@@ -495,6 +533,8 @@ def render_plan_accion():
                    'Identificar y separar el <strong>tráfico de bots del tráfico orgánico</strong> generado por agencias · con foco en canasta B2C que concentra mayor ruido en métricas de %NoDispo e IPM.',
                    'Bots identificados y filtrados')
     
+    seguimiento_html = render_seguimiento_block(SEGUIMIENTO_FILE, accent_color='#EA0074')
+
     return f'''<section id="plan-accion">
 <div class="section-head">
 <div>
@@ -505,6 +545,7 @@ def render_plan_accion():
 </div>
 </div>
 <div class="action-grid">{rows}</div>
+{seguimiento_html}
 </section>
 '''
 
@@ -559,7 +600,7 @@ def render_bloque_hoteles():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('IPM_WoW_pp'), mejora_si_negativo=False)},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
     ]
     df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
     df_br.index = range(len(df_br))
