@@ -51,7 +51,7 @@ def add_title(ws, title, subtitle=''):
     if subtitle:
         ws['A2'] = subtitle
         ws['A2'].font = META_FONT
-    ws['A3'] = f'Generado: {datetime.now().strftime("%d/%m/%Y %H:%M")} · W18 · 27 abr – 3 may 2026'
+    ws['A3'] = f'Generado: {datetime.now().strftime("%d/%m/%Y %H:%M")} · W20 · 12-18 may 2026'
     ws['A3'].font = META_FONT
 
 DISPLAY_RENAME = {
@@ -211,7 +211,7 @@ add_table(ws10, df_mc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','
 
 # ==================== 11. PLAN DE ACCIÓN ====================
 ws11 = wb.create_sheet('Plan de Acción')
-add_title(ws11, 'Plan de Acción · W18 (CR)',
+add_title(ws11, 'Plan de Acción · W20 (CR)',
           'Acciones priorizadas · 6 acciones (2 Quick Wins + 2 Mid + 2 Estratégicas)')
 plan_data = [
     {'#':'QW1','Owner':'Tech · Supply','Cluster':'Quick Win','Plazo':'5 días',
