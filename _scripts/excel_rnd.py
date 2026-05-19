@@ -126,7 +126,7 @@ add_title(ws3, 'Severity · IPM (Income Per Million USD)', f'P80 · {len(p80_hot
 total_rpm = int(sum(sev_rpm.values()))
 data = []
 for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
-    rng = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200-$650','Aceptable':'$650-$1500','Exitosa':'≥$1500'}[n]
+    rng = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200-$650','Aceptable':'$650-$1000','Exitosa':'≥$1000'}[n]
     cnt = int(sev_rpm[n])
     data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_rpm})
 df_rpm = pd.DataFrame(data)
@@ -282,7 +282,7 @@ def add_canasta_sheets_rnd(wb_target, key, c, prefix=None):
     total_si = sum(sev_dict2.values()) or 1
     data_si = []
     for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
-        rng = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200-$650','Aceptable':'$650-$1500','Exitosa':'≥$1500'}[n]
+        rng = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200-$650','Aceptable':'$650-$1000','Exitosa':'≥$1000'}[n]
         cnt = int(sev_dict2.get(n,0))
         data_si.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_si})
     add_table(ws_si, pd.DataFrame(data_si), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')

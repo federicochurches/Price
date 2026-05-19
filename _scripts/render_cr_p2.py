@@ -96,7 +96,7 @@ def build_findings():
     n_crit_cv = sev_cv_p80.get('Crítica', 0)
     pct_sin_conv = n_sin_conv/n_p80*100
     
-    cb = M['B2C_w18']; co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
+    cb = M[f'B2C_w{WEEK_NUM_INT}']; co = M[f'B2B (OP)_w{WEEK_NUM_INT}']; cu = M[f'CUG (UOP)_w{WEEK_NUM_INT}']
     
     g_pp = g_grupo[g_grupo['Grupo']=='Producto Propio'].iloc[0]
     g_tp = g_grupo[g_grupo['Grupo']=='Third Party'].iloc[0]
@@ -187,7 +187,7 @@ def render_resumen_ej():
     findings = build_findings()
 
     # Variables necesarias para enriquecer findings con pills
-    cb = M['B2C_w18']; co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
+    cb = M[f'B2C_w{WEEK_NUM_INT}']; co = M[f'B2B (OP)_w{WEEK_NUM_INT}']; cu = M[f'CUG (UOP)_w{WEEK_NUM_INT}']
     g_pp = g_grupo[g_grupo['Grupo']=='Producto Propio'].iloc[0]
     g_tp = g_grupo[g_grupo['Grupo']=='Third Party'].iloc[0]
     top1_corp = TOP['corps_10'].iloc[0]
@@ -691,7 +691,7 @@ def render_plan_accion():
 </div>
 <div class="action-row es">
 <div class="action-owner-badge">Supply Comercial / Wholesale</div>
-<div class="accion">Revisión integral del producto <strong>B2C</strong> (ConvRate Crítica {fmt_pct2(M["B2C_w18"]["conv_rate"])}) · pricing, UX, mapping, fee structure.</div>
+<div class="accion">Revisión integral del producto <strong>B2C</strong> (ConvRate Crítica {fmt_pct2(M[f"B2C_w{WEEK_NUM_INT}"]["conv_rate"])}) · pricing, UX, mapping, fee structure.</div>
 <div class="action-meta-bottom"><span class="cluster-tag">Estratégica · ES2</span><span class="meta-item"><strong>Plazo</strong> Q3</span><span class="meta-item"><strong>Métrica</strong> ConvRate &gt; 1,5%</span></div>
 </div>
 </div>

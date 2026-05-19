@@ -71,8 +71,8 @@ def build_findings():
     by_dest['pctND'] = by_dest['DNC']/by_dest['TR']
     by_dest = by_dest.sort_values('DNC', ascending=False).head(3)
     
-    cb = M['B2C_w18']; co = M['B2B (OP)_w18']; cu = M['CUG (UOP)_w18']
-    cug_rpm_wow = (cu['rpm']/M['CUG (UOP)_w17']['rpm']-1)*100
+    cb = M[f'B2C_w{WEEK_NUM_INT}']; co = M[f'B2B (OP)_w{WEEK_NUM_INT}']; cu = M[f'CUG (UOP)_w{WEEK_NUM_INT}']
+    cug_rpm_wow = (cu['rpm']/M[f'CUG (UOP)_w{WEEK_PREV_INT}']['rpm']-1)*100
     
     h0 = TOP['sin_conv'].iloc[0]
     
@@ -122,10 +122,10 @@ def build_findings():
 
     findings = [
         {'numero': es_pct(pct*100,2),
-         'titulo': f'%NoDispo global · {pill_banda(M["global_w18"]["banda_nd"],"&lt;3%")} {pill_wow_nd(pct_wow)}',
+         'titulo': f'%NoDispo global · {pill_banda(M[f'global_w{WEEK_NUM_INT}']["banda_nd"],"&lt;3%")} {pill_wow_nd(pct_wow)}',
          'desc': 'Primera vez que se acerca a la zona Exitosa tras semanas en Revisar — mejora estructural sostenida.'},
         {'numero': '$' + es_num2(rpm),
-         'titulo': f'IPM · {pill_banda(M["global_w18"]["banda_rpm"],"≥$650")} {pill_wow_ipm(rpm_wow)}',
+         'titulo': f'IPM · {pill_banda(M[f'global_w{WEEK_NUM_INT}']["banda_rpm"],"≥$650")} {pill_wow_ipm(rpm_wow)}',
          'desc': f'Sigue por debajo del target ≥$650. Bookings {es_pct1(bk_wow)} WoW anticipa presión adicional.'},
         {'numero': fmt_big(dnc_p80_total),
          'titulo': 'Demanda no convertida en P80',
@@ -232,10 +232,10 @@ def render_severities_combinadas():
     ]
     levels_ipm = [
         ('Sin Conversión','BKGS=0','#8A8377'),
-        ('Crítica','&lt; $200','#C0392B'),
+        ('Crítica','< $200','#C0392B'),
         ('Revisar','$200–$650','#D4A878'),
-        ('Aceptable','$650–$1500','#5C469C'),
-        ('Exitosa','≥ $1500','#4FC3F4'),
+        ('Aceptable','$650–$1000','#5C469C'),
+        ('Exitosa','≥ $1000','#4FC3F4'),
     ]
     
     rows_nd, total_nd = render_table(sev_nd, levels_nd)
@@ -487,7 +487,7 @@ def render_plan_accion():
     n_critmas = sev_nd['Crítica'] + sev_nd['Súper Crítica']
     
     # Badge superior = ÁREA OWNER · cluster (QW/MP/ES) va abajo (Fix #8)
-    cug_rpm_wow = (M["CUG (UOP)_w18"]["rpm"]/M["CUG (UOP)_w17"]["rpm"]-1)*100
+    cug_rpm_wow = (M[f"CUG (UOP)_w{WEEK_NUM_INT}"]["rpm"]/M[f"CUG (UOP)_w{WEEK_PREV_INT}"]["rpm"]-1)*100
     
     def action(owner, cluster, code, plazo, accion, metrica):
         cluster_class = {'Quick Win':'qw','Mid Priority':'mp','Estratégica':'es'}.get(cluster,'qw')
@@ -512,7 +512,7 @@ def render_plan_accion():
                    f'Plan de saneamiento para <strong>{fmt_int_es(n_critmas)} hoteles Crítica/Súper Crítica</strong> de %NoDispo · separar por canasta y trabajar primero CUG y B2B-OP (weight 0,6).',
                    f'{int(n_critmas*0.5)} migrados a Revisar')
     rows += action('Supply Comercial / Wholesale', 'Mid Priority', 'MP2', '2 semanas',
-                   f'Revisión de IPM en <strong>CUG</strong> ({fmt_num2(M["CUG (UOP)_w18"]["rpm"])}, {cug_rpm_wow:+.1f}% WoW) · canasta de mayor weight con deterioro pronunciado en GB.'.replace('+,','+').replace('.', ',', 1),
+                   f'Revisión de IPM en <strong>CUG</strong> ({fmt_num2(M[f"CUG (UOP)_w{WEEK_NUM_INT}"]["rpm"])}, {cug_rpm_wow:+.1f}% WoW) · canasta de mayor weight con deterioro pronunciado en GB.'.replace('+,','+').replace('.', ',', 1),
                    'IPM &gt; 600')
     rows += action('Supply Comercial / Supply Optimization', 'Estratégica', 'ES1', 'Q3',
                    f'Reducir <strong>cohorte Sin Conversión</strong> en P80 ({fmt_int_es(n_sc)} hoteles, {n_sc/len(p80_hotel)*100:.0f}% del P80) · proyecto trimestral de remediación técnica + comercial.',
