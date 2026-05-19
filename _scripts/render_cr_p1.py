@@ -51,8 +51,8 @@ def render_masthead():
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
 <span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">CheckRates</span>
-<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week 18</div>
-<div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">27 abr – 3 may {MES_AÑO}</div>
+<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {WEEK_NUM}</div>
+<div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">12-18 may {MES_AÑO}</div>
 </div>
 </div>
 <div style="display:table-cell;vertical-align:middle;text-align:right;white-space:nowrap;">
