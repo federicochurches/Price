@@ -95,7 +95,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     labels += '</div>'
     return bar + labels
 
-def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num=WEEK_NUM):
+def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num='W20', week_prev='W19'):
     """Caja con W18 actual + WoW + W17 prev. bg de WoW va con el wow_color."""
     # Mapeo color → bg suave
     if wow_color == '#2F6C34':       # verde
@@ -115,7 +115,7 @@ def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num=WEE
           f'<div style="font-size:18px;font-weight:700;color:{wow_color};margin-top:2px;letter-spacing:-.01em;">{wow_str}</div>'
         f'</div>'
         f'<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">'
-          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W17</div>'
+          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_prev}</div>'
           f'<div style="font-size:18px;font-weight:700;color:var(--ink-soft);margin-top:2px;letter-spacing:-.01em;">{curr_label}</div>'
         f'</div>'
       f'</div>'

@@ -119,7 +119,7 @@ def render_hero():
 # Color de acento CR (cyan/teal)
 CR_ACCENT = '#5C469C'
 
-def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
+def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='W19'):
     banda = banda_eficacia(ef_w18)
     target = "≥ 97%"
     pill = banda_pill(banda, target=target)
@@ -131,7 +131,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
     elif ef_wow < 0: wow_str = f'{wow_arrow} {ef_wow:.2f}pp'.replace('.', ',')
     else: wow_str = '= 0,00pp'
     
-    wow_block = wow_box(fmt_pct2(ef_w17), fmt_pct2(ef_w18), wow_str, wow_color, CR_ACCENT)
+    wow_block = wow_box(fmt_pct2(ef_w17), fmt_pct2(ef_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
@@ -256,7 +256,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow):
 <div class="tab-panels">{panels}</div>
 </div>'''
 
-def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
+def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='W19'):
     banda = banda_convrate(cv_w18, M['global_current']['bookings'])
     target = "≥ 2,5%"
     pill = banda_pill(banda, target=target)
@@ -268,7 +268,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow):
     elif cv_wow < 0: wow_str = f'{wow_arrow} {cv_wow:.2f}pp'.replace('.', ',')
     else: wow_str = '= 0,00pp'
     
-    wow_block = wow_box(fmt_pct2(cv_w17), fmt_pct2(cv_w18), wow_str, wow_color, CR_ACCENT)
+    wow_block = wow_box(fmt_pct2(cv_w17), fmt_pct2(cv_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
@@ -469,8 +469,8 @@ h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;">{subhead}</p>
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-{render_kpi_card_eficacia(ef18, ef17, ef_wow)}
-{render_kpi_card_convrate(cv18, cv17, cv_wow)}
+{render_kpi_card_eficacia(ef18, ef17, ef_wow, 'W20', 'W19')}
+{render_kpi_card_convrate(cv18, cv17, cv_wow, 'W20', 'W19')}
 </div>
 </section>
 '''
