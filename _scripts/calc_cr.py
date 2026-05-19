@@ -211,7 +211,7 @@ def tab_eficacia():
     p50_d = g_d['CR_Unicos'].quantile(0.50)
     p50_c = g_c['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
-    df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Eficacia']>0)].sort_values('Eficacia').head(10).reset_index(drop=True)
+    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(10).reset_index(drop=True)
     df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
     # Merge WoW
