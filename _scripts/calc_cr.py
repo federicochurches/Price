@@ -56,13 +56,13 @@ g_corp_w17    = _agg_dim_w17(df17, 'CorpName')
 g_hotel_w17   = _agg_dim_w17(df17, 'Hotel')
 g_channel_w17 = _agg_dim_w17(df17, 'ExternalProviderName')
 
-# ── P80 GLOBAL ────────────────────────────────────────────────────────────────
+# ── P90 GLOBAL (cambio de P80 a P90 para mayor inclusión) ──────────────────────
 def calc_p80(df):
-    """Hoteles que acumulan 80% del volumen CR."""
+    """Hoteles que acumulan 90% del volumen CR (antes era 80%)."""
     g = df.groupby('Hotel').agg(CR_Unicos=('CR_Unicos','sum')).reset_index()
     g = g.sort_values('CR_Unicos', ascending=False)
     g['cum'] = g['CR_Unicos'].cumsum() / g['CR_Unicos'].sum()
-    return g[g['cum'].shift(1, fill_value=0) < 0.80]['Hotel'].tolist()
+    return g[g['cum'].shift(1, fill_value=0) < 0.90]['Hotel'].tolist()
 
 p80_hotels = calc_p80(df18)
 

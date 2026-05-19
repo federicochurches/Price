@@ -31,9 +31,22 @@ p3 = replace_placeholders(p3)
 # El footer viene del template (asset_rnd_footer.html)
 # No se genera footer adicional aquí
 
+# Nota de metodología sobre P90
+NOTA_METODOLOGIA = '''
+<div style="background:#F2EDE0;border-left:4px solid #EA0074;padding:16px;margin:32px 0;font-size:12px;color:#333;">
+<div style="font-weight:700;font-size:13px;color:#EA0074;margin-bottom:8px;">📊 Metodología</div>
+<p style="margin:0;line-height:1.6;">
+Este análisis incluye hoteles del <strong>P90</strong> (hoteles que acumulan ~90% del tráfico de disponibilidad), 
+para una evaluación más completa de proveedores y corporativos. 
+Las métricas reflejan desempeño en el segmento más relevante para Supply Optimization.
+</p>
+</div>
+'''
+
 final = (
     '<!DOCTYPE html>\n<html lang="es">\n'
     + p1 + '\n'
+    + NOTA_METODOLOGIA + '\n'
     + p2 + '\n'
     + p3
 )

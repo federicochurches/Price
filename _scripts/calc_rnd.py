@@ -82,10 +82,10 @@ def metrics_global(df):
     }
 
 # ── P80 global ────────────────────────────────────────────────────
-print('Calculando P80...')
+print('Calculando P90...')
 g_hotel_all = agg_hotel(df18).sort_values('Trafico', ascending=False)
 cumsum = g_hotel_all['Trafico'].cumsum(); total = g_hotel_all['Trafico'].sum()
-p80_hotel = g_hotel_all[cumsum <= total*0.80].copy()
+p80_hotel = g_hotel_all[cumsum <= total*0.90].copy()
 
 # ── Agregados globales W18 para WoW ───────────────────────────────
 g_hotel_w17 = agg_hotel(df17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','RPM':'RPM_W18'})\
@@ -228,7 +228,7 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     sub17 = df17[df17['DistributionCategory']==c_filter].copy()
     gh = agg_hotel(sub18).sort_values('Trafico',ascending=False)
     cs = gh['Trafico'].cumsum(); tot = gh['Trafico'].sum()
-    p80c = gh[cs<=tot*0.80].copy()
+    p80c = gh[cs<=tot*0.90].copy()
     # WoW por hotel en canasta
     gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['Hotel','%NoDispo_W18','IPM_W18']]
     p80c = p80c.merge(gh17, on='Hotel', how='left')
