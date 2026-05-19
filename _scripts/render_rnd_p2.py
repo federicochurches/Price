@@ -234,8 +234,7 @@ def render_severities_combinadas():
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','< $200','#C0392B'),
         ('Revisar','$200–$650','#D4A878'),
-        ('Aceptable','$650–$1500','#5C469C'),
-        ('Exitosa','≥ $1500','#4FC3F4'),
+        ('Exitosa','≥ $650','#4FC3F4'),
     ]
     
     rows_nd, total_nd = render_table(sev_nd, levels_nd)
