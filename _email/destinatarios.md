@@ -1,6 +1,6 @@
 # Destinatarios · Mail Supply Optimization
 
-## Destinatarios actuales (15 personas en BCC/CCO)
+## Destinatarios actuales (W20+) · 28 personas en BCC
 
 ```
 rafael.durand@pricetravel.com
@@ -18,19 +18,31 @@ barbara.rodriguez@pricetravel.com
 jordi.pena@pricetravel.com
 sergio.sanchez@pricetravel.com
 monica.delateja@pricetravel.com
-
+brenda.pacheco@pricetravel.com
+gabriela.garcia@pricetravel.com
+lizette.urrea@pricetravel.com
+pedro.vargas@pricetravel.com
+seiji.komori@pricetravel.com
+araceli.lopez@pricetravel.com
+edgar.ic@pricetravel.com
+jeison.barros@pricetravel.com
+sofia.quintal@pricetravel.com
+stivalis.alcantara@pricetravel.com
+ariana.caldelas@pricetravel.com
+daniela.chino@pricetravel.com
+christians.ortiz@pricetravel.com
 ```
 
 ## Convención
 
-- **TO**: el remitente (federico.iglesias@pricetravel.com)
-- **BCC**: los 15 destinatarios listados arriba
-- **Razón**: privacidad — los destinatarios no ven a los demás
+- **TO**: remitente (federico.iglesias@pricetravel.com)
+- **BCC**: 28 destinatarios listados arriba (privacidad)
+- **Subject**: `Supply Optimization · Week NN · Resumen + Plan de Acción`
 
 ## Para agregar/quitar destinatarios
 
-Editar este archivo y, en la próxima semana, copiar la lista actualizada al draft.
+Editar este archivo y ejecutar el pipeline en la próxima semana.
 
 ## Última actualización
 
-W17 · 28 Abril 2026
+W20 · 19 Mayo 2026 · +13 nuevos destinatarios

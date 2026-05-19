@@ -56,13 +56,20 @@ g_corp_w17    = _agg_dim_w17(df17, 'CorpName')
 g_hotel_w17   = _agg_dim_w17(df17, 'Hotel')
 g_channel_w17 = _agg_dim_w17(df17, 'ExternalProviderName')
 
-# ── P90 GLOBAL (cambio de P80 a P90 para mayor inclusión) ──────────────────────
+# ── FILTRO DE RELEVANCIA OPERACIONAL: MIN_CR = 100 ───────────────────────────
+# Hoteles con >= 100 CR/semana = universo operacionalmente relevante
+MIN_CR = 100
+
 def calc_p80(df):
     """Hoteles que acumulan 90% del volumen CR (antes era 80%)."""
     g = df.groupby('Hotel').agg(CR_Unicos=('CR_Unicos','sum')).reset_index()
     g = g.sort_values('CR_Unicos', ascending=False)
     g['cum'] = g['CR_Unicos'].cumsum() / g['CR_Unicos'].sum()
     return g[g['cum'].shift(1, fill_value=0) < 0.90]['Hotel'].tolist()
+
+# Aplicar filtro MIN_CR primero
+df18 = df18[df18['CR_Unicos'] >= MIN_CR].copy()
+df17 = df17[df17['CR_Unicos'] >= MIN_CR].copy() if len(df17) > 0 else df17
 
 p80_hotels = calc_p80(df18)
 

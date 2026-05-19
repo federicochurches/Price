@@ -82,7 +82,14 @@ def metrics_global(df):
     }
 
 # ── P80 global ────────────────────────────────────────────────────
-print('Calculando P90...')
+# ── FILTRO DE RELEVANCIA OPERACIONAL: MIN_TRAFICO = 50K (checkrates equivalente) ────
+# Hoteles con tráfico mínimo = universo operacionalmente relevante
+MIN_TRAFICO = 50000
+
+df18 = df18[df18['Trafico'] >= MIN_TRAFICO].copy()
+df17 = df17[df17['Trafico'] >= MIN_TRAFICO].copy() if len(df17) > 0 else df17
+
+print('Calculando P90 (hoteles con Trafico >= 50K)...')
 g_hotel_all = agg_hotel(df18).sort_values('Trafico', ascending=False)
 cumsum = g_hotel_all['Trafico'].cumsum(); total = g_hotel_all['Trafico'].sum()
 p80_hotel = g_hotel_all[cumsum <= total*0.90].copy()
