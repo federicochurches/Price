@@ -235,3 +235,116 @@ _scripts/
 - **`calc_cr.py` CONFIG SEMANAL**: `df18` → W(N), `df17` → W(N-1). El pickle se llama `cr_wNN_data.pkl`.
 - **Header masthead** toma `VOL_NUM` del pickle — no hay que tocarlo manualmente.
 - **plan_seguimiento** se genera en `_governance/_seguimiento/` — editar antes del pipeline para mover QW resueltos a `## CERRADO`.
+
+---
+
+## 📊 Módulo Histórico · `historico_module_v2.py` (Mayo 2026)
+
+Nuevo helper compartido que genera el bloque **"Evolución Histórica"** reactivo.
+
+```
+historico_module_v2.py   ← NUEVO · importado por render_cr_p1.py y render_cr_p3.py
+```
+
+### Función principal
+```python
+render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
+                    hist_vals=None, global_ceil=None)
+```
+
+| Parámetro | Descripción |
+|---|---|
+| `metric_type` | `'eficacia'` \| `'convrate'` |
+| `banda_actual` | String banda sistema D |
+| `val_actual` | Float [0,1] — valor semana actual |
+| `canvas_id` | ID único del canvas (ej: `'hcr-global-ef'`, `'hcr-op-cv'`) |
+| `hist_vals` | Lista 7 floats W14-W20 en % (None = ficticios por scope) |
+| `global_ceil` | Techo para barras sparkline (default = target de la métrica) |
+
+### Lógica diferenciada curva vs barras
+| Elemento | Escala | Muestra |
+|---|---|---|
+| Canvas (curva) | Local del elemento | Forma del trend — sube/baja/volátil |
+| Sparkline (barras) | Global vs `global_ceil` | Severidad relativa al target |
+
+### Interactividad
+Cada row del tab lleva `data-hist-w21`, `data-hist-w20`, `data-hist-label`.
+Click → el JS del módulo reconstruye la serie y redibuja sin recargar.
+
+### Scope del canvas_id
+El scope (global/op/cug/b2c) se infiere automáticamente del `canvas_id`:
+- Contiene `'op'` → datos ficticios B2B-OP
+- Contiene `'cug'` → datos ficticios CUG
+- Contiene `'b2c'` → datos ficticios B2C
+- Ninguno → datos ficticios global
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 · historico_module_v2.py agregado
+
+---
+
+## 📊 Módulo Histórico CR · `historico_module_v2.py` (Mayo 2026)
+
+```
+historico_module_v2.py   ← NUEVO · importado por render_cr_p1.py y render_cr_p3.py
+```
+
+### Función principal
+```python
+render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
+                    hist_vals=None, global_ceil=None)
+```
+
+| Parámetro | Descripción |
+|---|---|
+| `metric_type` | `'eficacia'` \| `'convrate'` |
+| `banda_actual` | String banda sistema D |
+| `val_actual` | Float [0,1] — valor semana actual |
+| `canvas_id` | ID único (ej: `'hcr-global-ef'`, `'hcr-op-cv'`) |
+| `hist_vals` | Lista 7 floats W14-W20 en % (None = ficticios por scope) |
+| `global_ceil` | Techo sparkline (default = target de la métrica) |
+
+### Lógica diferenciada curva vs barras
+| Elemento | Escala | Muestra |
+|---|---|---|
+| Canvas (curva) | Local del elemento | Forma del trend — sube/baja/volátil |
+| Sparkline (barras) | Global vs `global_ceil` | Severidad relativa al target |
+
+---
+
+## 📊 Módulo Histórico RND · `historico_module_rnd.py` (Mayo 2026)
+
+```
+historico_module_rnd.py   ← NUEVO · importado por render_rnd_p1.py y render_rnd_p3.py
+```
+
+### Función principal
+```python
+render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
+                     hist_vals=None, global_ceil=None)
+```
+
+| Parámetro | Descripción |
+|---|---|
+| `metric_type` | `'nodispo'` \| `'ipm'` |
+| `banda_actual` | String banda sistema D |
+| `val_actual` | Float [0,1] para nodispo · USD/M para ipm |
+| `canvas_id` | ID único (ej: `'hrnd-global-nd'`, `'hrnd-op-ipm'`) |
+| `hist_vals` | Lista 7 floats W14-W20 (None = ficticios por scope) |
+| `global_ceil` | Techo sparkline (default: 0.60 nodispo · 3000 ipm) |
+
+### Diferencias vs módulo CR
+| Aspecto | CR | RND |
+|---|---|---|
+| Métricas | Eficacia / ConvRate | NoDispo / IPM |
+| Escala NoDispo | N/A | Invertida — menor = mejor |
+| Accent | `#5C469C` violet | `#EA0074` magenta · `#A86A1D` amber |
+| W20 elemento | `Eficacia_W17` / `ConvRate_W17` | `NoDispo_W17` / `IPM_W18` |
+| Mejor | Máx verde · Mín rojo | NoDispo: Mín verde · IPM: Máx verde |
+| Label target | Dibujado en canvas | HTML posicionado sobre canvas |
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 · Módulos históricos CR + RND
+

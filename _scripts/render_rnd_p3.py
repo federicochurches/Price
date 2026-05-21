@@ -10,6 +10,10 @@ import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
+import sys as _sys_rnd_p3
+_sys_rnd_p3.path.insert(0, '/mnt/project')
+from historico_module_rnd import render_historico_rnd
+
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
@@ -266,7 +270,19 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     mejora = wow_v < 0  # bajar NoDispo = mejora
                     cls = 'dn' if mejora else 'up'
                     wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;">'
+            import math as _mrnd
+            if is_rpm:
+                _w21h = round(float(max(val,0)), 2)
+                _w20h_raw = r.get('IPM_W18', r.get('IPM_W17', None))
+                try: _w20h = round(float(_w20h_raw),2) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
+                except: _w20h = _w21h
+            else:
+                _w21h = round(float(val)*100, 4) if val and not _mrnd.isnan(float(val)) else 0
+                _w20h_raw = r.get('NoDispo_W17', None)
+                try: _w20h = round(float(_w20h_raw)*100,4) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
+                except: _w20h = _w21h
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;cursor:pointer;border-radius:3px;transition:background .12s;"'
+                    f' data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}">'
                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink);font-weight:400;">{i+1}. {lab}</span>'
                     f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
                     f'{wow_html}</div>')
@@ -327,6 +343,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm)
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
 
+        metric_type_hist = 'ipm' if prefix != '' else 'nodispo'
+        hist_mod = render_historico_rnd(metric_type_hist, banda, val18, f'hrnd-{card_id}')
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
@@ -336,6 +354,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {wb}
 <div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);">{tabs_labels}</div>
 {panels}
+{hist_mod}
 {js_tabs}
 </div>'''
 

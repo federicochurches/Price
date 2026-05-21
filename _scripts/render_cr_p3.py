@@ -53,6 +53,10 @@ df17 = D.get('df17', None)
 hotel_channel_map_global = D.get('hotel_channel_map', {})
 g_channel_w17 = D.get('g_channel_w17', None)
 
+import sys as _sys_p3
+_sys_p3.path.insert(0, '/mnt/project')
+from historico_module_v2 import render_historico_cr
+
 CR_ACCENT = '#5C469C'
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
@@ -310,8 +314,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};text-align:center;display:block;min-width:32px;">{wow_txt}</em>'
                 except: pass
-            # Grid limpio: nombre | valor | WoW
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;">'
+            # Grid limpio: nombre | valor | WoW — con data-attrs para módulo histórico
+            import math as _math_cell
+            _w21 = round(float(val) * 100, 4) if val and not _math_cell.isnan(float(val)) else 0
+            # W20 (semana anterior): buscar col *_W17 según val_col
+            _w20_col = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
+            _w20_raw = r.get(_w20_col, None) if hasattr(r, 'get') else None
+            try:
+                _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
+            except: _w20 = _w21
+            cell = (f'<div style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;cursor:pointer;border-radius:3px;transition:background .12s;"'
+                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
                     f'<span style="font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
                     f'<span style="font-size:10px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);">{val_str}</span>'
                     f'{wow_pill}</div>')
@@ -348,6 +361,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             # wm es ahora el nombre de la columna WoW (string) o None
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col)
             panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
+        metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
+        hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
         return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
@@ -357,6 +372,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {wb}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
 <div class="tab-panels">{panels}</div>
+{hist_mod}
 </div>'''
 
     # Datos para tabs de KPI

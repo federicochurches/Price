@@ -10,6 +10,10 @@ import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
+import sys as _sys_rnd_p1
+_sys_rnd_p1.path.insert(0, '/mnt/project')
+from historico_module_rnd import render_historico_rnd
+
 # Cargar datos
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
@@ -208,7 +212,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
             grid = '1fr 52px 44px' if show_wow else '1fr 52px'
-            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
+            import math as _mnd
+            _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
+            _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
+            try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
+            except: _nd_w20 = _nd_w21
+            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                    f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}">'
                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
                     f'{i+1}. {lab}</span>'
                     f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
@@ -244,6 +254,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
 <div class="tab-panels">{panels}</div>
+{render_historico_rnd('nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
 
 def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
@@ -299,7 +310,13 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
             grid = '1fr 52px 44px' if show_wow else '1fr 52px'
-            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;">'
+            import math as _mipm
+            _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
+            _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
+            try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
+            except: _ipm_w20 = _ipm_w21
+            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                    f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}">'
                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
                     f'{i+1}. {lab}</span>'
                     f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
@@ -335,6 +352,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
 <div class="tab-panels">{panels}</div>
+{render_historico_rnd('ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''
 
 def render_alerts_block():

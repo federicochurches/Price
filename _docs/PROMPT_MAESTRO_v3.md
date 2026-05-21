@@ -727,3 +727,115 @@ print(f"✅ Pickle guardado: cr_w19_data.pkl")
 ---
 
 **Última actualización:** Mayo 2026 · FIX #47 aplicado · calc_cr.py CONFIG alineado
+
+---
+
+## 📝 Módulo Histórico CR · Evolución Histórica (Mayo 2026 · post W20)
+
+### Qué se agregó
+Módulo **"Evolución Histórica"** reactivo en todas las cards KPI del reporte CheckRates:
+- **2 cards globales** (Hero · Eficacia + ConvRate) — `render_cr_p1.py`
+- **6 cards canasta** (B2B-OP · CUG · B2C × Eficacia + ConvRate) — `render_cr_p3.py`
+
+### Posición en el DOM de cada card
+```
+valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 elementos) → [MÓDULO]
+```
+
+### Funcionalidad
+- **Estado default:** datos globales de la card visibles sin interacción
+- **Click en elemento** (destino / corp / hotel / channel): canvas + 5 métricas + banda se actualizan
+- Elemento seleccionado queda highlighted con `var(--accent-soft)`
+- **Curva (Canvas):** escala LOCAL del elemento — muestra el trend exacto W14-W21
+- **Barras (Sparkline):** escala GLOBAL vs target de la card — muestra severidad relativa al objetivo
+- Datos W14-W20 ficticios · W21 real del pickle · W20 del elemento desde `Eficacia_W17` / `ConvRate_W17`
+
+### Colores
+Usa exclusivamente variables CSS del sistema (`var(--paper)`, `var(--accent)`, etc.) + colores exactos de `_BANDA_COLORS` en `render_helpers.py`. Súper Crítica: badge negro/blanco, footer texto oscuro (`#161616`).
+
+### Archivos modificados
+| Archivo | Cambio |
+|---|---|
+| `historico_module_v2.py` | **NUEVO** · función `render_historico_cr()` · módulo completo |
+| `render_cr_p1.py` | Import + llamada en `render_kpi_card_eficacia` y `render_kpi_card_convrate` · rows con `data-hist-*` |
+| `render_cr_p3.py` | Import + llamada en `kpi_card_canasta` · `tab_rows_canasta` con `data-hist-*` |
+
+### Pendiente (próximas sesiones)
+- Módulo histórico en secciones Análisis por Hotel y Análisis por Dimensión (CR)
+- Módulo histórico en RND (misma arquitectura)
+- Datos históricos reales W14-W20 cuando estén disponibles en pickle (reemplazar `_FICTICIOS`)
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 · Módulo Histórico CR · 8 cards · interactivo
+---
+
+## 📝 Módulo Histórico CR · Evolución Histórica (Mayo 2026 · post W20 · sesión 1)
+
+### Qué se agregó
+Módulo **"Evolución Histórica"** reactivo en todas las cards KPI del reporte CheckRates:
+- **2 cards globales** (Hero · Eficacia + ConvRate) — `render_cr_p1.py`
+- **6 cards canasta** (B2B-OP · CUG · B2C × Eficacia + ConvRate) — `render_cr_p3.py`
+
+### Posición en el DOM de cada card
+```
+valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 elementos) → [MÓDULO]
+```
+
+### Funcionalidad
+- **Estado default:** datos globales visibles sin interacción
+- **Click en elemento:** canvas + 5 métricas + banda se actualizan con datos del elemento
+- **Curva (Canvas):** escala LOCAL del elemento — trend exacto W14-W21
+- **Barras (Sparkline):** escala GLOBAL vs target — severidad relativa al objetivo
+- Datos W14-W20 ficticios · W21 real del pickle · W20 desde `Eficacia_W17` / `ConvRate_W17`
+- Título: "Evolución Histórica" (genérico, no limita a 8W)
+
+### Archivos modificados
+| Archivo | Cambio |
+|---|---|
+| `historico_module_v2.py` | **NUEVO** · función `render_historico_cr()` |
+| `render_cr_p1.py` | Import + llamada en ambas cards globales · rows con `data-hist-*` incluyendo Channel |
+| `render_cr_p3.py` | Import + llamada en `kpi_card_canasta` · `tab_rows_canasta` con `data-hist-*` |
+
+---
+
+## 📝 Módulo Histórico RND + Fixes CR (Mayo 2026 · post W20 · sesión 2)
+
+### Módulo Histórico RND — `historico_module_rnd.py`
+
+**NoDispo** (escala invertida — menor = mejor):
+- Accent: `#EA0074` magenta · Target: `< 5%`
+- Curva: eje Y invertido · zona relleno arriba de la curva (zona mala)
+- Sparkline: barra más alta = más NoDispo = peor
+- Métricas: "Mín 8W" verde · "Máx 8W" rojo
+
+**IPM** (escala normal — mayor = mejor):
+- Accent: `#A86A1D` amber · Target: `≥ $650`
+- W20 del elemento desde columna `IPM_W18` del pickle
+- Métricas: "Máx 8W" verde · "Mín 8W" rojo
+
+**Cobertura:** 8 cards — 2 globales + 6 canastas
+
+### Fixes CR aplicados
+- **Channel tab clickeable**: `chan_row` y `chan_row_cv` con `data-hist-*`
+- **Badge Súper Crítica dinámico**: `bbEl.style.color = bc.fg` en JS
+- **Canvas = sparkline ancho**: `pR=10` · label target en HTML
+
+### Archivos nuevos/modificados
+| Archivo | Cambio |
+|---|---|
+| `historico_module_rnd.py` | **NUEVO** · módulo histórico RND completo |
+| `render_rnd_p1.py` | Import + data-hist-* + módulo en ambas cards globales |
+| `render_rnd_p3.py` | Import + data-hist-* en tab_rows_canasta + módulo en kpi_card_canasta |
+| `render_cr_p1.py` | Channel clickeable (chan_row + chan_row_cv) |
+| `historico_module_v2.py` | Fix JS badge Súper Crítica dinámico |
+
+### Pendientes para W21+
+- Fix color badge Súper Crítica en RND
+- Ajustes spacing: tabs-row margin-top · módulo margin-top
+- Módulo histórico en Análisis por Hotel y Dimensión (CR + RND)
+- Datos históricos reales W14-W20 en pickle (reemplazar `_FICTICIOS`)
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 · Módulos Históricos CR + RND completos

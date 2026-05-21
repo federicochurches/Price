@@ -48,7 +48,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .pill:hover{color:var(--ink);border-color:var(--ink);}
 .pill.active{color:var(--white);border-color:transparent;}
 .pill.disabled{opacity:.35;pointer-events:none;}
-.archivo{border-top:none;padding-top:24px;}
+.archivo{border-top:1px solid var(--rule);padding-top:24px;}
 .archivo-title{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
 .archivo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
 .archivo-grupo-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
@@ -58,8 +58,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .aw{font-weight:600;}
 .ap{font-size:11px;color:var(--muted);}
 .archivo-link.disabled{opacity:.35;pointer-events:none;}
-.archivo-link[data-week]{transition:all .3s ease;cursor:pointer;}
-.archivo-link[data-week]:hover{filter:blur(0px)!important;opacity:1!important;}
+.archivo-link.recent-link{transition:opacity 0.3s ease;}
 </style>
 </head>
 <body>
@@ -107,7 +106,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(234,0,116,.12);color:var(--rnd);">Supply · Rates No Dispo</span>
         <div class="rpt-week" style="color:var(--rnd);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">Week 20 · 12–18 may 2026</div>
-        <div class="rpt-meta">18,788 hoteles P80 · %NoDispo 2,86% · IPM $1.183 · GB $10,51M · 21 Súper Críticos / 350 Críticos</div>
+        <div class="rpt-meta">19,456 hoteles P80 · %NoDispo 2,81% · IPM $1.194 · GB $10,43M · 21 Súper Críticos / 337 Críticos</div>
       </div>
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
@@ -121,7 +120,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(92,70,156,.12);color:var(--cr);">Supply · CheckRates</span>
         <div class="rpt-week" style="color:var(--cr);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">Week 20 · 12–18 may 2026</div>
-        <div class="rpt-meta">4,862 hoteles P80 · Eficacia 93,33% · Conv Rate 1,29% · 65 Súper Críticos / 403 Críticos eficacia</div>
+        <div class="rpt-meta">2,080 hoteles P80 · Eficacia 92,75% · Conv Rate 1,19% · 32 Súper Críticos / 162 Críticos eficacia</div>
       </div>
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
@@ -170,13 +169,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
           <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
           <div class="archivo-links">
             <a href="rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
-              <span class="aw">Week 17</span><span class="ap">20–26 abr 2026</span>
-            </a>
-            <a href="rates-nodispo/week-16/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.5;">
-              <span class="aw">Week 16</span><span class="ap">13–19 abr 2026</span>
-            </a>
-            <a href="rates-nodispo/week-15/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.4;">
-              <span class="aw">Week 15</span><span class="ap">6–12 abr 2026</span>
+              <span class="aw">Semanas anteriores</span><span class="ap">Week 17 y antes</span>
             </a>
           </div>
         </div>
@@ -184,13 +177,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
           <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
           <div class="archivo-links">
             <a href="checkrates/week-17/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
-              <span class="aw">Week 17</span><span class="ap">20–26 abr 2026</span>
-            </a>
-            <a href="checkrates/week-16/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.5;">
-              <span class="aw">Week 16</span><span class="ap">13–19 abr 2026</span>
-            </a>
-            <a href="checkrates/week-15/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.4;">
-              <span class="aw">Week 15</span><span class="ap">6–12 abr 2026</span>
+              <span class="aw">Semanas anteriores</span><span class="ap">Week 17 y antes</span>
             </a>
           </div>
         </div>
@@ -239,11 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleBtn = document.getElementById('toggleHistoric');
   const historicContent = document.getElementById('historicContent');
   
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = historicContent.style.display !== 'none';
-    historicContent.style.display = isOpen ? 'none' : 'block';
-    toggleBtn.textContent = isOpen ? '▶ Histórico completo (semanas anteriores)' : '▼ Histórico completo (semanas anteriores)';
-  });
+  if (toggleBtn && historicContent) {
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = historicContent.style.display !== 'none';
+      historicContent.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.textContent = isOpen ? 
+        '▶ Histórico completo (semanas anteriores)' : 
+        '▼ Histórico completo (semanas anteriores)';
+    });
+  }
 });
 </script>
 </body>
