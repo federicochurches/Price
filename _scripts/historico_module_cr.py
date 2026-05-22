@@ -379,9 +379,11 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     var card = histEl.closest('.kpi-card');
     if (!card) return;
     card.addEventListener('click', function(e) {{
+      if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
       // Detectar dinámicamente: buscar data-hist-w20, data-hist-w19, etc.
       var row = e.target.closest('[data-hist-w20],[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') {{ resetToGlobal(); return; }}
       
       // Prioridad: data-hist-w20 (actual W20), fallback a data-hist-w21
       var w_curr = parseFloat(row.getAttribute('data-hist-w20') || row.getAttribute('data-hist-w21'));
