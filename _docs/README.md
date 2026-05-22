@@ -410,5 +410,33 @@ render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 · Módulos históricos CR + RND
+## 📊 Estado módulos históricos W20
+
+| Sección | CR | RND |
+|---|---|---|
+| Cards KPI Severity (hero) | ✅ | ✅ |
+| Cards KPI canastas | ✅ | ✅ |
+| Análisis por Hotel | ❌ pendiente | ✅ `hrnd-hotel-nd` · `hrnd-hotel-ipm` |
+| Análisis por Dimensión | ❌ pendiente | ✅ `hrnd-dim-nd` · `hrnd-dim-ipm` |
+
+## 🎨 Colores accent por métrica
+
+| Reporte | Métrica | Accent canvas |
+|---|---|---|
+| CR | Eficacia | `#EA0074` magenta |
+| CR | ConvRate | `#5C469C` violet |
+| RND | NoDispo | `#EA0074` magenta |
+| RND | IPM | `#4FC3F4` cyan corporativo |
+
+> `#4FC3F4` (Arctic Blue) se usa SOLO como accent IPM en RND y en el label CUG.  
+> En todo el resto del sistema: **Exitosa = `#085041` verde teal** (variable CSS `--green`).
+
+## 📐 Gauge 5 niveles — regla definitiva
+
+Todas las barras: `height:6px · opacity:1` — colores sólidos puros, grosor uniforme.  
+Sin transparencia. La banda activa se identifica por la pill encima, no por el gauge.
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesión 3 · módulos hotel+dim RND · Exitosa verde · gauge sólido
 
