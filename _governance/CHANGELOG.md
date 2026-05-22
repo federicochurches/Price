@@ -1,6 +1,43 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · 22 Mayo 2026 · Sesión 3 · Fixes visuales módulos históricos + colores severity
+
+### 🎨 Sistema de colores severity — correcciones
+
+**Exitosa:** `#4FC3F4` (cyan) → `#085041` (verde teal) en todos los contextos:
+- Barras de progreso del severity principal
+- Pills de banda Exitosa
+- Variable CSS `--green: #4FC3F4` → `--green: #085041`
+- Gauge de 5 niveles del módulo histórico
+
+**Súper Crítica:** `#161616` (negro) → `#A32D2D` (rojo oscuro) en gauges
+
+**Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — mismo grosor, colores sólidos puros, sin transparencia
+
+### ✨ Módulos históricos Análisis por Hotel y Dimensión (RND) — funcionalidad completa
+
+**Problema raíz resuelto:** los módulos clonados (`hrnd-hotel-nd/ipm`, `hrnd-dim-nd/ipm`) no tenían los listeners `hist-update` y `hist-reset` que permiten que el click en una fila actualice el canvas.
+
+**Fixes aplicados:**
+- Listeners `hist-update` y `hist-reset` agregados a los 4 módulos clonados directamente en el HTML
+- `data-hist-nd` e `data-hist-ipm` con valores reales extraídos del HTML (antes eran `0.0`)
+  - Hotel: %NoDispo real de cada fila (ej. `39.5%`, `56.33%`)
+  - Dimensión: %NoDispo e IPM real de cada corporativo/destino/país
+- Canvas IDs correctos: `hrnd-hotel-nd`, `hrnd-hotel-ipm`, `hrnd-dim-nd`, `hrnd-dim-ipm`
+- Balance de divs corregido (eliminación de `</div>` huérfano en línea 5151)
+
+### 🔧 Fixes de usabilidad módulo histórico
+
+- **Badge banda centrado** vertical y horizontal: `display:flex;align-items:center;justify-content:center;min-height:44px`
+- **`resetToGlobal` scope fix:** función definida antes del `addEventListener` en `attachListeners()`
+- **Reset a Global:** click en label "GLOBAL" o en fila activa resetea la vista (inline fix en módulos clonados)
+- **Severity → Severity** (mayúscula) en ambos reportes
+
+### 🗂 Archivos modificados
+`CheckRates_Reporte_Editorial.html` · `RatesNoDispo_Reporte_Editorial.html`
+
+---
 ## Week 20 · 22 Mayo 2026 · Fixes visuales + módulo histórico en secciones RND
 
 ### 🎨 Nueva paleta sistema de bandas D
