@@ -377,6 +377,13 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     if (!histEl) return;
     var card = histEl.closest('.kpi-card');
     if (!card) return;
+    function resetToGlobal() {{
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{
+        r.style.background=''; r.removeAttribute('data-selected');
+      }});
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }}
     card.addEventListener('click', function(e) {{
       // Detectar dinámicamente: buscar data-hist-w20, data-hist-w19, etc.
       var row = e.target.closest('[data-hist-w20],[data-hist-w21]');
