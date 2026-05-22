@@ -211,7 +211,7 @@ render_historico_cr(..., current_week='W21')   # genera W14-W21
 
 ### Pendientes
 
-- Integración en secciones Análisis por Hotel y Análisis por Dimensión (CR + RND)
+- Módulo histórico en secciones Análisis por Hotel y Dimensión en **CR** (RND ya implementado W20)
 - Datos históricos reales W14-W20 en pickle (hoy usan ficticios con variación realista)
 
 ---
@@ -312,7 +312,9 @@ Contenido del hub:
 - `--ink-muted` `#8A8377` (muted, Bookings, Sin Conversión)
 
 **Compartido:**
-- Pills Súper Crítica: `background: rgba(22,22,22,.80)` (no negro mate)
+- Pills Súper Crítica: `background: #A32D2D` · texto `#FCEBEB` (rojo oscuro · no negro opaco)
+- Accent IPM en módulos históricos RND: `#4FC3F4` (Arctic Blue corporativo)
+- Accent NoDispo en módulos históricos RND: `#EA0074` (magenta)
 - Fondo bloques tabs: `var(--paper)` = `#FAF7F2`
 - Banner Excel: `--paper-soft` = `#F2EDE0`
 
@@ -814,6 +816,8 @@ Usa exclusivamente variables CSS del sistema (`var(--paper)`, `var(--accent)`, e
 19. **Labels canvas ilegibles en módulo histórico CR** · `rgba(100,90,80,0.55)` y `font-size:7px` → Fix: `0.80` y `8px`. Archivo: `historico_module_cr.py`.
 20. **Curva plana en módulo histórico CR** · fixtures con variación insuficiente → Fix: nuevos valores con delta realista entre semanas. Archivo: `historico_module_cr.py`.
 21. **`W14`/`W21` hardcodeados en footer sparkline** · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
+22. **IPM accent `#A86A1D` reemplazado por `#7C2D12`** en fix de paleta global → afectaba `ACCENT_HEX` de módulos IPM en HTML. Fix: reemplazo quirúrgico por `#4FC3F4` solo en contexto IPM.
+23. **No había forma de volver a Global** en módulo histórico tras seleccionar elemento → Fix: label "Global" clickeable + click en fila activa hace toggle/reset. · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
 
 ---
 ---
@@ -886,4 +890,4 @@ valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 element
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 · Fixes módulos históricos CR+RND · bugs #72–#75 · sparkline footer dinámico · regla `current_week`
+**Última actualización:** Mayo 2026 · post W20 · Paleta bandas D · IPM cyan · módulo histórico hotel+dim RND · usabilidad reset global · Severity · bugs #72–#75
