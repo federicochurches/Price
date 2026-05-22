@@ -1,6 +1,62 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · 22 Mayo 2026 · Fixes visuales + módulo histórico en secciones RND
+
+### 🎨 Nueva paleta sistema de bandas D
+
+Rediseño completo de colores en `render_helpers.py`, `historico_module_cr.py` y `historico_module_rnd.py`:
+
+| Banda | Antes | Ahora |
+|---|---|---|
+| Exitosa | Celeste `#0D7A99` | Verde teal `#085041` |
+| Aceptable | Violet `#5C469C` | Violet oscuro `#3C3489` |
+| Revisar | Marrón `#A86A1D` | Naranja `#7C2D12` / `#F97316` |
+| Crítica | Rojo `#C0392B` | Rojo oscuro `#99162B` |
+| Súper Crítica | Negro `rgba(22,22,22,.80)` | Rojo `#A32D2D` / texto `#FCEBEB` |
+
+Aplicado en Python (3 archivos) y en los 2 HTMLs W20 (458 reemplazos CR + 380 RND).
+
+### 🎨 IPM accent → cyan corporativo `#4FC3F4`
+
+`historico_module_rnd.py`: `IPM_ACCENT` cambia de `#A86A1D` (amber viejo) a `#4FC3F4` (Arctic Blue corporativo).
+
+Consistencia final:
+
+| Reporte | Métrica 1 | Métrica 2 |
+|---|---|---|
+| CheckRates | Eficacia → magenta `#EA0074` | ConvRate → violet `#5C469C` |
+| RatesNoDispo | NoDispo → magenta `#EA0074` | IPM → cyan `#4FC3F4` |
+
+### ✨ Módulo histórico en Análisis por Hotel y Dimensión (RND)
+
+**`render_rnd_p2.py`** — nueva función `render_historico_seccion_rnd()`:
+- Módulo doble (NoDispo + IPM lado a lado) debajo del tabs-block en cada sección
+- Cada fila de hotel y dimensión tiene `data-hist-nd`, `data-hist-ipm`, `data-hist-nd-prev`, `data-hist-ipm-prev`, `data-hist-label`
+- Click en cualquier fila de cualquier tab actualiza ambos módulos vía `CustomEvent` (`hist-update`)
+- Click en "Global" o en fila activa resetea a vista global (`hist-reset`)
+- Canvas IDs: `hrnd-hotel-nd`, `hrnd-hotel-ipm`, `hrnd-dim-nd`, `hrnd-dim-ipm`
+
+**`historico_module_rnd.py`** — nuevos listeners:
+- `hist-update`: recibe `{cid, w_curr, w_prev, label}` → redibuja canvas + métricas
+- `hist-reset`: resetea a datos globales
+
+### 🔧 Fixes de usabilidad · módulo histórico
+
+- Label "Global" clickeable (subrayado punteado + `cursor:pointer`) → resetea a vista global
+- Click en fila ya seleccionada → deselecciona y resetea (toggle)
+- Aplica en `historico_module_cr.py` y `historico_module_rnd.py` + los 2 HTMLs W20
+
+### 📝 Fixes editoriales
+
+- `Severidad` → `Severity` en ambos reportes (7 reemplazos)
+- Footer eliminado en RND para consistencia con CR
+- Semanas canvas W14-W21 → W13-W20 en los HTMLs (fix aplicado directo en HTML)
+
+### 🗂 Archivos modificados
+`render_rnd_p2.py` · `render_helpers.py` · `historico_module_cr.py` · `historico_module_rnd.py` · `CheckRates_Reporte_Editorial.html` · `RatesNoDispo_Reporte_Editorial.html`
+
+---
 ## Week 20 · 22 Mayo 2026 · Fixes módulos históricos CR + RND
 
 ### 🐛 Bugs corregidos
