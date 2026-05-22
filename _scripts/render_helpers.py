@@ -31,12 +31,12 @@ def clean_hotel_name(name):
 
 # ============ HELPERS DE COLOR PARA BANDAS ============
 BANDA_COLORS = {
-    'Exitosa':       {'bg':'#E8F7FD', 'fg':'#0D7A99', 'bd':'#4FC3F4'},
-    'Aceptable':     {'bg':'#EDE8F7', 'fg':'#5C469C', 'bd':'#5C469C'},
-    'Revisar':       {'bg':'#FFF4E0', 'fg':'#A86A1D', 'bd':'#D4A878'},
-    'Crítica':       {'bg':'#FCE4F1', 'fg':'#C0392B', 'bd':'#C0392B'},
-    'Súper Crítica': {'bg':'rgba(22,22,22,.80)', 'fg':'#FFFFFF', 'bd':'#161616'},
-    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#8A8377', 'bd':'#8A8377'},
+    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#085041', 'bd':'#1D9E75'},
+    'Aceptable':     {'bg':'#EDE8F7', 'fg':'#3C3489', 'bd':'#5C469C'},
+    'Revisar':       {'bg':'#FFEDD5', 'fg':'#7C2D12', 'bd':'#F97316'},
+    'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
+    'Súper Crítica': {'bg':'#A32D2D', 'fg':'#FCEBEB', 'bd':'#791F1F'},
+    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 
 def banda_pill(banda, target=None, font_size='10px'):
