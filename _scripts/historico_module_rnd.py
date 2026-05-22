@@ -175,8 +175,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     </div>
     <div id="hist-{canvas_id}-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:{b_bg};border:1px solid {b_bd};">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:{b_fg};">Banda</div>
-      <div id="hist-{canvas_id}-banda" style="font-size:10px;font-weight:700;color:{b_fg};margin-top:2px;line-height:1.2;">{banda_actual}</div>
+      <div id="hist-{canvas_id}-banda" style="font-size:11px;font-weight:700;color:{b_fg};margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</div>
     </div>
   </div>
 
@@ -391,7 +390,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     if (bEl)  {{ bEl.textContent=banda; bEl.style.color=bc.fg; }}
 
     el = document.getElementById('hist-'+CID+'-banda-footer');
-    if (el) {{ el.textContent='Banda: '+banda; el.style.color=bc.footer; }}
+    if (el) {{ el.textContent=banda.toUpperCase(); el.style.color=bc.footer; }}
 
     updateSpark(vals);
   }}
