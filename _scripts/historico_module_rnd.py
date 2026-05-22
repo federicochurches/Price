@@ -140,7 +140,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     canvas_target = target * 100 if is_nodispo else target
 
     return f'''<div id="hist-{canvas_id}"
-     style="margin-top:6px;padding:12px 14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+     style="margin-top:16px;padding:12px 14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
 
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -401,6 +401,11 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     if (!histEl) return;
     var card = histEl.closest('.kpi-card');
     if (!card) return;
+    function resetToGlobal() {{
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }}
     card.addEventListener('click', function(e) {{
       if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
       var row = e.target.closest('[data-hist-w21]');
@@ -422,11 +427,6 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
   // ── Init ──────────────────────────────────────────────────────────────
   function init() {{
     drawCanvas(VALS_DEF);
-    function resetToGlobal() {{
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
-      updateMetrics(VALS_DEF, 'Global');
-      updateSpark(VALS_DEF);
-    }}
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }}
