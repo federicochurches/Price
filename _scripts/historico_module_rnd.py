@@ -403,13 +403,15 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     var card = histEl.closest('.kpi-card');
     if (!card) return;
     card.addEventListener('click', function(e) {{
+      if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') {{ resetToGlobal(); return; }}
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
       if (isNaN(w21)) return;
-      card.querySelectorAll('[data-hist-w21]').forEach(function(r) {{ r.style.background=''; }});
+      card.querySelectorAll('[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
       row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
