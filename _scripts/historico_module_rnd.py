@@ -7,7 +7,7 @@ Dos métricas con lógica diferenciada:
 import json as _json
 
 RND_ACCENT  = '#EA0074'   # magenta principal RND
-IPM_ACCENT  = '#A86A1D'   # amber IPM
+IPM_ACCENT  = '#4FC3F4'   # cyan corporativo (Arctic Blue) · acento IPM
 
 # Colores del sistema D (idénticos a render_helpers.py)
 _BANDA_COLORS = {
