@@ -110,6 +110,8 @@ hist_html = render_historico_rnd(
 
 **Cambio semanal:** Find & Replace `current_week='WNN'` → `current_week='W(NN+1)'` en `render_cr_p1.py`, `render_cr_p3.py`, `render_rnd_p1.py`, `render_rnd_p3.py` (16 ocurrencias total).
 
+**Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — colores sólidos puros, grosor uniforme. La banda activa se identifica por la pill encima, no por el gauge.
+
 ---
 
 ## 🚀 FLUJO EJECUTABLE W21+ · 1 COMANDO (NUEVO - Mayo 2026)
