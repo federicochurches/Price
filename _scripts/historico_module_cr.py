@@ -145,7 +145,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     canvas_target = target * 100 if is_eficacia else target
 
     return f'''<div id="hist-{canvas_id}"
-     style="margin-top:6px;padding:12px 14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+     style="margin-top:16px;padding:12px 14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
 
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
