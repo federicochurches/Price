@@ -8,6 +8,7 @@ import pickle
 import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
+from historico_module_rnd import render_historico_rnd
 from template_seguimiento import render_seguimiento_block
 
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
@@ -302,7 +303,15 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                               f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div></div>')
             else:
                 row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
-        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{row_cells}</div>'
+        nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
+        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr)), 4)
+        ipm_curr = round(max(float(r.get('IPM', r.get('RPM', 0))), 0), 1)
+        ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
+        lbl      = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 28)
+        hist_attrs = (f' data-hist-nd="{nd_curr}" data-hist-nd-prev="{nd_prev}"'
+                      f' data-hist-ipm="{ipm_curr}" data-hist-ipm-prev="{ipm_prev}"'
+                      f' data-hist-label="{lbl}"')
+        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;">{row_cells}</div>'
     return rows
 
 def render_demanda_nc():
@@ -449,7 +458,14 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
                  f'<span style="text-align:right;">{wow_nd}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
                  f'<span style="text-align:right;">{wow_ipm}</span>')
-        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
+        nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
+        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr)), 4)
+        ipm_curr = round(max(ipm_val, 0), 1)
+        ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
+        hist_attrs = (f' data-hist-nd="{nd_curr}" data-hist-nd-prev="{nd_prev}"'
+                      f' data-hist-ipm="{ipm_curr}" data-hist-ipm-prev="{ipm_prev}"'
+                      f' data-hist-label="{truncate(raw_label, 28)}"')
+        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;">{cells}</div>'
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
@@ -549,6 +565,79 @@ def render_plan_accion():
 </section>
 '''
 
+def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
+                                  banda_nd, val_nd,
+                                  banda_ipm, val_ipm,
+                                  current_week='W20'):
+    """
+    Módulo histórico doble (NoDispo + IPM) para secciones de análisis.
+    Un módulo por sección — se actualiza al clickear cualquier fila de la tabla.
+    canvas_id_nd  : ej. 'hrnd-hotel-nd'
+    canvas_id_ipm : ej. 'hrnd-hotel-ipm'
+    """
+    html_nd  = render_historico_rnd('nodispo', banda_nd,  val_nd,  canvas_id_nd,  current_week)
+    html_ipm = render_historico_rnd('ipm',     banda_ipm, val_ipm, canvas_id_ipm, current_week)
+
+    # Wrapper con JS que conecta clicks de filas con data-hist-* al módulo
+    js = f"""
+<script>
+(function() {{
+  var section = document.getElementById('hist-{canvas_id_nd}-container') ||
+                document.getElementById('hist-{canvas_id_ipm}-container');
+  if (!section) return;
+  var parent = section.closest('section') || document.body;
+
+  function resetToGlobal() {{
+    parent.querySelectorAll('[data-hist-nd]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    // Disparar reset en ambos módulos históricos
+    var evND  = new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_nd}'}}}});
+    var evIPM = new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_ipm}'}}}});
+    document.dispatchEvent(evND);
+    document.dispatchEvent(evIPM);
+  }}
+
+  parent.addEventListener('click', function(e) {{
+    // Click en label Global de cualquiera de los dos módulos
+    if (e.target.id === 'hist-{canvas_id_nd}-label' ||
+        e.target.id === 'hist-{canvas_id_ipm}-label') {{
+      resetToGlobal(); return;
+    }}
+    var row = e.target.closest('[data-hist-nd]');
+    if (!row) return;
+    if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
+
+    var nd_curr  = parseFloat(row.getAttribute('data-hist-nd'));
+    var nd_prev  = parseFloat(row.getAttribute('data-hist-nd-prev') || nd_curr);
+    var ipm_curr = parseFloat(row.getAttribute('data-hist-ipm'));
+    var ipm_prev = parseFloat(row.getAttribute('data-hist-ipm-prev') || ipm_curr);
+    var lbl = row.getAttribute('data-hist-label') || '';
+
+    parent.querySelectorAll('[data-hist-nd]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    row.setAttribute('data-selected-hist', '1');
+    row.style.background = 'var(--accent-soft)';
+
+    // Emitir eventos para que cada módulo actualice su canvas
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
+      cid: '{canvas_id_nd}', w_curr: nd_curr, w_prev: nd_prev, label: lbl
+    }}}}));
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
+      cid: '{canvas_id_ipm}', w_curr: ipm_curr, w_prev: ipm_prev, label: lbl
+    }}}}));
+  }});
+}})();
+</script>"""
+
+    return f'''<div id="hist-{canvas_id_nd}-container"
+     style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;margin-bottom:8px;">
+  <div>{html_nd}</div>
+  <div>{html_ipm}</div>
+</div>{js}'''
+
+
 # ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
 def _render_panel_top_table(df, cols, idx_offset=0):
     """Renderiza una tabla Top 5 a 2 cols dentro de un panel de tab."""
@@ -626,6 +715,16 @@ def render_bloque_hoteles():
         f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{kicker_sc}</p>{panel_sc}</div>'
     )
     
+    hist_hotel = render_historico_seccion_rnd(
+        canvas_id_nd  = 'hrnd-hotel-nd',
+        canvas_id_ipm = 'hrnd-hotel-ipm',
+        banda_nd  = banda_nodispo(M['global_current']['pct_nodispo']),
+        val_nd    = M['global_current']['pct_nodispo'],
+        banda_ipm = banda_rpm(M['global_current']['rpm'], M['global_current']['bookings']),
+        val_ipm   = M['global_current']['rpm'],
+        current_week = f"W{WEEK_NUM_INT}",
+    )
+
     return f'''<section id="por-hotel" style="margin-bottom:64px;">
 <div class="section-head">
 <div>
@@ -646,6 +745,7 @@ def render_bloque_hoteles():
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
+{hist_hotel}
 <div class="detail-callout" style="margin-top:18px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
@@ -684,6 +784,16 @@ def render_bloque_dimensiones():
         f'<div class="tab-panel" data-tab="pais"><p class="tab-kicker">{k_pais}</p>{panel_pais}</div>'
     )
     
+    hist_dim = render_historico_seccion_rnd(
+        canvas_id_nd  = 'hrnd-dim-nd',
+        canvas_id_ipm = 'hrnd-dim-ipm',
+        banda_nd  = banda_nodispo(M['global_current']['pct_nodispo']),
+        val_nd    = M['global_current']['pct_nodispo'],
+        banda_ipm = banda_rpm(M['global_current']['rpm'], M['global_current']['bookings']),
+        val_ipm   = M['global_current']['rpm'],
+        current_week = f"W{WEEK_NUM_INT}",
+    )
+
     return f'''<section id="por-dimension" style="margin-bottom:64px;">
 <div class="section-head">
 <div>
@@ -704,6 +814,7 @@ def render_bloque_dimensiones():
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
+{hist_dim}
 </section>
 '''
 
