@@ -2,7 +2,7 @@
 historico_module_rnd.py — Módulo histórico reactivo para RND.
 Dos métricas con lógica diferenciada:
   - NoDispo: escala INVERTIDA (menor = mejor), target < 5%, accent magenta #EA0074
-  - IPM:     escala normal (mayor = mejor), target ≥ $650, accent amber #A86A1D
+  - IPM:     escala normal (mayor = mejor), target ≥ $650, accent cyan #4FC3F4 (Arctic Blue)
 """
 import json as _json
 
