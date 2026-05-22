@@ -397,8 +397,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hcr-global-ef-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7C2D12;">Banda</div>
-      <div id="hist-hcr-global-ef-banda" style="font-size:10px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;">Revisar</div>
+            <div id="hist-hcr-global-ef-banda" style="font-size:11px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Revisar</div>
     </div>
   </div>
 
@@ -417,7 +416,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-global-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">Banda: Revisar</span>
+    <span id="hist-hcr-global-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">REVISAR</span>
     <span id="hist-hcr-global-ef-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥97%</span>
   </div>
 </div>
@@ -584,7 +583,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -693,8 +692,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hcr-global-cv-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7C2D12;">Banda</div>
-      <div id="hist-hcr-global-cv-banda" style="font-size:10px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;">Revisar</div>
+            <div id="hist-hcr-global-cv-banda" style="font-size:11px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Revisar</div>
     </div>
   </div>
 
@@ -713,7 +711,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-global-cv-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">Banda: Revisar</span>
+    <span id="hist-hcr-global-cv-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">REVISAR</span>
     <span id="hist-hcr-global-cv-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥2.5%</span>
   </div>
 </div>
@@ -880,7 +878,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -1077,8 +1075,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       <div id="hcr-hotel-ef-avg" style="font-size:11px;font-weight:700;color:var(--ink);">92.73%</div>
     </div>
     <div id="hcr-hotel-ef-banda-box" style="text-align:center;padding:4px 1px;border-radius:2px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#7C2D12;">Banda</div>
-      <div id="hcr-hotel-ef-banda" style="font-size:9px;font-weight:700;color:#7C2D12;line-height:1.2;">—</div>
+            <div id="hcr-hotel-ef-banda" style="font-size:9px;font-weight:700;color:#7C2D12;line-height:1.2;">—</div>
     </div>
   </div>
   <div id="hcr-hotel-ef-spark" style="display:flex;align-items:flex-end;gap:1px;margin-top:5px;height:13px;"><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.93);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:#5C469C;height:13px;border-radius:1px 1px 0 0;"></div></div>
@@ -1087,7 +1084,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     <span style="font-size:6px;color:var(--accent);font-weight:700;">W13</span>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:4px;border-top:1px solid var(--rule-soft);">
-    <span id="hcr-hotel-ef-banda-footer" style="font-size:7px;font-weight:700;color:#7C2D12;">Banda: —</span>
+    <span id="hcr-hotel-ef-banda-footer" style="font-size:7px;font-weight:700;color:#7C2D12;">—</span>
     <span style="font-size:7px;color:var(--ink-muted);">T:≥97%</span>
   </div>
 </div><div style="flex:1;min-width:0;padding:10px 12px;background:var(--paper);border:1px solid var(--rule);border-radius:4px;">
@@ -1112,8 +1109,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       <div id="hcr-hotel-cv-avg" style="font-size:11px;font-weight:700;color:var(--ink);">81.14%</div>
     </div>
     <div id="hcr-hotel-cv-banda-box" style="text-align:center;padding:4px 1px;border-radius:2px;background:#FCE4F1;border:1px solid #C0392B;">
-      <div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#C0392B;">Banda</div>
-      <div id="hcr-hotel-cv-banda" style="font-size:9px;font-weight:700;color:#C0392B;line-height:1.2;">—</div>
+            <div id="hcr-hotel-cv-banda" style="font-size:9px;font-weight:700;color:#C0392B;line-height:1.2;">—</div>
     </div>
   </div>
   <div id="hcr-hotel-cv-spark" style="display:flex;align-items:flex-end;gap:1px;margin-top:5px;height:13px;"><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:#5C469C;height:2px;border-radius:1px 1px 0 0;"></div></div>
@@ -1122,7 +1118,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     <span style="font-size:6px;color:var(--accent);font-weight:700;">W13</span>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:4px;border-top:1px solid var(--rule-soft);">
-    <span id="hcr-hotel-cv-banda-footer" style="font-size:7px;font-weight:700;color:#C0392B;">Banda: —</span>
+    <span id="hcr-hotel-cv-banda-footer" style="font-size:7px;font-weight:700;color:#C0392B;">—</span>
     <span style="font-size:7px;color:var(--ink-muted);">T:≥2,5%</span>
   </div>
 </div></div>
@@ -1233,7 +1229,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if(bb){bb.style.background=bc.bg;bb.style.borderColor=bc.fg;bb.style.color=bc.fg;}
     if(bd){bd.textContent=banda;bd.style.color=bc.fg;}
     var bf=document.getElementById(cid+'-banda-footer');
-    if(bf){bf.textContent='Banda: '+banda;bf.style.color=bc.footer;}
+    if(bf){bf.textContent=banda.toUpperCase();bf.style.color=bc.footer;}
     updateSpark(cid,vals,isEf?T_EF:T_CV);
   }
 
@@ -1342,8 +1338,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       <div id="hcr-dim-ef-avg" style="font-size:11px;font-weight:700;color:var(--ink);">92.73%</div>
     </div>
     <div id="hcr-dim-ef-banda-box" style="text-align:center;padding:4px 1px;border-radius:2px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#7C2D12;">Banda</div>
-      <div id="hcr-dim-ef-banda" style="font-size:9px;font-weight:700;color:#7C2D12;line-height:1.2;">—</div>
+            <div id="hcr-dim-ef-banda" style="font-size:9px;font-weight:700;color:#7C2D12;line-height:1.2;">—</div>
     </div>
   </div>
   <div id="hcr-dim-ef-spark" style="display:flex;align-items:flex-end;gap:1px;margin-top:5px;height:13px;"><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.91);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.93);height:13px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:#5C469C;height:13px;border-radius:1px 1px 0 0;"></div></div>
@@ -1352,7 +1347,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     <span style="font-size:6px;color:var(--accent);font-weight:700;">W13</span>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:4px;border-top:1px solid var(--rule-soft);">
-    <span id="hcr-dim-ef-banda-footer" style="font-size:7px;font-weight:700;color:#7C2D12;">Banda: —</span>
+    <span id="hcr-dim-ef-banda-footer" style="font-size:7px;font-weight:700;color:#7C2D12;">—</span>
     <span style="font-size:7px;color:var(--ink-muted);">T:≥97%</span>
   </div>
 </div><div style="flex:1;min-width:0;padding:10px 12px;background:var(--paper);border:1px solid var(--rule);border-radius:4px;">
@@ -1377,8 +1372,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       <div id="hcr-dim-cv-avg" style="font-size:11px;font-weight:700;color:var(--ink);">81.14%</div>
     </div>
     <div id="hcr-dim-cv-banda-box" style="text-align:center;padding:4px 1px;border-radius:2px;background:#FCE4F1;border:1px solid #C0392B;">
-      <div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#C0392B;">Banda</div>
-      <div id="hcr-dim-cv-banda" style="font-size:9px;font-weight:700;color:#C0392B;line-height:1.2;">—</div>
+            <div id="hcr-dim-cv-banda" style="font-size:9px;font-weight:700;color:#C0392B;line-height:1.2;">—</div>
     </div>
   </div>
   <div id="hcr-dim-cv-spark" style="display:flex;align-items:flex-end;gap:1px;margin-top:5px;height:13px;"><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:14px;border-radius:1px 1px 0 0;"></div><div style="flex:1;background:#5C469C;height:2px;border-radius:1px 1px 0 0;"></div></div>
@@ -1387,7 +1381,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     <span style="font-size:6px;color:var(--accent);font-weight:700;">W13</span>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:5px;padding-top:4px;border-top:1px solid var(--rule-soft);">
-    <span id="hcr-dim-cv-banda-footer" style="font-size:7px;font-weight:700;color:#C0392B;">Banda: —</span>
+    <span id="hcr-dim-cv-banda-footer" style="font-size:7px;font-weight:700;color:#C0392B;">—</span>
     <span style="font-size:7px;color:var(--ink-muted);">T:≥2,5%</span>
   </div>
 </div></div>
@@ -1498,7 +1492,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if(bb){bb.style.background=bc.bg;bb.style.borderColor=bc.fg;bb.style.color=bc.fg;}
     if(bd){bd.textContent=banda;bd.style.color=bc.fg;}
     var bf=document.getElementById(cid+'-banda-footer');
-    if(bf){bf.textContent='Banda: '+banda;bf.style.color=bc.footer;}
+    if(bf){bf.textContent=banda.toUpperCase();bf.style.color=bc.footer;}
     updateSpark(cid,vals,isEf?T_EF:T_CV);
   }
 
@@ -1705,8 +1699,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-op-ef-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#EDE8F7;border:1px solid #5C469C;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#5C469C;">Banda</div>
-      <div id="hist-hcr-op-ef-banda" style="font-size:10px;font-weight:700;color:#5C469C;margin-top:2px;line-height:1.2;">Aceptable</div>
+            <div id="hist-hcr-op-ef-banda" style="font-size:11px;font-weight:700;color:#5C469C;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Aceptable</div>
     </div>
   </div>
 
@@ -1725,7 +1718,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-op-ef-banda-footer" style="font-size:8px;font-weight:700;color:#5C469C;">Banda: Aceptable</span>
+    <span id="hist-hcr-op-ef-banda-footer" style="font-size:8px;font-weight:700;color:#5C469C;">ACEPTABLE</span>
     <span id="hist-hcr-op-ef-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥97%</span>
   </div>
 </div>
@@ -1892,7 +1885,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -2005,8 +1998,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-op-cv-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7C2D12;">Banda</div>
-      <div id="hist-hcr-op-cv-banda" style="font-size:10px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;">Revisar</div>
+            <div id="hist-hcr-op-cv-banda" style="font-size:11px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Revisar</div>
     </div>
   </div>
 
@@ -2025,7 +2017,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-op-cv-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">Banda: Revisar</span>
+    <span id="hist-hcr-op-cv-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">REVISAR</span>
     <span id="hist-hcr-op-cv-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥2.5%</span>
   </div>
 </div>
@@ -2192,7 +2184,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -2607,8 +2599,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-cug-ef-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7C2D12;">Banda</div>
-      <div id="hist-hcr-cug-ef-banda" style="font-size:10px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;">Revisar</div>
+            <div id="hist-hcr-cug-ef-banda" style="font-size:11px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Revisar</div>
     </div>
   </div>
 
@@ -2627,7 +2618,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-cug-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">Banda: Revisar</span>
+    <span id="hist-hcr-cug-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">REVISAR</span>
     <span id="hist-hcr-cug-ef-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥97%</span>
   </div>
 </div>
@@ -2794,7 +2785,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -2907,8 +2898,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-cug-cv-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#EDE8F7;border:1px solid #5C469C;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#5C469C;">Banda</div>
-      <div id="hist-hcr-cug-cv-banda" style="font-size:10px;font-weight:700;color:#5C469C;margin-top:2px;line-height:1.2;">Aceptable</div>
+            <div id="hist-hcr-cug-cv-banda" style="font-size:11px;font-weight:700;color:#5C469C;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Aceptable</div>
     </div>
   </div>
 
@@ -2927,7 +2917,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-cug-cv-banda-footer" style="font-size:8px;font-weight:700;color:#5C469C;">Banda: Aceptable</span>
+    <span id="hist-hcr-cug-cv-banda-footer" style="font-size:8px;font-weight:700;color:#5C469C;">ACEPTABLE</span>
     <span id="hist-hcr-cug-cv-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥2.5%</span>
   </div>
 </div>
@@ -3094,7 +3084,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -3509,8 +3499,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-b2c-ef-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FFEDD5;border:1px solid #F97316;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7C2D12;">Banda</div>
-      <div id="hist-hcr-b2c-ef-banda" style="font-size:10px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;">Revisar</div>
+            <div id="hist-hcr-b2c-ef-banda" style="font-size:11px;font-weight:700;color:#7C2D12;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Revisar</div>
     </div>
   </div>
 
@@ -3529,7 +3518,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-b2c-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">Banda: Revisar</span>
+    <span id="hist-hcr-b2c-ef-banda-footer" style="font-size:8px;font-weight:700;color:#7C2D12;">REVISAR</span>
     <span id="hist-hcr-b2c-ef-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥97%</span>
   </div>
 </div>
@@ -3696,7 +3685,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
@@ -3809,8 +3798,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     </div>
     <div id="hist-hcr-b2c-cv-banda-box"
          style="text-align:center;padding:6px 2px;border-radius:3px;background:#FCE4F1;border:1px solid #C0392B;">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#C0392B;">Banda</div>
-      <div id="hist-hcr-b2c-cv-banda" style="font-size:10px;font-weight:700;color:#C0392B;margin-top:2px;line-height:1.2;">Crítica</div>
+            <div id="hist-hcr-b2c-cv-banda" style="font-size:11px;font-weight:700;color:#C0392B;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">Crítica</div>
     </div>
   </div>
 
@@ -3829,7 +3817,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-b2c-cv-banda-footer" style="font-size:8px;font-weight:700;color:#C0392B;">Banda: Crítica</span>
+    <span id="hist-hcr-b2c-cv-banda-footer" style="font-size:8px;font-weight:700;color:#C0392B;">CRÍTICA</span>
     <span id="hist-hcr-b2c-cv-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥2.5%</span>
   </div>
 </div>
@@ -3996,7 +3984,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) { el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }
+    if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 
