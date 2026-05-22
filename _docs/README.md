@@ -19,7 +19,7 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | Archivo | Genera |
 |---|---|
 | `render_rnd_p1.py` | Masthead + Hero KPI + Alertas globales (RND) → `part1_rnd.html` |
-| `render_rnd_p2.py` | Resumen Ejecutivo + Severity + Análisis por hotel + Dimensión + Plan (RND) → `part2_rnd.html` |
+| `render_rnd_p2.py` | Resumen Ejecutivo + Severity + Análisis por hotel + Dimensión (con módulos históricos) + Plan (RND) → `part2_rnd.html` |
 | `render_rnd_p3.py` | Análisis por Canasta RND (B2B-OP · CUG · B2C) → `part3_rnd.html` |
 | `render_cr_p1.py` | Masthead + Hero KPI Eficacia/ConvRate (CR) → `part1_cr.html` |
 | `render_cr_p2.py` | Resumen Ejecutivo + Alertas + Severity + Análisis por hotel + Dimensión + Plan (CR) → `part2_cr.html` |
