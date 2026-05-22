@@ -194,7 +194,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{b_footer};">Banda: {banda_actual}</span>
+    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{b_footer};">{banda_actual.upper()}</span>
     <span id="hist-{canvas_id}-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: {target_disp}</span>
   </div>
 </div>
