@@ -17,12 +17,12 @@ CR_ACCENT_CONVRATE = '#5C469C'   # violet principal CR
 
 # Colores del sistema D (idénticos a render_helpers.py)
 _BANDA_COLORS = {
-    'Exitosa':        {'bg': '#E8F7FD', 'fg': '#0D7A99', 'bd': '#4FC3F4',  'footer': '#0D7A99'},
-    'Aceptable':      {'bg': '#EDE8F7', 'fg': '#5C469C', 'bd': '#5C469C',  'footer': '#5C469C'},
-    'Revisar':        {'bg': '#FFF4E0', 'fg': '#A86A1D', 'bd': '#D4A878',  'footer': '#A86A1D'},
-    'Crítica':        {'bg': '#FCE4F1', 'fg': '#C0392B', 'bd': '#C0392B',  'footer': '#C0392B'},
-    'Súper Crítica':  {'bg': '#161616', 'fg': '#FFFFFF', 'bd': '#161616',  'footer': '#161616'},
-    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#8A8377', 'bd': '#8A8377',  'footer': '#8A8377'},
+    'Exitosa':        {'bg': '#E1F5EE', 'fg': '#085041', 'bd': '#1D9E75',  'footer': '#085041'},
+    'Aceptable':      {'bg': '#EDE8F7', 'fg': '#3C3489', 'bd': '#5C469C',  'footer': '#3C3489'},
+    'Revisar':        {'bg': '#FFEDD5', 'fg': '#7C2D12', 'bd': '#F97316',  'footer': '#7C2D12'},
+    'Crítica':        {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B',  'footer': '#99162B'},
+    'Súper Crítica':  {'bg': '#A32D2D', 'fg': '#FCEBEB', 'bd': '#791F1F',  'footer': '#FCEBEB'},
+    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377',  'footer': '#5F5E5A'},
 }
 _BANDA_COLORS_JS = {
     k: {'bg': v['bg'], 'fg': v['fg'], 'footer': v['footer']}
