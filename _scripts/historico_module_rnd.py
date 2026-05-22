@@ -25,33 +25,41 @@ _BANDA_COLORS_JS = {
 
 
 def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
-                          hist_vals=None, global_ceil=None):
+                          current_week='W20', hist_vals=None, global_ceil=None):
     """
-    metric_type : 'nodispo' | 'ipm'
-    banda_actual: string banda sistema D
-    val_actual  : float — %NoDispo en [0,1] para nodispo, USD/M para ipm
-    canvas_id   : ID único del canvas (ej: 'hrnd-global-nd', 'hrnd-op-ipm')
-    hist_vals   : lista 7 floats W14-W20 (en % para nodispo, en USD/M para ipm)
-    global_ceil : techo para sparkline (default: 0.60 para nodispo, 3000 para ipm)
+    IMPORTANTE: current_week debe ser la semana ACTUAL, NO la próxima.
+    Ejemplo: Si hoy es W20, pasar 'W20' (no 'W21')
+    El módulo genera 8 semanas: W(N-7) a W(N)
     """
     is_nodispo = metric_type == 'nodispo'
     target     = 0.05  if is_nodispo else 650.0   # < 5% NoDispo | ≥ $650 IPM
     bar_ceil   = global_ceil if global_ceil is not None else (0.60 if is_nodispo else 3000.0)
     accent     = RND_ACCENT if is_nodispo else IPM_ACCENT
 
-    # Datos ficticios W14-W20 por scope
+    # ── Generar semanas dinámicas ───────────────────────────────────────────
+    # Extraer número de week (ej: 'W20' → 20)
+    try:
+        week_num = int(current_week[1:])
+    except:
+        week_num = 20
+    
+    # Generar 8 semanas previas (ej: W20 actual → W13-W20)
+    week_start = week_num - 7
+    semanas = [f'W{week_start + i}' for i in range(8)]  # W13-W20 si current_week='W20'
+
+    # Datos ficticios W(N-7)-W(N)
     _FICTICIOS = {
         'nodispo': {
-            'global': [8.2, 7.8, 8.5, 8.1, 7.9, 8.3, 8.0],
-            'op':     [9.1, 8.8, 9.3, 8.9, 9.0, 9.2, 8.8],
-            'cug':    [6.5, 6.2, 6.8, 6.4, 6.3, 6.6, 6.5],
-            'b2c':    [5.1, 4.9, 5.3, 5.0, 5.2, 5.1, 4.8],
+            'global': [8.2, 7.8, 8.5, 8.1, 7.9, 8.3, 8.0, 7.9],
+            'op':     [9.1, 8.8, 9.3, 8.9, 9.0, 9.2, 8.8, 8.9],
+            'cug':    [6.5, 6.2, 6.8, 6.4, 6.3, 6.6, 6.5, 6.4],
+            'b2c':    [5.1, 4.9, 5.3, 5.0, 5.2, 5.1, 4.8, 5.0],
         },
         'ipm': {
-            'global': [820, 840, 810, 860, 830, 850, 870],
-            'op':     [920, 940, 910, 960, 930, 950, 970],
-            'cug':    [1100, 1120, 1090, 1140, 1110, 1130, 1150],
-            'b2c':    [580, 600, 570, 610, 590, 605, 615],
+            'global': [820, 840, 810, 860, 830, 850, 870, 845],
+            'op':     [920, 940, 910, 960, 930, 950, 970, 955],
+            'cug':    [1100, 1120, 1090, 1140, 1110, 1130, 1150, 1135],
+            'b2c':    [580, 600, 570, 610, 590, 605, 615, 605],
         },
     }
 
@@ -60,25 +68,27 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
         if k in canvas_id:
             scope = k; break
 
-    w14_w20 = hist_vals if hist_vals else _FICTICIOS[metric_type][scope]
+    w13_w20 = hist_vals if hist_vals else _FICTICIOS[metric_type][scope]
 
     # Convertir val_actual a la unidad de display
     # nodispo: val en [0,1] → mostrar en %, hist en %
     # ipm: val ya en USD/M
     if is_nodispo:
-        w21_val      = round(val_actual * 100, 2)
-        vals_default = w14_w20 + [w21_val]   # todo en %
+        w20_val      = round(val_actual * 100, 2)
+        vals_default = [round(v, 2) for v in w13_w20]  # todo en %, 8 valores
+        vals_default[-1] = w20_val  # reemplazar último con valor actual
         fmt_val      = lambda v: f'{v:.2f}%'
         target_disp  = '< 5%'
         unit         = '%'
     else:
-        w21_val      = round(float(val_actual), 1)
-        vals_default = w14_w20 + [w21_val]   # todo en USD/M
+        w20_val      = round(float(val_actual), 1)
+        vals_default = [round(v, 1) for v in w13_w20]  # todo en USD/M, 8 valores
+        vals_default[-1] = w20_val  # reemplazar último con valor actual
         fmt_val      = lambda v: f'${v:,.0f}'
         target_disp  = '≥ $650'
         unit         = ' USD/M'
 
-    semanas = ['W14', 'W15', 'W16', 'W17', 'W18', 'W19', 'W20', 'W21']
+    semanas_list = semanas  # usar semanas generadas dinámicamente
 
     v_min  = min(vals_default); v_max = max(vals_default)
     v_avg  = sum(vals_default) / len(vals_default)
@@ -103,7 +113,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
             alpha  = round(0.20 + 0.75 * ratio, 2)
             bg     = accent if i == 7 else f'rgba({_hex_to_rgb(accent)},{alpha})'
             bars += (f'<div style="flex:1;background:{bg};height:{height}px;'
-                     f'border-radius:1px 1px 0 0;" title="{semanas[i]}: {fmt_val(v)}"></div>')
+                     f'border-radius:1px 1px 0 0;" title="{semanas_list[i]}: {fmt_val(v)}"></div>')
         return bars
 
     def _hex_to_rgb(h):
@@ -120,9 +130,9 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 
     # Serializar para JS
     vals_json        = _json.dumps(vals_default)
-    semanas_json     = _json.dumps(semanas)
+    semanas_json     = _json.dumps(semanas_list)
     banda_colors_js  = _json.dumps(_BANDA_COLORS_JS)
-    base_ratios      = [round(v / (w14_w20[-1] + 0.0001), 6) for v in w14_w20[:6]]
+    base_ratios      = [round(v / (w13_w20[-1] + 0.0001), 6) for v in w13_w20[:7]]
     base_ratios_json = _json.dumps(base_ratios)
 
     # Canvas: para NoDispo invertimos la lectura (target arriba = malo)
@@ -178,8 +188,8 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     <div id="hist-{canvas_id}-spark"
          style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W14</span>
-      <span style="font-size:7px;color:{accent};font-weight:700;">W21</span>
+      <span style="font-size:7px;color:var(--ink-muted);">{semanas[0]}</span>
+      <span style="font-size:7px;color:{accent};font-weight:700;">{semanas[-1]}</span>
     </div>
   </div>
 
@@ -286,7 +296,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     ctx.beginPath(); ctx.moveTo(pL,ty); ctx.lineTo(pL+cw,ty); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = 'rgba(' + ACCENT_RGB + ',0.50)';
-    ctx.font = '7px Geist,sans-serif'; ctx.textAlign = 'left';
+    ctx.font = '8px Geist,sans-serif'; ctx.textAlign = 'left';
     var tLabel = IS_ND ? 'T:5%' : 'T:$650';
     ctx.fillText(tLabel, pL+cw+3, ty+3);
 
@@ -327,10 +337,10 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     }}
 
     // Labels X
-    ctx.font = '7px Geist,sans-serif'; ctx.textAlign = 'center';
+    ctx.font = '8px Geist,sans-serif'; ctx.textAlign = 'center';
     for (var i=0; i<n; i++) {{
       if (i===0 || i===Math.floor(n/2) || i===n-1) {{
-        ctx.fillStyle = i===n-1 ? ACCENT_HEX : 'rgba(100,90,80,0.55)';
+        ctx.fillStyle = i===n-1 ? ACCENT_HEX : 'rgba(100,90,80,0.80)';  // ← 0.80 (más legible)
         ctx.fillText(SEMANAS[i], xOf(i), H-3);
       }}
     }}
