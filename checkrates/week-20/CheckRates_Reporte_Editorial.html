@@ -368,7 +368,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-global-ef-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-global-ef-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -599,8 +599,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -609,6 +612,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -620,6 +624,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -655,7 +664,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-global-cv-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-global-cv-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -886,8 +895,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -896,6 +908,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -907,6 +920,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -1658,7 +1676,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-op-ef-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-op-ef-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -1889,8 +1907,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -1899,6 +1920,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -1910,6 +1932,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -1949,7 +1976,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-op-cv-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-op-cv-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -2180,8 +2207,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -2190,6 +2220,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -2201,6 +2232,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -2542,7 +2578,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-cug-ef-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-cug-ef-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -2773,8 +2809,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -2783,6 +2822,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -2794,6 +2834,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -2833,7 +2878,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-cug-cv-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-cug-cv-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -3064,8 +3109,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -3074,6 +3122,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -3085,6 +3134,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -3426,7 +3480,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-b2c-ef-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-b2c-ef-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -3657,8 +3711,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -3667,6 +3724,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -3678,6 +3736,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
@@ -3717,7 +3780,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hcr-b2c-cv-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-hcr-b2c-cv-label" style="color:var(--accent);font-weight:700;";cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -3948,8 +4011,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     if (!card) return;
 
     card.addEventListener('click', function(e) {
+      var lblEl = e.currentTarget.querySelector('[id$="-label"]');
+      if (lblEl && e.target === lblEl) { resetToGlobal(); return; }
       var row = e.target.closest('[data-hist-w21]');
       if (!row) return;
+      if (row.getAttribute('data-selected') === '1') { resetToGlobal(); return; }
       var w21 = parseFloat(row.getAttribute('data-hist-w21'));
       var w20 = parseFloat(row.getAttribute('data-hist-w20') || w21);
       var lbl = row.getAttribute('data-hist-label') || '';
@@ -3958,6 +4024,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
         r.style.background = '';
       });
+      row.setAttribute('data-selected','1');
       row.style.background = 'var(--accent-soft)';
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
@@ -3969,6 +4036,11 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
   // ── Init ─────────────────────────────────────────────────────────────────
   function init() {
     drawCanvas(VALS_DEF);
+    function resetToGlobal() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background=''; r.removeAttribute('data-selected'); });
+      updateMetrics(VALS_DEF, 'Global');
+      updateSpark(VALS_DEF);
+    }
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
