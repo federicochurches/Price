@@ -31,6 +31,8 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | `template_resumen.py` | `render_resumen_ejecutivo(findings, accent_color, scope, header_title)` |
 | `template_alertas.py` | `render_alertas_block(scope_text, accent, card_h, card_d, card_c)` |
 | `template_severity.py` | `render_severity_block(...)` + `render_severity_2cols(...)` + `LEVELS_*` predefinidos |
+| `historico_module_cr.py` | `render_historico_cr(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para CheckRates (Eficacia + ConvRate) |
+| `historico_module_rnd.py` | `render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para RatesNoDispo (NoDispo + IPM) |
 
 ### Ensamblado y Excel
 | Archivo | Genera |
@@ -47,6 +49,66 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | `build_package.py` | **index.html del hub** + ZIP con estructura completa del repo listo para commit |
 
 ---
+
+---
+
+## 📈 Módulos Históricos · Evolución Semanal (W20+)
+
+Bloque HTML+JS reactivo que muestra la tendencia de 8 semanas de una métrica dentro de cada card KPI.
+
+### Cobertura (8 módulos por reporte)
+
+| Scope | CR (Eficacia + ConvRate) | RND (NoDispo + IPM) |
+|---|---|---|
+| Global | `h-global-ef` · `h-global-cv` | `hrnd-global-nd` · `hrnd-global-ipm` |
+| B2B-OP | `h-op-ef` · `h-op-cv` | `hrnd-op-nd` · `hrnd-op-ipm` |
+| CUG | `h-cug-ef` · `h-cug-cv` | `hrnd-cug-nd` · `hrnd-cug-ipm` |
+| B2C | `h-b2c-ef` · `h-b2c-cv` | `hrnd-b2c-nd` · `hrnd-b2c-ipm` |
+
+### Componentes de cada módulo
+
+- **Canvas** — curva de tendencia con escala LOCAL al elemento, target line, labels X dinámicos
+- **5 métricas** — Actual · Máx 8W · Mín 8W · Prom 8W · Banda
+- **Sparkline** — 8 barras en escala GLOBAL vs target
+- **Interactividad** — click en cualquier fila de la tabla actualiza canvas, métricas y banda
+
+### Uso en render scripts
+
+```python
+from historico_module_cr import render_historico_cr
+
+hist_html = render_historico_cr(
+    metric_type='eficacia',   # 'eficacia' | 'convrate'
+    banda_actual='Exitosa',
+    val_actual=0.9740,        # float [0,1] para eficacia; float % para convrate
+    canvas_id='h-global-ef',
+    current_week='W20'        # ← SIEMPRE la semana actual, nunca la próxima
+)
+```
+
+```python
+from historico_module_rnd import render_historico_rnd
+
+hist_html = render_historico_rnd(
+    metric_type='nodispo',    # 'nodispo' | 'ipm'
+    banda_actual='Revisar',
+    val_actual=0.0820,        # float [0,1] para nodispo; float USD/M para ipm
+    canvas_id='hrnd-global-nd',
+    current_week='W20'        # ← SIEMPRE la semana actual, nunca la próxima
+)
+```
+
+### Regla `current_week` (crítica)
+
+`current_week` genera automáticamente el rango de 8 semanas mostrado:
+
+| Valor | Rango generado | Cuándo usar |
+|---|---|---|
+| `'W20'` | W13 – W20 | Hoy, mientras reportamos W20 |
+| `'W21'` | W14 – W21 | Próximo lunes al generar W21 |
+| `'W22'` | W15 – W22 | Semana siguiente |
+
+**Cambio semanal:** Find & Replace `current_week='WNN'` → `current_week='W(NN+1)'` en `render_cr_p1.py`, `render_cr_p3.py`, `render_rnd_p1.py`, `render_rnd_p3.py` (16 ocurrencias total).
 
 ---
 
