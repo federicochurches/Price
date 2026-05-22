@@ -313,8 +313,10 @@ Contenido del hub:
 
 **Compartido:**
 - Pills Súper Crítica: `background: #A32D2D` · texto `#FCEBEB` (rojo oscuro · no negro opaco)
-- Accent IPM en módulos históricos RND: `#4FC3F4` (Arctic Blue corporativo)
+- Accent IPM en módulos históricos RND: `#4FC3F4` (Arctic Blue corporativo) — único uso de cyan
 - Accent NoDispo en módulos históricos RND: `#EA0074` (magenta)
+- **Exitosa:** `#085041` verde teal en TODO el sistema — barras, pills, gauge, `--green` CSS
+- **Gauge 5 niveles:** todas las barras `height:6px · opacity:1` — uniforme, sin transparencia
 - Fondo bloques tabs: `var(--paper)` = `#FAF7F2`
 - Banner Excel: `--paper-soft` = `#F2EDE0`
 
@@ -817,7 +819,11 @@ Usa exclusivamente variables CSS del sistema (`var(--paper)`, `var(--accent)`, e
 20. **Curva plana en módulo histórico CR** · fixtures con variación insuficiente → Fix: nuevos valores con delta realista entre semanas. Archivo: `historico_module_cr.py`.
 21. **`W14`/`W21` hardcodeados en footer sparkline** · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
 22. **IPM accent `#A86A1D` reemplazado por `#7C2D12`** en fix de paleta global → afectaba `ACCENT_HEX` de módulos IPM en HTML. Fix: reemplazo quirúrgico por `#4FC3F4` solo en contexto IPM.
-23. **No había forma de volver a Global** en módulo histórico tras seleccionar elemento → Fix: label "Global" clickeable + click en fila activa hace toggle/reset. · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
+23. **No había forma de volver a Global** en módulo histórico tras seleccionar elemento → Fix: label "Global" clickeable + click en fila activa hace toggle/reset.
+24. **Módulos históricos clonados sin listeners** — los módulos `hrnd-hotel-nd/ipm` y `hrnd-dim-nd/ipm` eran copias del global generado antes de que se agregaran `hist-update`/`hist-reset`. Fix: listeners inyectados directamente en los 4 módulos del HTML.
+25. **`data-hist-nd="0.0"` en todas las filas** — la extracción de %NoDispo e IPM del HTML renderizado no matcheaba el patrón de spans. Fix: regex actualizado para extraer valores reales de cada fila.
+26. **Exitosa turquesa `#4FC3F4` en severity** — la variable `--green:#4FC3F4` en el CSS head + colores hardcodeados en barras de progreso y pills. Fix: `--green:#085041` + replace de `#4FC3F4` en barras/pills de Exitosa. El cyan queda solo para CUG y IPM accent en RND.
+27. **Gauge grosor inconsistente** — iteraciones con `height:3px/4px/8px` generaban barras desproporcionadas. Fix definitivo: todas las barras `height:6px · opacity:1` — mismo grosor, colores sólidos puros. → Fix: label "Global" clickeable + click en fila activa hace toggle/reset. · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
 
 ---
 ---
@@ -890,4 +896,4 @@ valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 element
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 · Paleta bandas D · IPM cyan · módulo histórico hotel+dim RND · usabilidad reset global · Severity · bugs #72–#75
+**Última actualización:** Mayo 2026 · post W20 sesión 3 · Exitosa verde · gauge sólido · módulo hotel+dim funcional · listeners hist-update · data-hist valores reales · bugs #72–#80
