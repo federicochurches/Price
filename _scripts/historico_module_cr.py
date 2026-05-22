@@ -151,7 +151,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-{canvas_id}-label" style="color:{accent};font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-{canvas_id}-label" style="color:{accent};font-weight:700;">Global</span>
     </span>
   </div>
 
@@ -379,11 +379,9 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     var card = histEl.closest('.kpi-card');
     if (!card) return;
     card.addEventListener('click', function(e) {{
-      if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
       // Detectar dinámicamente: buscar data-hist-w20, data-hist-w19, etc.
       var row = e.target.closest('[data-hist-w20],[data-hist-w21]');
       if (!row) return;
-      if (row.getAttribute('data-selected') === '1') {{ resetToGlobal(); return; }}
       
       // Prioridad: data-hist-w20 (actual W20), fallback a data-hist-w21
       var w_curr = parseFloat(row.getAttribute('data-hist-w20') || row.getAttribute('data-hist-w21'));
@@ -391,8 +389,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       var lbl = row.getAttribute('data-hist-label') || '';
       if (isNaN(w_curr)) return;
       
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
-      row.setAttribute('data-selected','1');
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; }});
       row.style.background = 'var(--accent-soft)';
       var serie = buildSerie(w_curr, isNaN(w_prev) ? w_curr : w_prev);
       drawCanvas(serie);
@@ -403,11 +400,6 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
   // ── Init ──────────────────────────────────────────────────────────────
   function init() {{
     drawCanvas(VALS_DEF);
-    function resetToGlobal() {{
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
-      updateMetrics(VALS_DEF, 'Global');
-      updateSpark(VALS_DEF);
-    }}
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }}
