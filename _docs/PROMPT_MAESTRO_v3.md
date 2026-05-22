@@ -170,6 +170,52 @@ Price/
 
 ---
 
+## 📈 Módulo Histórico · Evolución Semanal (W20+)
+
+Bloque HTML+JS reactivo presente en **8 cards KPI** de cada reporte (2 globales + 6 canastas).
+
+### Archivos
+
+| Archivo | Función |
+|---|---|
+| `historico_module_cr.py` | `render_historico_cr()` · métricas Eficacia + ConvRate |
+| `historico_module_rnd.py` | `render_historico_rnd()` · métricas NoDispo + IPM |
+
+### Canvas IDs
+
+| Scope | CR | RND |
+|---|---|---|
+| Global | `h-global-ef` · `h-global-cv` | `hrnd-global-nd` · `hrnd-global-ipm` |
+| B2B-OP | `h-op-ef` · `h-op-cv` | `hrnd-op-nd` · `hrnd-op-ipm` |
+| CUG | `h-cug-ef` · `h-cug-cv` | `hrnd-cug-nd` · `hrnd-cug-ipm` |
+| B2C | `h-b2c-ef` · `h-b2c-cv` | `hrnd-b2c-nd` · `hrnd-b2c-ipm` |
+
+### Regla crítica: `current_week` = semana ACTUAL (nunca la próxima)
+
+```python
+# ✅ Correcto (hoy es W20)
+render_historico_cr(..., current_week='W20')   # genera W13-W20
+
+# ❌ Incorrecto (W21 aún no existe)
+render_historico_cr(..., current_week='W21')   # genera W14-W21
+```
+
+**Cambio semanal:** Find & Replace `current_week='W20'` → `'W21'` en los 4 render scripts (16 ocurrencias). El módulo genera el rango de 8 semanas automáticamente.
+
+### Componentes del módulo
+
+1. **Canvas** — curva escala LOCAL + target line + labels X dinámicos (W13, W17, W20)
+2. **5 métricas** — Actual · Máx 8W · Mín 8W · Prom 8W · Banda
+3. **Sparkline** — 8 barras escala GLOBAL vs target
+4. **Interactividad** — click en fila actualiza canvas + métricas + banda
+
+### Pendientes
+
+- Integración en secciones Análisis por Hotel y Análisis por Dimensión (CR + RND)
+- Datos históricos reales W14-W20 en pickle (hoy usan ficticios con variación realista)
+
+---
+
 ## ⚠ DECISIONES CONSOLIDADAS · post Week 19
 
 ### 1. Sistema de Bandas D (híbrido · Sin Conversión separada)
@@ -765,9 +811,11 @@ Usa exclusivamente variables CSS del sistema (`var(--paper)`, `var(--accent)`, e
 - Módulo histórico en RND (misma arquitectura)
 - Datos históricos reales W14-W20 cuando estén disponibles en pickle (reemplazar `_FICTICIOS`)
 
----
+19. **Labels canvas ilegibles en módulo histórico CR** · `rgba(100,90,80,0.55)` y `font-size:7px` → Fix: `0.80` y `8px`. Archivo: `historico_module_cr.py`.
+20. **Curva plana en módulo histórico CR** · fixtures con variación insuficiente → Fix: nuevos valores con delta realista entre semanas. Archivo: `historico_module_cr.py`.
+21. **`W14`/`W21` hardcodeados en footer sparkline** · mostraba siempre W14-W21 sin importar `current_week` → Fix: `{semanas[0]}` / `{semanas[-1]}` dinámicos. Aplica en `historico_module_cr.py` y `historico_module_rnd.py`.
 
-**Última actualización:** Mayo 2026 · post W20 · Módulo Histórico CR · 8 cards · interactivo
+---
 ---
 
 ## 📝 Módulo Histórico CR · Evolución Histórica (Mayo 2026 · post W20 · sesión 1)
@@ -838,4 +886,4 @@ valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 element
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 · Módulos Históricos CR + RND completos
+**Última actualización:** Mayo 2026 · post W20 · Fixes módulos históricos CR+RND · bugs #72–#75 · sparkline footer dinámico · regla `current_week`
