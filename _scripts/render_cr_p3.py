@@ -601,25 +601,24 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return rows
 
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
-        """Genera panel: 2 cols explícitas (1-5 izq, 6+ der), header en cada col."""
+        """Genera panel: hasta 100 filas, primeras 10 visibles en kpi-tab-rows (grid 2 cols),
+        filas 11-100 con sb-hidden. El JS colapsa a 1fr al buscar."""
         grid = '1fr 48px 48px 38px'
-        def header_html():
-            return (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
-                    f'</div>')
-        
-        col1_rows = col2_rows = ''
+        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                  f'</div>')
+        rows_html = header
         df_full = df_full.reset_index(drop=True)
+        import math as _mh
         for i, r in df_full.iterrows():
             hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
             sub = clean_corp_name(r.get('CorpName',''))
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             ef_val = r.get('Eficacia', 0)
             cv_val = r.get('ConvRate', 0)
-            import math as _mh
             ef_curr = round(float(ef_val)*100, 4) if ef_val and not _mh.isnan(float(ef_val)) else 0
             ef_prev = ef_curr - float(r.get('Eficacia_WoW_pp', 0) or 0)
             cv_curr = round(float(cv_val)*100, 4) if cv_val and not _mh.isnan(float(cv_val)) else 0
@@ -634,24 +633,16 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else:
                 wow_html = '<em style="font-style:normal;font-size:9px;color:var(--ink-muted);">—</em>'
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            row_html = (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
-                        f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
-                        f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
-                        f' data-hist-label="{hotel_name}"'
-                        f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                        f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
-                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
-                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
-                        f'{wow_html}</div>')
-            if i < 5:
-                col1_rows += row_html
-            else:
-                col2_rows += row_html
-        
-        inner = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
-                 f'<div>{header_html()}{col1_rows}</div>'
-                 f'<div>{header_html()}{col2_rows}</div>'
-                 f'</div>')
+            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
+                          f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
+                          f' data-hist-label="{hotel_name}"'
+                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                          f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
+                          f'{wow_html}</div>')
+        inner = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{inner}</div>'
 
     g_hot_w17 = D.get('g_hotel_w17', None)
@@ -661,9 +652,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         out['Eficacia_WoW_pp'] = (out['Eficacia'] - out['Eficacia_W17']) * 100
         return out
 
-    df_crit_c = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaEficacia'].isin(['Crítica','Súper Crítica']))].sort_values('Eficacia').head(10).reset_index(drop=True))
-    df_br_c   = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
-    df_sc_c   = _add_hotel_wow(p80[p80['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
+    df_crit_c = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaEficacia'].isin(['Crítica','Súper Crítica']))].sort_values('Eficacia').head(100).reset_index(drop=True))
+    df_br_c   = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True))
+    df_sc_c   = _add_hotel_wow(p80[p80['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True))
 
     banda_ef_c = banda_eficacia(c['m18']['eficacia'])
     banda_cv_c = banda_convrate(c['m18']['conv_rate'], c['m18']['bookings'])
@@ -781,8 +772,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     ref_corp = make_ref_canasta_w17('CorpName')
     ref_dest = make_ref_canasta_w17('Destino')
 
-    df_corp_dim = agg_corp.sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True)
-    df_dest_dim = agg_dest.sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True)
+    df_corp_dim = agg_corp.sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
+    df_dest_dim = agg_dest.sort_values('CR_Unicos', ascending=False).head(100).reset_index(drop=True)
 
     # Merge WoW channel con g_channel_w17 global
     g_ch_w17_local = D.get('g_channel_w17', None)

@@ -35,8 +35,14 @@ VOL_NUM_PREV = int(VOL_NUM) - 1
 # ─────────────────────────────────────────────────────────────────────────────
 
 print('Cargando datasets...')
-df18 = load_rnd(f'/mnt/user-data/uploads/Dataset_RatesNoDispo_W{WEEK_NUM}.xlsx', WEEK_NUM)
-df17 = load_rnd(f'/mnt/user-data/uploads/Dataset_RatesNoDispo_W{VOL_NUM_PREV}.xlsx', VOL_NUM_PREV)
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+def _find_rnd(name):
+    for d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
+        p = os.path.join(d, name)
+        if os.path.exists(p): return p
+    raise FileNotFoundError(f'{name} no encontrado')
+df18 = load_rnd(_find_rnd(f'Dataset_RatesNoDispo_W{WEEK_NUM}.xlsx'), WEEK_NUM)
+df17 = load_rnd(_find_rnd(f'Dataset_RatesNoDispo_W{VOL_NUM_PREV}.xlsx'), VOL_NUM_PREV)
 
 # ── Funciones de agregación ───────────────────────────────────────
 def agg_hotel(df):

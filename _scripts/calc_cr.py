@@ -37,8 +37,14 @@ def load_and_clean(path):
     df['ConvRate']  = df['ConvRate'].clip(0)
     return df
 
-df18 = load_and_clean(f'/mnt/project/Dataset_CheckRates_W{WEEK_NUM}.xlsx' if os.path.exists(f'/mnt/project/Dataset_CheckRates_W{WEEK_NUM}.xlsx') else f'/mnt/user-data/uploads/Dataset_CheckRates_W{WEEK_NUM}.xlsx')  # semana actual
-df17 = load_and_clean(f'/mnt/user-data/uploads/Dataset_CheckRates_W{VOL_NUM_PREV}.xlsx')  # semana anterior para WoW
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+def _find(name):
+    for d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
+        p = os.path.join(d, name)
+        if os.path.exists(p): return p
+    raise FileNotFoundError(f'{name} no encontrado')
+df18 = load_and_clean(_find(f'Dataset_CheckRates_W{WEEK_NUM}.xlsx'))  # semana actual
+df17 = load_and_clean(_find(f'Dataset_CheckRates_W{VOL_NUM_PREV}.xlsx'))  # semana anterior para WoW
 
 # ── Agregados W17 para merge WoW en tabs del hero ─────────────────────────
 def _agg_dim_w17(df, col):
@@ -172,11 +178,11 @@ df_mcv_pool = p80_hotel[p80_hotel['Bookings']>0].sort_values('ConvRate').reset_i
 
 TOP = {
     'criticos':       df_crit_pool.head(100).reset_index(drop=True),
-    'criticos_extra': df_crit_pool.iloc[5:10].reset_index(drop=True),
+    'criticos_extra': df_crit_pool.iloc[10:].reset_index(drop=True),
     'bajo_rend':      df_br_pool.head(100).reset_index(drop=True),
-    'bajo_rend_extra':df_br_pool.iloc[5:10].reset_index(drop=True),
+    'bajo_rend_extra':df_br_pool.iloc[10:].reset_index(drop=True),
     'sin_conv':       df_sc_pool.head(100).reset_index(drop=True),
-    'sin_conv_extra': df_sc_pool.iloc[5:10].reset_index(drop=True),
+    'sin_conv_extra': df_sc_pool.iloc[10:].reset_index(drop=True),
     'menor_cv':       df_mcv_pool.head(100).reset_index(drop=True),
     'corps_10':       g_corp.head(100).reset_index(drop=True),
     'destinos':       g_destino.head(100).reset_index(drop=True),
@@ -328,15 +334,15 @@ def canasta_data(cat, short, df18=df18, df17=df17):
         'm18': m18, 'm17': m17,
         'p80': p80_can,
         'sev_ef': sev_ef, 'sev_cv': sev_cv,
-        'top_crit': df_crit.head(5).reset_index(drop=True),
-        'top_crit_extra': df_crit.iloc[5:10].reset_index(drop=True),
-        'top_br':   df_br.head(5).reset_index(drop=True),
-        'top_br_extra':  df_br.iloc[5:10].reset_index(drop=True),
-        'top_sc':   df_sc.head(5).reset_index(drop=True),
-        'top_sc_extra':  df_sc.iloc[5:10].reset_index(drop=True),
-        'top_mcv':  df_mcv.head(10).reset_index(drop=True),
-        'g_corp':   g_corp_can.head(10),
-        'g_dest':   g_dest_can.head(10),
+        'top_crit': df_crit.head(100).reset_index(drop=True),
+        'top_crit_extra': df_crit.iloc[10:].reset_index(drop=True),
+        'top_br':   df_br.head(100).reset_index(drop=True),
+        'top_br_extra':  df_br.iloc[10:].reset_index(drop=True),
+        'top_sc':   df_sc.head(100).reset_index(drop=True),
+        'top_sc_extra':  df_sc.iloc[10:].reset_index(drop=True),
+        'top_mcv':  df_mcv.head(100).reset_index(drop=True),
+        'g_corp':   g_corp_can.head(100),
+        'g_dest':   g_dest_can.head(100),
         'g_chan':   g_chan_can,
         'agg_destino': g_dest_can,
         'agg_corp': g_corp_can,

@@ -49,10 +49,10 @@ with open(PICKLE_RND, 'rb') as f:
 with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
 
-mr   = DR['M']['global_w18']
-mr17 = DR['M']['global_w17']
-mc   = DC['M']['global_w18']
-mc17 = DC['M']['global_w17']
+mr   = DR['M']['global_w20']
+mr17 = DR['M']['global_w19']
+mc   = DC['M']['global_w20']
+mc17 = DC['M']['global_w19']
 
 rnd_pct  = mr['pct_nodispo'] * 100
 rnd_ipm  = mr['ipm']

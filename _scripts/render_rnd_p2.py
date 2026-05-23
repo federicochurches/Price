@@ -716,7 +716,7 @@ def render_bloque_hoteles():
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
     ]
     df_crit_all = p80_hotel[p80_hotel['BandaNoDispo'].isin(['Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
-    df_crit = df_crit_all.head(50).reset_index(drop=True)
+    df_crit = df_crit_all.head(100).reset_index(drop=True)
     df_crit.index = range(len(df_crit))
     panel_crit = _render_panel_top_table(df_crit, cols_crit)
     n_crit_total = len(df_crit_all)
