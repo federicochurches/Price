@@ -1,6 +1,86 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · 23 Mayo 2026 · Sesión 6 · Histórico real W16-W20 + Limpieza legacy + Decisión ventana 5W
+
+### ✨ Histórico real W16-W20 (reemplaza `_FICTICIOS`)
+
+Datos extraídos de pickles `cr_w{16-20}_data.pkl` y `rnd_w{16-20}_data.pkl` generados desde los datasets reales W16-W20.
+
+**Adapter para W16/W17 RND** (estructura distinta a W18+):
+- W16: 4 sheets (`Canasta ALL` + 3 individuales) → usar `Canasta ALL`
+- W17: idem + columna `html` mal nombrada → renombrar a `CorpName`
+- W18-W20: 1 sola sheet `Sheet1` (sin cambios)
+
+**Nuevo módulo:** `_scripts/historico_data.py`
+- `HIST_DATA[reporte][metrica][scope]` con valores W16-W19 hardcoded
+- Función `get_serie(reporte, metrica, scope, val_actual)` agrega W20 dinámicamente
+- Scopes: `global`, `op`, `cug`, `b2c`
+- Métricas: `cr/eficacia`, `cr/convrate`, `rnd/nodispo`, `rnd/ipm`
+
+**Cambios en módulos históricos:**
+- `historico_module_v2.py` (CR): eliminado `_FICTICIOS`, importa `get_serie`
+- `historico_module_rnd.py` (RND): idem
+- Ventana cambiada de 8 semanas (W14-W21) a 5 semanas (W16-W20)
+- `val_actual` ahora es la semana ACTUAL del reporte (W20), no la próxima (W21) — corrección conceptual
+- Labels actualizados: `8W` → `5W` (Máx, Mín, Prom)
+- Footer eje X dinámico (`{semanas[0]}` y `{semanas[-1]}`)
+
+**Datos reales visibles W16-W20:**
+
+| Métrica | W16 | W17 | W18 | W19 | W20 | Tendencia |
+|---|---|---|---|---|---|---|
+| CR Eficacia global | 93.27% | 93.58% | 93.71% | 93.30% | 92.75% | ↘ |
+| CR ConvRate global | 1.29% | 1.15% | 1.02% | 1.14% | 1.19% | V invertida |
+| RND %NoDispo global | 3.69% | 3.63% | 2.84% | 2.31% | 2.81% | ↘ con leve repunte |
+| RND IPM global | $661 | $574 | $524 | $499 | $1.097 | ↗ salto W20 |
+
+**Commit:** `c2c1226`
+
+### 📐 Decisión arquitectónica · Ventana histórica de 5 semanas (Opción A)
+
+Como solo se tienen pickles confiables W16-W20, **se decide mantener una ventana de 5 semanas reales** en lugar de completar a 8 con ficticios marcados.
+
+**Razonamiento:**
+1. El reporte es para Supply Optimization (equipo decisor) — datos ficticios en gráficos de decisión = riesgo de pérdida de credibilidad
+2. 5 semanas son suficientes para detectar tendencias (mejoras sostenidas, saltos, V invertidas)
+3. Es temporal: en ~3 semanas (W23) la ventana llegará naturalmente a 8 semanas reales
+4. Eliminar `_FICTICIOS` fue trabajo intencional — no volver atrás
+
+**Plan de evolución de la ventana:**
+- **W21**: agregar W21 al pickle → editar `historico_data.HIST_DATA` agregando el valor W20 a cada scope (W20 deja de venir dinámicamente del render porque pasa a ser histórico) y renombrar `SEMANAS` a `['W16', 'W17', 'W18', 'W19', 'W20', 'W21']` (6 semanas)
+- **W22**: mismo patrón (7 semanas)
+- **W23**: alcanza 8 semanas reales → fijar `len(SEMANAS)=8` permanente, ventana móvil descartando la semana más antigua
+
+**Util pendiente para próxima sesión (no urgente):**
+- Script `extract_hist_data.py` que tome los pickles W16-W{N} y regenere `historico_data.py` automáticamente. Hoy se actualiza a mano.
+
+### 🧹 Limpieza legacy: `_scripts/{lib,snippets,templates}/`
+
+Eliminados los últimos archivos del pipeline anterior (no usados por código vivo):
+
+| Eliminado | Archivos | Razón |
+|---|---|---|
+| `_scripts/lib/` | 5 archivos (.py) | Pipeline actual está en `_scripts/*.py` directos |
+| `_scripts/snippets/` | 4 archivos (.html) | Duplicados exactos de raíz |
+| `_scripts/snippet_*.html` (raíz) | 4 archivos | 0 referencias en código vivo |
+| `_scripts/templates/mail_template.html` | 1 archivo | Reemplazado por `render_mail_v3.py` |
+
+Total: **-14 archivos, -1522 líneas**. Estado final `_scripts/`: 44 archivos.
+
+**Commit:** `abc031a`
+
+### 📦 ZIP del proyecto Claude · `proyecto_claude_W20.zip`
+
+Empaquetado limpio para reemplazar el contenido del proyecto en claude.ai (259 KB, 51 archivos):
+- `_docs/` (7 .md): PROMPT_MAESTRO, README, CHANGELOG, BANDAS, COMMIT_GUIDE, AREAS_ACCOUNTABLE, INVENTARIO
+- `_scripts/` (43 archivos): pipeline completo + assets HTML
+- `destinatarios.md`: BCC del mail semanal
+
+Sin HTMLs generados, sin pickles, sin datasets, sin pycache.
+
+---
+
 ## Week 20 · 23 Mayo 2026 · Sesión 5 · Tab Críticos RND + Searchbox cobertura completa
 
 ### ✨ Feature 1 · 4ª óptica "Críticos" en Análisis por hotel RND

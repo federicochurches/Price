@@ -180,29 +180,34 @@ Bloque HTML+JS reactivo presente en **8 cards KPI** de cada reporte (2 globales 
 | CUG | `h-cug-ef` · `h-cug-cv` | `hrnd-cug-nd` · `hrnd-cug-ipm` |
 | B2C | `h-b2c-ef` · `h-b2c-cv` | `hrnd-b2c-nd` · `hrnd-b2c-ipm` |
 
-### Regla crítica: `current_week` = semana ACTUAL (nunca la próxima)
+### Ventana histórica: 5 semanas reales (post W20 sesión 6)
 
-```python
-# ✅ Correcto (hoy es W20)
-render_historico_cr(..., current_week='W20')   # genera W13-W20
+Los datos históricos viven en `_scripts/historico_data.py` con valores reales W16-W20 extraídos de los pickles. El parámetro `current_week` de los módulos ya no se usa (deprecated): la ventana viene fija desde `SEMANAS = ['W16', 'W17', 'W18', 'W19', 'W20']`.
 
-# ❌ Incorrecto (W21 aún no existe)
-render_historico_cr(..., current_week='W21')   # genera W14-W21
-```
+**val_actual ahora es la semana ACTUAL** del reporte (W20), no la próxima. El módulo agrega ese valor al final de la serie histórica automáticamente.
 
-**Cambio semanal:** Find & Replace `current_week='W20'` → `'W21'` en los 4 render scripts (16 ocurrencias). El módulo genera el rango de 8 semanas automáticamente.
+**Plan de extensión a 8 semanas reales** (~3 semanas):
+
+| Semana actual | Acción | Ventana |
+|---|---|---|
+| W21 | Editar `HIST_DATA` agregando valor W20 + renombrar `SEMANAS` | 6 semanas |
+| W22 | Idem agregando W21 | 7 semanas |
+| W23 | Idem agregando W22 → **alcanza 8 reales** · fijar como ventana móvil | 8 semanas |
+| W24+ | Ventana móvil: descartar la más antigua + agregar la nueva | 8 reales |
+
+**Util pendiente:** `extract_hist_data.py` para automatizar el append desde los pickles.
 
 ### Componentes del módulo
 
-1. **Canvas** — curva escala LOCAL + target line + labels X dinámicos (W13, W17, W20)
-2. **5 métricas** — Actual · Máx 8W · Mín 8W · Prom 8W · Banda
-3. **Sparkline** — 8 barras escala GLOBAL vs target
+1. **Canvas** — curva escala LOCAL + target line + labels X dinámicos ({semanas[0]}, {semanas[-1]})
+2. **5 métricas** — Actual · Máx 5W · Mín 5W · Prom 5W · Banda
+3. **Sparkline** — N barras (= len(SEMANAS)) escala GLOBAL vs target
 4. **Interactividad** — click en fila actualiza canvas + métricas + banda
 
 ### Pendientes
 
-- Módulo histórico en secciones Análisis por Hotel y Dimensión en **CR** (RND ya implementado W20)
-- Datos históricos reales W14-W20 en pickle (hoy usan ficticios con variación realista)
+- Util `extract_hist_data.py` para automatizar la actualización semanal del histórico
+- Cuando llegue W23: revisión visual de la curva con 8 semanas reales
 
 ---
 
@@ -1059,4 +1064,74 @@ Auditoría completa con playwright:
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 sesión 5 · Tab Críticos RND + Searchbox completo
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión 6 · Histórico real W16-W20 + Limpieza legacy)
+
+### Histórico real W16-W20 reemplaza `_FICTICIOS`
+
+Generados pickles W16-W20 desde datasets reales y extraídos KPIs globales a `_scripts/historico_data.py`.
+
+**Adapter para W16/W17 RND** (estructura distinta):
+- W16/W17: 4 sheets (`Canasta ALL` + B2C + OP + UOP) → usar `Canasta ALL`
+- W17 bug: columna `html` mal nombrada → renombrar a `CorpName`
+- W18+: 1 sheet `Sheet1`
+
+**Nuevo módulo `historico_data.py`:**
+```python
+HIST_DATA = {
+    'cr':  {'eficacia':{...}, 'convrate':{...}},
+    'rnd': {'nodispo':{...},  'ipm':{...}}
+}
+SEMANAS = ['W16', 'W17', 'W18', 'W19', 'W20']
+
+def get_serie(reporte, metrica, scope, val_actual):
+    """Devuelve serie [W16..val_actual] desde HIST_DATA + W{current}."""
+```
+
+**Cambios en módulos históricos:**
+- `historico_module_v2.py` (CR) y `historico_module_rnd.py` (RND): eliminado dict `_FICTICIOS`, importan `get_serie` y `SEMANAS`
+- Ventana: 8 semanas (W14-W21) → **5 semanas reales (W16-W20)**
+- Cambio conceptual: `val_actual` es la semana ACTUAL del reporte, NO la próxima
+- Labels: `8W` → `5W` (Máx, Mín, Prom)
+- Footer eje X dinámico: `{semanas[0]}` / `{semanas[-1]}`
+
+**Decisión: ventana de 5 semanas reales (Opción A)** — datos auditables > más puntos. Plan de evolución natural a 8 reales en ~3 semanas (W23).
+
+### Limpieza legacy: `_scripts/{lib,snippets,templates}/` (-1522 líneas)
+
+Eliminados archivos del pipeline anterior no usados por código vivo:
+- `_scripts/lib/` (5 archivos) · `_scripts/snippets/` (4 duplicados) · `_scripts/snippet_*.html` (4 en raíz) · `_scripts/templates/mail_template.html`
+
+Estado final `_scripts/`: **44 archivos** (antes 58).
+
+### ZIP del proyecto Claude · `proyecto_claude_W20.zip`
+
+Empaquetado limpio para reemplazar el proyecto en claude.ai:
+- 259 KB · 51 archivos
+- `_docs/` (7 .md) + `_scripts/` (43) + `destinatarios.md`
+- Sin HTMLs generados, sin pickles, sin datasets, sin __pycache__
+
+### Datos reales W16-W20 visibles
+
+| Métrica | W16 | W17 | W18 | W19 | W20 |
+|---|---|---|---|---|---|
+| CR Eficacia global | 93.27% | 93.58% | 93.71% | 93.30% | 92.75% |
+| CR ConvRate global | 1.29% | 1.15% | 1.02% | 1.14% | 1.19% |
+| RND %NoDispo global | 3.69% | 3.63% | 2.84% | 2.31% | 2.81% |
+| RND IPM global | $661 | $574 | $524 | $499 | $1.097 |
+
+### Commits sesión 6
+
+- `c2c1226` · feat(w20s6): histórico real W16-W20 reemplaza `_FICTICIOS`
+- `abc031a` · refactor(w20s6): eliminar legacy `_scripts/{lib,snippets,templates}/`
+
+### Pendientes
+
+- Util `extract_hist_data.py` para automatizar la actualización del histórico
+- Auditar el salto IPM W19→W20 ($499→$1097) — ¿real o ruido?
+- Revocar PAT GitHub al final de las sesiones
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesión 6 · Histórico real W16-W20 + ventana 5W + cleanup legacy

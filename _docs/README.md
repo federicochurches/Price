@@ -124,17 +124,33 @@ hist_section_rnd = render_historico_seccion_rnd(
 
 Los módulos escuchan eventos `hist-update` y `hist-reset` disparados por el wrapper externo cuando el usuario clickea una fila con atributos `data-hist-*`.
 
-### Regla `current_week` (crítica)
+### Ventana histórica · 5 semanas reales (post W20 sesión 6)
 
-`current_week` genera automáticamente el rango de 8 semanas mostrado:
+Los módulos históricos usan una **ventana fija de 5 semanas reales** definida en `_scripts/historico_data.py`:
 
-| Valor | Rango generado | Cuándo usar |
+```python
+SEMANAS = ['W16', 'W17', 'W18', 'W19', 'W20']  # ventana actual
+```
+
+**Decisión de diseño:** se prefirió 5 semanas reales antes que 8 con ficticios marcados. Razón: datos auditables en un reporte de decisión > más puntos en la curva.
+
+**Plan de evolución (cómo extender la ventana cuando lleguen W21+):**
+
+| Semana actual | Acción | Ventana final |
 |---|---|---|
-| `'W20'` | W13 – W20 | Hoy, mientras reportamos W20 |
-| `'W21'` | W14 – W21 | Próximo lunes al generar W21 |
-| `'W22'` | W15 – W22 | Semana siguiente |
+| **W21** (próxima) | Editar `historico_data.HIST_DATA`: agregar valor W20 a cada array, renombrar `SEMANAS` a `[W16..W21]` | 6 semanas |
+| **W22** | Idem · agregar W21 a HIST_DATA · SEMANAS = `[W16..W22]` | 7 semanas |
+| **W23** | Idem · agregar W22 · SEMANAS = `[W16..W23]` | **8 semanas reales** |
+| **W24+** | Ventana móvil de 8: descartar la semana más antigua y agregar la nueva | 8 semanas reales |
 
-**Cambio semanal:** Find & Replace `current_week='WNN'` → `current_week='W(NN+1)'` en `render_cr_p1.py`, `render_cr_p3.py`, `render_rnd_p1.py`, `render_rnd_p3.py` (16 ocurrencias total).
+**Para extraer los datos de cada semana nueva**, ejecutar `calc_cr.py` y `calc_rnd.py` con la semana correspondiente y leer del pickle:
+- CR: `M['global_w{N}']['eficacia']` y `['conv_rate']` (multiplicar por 100)
+- RND: `M['global_w{N}']['pct_nodispo']` (multiplicar por 100) y calcular IPM = `gb_usd / trafico * 1M`
+- Repetir para canastas: `M['B2B (OP)_w{N}']`, `M['CUG (UOP)_w{N}']`, `M['B2C_w{N}']`
+
+**Util pendiente** (no urgente): `extract_hist_data.py` que automatice este append leyendo todos los pickles W16-W{current}.
+
+**val_actual conceptual:** desde sesión 6, `val_actual` que reciben los módulos históricos es el valor de la **semana ACTUAL** del reporte (no la próxima). El módulo lo agrega como último punto de la serie automáticamente.
 
 **Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — colores sólidos puros, grosor uniforme. La banda activa se identifica por la pill encima, no por el gauge.
 
