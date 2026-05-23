@@ -111,7 +111,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-rpm-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
 #tab-rpm-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
 #tab-rpm-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
-#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;}
+#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block;}
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 .tab-panel div:has(> strong + span):not([style*="display:grid"]):not([style*="display: grid"]){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
@@ -480,5 +480,23 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
   else autoAttach();
 })();
+
+/* Limpiar searchbox y resetear filas al cambiar de pestaña */
+(function(){
+  document.addEventListener('change', function(e) {
+    var inp = e.target;
+    if (inp.type !== 'radio' || inp.style.display === '') return;
+    // Buscar el searchbox hermano (dentro del mismo kpi-card o tabs-block)
+    var card = inp.closest('.kpi-card, .tabs-block, details');
+    if (!card) return;
+    var sbs = card.querySelectorAll('input.sb-input');
+    sbs.forEach(function(sb) {
+      if (sb.value.trim() === '') return;
+      sb.value = '';
+      sb.dispatchEvent(new Event('input'));
+    });
+  });
+})();
+
 </script>
 </head>

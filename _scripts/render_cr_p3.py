@@ -58,7 +58,12 @@ def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, ba
 (function() {{
   var section = document.getElementById('hist-{canvas_id_ef}-container');
   if (!section) return;
-  var parent = section.closest('section,details') || document.body;
+  // Subir hasta el bloque canasta-*-hotel o canasta-*-dim, luego section o details
+  var parent = section.parentElement;
+  while (parent && !parent.id?.match(/^canasta-.*-(hotel|dim)-/) && parent.tagName !== 'SECTION' && parent.tagName !== 'DETAILS' && parent !== document.body) {{
+    parent = parent.parentElement;
+  }}
+  if (!parent) parent = document.body;
   function resetToGlobal() {{
     parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
       r.style.background = ''; r.removeAttribute('data-selected-hist');
@@ -69,7 +74,7 @@ def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, ba
   parent.addEventListener('click', function(e) {{
     var row = e.target.closest('[data-hist-w21]');
     if (!row) return;
-    if (e.target.closest('.kpi-card')) return;
+    if (e.target.closest('[id^="hist-"]')) return;
     if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
     var ef_curr = parseFloat(row.getAttribute('data-hist-w21'));
     var ef_prev = parseFloat(row.getAttribute('data-hist-w20') || ef_curr);
@@ -390,11 +395,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
         sb_id = f'sb-kpi-{card_id}'
         panels_id = f'kpi-{card_id}-panels'
-        return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+        return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
 <div>{pill_with_target}</div>
 </div>
 {gauge}
@@ -596,10 +601,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return rows
 
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
-        """Genera panel de tab: top 100, 10 visibles, resto sb-hidden, grid 2 cols."""
-        rows_html = ''
-        # Panel interno CR usa panel_inner_cr que renderiza lista de filas
-        # Reemplazamos por render directo con data-row-idx y sb-hidden
+        """Genera panel: 2 cols explícitas (1-5 izq, 6+ der), header en cada col."""
+        grid = '1fr 48px 48px 38px'
+        def header_html():
+            return (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                    f'</div>')
+        
+        col1_rows = col2_rows = ''
         df_full = df_full.reset_index(drop=True)
         for i, r in df_full.iterrows():
             hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
@@ -621,24 +633,25 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wow_html = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};">{arrow}{abs(wow_v):.1f}</em>'.replace('.',',')
             else:
                 wow_html = '<em style="font-style:normal;font-size:9px;color:var(--ink-muted);">—</em>'
-            grid = '1fr 48px 48px 38px'
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
-                          f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
-                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
-                          f' data-hist-label="{hotel_name}"'
-                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                          f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
-                          f'{wow_html}</div>')
-        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
-                  f'</div>')
-        inner = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{header}{rows_html}</div>'
+            row_html = (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
+                        f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                        f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
+                        f' data-hist-label="{hotel_name}"'
+                        f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
+                        f'{wow_html}</div>')
+            if i < 5:
+                col1_rows += row_html
+            else:
+                col2_rows += row_html
+        
+        inner = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
+                 f'<div>{header_html()}{col1_rows}</div>'
+                 f'<div>{header_html()}{col2_rows}</div>'
+                 f'</div>')
         return f'<div class="tab-panel-c" data-tab="{t_key}">{inner}</div>'
 
     g_hot_w17 = D.get('g_hotel_w17', None)

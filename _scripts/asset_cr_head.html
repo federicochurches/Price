@@ -511,5 +511,23 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
   else autoAttach();
 })();
+
+/* Limpiar searchbox y resetear filas al cambiar de pestaña */
+(function(){
+  document.addEventListener('change', function(e) {
+    var inp = e.target;
+    if (inp.type !== 'radio' || inp.style.display === '') return;
+    // Buscar el searchbox hermano (dentro del mismo kpi-card o tabs-block)
+    var card = inp.closest('.kpi-card, .tabs-block, details');
+    if (!card) return;
+    var sbs = card.querySelectorAll('input.sb-input');
+    sbs.forEach(function(sb) {
+      if (sb.value.trim() === '') return;
+      sb.value = '';
+      sb.dispatchEvent(new Event('input'));
+    });
+  });
+})();
+
 </script>
 </head>

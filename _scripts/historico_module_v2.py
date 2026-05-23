@@ -99,7 +99,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-{canvas_id}-label" style="color:var(--accent);font-weight:700;">Global</span>
+      <span id="hist-{canvas_id}-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
     </span>
   </div>
 

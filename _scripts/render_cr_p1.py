@@ -228,7 +228,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             hidden_cls = ' sb-hidden' if i >= 10 else ''
             rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                           f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                          f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--accent);">{i+1}. {lab}</span>'
                           f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
                           f'{wow_pill}</div>')
         # Layout 2 cols con grid auto-fill: CSS column-count para las visibles
@@ -238,7 +238,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-corp" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-hotel" name="tabs-ef" style="display:none;" type="radio"/>
@@ -247,7 +247,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
-<div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
+<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
 <div>{pill_with_target}</div>
 </div>
 </div>
@@ -362,7 +362,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             hidden_cls = ' sb-hidden' if i >= 10 else ''
             rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                           f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                          f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--accent);">{i+1}. {lab}</span>'
                           f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
                           f'{wow_pill}</div>')
         if t_key not in ('channel', 'canasta'):
@@ -371,7 +371,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-cv-destino" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-corp" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-hotel" name="tabs-cv" style="display:none;" type="radio"/>
@@ -380,7 +380,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
-<div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
+<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
 <div>{pill_with_target}</div>
 </div>
 </div>

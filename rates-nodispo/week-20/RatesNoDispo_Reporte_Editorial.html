@@ -113,7 +113,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-rpm-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
 #tab-rpm-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
 #tab-rpm-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
-#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;}
+#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block;}
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
 .tab-panel div:has(> strong + span):not([style*="display:grid"]):not([style*="display: grid"]){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
@@ -482,6 +482,24 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
   else autoAttach();
 })();
+
+/* Limpiar searchbox y resetear filas al cambiar de pestaña */
+(function(){
+  document.addEventListener('change', function(e) {
+    var inp = e.target;
+    if (inp.type !== 'radio' || inp.style.display === '') return;
+    // Buscar el searchbox hermano (dentro del mismo kpi-card o tabs-block)
+    var card = inp.closest('.kpi-card, .tabs-block, details');
+    if (!card) return;
+    var sbs = card.querySelectorAll('input.sb-input');
+    sbs.forEach(function(sb) {
+      if (sb.value.trim() === '') return;
+      sb.value = '';
+      sb.dispatchEvent(new Event('input'));
+    });
+  });
+})();
+
 </script>
 </head>
 <body>
@@ -512,7 +530,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;"><strong style="color:#EA0074;font-weight:700;">9,5B</span> Tráfico · <strong style="color:#EA0074;font-weight:700;">19.456</span> hoteles · <strong style="color:#EA0074;font-weight:700;">44.375</span> Bookings · <strong style="color:#EA0074;font-weight:700;">10.429.456,03</span> GB · <strong style="color:#EA0074;font-weight:700;">19.456</span> hoteles P80.</p>
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-nd-pais" name="tabs-nd" style="display:none;" type="radio"/>
 <input id="tab-nd-destino" name="tabs-nd" style="display:none;" type="radio"/>
 <input id="tab-nd-corp" name="tabs-nd" style="display:none;" type="radio"/>
@@ -521,7 +539,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
-<div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">2,81%</div>
+<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">2,81%</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#E1F5EE;color:#085041;border:1px solid #1D9E75;white-space:nowrap;">EXITOSA<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target &lt; 3%</span></span></div>
 </div>
 </div>
@@ -537,7 +555,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-global-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-global-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -900,7 +918,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 })();
 </script>
 </div>
-<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-rpm-pais" name="tabs-rpm" style="display:none;" type="radio"/>
 <input id="tab-rpm-destino" name="tabs-rpm" style="display:none;" type="radio"/>
 <input id="tab-rpm-corp" name="tabs-rpm" style="display:none;" type="radio"/>
@@ -909,7 +927,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
-<div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.194,46</div>
+<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.194,46</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#E1F5EE;color:#085041;border:1px solid #1D9E75;white-space:nowrap;">EXITOSA<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target ≥ $650</span></span></div>
 </div>
 </div>
@@ -925,7 +943,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-global-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-global-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -1402,7 +1420,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-hotel-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-hotel-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -1771,7 +1789,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-hotel-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-hotel-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -2219,7 +2237,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-dim-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-dim-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -2588,7 +2606,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-dim-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-dim-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -3151,11 +3169,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <span class="toggle-arrow"><span class="label"></span><span class="icon"></span></span>
 </summary>
 <div class="canasta-content">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-op-nd" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-op-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-op-nd-pais" data-tab="pais" name="tabs-op-nd" style="display:none;" type="radio"/><input id="tab-op-nd-destino" data-tab="destino" name="tabs-op-nd" style="display:none;" type="radio"/><input id="tab-op-nd-corp" data-tab="corp" name="tabs-op-nd" style="display:none;" type="radio"/><input id="tab-op-nd-hotel" data-tab="hotel" name="tabs-op-nd" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">2,19%</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">2,19%</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#E1F5EE;color:#085041;border:1px solid #1D9E75;white-space:nowrap;">EXITOSA<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target &lt; 3%</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#161616;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;"></div><div style="flex:1;background:#085041;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div></div>
@@ -3183,7 +3201,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -3567,11 +3585,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if(first) activate(first);
 })();
 </script>
-</div><div class="kpi-card" id="kpi-op-rpm" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+</div><div class="kpi-card" id="kpi-op-rpm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-op-rpm-pais" data-tab="pais" name="tabs-op-rpm" style="display:none;" type="radio"/><input id="tab-op-rpm-destino" data-tab="destino" name="tabs-op-rpm" style="display:none;" type="radio"/><input id="tab-op-rpm-corp" data-tab="corp" name="tabs-op-rpm" style="display:none;" type="radio"/><input id="tab-op-rpm-hotel" data-tab="hotel" name="tabs-op-rpm" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM · Income Per Million USD</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.171,71</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.171,71</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#E1F5EE;color:#085041;border:1px solid #1D9E75;white-space:nowrap;">EXITOSA<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target ≥ $650</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#8A8377;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;"></div><div style="flex:1;background:#085041;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div></div>
@@ -3599,7 +3617,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-rpm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-rpm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -4211,7 +4229,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-hotel-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-hotel-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -4579,7 +4597,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-hotel-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-hotel-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -5000,7 +5018,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-dim-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-dim-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -5368,7 +5386,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-op-dim-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-op-dim-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -5820,11 +5838,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <span class="toggle-arrow"><span class="label"></span><span class="icon"></span></span>
 </summary>
 <div class="canasta-content">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-cug-nd" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-cug-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-cug-nd-pais" data-tab="pais" name="tabs-cug-nd" style="display:none;" type="radio"/><input id="tab-cug-nd-destino" data-tab="destino" name="tabs-cug-nd" style="display:none;" type="radio"/><input id="tab-cug-nd-corp" data-tab="corp" name="tabs-cug-nd" style="display:none;" type="radio"/><input id="tab-cug-nd-hotel" data-tab="hotel" name="tabs-cug-nd" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">3,55%</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">3,55%</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#EDE8F7;color:#3C3489;border:1px solid #5C469C;white-space:nowrap;">ACEPTABLE<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target &lt; 3%</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#161616;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div><div style="flex:1;background:#085041;height:6px;opacity:1;"></div></div>
@@ -5852,7 +5870,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -6236,11 +6254,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if(first) activate(first);
 })();
 </script>
-</div><div class="kpi-card" id="kpi-cug-rpm" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+</div><div class="kpi-card" id="kpi-cug-rpm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-cug-rpm-pais" data-tab="pais" name="tabs-cug-rpm" style="display:none;" type="radio"/><input id="tab-cug-rpm-destino" data-tab="destino" name="tabs-cug-rpm" style="display:none;" type="radio"/><input id="tab-cug-rpm-corp" data-tab="corp" name="tabs-cug-rpm" style="display:none;" type="radio"/><input id="tab-cug-rpm-hotel" data-tab="hotel" name="tabs-cug-rpm" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM · Income Per Million USD</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.692,08</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$1.692,08</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#E1F5EE;color:#085041;border:1px solid #1D9E75;white-space:nowrap;">EXITOSA<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target ≥ $650</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#8A8377;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;"></div><div style="flex:1;background:#085041;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div></div>
@@ -6268,7 +6286,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-rpm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-rpm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -6880,7 +6898,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-hotel-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-hotel-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -7248,7 +7266,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-hotel-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-hotel-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -7669,7 +7687,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-dim-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-dim-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -8037,7 +8055,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-cug-dim-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-cug-dim-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -8489,11 +8507,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <span class="toggle-arrow"><span class="label"></span><span class="icon"></span></span>
 </summary>
 <div class="canasta-content">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-b2c-nd" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;"><div class="kpi-card" id="kpi-b2c-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-b2c-nd-pais" data-tab="pais" name="tabs-b2c-nd" style="display:none;" type="radio"/><input id="tab-b2c-nd-destino" data-tab="destino" name="tabs-b2c-nd" style="display:none;" type="radio"/><input id="tab-b2c-nd-corp" data-tab="corp" name="tabs-b2c-nd" style="display:none;" type="radio"/><input id="tab-b2c-nd-hotel" data-tab="hotel" name="tabs-b2c-nd" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">3,39%</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">3,39%</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#EDE8F7;color:#3C3489;border:1px solid #5C469C;white-space:nowrap;">ACEPTABLE<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target &lt; 3%</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#161616;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div><div style="flex:1;background:#085041;height:6px;opacity:1;"></div></div>
@@ -8521,7 +8539,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -8905,11 +8923,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if(first) activate(first);
 })();
 </script>
-</div><div class="kpi-card" id="kpi-b2c-rpm" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
+</div><div class="kpi-card" id="kpi-b2c-rpm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked id="tab-b2c-rpm-pais" data-tab="pais" name="tabs-b2c-rpm" style="display:none;" type="radio"/><input id="tab-b2c-rpm-destino" data-tab="destino" name="tabs-b2c-rpm" style="display:none;" type="radio"/><input id="tab-b2c-rpm-corp" data-tab="corp" name="tabs-b2c-rpm" style="display:none;" type="radio"/><input id="tab-b2c-rpm-hotel" data-tab="hotel" name="tabs-b2c-rpm" style="display:none;" type="radio"/>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM · Income Per Million USD</div>
 <div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$343,24</div>
+<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">$343,24</div>
 <div><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;background:#FFEDD5;color:#7C2D12;border:1px solid #F97316;white-space:nowrap;">REVISAR<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">· Target ≥ $650</span></span></div>
 </div>
 <div style="display:flex;gap:2px;margin-top:10px;"><div style="flex:1;background:#8A8377;height:6px;opacity:1;"></div><div style="flex:1;background:#C0392B;height:6px;opacity:1;"></div><div style="flex:1;background:#D4A878;height:6px;opacity:1;border-bottom:2px solid var(--ink);"></div><div style="flex:1;background:#5C469C;height:6px;opacity:1;"></div><div style="flex:1;background:#085041;height:6px;opacity:1;"></div></div>
@@ -8937,7 +8955,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-rpm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-rpm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -9549,7 +9567,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-hotel-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-hotel-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -9917,7 +9935,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-hotel-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-hotel-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -10338,7 +10356,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-dim-nd-label" style="color:#EA0074;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-dim-nd-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
@@ -10706,7 +10724,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica ·
-      <span id="hist-hrnd-b2c-dim-ipm-label" style="color:#4FC3F4;font-weight:700;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
+      <span id="hist-hrnd-b2c-dim-ipm-label" style="color:var(--ink-muted);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;" title="Ver datos globales">Global</span>
     </span>
   </div>
 
