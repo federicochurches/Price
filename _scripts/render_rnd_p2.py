@@ -708,10 +708,26 @@ def render_bloque_hoteles():
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     kicker_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de IPM.'
     
+    # Críticos: hoteles con BandaNoDispo en Crítica o Súper Crítica (>20% NoDispo)
+    cols_crit = [
+        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'trafico','label':'Tráfico','width':'80px','fmt':lambda r:fmt_big(r['Trafico'])},
+        {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
+    ]
+    df_crit_all = p80_hotel[p80_hotel['BandaNoDispo'].isin(['Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
+    df_crit = df_crit_all.head(50).reset_index(drop=True)
+    df_crit.index = range(len(df_crit))
+    panel_crit = _render_panel_top_table(df_crit, cols_crit)
+    n_crit_total = len(df_crit_all)
+    n_supcrit = (p80_hotel['BandaNoDispo'] == 'Súper Crítica').sum()
+    kicker_crit = f'{fmt_int_es(n_crit_total)} hoteles del P80 con %NoDispo &gt; 20% (banda Crítica+). De estos, <strong>{n_supcrit} son Súper Críticos</strong> (&gt; 60%) — primer foco de escalamiento inmediato a Supply.'
+    
     panels = (
         f'<div class="tab-panel" data-tab="dnc"><p class="tab-kicker">{kicker_dnc}</p>{panel_dnc}</div>'
         f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{kicker_br}</p>{panel_br}</div>'
         f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{kicker_sc}</p>{panel_sc}</div>'
+        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{kicker_crit}</p>{panel_crit}</div>'
     )
     
     hist_hotel = render_historico_seccion_rnd(
@@ -729,7 +745,7 @@ def render_bloque_hoteles():
 <div>
 <div class="section-num">Sección 03</div>
 <h2 class="section-title">🏨 Análisis por hotel</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · 3 ópticas analíticas</span>
+<span class="section-subtitle" style="color:#EA0074">Top 10 · 4 ópticas analíticas</span>
 <p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
 </div>
 </div>
@@ -738,10 +754,12 @@ def render_bloque_hoteles():
 <input checked id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <div class="tabs-row">
 <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
+<label class="tab-label" for="tab-h-crit">Críticos</label>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
