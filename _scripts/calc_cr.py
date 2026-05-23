@@ -220,12 +220,11 @@ def tab_eficacia():
     # Asegurar ambas métricas
     for g in [g_d,g_c,g_ch,g_can]:
         if 'ConvRate' not in g.columns: g['ConvRate']=g['Bookings']/g['CR_Unicos']
-    # Filtro P50 para excluir destinos/corps de volumen insignificante
+    # Sin filtro P50 para corp: mismo universo que pestaña "Por Corporativo" del Excel
     p50_d = g_d['CR_Unicos'].quantile(0.50)
-    p50_c = g_c['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(100).reset_index(drop=True)
-    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
     # Merge WoW
     df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17']], on='Destino', how='left')
@@ -258,12 +257,11 @@ def tab_convrate():
     g_can['ConvRate'] = g_can['Bookings']/g_can['CR_Unicos']
     g_can['Eficacia'] = g_can['Successful']/g_can['CR_Unicos']
     g_can.rename(columns={'DistributionCategory':'Canasta'}, inplace=True)
-    # Filtro P50 para excluir destinos/corps de volumen insignificante
+    # Sin filtro P50 para corp: mismo universo que Excel
     p50_d = g_d['CR_Unicos'].quantile(0.50)
-    p50_c = g_c['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(100).reset_index(drop=True)
-    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_c = g_c.sort_values('ConvRate').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
     # Merge WoW
     df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17']], on='Destino', how='left')

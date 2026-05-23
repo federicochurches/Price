@@ -178,13 +178,14 @@ def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
         sub = sub[sub['Trafico'] >= min_trafico]
     return sub.sort_values(sort_col, ascending=asc).head(100).reset_index(drop=True)
 
-# Umbral mínimo de tráfico para tabs de dimensión (evita outliers de bajo volumen)
+# Umbral mínimo de tráfico para destino y país (evita outliers de bajo volumen)
+# Corp: sin filtro de tráfico — mismo universo que pestaña "Por Corporativo" del Excel
 MIN_TRAFICO_DIM = 500_000
 
 TAB_NoDispo = {
     'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
     'destino': make_tab(g_dest,'Destino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
-    'corp':    make_tab(g_corp,'CorpName','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
+    'corp':    make_tab(g_corp,'CorpName','%NoDispo',False),
     'hotel':   make_tab(p80_hotel,'Hotel','%NoDispo',False),
     'canasta': pd.DataFrame([
         {'Canasta':'B2C',      **{k:v for k,v in M[f'B2C_w{WEEK_NUM}'].items()}},
@@ -196,7 +197,7 @@ TAB_NoDispo = {
 TAB_RPM = {
     'pais':    make_tab(g_pais,'PaisDestino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
     'destino': make_tab(g_dest,'Destino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
-    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
+    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True),
     'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True),
     'canasta': TAB_NoDispo['canasta'],
 }
