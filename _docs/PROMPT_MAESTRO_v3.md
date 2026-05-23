@@ -1135,3 +1135,89 @@ Empaquetado limpio para reemplazar el proyecto en claude.ai:
 ---
 
 **Última actualización:** Mayo 2026 · post W20 sesión 6 · Histórico real W16-W20 + ventana 5W + cleanup legacy
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesiones 7–13 · UI/UX completo + Searchbox + Top 100)
+
+### Resumen de sesiones
+
+| Sesión | Commits | Cambio principal |
+|---|---|---|
+| s7 | `0116d4e`, `3d0eb7a` | UI minimalista inicial, autocomplete, severity |
+| s8 | `41fcdef` | Rediseño completo: footer fuera, RE/Plan compactos, badge al lado |
+| s9 | `0645a93` | Searchbox dentro de cards + Top 100 en DOM |
+| s10 | `a1e52f7`, `7e6f2c5` | Gauge paleta D, severity paleta D, cards menos altas, canastas interactivas, banners Excel |
+| s11 | `9d7cfa1` | Top 100 hotel/dim global+canastas, searchbox canastas, estilos 11px, badges paleta D |
+| s12 | `5e27145` | RND tabs ancho, click canasta CR, cards más compactas, label hist muted, search limpia al cambiar tab |
+| s13 | `3e5ebd2` | Cross-tab search correcto, severity RND paleta D, top 100 RND hotel/dim, canastas RND interactivas |
+
+### Cards KPI hero — estructura final
+
+3 secciones visuales dentro del mismo contenedor:
+1. **KPI + gauge + badge/WoW**: valor 40px + badge paleta D + gauge 6px + wow_box compacto
+2. **Searchbox + pestañas**: `sb-input` inline debajo de las tabs; 10 visibles / 90 sb-hidden
+3. **Evolución Histórica**: módulo `historico_module_v2/rnd` reactivo
+
+Sizing: `font-size:40px` hero / `36px` canastas · `padding:12px 16px` card.
+
+### Searchbox — reglas de funcionamiento final
+
+- **Solo tab activo**: `getActiveRows()` usa `getComputedStyle(panel).display !== 'none'`
+- **Top 100 en DOM**: `data-row-idx` en cada fila; primeras 10 sin `sb-hidden`
+- **Al cambiar tab**: el searchbox se limpia (listener `change` en radios)
+- **Sin dropdown**: filtrado inline únicamente
+- **Cross-tab**: el JS opera solo sobre el panel CSS-visible
+
+### Layout tablas hotel y dimensión
+
+```
+Col izq: filas 1-5 + su header
+Col der: filas 6-10 (visibles) + filas 11-100 (sb-hidden)
+Al buscar → gridTemplateColumns:1fr (lista única)
+```
+
+### Severity RND — estado correcto
+
+`render_rnd_p2.py render_severities_combinadas` usa el dict `BADGE_COLORS` con:
+- `Súper Crítica: bg=#A32D2D, fg=#FCEBEB` (sólida)
+- Resto: bg pastel / fg texto oscuro (conforme BANDAS.md)
+
+### Análisis por tipo de producto
+
+**Eliminado de PART2 CR** (`CHAN_AGR` removido de `PART2`). La función `render_channel_agrupado()` existe pero no se incluye en el ensamblado.
+
+### Bugs pendientes para W21
+
+| # | Descripción |
+|---|---|
+| P1 | Canastas RND: eje X histórico muestra "undefined" |
+| P2 | Canasta CR dim: click no siempre actualiza histórico |
+| P3 | Cards KPI canasta: filas de tab sin header por columna |
+| P4 | `BANDA_COLORS` puede no estar disponible en `render_rnd_p3.py` |
+| P5 | `extract_hist_data.py` pendiente |
+
+### Archivos modificados en sesiones 7–13 (completo)
+
+```
+_scripts/calc_cr.py              TOP → head(100) para todos los pools
+_scripts/calc_rnd.py             TOP → head(100) + corps/destinos/paises → 100
+_scripts/render_cr_p1.py         Card layout 3 secciones, sb-input, font 40px, <span> accent
+_scripts/render_cr_p2.py         render_top_table_cr + _render_panel + _render_dim_table actualizados
+_scripts/render_cr_p3.py         tab_panel_hotel/dim 2 cols, searchbox, listener hist, render_historico_seccion_cr local
+_scripts/render_rnd_p1.py        Card layout 3 secciones, sb-input, font 40px
+_scripts/render_rnd_p2.py        render_top_table + _render_panel + _render_dim_table_rnd + severity paleta D
+_scripts/render_rnd_p3.py        tab_panel_hotel 2 cols+badge+corp, listener hist, render_historico_seccion_rnd local
+_scripts/historico_module_v2.py  Label "Global" → var(--ink-muted)
+_scripts/historico_module_rnd.py Label "Global" → var(--ink-muted)
+_scripts/render_helpers.py       gauge_5levels: height 6px, opacity 1, sin labels, sin Conversión #8A8377
+_scripts/template_resumen.py     <strong> → <span> en titulo de finding
+_scripts/template_severity.py    render_severity_row paleta D canónica
+_scripts/asset_cr_head.html      display:block tabs activos, getActiveRows, clear-on-change, kpi-card box-sizing
+_scripts/asset_rnd_head.html     display:block tabs activos (era grid 1fr 1fr), getActiveRows, idem
+```
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesiones 7-13 · commits s7→s13 · UI/UX + Searchbox + Histórico completo
+

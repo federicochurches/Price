@@ -1,6 +1,181 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · Mayo 2026 · Sesiones 7–13 · UI/UX completo + Searchbox interactivo + Top 100
+
+### Resumen ejecutivo de cambios
+
+Las sesiones 7–13 completaron la transformación visual y funcional del pipeline post-W20. Los cambios se agrupan en cuatro áreas:
+
+1. **Arquitectura UI/UX**: minimalismo, cards compactas, layout 3 secciones, badges paleta D
+2. **Interactividad**: searchbox en todas las tablas, top 100 en DOM, cross-tab correcto
+3. **Histórico reactivo**: canastas + hotel + dimensión, listener de click en todos los contextos
+4. **Correcciones RND**: severity, hotel/dim top 100, tab-panel display
+
+---
+
+### ✨ Sesión 7 · UI minimalista + Autocomplete dropdown
+
+**Commits:** `0116d4e`, `3d0eb7a`
+
+- Searchbox con autocomplete dropdown basado en `data-hist-label`
+- Severity badges revisados (inicio de paleta D)
+- Alineación columnas por-hotel y Críticos primero en tab order RND
+- Eliminadas barras Metodología / Brecha / Interpretación
+
+---
+
+### ✨ Sesión 8 · Rediseño UI minimalista completo
+
+**Commit:** `41fcdef`
+
+- Footer global eliminado
+- RE y Plan compactos (sin bold en contenido → `<span>` reemplaza `<strong>`)
+- Badge de banda al lado del valor grande (no debajo)
+- Canastas: sin searchbox aún (se cierra en s9-s11)
+- Títulos de sección de canastas = mismos que globales (h3 22px)
+- Secciones sin bajadas descriptivas (solo título + subtítulo)
+
+---
+
+### ✨ Sesión 9 · Searchbox dentro de cards hero + Top 100 DOM
+
+**Commit:** `0645a93`
+
+- Searchbox inline dentro de cada card (Eficacia, ConvRate, NoDispo, IPM)
+- `calc_cr.py` / `calc_rnd.py`: tabs hero → `head(100)` (era 10)
+- DOM: 100 filas por tab; 10 visibles al abrir (`sb-hidden` en filas 11-100)
+- `data-row-idx` en cada fila para preservar el límite al limpiar el search
+- Layout: `display:grid;grid-template-columns:1fr 1fr` en `.kpi-tab-rows`
+- JS filter: `getActiveRows()` limita al panel visible; `gridTemplateColumns: 1fr` al buscar
+
+---
+
+### ✨ Sesión 10 · Gauge, Severity, RE/Plan, Banners Excel, Canastas
+
+**Commits:** `a1e52f7`, `7e6f2c5`
+
+**Gauge (BANDAS.md):**
+- `height:6px · opacity:1` — uniforme, sólido, sin transparencia ni labels de texto
+- Sin Conversión: `#8A8377` (era negro)
+- Banda activa: `border-bottom:2px solid var(--ink)` en vez de opacidad diferencial
+
+**Severity (paleta D canónica):**
+- `template_severity.py` + `render_cr_p2.py`: bg pastel / fg oscuro (no invertido)
+- Súper Crítica: `#A32D2D` (granate sólido) + `#FCEBEB` (texto claro)
+
+**RE y Plan:**
+- `template_resumen.py`: `<strong>` → `<span>` en título de finding
+- `.action-row .accion strong { font-weight:400 }` en CSS
+
+**Banners Excel:**
+- `.detail-callout`: `padding:12px 16px` (unificado global y canastas)
+- `.badge-link`: color accent + border-radius:3px (no fondo negro)
+
+**Canastas interactivas:**
+- `render_cr_p3.py`: searchbox inline en `kpi_card_canasta`
+- `render_rnd_p3.py`: idem
+- `render_historico_seccion_cr/rnd` definidos localmente en p3
+- Módulos histórico en bloque hotel + dimensión de canastas CR/RND
+
+**Regressions (7e6f2c5):**
+- `box-sizing:border-box;width:100%` en `.kpi-card`
+- `column-count:2` → `display:grid;grid-template-columns:1fr 1fr` (column-count conflicta con display:grid en hijos)
+- `sb-cr-hero` / `sb-rnd-hero` eliminados (searchboxes fuera de cards)
+- Análisis por tipo de producto eliminado de PART2 CR
+- Tab-panel activo: `display:block` (no `display:grid 1fr 1fr` que causaba el truncamiento)
+
+---
+
+### ✨ Sesión 11 · Top 100 hotel/dim global+canastas + Searchbox canastas + Estilos unificados
+
+**Commit:** `9d7cfa1`
+
+**Top 100 en análisis por hotel y por dimensión global:**
+- `calc_cr.py TOP`: criticos/bajo_rend/sin_conv/menor_cv/corps_10/destinos → `head(100)`
+- `render_cr_p2.py render_top_table_cr`: `data-row-idx`, `sb-hidden` (10 visibles)
+- `render_cr_p2.py _render_panel_top_table_cr`: wrapper `kpi-tab-rows grid 2 cols`
+- `render_cr_p2.py panel_for_dim`: `head(100)`, wrapper `kpi-tab-rows`
+- `render_cr_p2.py _render_dim_table`: `data-row-idx`, `sb-hidden`, badges paleta D
+
+**Estilos unificados (font-size:11px):**
+- `render_top_table_cr`, `_render_dim_table`, `tab_panel_hotel`, `panel_inner_rnd` → `font-size:11px`
+- CSS: `.kpi-tab-rows [data-hist-label] { font-size:11px }`
+
+**Badges paleta D en tablas dimensión:**
+- `_render_dim_table` CR: Súper Crítica `#A32D2D`/`#FCEBEB`; resto `bg=c['bg']`/`fg=c['fg']`
+- `dim_table_with_wow` CR p3: idem — eliminado bg=fg invertido anterior
+
+**Searchbox en tablas hotel y dimensión de canastas CR y RND:**
+- `input.sb-input` con `data-sb-scope` en `bloque_hotel_html` y `bloque_dim_html`
+- `tab_panel_dim_cr/rnd`: `head(100)`, wrapper `kpi-tab-rows grid 2 cols`
+- `panel_inner_rnd`: `data-row-idx`, `sb-hidden`, display:grid unificado
+
+**tab_panel_hotel CR canasta:** reescrito con 100 filas, estilos unificados.
+
+---
+
+### ✨ Sesión 12 · RND tabs ancho, click canasta, cards compactas, colores, search por pestaña
+
+**Commit:** `5e27145`
+
+**RND card tabs: truncamiento (1....)**
+- Causa: CSS `display:grid 1fr 1fr` en tab-panel activo hacía el panel de 267px, y el `kpi-tab-rows` interno recibía solo 1fr de eso (~133px)
+- Fix: `asset_rnd_head.html` — tab-panel activo → `display:block`
+
+**Canasta hotel CR: click no pintaba el elemento activo**
+- `render_cr_p3.py render_historico_seccion_cr`: `parent` sube por DOM hasta el bloque `canasta-*-hotel/dim`
+- Listener excluye `[id^="hist-"]` en lugar de `.kpi-card`
+
+**tab_panel_hotel CR canasta: 2 cols explícitas con header propio**
+- Col izq (hoteles 1-5) + col der (6-10+), cada una con su header: HOTEL | CONVRATE | EFICACIA | WOW
+
+**CR hero card tabs: `<strong>` negro → `<span color:var(--accent)>`**
+
+**Módulo histórico: label "Global" con menos contraste**
+- `historico_module_v2.py` + `historico_module_rnd.py`: `var(--accent)` 700 → `var(--ink-muted)` 600
+
+**Cards más compactas:**
+- `render_cr/rnd_p1.py`: `font-size:48→40px`, `padding:18 20→12 16px`
+- Canastas: `42→36px`, padding idem
+
+**Search se limpia al cambiar pestaña:**
+- Listener `change` en radio inputs limpia el `input.sb-input` y hace reset de filas
+
+---
+
+### ✨ Sesión 13 · Cross-tab search, severity RND paleta D, top 100 RND, canastas RND
+
+**Commit:** `3e5ebd2`
+
+**Cross-tab search corregido:**
+- `getActiveRows()`: detecta el panel activo con `window.getComputedStyle(panel).display !== 'none'`
+- `filter()` opera solo sobre el panel activo
+- Dropdown autocomplete eliminado — solo filtrado inline
+- Clear-on-tab-change: listener `change` en radios limpia sb y resetea filas al tab activo
+
+**RND severity: paleta D canónica:**
+- `render_severities_combinadas`: dict `BADGE_COLORS` con bg pastel / fg oscuro
+- Súper Crítica: `bg:#A32D2D` / `fg:#FCEBEB` (sólida); resto bg pastel
+
+**RND hotel/dim global: top 100:**
+- `calc_rnd.py`: demanda_nc/bajo_rend/sin_conv/corps_10/destinos_10/paises_10 → `head(100)`
+- `render_rnd_p2.py render_top_table`: `data-row-idx`, `sb-hidden`, `data-hist-label`
+- `_render_panel_top_table`: wrapper `kpi-tab-rows grid 2 cols`
+- `panel_for_dim` RND: `head(100)`, wrapper
+- `_render_dim_table_rnd`: `data-row-idx`, `sb-hidden`, badges paleta D, `11px`
+
+**Canastas RND: hotel con corp + badge, 2 cols explícitas con header:**
+- `tab_panel_hotel`: col izq 1-5 + col der 6-10+, cada col con header Hotel | %NoDispo | IPM | WoW
+- Corp sub-line + badge paleta D en cada fila
+
+**Canastas RND: listener click corregido:**
+- `render_historico_seccion_rnd`: mismo fix que CR (parent por DOM, excluye `[id^=hist-]`)
+
+---
+
+
+---
 ## Week 20 · 23 Mayo 2026 · Sesión 6 · Histórico real W16-W20 + Limpieza legacy + Decisión ventana 5W
 
 ### ✨ Histórico real W16-W20 (reemplaza `_FICTICIOS`)
