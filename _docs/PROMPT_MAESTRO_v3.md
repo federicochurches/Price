@@ -55,15 +55,9 @@ Tu objetivo no es describir datos — es **detectar fugas de revenue, priorizar 
 | `Playbook_Mail_Semanal.md` | Workflow operativo semanal · 6 pasos |
 | `MAPA_DEPENDENCIAS.md` | Mapa de dependencias entre scripts |
 | `NIVEL_C_PENDIENTE.md` | TODOs futuros post Week 20+ |
-| `COMMIT_GUIDE.md` | Solo en repo GitHub (no en proyecto Claude) |
+| `COMMIT_GUIDE.md` | En `_docs/` · workflow de commit semanal |
 
-### Guías editoriales HTML (referencia visual)
-| Archivo | Descripción |
-|---|---|
-| `GUIA_EDITORIAL_RatesNoDispo.html` | Guía de estilo RND · referencia canónica visual |
-| `GUIA_EDITORIAL_CheckRates.html` | Guía de estilo CR · referencia canónica visual |
-
-> ⚠️ Los `_TEMPLATE_*.html` y snippets fueron eliminados del proyecto (~722KB). La referencia visual vive en el repo GitHub.
+> ⚠️ **Eliminado en W20 sesión 4:** las guías editoriales HTML (`GUIA_EDITORIAL_*.html`) y los templates (`_TEMPLATE_*.html`) eran legado — los reportes se generan 100% en runtime desde los scripts `render_*.py`. Si hay que revisar el HTML/CSS de algún componente, leer directamente el código del render correspondiente.
 
 ### Mail (semana actual)
 | Archivo | Descripción |
@@ -142,10 +136,7 @@ Price/
 ├── _scripts/                    (NO se publica · solo local)
 ├── _docs/                       (NO se publica · docs internas · README, CHANGELOG, BANDAS, PROMPT_MAESTRO, COMMIT_GUIDE, etc.)
 ├── _seguimiento/                (carryover semanal de plan_seguimiento_WNN.md)
-├── _template/_TEMPLATE_Hub.html
 ├── rates-nodispo/
-│   ├── _manual/GUIA_EDITORIAL_RatesNoDispo.html
-│   ├── _template/_TEMPLATE_RatesNoDispo_Reporte.html
 │   └── week-NN/
 │       ├── RatesNoDispo_Reporte_Editorial.html
 │       ├── Analisis_Rates_NoDispo_7d.xlsx       (global · 33 pestañas)
@@ -154,8 +145,6 @@ Price/
 │       ├── Analisis_Rates_NoDispo_CUG_7d.xlsx   (8 pestañas)
 │       └── Dataset_RatesNoDispo_WNN.xlsx
 └── checkrates/
-    ├── _manual/GUIA_EDITORIAL_CheckRates.html
-    ├── _template/_TEMPLATE_CheckRates_Reporte.html
     └── week-NN/
         ├── CheckRates_Reporte_Editorial.html
         ├── Analisis_Checkrates_7d.xlsx          (global · 37 pestañas)

@@ -72,38 +72,55 @@ git push origin main
 > **Nunca hacer merge de `index.html` con conflict markers sin resolver —
 > el HTML se publica con los markers como texto plano visible.**
 
-## Estructura del repo (post Week 18)
+## Estructura del repo (post Week 20 sesión 4)
 
 ```
 Price/
-├── README.md
-├── index.html
-├── _template/                                  # SOLO hub
-│   └── _TEMPLATE_Hub.html
-├── _docs/                                      # docs canónicas
-├── _seguimiento/                               # carryover semanal
-│   ├── BANDAS.md
-│   ├── AREAS_ACCOUNTABLE.md
-│   ├── ESTRUCTURA_TEMPLATE.md
+├── index.html                          # hub · generado por build_package.py
+├── .gitignore
+├── _config                             # config Netlify
+├── _docs/                              # docs canónicas (no se publican)
+│   ├── README.md
 │   ├── CHANGELOG.md
-│   └── COMMIT_GUIDE.md                        ← este archivo
-├── _scripts/                                   # pipeline Python
-├── _email/                                     # mails (no se publica)
+│   ├── PROMPT_MAESTRO_v3.md
+│   ├── BANDAS.md
+│   ├── COMMIT_GUIDE.md                 ← este archivo
+│   ├── INVENTARIO.md
+│   └── AREAS_ACCOUNTABLE.md
+├── _scripts/                           # pipeline Python (no se publica)
+│   ├── calc_cr.py · calc_rnd.py
+│   ├── render_cr_p1/p2/p3.py · render_rnd_p1/p2/p3.py
+│   ├── assemble_cr.py · assemble_rnd.py
+│   ├── excel_cr.py · excel_rnd.py
+│   ├── render_mail_v3.py · build_package.py
+│   ├── engine.py · render_helpers.py
+│   ├── historico_module_v2.py · historico_module_rnd.py
+│   ├── asset_cr_head.html · asset_cr_masthead.html · asset_cr_footer.html
+│   ├── asset_rnd_head.html · asset_rnd_masthead.html · asset_rnd_footer.html
+│   └── snippet_alertas_canasta*.html
+├── _email/                             # mails semanales (no se publica)
+│   └── week-NN/Mail_WNN.html
+├── _seguimiento/                       # carryover semanal
+│   └── plan_seguimiento_WNN.md
 ├── rates-nodispo/
-│   ├── _template/_TEMPLATE_RatesNoDispo_Reporte.html
-│   ├── _manual/GUIA_EDITORIAL_RatesNoDispo.html
 │   └── week-NN/
 │       ├── RatesNoDispo_Reporte_Editorial.html
-│       ├── Analisis_Rates_NoDispo_7d.xlsx
+│       ├── Analisis_Rates_NoDispo_7d.xlsx       (global · 33 pestañas)
+│       ├── Analisis_Rates_NoDispo_B2C_7d.xlsx
+│       ├── Analisis_Rates_NoDispo_OP_7d.xlsx
+│       ├── Analisis_Rates_NoDispo_CUG_7d.xlsx
 │       └── Dataset_RatesNoDispo_WNN.xlsx
 └── checkrates/
-    ├── _template/_TEMPLATE_CheckRates_Reporte.html
-    ├── _manual/GUIA_EDITORIAL_CheckRates.html
     └── week-NN/
         ├── CheckRates_Reporte_Editorial.html
-        ├── Analisis_Checkrates_7d.xlsx
+        ├── Analisis_Checkrates_7d.xlsx          (global · 37 pestañas)
+        ├── Analisis_Checkrates_B2C_7d.xlsx
+        ├── Analisis_Checkrates_OP_7d.xlsx
+        ├── Analisis_Checkrates_CUG_7d.xlsx
         └── Dataset_CheckRates_WNN.xlsx
 ```
+
+> **Carpetas eliminadas en W20 sesión 4:** `_governance/` (canon unificado en `_docs/`), `_template/`, `_manual/` (templates y guías editoriales eran legado, los reportes se generan 100% en runtime).
 
 ## Validación post-commit · checklist visual
 

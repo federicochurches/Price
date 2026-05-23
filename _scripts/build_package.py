@@ -1,6 +1,6 @@
 """
 build_package.py · Paso 6 del pipeline semanal
-Genera index.html del hub (respetando _TEMPLATE_Hub.html) + ZIP con estructura del repo
+Genera index.html del hub + ZIP con estructura del repo lista para commit.
 
 Uso:
     python build_package.py
@@ -70,12 +70,12 @@ def es(x, d=2):
     s = f'{x:,.{d}f}'
     return s.replace(',', '|').replace('.', ',').replace('|', '.')
 
-# Logo PriceTravel — extraído de _TEMPLATE_Hub.html · no regenerar
+# Logo PriceTravel · base64 inline · no regenerar
 with open('logo_b64.txt') as _f:
     _LOGO_B64 = _f.read().strip()
 
 
-# ── Generar index.html respetando _TEMPLATE_Hub.html ─────────────────────────
+# ── Generar index.html del hub ─────────────────────────────────────────────────
 def build_index():
     nd_meta = (
         f'{len(DR["p80_hotel"]):,} hoteles P80 · '
