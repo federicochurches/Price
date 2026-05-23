@@ -396,7 +396,7 @@ D = {
     'g_hotel_w17': g_hotel_w17,
 }
 
-with open(f'/mnt/project/_scripts/cr_w{VOL_NUM}_data.pkl','wb') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'cr_w{VOL_NUM}_data.pkl'),'wb') as f:
     pickle.dump(D, f)
 
 print(f"✅ Pickle guardado: cr_w20_data.pkl")

@@ -2,9 +2,8 @@
 Excel Análisis RND por Canasta · 3 Excels (B2C, OP, CUG)
 Genera un Excel de 8 pestañas para cada canasta
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 import os, pandas as pd
 from openpyxl import Workbook
@@ -143,7 +142,13 @@ for canasta_key, canasta_data in CANASTA.items():
         data = []
         if isinstance(sev_rpm, dict):
             for n in ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica']:
-                rng = {'Exitosa':'≥$650','Revisar':'$200-$650','Crítica':'<$200','Súper Crítica':'$0'}[n]
+                rng = {
+                    'Exitosa':       '≥$650',
+                    'Aceptable':     '$500–$649',
+                    'Revisar':       '$200–$499',
+                    'Crítica':       '<$199',
+                    'Súper Crítica': '$0',
+                }[n]
                 cnt = int(sev_rpm.get(n, 0))
                 data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total if total else 0})
         df_sev = pd.DataFrame(data)

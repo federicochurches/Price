@@ -1,9 +1,7 @@
 """Ensambla reporte CR WNN final — lee semana y hoteles del pickle."""
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
-import os
 from pathlib import Path
 
 # ── Leer semana y métricas del pickle ─────────────────────────────────────

@@ -626,26 +626,29 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -960,26 +963,29 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -2969,26 +2975,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -3329,26 +3338,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -3503,33 +3515,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< 3%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">17.216</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">85.4%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">3–5%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:5.982806691449814%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:5.982806691449814%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.030</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">5.1%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5–20%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:9.31110594795539%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:9.31110594795539%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.603</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">8.0%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20–60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.6728624535315983%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.6728624535315983%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">288</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">1.4%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#161616 !important;color:#FFFFFF !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#A32D2D !important;color:#FCEBEB !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">> 60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.09874535315985129%;background:#FFFFFF;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.09874535315985129%;background:#FCEBEB;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">17</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.1%</span>
 </div>
@@ -3546,33 +3558,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">≥ $650</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:23.784652470871837%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:23.784652470871837%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">3.552</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">17.6%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$500–$649</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.3994910941475827%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.3994910941475827%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">209</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">1.0%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$200–$499</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:2.4976563546270256%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:2.4976563546270256%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">373</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">1.9%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< $199</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.271996785857775%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.271996785857775%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.086</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">5.4%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#8A8377 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
+<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#5F5E5A !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">BKGS=0</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#8A8377;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#5F5E5A;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">14.934</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">74.1%</span>
 </div>
@@ -3988,26 +4000,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -4348,26 +4363,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -4522,33 +4540,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< 3%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">11.987</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">75.4%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">3–5%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:12.129807291232169%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:12.129807291232169%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">1.454</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">9.1%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5–20%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:16.868273963460414%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:16.868273963460414%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">2.022</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">12.7%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20–60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.2785517644114455%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.2785517644114455%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">393</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">2.5%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#161616 !important;color:#FFFFFF !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#A32D2D !important;color:#FCEBEB !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">> 60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.3003253524651706%;background:#FFFFFF;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.3003253524651706%;background:#FCEBEB;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">36</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.2%</span>
 </div>
@@ -4565,33 +4583,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">≥ $650</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:28.077358654935097%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:28.077358654935097%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">3.223</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">20.3%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$500–$649</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.7579057409181984%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.7579057409181984%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">87</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.5%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$200–$499</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.5245230420768359%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.5245230420768359%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">175</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">1.1%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< $199</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:8.08432790312745%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:8.08432790312745%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">928</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">5.8%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#8A8377 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
+<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#5F5E5A !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">BKGS=0</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#8A8377;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#5F5E5A;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">11.479</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">72.2%</span>
 </div>
@@ -5007,26 +5025,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -5367,26 +5388,29 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  });
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    });
-    document.addEventListener('hist-reset', function(e) {
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    });
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
@@ -5541,33 +5565,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< 3%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">3.733</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">74.8%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">3–5%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:11.599249933029734%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:11.599249933029734%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">433</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">8.7%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">5–20%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:18.215912135012054%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:18.215912135012054%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">680</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">13.6%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">20–60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.5896062148406105%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.5896062148406105%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">134</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">2.7%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#161616 !important;color:#FFFFFF !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#A32D2D !important;color:#FCEBEB !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Súper Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">> 60%</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.24109295472810074%;background:#FFFFFF;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.24109295472810074%;background:#FCEBEB;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">9</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.2%</span>
 </div>
@@ -5584,33 +5608,33 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
 </div>
 <div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#E8F7FD !important;color:#4FC3F4 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
+<span style="display:inline-block;padding:3px 8px;background:#E1F5EE !important;color:#085041 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Exitosa</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">≥ $650</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.842248413417952%;background:#4FC3F4;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:7.842248413417952%;background:#085041;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">346</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">6.9%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#5C469C !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
+<span style="display:inline-block;padding:3px 8px;background:#EDE8F7 !important;color:#3C3489 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Aceptable</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$500–$649</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.7706255666364461%;background:#5C469C;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:0.7706255666364461%;background:#3C3489;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">34</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.7%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FFF4E0 !important;color:#A86A1D !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
+<span style="display:inline-block;padding:3px 8px;background:#FFEDD5 !important;color:#7C2D12 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Revisar</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">$200–$499</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.0199456029011786%;background:#A86A1D;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:1.0199456029011786%;background:#7C2D12;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">45</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">0.9%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#C0392B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
+<span style="display:inline-block;padding:3px 8px;background:#FCE4F1 !important;color:#99162B !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Crítica</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">< $199</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.445149592021759%;background:#C0392B;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:3.445149592021759%;background:#99162B;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">152</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">3.0%</span>
 </div><div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#8A8377 !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
+<span style="display:inline-block;padding:3px 8px;background:#F2EEE6 !important;color:#5F5E5A !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">Sin Conv</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">BKGS=0</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#8A8377;"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:100.0%;background:#5F5E5A;"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">4.412</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">88.4%</span>
 </div>

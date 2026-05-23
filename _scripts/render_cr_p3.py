@@ -3,21 +3,14 @@ Renderer CR parte 3: Análisis por Canasta (B2C, B2B-OP, CUG)
 Cards colapsables con KPIs Eficacia/ConvRate + tabs WoW + RE con pills + bloques hotel/dimensión
 Post W19 · port del patrón RND p3
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
-import sys
 import os, pandas as pd, numpy as np
 
 # Setup paths
-if '/mnt/project/_scripts' not in sys.path:
-    sys.path.insert(0, '/mnt/project/_scripts')
-if '/mnt/project/_helpers' not in sys.path:
-    sys.path.insert(0, '/mnt/project/_helpers')
-
-import sys
-sys.path.insert(0, "/mnt/project/_scripts")
+# (path setup ya hecho arriba)
+# (path setup ya hecho arriba)
 from engine import *
 from render_helpers import *
 def _fmt_wow_cv(v):
@@ -53,8 +46,6 @@ df17 = D.get('df17', None)
 hotel_channel_map_global = D.get('hotel_channel_map', {})
 g_channel_w17 = D.get('g_channel_w17', None)
 
-import sys as _sys_p3
-_sys_p3.path.insert(0, '/mnt/project')
 from historico_module_v2 import render_historico_cr
 
 CR_ACCENT = '#5C469C'

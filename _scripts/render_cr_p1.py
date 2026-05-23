@@ -2,9 +2,8 @@
 Renderer · Reporte Editorial CR W20
 Genera HTML completo · sistema bandas D · post W17
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 import os, pandas as pd, numpy as np
 from engine import *
@@ -119,8 +118,6 @@ def render_hero():
 # Color de acento CR (cyan/teal)
 CR_ACCENT = '#5C469C'
 
-import sys as _sys_p1
-_sys_p1.path.insert(0, '/mnt/project')
 from historico_module_v2 import render_historico_cr
 
 def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='W19'):

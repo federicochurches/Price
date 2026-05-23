@@ -1,18 +1,10 @@
 """
 Renderer CR W20 parte 2: Resumen Ejecutivo, Severity Eficacia/CR, Top 5
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
-import sys
 import os, pandas as pd, numpy as np
-
-# Setup paths for imports
-if '/mnt/project/_scripts' not in sys.path:
-    sys.path.insert(0, '/mnt/project/_scripts')
-if '/mnt/project/_helpers' not in sys.path:
-    sys.path.insert(0, '/mnt/project/_helpers')
 
 from engine import *
 from render_helpers import *

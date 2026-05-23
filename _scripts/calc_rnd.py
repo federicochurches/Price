@@ -312,7 +312,7 @@ D = {
     'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
     'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
 }
-with open(f'/mnt/project/_scripts/rnd_w{VOL_NUM}_data.pkl','wb') as f: pickle.dump(D, f)
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'rnd_w{VOL_NUM}_data.pkl'),'wb') as f: pickle.dump(D, f)
 
 t18=df18['Trafico'].sum(); nd18=df18['TraficoNoDispo'].sum()
 t17=df17['Trafico'].sum(); nd17=df17['TraficoNoDispo'].sum()

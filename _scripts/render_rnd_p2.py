@@ -1,9 +1,8 @@
 """
 Renderer RND parte 2: Resumen Ejecutivo, Severity, Top 5
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 import os, pandas as pd, numpy as np
 from engine import *

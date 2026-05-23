@@ -3,12 +3,10 @@ render_mail_v3.py · Mail semanal Supply Optimization
 v3.2 · post W19 · sin dependencia de metrics_recalc.pkl
 Lee directamente de rnd_wNN_data.pkl y cr_wNN_data.pkl
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 from pathlib import Path
-import os
 
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado

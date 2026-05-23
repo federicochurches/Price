@@ -2,15 +2,13 @@
 Generador del reporte editorial RatesNoDispo W18
 Sistema bandas D · post W17
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pandas as pd
 import numpy as np
 from engine import *
 
 # ============ CONFIG W18 ============
-import os
 WEEK_NUM = os.getenv('WEEK', 'W20')
 PERIODO  = "27 abr – 3 may 2026"
 PERIODO_LABEL = "Lunes 27 De Abril De 2026"

@@ -2,9 +2,8 @@
 Excel Análisis CheckRates por Canasta · 3 Excels (B2C, OP, CUG)
 Genera un Excel de 9 pestañas para cada canasta
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 import os, pandas as pd
 from openpyxl import Workbook

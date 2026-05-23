@@ -2,16 +2,13 @@
 Renderer · Reporte Editorial RND W18
 Genera HTML completo · sistema bandas D · post W17
 """
-import sys
-if "/mnt/project/_scripts" not in sys.path:
-    sys.path.insert(0, "/mnt/project/_scripts")
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle
 import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
-import sys as _sys_rnd_p1
-_sys_rnd_p1.path.insert(0, '/mnt/project')
 from historico_module_rnd import render_historico_rnd
 
 # Cargar datos
