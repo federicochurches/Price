@@ -335,14 +335,15 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         top5 = next5 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
+            raw_lab = str(raw)
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw), 28)
+                lab = truncate(clean_hotel_name(raw_lab), 28)
             elif dim_col == 'CorpName':
-                lab = truncate(clean_corp_name(raw), 28)
+                lab = truncate(clean_corp_name(raw_lab), 28)
             elif dim_col == 'Destino':
-                lab = clean_destino_name(raw, 28)
+                lab = clean_destino_name(raw_lab, 28)
             else:
-                lab = truncate(str(raw), 28)
+                lab = truncate(raw_lab, 28)
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
             import math
@@ -373,7 +374,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if i < 5: _cls3 = ''
             elif i < 10: _cls3 = 'rows-more'
             else: _cls3 = 'sb-hidden'
-            _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+            _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                      f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
                      f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'

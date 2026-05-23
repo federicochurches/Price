@@ -282,16 +282,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         top5 = next5 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
+            raw_lab = str(raw)
             if parse_hotel:
-                lab = truncate(clean_hotel_name(str(raw)), 28)
+                lab = truncate(clean_hotel_name(raw_lab), 28)
             elif dim_col == 'PaisDestino':
-                lab = clean_pais_name(str(raw), max_len=24)
+                lab = clean_pais_name(raw_lab, max_len=24)
             elif dim_col == 'Destino':
-                lab = clean_destino_name(str(raw), 24)
+                lab = clean_destino_name(raw_lab, 24)
             elif dim_col == 'CorpName':
-                lab = clean_corp_name(str(raw), 28)
+                lab = clean_corp_name(raw_lab, 28)
             else:
-                lab = truncate(str(raw), 28)
+                lab = truncate(raw_lab, 28)
             val = r.get(val_col, 0)
             if is_rpm:
                 val = max(val, 0)
@@ -339,7 +340,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if i < 5: _cls_r3 = ''
             elif i < 10: _cls_r3 = 'rows-more'
             else: _cls_r3 = 'sb-hidden'
-            _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
+            _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{raw_lab}"'
                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;align-items:center;gap:4px;'
                        f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                        f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'

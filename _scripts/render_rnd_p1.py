@@ -195,14 +195,14 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         for i, r in df_t.iterrows():
             nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
             if t_key=='canasta':
-                lab = r['Canasta']; val = nd_val
+                raw_lab = r['Canasta']; lab = raw_lab; val = nd_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = nd_val
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = nd_val
             elif t_key=='pais':
-                lab = clean_pais_name(r['PaisDestino']); val = nd_val
+                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab); val = nd_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 32); val = r['%NoDispo']
+                raw_lab = str(r[col]); lab = truncate(r[col], 32) if t_key=='corp' else clean_destino_name(r[col], 32); val = r['%NoDispo']
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
@@ -232,7 +232,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             elif i < 10: _cls = 'rows-more'
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}"'
+                    f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
@@ -312,14 +312,14 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         for i, r in df_t.iterrows():
             rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
             if t_key=='canasta':
-                lab = r['Canasta']; val = rpm_val
+                raw_lab = r['Canasta']; lab = raw_lab; val = rpm_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = rpm_val
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = rpm_val
             elif t_key=='pais':
-                lab = clean_pais_name(r['PaisDestino']); val = rpm_val
+                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab); val = rpm_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 32); val = rpm_val
+                raw_lab = str(r[col]); lab = truncate(r[col], 32) if t_key=='corp' else clean_destino_name(r[col], 32); val = rpm_val
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
@@ -349,7 +349,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             elif i < 10: _cls2 = 'rows-more'
             else: _cls2 = 'sb-hidden'
             _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}"'
+                    f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'

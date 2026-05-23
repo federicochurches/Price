@@ -209,16 +209,16 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
         rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
-                lab = r['Canasta']; val = r['Eficacia']
+                raw_lab = r['Canasta']; lab = raw_lab; val = r['Eficacia']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = r['Eficacia']
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = r['Eficacia']
             elif t_key=='corp':
-                lab = truncate(clean_corp_name(r['CorpName']), 32); val = r['Eficacia']
+                raw_lab = str(r['CorpName']); lab = truncate(clean_corp_name(raw_lab), 32); val = r['Eficacia']
             elif t_key=='destino':
-                lab = clean_destino_name(r['Destino'], 32); val = r['Eficacia']
+                raw_lab = str(r['Destino']); lab = clean_destino_name(raw_lab, 32); val = r['Eficacia']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 32); val = r['Eficacia']
+                raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['Eficacia']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('Eficacia_WoW_pp', None)
@@ -244,7 +244,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             else:
                 _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
@@ -371,16 +371,16 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
         rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
-                lab = r['Canasta']; val = r['ConvRate']
+                raw_lab = r['Canasta']; lab = raw_lab; val = r['ConvRate']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = r['ConvRate']
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = r['ConvRate']
             elif t_key=='corp':
-                lab = truncate(clean_corp_name(r['CorpName']), 32); val = r['ConvRate']
+                raw_lab = str(r['CorpName']); lab = truncate(clean_corp_name(raw_lab), 32); val = r['ConvRate']
             elif t_key=='destino':
-                lab = clean_destino_name(r['Destino'], 32); val = r['ConvRate']
+                raw_lab = str(r['Destino']); lab = clean_destino_name(raw_lab, 32); val = r['ConvRate']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 32); val = r['ConvRate']
+                raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['ConvRate']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('ConvRate_WoW_pp', None)
@@ -402,7 +402,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             elif i < 10: _cls = 'rows-more'
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
