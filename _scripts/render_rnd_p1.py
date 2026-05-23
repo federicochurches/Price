@@ -197,13 +197,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             if t_key=='canasta':
                 raw_lab = r['Canasta']; lab = raw_lab; val = nd_val
             elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = nd_val
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = nd_val
             elif t_key=='pais':
-                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab); val = nd_val
+                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = nd_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 32) if t_key=='corp' else clean_destino_name(r[col], 32); val = r['%NoDispo']
-            show_wow = t_key in ('pais', 'destino', 'corp')
+                raw_lab = str(r[col]); lab = truncate(r[col], 36) if t_key=='corp' else clean_destino_name(r[col], 36); val = r['%NoDispo']
+            show_wow = t_key in ('pais', 'destino', 'corp', 'hotel')
             wow_pill = ''
             if show_wow:
                 wow_pp = r.get('NoDispo_WoW_pp', None)
@@ -314,13 +314,13 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             if t_key=='canasta':
                 raw_lab = r['Canasta']; lab = raw_lab; val = rpm_val
             elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 32); val = rpm_val
+                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = rpm_val
             elif t_key=='pais':
-                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab); val = rpm_val
+                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = rpm_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 32) if t_key=='corp' else clean_destino_name(r[col], 32); val = rpm_val
-            show_wow = t_key in ('pais', 'destino', 'corp')
+                raw_lab = str(r[col]); lab = truncate(r[col], 36) if t_key=='corp' else clean_destino_name(r[col], 36); val = rpm_val
+            show_wow = t_key in ('pais', 'destino', 'corp', 'hotel')
             wow_pill = ''
             if show_wow:
                 wow_v = r.get('IPM_WoW_pp', r.get('RPM_WoW_pct', None))
@@ -340,9 +340,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
             try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
             except: _ipm_w20 = _ipm_w21
-            _bnd_ipm = '' if t_key == 'hotel' else (
-                r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else '')
-            if not _bnd_ipm and val and t_key != 'hotel':
+            _bnd_ipm = r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else ''
+            if not _bnd_ipm and val is not None:
                 from engine import banda_rpm as _brpm; _bnd_ipm = _brpm(val, 1)
             _badge_ipm = _mini_badge(_bnd_ipm)
             if i < 5: _cls2 = ''
