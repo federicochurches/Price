@@ -196,8 +196,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # Tabs en 2 columnas · 1-5 izquierda, 6-10 derecha · ya vienen ordenadas peor→mejor (sort_values('Eficacia'))
-        rows_left, rows_right = '', ''
+        # Tabs: primeras 10 visibles en 2 cols, filas 11-100 con sb-hidden
+        # Al buscar el JS muestra las que matchean y activa modo lista
+        rows_html = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['Eficacia']
@@ -210,39 +211,31 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['Eficacia']
-            # Pill WoW · solo en destino y corp (tienen merge W17)
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('Eficacia_WoW_pp', None)
-                if wow_pp is not None and wow_pp == wow_pp:  # not NaN
-                    mejora = wow_pp > 0  # Eficacia: mejora si sube
+                if wow_pp is not None and wow_pp == wow_pp:
+                    mejora = wow_pp > 0
                     color = '#2F6C34' if mejora else '#C0392B'
                     bg    = '#EAF3DE' if mejora else '#FCE8E6'
                     arrow = '↑' if wow_pp > 0 else '↓'
                     txt   = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
                     wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{bg};color:{color};margin-left:4px;vertical-align:middle;">{txt}</em>'
-            # data-attrs para módulo histórico reactivo
             import math as _math
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            cell = (f'<div class="kpi-row" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
-                    f'{wow_pill}</div>')
-            if i < 5:
-                rows_left += cell
-            else:
-                rows_right += cell
-        if rows_right:
-            panel_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div>{rows_left}</div><div>{rows_right}</div>'
-                f'</div>'
-            )
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                          f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
+                          f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                          f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
+                          f'{wow_pill}</div>')
+        # Layout 2 cols con grid auto-fill: CSS column-count para las visibles
+        if t_key not in ('channel', 'canasta'):
+            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
         else:
-            panel_html = rows_left
+            panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
@@ -261,7 +254,8 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 {gauge}
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<div class="tab-panels">{panels}</div>
+<input id="sb-kpi-ef" class="sb-input sb-card-ef" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ef-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
 
@@ -337,8 +331,8 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # 2 columnas · 1-5 izquierda, 6-10 derecha · peor→mejor
-        rows_left, rows_right = '', ''
+        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
+        rows_html = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['ConvRate']
@@ -351,12 +345,11 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['ConvRate']
-            # Pill WoW · solo en destino, corp y hotel (tienen merge W17)
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('ConvRate_WoW_pp', None)
-                if wow_pp is not None and wow_pp == wow_pp:  # not NaN
-                    mejora = wow_pp > 0  # ConvRate: mejora si sube
+                if wow_pp is not None and wow_pp == wow_pp:
+                    mejora = wow_pp > 0
                     color = '#2F6C34' if mejora else '#C0392B'
                     bg    = '#EAF3DE' if mejora else '#FCE8E6'
                     arrow = '↑' if wow_pp > 0 else '↓'
@@ -366,23 +359,16 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            cell = (f'<div class="kpi-row" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                    f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
-                    f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
-                    f'{wow_pill}</div>')
-            if i < 5:
-                rows_left += cell
-            else:
-                rows_right += cell
-        if rows_right:
-            panel_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div>{rows_left}</div><div>{rows_right}</div>'
-                f'</div>'
-            )
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                          f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
+                          f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
+                          f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
+                          f'{wow_pill}</div>')
+        if t_key not in ('channel', 'canasta'):
+            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
         else:
-            panel_html = rows_left
+            panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
@@ -401,7 +387,8 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 {gauge}
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<div class="tab-panels">{panels}</div>
+<input id="sb-kpi-cv" class="sb-input sb-card-cv" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-cv-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''
 

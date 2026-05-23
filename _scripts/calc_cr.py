@@ -218,9 +218,9 @@ def tab_eficacia():
     p50_d = g_d['CR_Unicos'].quantile(0.50)
     p50_c = g_c['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
-    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(10).reset_index(drop=True)
-    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
-    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
+    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
     # Merge WoW
     df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17']], on='Destino', how='left')
     df_d['Eficacia_WoW_pp'] = (df_d['Eficacia'] - df_d['Eficacia_W17']) * 100
@@ -256,9 +256,9 @@ def tab_convrate():
     p50_d = g_d['CR_Unicos'].quantile(0.50)
     p50_c = g_c['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
-    df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(10).reset_index(drop=True)
-    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
-    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(10).reset_index(drop=True)
+    df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_c = g_c[g_c['CR_Unicos']>=p50_c].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
     # Merge WoW
     df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17']], on='Destino', how='left')
     df_d['ConvRate_WoW_pp'] = (df_d['ConvRate'] - df_d['ConvRate_W17']) * 100

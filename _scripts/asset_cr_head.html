@@ -433,12 +433,25 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       rows.forEach(function(r){
         var lbl = norm(r.getAttribute('data-hist-label'));
         var match = !q || lbl.indexOf(q) >= 0;
+        // rowIdx: posición dentro de la pestaña (0-99), guardado como data-row-idx
+        var rowIdx = parseInt(r.getAttribute('data-row-idx') || '0');
         if (match) {
-          r.classList.remove('sb-hidden');
-          visible++;
+          // Sin query: mostrar solo primeras 10 de cada tab; con query: mostrar todas las que matchean
+          var showRow = q ? true : (rowIdx < 10);
+          if (showRow) {
+            r.classList.remove('sb-hidden');
+            visible++;
+          } else {
+            r.classList.add('sb-hidden');
+          }
         } else {
           r.classList.add('sb-hidden');
         }
+      });
+      // En modo búsqueda: colapsar column-count a 1 para que sb-hidden funcione bien
+      var tabRows = scope.querySelectorAll('.kpi-tab-rows');
+      tabRows.forEach(function(el){
+        el.style.columnCount = q ? '1' : '2';
       });
       if (counter){
         if (q){

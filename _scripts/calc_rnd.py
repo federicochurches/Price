@@ -170,7 +170,7 @@ def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
         sub = sub[sub['IPM'] > 0]
     if min_trafico:
         sub = sub[sub['Trafico'] >= min_trafico]
-    return sub.sort_values(sort_col, ascending=asc).head(10).reset_index(drop=True)
+    return sub.sort_values(sort_col, ascending=asc).head(100).reset_index(drop=True)
 
 # Umbral mínimo de tráfico para tabs de dimensión (evita outliers de bajo volumen)
 MIN_TRAFICO_DIM = 500_000

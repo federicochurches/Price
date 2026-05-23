@@ -181,8 +181,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         ('hotel','Hotel', TAB_NoDispo['hotel']),
         ('canasta','Canasta', TAB_NoDispo['canasta']),
     ]:
-        # 2 columnas · 1-5 izquierda, 6-10 derecha · peor→mejor (ya viene ordenado descendente)
-        rows_left, rows_right = '', ''
+        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
+        rows_html = ''
         for i, r in df_t.iterrows():
             nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
             if t_key=='canasta':
@@ -194,7 +194,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = r['%NoDispo']
-            # pill WoW · solo en País, Destino, Corp (no Hotel ni Canasta)
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
@@ -215,24 +214,17 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
             try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
             except: _nd_w20 = _nd_w21
-            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                    f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}">'
-                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
-                    f'{i+1}. {lab}</span>'
-                    f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5:
-                rows_left += cell
-            else:
-                rows_right += cell
-        if rows_right:
-            panel_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div>{rows_left}</div><div>{rows_right}</div>'
-                f'</div>'
-            )
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                          f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}">'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
+                          f'{i+1}. {lab}</span>'
+                          f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
+                          + (f'{wow_pill}</div>' if show_wow else '</div>'))
+        if t_key not in ('canasta',):
+            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
         else:
-            panel_html = rows_left
+            panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
@@ -251,7 +243,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 {gauge}
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<div class="tab-panels">{panels}</div>
+<input id="sb-kpi-nd" class="sb-input sb-card-nd" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-nd-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div id="kpi-nd-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
 
@@ -280,8 +273,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         ('hotel','Hotel', TAB_RPM['hotel']),
         ('canasta','Canasta', TAB_RPM['canasta']),
     ]:
-        # 2 columnas peor→mejor (TAB_RPM ya viene ordenado ascendente: peor RPM primero)
-        rows_left, rows_right = '', ''
+        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
+        rows_html = ''
         for i, r in df_t.iterrows():
             rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
             if t_key=='canasta':
@@ -293,14 +286,13 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
                 lab = truncate(r[col], 26); val = rpm_val
-            # pill WoW · solo en País, Destino, Corp (no Hotel ni Canasta)
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
                 wow_v = r.get('IPM_WoW_pp', r.get('RPM_WoW_pct', None))
-                ipm_prev = r.get('IPM_W18', r.get('IPM_W17', 0))  # semana anterior
+                ipm_prev = r.get('IPM_W18', r.get('IPM_W17', 0))
                 if wow_v is not None and not (wow_v != wow_v) and abs(wow_v) > 0.1 and ipm_prev > 0:
-                    wow_pct = (wow_v / ipm_prev) * 100  # convertir diferencia absoluta → %
+                    wow_pct = (wow_v / ipm_prev) * 100
                     mejora = wow_pct > 0
                     arrow = '↑' if wow_pct > 0 else '↓'
                     wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
@@ -314,24 +306,17 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
             try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
             except: _ipm_w20 = _ipm_w21
-            cell = (f'<div style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                    f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}">'
-                    f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
-                    f'{i+1}. {lab}</span>'
-                    f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5:
-                rows_left += cell
-            else:
-                rows_right += cell
-        if rows_right:
-            panel_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div>{rows_left}</div><div>{rows_right}</div>'
-                f'</div>'
-            )
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+                          f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}">'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
+                          f'{i+1}. {lab}</span>'
+                          f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
+                          + (f'{wow_pill}</div>' if show_wow else '</div>'))
+        if t_key not in ('canasta',):
+            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
         else:
-            panel_html = rows_left
+            panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
@@ -350,7 +335,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 {gauge}
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<div class="tab-panels">{panels}</div>
+<input id="sb-kpi-ipm" class="sb-input sb-card-ipm" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ipm-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''
 
