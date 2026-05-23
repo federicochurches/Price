@@ -297,7 +297,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
-        pill = banda_pill(banda, target=pill_target, font_size='9px')
+        pill = banda_pill(banda, target=pill_target, font_size='11px')
+        pill_with_target = pill + target_caption(pill_target, font_size='10px')
         gauge = gauge_canasta(banda, gauge_tipo)
         val18_str = fmt_pct2(val18) if prefix == '' else f'${fmt_num2(val18)}'
         val17_str = fmt_pct2(val17) if prefix == '' else f'${fmt_num2(val17)}'
@@ -349,7 +350,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-top:4px;">{val18_str}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 {gauge}
 {wb}
 <div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);">{tabs_labels}</div>
@@ -420,7 +421,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # === RESUMEN EJECUTIVO con pills de banda y WoW ===
     def pill_b(nombre):
-        COLORS = {'Exitosa':('#4FC3F4','#E8F7FD'),'Aceptable':('#5C469C','#EDE8F7'),
+        COLORS = {'Exitosa':('#085041','#E1F5EE'),'Aceptable':('#5C469C','#EDE8F7'),
                   'Revisar':('#A86A1D','#FFF4E0'),'Crítica':('#C0392B','#FCE4F1'),
                   'Súper Crítica':('#ffffff','rgba(22,22,22,.80)'),'Sin Conv':('#8A8377','#F2EEE6')}
         ct, cb = COLORS.get(nombre, ('#161616','#F2EEE6'))

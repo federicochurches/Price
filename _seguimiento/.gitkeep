@@ -1,0 +1,8 @@
+# Carpeta de plan_seguimiento_WNN.md
+# Los archivos plan_seguimiento_W{N}.md se generan automáticamente cada semana
+# por build_package.py (Paso 6 del pipeline).
+# 
+# Workflow carryover:
+# - QW (Quick Win) sin completar pasan a la semana siguiente automáticamente como OPEN
+# - QW completados se mueven manualmente a la sección "## CERRADO" antes del pipeline
+# - ES (Estratégica) y MP (Mid Priority) se mantienen vigentes hasta resolución explícita

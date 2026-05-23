@@ -11,12 +11,12 @@ import json as _json
 
 # ── Colores exactos del sistema D (render_helpers.py) ─────────────────────────
 _BANDA_COLORS = {
-    'Exitosa':        {'bg': '#E8F7FD', 'fg': '#0D7A99', 'bd': '#4FC3F4',  'footer': '#0D7A99'},
-    'Aceptable':      {'bg': '#EDE8F7', 'fg': '#5C469C', 'bd': '#5C469C',  'footer': '#5C469C'},
-    'Revisar':        {'bg': '#FFF4E0', 'fg': '#A86A1D', 'bd': '#D4A878',  'footer': '#A86A1D'},
-    'Crítica':        {'bg': '#FCE4F1', 'fg': '#C0392B', 'bd': '#C0392B',  'footer': '#C0392B'},
-    'Súper Crítica':  {'bg': '#161616', 'fg': '#FFFFFF', 'bd': '#161616',  'footer': '#161616'},
-    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#8A8377', 'bd': '#8A8377',  'footer': '#8A8377'},
+    'Exitosa':        {'bg': '#E1F5EE', 'fg': '#085041', 'bd': '#1D9E75',  'footer': '#085041'},
+    'Aceptable':      {'bg': '#EDE8F7', 'fg': '#3C3489', 'bd': '#5C469C',  'footer': '#3C3489'},
+    'Revisar':        {'bg': '#FFEDD5', 'fg': '#7C2D12', 'bd': '#F97316',  'footer': '#7C2D12'},
+    'Crítica':        {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B',  'footer': '#99162B'},
+    'Súper Crítica':  {'bg': '#A32D2D', 'fg': '#FCEBEB', 'bd': '#791F1F',  'footer': '#A32D2D'},
+    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377',  'footer': '#5F5E5A'},
 }
 _BANDA_COLORS_JS = {
     k: {'bg': v['bg'], 'fg': v['fg'], 'footer': v['footer']}
@@ -134,9 +134,8 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       <div id="hist-{canvas_id}-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">{v_avg:.2f}%</div>
     </div>
     <div id="hist-{canvas_id}-banda-box"
-         style="text-align:center;padding:6px 2px;border-radius:3px;background:{b_bg};border:1px solid {b_bd};">
-      <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:{b_fg};">Banda</div>
-      <div id="hist-{canvas_id}-banda" style="font-size:10px;font-weight:700;color:{b_fg};margin-top:2px;line-height:1.2;">{banda_actual}</div>
+         style="text-align:center;padding:10px 6px;border-radius:3px;background:{b_bg};border:1px solid {b_bd};">
+      <div id="hist-{canvas_id}-banda" style="font-size:11px;font-weight:700;color:{b_fg};line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</div>
     </div>
   </div>
 
@@ -155,7 +154,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{b_footer};">Banda: {banda_actual}</span>
+    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{b_footer};text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
     <span id="hist-{canvas_id}-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥{int(target) if target == int(target) else target}%</span>
   </div>
 </div>
@@ -318,11 +317,11 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       bbEl.style.color        = bc.fg;
       bbEl.style.borderColor  = bc.fg;
     }}
-    if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
+    if (bEl) {{ bEl.textContent = banda.toUpperCase(); bEl.style.color = bc.fg; }}
 
     // Footer: usa bc.footer (siempre legible sobre fondo claro)
     el = document.getElementById('hist-' + CID + '-banda-footer');
-    if (el) {{ el.textContent = 'Banda: ' + banda; el.style.color = bc.footer; }}
+    if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
     el = document.getElementById('hist-' + CID + '-trend-footer');
     if (el) el.innerHTML = 'Target: ≥' + TARGET + '%';
 

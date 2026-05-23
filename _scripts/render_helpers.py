@@ -39,16 +39,28 @@ BANDA_COLORS = {
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 
-def banda_pill(banda, target=None, font_size='10px'):
-    """Renderiza pill de severity"""
+def banda_pill(banda, target=None, font_size='13px'):
+    """Renderiza pill de severity · estilo Opción D (paleta D)
+    El parámetro `target` se mantiene por compatibilidad de firma pero se IGNORA
+    (decisión post W20 sesión 4: target va como caption separado, no dentro del badge).
+    """
     c = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
     bg = c['bg']
     fg = c['fg']
     bd = c['bd']
-    target_html = f' <span style="font-weight:500;opacity:.85;text-transform:none;letter-spacing:0;font-size:{font_size};">· Target {target}</span>' if target else ''
-    return (f'<span style="display:inline-block;font-size:{font_size};font-weight:700;letter-spacing:.05em;'
-            f'text-transform:uppercase;padding:5px 12px;border-radius:3px;background:{bg};color:{fg};'
-            f'border:1px solid {bd};"><strong>{banda}</strong>{target_html}</span>')
+    # Mapear nombre de banda a versión mayúscula con espacios correctos
+    banda_upper = banda.upper()
+    return (f'<span style="display:inline-block;font-size:{font_size};font-weight:700;letter-spacing:.04em;'
+            f'text-transform:uppercase;padding:10px 22px;border-radius:3px;background:{bg};color:{fg};'
+            f'border:1px solid {bd};text-align:center;">{banda_upper}</span>')
+
+
+def target_caption(target_text, font_size='11px'):
+    """Caption gris fino para mostrar target debajo del badge.
+    Reemplaza la parte '· Target X%' que antes iba dentro del pill."""
+    return (f'<div style="font-size:{font_size};font-weight:500;color:var(--ink-muted);'
+            f'letter-spacing:.02em;margin-top:6px;">Target {target_text}</div>')
+
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     """Render gauge bar 5 niveles para %NoDispo"""
@@ -58,7 +70,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',       '20–60%',  '#C0392B'),
             ('Revisar',       '5–20%',   '#D4A878'),
             ('Aceptable',     '3–5%',    '#5C469C'),
-            ('Exitosa',       '< 3%',    '#4FC3F4'),
+            ('Exitosa',       '< 3%',    '#085041'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
         levels = [
@@ -66,7 +78,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',        '< $199',      '#C0392B'),
             ('Revisar',        '$200–$499',   '#D4A878'),
             ('Aceptable',      '$500–$649',   '#5C469C'),
-            ('Exitosa',        '≥ $650',      '#4FC3F4'),
+            ('Exitosa',        '≥ $650',      '#085041'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [
@@ -74,7 +86,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',       '60–85%',  '#C0392B'),
             ('Revisar',       '85–93%',  '#D4A878'),
             ('Aceptable',     '93–97%',  '#5C469C'),
-            ('Exitosa',       '≥ 97%',   '#4FC3F4'),
+            ('Exitosa',       '≥ 97%',   '#085041'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
         levels = [
@@ -82,7 +94,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',        '< 0,8%',    '#C0392B'),
             ('Revisar',        '0,8–1,5%',  '#D4A878'),
             ('Aceptable',      '1,5–2,5%',  '#5C469C'),
-            ('Exitosa',        '> 2,5%',    '#4FC3F4'),
+            ('Exitosa',        '> 2,5%',    '#085041'),
         ]
     cells = []
     for nombre, rango, color in levels:

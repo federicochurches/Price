@@ -1,6 +1,227 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · 23 Mayo 2026 · Sesión 4 · Módulo histórico CR hotel/dim + Reformulación badges Opción D
+
+### ✨ Feature 1 · Módulo histórico CR en Análisis por hotel + Análisis por dimensión
+
+Pendiente cerrado de sesión 3: portar el módulo histórico de RND a las dos secciones equivalentes en CR.
+
+**Nueva función:** `render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv)` en `render_cr_p2.py` (análoga a `render_historico_seccion_rnd`).
+
+**Modificado:** `historico_module_v2.py` ahora registra listeners `hist-update` y `hist-reset` SIEMPRE (fuera del bloque `readyState`), permitiendo que wrappers externos disparen actualizaciones del canvas. Backward-compatible con el listener interno de `.kpi-card` (Hero y canastas siguen funcionando).
+
+**Parámetro opcional:** `with_hist=True` en `render_top_table_cr` y `_render_dim_table` enriquece cada fila con `data-hist-w21/w20/cv-w21/cv-w20/label` + `cursor:pointer`.
+
+**Integración:**
+- `render_bloque_hoteles_cr` → canvas IDs `hcr-hotel-ef` y `hcr-hotel-cv` (debajo de los 4 tabs Críticos/BajoRend/SinConv/MenorCV)
+- `render_bloque_dimensiones_cr` → canvas IDs `hcr-dim-ef` y `hcr-dim-cv` (debajo de los 3 tabs Corp/Destino/Channel)
+
+**UX:** click en fila de tabla actualiza ambos módulos (Eficacia + ConvRate) sincronizadamente. Re-click resetea a Global. Aislamiento total: clicks en sección NO afectan cards hero y viceversa.
+
+**Commit:** `6a0c38e` · feat(cr): módulo histórico reactivo en Análisis por hotel y por dimensión
+
+### 🎨 Feature 2 · Reformulación badges severity (Opción D + paleta D)
+
+Cierre del cambio que se había perdido en un revert. **Estilo Opción D** aplicado uniformemente a TODOS los badges del sistema (Hero, módulos históricos, severity tablas, pills en filas).
+
+**Nuevo estilo:**
+```css
+font-size: 13px              /* canastas: 11px */
+font-weight: 700
+letter-spacing: .04em
+text-transform: uppercase
+padding: 10px 22px
+border-radius: 3px
+border: 1px solid {bd}
+text-align: center
+```
+
+**Cambios funcionales:**
+- Texto del badge: SOLO nombre de banda en mayúsculas (sin "· Target X%")
+- Nueva función `target_caption(target_text, font_size='11px')` en `render_helpers.py` para renderizar el target como caption gris separado debajo del badge
+- `banda_pill()` refactorizada: parámetro `target` se mantiene en firma por compatibilidad pero se ignora
+
+**Módulo histórico CR:**
+- Quitado el label "Banda" como title arriba del badge (línea 138 vieja del `_BANDA_COLORS` box)
+- Quitado el prefijo "Banda: " del footer — ahora muestra solo `EXITOSA`, `REVISAR`, etc. en mayúsculas
+- JS `updateMetrics()`: `el.textContent = banda.toUpperCase()` en lugar de `'Banda: ' + banda`
+
+El módulo histórico RND ya estaba correcto desde sesión 2 — no requirió cambios.
+
+### 🔧 Fix barrido · Cyan `#4FC3F4` → Verde teal `#085041` en Exitosa
+
+Sesión 3 había aplicado el fix solo a `BANDA_COLORS` del `render_helpers.py`. Quedaron 22 referencias hardcodeadas a cyan que se escaparon. **Esta sesión barrió todas:**
+
+| Archivo | Lugares | Tipo |
+|---|---|---|
+| `render_helpers.py` | 4 ocurrencias (`gauge_5levels` variantes) | Hardcoded Exitosa color |
+| `render_cr_p2.py` | 3 ocurrencias + fallback bg `#E8F7FD` → `#E1F5EE` | Severity gauges + fallback |
+| `render_rnd_p2.py` | 4 ocurrencias (severity + tablas dim) | Hardcoded Exitosa |
+| `render_rnd_p3.py` | 1 (COLORS canastas) | Hardcoded |
+| `template_severity.py` | 5 ocurrencias (Severity tables) | bg/fg de banda Exitosa |
+| `historico_module_v2.py` | 1 (`_BANDA_COLORS['Exitosa']`) | Dict de colores módulo CR |
+| `asset_cr_head.html` · `asset_rnd_head.html` | Var CSS `--green` y `--green-soft` + `exec-mini-card.qw` border | CSS |
+| `snippet_alertas_canasta.html` + `_rnd.html` (+ duplicados en `snippets/`) | `border-top:3px solid` | CSS inline |
+
+**Cyan `#4FC3F4` queda SOLO en 2 lugares válidos:**
+1. `IPM_ACCENT` en `historico_module_rnd.py` línea 10 (Arctic Blue corporativo, accent visual IPM)
+2. Label "🔌 Third Party" en `render_cr_p1.py` líneas 197, 338 (color identitario familia Third Party CR)
+
+### 📋 Bugs corregidos #81–#93
+- #81 `banda_pill()` rediseñada · estilo Opción D
+- #82 Nueva función helper `target_caption()`
+- #83 Hero + canastas usan `pill_with_target` (pill + caption separado)
+- #84 Módulo histórico CR: quitar label "Banda" arriba del badge
+- #85 Módulo histórico CR footer: quitar prefijo "Banda: "
+- #86 JS `updateMetrics()` `historico_module_v2.py`: textContent solo nombre en mayúsculas
+- #87 `gauge_5levels` Exitosa cyan → verde (4 variantes)
+- #88 `render_cr_p2.py` Exitosa cyan → verde (3) + fallback bg cyan → verde
+- #89 `render_rnd_p2.py` Exitosa cyan → verde (4)
+- #90 `render_rnd_p3.py` COLORS canastas Exitosa cyan → verde
+- #91 `template_severity.py` Exitosa bg/fg cyan → verde teal (5)
+- #92 Var CSS `--green` y `--green-soft` cyan → verde + `exec-mini-card.qw` border
+- #93 Snippets alertas canasta border-top cyan → verde
+
+### 🗂 Archivos modificados
+**Código:** `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `historico_module_v2.py` · `template_severity.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `snippet_alertas_canasta.html` · `snippet_alertas_canasta_rnd.html` · `snippets/snippet_alertas_canasta*.html` (duplicados)
+
+**Documentación:** `_docs/BANDAS.md` (reescrito completo) · `_docs/PROMPT_MAESTRO_v3.md` (sesión 3 + 4 documentadas)
+
+### ⏸ Pendientes que quedan abiertos
+- Validación visual final del reporte CR W20 regenerado con badges Opción D
+- Regenerar reporte RND W20 con los mismos cambios
+- Datos históricos reales W14-W20 en pickle (reemplazar `_FICTICIOS`)
+- ~~Decisión sobre `_docs/CHANGELOG.md` duplicado~~ ✅ resuelto: `_governance/` eliminado, canon unificado en `_docs/CHANGELOG.md`
+- Restaurar search box (tarea conocida desde sesiones huérfanas previas)
+- Commit + push de los cambios de esta sesión
+
+### 🚫 Bugs descartados en esta sesión
+- Bug 2 · CR canasta dim números pegados (sesión 4 inicial): descartado tras verificar que pertenecía a una rama huérfana de un revert
+- Bug 4 · Search box no revela (sesión 4 inicial): descartado por misma razón
+- Bug 5 · RND sin search en hotel (sesión 4 inicial): descartado por misma razón
+
+---
+## Week 20 · 22 Mayo 2026 · Sesión 3 · Fixes visuales módulos históricos + colores severity
+
+### 🎨 Sistema de colores severity — correcciones
+
+**Exitosa:** `#4FC3F4` (cyan) → `#085041` (verde teal) en todos los contextos:
+- Barras de progreso del severity principal
+- Pills de banda Exitosa
+- Variable CSS `--green: #4FC3F4` → `--green: #085041`
+- Gauge de 5 niveles del módulo histórico
+
+**Súper Crítica:** `#161616` (negro) → `#A32D2D` (rojo oscuro) en gauges
+
+**Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — mismo grosor, colores sólidos puros, sin transparencia
+
+### ✨ Módulos históricos Análisis por Hotel y Dimensión (RND) — funcionalidad completa
+
+**Problema raíz resuelto:** los módulos clonados (`hrnd-hotel-nd/ipm`, `hrnd-dim-nd/ipm`) no tenían los listeners `hist-update` y `hist-reset` que permiten que el click en una fila actualice el canvas.
+
+**Fixes aplicados:**
+- Listeners `hist-update` y `hist-reset` agregados a los 4 módulos clonados directamente en el HTML
+- `data-hist-nd` e `data-hist-ipm` con valores reales extraídos del HTML (antes eran `0.0`)
+  - Hotel: %NoDispo real de cada fila (ej. `39.5%`, `56.33%`)
+  - Dimensión: %NoDispo e IPM real de cada corporativo/destino/país
+- Canvas IDs correctos: `hrnd-hotel-nd`, `hrnd-hotel-ipm`, `hrnd-dim-nd`, `hrnd-dim-ipm`
+- Balance de divs corregido (eliminación de `</div>` huérfano en línea 5151)
+
+### 🔧 Fixes de usabilidad módulo histórico
+
+- **Badge banda centrado** vertical y horizontal: `display:flex;align-items:center;justify-content:center;min-height:44px`
+- **`resetToGlobal` scope fix:** función definida antes del `addEventListener` en `attachListeners()`
+- **Reset a Global:** click en label "GLOBAL" o en fila activa resetea la vista (inline fix en módulos clonados)
+- **Severity → Severity** (mayúscula) en ambos reportes
+
+### 🗂 Archivos modificados
+`CheckRates_Reporte_Editorial.html` · `RatesNoDispo_Reporte_Editorial.html`
+
+---
+## Week 20 · 22 Mayo 2026 · Fixes visuales + módulo histórico en secciones RND
+
+### 🎨 Nueva paleta sistema de bandas D
+
+Rediseño completo de colores en `render_helpers.py`, `historico_module_cr.py` y `historico_module_rnd.py`:
+
+| Banda | Antes | Ahora |
+|---|---|---|
+| Exitosa | Celeste `#0D7A99` | Verde teal `#085041` |
+| Aceptable | Violet `#5C469C` | Violet oscuro `#3C3489` |
+| Revisar | Marrón `#A86A1D` | Naranja `#7C2D12` / `#F97316` |
+| Crítica | Rojo `#C0392B` | Rojo oscuro `#99162B` |
+| Súper Crítica | Negro `rgba(22,22,22,.80)` | Rojo `#A32D2D` / texto `#FCEBEB` |
+
+Aplicado en Python (3 archivos) y en los 2 HTMLs W20 (458 reemplazos CR + 380 RND).
+
+### 🎨 IPM accent → cyan corporativo `#4FC3F4`
+
+`historico_module_rnd.py`: `IPM_ACCENT` cambia de `#A86A1D` (amber viejo) a `#4FC3F4` (Arctic Blue corporativo).
+
+Consistencia final:
+
+| Reporte | Métrica 1 | Métrica 2 |
+|---|---|---|
+| CheckRates | Eficacia → magenta `#EA0074` | ConvRate → violet `#5C469C` |
+| RatesNoDispo | NoDispo → magenta `#EA0074` | IPM → cyan `#4FC3F4` |
+
+### ✨ Módulo histórico en Análisis por Hotel y Dimensión (RND)
+
+**`render_rnd_p2.py`** — nueva función `render_historico_seccion_rnd()`:
+- Módulo doble (NoDispo + IPM lado a lado) debajo del tabs-block en cada sección
+- Cada fila de hotel y dimensión tiene `data-hist-nd`, `data-hist-ipm`, `data-hist-nd-prev`, `data-hist-ipm-prev`, `data-hist-label`
+- Click en cualquier fila de cualquier tab actualiza ambos módulos vía `CustomEvent` (`hist-update`)
+- Click en "Global" o en fila activa resetea a vista global (`hist-reset`)
+- Canvas IDs: `hrnd-hotel-nd`, `hrnd-hotel-ipm`, `hrnd-dim-nd`, `hrnd-dim-ipm`
+
+**`historico_module_rnd.py`** — nuevos listeners:
+- `hist-update`: recibe `{cid, w_curr, w_prev, label}` → redibuja canvas + métricas
+- `hist-reset`: resetea a datos globales
+
+### 🔧 Fixes de usabilidad · módulo histórico
+
+- Label "Global" clickeable (subrayado punteado + `cursor:pointer`) → resetea a vista global
+- Click en fila ya seleccionada → deselecciona y resetea (toggle)
+- Aplica en `historico_module_cr.py` y `historico_module_rnd.py` + los 2 HTMLs W20
+
+### 📝 Fixes editoriales
+
+- `Severidad` → `Severity` en ambos reportes (7 reemplazos)
+- Footer eliminado en RND para consistencia con CR
+- Semanas canvas W14-W21 → W13-W20 en los HTMLs (fix aplicado directo en HTML)
+
+### 🗂 Archivos modificados
+`render_rnd_p2.py` · `render_helpers.py` · `historico_module_cr.py` · `historico_module_rnd.py` · `CheckRates_Reporte_Editorial.html` · `RatesNoDispo_Reporte_Editorial.html`
+
+---
+## Week 20 · 22 Mayo 2026 · Fixes módulos históricos CR + RND
+
+### 🐛 Bugs corregidos
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| #72 | `historico_module_cr.py` | Labels canvas en `rgba(100,90,80,0.55)` y `font-size:7px` → `0.80` y `8px` (legibles) |
+| #73 | `historico_module_cr.py` | Datos ficticios con variación insuficiente → fixtures con variación realista W(N-7)-W(N) |
+| #74 | `historico_module_cr.py` | `W14`/`W21` hardcodeados en footer sparkline → `{semanas[0]}` / `{semanas[-1]}` dinámicos |
+| #75 | `historico_module_rnd.py` | `W14`/`W21` hardcodeados en footer sparkline → `{semanas[0]}` / `{semanas[-1]}` dinámicos |
+
+### 📐 Detalle
+
+**Fix #72-#73 (CR):** El canvas mostraba labels ilegibles (gris pálido, fuente diminuta) y la curva aparecía casi plana por insuficiente variación en los datos ficticios. Fix: alpha `0.55 → 0.80`, font `7px → 8px`, nuevos fixtures con delta realista por semana.
+
+**Fix #74 (CR) + #75 (RND):** El footer del sparkline mostraba siempre `W14 ... W21` hardcodeado, independientemente de `current_week`. Fix: se reemplaza por `{semanas[0]}` y `{semanas[-1]}`, que se calculan dinámicamente a partir de `current_week`. Con `current_week='W20'` → muestra `W13 ... W20`.
+
+### ⚠️ Regla operativa: `current_week` = semana ACTUAL
+
+Al integrar los módulos en los render scripts, usar siempre la semana que se está reportando:
+- Hoy W20 → `current_week='W20'` → genera W13-W20
+- Próximo lunes W21 → `current_week='W21'` → genera W14-W21
+
+### 🗂 Archivos modificados
+`historico_module_cr.py` · `historico_module_rnd.py`
+
+---
 ## Week 20 · 21 Mayo 2026 · Módulo Histórico RND + Fixes CR
 
 ### ✨ Feature: Módulo Histórico Reactivo en RatesNoDispo

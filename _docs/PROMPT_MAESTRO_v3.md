@@ -140,7 +140,8 @@ Price/
 ├── _email/                      (NO se publica · solo local)
 │   └── week-NN/Mail_WNN.html
 ├── _scripts/                    (NO se publica · solo local)
-├── _governance/                 (NO se publica · docs internas)
+├── _docs/                       (NO se publica · docs internas · README, CHANGELOG, BANDAS, PROMPT_MAESTRO, COMMIT_GUIDE, etc.)
+├── _seguimiento/                (carryover semanal de plan_seguimiento_WNN.md)
 ├── _template/_TEMPLATE_Hub.html
 ├── rates-nodispo/
 │   ├── _manual/GUIA_EDITORIAL_RatesNoDispo.html
@@ -896,4 +897,109 @@ valor grande → pill banda → gauge 5 niveles → wow_box → tabs (10 element
 
 ---
 
-**Última actualización:** Mayo 2026 · post W20 sesión 3 · Exitosa verde · gauge sólido · módulo hotel+dim funcional · listeners hist-update · data-hist valores reales · bugs #72–#80
+## 📝 Cambios post W20 · Mayo 2026 (sesión 3 · Fixes visuales módulos históricos + colores severity)
+
+### Sistema de colores severity — correcciones definitivas
+
+**Exitosa:** `#4FC3F4` (cyan) → `#085041` (verde teal) en todos los contextos:
+- Barras de progreso del severity principal
+- Pills de banda Exitosa
+- Variable CSS `--green: #4FC3F4` → `--green: #085041` en `asset_cr_head.html` y `asset_rnd_head.html`
+- Gauge de 5 niveles en `render_helpers.py` (4 ocurrencias)
+- `template_severity.py` para tablas Severity (5 ocurrencias)
+- `historico_module_v2.py` `_BANDA_COLORS` dict
+
+**Súper Crítica:** `#161616` (negro) → `#A32D2D` (rojo oscuro) en pills (no en barras del gauge, que siguen negras).
+
+**Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — mismo grosor, colores sólidos puros, sin transparencia. La banda activa se identifica por la pill encima, no por el gauge.
+
+### Cyan `#4FC3F4` queda SOLO en 2 lugares válidos
+1. `IPM_ACCENT` en `historico_module_rnd.py` (Arctic Blue corporativo, accent visual IPM)
+2. Label "🔌 Third Party" en `render_cr_p1.py` líneas 197, 338 (color identitario Third Party CR)
+
+### Módulos históricos Análisis por Hotel y Dimensión (RND)
+- Resuelto problema de listeners faltantes: los módulos clonados `hrnd-hotel-nd/ipm` y `hrnd-dim-nd/ipm` ahora escuchan eventos `hist-update` y `hist-reset` correctamente
+- Click en fila actualiza canvas + métricas + banda
+- Click en label "Global" vuelve a vista por defecto
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `historico_module_v2.py` · `historico_module_rnd.py` · `template_severity.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `snippet_alertas_canasta.html` · `snippet_alertas_canasta_rnd.html`
+
+### Pendientes que quedaron al cierre
+- Módulo histórico en secciones Análisis por Hotel y Dimensión (CR) — pendiente desde W20 (cerrado en sesión 4)
+- Datos históricos reales W14-W20 en pickle (siguen ficticios)
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión 4 · Módulo histórico CR hotel/dim + Reformulación badges Opción D)
+
+### Feature 1 · Módulo histórico CR en Análisis por hotel + Análisis por dimensión
+
+Pendiente cerrado: portar el módulo histórico de RND a las dos secciones equivalentes en CR.
+
+**Implementación:**
+- Nueva función `render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv)` en `render_cr_p2.py` (análoga a `render_historico_seccion_rnd`)
+- Listeners `hist-update` / `hist-reset` agregados a `historico_module_v2.py` para que el módulo CR pueda ser controlado desde wrappers externos (backward-compatible con el listener interno de `.kpi-card` de Hero/canastas)
+- Parámetro opcional `with_hist=True` en `render_top_table_cr` y `_render_dim_table`: enriquece filas con `data-hist-w21/w20/cv-w21/cv-w20/label` + `cursor:pointer`
+- Integración en `render_bloque_hoteles_cr` y `render_bloque_dimensiones_cr` con canvas IDs `hcr-hotel-ef/cv` y `hcr-dim-ef/cv`
+
+**UX:** click en fila de tabla → ambos módulos (Ef + CV) se actualizan en sincronía. Re-click → reset a Global. Aislamiento: clicks en sección NO afectan cards hero y viceversa.
+
+### Feature 2 · Reformulación badges severity (Opción D + paleta D)
+
+Cierre del cambio que se había perdido en un revert. **Estilo Opción D** aplicado uniformemente a TODOS los badges del sistema:
+
+```css
+font-size: 13px              (canastas: 11px)
+font-weight: 700
+letter-spacing: .04em
+text-transform: uppercase
+padding: 10px 22px
+border-radius: 3px
+border: 1px solid {bd}
+text-align: center
+```
+
+**Texto del badge:** solo nombre de banda en mayúsculas. **El "Target X%" ya NO va dentro del badge** — se renderiza como caption gris separado debajo, mediante nueva función helper `target_caption(target_text, font_size='11px')` en `render_helpers.py`.
+
+**Función `banda_pill()` refactor:** el parámetro `target` se mantiene en la firma por compatibilidad pero se ignora (el target ahora se inyecta vía `target_caption()` por separado).
+
+**Módulo histórico CR:** además del estilo Opción D, se quitó:
+- La palabra "Banda" como label arriba del badge en la box principal
+- El prefijo "Banda: " del footer (ahora dice solo `EXITOSA`, `REVISAR`, etc. en mayúsculas)
+
+El módulo histórico RND ya estaba correcto desde sesión 2 — no requirió cambios en este barrido.
+
+### Bugs corregidos
+| Bug | Archivo(s) | Descripción |
+|---|---|---|
+| #81 | `render_helpers.py` | `banda_pill()` rediseñada · estilo Opción D · padding 10px 22px · font 13px · text-align center |
+| #82 | `render_helpers.py` | Nueva función `target_caption()` para mostrar target separado del badge |
+| #83 | `render_cr_p1.py`, `render_rnd_p1.py`, `render_cr_p3.py`, `render_rnd_p3.py` | Hero + canastas usan `pill_with_target` (pill + caption) en lugar de pill con target embebido |
+| #84 | `historico_module_v2.py` | Quitar label "Banda" arriba del badge en módulo histórico CR |
+| #85 | `historico_module_v2.py` | Footer del módulo histórico CR: quitar prefijo "Banda: " · mostrar solo nombre en mayúsculas |
+| #86 | `historico_module_v2.py` JS | `updateMetrics()`: `el.textContent = banda.toUpperCase()` en lugar de `'Banda: ' + banda` |
+| #87 | `render_helpers.py` `gauge_5levels` | Exitosa cyan `#4FC3F4` → verde teal `#085041` en 4 variantes (nodispo, rpm, eficacia, convrate) |
+| #88 | `render_cr_p2.py` | Exitosa cyan → verde en 3 lugares (severity gauges) + fallback `#E8F7FD` → `#E1F5EE` |
+| #89 | `render_rnd_p2.py` | Exitosa cyan → verde en 4 lugares (severity gauges + tablas dim) |
+| #90 | `render_rnd_p3.py` | COLORS canastas Exitosa cyan → verde |
+| #91 | `template_severity.py` | Exitosa bg/fg cyan → verde teal en 5 lugares |
+| #92 | `asset_cr_head.html`, `asset_rnd_head.html` | Var CSS `--green` y `--green-soft` cyan → verde · `exec-mini-card.qw` border cyan → verde |
+| #93 | `snippet_alertas_canasta*.html` (+ duplicados en `snippets/`) | `border-top:3px solid` cyan → verde |
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `historico_module_v2.py` · `template_severity.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `snippet_alertas_canasta.html` · `snippet_alertas_canasta_rnd.html` · `snippets/snippet_alertas_canasta*.html` (duplicados)
+
+### Documentación actualizada
+`_docs/BANDAS.md` (reescrito completo con paleta D + estilo Opción D + thresholds + cyan excepciones)
+
+### Pendientes que quedan abiertos
+- ~~Decisión sobre `_docs/CHANGELOG.md` duplicado~~ (resuelto W20s4: `_governance/` eliminado, canon vive en `_docs/CHANGELOG.md`)
+- Validación visual final del reporte CR W20 regenerado con badges Opción D
+- Regenerar reporte RND W20 con los mismos cambios
+- Datos históricos reales W14-W20 en pickle (reemplazar `_FICTICIOS`)
+- Restaurar search box (tarea conocida desde sesiones huérfanas)
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesión 4 · módulo histórico CR hotel+dim + Opción D badges + paleta D Exitosa verde + sin "Banda" label + target caption separado · bugs #81–#93

@@ -40,8 +40,8 @@ git push origin main
 | `index.html` | Hub con nueva card de la semana |
 | `_scripts/render_rnd_p*.py` | Pipeline RND si hubo cambios de lógica |
 | `_scripts/render_cr_p*.py` | Pipeline CR ídem |
-| `_governance/CHANGELOG.md` | Entry de la semana |
-| `_governance/PROMPT_MAESTRO_v3.md` | Si hubo cambios de sistema |
+| `_docs/CHANGELOG.md` | Entry de la semana |
+| `_docs/PROMPT_MAESTRO_v3.md` | Si hubo cambios de sistema |
 
 **Si Claude entrega dos ZIPs** (ej. `PRICE_pack_W19.zip` y `PRICE_pack_W19_FULL.zip`),
 usar siempre el `_FULL` — contiene todos los archivos, no solo el reporte.
@@ -80,7 +80,8 @@ Price/
 ├── index.html
 ├── _template/                                  # SOLO hub
 │   └── _TEMPLATE_Hub.html
-├── _governance/                                # docs decisiones
+├── _docs/                                      # docs canónicas
+├── _seguimiento/                               # carryover semanal
 │   ├── BANDAS.md
 │   ├── AREAS_ACCOUNTABLE.md
 │   ├── ESTRUCTURA_TEMPLATE.md

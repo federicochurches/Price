@@ -39,7 +39,7 @@ hotel_channel_map = D.get('hotel_channel_map', {})
 
 WEEK_NUM      = D.get('VOL_NUM', '19')
 WEEK_PREV_NUM = str(int(WEEK_NUM) - 1)
-SEGUIMIENTO_FILE = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
+SEGUIMIENTO_FILE = f'_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
 
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
@@ -248,7 +248,7 @@ def render_severity_eficacia():
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#D4A878'),
         ('Aceptable','93–97%','#5C469C'),
-        ('Exitosa','≥ 97%','#4FC3F4'),
+        ('Exitosa','≥ 97%','#085041'),
     ]
     total = int(sev_ef_p80.sum())
     rows = ''
@@ -311,14 +311,14 @@ def render_severities_combinadas():
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#D4A878'),
         ('Aceptable','93–97%','#5C469C'),
-        ('Exitosa','≥ 97%','#4FC3F4'),
+        ('Exitosa','≥ 97%','#085041'),
     ]
     levels_cv = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','&lt; 0,8%','#C0392B'),
         ('Revisar','0,8–1,5%','#D4A878'),
         ('Aceptable','1,5–2,5%','#5C469C'),
-        ('Exitosa','≥ 2,5%','#4FC3F4'),
+        ('Exitosa','≥ 2,5%','#085041'),
     ]
     
     rows_ef, total_ef = render_table(sev_ef_p80, levels_ef)
@@ -545,7 +545,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     for i, r in df.iterrows():
         bnd = r.get('BandaEficacia','')
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg', CR_ACCENT)
-        bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E8F7FD')
+        bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E1F5EE')
         bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
                 f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;">{bnd}</span>')
@@ -627,7 +627,7 @@ def render_channel_agrupado():
     g_tp = g[g['Grupo']=='Third Party'].iloc[0]
     
     def pill_banda(b):
-        bg = "rgba(22,22,22,.80)" if b=="Súper Crítica" else BANDA_COLORS.get(b,{}).get('bg','#E8F7FD')
+        bg = "rgba(22,22,22,.80)" if b=="Súper Crítica" else BANDA_COLORS.get(b,{}).get('bg','#E1F5EE')
         fg = "#FFFFFF" if b=="Súper Crítica" else BANDA_COLORS.get(b,{}).get('fg', CR_ACCENT)
         return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.05em;">{b}</span>'
     
@@ -773,7 +773,7 @@ def render_por_channel_split():
         for i, r in df.iterrows():
             bnd = r.get('BandaEficacia','')
             bnd_color = BANDA_COLORS.get(bnd,{}).get('fg', color_b)
-            bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E8F7FD')
+            bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E1F5EE')
             bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
             pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
                     f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')

@@ -159,6 +159,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     banda = banda_nodispo(pct_w18)
     target = "&lt; 3%"
     pill = banda_pill(banda, target=target)
+    pill_with_target = pill + target_caption(target)
     gauge = gauge_5levels(banda, 'nodispo')
     
     wow_color = '#2F6C34' if pct_wow < 0 else '#C0392B'  # mejor si baja
@@ -247,7 +248,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;">
 <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 </div>
 </div>
 {gauge}
@@ -261,6 +262,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     banda = banda_rpm(rpm_w18, M['global_current']['bookings'])
     target = "≥ $650"
     pill = banda_pill(banda, target=target)
+    pill_with_target = pill + target_caption(target)
     gauge = gauge_5levels(banda, 'rpm')
     
     wow_color = '#2F6C34' if rpm_wow > 0 else '#C0392B'
@@ -345,7 +347,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
 <div style="margin-top:4px;">
 <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 </div>
 </div>
 {gauge}

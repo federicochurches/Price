@@ -127,6 +127,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
     banda = banda_eficacia(ef_w18)
     target = "≥ 97%"
     pill = banda_pill(banda, target=target)
+    pill_with_target = pill + target_caption(target)
     gauge = gauge_5levels(banda, 'eficacia')
     
     wow_color = '#2F6C34' if ef_wow > 0 else '#C0392B'
@@ -257,7 +258,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
 <div style="margin-top:4px;">
 <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 </div>
 </div>
 {gauge}
@@ -271,6 +272,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
     banda = banda_convrate(cv_w18, M['global_current']['bookings'])
     target = "≥ 2,5%"
     pill = banda_pill(banda, target=target)
+    pill_with_target = pill + target_caption(target)
     gauge = gauge_5levels(banda, 'convrate')
     
     wow_color = '#2F6C34' if cv_wow > 0 else '#C0392B'
@@ -396,7 +398,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
 <div style="margin-top:4px;">
 <div style="font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 </div>
 </div>
 {gauge}

@@ -47,7 +47,7 @@ M['global_w17'] = M['global_prev']
 
 WEEK_NUM_CR   = D.get('VOL_NUM', '19')
 WEEK_PREV_CR  = str(int(WEEK_NUM_CR) - 1)
-SEGUIMIENTO_FILE_CR = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_CR}.md'
+SEGUIMIENTO_FILE_CR = f'_seguimiento/plan_seguimiento_W{WEEK_PREV_CR}.md'
 df18 = D.get('df18', None)
 df17 = D.get('df17', None)
 hotel_channel_map_global = D.get('hotel_channel_map', {})
@@ -340,7 +340,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, tab_configs, card_id=''):
-        pill   = banda_pill(banda, target=pill_target, font_size='9px')
+        pill   = banda_pill(banda, target=pill_target, font_size='11px')
+        pill_with_target = pill + target_caption(pill_target, font_size='10px')
         gauge  = gauge_5levels(banda, gauge_tipo)
         v18str = fmt_pct2(val18)
         v17str = fmt_pct2(val17)
@@ -367,7 +368,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;margin-top:4px;">{v18str}</div>
-<div style="margin-top:10px;">{pill}</div>
+<div style="margin-top:10px;">{pill_with_target}</div>
 {gauge}
 {wb}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>

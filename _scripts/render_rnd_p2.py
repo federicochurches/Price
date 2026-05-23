@@ -29,7 +29,7 @@ g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
 
 WEEK_NUM      = D.get('VOL_NUM', '19')
 WEEK_PREV_NUM = str(int(WEEK_NUM) - 1)
-SEGUIMIENTO_FILE = f'_governance/_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
+SEGUIMIENTO_FILE = f'_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
 
 # ============ RESUMEN EJECUTIVO · 10 findings ============
 
@@ -90,7 +90,7 @@ def build_findings():
     
     def pill_banda(banda, target=''):
         COLORS = {
-            'Exitosa':       ('#0D7A99','#E8F7FD','#4FC3F4'),
+            'Exitosa':       ('#085041','#E1F5EE','#1D9E75'),
             'Aceptable':     ('#3B2F7A','#EEE9FF','#5C469C'),
             'Revisar':       ('#7A4A10','#FFF3E0','#A86A1D'),
             'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
@@ -168,7 +168,7 @@ def render_severity_nodispo():
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#D4A878'),
         ('Aceptable','3–5%','#5C469C'),
-        ('Exitosa','&lt; 3%','#4FC3F4'),
+        ('Exitosa','&lt; 3%','#085041'),
     ]
     total = int(sev_nd.sum())
     rows = ''
@@ -229,14 +229,14 @@ def render_severities_combinadas():
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#D4A878'),
         ('Aceptable','3–5%','#5C469C'),
-        ('Exitosa','&lt; 3%','#4FC3F4'),
+        ('Exitosa','&lt; 3%','#085041'),
     ]
     levels_ipm = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','< $199','#C0392B'),
         ('Revisar','$200–$499','#D4A878'),
         ('Aceptable','$500–$649','#5C469C'),
-        ('Exitosa','≥ $650','#4FC3F4'),
+        ('Exitosa','≥ $650','#085041'),
     ]
     
     rows_nd, total_nd = render_table(sev_nd, levels_nd)

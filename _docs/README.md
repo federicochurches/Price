@@ -31,8 +31,8 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | `template_resumen.py` | `render_resumen_ejecutivo(findings, accent_color, scope, header_title)` |
 | `template_alertas.py` | `render_alertas_block(scope_text, accent, card_h, card_d, card_c)` |
 | `template_severity.py` | `render_severity_block(...)` + `render_severity_2cols(...)` + `LEVELS_*` predefinidos |
-| `historico_module_cr.py` | `render_historico_cr(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para CheckRates (Eficacia + ConvRate) |
-| `historico_module_rnd.py` | `render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para RatesNoDispo (NoDispo + IPM) |
+| `historico_module_v2.py` | `render_historico_cr(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para CheckRates (Eficacia + ConvRate) · usado en Hero, canastas, hotel, dim |
+| `historico_module_rnd.py` | `render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id, current_week)` — módulo Evolución Histórica para RatesNoDispo (NoDispo + IPM) · usado en Hero, canastas, hotel, dim |
 
 ### Ensamblado y Excel
 | Archivo | Genera |
@@ -56,14 +56,16 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 Bloque HTML+JS reactivo que muestra la tendencia de 8 semanas de una métrica dentro de cada card KPI.
 
-### Cobertura (8 módulos por reporte)
+### Cobertura (12 módulos por reporte tras sesión 4)
 
 | Scope | CR (Eficacia + ConvRate) | RND (NoDispo + IPM) |
 |---|---|---|
-| Global | `h-global-ef` · `h-global-cv` | `hrnd-global-nd` · `hrnd-global-ipm` |
-| B2B-OP | `h-op-ef` · `h-op-cv` | `hrnd-op-nd` · `hrnd-op-ipm` |
-| CUG | `h-cug-ef` · `h-cug-cv` | `hrnd-cug-nd` · `hrnd-cug-ipm` |
-| B2C | `h-b2c-ef` · `h-b2c-cv` | `hrnd-b2c-nd` · `hrnd-b2c-ipm` |
+| **Global** (Hero) | `hcr-global-ef` · `hcr-global-cv` | `hrnd-global-nd` · `hrnd-global-ipm` |
+| **B2B-OP** (canasta) | `hcr-op-ef` · `hcr-op-cv` | `hrnd-op-nd` · `hrnd-op-ipm` |
+| **CUG** (canasta) | `hcr-cug-ef` · `hcr-cug-cv` | `hrnd-cug-nd` · `hrnd-cug-ipm` |
+| **B2C** (canasta) | `hcr-b2c-ef` · `hcr-b2c-cv` | `hrnd-b2c-nd` · `hrnd-b2c-ipm` |
+| **Análisis por hotel** | `hcr-hotel-ef` · `hcr-hotel-cv` ✅ W20s4 | `hrnd-hotel-nd` · `hrnd-hotel-ipm` |
+| **Análisis por dimensión** | `hcr-dim-ef` · `hcr-dim-cv` ✅ W20s4 | `hrnd-dim-nd` · `hrnd-dim-ipm` |
 
 ### Componentes de cada módulo
 
@@ -75,13 +77,13 @@ Bloque HTML+JS reactivo que muestra la tendencia de 8 semanas de una métrica de
 ### Uso en render scripts
 
 ```python
-from historico_module_cr import render_historico_cr
+from historico_module_v2 import render_historico_cr
 
 hist_html = render_historico_cr(
     metric_type='eficacia',   # 'eficacia' | 'convrate'
     banda_actual='Exitosa',
     val_actual=0.9740,        # float [0,1] para eficacia; float % para convrate
-    canvas_id='h-global-ef',
+    canvas_id='hcr-global-ef',
     current_week='W20'        # ← SIEMPRE la semana actual, nunca la próxima
 )
 ```
@@ -98,6 +100,30 @@ hist_html = render_historico_rnd(
 )
 ```
 
+### Wrapper de sección (Análisis por hotel + Análisis por dimensión)
+
+Para las secciones que necesitan 2 módulos lado a lado (Eficacia + ConvRate, o NoDispo + IPM), existe un wrapper que conecta los clicks de filas con eventos custom:
+
+```python
+# CR (en render_cr_p2.py)
+hist_section_cr = render_historico_seccion_cr(
+    canvas_id_ef='hcr-hotel-ef',
+    canvas_id_cv='hcr-hotel-cv',
+    banda_ef=..., val_ef=...,
+    banda_cv=..., val_cv=...,
+)
+
+# RND (en render_rnd_p2.py)
+hist_section_rnd = render_historico_seccion_rnd(
+    canvas_id_nd='hrnd-hotel-nd',
+    canvas_id_ipm='hrnd-hotel-ipm',
+    banda_nd=..., val_nd=...,
+    banda_ipm=..., val_ipm=...,
+)
+```
+
+Los módulos escuchan eventos `hist-update` y `hist-reset` disparados por el wrapper externo cuando el usuario clickea una fila con atributos `data-hist-*`.
+
 ### Regla `current_week` (crítica)
 
 `current_week` genera automáticamente el rango de 8 semanas mostrado:
@@ -111,6 +137,19 @@ hist_html = render_historico_rnd(
 **Cambio semanal:** Find & Replace `current_week='WNN'` → `current_week='W(NN+1)'` en `render_cr_p1.py`, `render_cr_p3.py`, `render_rnd_p1.py`, `render_rnd_p3.py` (16 ocurrencias total).
 
 **Gauge de 5 niveles:** todas las barras `height:6px · opacity:1` — colores sólidos puros, grosor uniforme. La banda activa se identifica por la pill encima, no por el gauge.
+
+### Estilo de badges severity (post W20 sesión 4)
+
+Todos los badges del sistema usan el **estilo Opción D**:
+- `font-size: 13px` (canastas: 11px)
+- `padding: 10px 22px`
+- `border: 1px solid {bd}`
+- `text-transform: uppercase`
+- `text-align: center`
+
+El texto del badge es **solo el nombre de la banda en mayúsculas**. El target se muestra como caption gris separado debajo, vía `target_caption()` en `render_helpers.py`.
+
+Ver `_docs/BANDAS.md` para la paleta D completa y todos los detalles del sistema.
 
 ---
 
@@ -252,23 +291,23 @@ El `index.html` se genera **automáticamente** en `build_package.py`. Lo que hac
 1. Actualizar `engine.py`
 2. Actualizar `excel_*.py` (etiquetas de rango en pestañas Severity)
 3. Actualizar `template_severity.py` (constantes `LEVELS_*`)
-4. Actualizar `_governance/BANDAS.md`
+4. Actualizar `_docs/BANDAS.md`
 5. Re-correr todo el pipeline desde `calc_*.py`
 
 ### Cuando se modifica el catálogo de Áreas:
 1. Actualizar `areas_catalogo.py`
 2. Actualizar `render_*_p2.py` y `render_*_p3.py`
-3. Actualizar `_governance/AREAS_ACCOUNTABLE.md`
+3. Actualizar `_docs/AREAS_ACCOUNTABLE.md`
 
 ### Cuando se modifica la estructura editorial:
 1. Extraer snippet literal del template
 2. Actualizar el helper en `template_*.py` (si aplica)
 3. Actualizar el renderer correspondiente
-4. Actualizar `_governance/ESTRUCTURA_TEMPLATE.md`
+4. Actualizar `_docs/ESTRUCTURA_TEMPLATE.md`
 
 ### Cuando se modifica el hub:
 1. Editar `build_package.py` (función `build_index()`)
-2. Actualizar `_governance/MAPA_DEPENDENCIAS.md` (sección Hub)
+2. Actualizar `_docs/MAPA_DEPENDENCIAS.md` (sección Hub)
 3. Nunca editar `index.html` directamente — siempre vía `build_package.py`
 
 ---
@@ -298,7 +337,7 @@ _scripts/
 - **`calc_rnd.py` CONFIG SEMANAL**: cambiar `df18` → W(N) y `df17` → W(N-1). Si ambos apuntan al mismo archivo el WoW es todo cero (Bug #19).
 - **`calc_cr.py` CONFIG SEMANAL**: `df18` → W(N), `df17` → W(N-1). El pickle se llama `cr_wNN_data.pkl`.
 - **Header masthead** toma `VOL_NUM` del pickle — no hay que tocarlo manualmente.
-- **plan_seguimiento** se genera en `_governance/_seguimiento/` — editar antes del pipeline para mover QW resueltos a `## CERRADO`.
+- **plan_seguimiento** se genera en `_seguimiento/` — editar antes del pipeline para mover QW resueltos a `## CERRADO`.
 
 ---
 
@@ -416,8 +455,8 @@ render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 |---|---|---|
 | Cards KPI Severity (hero) | ✅ | ✅ |
 | Cards KPI canastas | ✅ | ✅ |
-| Análisis por Hotel | ❌ pendiente | ✅ `hrnd-hotel-nd` · `hrnd-hotel-ipm` |
-| Análisis por Dimensión | ❌ pendiente | ✅ `hrnd-dim-nd` · `hrnd-dim-ipm` |
+| Análisis por Hotel | ✅ `hcr-hotel-ef` · `hcr-hotel-cv` (W20s4) | ✅ `hrnd-hotel-nd` · `hrnd-hotel-ipm` |
+| Análisis por Dimensión | ✅ `hcr-dim-ef` · `hcr-dim-cv` (W20s4) | ✅ `hrnd-dim-nd` · `hrnd-dim-ipm` |
 
 ## 🎨 Colores accent por métrica
 
@@ -426,9 +465,12 @@ render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 | CR | Eficacia | `#EA0074` magenta |
 | CR | ConvRate | `#5C469C` violet |
 | RND | NoDispo | `#EA0074` magenta |
-| RND | IPM | `#4FC3F4` cyan corporativo |
+| RND | IPM | `#4FC3F4` cyan corporativo (Arctic Blue) |
 
-> `#4FC3F4` (Arctic Blue) se usa SOLO como accent IPM en RND y en el label CUG.  
+> **Cyan `#4FC3F4` se usa SOLO en 2 lugares:**
+> 1. Accent IPM en módulos históricos RND (`IPM_ACCENT` en `historico_module_rnd.py`)
+> 2. Label "🔌 Third Party" en sección por channel CR (`render_cr_p1.py`)
+>
 > En todo el resto del sistema: **Exitosa = `#085041` verde teal** (variable CSS `--green`).
 
 ## 📐 Gauge 5 niveles — regla definitiva
@@ -436,7 +478,18 @@ render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 Todas las barras: `height:6px · opacity:1` — colores sólidos puros, grosor uniforme.  
 Sin transparencia. La banda activa se identifica por la pill encima, no por el gauge.
 
+## 🏷️ Estilo de badges severity (post W20 sesión 4)
+
+**Estilo Opción D** aplicado uniformemente a TODOS los badges:
+- `font-size: 13px` (canastas: 11px)
+- `padding: 10px 22px` · `border-radius: 3px`
+- `border: 1px solid {bd}` · `text-align: center`
+- `text-transform: uppercase` · solo el nombre de la banda
+- Target X% como caption gris **separado** debajo (vía `target_caption()` helper)
+
+Ver `_docs/BANDAS.md` para la paleta D completa, los thresholds por métrica y los archivos canónicos.
+
 ---
 
-**Última actualización:** Mayo 2026 · post W20 sesión 3 · módulos hotel+dim RND · Exitosa verde · gauge sólido
+**Última actualización:** Mayo 2026 · post W20 sesión 4 · módulo histórico CR hotel+dim ✅ · badges Opción D · paleta D · target caption separado del badge
 

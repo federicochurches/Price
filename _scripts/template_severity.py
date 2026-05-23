@@ -24,7 +24,7 @@ def render_severity_block(title, icon, header_color, levels_data, total):
     icon: '●' o el que aplique
     header_color: color del título y bullet
     levels_data: lista de dicts:
-      {'label':'Exitosa','rango':'> 97%','count':3080,'bg':'#E8F7FD','fg':'#4FC3F4'}
+      {'label':'Exitosa','rango':'> 97%','count':3080,'bg':'#E1F5EE','fg':'#085041'}
     total: total para calcular %
     """
     # Encabezado
@@ -64,7 +64,7 @@ def render_severity_2cols(left_block, right_block):
 
 # Datos predefinidos de bandas
 LEVELS_EFICACIA = [
-    {'label':'Exitosa', 'rango':'> 97%', 'bg':'#E8F7FD', 'fg':'#4FC3F4'},
+    {'label':'Exitosa', 'rango':'> 97%', 'bg':'#E1F5EE', 'fg':'#085041'},
     {'label':'Aceptable', 'rango':'93–97%', 'bg':'#EDE8F7', 'fg':'#5C469C'},
     {'label':'Revisar', 'rango':'85–93%', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
     {'label':'Crítica', 'rango':'60–85%', 'bg':'#FCE4F1', 'fg':'#C0392B'},
@@ -72,7 +72,7 @@ LEVELS_EFICACIA = [
 ]
 
 LEVELS_CONVRATE = [
-    {'label':'Exitosa', 'rango':'> 2,5%', 'bg':'#E8F7FD', 'fg':'#4FC3F4'},
+    {'label':'Exitosa', 'rango':'> 2,5%', 'bg':'#E1F5EE', 'fg':'#085041'},
     {'label':'Aceptable', 'rango':'1,5–2,5%', 'bg':'#EDE8F7', 'fg':'#5C469C'},
     {'label':'Revisar', 'rango':'0,8–1,5%', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
     {'label':'Crítica', 'rango':'< 0,8%', 'bg':'#FCE4F1', 'fg':'#C0392B'},
@@ -80,7 +80,7 @@ LEVELS_CONVRATE = [
 ]
 
 LEVELS_NODISPO = [
-    {'label':'Exitosa', 'rango':'< 3%', 'bg':'#E8F7FD', 'fg':'#4FC3F4'},
+    {'label':'Exitosa', 'rango':'< 3%', 'bg':'#E1F5EE', 'fg':'#085041'},
     {'label':'Aceptable', 'rango':'3–5%', 'bg':'#EDE8F7', 'fg':'#5C469C'},
     {'label':'Revisar', 'rango':'5–20%', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
     {'label':'Crítica', 'rango':'20–60%', 'bg':'#FCE4F1', 'fg':'#C0392B'},
@@ -88,7 +88,7 @@ LEVELS_NODISPO = [
 ]
 
 LEVELS_RPM = [
-    {'label':'Exitosa', 'rango':'≥ $650', 'bg':'#E8F7FD', 'fg':'#4FC3F4'},
+    {'label':'Exitosa', 'rango':'≥ $650', 'bg':'#E1F5EE', 'fg':'#085041'},
     {'label':'Aceptable', 'rango':'$500–$649', 'bg':'#EDE8F7', 'fg':'#5C469C'},
     {'label':'Revisar', 'rango':'$200–$499', 'bg':'#FFF4E0', 'fg':'#A86A1D'},
     {'label':'Crítica', 'rango':'< $199', 'bg':'#FCE4F1', 'fg':'#C0392B'},

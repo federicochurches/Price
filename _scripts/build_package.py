@@ -361,7 +361,7 @@ SEGUIMIENTO_ITEMS_CR = [
 ]
 SEGUIMIENTO_ITEMS = SEGUIMIENTO_ITEMS_RND + SEGUIMIENTO_ITEMS_CR
 
-seg_dir = OUTPUTS / '_governance' / '_seguimiento'
+seg_dir = OUTPUTS / '_seguimiento'
 seg_dir.mkdir(parents=True, exist_ok=True)
 seguimiento_path = seg_dir / f'plan_seguimiento_W{WEEK}.md'
 generar_archivo_seguimiento(SEGUIMIENTO_ITEMS, f'W{WEEK}', seguimiento_path)
@@ -373,10 +373,15 @@ print(f'✅ plan_seguimiento_W{WEEK}.md generado · {len(SEGUIMIENTO_ITEMS)} ite
 # Price/
 # ├── index.html
 # ├── _email/week-NN/Mail_WNN.html
-# ├── _governance/
+# ├── _docs/
 # │   ├── CHANGELOG.md
 # │   ├── COMMIT_GUIDE.md
-# │   └── _seguimiento/plan_seguimiento_WNN.md
+# │   ├── README.md
+# │   ├── PROMPT_MAESTRO_v3.md
+# │   ├── BANDAS.md
+# │   ├── INVENTARIO.md
+# │   └── AREAS_ACCOUNTABLE.md
+# ├── _seguimiento/plan_seguimiento_WNN.md   ← carryover semanal
 # ├── checkrates/week-NN/
 # │   ├── CheckRates_Reporte_Editorial.html
 # │   ├── Analisis_Checkrates_7d.xlsx
@@ -402,7 +407,8 @@ for d in [
     ZIP_ROOT / 'checkrates'   / WEEK_STR,
     ZIP_ROOT / 'rates-nodispo' / WEEK_STR,
     ZIP_ROOT / '_email'        / WEEK_STR,
-    ZIP_ROOT / '_governance'   / '_seguimiento',
+    ZIP_ROOT / '_seguimiento',
+    ZIP_ROOT / '_docs',
 ]:
     d.mkdir(parents=True, exist_ok=True)
 
@@ -427,9 +433,9 @@ files = {
     OUTPUTS / f'Mail_W{WEEK}.html':
         ZIP_ROOT / '_email' / WEEK_STR / f'Mail_W{WEEK}.html',
 
-    # ── _governance/_seguimiento ────────────────────────────────────────────
+    # ── _seguimiento (carryover semanal) ────────────────────────────────────
     OUTPUTS / f'plan_seguimiento_W{WEEK}.md':
-        ZIP_ROOT / '_governance' / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md',
+        ZIP_ROOT / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md',
 
     # ── checkrates/week-NN ──────────────────────────────────────────────────
     OUTPUTS / 'CheckRates_Reporte_Editorial.html':
@@ -454,11 +460,11 @@ files = {
         ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
     OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx':
         ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
-    # ── _governance (docs) ─────────────────────────────────────────────────────
+    # ── _docs (governance + docs canónicas) ─────────────────────────────────
     Path('/mnt/project/CHANGELOG.md'):
-        ZIP_ROOT / '_governance' / 'CHANGELOG.md',
+        ZIP_ROOT / '_docs' / 'CHANGELOG.md',
     Path('/mnt/project/COMMIT_GUIDE.md'):
-        ZIP_ROOT / '_governance' / 'COMMIT_GUIDE.md',
+        ZIP_ROOT / '_docs' / 'COMMIT_GUIDE.md',
     
     # ── Documentación YAML (raíz) ───────────────────────────────────────────
     Path('/mnt/project/YAML_PIPELINE_GUIDE.md'):

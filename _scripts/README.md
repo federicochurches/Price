@@ -98,20 +98,20 @@ python build_package.py
 2. Actualizar `excel_*.py` (etiquetas de rango en pestañas Severity)
 3. Actualizar `template_severity.py` (constantes `LEVELS_*`)
 4. Actualizar templates HTML en `_template/` (rangos visibles)
-5. Actualizar `_governance/BANDAS.md`
+5. Actualizar `_docs/BANDAS.md`
 6. Re-correr todo el pipeline desde `calc_*.py` para que se propaguen las bandas a los pickles
 
 ### Cuando se modifica el catálogo de Áreas:
 1. Actualizar `areas_catalogo.py` (lista canónica + mapeo)
 2. Actualizar `render_*_p2.py` y `render_*_p3.py` (action-owner-badge)
-3. Actualizar `_governance/AREAS_ACCOUNTABLE.md`
+3. Actualizar `_docs/AREAS_ACCOUNTABLE.md`
 
 ### Cuando se modifica la estructura editorial:
 1. Mirar el `_template/_TEMPLATE_*.html` correspondiente PRIMERO
 2. Extraer snippet literal del template
 3. Actualizar el helper en `template_*.py` (si aplica)
 4. Actualizar el renderer correspondiente (`render_*_p[1|2|3].py`)
-5. Actualizar `_governance/ESTRUCTURA_TEMPLATE.md`
+5. Actualizar `_docs/ESTRUCTURA_TEMPLATE.md`
 
 > **Lección Week 18:** los renderers no deben re-construir HTML desde cero. Deben replicar el snippet literal del template. Si querés cambiar visual, cambiá primero en el template y después propagá al renderer.
 
