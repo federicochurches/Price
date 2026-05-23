@@ -74,13 +74,15 @@ def target_caption(target_text, font_size='11px'):
 
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
-    """Gauge bar 5 niveles · height:6px · opacity:1 uniforme · BANDAS.md"""
+    """Gauge bar 5 niveles · height:6px · opacity:1 uniforme · BANDAS.md
+    Colores: Súper Crítica negro · Crítica rojo · Revisar naranja · Aceptable violet · Exitosa verde
+    """
     if niveles_rnd_or_cr == 'nodispo':
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#F59E0B'),
+            ('Aceptable',     '#5C469C'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
@@ -88,7 +90,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#F59E0B'),
+            ('Aceptable',      '#5C469C'),
             ('Exitosa',        '#085041'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
@@ -96,7 +98,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#F59E0B'),
+            ('Aceptable',     '#5C469C'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
@@ -104,7 +106,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#F59E0B'),
+            ('Aceptable',      '#5C469C'),
             ('Exitosa',        '#085041'),
         ]
     cells = []
@@ -324,21 +326,15 @@ def wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓'):
             f'background:{bg};color:{fg};">{arrow} {val_str}{unit}</span>')
 
 
-def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Filtrar…',
+def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Buscar…',
                         count_id=None):
     """Pill searchbox para insertar dentro de .tabs-row en cards KPI (Prop A).
 
     Produce el bloque .sb-pill-wrap completo con:
       · pill redondeada con ícono de búsqueda
       · input sin borde visible (fusionado en la pill)
+      · botón X para limpiar (visible solo cuando hay texto)
       · badge contador opcional (count_id = ID del <span> que muestra "N / total")
-
-    El input lleva data-sb-pill-accent para que el JS de los assets aplique
-    el color de foco correcto según el reporte (violet CR / magenta RND).
-
-    Uso en render scripts:
-        tabs_row_html += searchbox_pill_html('sb-ef-global', accent_color='#5C469C',
-                                             count_id='cnt-ef-global')
     """
     count_html = ''
     if count_id:
@@ -346,33 +342,38 @@ def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Filtrar�
                       f'style="font-size:9px;font-weight:700;color:var(--ink-muted);'
                       f'background:var(--rule-soft);padding:2px 7px;border-radius:10px;'
                       f'white-space:nowrap;transition:all .15s;"></span>')
+    clear_id = input_id + '-clear'
     return (
         f'<div class="sb-pill-wrap" style="margin-left:auto;display:flex;align-items:center;'
         f'gap:7px;padding:0 8px 5px 12px;border-left:1px solid var(--rule-soft);">'
-        f'<div class="sb-pill" style="display:flex;align-items:center;gap:6px;'
+        f'<div class="sb-pill" style="display:flex;align-items:center;gap:5px;'
         f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
-        f'padding:3px 10px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
+        f'padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
         f'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" '
         f'stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" '
         f'stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true">'
         f'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
         f'<input type="text" id="{input_id}" placeholder="{placeholder}" '
         f'data-sb-pill="true" data-sb-pill-accent="{accent_color}" '
-        f'data-sb-count-id="{count_id or ""}" '
+        f'data-sb-count-id="{count_id or ""}" data-sb-clear-id="{clear_id}" '
         f'autocomplete="off" spellcheck="false" '
         f'style="background:none;border:none;outline:none;font-size:10px;'
-        f'font-family:inherit;color:var(--ink);width:110px;caret-color:{accent_color};" '
+        f'font-family:inherit;color:var(--ink);width:100px;caret-color:{accent_color};" '
         f'onfocus="var p=this.closest(\'.sb-pill\');p.style.borderColor=\'{accent_color}\';'
         f'p.style.boxShadow=\'0 0 0 2px {accent_color}1A\';" '
         f'onblur="if(!this.value){{var p=this.closest(\'.sb-pill\');'
         f'p.style.borderColor=\'\';p.style.boxShadow=\'\';}}">'
+        f'<button id="{clear_id}" type="button" '
+        f'style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;'
+        f'line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" '
+        f'title="Limpiar búsqueda" aria-label="Limpiar búsqueda">×</button>'
         f'</div>'
         f'{count_html}'
         f'</div>'
     )
 
 
-def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Filtrar…',
+def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscar…',
                            th_id=None):
     """Searchbox integrado en el primer <th> de una tabla (Prop D).
 

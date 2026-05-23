@@ -258,7 +258,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <input id="tab-nd-canasta" name="tabs-nd" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
-<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
 {pill_with_target}
@@ -268,7 +268,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Filtrar…', count_id='cnt-kpi-nd')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
@@ -367,7 +367,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <input id="tab-rpm-canasta" name="tabs-rpm" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
-<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
 {pill_with_target}
@@ -377,7 +377,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Filtrar…', count_id='cnt-kpi-ipm')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
 <div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''

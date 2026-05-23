@@ -409,16 +409,51 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
     attachTooltip();
-    // Redibujar si el canvas está dentro de un <details> cerrado al cargar
+
     var el = document.getElementById(CID);
-    if (el) {{
-      var det = el.closest('details');
-      if (det) {{
-        det.addEventListener('toggle', function() {{
-          if (det.open) {{ requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }}
-        }});
-      }}
+    if (!el) return;
+
+    // Redibujar si el canvas está dentro de un <details> cerrado al cargar
+    var det = el.closest('details');
+    if (det) {{
+      det.addEventListener('toggle', function() {{
+        if (det.open) {{ requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }}
+      }});
     }}
+
+    // Redibujar cuando el canvas sale de un panel CSS oculto (tabs display:none → block)
+    // Útil para cards dentro de tabs-block o kpi-card con radio inputs
+    if (typeof IntersectionObserver !== 'undefined') {{
+      var drawn = false;
+      var obs = new IntersectionObserver(function(entries) {{
+        entries.forEach(function(entry) {{
+          if (entry.isIntersecting && !drawn) {{
+            drawn = true;
+            requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }});
+            obs.disconnect();
+          }}
+        }});
+      }}, {{ threshold: 0.01 }});
+      obs.observe(el);
+    }} else {{
+      // Fallback: redibujar varias veces en el primer segundo
+      var t = 0;
+      var delays = [50, 200, 500, 1000];
+      delays.forEach(function(d) {{ setTimeout(function() {{ drawCanvas(VALS_DEF); }}, d); }});
+    }}
+
+    // Listener adicional para tabs CSS: cuando cualquier radio cambia, redibujar
+    // (los tabs usan display:none → block via CSS puro, sin eventos del DOM en el canvas)
+    document.addEventListener('change', function(e) {{
+      if (e.target.type !== 'radio') return;
+      var el2 = document.getElementById(CID);
+      if (!el2) return;
+      // Solo si el canvas va a estar visible (parentElement tiene offsetWidth > 0)
+      requestAnimationFrame(function() {{
+        var w = el2.parentElement ? el2.parentElement.offsetWidth : 0;
+        if (w > 10) {{ drawCanvas(VALS_DEF); }}
+      }});
+    }});
   }}
 
   // Listeners de eventos custom (se registran siempre, no dependen de readyState)

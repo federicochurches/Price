@@ -417,7 +417,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="margin-top:4px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
 <div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{val18_str}</div>
 <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
 {pill_with_target}
@@ -426,7 +426,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>
 {gauge}
 {wb}
-<div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);align-items:flex-end;">{tabs_labels}{searchbox_pill_html(sb_id, accent_color='#EA0074', placeholder='Filtrar…', count_id=f'cnt-{card_id}')}</div>
+<div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);align-items:flex-end;">{tabs_labels}{searchbox_pill_html(sb_id, accent_color='#EA0074', placeholder='Buscar…', count_id=f'cnt-{card_id}')}</div>
 <div id="{panels_id}">{panels}</div>
 {hist_mod}
 {js_tabs}

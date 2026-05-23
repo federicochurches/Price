@@ -463,16 +463,46 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
     attachTooltip();
-    // Redibujar si el canvas está dentro de un <details> cerrado al cargar
+
     var el = document.getElementById(CID);
-    if (el) {{
-      var det = el.closest('details');
-      if (det) {{
-        det.addEventListener('toggle', function() {{
-          if (det.open) {{ requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }}
-        }});
-      }}
+    if (!el) return;
+
+    // Redibujar si el canvas está dentro de un <details> cerrado al cargar
+    var det = el.closest('details');
+    if (det) {{
+      det.addEventListener('toggle', function() {{
+        if (det.open) {{ requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }}
+      }});
     }}
+
+    // IntersectionObserver: redibujar cuando el canvas entra al viewport (sale de display:none via CSS tabs)
+    if (typeof IntersectionObserver !== 'undefined') {{
+      var drawn = false;
+      var obs = new IntersectionObserver(function(entries) {{
+        entries.forEach(function(entry) {{
+          if (entry.isIntersecting && !drawn) {{
+            drawn = true;
+            requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }});
+            obs.disconnect();
+          }}
+        }});
+      }}, {{ threshold: 0.01 }});
+      obs.observe(el);
+    }} else {{
+      var delays = [50, 200, 500, 1000];
+      delays.forEach(function(d) {{ setTimeout(function() {{ drawCanvas(VALS_DEF); }}, d); }});
+    }}
+
+    // Redibujar al cambiar tabs CSS (radio change)
+    document.addEventListener('change', function(e) {{
+      if (e.target.type !== 'radio') return;
+      var el2 = document.getElementById(CID);
+      if (!el2) return;
+      requestAnimationFrame(function() {{
+        var w = el2.parentElement ? el2.parentElement.offsetWidth : 0;
+        if (w > 10) {{ drawCanvas(VALS_DEF); }}
+      }});
+    }});
   }}
 
   // Listeners de eventos custom (se registran siempre, no dependen de readyState)
