@@ -11,6 +11,13 @@ from render_helpers import *
 
 from historico_module_rnd import render_historico_rnd
 
+def _mini_badge(bnd):
+    if not bnd or not isinstance(bnd, str): return ''
+    bc = BANDA_COLORS.get(bnd, {})
+    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
+    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+
+
 def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm, banda_nd, val_nd, banda_ipm, val_ipm):
     """Módulo histórico doble (NoDispo + IPM) para secciones de análisis en canastas."""
     html_nd  = render_historico_rnd('nodispo', banda_nd, val_nd, canvas_id_nd)
@@ -270,7 +277,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False):
         """Genera filas de tab con top 100, 10 visibles + resto sb-hidden."""
         import math
-        rows_html = ''
+        col1 = col2 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
@@ -320,13 +327,26 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 _w20h_raw = r.get('NoDispo_W17', None)
                 try: _w20h = round(float(_w20h_raw)*100,4) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
                 except: _w20h = _w21h
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
-                          f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;cursor:pointer;border-radius:3px;transition:background .12s;">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--accent);font-weight:600;">{i+1}. {lab}</span>'
-                          f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
-                          f'{wow_html}</div>')
-        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">{rows_html}</div>'
+            _bnd_r3 = r.get('BandaNoDispo', '') if 'BandaNoDispo' in r.index else ''
+            if not _bnd_r3 and not is_rpm and val:
+                from engine import banda_nodispo as _bnd_fn; _bnd_r3 = _bnd_fn(val)
+            if is_rpm and not _bnd_r3:
+                _bnd_r3 = r.get('BandaRPM', '')
+            _badge_r3 = _mini_badge(_bnd_r3)
+            _hidden_r3 = ' sb-hidden' if i >= 10 else ''
+            _row_r3 = (f'<div class="{_hidden_r3.strip()}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
+                       f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;gap:4px;'
+                       f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                       f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
+                       f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                       f'{_badge_r3}</div>'
+                       f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{val_str}</span>'
+                       f'{wow_html}</div>')
+            if i < 5: col1 += _row_r3
+            elif i < 10: col2 += _row_r3
+            else: rest += _row_r3
+        return (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">'
+                f'<div>{col1}</div><div>{col2}</div></div>{rest}')
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):

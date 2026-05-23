@@ -120,6 +120,13 @@ CR_ACCENT = '#5C469C'
 
 from historico_module_v2 import render_historico_cr
 
+def _mini_badge(bnd):
+    if not bnd or not isinstance(bnd, str): return ''
+    bc = BANDA_COLORS.get(bnd, {})
+    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
+    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+
+
 def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='W19'):
     banda = banda_eficacia(ef_w18)
     target = "≥ 97%"
@@ -198,7 +205,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             continue
         # Tabs: primeras 10 visibles en 2 cols, filas 11-100 con sb-hidden
         # Al buscar el JS muestra las que matchean y activa modo lista
-        rows_html = ''
+        rows_html = col1 = col2 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['Eficacia']
@@ -225,15 +232,25 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                          f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--accent);">{i+1}. {lab}</span>'
-                          f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
-                          f'{wow_pill}</div>')
-        # Layout 2 cols con grid auto-fill: CSS column-count para las visibles
+            # Badge de banda: usar BandaEficacia si existe, sino calcular
+            _bnd = r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val else '')
+            _badge = _mini_badge(_bnd)
+            _hidden = ' sb-hidden' if i >= 10 else ''
+            _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
+                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                    f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;'
+                    f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                    f'{_badge}</div>'
+                    f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
+                    f'{wow_pill}</div>')
+            if i < 5: col1 += _row
+            elif i < 10: col2 += _row
+            else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
+            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
+                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -331,7 +348,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
         # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
-        rows_html = ''
+        rows_html = col1 = col2 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['ConvRate']
@@ -359,13 +376,24 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="kpi-row{hidden_cls}" data-row-idx="{i}" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
-                          f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--accent);">{i+1}. {lab}</span>'
-                          f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
-                          f'{wow_pill}</div>')
+            _bnd_cv = r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val else '')
+            _badge_cv = _mini_badge(_bnd_cv)
+            _hidden = ' sb-hidden' if i >= 10 else ''
+            _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
+                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                    f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;'
+                    f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                    f'{_badge_cv}</div>'
+                    f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
+                    f'{wow_pill}</div>')
+            if i < 5: col1 += _row
+            elif i < 10: col2 += _row
+            else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
+            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
+                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'

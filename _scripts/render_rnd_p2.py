@@ -764,13 +764,13 @@ def render_bloque_hoteles():
 <input id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
-<div class="tabs-row">
+<div class="tabs-row" style="align-items:flex-end;">
 <label class="tab-label" for="tab-h-crit">Críticos</label>
 <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#por-hotel" style="font-size:10px;"></div>
 </div>
-{searchbox_html('sb-rnd-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_hotel}
@@ -830,12 +830,12 @@ def render_bloque_dimensiones():
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-pais" name="tabs-d" style="display:none" type="radio"/>
-<div class="tabs-row">
+<div class="tabs-row" style="align-items:flex-end;">
 <label class="tab-label" for="tab-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-pais">País</label>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#por-dimension" style="font-size:10px;"></div>
 </div>
-{searchbox_html('sb-rnd-dim', '#por-dimension', 'Buscar corporativo, destino o país…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_dim}

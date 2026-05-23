@@ -976,8 +976,8 @@ def render_bloque_hoteles_cr():
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
 <label class="tab-label" for="tab-h-mcv">Menor ConvRate</label>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-cr-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#por-hotel" style="font-size:10px;"></div>
 </div>
-{searchbox_html('sb-cr-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_hotel}
@@ -1121,12 +1121,12 @@ def render_bloque_dimensiones_cr():
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-chan" name="tabs-d" style="display:none" type="radio"/>
-<div class="tabs-row">
+<div class="tabs-row" style="align-items:flex-end;">
 <label class="tab-label" for="tab-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-chan">Channel</label>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-cr-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#por-dimension" style="font-size:10px;"></div>
 </div>
-{searchbox_html('sb-cr-dim', '#por-dimension', 'Buscar corporativo, destino o channel…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_dim}

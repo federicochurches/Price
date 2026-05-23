@@ -50,6 +50,13 @@ g_channel_w17 = D.get('g_channel_w17', None)
 
 from historico_module_v2 import render_historico_cr
 
+def _mini_badge(bnd):
+    if not bnd or not isinstance(bnd, str): return ''
+    bc = BANDA_COLORS.get(bnd, {})
+    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
+    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+
+
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv):
     """Módulo histórico doble (Ef + CV) para secciones de análisis en canastas."""
     html_ef = render_historico_cr('eficacia', banda_ef, val_ef, canvas_id_ef)
@@ -325,7 +332,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── Tab rows con pills WoW ────────────────────────────────────────────────
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False):
-        rows_html = ''
+        col1 = col2 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
@@ -358,13 +365,24 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             try:
                 _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
             except: _w20 = _w21
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
-                          f' style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;cursor:pointer;border-radius:3px;transition:background .12s;">'
-                          f'<span style="font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                          f'<span style="font-size:10px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);">{val_str}</span>'
-                          f'{wow_pill}</div>')
-        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">{rows_html}</div>'
+            _bnd3 = r.get('BandaConvRate' if is_cv else 'BandaEficacia', '') if ('BandaConvRate' in r.index or 'BandaEficacia' in r.index) else ''
+            if not _bnd3 and val:
+                _bnd3 = banda_convrate(val, int(r.get('Bookings',0))) if is_cv else banda_eficacia(val)
+            _badge3 = _mini_badge(_bnd3)
+            _hidden3 = ' sb-hidden' if i >= 10 else ''
+            _row3 = (f'<div class="{_hidden3.strip()}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                     f' style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;'
+                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
+                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                     f'{_badge3}</div>'
+                     f'<span style="font-size:11px;text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
+                     f'{wow_pill}</div>')
+            if i < 5: col1 += _row3
+            elif i < 10: col2 += _row3
+            else: rest += _row3
+        return (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">'
+                f'<div>{col1}</div><div>{col2}</div></div>{rest}')
 
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
