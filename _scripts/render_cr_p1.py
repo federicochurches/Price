@@ -16,7 +16,7 @@ M = D['M']; TOP = D['TOP']
 
 # ── Cargar configuración semanal ──────────────────────────────────────────────────
 VOL_NUM   = D.get('VOL_NUM', '20')
-PERIODO   = D.get('PERIODO', '11–17 may 2026')
+PERIODO   = D.get('PERIODO', '12–18 may 2026')
 MES_AÑO   = D.get('MES_AÑO', 'Mayo 2026')
 FECHA_PUB = D.get('FECHA_PUB', 'LUNES 18 de Mayo de 2026')
 # ─────────────────────────────────────────────────────────────────────────────────
@@ -241,7 +241,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _hidden = ' sb-hidden' if i >= 10 else ''
             _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
-                    f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
@@ -390,7 +390,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _hidden = ' sb-hidden' if i >= 10 else ''
             _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
-                    f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'

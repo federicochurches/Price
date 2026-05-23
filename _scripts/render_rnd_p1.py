@@ -217,7 +217,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = '1fr 52px 44px' if show_wow else '1fr 52px'
+            grid = 'minmax(0,1fr) 54px 40px' if show_wow else 'minmax(0,1fr) 54px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
             _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
@@ -327,7 +327,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = '1fr 52px 44px' if show_wow else '1fr 52px'
+            grid = 'minmax(0,1fr) 54px 40px' if show_wow else 'minmax(0,1fr) 54px'
             import math as _mipm
             _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))

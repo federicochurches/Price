@@ -438,8 +438,17 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       var vis = 0, total = rows.length;
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        r.style.display = match ? '' : 'none';
-        if (match) vis++;
+        if (q) {
+          if (match) { r.classList.remove('sb-hidden'); r.style.display = ''; vis++; }
+          else       { r.classList.add('sb-hidden'); }
+        } else {
+          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+          if (ri < 10) { r.classList.remove('sb-hidden'); r.style.display = ''; vis++; }
+          else         { r.classList.add('sb-hidden'); }
+        }
+      });
+      panel.querySelectorAll('.kpi-tab-rows').forEach(function(el){
+        el.style.gridTemplateColumns = q ? '1fr' : '1fr 1fr';
       });
       if (q) setEmptyState(panel, input.value.trim(), vis);
       else   clearEmptyState(panel);
@@ -453,7 +462,15 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     function reset(){
       var panel = getActivePanel();
       if (panel){
-        panel.querySelectorAll('[data-hist-label]').forEach(function(r){ r.style.display=''; });
+        var rows = panel.querySelectorAll('[data-hist-label]');
+        rows.forEach(function(r){
+          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+          if (ri < 10) { r.classList.remove('sb-hidden'); r.style.display = ''; }
+          else         { r.classList.add('sb-hidden'); }
+        });
+        panel.querySelectorAll('.kpi-tab-rows').forEach(function(el){
+          el.style.gridTemplateColumns = '1fr 1fr';
+        });
         clearEmptyState(panel);
       }
       if (clearBtn) clearBtn.style.display = 'none';
@@ -463,6 +480,28 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     input.addEventListener('input', filter);
     if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; reset(); input.focus(); }); }
     card.addEventListener('change', function(e){ if(e.target.type!=='radio')return; input.value=''; reset(); });
+
+    /* ── Autocomplete dropdown para pill ── */
+    var dropdown = document.createElement('div');
+    dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
+    document.body.appendChild(dropdown);
+    function posDD(){ var r=input.getBoundingClientRect(); dropdown.style.top=(r.bottom+4)+'px'; dropdown.style.left=r.left+'px'; dropdown.style.minWidth=Math.max(r.width,180)+'px'; }
+    function buildDD(q){
+      var qn=norm(q); if(!qn||qn.length<1){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
+      var panel=getActivePanel(); if(!panel){dropdown.classList.remove('visible');return;}
+      var seen={},labels=[];
+      panel.querySelectorAll('[data-hist-label]').forEach(function(r){ var l=r.getAttribute('data-hist-label'); if(l&&!seen[l]){seen[l]=true;labels.push(l);} });
+      var matches=labels.filter(function(l){return norm(l).indexOf(qn)>=0;}).slice(0,8);
+      if(!matches.length){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
+      var html=''; matches.forEach(function(l){ var nl=norm(l),idx=nl.indexOf(qn),hl=escapeHtml(l); if(idx>=0)hl=escapeHtml(l.substring(0,idx))+'<mark>'+escapeHtml(l.substring(idx,idx+q.length))+'</mark>'+escapeHtml(l.substring(idx+q.length)); html+='<div class="sb-suggestion" data-value="'+escapeHtml(l)+'">'+hl+'</div>'; });
+      dropdown.innerHTML=html; posDD(); dropdown.classList.add('visible');
+      dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dropdown.classList.remove('visible');}); });
+    }
+    input.addEventListener('input', function(){ buildDD(input.value); });
+    input.addEventListener('blur', function(){ setTimeout(function(){dropdown.classList.remove('visible');},150); });
+    window.addEventListener('scroll', function(){if(dropdown.classList.contains('visible'))posDD();}, true);
+    window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
+    card.addEventListener('change', function(){ dropdown.classList.remove('visible'); });
   }
 
   /* ── MODO TABLE (Prop D) ── */

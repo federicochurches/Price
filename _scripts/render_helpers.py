@@ -111,8 +111,8 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         ]
     cells = []
     for nombre, color in levels:
-        # Banda activa: borde inferior marcado; todas opacity:1
-        active_style = 'border-bottom:2px solid var(--ink);' if nombre == banda_actual else ''
+        # Banda activa: borde superior marcado; todas opacity:1
+        active_style = 'box-shadow:0 -2px 0 0 var(--ink);' if nombre == banda_actual else ''
         cells.append(f'<div style="flex:1;background:{color};height:6px;opacity:1;{active_style}"></div>')
     return '<div style="display:flex;gap:2px;margin-top:10px;">' + ''.join(cells) + '</div>'
 
