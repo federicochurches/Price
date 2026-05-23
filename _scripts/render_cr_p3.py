@@ -374,11 +374,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             elif i < 10: _cls3 = 'rows-more'
             else: _cls3 = 'sb-hidden'
             _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
-                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 46px 36px;align-items:center;gap:4px;'
+                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
                      f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                     f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
-                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                     f'{_badge3}</div>'
+                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                     f'<div style="display:flex;align-items:center;">{_badge3}</div>'
                      f'<span style="font-size:11px;text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
             if i < 5: top5 += _row3
@@ -452,7 +451,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # Filtro P50 para excluir volumen insignificante
     p50_d = agg_dest['CR_Unicos'].quantile(0.50)
-    p50_c = agg_corp['CR_Unicos'].quantile(0.50)
     p50_h = p80['CR_Unicos'].quantile(0.50)
 
     # Merge WoW con refs globales W17
@@ -466,15 +464,16 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         df[wow_col] = (df[metric_col] - df[ref_val_col]) * 100
         return df
 
+    # Corp sin filtro P50: mismo universo que Excel de canasta
     d_ef = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Eficacia']>0)].sort_values('Eficacia').head(100).reset_index(drop=True)
     d_ef = add_wow_to_tab(d_ef, 'Destino', 'Eficacia', ref_dest_w17, 'Eficacia_WoW_pp')
-    c_ef = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('Eficacia').head(100).reset_index(drop=True)
+    c_ef = agg_corp.sort_values('Eficacia').head(100).reset_index(drop=True)
     c_ef = add_wow_to_tab(c_ef, 'CorpName', 'Eficacia', ref_corp_w17, 'Eficacia_WoW_pp')
     h_ef = p80[p80['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
 
     d_cv = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Bookings']>0)].sort_values('ConvRate').head(100).reset_index(drop=True)
     d_cv = add_wow_to_tab(d_cv, 'Destino', 'ConvRate', ref_dest_w17, 'ConvRate_WoW_pp')
-    c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(100).reset_index(drop=True)
+    c_cv = agg_corp.sort_values('ConvRate').head(100).reset_index(drop=True)
     c_cv = add_wow_to_tab(c_cv, 'CorpName', 'ConvRate', ref_corp_w17, 'ConvRate_WoW_pp')
     h_cv = p80[p80['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
     # Enriquecer h_cv con WoW ConvRate desde g_hotel_w17

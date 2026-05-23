@@ -340,11 +340,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             elif i < 10: _cls_r3 = 'rows-more'
             else: _cls_r3 = 'sb-hidden'
             _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
-                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px;align-items:center;gap:4px;'
+                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;align-items:center;gap:4px;'
                        f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                       f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
-                       f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                       f'{_badge_r3}</div>'
+                       f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                       f'<div style="display:flex;align-items:center;">{_badge_r3}</div>'
                        f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{val_str}</span>'
                        f'{wow_html}</div>')
             if i < 5: top5 += _row_r3
@@ -457,14 +456,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     agg_corp = c.get('agg_corp', D['g_corp'])
     agg_pais = c.get('agg_pais', D['g_pais'])
 
-    MIN_T = 500_000  # mínimo tráfico para tabs de dimensión
+    MIN_T = 500_000  # mínimo tráfico para destino y país (no para corp)
 
     df_dest = _enrich_wow(agg_dest[agg_dest['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp = _enrich_wow(agg_corp[agg_corp['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_corp, 'CorpName')
+    df_corp = _enrich_wow(agg_corp.sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_corp, 'CorpName')
     df_hot  = c['p80'].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True)
     df_pais = _enrich_wow(agg_pais[agg_pais['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_pais, 'PaisDestino')
     df_dest_rpm = _enrich_wow(agg_dest[(agg_dest['IPM']>0)&(agg_dest['Trafico']>=MIN_T)].sort_values('IPM').head(100).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp_rpm = _enrich_wow(agg_corp[(agg_corp['IPM']>0)&(agg_corp['Trafico']>=MIN_T)].sort_values('IPM').head(100).reset_index(drop=True), agg_corp, 'CorpName')
+    df_corp_rpm = _enrich_wow(agg_corp[agg_corp['IPM']>0].sort_values('IPM').head(100).reset_index(drop=True), agg_corp, 'CorpName')
     df_hot_rpm  = c['p80'][(c['p80']['Bookings']>0)&(c['p80']['IPM']>0)].sort_values('IPM').head(100).reset_index(drop=True)
     df_pais_rpm = _enrich_wow(agg_pais[(agg_pais['IPM']>0)&(agg_pais['Trafico']>=MIN_T)].sort_values('IPM').head(100).reset_index(drop=True), agg_pais, 'PaisDestino')
 

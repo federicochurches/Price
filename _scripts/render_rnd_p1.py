@@ -217,7 +217,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 54px 40px' if show_wow else 'minmax(0,1fr) 54px'
+            grid = 'minmax(0,1fr) 72px 54px 40px' if show_wow else 'minmax(0,1fr) 72px 54px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
             _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
@@ -235,9 +235,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                    f'{_badge_nd}</div>'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                    f'<div style="display:flex;align-items:center;">{_badge_nd}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row
@@ -335,7 +334,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 54px 40px' if show_wow else 'minmax(0,1fr) 54px'
+            grid = 'minmax(0,1fr) 72px 54px 40px' if show_wow else 'minmax(0,1fr) 72px 54px'
             import math as _mipm
             _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
@@ -353,9 +352,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                    f'{_badge_ipm}</div>'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                    f'<div style="display:flex;align-items:center;">{_badge_ipm}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row2
