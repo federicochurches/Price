@@ -209,18 +209,18 @@ top50_br   = proc[proc['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Tr
 top50_sc   = no_conv.sort_values('Trafico', ascending=False).head(50).reset_index(drop=True)
 
 TOP = {
-    'demanda_nc':       top50_dnc.head(10).reset_index(drop=True),
+    'demanda_nc':       top50_dnc.head(100).reset_index(drop=True),
     'demanda_nc_extra': top50_dnc.iloc[10:].reset_index(drop=True),
-    'bajo_rend':        top50_br.head(10).reset_index(drop=True),
+    'bajo_rend':        top50_br.head(100).reset_index(drop=True),
     'bajo_rend_extra':  top50_br.iloc[10:].reset_index(drop=True),
-    'sin_conv':         top50_sc.head(10).reset_index(drop=True),
+    'sin_conv':         top50_sc.head(100).reset_index(drop=True),
     'sin_conv_extra':   top50_sc.iloc[10:].reset_index(drop=True),
     'corps':   g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'destinos':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'paises':  g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
-    'corps_10':g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
-    'destinos_10':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
-    'paises_10':g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+    'corps_10':g_corp.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
+    'destinos_10':g_dest.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
+    'paises_10':g_pais.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
 }
 
 # ── Canastas ─────────────────────────────────────────────────────
@@ -280,13 +280,13 @@ for c_key, c_filter, c_name, c_short, c_weight in [
         'top_dnc':top_dnc.head(10).reset_index(drop=True),'top_dnc_extra':top_dnc.iloc[10:].reset_index(drop=True),
         'top_br': top_br.head(10).reset_index(drop=True), 'top_br_extra': top_br.iloc[10:].reset_index(drop=True),
         'top_sc': top_sc.head(10).reset_index(drop=True), 'top_sc_extra': top_sc.iloc[10:].reset_index(drop=True),
-        'demanda_nc':top_dnc.head(10),'demanda_nc_extra':top_dnc.iloc[10:].reset_index(drop=True),
-        'bajo_rend':top_br.head(10), 'bajo_rend_extra': top_br.iloc[10:].reset_index(drop=True),
-        'sin_conv':top_sc.head(10),  'sin_conv_extra':  top_sc.iloc[10:].reset_index(drop=True),
+        'demanda_nc':top_dnc.head(100),'demanda_nc_extra':top_dnc.iloc[10:].reset_index(drop=True),
+        'bajo_rend':top_br.head(100), 'bajo_rend_extra': top_br.iloc[10:].reset_index(drop=True),
+        'sin_conv':top_sc.head(100),  'sin_conv_extra':  top_sc.iloc[10:].reset_index(drop=True),
         'sev_nd':sev_nd_c,'sev_rpm':sev_rpm_c,
-        'corps_10':ac.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
-        'destinos_10':ad.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
-        'paises_10':ap.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
+        'corps_10':ac.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
+        'destinos_10':ad.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
+        'paises_10':ap.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
         'm18':m18c,'m17':m17c,'tab_nd':{},
     }
     CANASTA_DATA[c_key] = c_data

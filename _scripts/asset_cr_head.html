@@ -431,16 +431,28 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       });
     }
     
+
+    function getActiveRows() {
+      // Buscar el panel visible (no display:none) dentro del scope
+      var panels = scope.querySelectorAll('.tab-panel, .tab-panel-c');
+      for (var i = 0; i < panels.length; i++) {
+        if (window.getComputedStyle(panels[i]).display !== 'none') {
+          return panels[i].querySelectorAll('[data-hist-label]');
+        }
+      }
+      // Fallback: todas las filas del scope
+      return scope.querySelectorAll('[data-hist-label]');
+    }
+
     function filter(){
+      var rows = getActiveRows();
       var q = norm(input.value.trim());
       var visible = 0, total = rows.length;
       rows.forEach(function(r){
         var lbl = norm(r.getAttribute('data-hist-label'));
         var match = !q || lbl.indexOf(q) >= 0;
-        // rowIdx: posición dentro de la pestaña (0-99), guardado como data-row-idx
         var rowIdx = parseInt(r.getAttribute('data-row-idx') || '0');
         if (match) {
-          // Sin query: mostrar solo primeras 10 de cada tab; con query: mostrar todas las que matchean
           var showRow = q ? true : (rowIdx < 10);
           if (showRow) {
             r.classList.remove('sb-hidden');
@@ -452,7 +464,6 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
           r.classList.add('sb-hidden');
         }
       });
-      // En modo búsqueda: colapsar column-count a 1 para que sb-hidden funcione bien
       var tabRows = scope.querySelectorAll('.kpi-tab-rows');
       tabRows.forEach(function(el){
         el.style.gridTemplateColumns = q ? '1fr' : '1fr 1fr';
@@ -462,17 +473,16 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
           counter.textContent = visible + ' de ' + total + ' visibles';
           counter.classList.add('has-query');
         } else {
-          counter.textContent = total + ' filas';
+          counter.textContent = '';
           counter.classList.remove('has-query');
         }
       }
     }
     
     input.addEventListener('input', function(){
-      buildDropdown(input.value);
       filter();
     });
-    input.addEventListener('focus', function(){ if (input.value.trim()) buildDropdown(input.value); });
+    // focus listener (dropdown desactivado)
     input.addEventListener('blur', function(){ setTimeout(function(){ dropdown.classList.remove('visible'); }, 150); });
     input.addEventListener('keydown', function(e){
       var items = dropdown.querySelectorAll('.sb-suggestion');

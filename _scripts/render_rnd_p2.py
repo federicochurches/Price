@@ -207,14 +207,24 @@ def render_severities_combinadas():
     def render_table(sev_dict, levels_data, accent='#EA0074', fmt_label='pct'):
         total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
         rows = ''
-        for name, rng, color in levels_data:
+        # Paleta D: Súper Crítica bg sólido oscuro, resto bg pastel + fg oscuro
+        BADGE_COLORS = {
+            'Exitosa':       {'bg':'#E1F5EE','fg':'#085041','bar':'#085041'},
+            'Aceptable':     {'bg':'#EDE8F7','fg':'#3C3489','bar':'#5C469C'},
+            'Revisar':       {'bg':'#FFEDD5','fg':'#7C2D12','bar':'#D4A878'},
+            'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
+            'Súper Crítica': {'bg':'#A32D2D','fg':'#FCEBEB','bar':'#A32D2D'},
+            'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},
+        }
+        for name, rng, _ in levels_data:
             n = int(sev_dict.get(name, 0))
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
+            bc = BADGE_COLORS.get(name, {'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'})
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FCEBEB" if name=="Súper Crítica" else "#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{bc["bg"]};color:{bc["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bc["bar"]};"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
                      f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
                      f'</div>')
@@ -267,20 +277,13 @@ def render_severities_combinadas():
 
 # ============ SECCIÓN TOP 5 (Demanda No Convertida, Bajo Rendimiento, Sin Conversión, Por Corp/Dest/Pais) ============
 def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker=''):
-    """
-    cols_def: list of dicts {key, label, fmt, width, align}
-    """
-    # Header
-    header = '<div style="display:grid;grid-template-columns:'
-    grid = ''
-    for c in cols_def:
-        grid += c['width'] + ' '
-    grid = grid.strip()
-    header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {accent_color};margin-bottom:4px;">'
+    """Top 100: primeras 10 visibles, resto sb-hidden, estilos unificados 11px."""
+    grid = ' '.join(c['width'] for c in cols_def).strip()
+    header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
     for c in cols_def:
         h_align = c.get('align','right')
-        color = accent_color if c.get('key')=='hotel' or c.get('key')=='label' else 'var(--ink-muted)'
-        header += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{h_align};">{c["label"]}</span>'
+        color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
+        header += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};">{c["label"]}</span>'
     header += '</div>'
     
     rows = header
@@ -289,24 +292,28 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
         for c in cols_def:
             align = c.get('align','right')
             val = c['fmt'](r) if callable(c['fmt']) else c['fmt']
-            color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink)'
             if c.get('key') == 'hotel':
-                # 1. Hotel name + corp
                 hotel_name = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 36)
                 sub = r.get('CorpName','')
-                row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
-                              f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div></div>')
+                row_cells += (f'<div>'
+                              f'<div style="font-size:11px;font-weight:600;color:{accent_color};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
+                              f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub}</div>'
+                              f'</div>')
             else:
-                row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
+                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{val}</span>'
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
-        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr)), 4)
+        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
         ipm_curr = round(max(float(r.get('IPM', r.get('RPM', 0))), 0), 1)
         ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
-        lbl      = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 28)
-        hist_attrs = (f' data-hist-nd="{nd_curr}" data-hist-nd-prev="{nd_prev}"'
-                      f' data-hist-ipm="{ipm_curr}" data-hist-ipm-prev="{ipm_prev}"'
+        lbl = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 28)
+        hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
+                      f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{lbl}"')
-        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;">{row_cells}</div>'
+        hidden = ' sb-hidden' if i >= 10 else ''
+        rows += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{i}"'
+                 f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
+                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                 f'{row_cells}</div>')
     return rows
 
 def render_demanda_nc():
@@ -402,38 +409,36 @@ def render_no_convierten():
 '''
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
-    """Tabla de una columna: Dim · %NoDispo · IPM · WoW ND · WoW IPM (5 cols)."""
+    """Tabla RND: 100 filas, 10 visibles, resto sb-hidden. Badges paleta D. 11px."""
     import math
+    RND_ACCENT = '#EA0074'
     grid = '1fr 62px 36px 58px 36px'
     headers = [dim_label, '%NoDispo', 'WoW', 'IPM', 'WoW']
-    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:8px 0;border-bottom:2px solid #EA0074;margin-bottom:4px;">'
+    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:6px 0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
     for h in headers:
         align = 'left' if h == dim_label else 'right'
-        color = '#EA0074' if h == dim_label else 'var(--ink-muted)'
-        hrow += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{h}</span>'
+        color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
+        hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
     hrow += '</div>'
     rows = hrow
 
     for i, r in df.iterrows():
+        row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
-        bnd_color = BANDA_COLORS.get(bnd,{}).get('fg','#EA0074')
-        bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd != 'Súper Crítica' else '#A32D2D'
-        bnd_fg = '#FFFFFF' if bnd == 'Súper Crítica' else bnd_color
-        pill = (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:4px;">{bnd}</span>')
-        n = start_idx + i + 1
-        if dim_col == 'PaisDestino':
-            raw_label = clean_pais_name(r[dim_col])
-        elif dim_col == 'Destino':
-            raw_label = clean_destino_name(r[dim_col], 26)
-        elif dim_col == 'CorpName':
-            raw_label = clean_corp_name(r[dim_col])
+        c_bnd = BANDA_COLORS.get(bnd, {})
+        if bnd == 'Súper Crítica':
+            bnd_bg = '#A32D2D'; bnd_fg = '#FCEBEB'
         else:
-            raw_label = r[dim_col]
+            bnd_bg = c_bnd.get('bg','#F2EEE6'); bnd_fg = c_bnd.get('fg','#5F5E5A')
+        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
+                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;margin-left:4px;flex-shrink:0;">{bnd}</span>')
+        if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
+        elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
+        elif dim_col == 'CorpName': raw_label = clean_corp_name(r[dim_col])
+        else: raw_label = r[dim_col]
         ipm_val = max(r.get('IPM', r.get('RPM', 0)), 0)
+        
         def _wow_pill(v, invert=False, pct_base=None, is_pct_val=True):
-            """invert=True: verde si baja (NoDispo). pct_base: convierte abs a pct."""
-            import math
             if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))):
                 return '<em class="wow-pill nd">—</em>'
             val = (v / pct_base * 100) if (pct_base and pct_base > 0 and not is_pct_val) else v
@@ -448,19 +453,24 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
         ipm_base = r.get('IPM_W18', 0)
         wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
 
-        cells = (f'<div style="font-weight:600;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {truncate(raw_label,26)} {pill}</div>'
-                 f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
+        cells = (f'<div style="display:flex;align-items:center;gap:2px;overflow:hidden;">'
+                 f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {truncate(raw_label,26)}</span>{pill}</div>'
+                 f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
                  f'<span style="text-align:right;">{wow_nd}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
+                 f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
                  f'<span style="text-align:right;">{wow_ipm}</span>')
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
-        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr)), 4)
+        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
         ipm_curr = round(max(ipm_val, 0), 1)
         ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
-        hist_attrs = (f' data-hist-nd="{nd_curr}" data-hist-nd-prev="{nd_prev}"'
-                      f' data-hist-ipm="{ipm_curr}" data-hist-ipm-prev="{ipm_prev}"'
+        hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
+                      f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{truncate(raw_label, 28)}"')
-        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;">{cells}</div>'
+        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        rows += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                 f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;'
+                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                 f'{cells}</div>')
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
@@ -635,15 +645,9 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
 
 # ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
 def _render_panel_top_table(df, cols, idx_offset=0):
-    """Renderiza una tabla Top 5 a 2 cols dentro de un panel de tab."""
-    df1 = df.iloc[:5].reset_index(drop=True)
-    df2 = df.iloc[5:10].reset_index(drop=True) if len(df)>5 else None
-    col1 = render_top_table('','',df1,cols)
-    if df2 is not None and len(df2)>0:
-        df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-        col2 = render_top_table('','',df2_renum,cols)
-        return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-    return f'<div>{col1}</div>'
+    """Tabla Top: 100 filas, 10 visibles en grid 2 cols, resto sb-hidden."""
+    table = render_top_table('','',df,cols)
+    return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{table}</div>'
 
 def render_bloque_hoteles():
     """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
@@ -771,14 +775,9 @@ def render_bloque_dimensiones():
     """Sección 04 · 3 tabs: Corporativo · Destino · País."""
     
     def panel_for_dim(df_full, dim_col, dim_label):
-        df_top10 = df_full.head(10).reset_index(drop=True)
-        df1 = df_top10.iloc[:5].reset_index(drop=True)
-        df2 = df_top10.iloc[5:10].reset_index(drop=True)
-        col1 = _render_dim_table_rnd(df1, dim_col, dim_label, start_idx=0)
-        col2 = _render_dim_table_rnd(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
-        if col2:
-            return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-        return f'<div>{col1}</div>'
+        df100 = df_full.head(100).reset_index(drop=True)
+        rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0)
+        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{rows_html}</div>'
     
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo')
     panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino')
