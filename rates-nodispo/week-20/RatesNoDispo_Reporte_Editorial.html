@@ -102,7 +102,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-label:hover{color:var(--ink-soft);background:var(--rule-soft);border-color:var(--rule-soft);}
 .tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
 .tab-panel{display:none;}
-.tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+.tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row):not(.kpi-tab-rows):not(.rows-toggle){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
 .sb-hidden{display:none !important;}
 #tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
 #tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
@@ -295,6 +295,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
 /* ── Searchbox · W21 (pill + header-sb + wow-pill) ───────────────────────── */
 /* ── Filas "Ver más" en tabs KPI ── */
+.kpi-tab-rows{display:block;}
 .rows-more{display:none;}
 .rows-toggle:hover .toggle-label{text-decoration:underline;}
 .rows-toggle.open .toggle-icon{display:inline-block;transform:rotate(180deg);}
@@ -376,9 +377,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   function setEmptyState(container, q, visible){
     if (!container) return;
-    var emp = container.querySelector(':scope > .sb-empty-state, .sb-empty-state');
+    var emp = null;
+    var children = container.children;
+    for (var i=0; i<children.length; i++){
+      if (children[i].classList.contains('sb-empty-state')){ emp = children[i]; break; }
+    }
     if (!emp){
-      emp = document.createElement('div'); emp.className = 'sb-empty-state';
+      emp = document.createElement('div');
+      emp.className = 'sb-empty-state';
       emp.innerHTML = '<p>Sin resultados para <strong class="sb-empty-q"></strong></p>';
       container.appendChild(emp);
     }
