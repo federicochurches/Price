@@ -176,7 +176,7 @@ def render_severity_nodispo():
         pct = n/total*100 if total else 0
         bar_w = max(min(pct, 100), 0.5)
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{("rgba(22,22,22,.80)" if name=="Súper Crítica" else BANDA_COLORS[name]["bg"])};color:{("#FFFFFF" if name=="Súper Crítica" else BANDA_COLORS[name]["fg"])};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                 f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FCEBEB" if name=="Súper Crítica" else "#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                  f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                  f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -212,7 +212,7 @@ def render_severities_combinadas():
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]};color:{BANDA_COLORS[name]["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FCEBEB" if name=="Súper Crítica" else "#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                      f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -745,7 +745,6 @@ def render_bloque_hoteles():
 <p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
 </div>
 </div>
-{searchbox_html('sb-rnd-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tabs-block">
 <input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
@@ -757,6 +756,7 @@ def render_bloque_hoteles():
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
 </div>
+{searchbox_html('sb-rnd-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_hotel}
@@ -817,7 +817,6 @@ def render_bloque_dimensiones():
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>
 </div>
-{searchbox_html('sb-rnd-dim', '#por-dimension', 'Buscar corporativo, destino o país…')}
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
@@ -827,6 +826,7 @@ def render_bloque_dimensiones():
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-pais">País</label>
 </div>
+{searchbox_html('sb-rnd-dim', '#por-dimension', 'Buscar corporativo, destino o país…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_dim}

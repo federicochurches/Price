@@ -336,10 +336,22 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       var lbl = row.getAttribute('data-hist-label') || '';
       if (isNaN(w21)) return;
 
+      // TOGGLE: si la fila ya estaba seleccionada, reset a Global
+      var wasSelected = row.classList.contains('hist-selected');
       card.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
         r.style.background = '';
+        r.classList.remove('hist-selected');
       }});
+
+      if (wasSelected) {{
+        // Reset: volver a Global
+        drawCanvas(VALS_DEF);
+        updateMetrics(VALS_DEF, 'Global');
+        return;
+      }}
+
       row.style.background = 'var(--accent-soft)';
+      row.classList.add('hist-selected');
 
       var serie = buildSerie(w21, isNaN(w20) ? w21 : w20);
       drawCanvas(serie);

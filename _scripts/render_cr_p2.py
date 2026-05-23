@@ -248,8 +248,9 @@ def render_severity_eficacia():
         n = int(sev_ef_p80.get(name, 0))
         pct = n/total*100 if total else 0
         bar_w = max(min(pct, 100), 0.5)
-        bg = "rgba(22,22,22,.80)" if name=="Súper Crítica" else BANDA_COLORS[name]["bg"]
-        fg = "#FFFFFF" if name=="Súper Crítica" else BANDA_COLORS[name]["fg"]
+        # Badge SÓLIDO (paleta D): bg = color de banda, texto blanco/claro
+        bg = color
+        fg = '#FCEBEB' if name == 'Súper Crítica' else '#FFFFFF'
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
                  f'<span style="display:inline-block;padding:3px 8px;background:{bg};color:{fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
@@ -286,8 +287,11 @@ def render_severities_combinadas():
             n = int(sev_dict.get(name, 0))
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
+            # Badge SÓLIDO (paleta D): background = color de banda, texto blanco/claro
+            badge_bg = color  # color sólido de la banda
+            badge_fg = '#FCEBEB' if name == 'Súper Crítica' else '#FFFFFF'
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{BANDA_COLORS[name]["bg"]} !important;color:{BANDA_COLORS[name]["fg"]} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                      f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -943,7 +947,6 @@ def render_bloque_hoteles_cr():
 <p class="section-kicker">Hoteles del P80 vistos desde cuatro ángulos analíticos: críticos (peor eficacia con BKGS&gt;0), bajo rendimiento (ConvRate insuficiente con volumen), sin conversión (BKGS=0), y menor ConvRate (peores conversores absolutos).</p>
 </div>
 </div>
-{searchbox_html('sb-cr-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tabs-block">
 <input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
@@ -955,6 +958,7 @@ def render_bloque_hoteles_cr():
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
 <label class="tab-label" for="tab-h-mcv">Menor ConvRate</label>
 </div>
+{searchbox_html('sb-cr-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_hotel}
@@ -1039,7 +1043,15 @@ def render_bloque_dimensiones_cr():
             cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and (math.isnan(cv_val) or math.isinf(cv_val))) else '—'
             ef_val = r.get('Eficacia', None)
             ef_str = fmt_pct2(ef_val) if ef_val is not None and not (isinstance(ef_val, float) and (math.isnan(ef_val) or math.isinf(ef_val))) else '—'
-            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {truncate(r["ExternalProviderName"],28)}</div></div>'
+            # data attrs para módulo histórico reactivo
+            _ef21 = round(float(ef_val) * 100, 4) if ef_val and not (isinstance(ef_val, float) and math.isnan(float(ef_val))) else 0
+            _ef20_raw = r.get('Eficacia_W17', ef_val)
+            _ef20 = round(float(_ef20_raw) * 100, 4) if _ef20_raw and not (isinstance(_ef20_raw, float) and math.isnan(float(_ef20_raw))) else _ef21
+            _cv21 = round(float(cv_val) * 100, 4) if cv_val and not (isinstance(cv_val, float) and math.isnan(float(cv_val))) else 0
+            _cv20_raw = r.get('ConvRate_W17', cv_val)
+            _cv20 = round(float(_cv20_raw) * 100, 4) if _cv20_raw and not (isinstance(_cv20_raw, float) and math.isnan(float(_cv20_raw))) else _cv21
+            _lbl_chan = truncate(r["ExternalProviderName"],28)
+            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {_lbl_chan}</div></div>'
                      f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
@@ -1047,7 +1059,10 @@ def render_bloque_dimensiones_cr():
                      f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{ef_str}</span>')
             if has_wow:
                 cells += _fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))
-            rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
+            rows += (f'<div class="kpi-row" style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;transition:background .12s;" '
+                     f'data-hist-w21="{_ef21}" data-hist-w20="{_ef20}" '
+                     f'data-hist-cv-w21="{_cv21}" data-hist-cv-w20="{_cv20}" '
+                     f'data-hist-label="{_lbl_chan}">{cells}</div>')
         return rows
     
     panel_chan = (
@@ -1088,7 +1103,6 @@ def render_bloque_dimensiones_cr():
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>
 </div>
-{searchbox_html('sb-cr-dim', '#por-dimension', 'Buscar corporativo, destino o channel…')}
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
@@ -1098,6 +1112,7 @@ def render_bloque_dimensiones_cr():
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-chan">Channel</label>
 </div>
+{searchbox_html('sb-cr-dim', '#por-dimension', 'Buscar corporativo, destino o channel…')}
 <div class="tab-panels">{panels}</div>
 </div>
 {hist_dim}

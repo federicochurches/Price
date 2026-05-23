@@ -537,7 +537,19 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     wow_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             except:
                 wow_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-            rows += (f'<div class="panel-row" data-hist-label="{label}">'
+            # Calcular data-hist W21/W20 para módulo histórico reactivo (CR canasta)
+            import math as _m
+            _ef21 = round(float(r['Eficacia']) * 100, 4) if r.get('Eficacia') is not None and not _m.isnan(float(r['Eficacia'])) else 0
+            _ef20_raw = r.get('Eficacia_W17', None)
+            _ef20 = round(float(_ef20_raw) * 100, 4) if _ef20_raw is not None and not _m.isnan(float(_ef20_raw)) else _ef21
+            _cv_val = r.get('ConvRate', None)
+            _cv21 = round(float(_cv_val) * 100, 4) if _cv_val is not None and not _m.isnan(float(_cv_val)) else 0
+            _cv20_raw = r.get('ConvRate_W17', None)
+            _cv20 = round(float(_cv20_raw) * 100, 4) if _cv20_raw is not None and not _m.isnan(float(_cv20_raw)) else _cv21
+            rows += (f'<div class="panel-row" data-hist-label="{label}" '
+                     f'data-hist-w21="{_ef21}" data-hist-w20="{_ef20}" '
+                     f'data-hist-cv-w21="{_cv21}" data-hist-cv-w20="{_cv20}" '
+                     f'style="cursor:pointer;transition:background .12s;">'
                      f'<span class="label"><div>{start_idx+i+1}. {label}</div>{sub_html}</span>'
                      f'<span class="efic">{fmt_pct2(r["ConvRate"]) if "ConvRate" in r.index else "—"}</span>'
                      f'<span class="efic">{fmt_pct2(r["Eficacia"])}</span>'
@@ -568,7 +580,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-cr" style="margin:32px 0 0;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
-{searchbox_html(f'sb-cr-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-cr', 'Buscar hotel...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-crit" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -578,6 +589,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
+{searchbox_html(f'sb-cr-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-cr', 'Buscar hotel...')}
 <div class="tab-panels">
 {tab_panel_hotel('crit', df_crit_c, parse_hotel=True)}
 {tab_panel_hotel('br',   df_br_c,   parse_hotel=True)}
@@ -736,7 +748,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-cr" style="margin:32px 0 32px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
-{searchbox_html(f'sb-cr-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-cr', 'Buscar corporativo, destino o channel...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -746,6 +757,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
 </div>
+{searchbox_html(f'sb-cr-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-cr', 'Buscar corporativo, destino o channel...')}
 <div class="tab-panels">
 {tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
 {tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}

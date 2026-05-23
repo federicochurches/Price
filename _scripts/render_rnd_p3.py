@@ -499,7 +499,18 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else:
                 wow_ipm_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
 
-            rows += (f'<div class="panel-row">'
+            # data-hist para módulo histórico reactivo RND
+            import math as _m
+            _nd21 = round(float(r['%NoDispo']) * 100, 4) if r.get('%NoDispo') is not None and not _m.isnan(float(r['%NoDispo'])) else 0
+            _nd20_raw = r.get('%NoDispo_W17', None)
+            _nd20 = round(float(_nd20_raw) * 100, 4) if _nd20_raw is not None and not _m.isnan(float(_nd20_raw)) else _nd21
+            _ipm21 = round(float(ipm_val), 4) if ipm_val is not None and not _m.isnan(float(ipm_val)) else 0
+            _ipm20_raw = r.get('IPM_W17', None)
+            _ipm20 = round(float(_ipm20_raw), 4) if _ipm20_raw is not None and not _m.isnan(float(_ipm20_raw)) else _ipm21
+            rows += (f'<div class="panel-row" data-hist-label="{label}" '
+                     f'data-hist-w21="{_nd21}" data-hist-w20="{_nd20}" '
+                     f'data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}" '
+                     f'style="cursor:pointer;transition:background .12s;">'
                      f'<span class="label">{start_idx+i+1}. {label}</span>'
                      f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
                      f'<span class="cr">{wow_html}</span>'
@@ -526,7 +537,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-rnd" style="margin:32px 0 0;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
-{searchbox_html(f'sb-rnd-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-rnd', 'Buscar hotel...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -536,6 +546,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
+{searchbox_html(f'sb-rnd-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-rnd', 'Buscar hotel...')}
 <div class="tab-panels">
 {tab_panel_hotel('dnc', df_dnc_c, 'Hotel', 'Hotel', parse_hotel=True)}
 {tab_panel_hotel('br',  df_br_c,  'Hotel', 'Hotel', parse_hotel=True)}
@@ -561,7 +572,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-rnd" style="margin:32px 0 32px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
-{searchbox_html(f'sb-rnd-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-rnd', 'Buscar corporativo, destino o país...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -571,6 +581,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-pais">País</label>
 </div>
+{searchbox_html(f'sb-rnd-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-rnd', 'Buscar corporativo, destino o país...')}
 <div class="tab-panels">
 {tab_panel_dim('corp', df_corp_dim, 'CorpName', 'Corporativo')}
 {tab_panel_dim('dest', df_dest_dim, 'Destino',  'Destino')}

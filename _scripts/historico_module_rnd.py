@@ -387,6 +387,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     if (!card) return;
     function resetToGlobal() {{
       card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background=''; r.removeAttribute('data-selected'); }});
+      drawCanvas(VALS_DEF);
       updateMetrics(VALS_DEF, 'Global');
       updateSpark(VALS_DEF);
     }}
