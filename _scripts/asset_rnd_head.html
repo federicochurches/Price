@@ -451,7 +451,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       if (!panel) return;
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){
         var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-        r.style.display = ri < 5 ? '' : 'none';
+        r.style.display = ri < 5 ? 'grid' : 'none';
       });
     }
 
@@ -480,8 +480,8 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       panel.querySelectorAll('.rows-toggle').forEach(function(btn){ btn.style.display = q ? 'none' : ''; });
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q){ r.style.display = match ? '' : 'none'; if (match) vis++; }
-        else  { var ri=parseInt(r.getAttribute('data-row-idx')||'0'); r.style.display=ri<5?'':'none'; if(ri<5)vis++; }
+        if (q){ r.style.display = match ? 'grid' : 'none'; if (match) vis++; }
+        else  { var ri=parseInt(r.getAttribute('data-row-idx')||'0'); r.style.display=ri<5?'grid':'none'; if(ri<5)vis++; }
       });
       showEmpty(panel, q && vis === 0 ? input.value.trim() : '');
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
@@ -585,7 +585,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var lbl = btn.querySelector('.toggle-label');
     var ico = btn.querySelector('.toggle-icon');
     panel.querySelectorAll('.rows-more').forEach(function(r){
-      r.style.display = isOpen ? '' : 'none';
+      r.style.display = isOpen ? 'grid' : 'none';
     });
     if (lbl) lbl.textContent = isOpen ? 'Ver menos' : 'Ver 5 más';
     if (ico) ico.style.transform = isOpen ? 'rotate(180deg)' : '';
