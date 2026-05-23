@@ -277,15 +277,22 @@ def render_severities_combinadas():
 '''
 
 # ============ SECCIÓN TOP 5 (Demanda No Convertida, Bajo Rendimiento, Sin Conversión, Por Corp/Dest/Pais) ============
-def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker='', show_header=True):
-    """Top 100: primeras 10 visibles, resto sb-hidden, estilos unificados 11px."""
+def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker='', show_header=True, sb_id=None):
+    """Top 100: primeras 10 visibles, resto sb-hidden, estilos unificados 11px.
+    sb_id: si se pasa y show_header=True, primera columna del header es searchbox integrado (Prop D).
+    """
     grid = ' '.join(c['width'] for c in cols_def).strip()
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
-        for c in cols_def:
-            h_align = c.get('align','right')
-            color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
-            _hd += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};">{c["label"]}</span>'
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        for idx_c, c in enumerate(cols_def):
+            if idx_c == 0 and sb_id:
+                _hd += searchbox_header_html(sb_id, accent_color=accent_color,
+                                              placeholder='Hotel o corporativo…',
+                                              th_id=f'th-{sb_id}')
+            else:
+                h_align = c.get('align','right')
+                color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
+                _hd += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};padding:9px 0;">{c["label"]}</span>'
         _hd += '</div>'
         header = _hd
     else:
@@ -314,8 +321,9 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
         hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
                       f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{lbl}"')
+        tbl_attr = f' data-lbl="{lbl} {r.get("CorpName","")}"' if sb_id else ''
         hidden = ' sb-hidden' if i >= 10 else ''
-        rows += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{i}"'
+        rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
                  f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{row_cells}</div>')
@@ -413,17 +421,27 @@ def render_no_convierten():
 </section>
 '''
 
-def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
-    """Tabla RND: 100 filas, 10 visibles, resto sb-hidden. Badges paleta D. 11px."""
+def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
+    """Tabla RND: 100 filas, 10 visibles, resto sb-hidden. Badges paleta D. 11px.
+    sb_id: si se pasa, primera columna del header es searchbox integrado (Prop D).
+    Badge de banda: BandaNoDispo en todas las dimensiones (Corp, Destino, País).
+    """
     import math
     RND_ACCENT = '#EA0074'
     grid = '1fr 62px 36px 58px 36px'
     headers = [dim_label, '%NoDispo', 'WoW', 'IPM', 'WoW']
-    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:6px 0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
-    for h in headers:
-        align = 'left' if h == dim_label else 'right'
-        color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
-        hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
+
+    # Header con o sin searchbox
+    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+    for idx_h, h in enumerate(headers):
+        if idx_h == 0 and sb_id:
+            hrow += searchbox_header_html(sb_id, accent_color=RND_ACCENT,
+                                           placeholder=f'{dim_label}…',
+                                           th_id=f'th-{sb_id}')
+        else:
+            align = 'left' if h == dim_label else 'right'
+            color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
+            hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
     hrow += '</div>'
     rows = hrow
 
@@ -471,8 +489,9 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
         hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
                       f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{truncate(raw_label, 28)}"')
+        tbl_attr = f' data-lbl="{raw_label}"' if sb_id else ''
         hidden = ' sb-hidden' if row_idx >= 10 else ''
-        rows += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+        rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
                  f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{cells}</div>')
@@ -649,16 +668,17 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
 
 
 # ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
-def _render_panel_top_table(df, cols, idx_offset=0):
-    """Panel: col1(1-5) + col2(6-10) con header en cada col, filas 11-100 sb-hidden."""
-    df = df.reset_index(drop=True)  # index 0..N
-    df1 = df.iloc[:5].copy()        # index 0-4
-    df2 = df.iloc[5:10].copy()      # index 5-9
-    df_rest = df.iloc[10:].copy()   # index 10+
-    # Asignar índices correctos para que sb-hidden funcione (i >= 10)
+def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
+    """Panel: col1(1-5) + col2(6-10) con header en cada col, filas 11-100 sb-hidden.
+    sb_id: si se pasa, header de col1 integra searchbox_header_html (Prop D).
+    """
+    df = df.reset_index(drop=True)
+    df1 = df.iloc[:5].copy()
+    df2 = df.iloc[5:10].copy()
+    df_rest = df.iloc[10:].copy()
     df2.index = range(5, 5+len(df2))
     df_rest.index = range(10, 10+len(df_rest))
-    col1 = render_top_table('','',df1,cols)
+    col1 = render_top_table('','',df1,cols, sb_id=sb_id)
     col2 = render_top_table('','',df2,cols)
     hidden_rows = render_top_table('','',df_rest,cols, show_header=False)
     grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
@@ -694,7 +714,7 @@ def render_bloque_hoteles():
     ]
     df_dnc = pd.concat([TOP['demanda_nc'], TOP['demanda_nc_extra']], ignore_index=True)
     df_dnc.index = range(len(df_dnc))
-    panel_dnc = _render_panel_top_table(df_dnc, cols_dnc)
+    panel_dnc = _render_panel_top_table(df_dnc, cols_dnc, sb_id='sb-rh-dnc')
     top1_dnc = df_dnc.iloc[0]
     kicker_dnc = f'Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(top1_dnc["Hotel"],38)}</strong> ({fmt_big(top1_dnc["DemandaNoConvertida"])} búsquedas perdidas).'
     
@@ -707,7 +727,7 @@ def render_bloque_hoteles():
     ]
     df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
     df_br.index = range(len(df_br))
-    panel_br = _render_panel_top_table(df_br, cols_br)
+    panel_br = _render_panel_top_table(df_br, cols_br, sb_id='sb-rh-br')
     kicker_br = 'Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.'
     
     # Sin Conversión
@@ -719,7 +739,7 @@ def render_bloque_hoteles():
     ]
     df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
     df_sc.index = range(len(df_sc))
-    panel_sc = _render_panel_top_table(df_sc, cols_sc)
+    panel_sc = _render_panel_top_table(df_sc, cols_sc, sb_id='sb-rh-sc')
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     kicker_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de IPM.'
     
@@ -733,7 +753,7 @@ def render_bloque_hoteles():
     df_crit_all = p80_hotel[p80_hotel['BandaNoDispo'].isin(['Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
     df_crit = df_crit_all.head(100).reset_index(drop=True)
     df_crit.index = range(len(df_crit))
-    panel_crit = _render_panel_top_table(df_crit, cols_crit)
+    panel_crit = _render_panel_top_table(df_crit, cols_crit, sb_id='sb-rh-crit')
     n_crit_total = len(df_crit_all)
     n_supcrit = (p80_hotel['BandaNoDispo'] == 'Súper Crítica').sum()
     kicker_crit = f'{fmt_int_es(n_crit_total)} hoteles del P80 con %NoDispo &gt; 20% (banda Crítica+). De estos, <strong>{n_supcrit} son Súper Críticos</strong> (&gt; 60%) — primer foco de escalamiento inmediato a Supply.'
@@ -774,7 +794,6 @@ def render_bloque_hoteles():
 <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#por-hotel" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
@@ -789,14 +808,14 @@ def render_bloque_hoteles():
 def render_bloque_dimensiones():
     """Sección 04 · 3 tabs: Corporativo · Destino · País."""
     
-    def panel_for_dim(df_full, dim_col, dim_label):
+    def panel_for_dim(df_full, dim_col, dim_label, sb_id=None):
         df100 = df_full.head(100).reset_index(drop=True)
-        rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0)
+        rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id)
         return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{rows_html}</div>'
     
-    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo')
-    panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino')
-    panel_pais = panel_for_dim(TOP['paises_10'], 'PaisDestino', 'País')
+    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', sb_id='sb-rd-corp')
+    panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino', sb_id='sb-rd-dest')
+    panel_pais = panel_for_dim(TOP['paises_10'], 'PaisDestino', 'País', sb_id='sb-rd-pais')
     
     # Kickers
     top_corp = TOP['corps'].iloc[0]
@@ -839,7 +858,6 @@ def render_bloque_dimensiones():
 <label class="tab-label" for="tab-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-pais">País</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#por-dimension" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>

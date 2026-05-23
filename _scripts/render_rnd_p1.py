@@ -174,6 +174,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     else: wow_str = '= 0,00pp'
     
     wow_block = wow_box(fmt_pct2(pct_w17), fmt_pct2(pct_w18), wow_str, wow_color, ACCENT)
+    # Prop V1: NoDispo baja = buena → invertir signo para que verde = mejora
+    _wow_pill_nd = wow_pill_html(-pct_wow, unit='pp', prefix_pos='↓', prefix_neg='↑')
     
     # Tabs panels
     tabs = ''
@@ -256,14 +258,17 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <input id="tab-nd-canasta" name="tabs-nd" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
-<div>{pill_with_target}</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
+{pill_with_target}
+<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs W{WEEK_PREV_INT} {_wow_pill_nd}</div>
+</div>
 </div>
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-nd" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-nd-panels" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Filtrar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
@@ -280,6 +285,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     wow_str = f'{wow_arrow} {rpm_wow:+.1f}%'.replace('.', ',')
     
     wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
+    # Prop V1: IPM sube = buena → pasar directo, unidad %
+    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='%')
     
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('canasta','Canasta')]:
@@ -360,14 +367,17 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <input id="tab-rpm-canasta" name="tabs-rpm" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
-<div>{pill_with_target}</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
+{pill_with_target}
+<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs W{WEEK_PREV_INT} {_wow_pill_ipm}</div>
+</div>
 </div>
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-ipm" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ipm-panels" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Filtrar…', count_id='cnt-kpi-ipm')}</div>
 <div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
 {render_historico_rnd('ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''

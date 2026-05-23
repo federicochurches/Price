@@ -282,3 +282,131 @@ def searchbox_html(input_id, scope_selector, placeholder="Buscar hotel, destino,
         f'autocomplete="off" spellcheck="false">'
         f'</div>'
     )
+
+
+# ── NUEVAS FUNCIONES · Plan A+D · W21 ────────────────────────────────────────
+
+def wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓'):
+    """Pill WoW redondeada con fondo semántico (V1).
+
+    wow_val : float con el delta (positivo = mejora para Eficacia/ConvRate/IPM,
+              negativo = mejora para NoDispo). El caller decide el signo correcto
+              antes de llamar: pasar wow_val ya "orientado" (+ = verde, - = rojo).
+    unit    : sufijo de unidad ('pp', '%', '$', '')
+    
+    Para métricas donde SUBIR es malo (NoDispo), invertir el signo antes de llamar:
+        wow_pill_html(-wow_nd_val)   # NoDispo sube → rojo
+
+    Retorna HTML de un <span> pill inline.
+    Casos especiales:
+      · abs(val) < 0.005 → neutro (gris)
+      · val > 0          → verde (mejora)
+      · val < 0          → rojo  (empeora)
+    """
+    import math
+    if wow_val is None or (isinstance(wow_val, float) and math.isnan(wow_val)):
+        # Neutro sin datos
+        return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                f'background:#F2EEE6;color:#8A8377;">—</span>')
+    v = float(wow_val)
+    if abs(v) < 0.005:
+        return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                f'background:#F2EEE6;color:#8A8377;">— 0,0{unit}</span>')
+    if v > 0:
+        bg, fg, arrow = '#EAF3DE', '#2F6C34', prefix_pos
+    else:
+        bg, fg, arrow = '#FCE8E6', '#C0392B', prefix_neg
+    val_str = f'{abs(v):.1f}'.replace('.', ',')
+    return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+            f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+            f'background:{bg};color:{fg};">{arrow} {val_str}{unit}</span>')
+
+
+def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Filtrar…',
+                        count_id=None):
+    """Pill searchbox para insertar dentro de .tabs-row en cards KPI (Prop A).
+
+    Produce el bloque .sb-pill-wrap completo con:
+      · pill redondeada con ícono de búsqueda
+      · input sin borde visible (fusionado en la pill)
+      · badge contador opcional (count_id = ID del <span> que muestra "N / total")
+
+    El input lleva data-sb-pill-accent para que el JS de los assets aplique
+    el color de foco correcto según el reporte (violet CR / magenta RND).
+
+    Uso en render scripts:
+        tabs_row_html += searchbox_pill_html('sb-ef-global', accent_color='#5C469C',
+                                             count_id='cnt-ef-global')
+    """
+    count_html = ''
+    if count_id:
+        count_html = (f'<span id="{count_id}" class="sb-pill-count" '
+                      f'style="font-size:9px;font-weight:700;color:var(--ink-muted);'
+                      f'background:var(--rule-soft);padding:2px 7px;border-radius:10px;'
+                      f'white-space:nowrap;transition:all .15s;"></span>')
+    return (
+        f'<div class="sb-pill-wrap" style="margin-left:auto;display:flex;align-items:center;'
+        f'gap:7px;padding:0 8px 5px 12px;border-left:1px solid var(--rule-soft);">'
+        f'<div class="sb-pill" style="display:flex;align-items:center;gap:6px;'
+        f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
+        f'padding:3px 10px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
+        f'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" '
+        f'stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" '
+        f'stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true">'
+        f'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+        f'<input type="text" id="{input_id}" placeholder="{placeholder}" '
+        f'data-sb-pill="true" data-sb-pill-accent="{accent_color}" '
+        f'data-sb-count-id="{count_id or ""}" '
+        f'autocomplete="off" spellcheck="false" '
+        f'style="background:none;border:none;outline:none;font-size:10px;'
+        f'font-family:inherit;color:var(--ink);width:110px;caret-color:{accent_color};" '
+        f'onfocus="var p=this.closest(\'.sb-pill\');p.style.borderColor=\'{accent_color}\';'
+        f'p.style.boxShadow=\'0 0 0 2px {accent_color}1A\';" '
+        f'onblur="if(!this.value){{var p=this.closest(\'.sb-pill\');'
+        f'p.style.borderColor=\'\';p.style.boxShadow=\'\';}}">'
+        f'</div>'
+        f'{count_html}'
+        f'</div>'
+    )
+
+
+def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Filtrar…',
+                           th_id=None):
+    """Searchbox integrado en el primer <th> de una tabla (Prop D).
+
+    Reemplaza el label de la primera columna del header por un input de filtro.
+    El contenedor recibe un ID opcional (th_id) para que el JS pueda aplicar
+    el tint de foco (rgba del color de acento, 5%).
+
+    El input usa data-sb-table="true" para que el JS de los assets lo distinga
+    del pill y aplique filterTbl() en lugar de filterKpi().
+
+    Uso en render scripts — dentro de la función que construye el header grid:
+        th_hotel = searchbox_header_html('sb-h-crit', accent_color='#5C469C',
+                                          placeholder='Hotel o corporativo…',
+                                          th_id='th-h-crit')
+        header = f'<div style="display:grid;grid-template-columns:{grid};">{th_hotel}...'
+    """
+    th_id_attr = f'id="{th_id}"' if th_id else ''
+    focus_bg   = f'rgba({int(accent_color[1:3],16)},{int(accent_color[3:5],16)},{int(accent_color[5:7],16)},.05)'
+    return (
+        f'<div {th_id_attr} class="sb-th" '
+        f'style="display:flex;align-items:center;gap:5px;padding:7px 0;min-width:0;">'
+        f'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" '
+        f'stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" '
+        f'stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true">'
+        f'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+        f'<input type="text" id="{input_id}" placeholder="{placeholder}" '
+        f'data-sb-table="true" '
+        f'autocomplete="off" spellcheck="false" '
+        f'style="background:none;border:none;outline:none;font-size:10px;'
+        f'font-family:inherit;color:var(--ink);width:100%;min-width:0;'
+        f'caret-color:{accent_color};" '
+        f'onfocus="var t=this.closest(\'.sb-th\');t.style.background=\'{focus_bg}\';'
+        f't.style.borderRadius=\'3px\';t.style.paddingLeft=\'4px\';" '
+        f'onblur="if(!this.value){{var t=this.closest(\'.sb-th\');'
+        f't.style.background=\'\';t.style.paddingLeft=\'\';}}">'
+        f'</div>'
+    )

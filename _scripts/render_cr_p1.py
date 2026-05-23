@@ -141,6 +141,8 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
     else: wow_str = '= 0,00pp'
     
     wow_block = wow_box(fmt_pct2(ef_w17), fmt_pct2(ef_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
+    # Prop V1: pill WoW redondeada (+ = verde, - = rojo)
+    _wow_pill_ef = wow_pill_html(ef_wow, unit='pp')
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
@@ -264,14 +266,17 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 <input id="tab-ef-canasta" name="tabs-ef" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
-<div>{pill_with_target}</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
+{pill_with_target}
+<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs {week_prev} {_wow_pill_ef}</div>
+</div>
 </div>
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-ef" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ef-panels" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Filtrar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
@@ -290,6 +295,8 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
     else: wow_str = '= 0,00pp'
     
     wow_block = wow_box(fmt_pct2(cv_w17), fmt_pct2(cv_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
+    # Prop V1: pill WoW redondeada
+    _wow_pill_cv = wow_pill_html(cv_wow, unit='pp')
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
@@ -408,14 +415,17 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 <input id="tab-cv-canasta" name="tabs-cv" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
-<div>{pill_with_target}</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
+{pill_with_target}
+<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs {week_prev} {_wow_pill_cv}</div>
+</div>
 </div>
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-cv" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-cv-panels" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Filtrar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''

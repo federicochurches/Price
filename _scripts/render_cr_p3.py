@@ -415,16 +415,20 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
         sb_id = f'sb-kpi-{card_id}'
         panels_id = f'kpi-{card_id}-panels'
+        _wow_pp = wow_pill_html(float(wow_str.replace(',','.').replace('pp','').replace('%','').strip().lstrip('↑↓=+').strip()) * (1 if '↑' in wow_str else -1 if '↓' in wow_str else 0), unit='pp') if wow_str and wow_str not in ('—',) else wow_pill_html(None)
         return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
 <div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
-<div>{pill_with_target}</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
+{pill_with_target}
+<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pp}</div>
+</div>
 </div>
 {gauge}
 {wb}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_labels}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="{sb_id}" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#{panels_id}" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_labels}{searchbox_pill_html(sb_id, accent_color='#5C469C', placeholder='Filtrar…', count_id=f'cnt-{card_id}')}</div>
 <div id="{panels_id}" class="tab-panels">{panels}</div>
 {hist_mod}
 </div>'''
@@ -623,12 +627,18 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         """Genera panel con 2 cols explícitas (1-5 izq, 6-10 der) + filas 11-100 sb-hidden.
         Las sb-hidden quedan fuera del grid 2-col para que el JS las active en lista plana."""
         grid = '1fr 48px 48px 38px'
-        def header_html():
-            return (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+        sb_hid = f'sb-{idx_str}-h-{t_key}'
+        def header_html(with_sb=False):
+            first_col = (searchbox_header_html(sb_hid, accent_color=CR_ACCENT,
+                                               placeholder='Hotel…',
+                                               th_id=f'th-{sb_hid}')
+                         if with_sb else
+                         f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>')
+            return (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+                    f'{first_col}'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">ConvRate</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">Eficacia</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW</span>'
                     f'</div>')
 
         col1 = col2 = ''
@@ -658,6 +668,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
                         f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                         f' data-hist-label="{hotel_name}"'
+                        f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
                         f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                         f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                         f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
@@ -672,7 +683,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 hidden_rows += row_html.replace('<div data-row-idx=', '<div class="sb-hidden" data-row-idx=', 1)
 
         grid2 = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
-        grid2 += f'<div>{header_html()}{col1}</div>'
+        grid2 += f'<div>{header_html(with_sb=True)}{col1}</div>'
         grid2 += f'<div>{header_html()}{col2}</div>'
         grid2 += f'</div>'
         inner = grid2 + hidden_rows
@@ -705,7 +716,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-crit">Críticos</label>
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-{idx_str}-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-hotel-cr" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+</div>
 <div class="tab-panels">
 {tab_panel_hotel('crit', df_crit_c, parse_hotel=True)}
 {tab_panel_hotel('br',   df_br_c,   parse_hotel=True)}
@@ -716,15 +727,23 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>'''
 
     # ── Bloque Dimensión · 3 tabs: Corp · Destino · Channel ──────────────────
-    def dim_table_with_wow(df, dim_col, dim_label, start_idx=0):
-        """Tabla dimensión unificada: estilos alineados con global, badges paleta D."""
+    def dim_table_with_wow(df, dim_col, dim_label, start_idx=0, sb_id=None):
+        """Tabla dimensión unificada: estilos alineados con global, badges paleta D.
+        sb_id: si se pasa, primera columna del header es searchbox integrado (Prop D).
+        """
         import math
         grid = 'minmax(0,1fr) 68px 56px 62px 36px 62px 36px'
-        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
-        for h in [dim_label, 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']:
-            align = 'left' if h == dim_label else 'right'
-            color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
-            rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
+        headers = [dim_label, 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']
+        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+        for idx_h, h in enumerate(headers):
+            if idx_h == 0 and sb_id:
+                rows += searchbox_header_html(sb_id, accent_color=CR_ACCENT,
+                                               placeholder=f'{dim_label}…',
+                                               th_id=f'th-{sb_id}')
+            else:
+                align = 'left' if h == dim_label else 'right'
+                color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
+                rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
         rows += '</div>'
         for i, r in df.iterrows():
             row_idx = start_idx + i
@@ -734,7 +753,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else: lab = truncate(str(raw), 22)
             bnd = banda_eficacia(r['Eficacia'])
             c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-            # Paleta D canónica: SC sólida, resto bg pastel + fg oscuro
             if bnd == 'Súper Crítica':
                 bg = '#FECACA'; fg = '#7F1D1D'
             else:
@@ -763,10 +781,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             except: cv_wow_f = 0
             cv_prev = cv_curr - cv_wow_f
             hidden_cls = ' sb-hidden' if row_idx >= 10 else ''
+            tbl_attr = f' data-lbl="{lab}"' if sb_id else ''
             rows += (f'<div class="{hidden_cls.strip()}" data-row-idx="{row_idx}"'
                      f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
                      f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
-                     f' data-hist-label="{lab}"'
+                     f' data-hist-label="{lab}"{tbl_attr}'
                      f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
                      f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {lab}</span>{pill_banda}</div>'
@@ -779,11 +798,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return rows
 
     def tab_panel_dim_cr(t_key, df_full, dim_col, dim_label, ref_w17=None):
+        sb_id_dim = f'sb-{idx_str}-d-{t_key}'
         df100 = df_full.head(100).reset_index(drop=True)
         if ref_w17 is not None and dim_col in ref_w17.columns:
             df100 = df100.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
             df100['Eficacia_WoW_pp'] = (df100['Eficacia'] - df100['Eficacia_W17']) * 100
-        rows_html = dim_table_with_wow(df100, dim_col, dim_label, start_idx=0)
+        rows_html = dim_table_with_wow(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id_dim)
         body = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
@@ -881,7 +901,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-{idx_str}-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-dim-cr" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div></div>
+</div>
 <div class="tab-panels">
 {tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
 {tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}
