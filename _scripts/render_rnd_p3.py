@@ -500,31 +500,33 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === ANÁLISIS POR HOTEL · 3 tabs (Demanda No Convertida · Bajo Rend · Sin Conv) ===
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0):
         import math
-        rows = f'<div class="panel-header"><span>{dim_label}</span><span>%NoDispo</span><span>WoW</span><span>IPM</span><span>WoW</span></div>'
+        RND_ACCENT = '#EA0074'
+        grid = '1fr 62px 38px 62px 38px'
+        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{RND_ACCENT};">{dim_label}</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">%NoDispo</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">IPM</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                  f'</div>')
+        rows = header
         for i, r in df.iterrows():
+            row_idx = start_idx + i
             raw = r[dim_col]
-            if parse_hotel:
-                label = truncate(clean_hotel_name(raw), 26)
-            elif dim_col == 'PaisDestino':
-                label = clean_pais_name(raw)
-            elif dim_col == 'Destino':
-                label = clean_destino_name(raw, 26)
-            elif dim_col == 'CorpName':
-                label = clean_corp_name(raw)
-            else:
-                label = truncate(str(raw), 26)
-            # IPM sin negativos
+            if parse_hotel: label = truncate(clean_hotel_name(raw), 26)
+            elif dim_col == 'PaisDestino': label = clean_pais_name(raw)
+            elif dim_col == 'Destino': label = clean_destino_name(raw, 26)
+            elif dim_col == 'CorpName': label = clean_corp_name(raw)
+            else: label = truncate(str(raw), 26)
             ipm_val = max(r.get('RPM', r.get('IPM', 0)), 0)
-            # WoW %NoDispo
             wow_v = r.get('NoDispo_WoW_pp', None)
             if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))) or abs(wow_v) < 0.05:
-                wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+                wow_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             else:
                 mejora = wow_v < 0
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
-                wow_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
-            # WoW IPM
+                wow_html = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
             ipm_base = r.get('IPM_W18', 0)
             wow_ipm_v = r.get('IPM_WoW_pp')
             if wow_ipm_v is not None and not (isinstance(wow_ipm_v,float) and math.isnan(wow_ipm_v)) and ipm_base > 0:
@@ -532,13 +534,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 if abs(wow_pct) >= 0.5:
                     wc2 = '#2F6C34' if wow_pct > 0 else '#C0392B'
                     wb2 = '#EAF3DE' if wow_pct > 0 else '#FCE8E6'
-                    wow_ipm_html = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc2};">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
+                    wow_ipm_html = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc2};">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
                 else:
-                    wow_ipm_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+                    wow_ipm_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             else:
-                wow_ipm_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-
-            # data-hist para módulo histórico reactivo RND
+                wow_ipm_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             import math as _m
             _nd21 = round(float(r['%NoDispo']) * 100, 4) if r.get('%NoDispo') is not None and not _m.isnan(float(r['%NoDispo'])) else 0
             _nd20_raw = r.get('%NoDispo_W17', None)
@@ -546,15 +546,16 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             _ipm21 = round(float(ipm_val), 4) if ipm_val is not None and not _m.isnan(float(ipm_val)) else 0
             _ipm20_raw = r.get('IPM_W17', None)
             _ipm20 = round(float(_ipm20_raw), 4) if _ipm20_raw is not None and not _m.isnan(float(_ipm20_raw)) else _ipm21
-            rows += (f'<div class="panel-row" data-hist-label="{label}" '
-                     f'data-hist-w21="{_nd21}" data-hist-w20="{_nd20}" '
-                     f'data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}" '
-                     f'style="cursor:pointer;transition:background .12s;">'
-                     f'<span class="label">{start_idx+i+1}. {label}</span>'
-                     f'<span class="efic">{fmt_pct2(r["%NoDispo"])}</span>'
-                     f'<span class="cr">{wow_html}</span>'
-                     f'<span class="cr">${fmt_num2(ipm_val)}</span>'
-                     f'<span class="cr">{wow_ipm_html}</span>'
+            hidden_cls = ' sb-hidden' if row_idx >= 10 else ''
+            rows += (f'<div class="{hidden_cls.strip()}" data-row-idx="{row_idx}" data-hist-label="{label}"'
+                     f' data-hist-w21="{_nd21}" data-hist-w20="{_nd20}"'
+                     f' data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}"'
+                     f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {label}</span>'
+                     f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
+                     f'<span style="text-align:right;">{wow_html}</span>'
+                     f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
+                     f'<span style="text-align:right;">{wow_ipm_html}</span>'
                      f'</div>')
         return rows
 
@@ -595,6 +596,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
+<input id="sb-{idx_str}-hotel-rnd" class="sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-hotel-rnd" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
 <div class="tab-panels">
 {tab_panel_hotel('dnc', df_dnc_c, 'Hotel', 'Hotel', parse_hotel=True)}
 {tab_panel_hotel('br',  df_br_c,  'Hotel', 'Hotel', parse_hotel=True)}
@@ -606,18 +608,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # === ANÁLISIS POR DIMENSIÓN · 3 tabs (Corp · Destino · País) ===
     def tab_panel_dim(t_key, df_full, dim_col, dim_label):
-        df10 = df_full.head(10).reset_index(drop=True)
-        df1  = df10.iloc[:5].reset_index(drop=True)
-        df2  = df10.iloc[5:10].reset_index(drop=True)
-        col1 = panel_inner_rnd(df1, dim_col, dim_label, parse_hotel=False, start_idx=0)
-        col2 = panel_inner_rnd(df2, dim_col, dim_label, parse_hotel=False, start_idx=5) if len(df2)>0 else ''
-        body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
-                if col2 else f'<div>{col1}</div>')
+        df100 = df_full.head(100).reset_index(drop=True)
+        rows_html = panel_inner_rnd(df100, dim_col, dim_label, parse_hotel=False, start_idx=0)
+        body = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
-    df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True)
-    df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_dest' in c else df_dest
-    df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_pais' in c else df_pais
+    df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
+    df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True) if 'agg_dest' in c else df_dest
+    df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True) if 'agg_pais' in c else df_pais
 
     hist_dim_canasta = render_historico_seccion_rnd(
         f'hrnd-{idx_str}-dim-nd', f'hrnd-{idx_str}-dim-ipm',
@@ -634,6 +632,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-pais">País</label>
 </div>
+<input id="sb-{idx_str}-dim-rnd" class="sb-input" type="text" placeholder="Buscar corporativo, destino o país…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-dim-rnd" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
 <div class="tab-panels">
 {tab_panel_dim('corp', df_corp_dim, 'CorpName', 'Corporativo')}
 {tab_panel_dim('dest', df_dest_dim, 'Destino',  'Destino')}

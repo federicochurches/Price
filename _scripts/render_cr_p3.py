@@ -596,14 +596,50 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return rows
 
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
-        df10 = df_full.head(10).reset_index(drop=True)
-        df1  = df10.iloc[:5].reset_index(drop=True)
-        df2  = df10.iloc[5:10].reset_index(drop=True)
-        col1 = panel_inner_cr(df1, 'Hotel', 'Hotel', parse_hotel, start_idx=0)
-        col2 = panel_inner_cr(df2, 'Hotel', 'Hotel', parse_hotel, start_idx=5) if len(df2)>0 else ''
-        body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
-                if col2 else f'<div>{col1}</div>')
-        return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
+        """Genera panel de tab: top 100, 10 visibles, resto sb-hidden, grid 2 cols."""
+        rows_html = ''
+        # Panel interno CR usa panel_inner_cr que renderiza lista de filas
+        # Reemplazamos por render directo con data-row-idx y sb-hidden
+        df_full = df_full.reset_index(drop=True)
+        for i, r in df_full.iterrows():
+            hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
+            sub = clean_corp_name(r.get('CorpName',''))
+            sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
+            ef_val = r.get('Eficacia', 0)
+            cv_val = r.get('ConvRate', 0)
+            import math as _mh
+            ef_curr = round(float(ef_val)*100, 4) if ef_val and not _mh.isnan(float(ef_val)) else 0
+            ef_prev = ef_curr - float(r.get('Eficacia_WoW_pp', 0) or 0)
+            cv_curr = round(float(cv_val)*100, 4) if cv_val and not _mh.isnan(float(cv_val)) else 0
+            cv_prev = cv_curr - float(r.get('ConvRate_WoW_pp', 0) or 0)
+            wow_v = r.get('Eficacia_WoW_pp', None)
+            if wow_v is not None and not (isinstance(wow_v, float) and _mh.isnan(float(wow_v))) and abs(wow_v) >= 0.005:
+                mejora = wow_v > 0
+                wc = '#2F6C34' if mejora else '#C0392B'
+                wb2 = '#EAF3DE' if mejora else '#FCE8E6'
+                arrow = '↑' if wow_v > 0 else '↓'
+                wow_html = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};">{arrow}{abs(wow_v):.1f}</em>'.replace('.',',')
+            else:
+                wow_html = '<em style="font-style:normal;font-size:9px;color:var(--ink-muted);">—</em>'
+            grid = '1fr 48px 48px 38px'
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
+                          f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
+                          f' data-hist-label="{hotel_name}"'
+                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                          f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
+                          f'{wow_html}</div>')
+        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                  f'</div>')
+        inner = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{header}{rows_html}</div>'
+        return f'<div class="tab-panel-c" data-tab="{t_key}">{inner}</div>'
 
     g_hot_w17 = D.get('g_hotel_w17', None)
     def _add_hotel_wow(df_h):
@@ -634,6 +670,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
+<input id="sb-{idx_str}-hotel" class="sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-hotel-cr" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
 <div class="tab-panels">
 {tab_panel_hotel('crit', df_crit_c, parse_hotel=True)}
 {tab_panel_hotel('br',   df_br_c,   parse_hotel=True)}
@@ -645,72 +682,74 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── Bloque Dimensión · 3 tabs: Corp · Destino · Channel ──────────────────
     def dim_table_with_wow(df, dim_col, dim_label, start_idx=0):
-        """Tabla dimensión con columnas: Nombre · CR · BKGS · ConvRate · Eficacia · WoW."""
+        """Tabla dimensión unificada: estilos alineados con global, badges paleta D."""
         import math
         grid = 'minmax(0,1fr) 68px 56px 62px 36px 62px 36px'
-        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:6px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
+        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
         for h in [dim_label, 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']:
             align = 'left' if h == dim_label else 'right'
             color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
             rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{h}</span>'
         rows += '</div>'
         for i, r in df.iterrows():
+            row_idx = start_idx + i
             raw = r[dim_col]
-            if dim_col == 'CorpName':
-                lab = truncate(clean_corp_name(raw), 22)
-            elif dim_col == 'Destino':
-                lab = clean_destino_name(raw, 22)
-            else:
-                lab = truncate(str(raw), 22)
+            if dim_col == 'CorpName': lab = truncate(clean_corp_name(raw), 22)
+            elif dim_col == 'Destino': lab = clean_destino_name(raw, 22)
+            else: lab = truncate(str(raw), 22)
             bnd = banda_eficacia(r['Eficacia'])
             c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-            # Badge sólido: bg=color de banda, texto blanco/claro
-            bg = c_bnd['fg']
-            fg = '#FCEBEB' if bnd == 'Súper Crítica' else '#FFFFFF'
+            # Paleta D canónica: SC sólida, resto bg pastel + fg oscuro
+            if bnd == 'Súper Crítica':
+                bg = '#A32D2D'; fg = '#FCEBEB'
+            else:
+                bg = c_bnd['bg']; fg = c_bnd['fg']
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
-                         f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
-            # WoW pill con umbral
+                         f'background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
             try:
                 wow_v = r['Eficacia_WoW_pp']
                 if wow_v != wow_v or math.isnan(float(wow_v)): wow_v = None
-            except (KeyError, TypeError, ValueError):
-                wow_v = None
+            except (KeyError, TypeError, ValueError): wow_v = None
             if wow_v is not None and abs(wow_v) >= 0.005:
                 mejora = wow_v > 0
                 wc = '#2F6C34' if mejora else '#C0392B'
                 wb = '#EAF3DE' if mejora else '#FCE8E6'
                 arrow = '↑' if wow_v > 0 else '↓'
-                wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                wow_cell = f'<span style="text-align:right;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{wow_txt}</span>'
+                wow_cell = f'<span style="text-align:right;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{arrow}{abs(wow_v):.1f}</span>'.replace('.',',')
             else:
-                wow_cell = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
+                wow_cell = f'<em style="font-style:normal;display:inline-block;font-size:9px;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             cv_val = r.get('ConvRate', None)
             cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
-            n = start_idx + i + 1
-            rows += (f'<div data-hist-label="{lab}" style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
-                     f'<div style="display:flex;align-items:center;gap:4px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
-                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}</span>{pill_banda}</div>'
-                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
+            ef_curr = round(float(r['Eficacia'])*100, 4)
+            ef_prev = ef_curr - float(wow_v or 0)
+            cv_curr = round(float(cv_val or 0)*100, 4)
+            cv_wow = r.get('ConvRate_WoW_pp', 0)
+            try: cv_wow_f = float(cv_wow) if cv_wow == cv_wow else 0
+            except: cv_wow_f = 0
+            cv_prev = cv_curr - cv_wow_f
+            hidden_cls = ' sb-hidden' if row_idx >= 10 else ''
+            rows += (f'<div class="{hidden_cls.strip()}" data-row-idx="{row_idx}"'
+                     f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                     f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
+                     f' data-hist-label="{lab}"'
+                     f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f'<div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
+                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {lab}</span>{pill_banda}</div>'
+                     f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                     f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+                     f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))}'
-                     f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
-                     f'{wow_cell}'
-                     f'</div>')
+                     f'<span style="text-align:right;font-size:11px;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
+                     f'{wow_cell}</div>')
         return rows
 
     def tab_panel_dim_cr(t_key, df_full, dim_col, dim_label, ref_w17=None):
-        df10 = df_full.head(10).reset_index(drop=True)
-        # Merge WoW si hay ref W17
+        df100 = df_full.head(100).reset_index(drop=True)
         if ref_w17 is not None and dim_col in ref_w17.columns:
-            df10 = df10.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
-            df10['Eficacia_WoW_pp'] = (df10['Eficacia'] - df10['Eficacia_W17']) * 100
-        df1 = df10.iloc[:5].reset_index(drop=True)
-        df2 = df10.iloc[5:10].reset_index(drop=True)
-        col1 = dim_table_with_wow(df1, dim_col, dim_label, start_idx=0)
-        col2 = dim_table_with_wow(df2, dim_col, dim_label, start_idx=5) if len(df2)>0 else ''
-        body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"><div>{col1}</div><div>{col2}</div></div>'
-                if col2 else f'<div>{col1}</div>')
+            df100 = df100.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
+            df100['Eficacia_WoW_pp'] = (df100['Eficacia'] - df100['Eficacia_W17']) * 100
+        rows_html = dim_table_with_wow(df100, dim_col, dim_label, start_idx=0)
+        body = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
     # Datos W17 de canasta para WoW — usar refs globales del pickle
@@ -808,6 +847,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
 </div>
+<input id="sb-{idx_str}-dim" class="sb-input" type="text" placeholder="Buscar corporativo o destino…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-dim-cr" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
 <div class="tab-panels">
 {tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
 {tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}

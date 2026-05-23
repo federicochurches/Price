@@ -378,34 +378,37 @@ def _fmt_wow(v):
     return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
 
 # ============ SECCIÓN TOP 5 helper ============
-def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False):
+def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, start_idx=0):
+    """Tabla de top hoteles/dims: top 100, primeras 10 visibles, resto sb-hidden."""
     grid = ' '.join(c['width'] for c in cols_def)
-    header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {accent_color};margin-bottom:4px;">'
+    header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
     for c in cols_def:
         h_align = c.get('align','right')
         color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
-        header += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{h_align};">{c["label"]}</span>'
+        header += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};">{c["label"]}</span>'
     header += '</div>'
-    
-    rows = header
+
+    rows_html = header
     for i, r in df.iterrows():
+        row_num = i + 1  # posición 1-based real del df
+        row_idx = i      # 0-based para sb-hidden (primeras 10 visibles)
         row_cells = ''
         for c in cols_def:
             align = c.get('align','right')
             val = c['fmt'](r) if callable(c['fmt']) else c['fmt']
-            color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink)'
             if c.get('key') == 'hotel':
                 hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36)
                 sub = clean_corp_name(r.get('CorpName',''))
                 chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
                 sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
-                row_cells += (f'<div><div style="font-weight:600;color:{accent_color};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
-                              f'<div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub_line}</div></div>')
+                row_cells += (f'<div>'
+                              f'<div style="font-size:11px;font-weight:600;color:{accent_color};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
+                              f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub_line}</div>'
+                              f'</div>')
             elif c.get('key') == 'wow':
-                row_cells += f'<span style="text-align:right;">{val}</span>'
+                row_cells += f'<span style="text-align:right;font-size:11px;">{val}</span>'
             else:
-                row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
-        # Atributos data-hist-* opcionales para módulo histórico de sección
+                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{val}</span>'
         hist_attrs = ''
         if with_hist:
             ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
@@ -413,12 +416,15 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False):
             cv_curr = round(float(r.get('ConvRate', 0)) * 100, 4)
             cv_prev = cv_curr - float(r.get('ConvRate_WoW_pp', 0) or 0)
             lbl = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
-            hist_attrs = (f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev, 4)}"'
-                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev, 4)}"'
+            hist_attrs = (f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                           f' data-hist-label="{lbl}"')
         cursor = 'cursor:pointer;' if with_hist else ''
-        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;{cursor}">{row_cells}</div>'
-    return rows
+        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        rows_html += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                      f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
+                      f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{row_cells}</div>')
+    return rows_html
 
 def render_criticos():
     df1 = TOP['criticos']
@@ -517,11 +523,10 @@ def render_sin_conv():
 
 # ============ SECCIÓN POR DIMENSIÓN (Corp / Destino / Channel) ============
 def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hist=False):
-    """Renderiza una tabla (1 columna) con N filas. start_idx para numerar continuo."""
+    """Tabla dimensión: 100 filas, 10 visibles, resto sb-hidden. Estilos unificados."""
     import math
     has_wow = wow_col and wow_col in df.columns
     has_cv_wow = 'ConvRate_WoW_pp' in df.columns if df is not None and hasattr(df, 'columns') else False
-    # Grid: Nombre · CR únicos · BKGS · ConvRate · WoW · Eficacia · WoW
     if has_wow and has_cv_wow:
         grid = '1fr 80px 60px 68px 38px 68px 38px'
     elif has_wow:
@@ -532,31 +537,34 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     if has_cv_wow: headers.append('WoW')
     headers.append('Eficacia')
     if has_wow: headers.append('WoW')
-    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;">'
+    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
     for label in headers:
         align = 'left' if label==dim_label else 'right'
         color = CR_ACCENT if label==dim_label else 'var(--ink-muted)'
-        rows += f'<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:{color};text-align:{align};">{label}</span>'
+        rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};">{label}</span>'
     rows += '</div>'
 
     for i, r in df.iterrows():
+        row_idx = start_idx + i   # 0-based para sb-hidden
         bnd = r.get('BandaEficacia','')
-        bnd_color = BANDA_COLORS.get(bnd,{}).get('fg', CR_ACCENT)
-        bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E1F5EE')
-        bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
-        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
-                f'background:{bnd_bg} !important;color:{bnd_fg} !important;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;">{bnd}</span>')
-        n = start_idx + i + 1
+        c = BANDA_COLORS.get(bnd, {})
+        if bnd == 'Súper Crítica':
+            bnd_bg = '#A32D2D'; bnd_fg = '#FCEBEB'
+        else:
+            bnd_bg = c.get('bg','#F2EEE6'); bnd_fg = c.get('fg','#5F5E5A')
+        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
+        n = row_idx + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
-        cells = (f'<div><div style="font-weight:600;color:{CR_ACCENT};display:flex;align-items:center;gap:4px;min-width:0;">'
+        cells = (f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};display:flex;align-items:center;gap:4px;min-width:0;">'
                  f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {label_val}</span>{pill}</div></div>'
-                 f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{cv_str}</span>'
                  f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan"))) if has_cv_wow else ""}'
-                 f'<span style="text-align:right;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
+                 f'<span style="text-align:right;color:{CR_ACCENT};font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
         if has_wow:
             wow_v = r.get(wow_col, None)
             try:
@@ -572,7 +580,6 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
             except:
                 wow_html = _WOW_NEUTRO
             cells += wow_html
-        # Atributos data-hist-* opcionales para módulo histórico de sección
         hist_attrs = ''
         if with_hist:
             ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
@@ -590,7 +597,10 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                           f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev, 4)}"'
                           f' data-hist-label="{lbl_short}"')
         cursor = 'cursor:pointer;' if with_hist else ''
-        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;{cursor}">{cells}</div>'
+        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        rows += (f'<div{hist_attrs} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                 f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
+                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{cells}</div>')
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
@@ -816,14 +826,9 @@ CHAN_AGR = render_channel_agrupado()
 
 # ============ NUEVO · BLOQUES CON TABS (post mejora secciones globales) ============
 def _render_panel_top_table_cr(df, cols, with_hist=False):
-    df1 = df.iloc[:5].reset_index(drop=True)
-    df2 = df.iloc[5:10].reset_index(drop=True) if len(df)>5 else None
-    col1 = render_top_table_cr(df1, cols, with_hist=with_hist)
-    if df2 is not None and len(df2)>0:
-        df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-        col2 = render_top_table_cr(df2_renum, cols, with_hist=with_hist)
-        return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-    return f'<div>{col1}</div>'
+    """Panel de tabla con 100 filas: 10 visibles en grid 2 cols, 11-100 sb-hidden."""
+    table = render_top_table_cr(df, cols, with_hist=with_hist)
+    return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{table}</div>'
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
                                  banda_ef, val_ef,
@@ -988,17 +993,12 @@ def render_bloque_dimensiones_cr():
         return merged, 'Eficacia_WoW_pp'
 
     def panel_for_dim(df_full, dim_col, dim_label, ref_df=None):
-        df_top10 = df_full.head(10).reset_index(drop=True)
-        df_top10_wow, wow_col = _add_wow(df_top10, dim_col, ref_df)
-        if 'BandaEficacia' not in df_top10_wow.columns:
-            df_top10_wow['BandaEficacia'] = df_top10_wow['Eficacia'].apply(banda_eficacia)
-        df1 = df_top10_wow.iloc[:5].reset_index(drop=True)
-        df2 = df_top10_wow.iloc[5:10].reset_index(drop=True)
-        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0, wow_col=wow_col, with_hist=True)
-        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5, wow_col=wow_col, with_hist=True) if len(df2)>0 else ''
-        if col2:
-            return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-        return f'<div>{col1}</div>'
+        df_top = df_full.head(100).reset_index(drop=True)
+        df_top_wow, wow_col = _add_wow(df_top, dim_col, ref_df)
+        if 'BandaEficacia' not in df_top_wow.columns:
+            df_top_wow['BandaEficacia'] = df_top_wow['Eficacia'].apply(banda_eficacia)
+        rows_html = _render_dim_table(df_top_wow, dim_col, dim_label, start_idx=0, wow_col=wow_col, with_hist=True)
+        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{rows_html}</div>'
 
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', ref_df=g_corp_w17)
     panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino', ref_df=g_dest_w17)

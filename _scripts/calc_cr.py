@@ -171,15 +171,15 @@ df_sc_pool = p80_hotel[p80_hotel['Bookings']==0].sort_values('CR_Unicos', ascend
 df_mcv_pool = p80_hotel[p80_hotel['Bookings']>0].sort_values('ConvRate').reset_index(drop=True)
 
 TOP = {
-    'criticos':       df_crit_pool.head(5).reset_index(drop=True),
+    'criticos':       df_crit_pool.head(100).reset_index(drop=True),
     'criticos_extra': df_crit_pool.iloc[5:10].reset_index(drop=True),
-    'bajo_rend':      df_br_pool.head(5).reset_index(drop=True),
+    'bajo_rend':      df_br_pool.head(100).reset_index(drop=True),
     'bajo_rend_extra':df_br_pool.iloc[5:10].reset_index(drop=True),
-    'sin_conv':       df_sc_pool.head(5).reset_index(drop=True),
+    'sin_conv':       df_sc_pool.head(100).reset_index(drop=True),
     'sin_conv_extra': df_sc_pool.iloc[5:10].reset_index(drop=True),
-    'menor_cv':       df_mcv_pool.head(10).reset_index(drop=True),
-    'corps_10':       g_corp.head(10).reset_index(drop=True),
-    'destinos':       g_destino.head(10).reset_index(drop=True),
+    'menor_cv':       df_mcv_pool.head(100).reset_index(drop=True),
+    'corps_10':       g_corp.head(100).reset_index(drop=True),
+    'destinos':       g_destino.head(100).reset_index(drop=True),
     'channels':       g_channel.sort_values('CR_Unicos', ascending=False).reset_index(drop=True),
 }
 
