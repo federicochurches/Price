@@ -601,16 +601,19 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return rows
 
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
-        """Genera panel: hasta 100 filas, primeras 10 visibles en kpi-tab-rows (grid 2 cols),
-        filas 11-100 con sb-hidden. El JS colapsa a 1fr al buscar."""
+        """Genera panel con 2 cols explícitas (1-5 izq, 6-10 der) + filas 11-100 sb-hidden.
+        Las sb-hidden quedan fuera del grid 2-col para que el JS las active en lista plana."""
         grid = '1fr 48px 48px 38px'
-        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
-                  f'</div>')
-        rows_html = header
+        def header_html():
+            return (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:5px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{CR_ACCENT};">Hotel</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">ConvRate</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Eficacia</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                    f'</div>')
+
+        col1 = col2 = ''
+        hidden_rows = ''
         df_full = df_full.reset_index(drop=True)
         import math as _mh
         for i, r in df_full.iterrows():
@@ -632,19 +635,29 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 wow_html = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};">{arrow}{abs(wow_v):.1f}</em>'.replace('.',',')
             else:
                 wow_html = '<em style="font-style:normal;font-size:9px;color:var(--ink-muted);">—</em>'
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
-            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}"'
-                          f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
-                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
-                          f' data-hist-label="{hotel_name}"'
-                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                          f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
-                          f'{wow_html}</div>')
-        inner = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
-        return f'<div class="tab-panel-c" data-tab="{t_key}">{inner}</div>'
+            row_html = (f'<div data-row-idx="{i}"'
+                        f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
+                        f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
+                        f' data-hist-label="{hotel_name}"'
+                        f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                        f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
+                        f'{wow_html}</div>')
+            if i < 5:
+                col1 += row_html
+            elif i < 10:
+                col2 += row_html
+            else:
+                # Filas 11-100: sb-hidden, fuera del grid 2-col, lista plana
+                hidden_rows += row_html.replace('<div data-row-idx=', '<div class="sb-hidden" data-row-idx=', 1)
 
+        grid2 = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
+        grid2 += f'<div>{header_html()}{col1}</div>'
+        grid2 += f'<div>{header_html()}{col2}</div>'
+        grid2 += f'</div>'
+        inner = grid2 + hidden_rows
+        return f'<div class="tab-panel-c" data-tab="{t_key}">{inner}</div>'
     g_hot_w17 = D.get('g_hotel_w17', None)
     def _add_hotel_wow(df_h):
         if g_hot_w17 is None or 'Hotel' not in df_h.columns: return df_h

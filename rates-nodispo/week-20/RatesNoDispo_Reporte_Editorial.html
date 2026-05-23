@@ -413,21 +413,22 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     
 
-    function getActiveRows() {
-      // Buscar el panel visible (no display:none) dentro del scope
+    function getActiveRows(includeAll) {
+      // Con query activa: todas las filas del scope (incluyendo sb-hidden fuera del panel)
+      if (includeAll) return scope.querySelectorAll('[data-hist-label]');
+      // Sin query: solo el panel visible
       var panels = scope.querySelectorAll('.tab-panel, .tab-panel-c');
       for (var i = 0; i < panels.length; i++) {
         if (window.getComputedStyle(panels[i]).display !== 'none') {
           return panels[i].querySelectorAll('[data-hist-label]');
         }
       }
-      // Fallback: todas las filas del scope
       return scope.querySelectorAll('[data-hist-label]');
     }
 
     function filter(){
-      var rows = getActiveRows();
       var q = norm(input.value.trim());
+      var rows = getActiveRows(!!q);
       var visible = 0, total = rows.length;
       rows.forEach(function(r){
         var lbl = norm(r.getAttribute('data-hist-label'));
