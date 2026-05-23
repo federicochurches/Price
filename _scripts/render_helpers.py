@@ -64,72 +64,64 @@ def target_caption(target_text, font_size='11px'):
 
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
-    """Render gauge bar 5 niveles para %NoDispo"""
+    """Gauge bar 5 niveles · height:6px · opacity:1 uniforme · BANDAS.md"""
     if niveles_rnd_or_cr == 'nodispo':
         levels = [
-            ('Súper Crítica', '> 60%',    '#161616'),
-            ('Crítica',       '20–60%',  '#C0392B'),
-            ('Revisar',       '5–20%',   '#D4A878'),
-            ('Aceptable',     '3–5%',    '#5C469C'),
-            ('Exitosa',       '< 3%',    '#085041'),
+            ('Súper Crítica', '#161616'),
+            ('Crítica',       '#C0392B'),
+            ('Revisar',       '#D4A878'),
+            ('Aceptable',     '#5C469C'),
+            ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
         levels = [
-            ('Sin Conversión', 'BKGS=0',      '#161616'),
-            ('Crítica',        '< $199',      '#C0392B'),
-            ('Revisar',        '$200–$499',   '#D4A878'),
-            ('Aceptable',      '$500–$649',   '#5C469C'),
-            ('Exitosa',        '≥ $650',      '#085041'),
+            ('Sin Conversión', '#8A8377'),
+            ('Crítica',        '#C0392B'),
+            ('Revisar',        '#D4A878'),
+            ('Aceptable',      '#5C469C'),
+            ('Exitosa',        '#085041'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [
-            ('Súper Crítica', '< 60%',    '#161616'),
-            ('Crítica',       '60–85%',  '#C0392B'),
-            ('Revisar',       '85–93%',  '#D4A878'),
-            ('Aceptable',     '93–97%',  '#5C469C'),
-            ('Exitosa',       '≥ 97%',   '#085041'),
+            ('Súper Crítica', '#161616'),
+            ('Crítica',       '#C0392B'),
+            ('Revisar',       '#D4A878'),
+            ('Aceptable',     '#5C469C'),
+            ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
         levels = [
-            ('Sin Conversión', 'BKGS=0',     '#161616'),
-            ('Crítica',        '< 0,8%',    '#C0392B'),
-            ('Revisar',        '0,8–1,5%',  '#D4A878'),
-            ('Aceptable',      '1,5–2,5%',  '#5C469C'),
-            ('Exitosa',        '> 2,5%',    '#085041'),
+            ('Sin Conversión', '#8A8377'),
+            ('Crítica',        '#C0392B'),
+            ('Revisar',        '#D4A878'),
+            ('Aceptable',      '#5C469C'),
+            ('Exitosa',        '#085041'),
         ]
     cells = []
-    for nombre, rango, color in levels:
-        active = 'opacity:1;' if nombre == banda_actual else 'opacity:.30;'
-        cells.append(f'<div style="flex:1;background:{color};height:8px;{active}"></div>')
-    bar = '<div style="display:flex;gap:2px;margin-top:14px;">' + ''.join(cells) + '</div>'
-    labels = '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink-muted);margin-top:2px;line-height:1.2;font-weight:600;">'
-    for nombre, rango, _ in levels:
-        labels += f'<span style="flex:1;text-align:center;padding:0 2px;">{nombre}</span>'
-    labels += '</div>'
-    return bar + labels
+    for nombre, color in levels:
+        # Banda activa: borde inferior marcado; todas opacity:1
+        active_style = 'border-bottom:2px solid var(--ink);' if nombre == banda_actual else ''
+        cells.append(f'<div style="flex:1;background:{color};height:6px;opacity:1;{active_style}"></div>')
+    return '<div style="display:flex;gap:2px;margin-top:10px;">' + ''.join(cells) + '</div>'
 
 def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num='W20', week_prev='W19'):
-    """Caja con W18 actual + WoW + W17 prev. bg de WoW va con el wow_color."""
-    # Mapeo color → bg suave
-    if wow_color == '#2F6C34':       # verde
-        wow_bg = '#E0F0E2'
-    elif wow_color == '#C0392B':     # rojo
-        wow_bg = '#FCE4F1'
-    else:                            # gris/flat
-        wow_bg = '#F2EEE6'
+    """Caja compacta W20/WoW/W19."""
+    if wow_color == '#2F6C34':   wow_bg = '#E0F0E2'
+    elif wow_color == '#C0392B': wow_bg = '#FCE4F1'
+    else:                        wow_bg = '#F2EEE6'
     return (
-        f'<div style="margin-top:14px;background:var(--paper-soft);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">'
-        f'<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">'
-          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_num}</div>'
-          f'<div style="font-size:18px;font-weight:700;color:{accent_color};margin-top:2px;letter-spacing:-.01em;">{curr_str}</div>'
+        f'<div style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;">'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_num}</div>'
+          f'<div style="font-size:15px;font-weight:700;color:{accent_color};margin-top:1px;letter-spacing:-.01em;">{curr_str}</div>'
         f'</div>'
-        f'<div style="flex:1;text-align:center;background:{wow_bg};padding:8px 4px;border-radius:3px;">'
-          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>'
-          f'<div style="font-size:18px;font-weight:700;color:{wow_color};margin-top:2px;letter-spacing:-.01em;">{wow_str}</div>'
+        f'<div style="flex:1;text-align:center;background:{wow_bg};padding:5px 4px;border-radius:2px;">'
+          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>'
+          f'<div style="font-size:15px;font-weight:700;color:{wow_color};margin-top:1px;letter-spacing:-.01em;">{wow_str}</div>'
         f'</div>'
-        f'<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">'
-          f'<div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_prev}</div>'
-          f'<div style="font-size:18px;font-weight:700;color:var(--ink-soft);margin-top:2px;letter-spacing:-.01em;">{curr_label}</div>'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_prev}</div>'
+          f'<div style="font-size:15px;font-weight:700;color:var(--ink-soft);margin-top:1px;letter-spacing:-.01em;">{curr_label}</div>'
         f'</div>'
       f'</div>'
     )

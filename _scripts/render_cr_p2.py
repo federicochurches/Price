@@ -148,7 +148,7 @@ def render_resumen_ej():
 
     def pill_b(nombre):
         c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
-        bg = 'rgba(22,22,22,.80)' if nombre == 'Súper Crítica' else c['bg']
+        bg = '#A32D2D' if nombre == 'Súper Crítica' else c['bg']
         fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
                 f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
@@ -287,9 +287,14 @@ def render_severities_combinadas():
             n = int(sev_dict.get(name, 0))
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
-            # Badge SÓLIDO (paleta D): background = color de banda, texto blanco/claro
-            badge_bg = color  # color sólido de la banda
-            badge_fg = '#FCEBEB' if name == 'Súper Crítica' else '#FFFFFF'
+            # Badge paleta D: bg pastel (excepto Súper Crítica que es sólida)
+            if name == 'Súper Crítica':
+                badge_bg = '#A32D2D'; badge_fg = '#FCEBEB'
+            elif name == 'Sin Conversión':
+                badge_bg = '#F2EEE6'; badge_fg = '#5F5E5A'
+            else:
+                badge_bg = BANDA_COLORS.get(name, {}).get('bg', '#F2EEE6')
+                badge_fg = BANDA_COLORS.get(name, {}).get('fg', '#161616')
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
                      f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'

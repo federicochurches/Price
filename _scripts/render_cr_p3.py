@@ -50,6 +50,46 @@ g_channel_w17 = D.get('g_channel_w17', None)
 
 from historico_module_v2 import render_historico_cr
 
+def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv):
+    """Módulo histórico doble (Ef + CV) para secciones de análisis en canastas."""
+    html_ef = render_historico_cr('eficacia', banda_ef, val_ef, canvas_id_ef)
+    html_cv = render_historico_cr('convrate', banda_cv, val_cv, canvas_id_cv)
+    js = f"""<script>
+(function() {{
+  var section = document.getElementById('hist-{canvas_id_ef}-container');
+  if (!section) return;
+  var parent = section.closest('section,details') || document.body;
+  function resetToGlobal() {{
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    document.dispatchEvent(new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_ef}'}}}}));
+    document.dispatchEvent(new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_cv}'}}}}));
+  }}
+  parent.addEventListener('click', function(e) {{
+    var row = e.target.closest('[data-hist-w21]');
+    if (!row) return;
+    if (e.target.closest('.kpi-card')) return;
+    if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
+    var ef_curr = parseFloat(row.getAttribute('data-hist-w21'));
+    var ef_prev = parseFloat(row.getAttribute('data-hist-w20') || ef_curr);
+    var cv_curr = parseFloat(row.getAttribute('data-hist-cv-w21') || ef_curr);
+    var cv_prev = parseFloat(row.getAttribute('data-hist-cv-w20') || cv_curr);
+    var lbl = row.getAttribute('data-hist-label') || '';
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    row.setAttribute('data-selected-hist', '1');
+    row.style.background = 'var(--accent-soft)';
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{cid: '{canvas_id_ef}', w_curr: ef_curr, w_prev: ef_prev, label: lbl}}}}));
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{cid: '{canvas_id_cv}', w_curr: cv_curr, w_prev: cv_prev, label: lbl}}}}));
+  }});
+}})();
+</script>"""
+    return f'''<div id="hist-{canvas_id_ef}-container" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;margin-bottom:8px;">
+  <div>{html_ef}</div><div>{html_cv}</div>
+</div>{js}'''
+
 CR_ACCENT = '#5C469C'
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
@@ -280,9 +320,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # ── Tab rows con pills WoW ────────────────────────────────────────────────
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False):
-        rows_l, rows_r = '', ''
-        df10 = df.head(10).reset_index(drop=True)
-        for i, r in df10.iterrows():
+        rows_html = ''
+        for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
                 lab = truncate(clean_hotel_name(raw), 20)
@@ -294,7 +333,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 lab = truncate(str(raw), 20)
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
-            # Pill WoW únicamente (sin pill de banda — más limpio)
             import math
             wow_pill = '<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;text-align:center;display:block;min-width:32px;">—</em>'
             if wow_col and wow_col in r.index:
@@ -308,28 +346,20 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};text-align:center;display:block;min-width:32px;">{wow_txt}</em>'
                 except: pass
-            # Grid limpio: nombre | valor | WoW — con data-attrs para módulo histórico
             import math as _math_cell
             _w21 = round(float(val) * 100, 4) if val and not _math_cell.isnan(float(val)) else 0
-            # W20 (semana anterior): buscar col *_W17 según val_col
             _w20_col = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
             _w20_raw = r.get(_w20_col, None) if hasattr(r, 'get') else None
             try:
                 _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
             except: _w20 = _w21
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;cursor:pointer;border-radius:3px;transition:background .12s;"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
-                    f'<span style="font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
-                    f'<span style="font-size:10px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);">{val_str}</span>'
-                    f'{wow_pill}</div>')
-            if i < 5:
-                rows_l += cell
-            else:
-                rows_r += cell
-        if rows_r:
-            return (f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-                    f'<div>{rows_l}</div><div>{rows_r}</div></div>')
-        return rows_l
+            hidden_cls = ' sb-hidden' if i >= 10 else ''
+            rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                          f' style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;padding:2px 0;cursor:pointer;border-radius:3px;transition:background .12s;">'
+                          f'<span style="font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
+                          f'<span style="font-size:10px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);">{val_str}</span>'
+                          f'{wow_pill}</div>')
+        return f'<div class="kpi-tab-rows" style="column-count:2;column-gap:14px;">{rows_html}</div>'
 
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
@@ -358,6 +388,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
         metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
+        sb_id = f'sb-kpi-{card_id}'
+        panels_id = f'kpi-{card_id}-panels'
         return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
@@ -368,7 +400,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {gauge}
 {wb}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
-<div class="tab-panels">{panels}</div>
+<input id="{sb_id}" class="sb-input" type="text" placeholder="Buscar…" autocomplete="off" spellcheck="false" data-sb-scope="#{panels_id}" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div id="{panels_id}" class="tab-panels">{panels}</div>
 {hist_mod}
 </div>'''
 
@@ -394,17 +427,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         df[wow_col] = (df[metric_col] - df[ref_val_col]) * 100
         return df
 
-    d_ef = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Eficacia']>0)].sort_values('Eficacia').head(10).reset_index(drop=True)
+    d_ef = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Eficacia']>0)].sort_values('Eficacia').head(100).reset_index(drop=True)
     d_ef = add_wow_to_tab(d_ef, 'Destino', 'Eficacia', ref_dest_w17, 'Eficacia_WoW_pp')
-    c_ef = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('Eficacia').head(10).reset_index(drop=True)
+    c_ef = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('Eficacia').head(100).reset_index(drop=True)
     c_ef = add_wow_to_tab(c_ef, 'CorpName', 'Eficacia', ref_corp_w17, 'Eficacia_WoW_pp')
-    h_ef = p80[p80['CR_Unicos']>=p50_h].sort_values('Eficacia').head(10).reset_index(drop=True)
+    h_ef = p80[p80['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
 
-    d_cv = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Bookings']>0)].sort_values('ConvRate').head(10).reset_index(drop=True)
+    d_cv = agg_dest[(agg_dest['CR_Unicos']>=p50_d) & (agg_dest['Bookings']>0)].sort_values('ConvRate').head(100).reset_index(drop=True)
     d_cv = add_wow_to_tab(d_cv, 'Destino', 'ConvRate', ref_dest_w17, 'ConvRate_WoW_pp')
-    c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(10).reset_index(drop=True)
+    c_cv = agg_corp[agg_corp['CR_Unicos']>=p50_c].sort_values('ConvRate').head(100).reset_index(drop=True)
     c_cv = add_wow_to_tab(c_cv, 'CorpName', 'ConvRate', ref_corp_w17, 'ConvRate_WoW_pp')
-    h_cv = p80[p80['CR_Unicos']>=p50_h].sort_values('ConvRate').head(10).reset_index(drop=True)
+    h_cv = p80[p80['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
     # Enriquecer h_cv con WoW ConvRate desde g_hotel_w17
     _hw17 = D.get('g_hotel_w17', None)
     if _hw17 is not None and 'Hotel' in h_cv.columns and 'ConvRate_W17' in _hw17.columns:
@@ -583,6 +616,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_br_c   = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
     df_sc_c   = _add_hotel_wow(p80[p80['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
 
+    banda_ef_c = banda_eficacia(c['m18']['eficacia'])
+    banda_cv_c = banda_convrate(c['m18']['conv_rate'], c['m18']['bookings'])
+    hist_hotel_canasta = render_historico_seccion_cr(
+        f'hcr-{idx_str}-hotel-ef', f'hcr-{idx_str}-hotel-cv',
+        banda_ef_c, c['m18']['eficacia'],
+        banda_cv_c, c['m18']['conv_rate']
+    )
     bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-cr" style="margin:32px 0 0;">
 <h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">🏨</span> Análisis por hotel</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
@@ -600,6 +640,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {tab_panel_hotel('sc',   df_sc_c,   parse_hotel=True)}
 </div>
 </div>
+{hist_hotel_canasta}
 </div>'''
 
     # ── Bloque Dimensión · 3 tabs: Corp · Destino · Channel ──────────────────
@@ -751,6 +792,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         f'</div></div>'
     )
 
+    hist_dim_canasta = render_historico_seccion_cr(
+        f'hcr-{idx_str}-dim-ef', f'hcr-{idx_str}-dim-cv',
+        banda_ef_c, c['m18']['eficacia'],
+        banda_cv_c, c['m18']['conv_rate']
+    )
     bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-cr" style="margin:32px 0 32px;">
 <h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:24px 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">📊</span> Análisis por dimensión</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
@@ -768,6 +814,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 {panel_chan}
 </div>
 </div>
+{hist_dim_canasta}
 </div>'''
 
     # ── CSS dinámico por canasta ──────────────────────────────────────────────
@@ -868,13 +915,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     file_map = {'op':'OP','cug':'CUG','b2c':'B2C'}
     file_suffix = file_map.get(idx_str, 'B2C')
     excel_url = f'Analisis_Checkrates_{file_suffix}_7d.xlsx'
-    banner = f'''<div style="margin-top:24px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-<div style="font-size:12px;color:var(--ink-soft);line-height:1.4;">
-<span style="font-size:13px;color:var(--ink);">📥</span>
-&nbsp;&nbsp;Descargar análisis completo · <strong style="color:{CR_ACCENT};">Canasta {c["short"]}</strong>
-<span style="display:inline-block;margin-left:8px;font-size:11px;color:var(--ink-muted);">9 pestañas · Top 50 por dimensión</span>
-</div>
-<a href="{excel_url}" style="display:inline-block;padding:6px 14px;background:{CR_ACCENT};color:#fff;font-size:11px;font-weight:600;text-decoration:none;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;">Excel ↗</a>
+    banner = f'''<div class="detail-callout">
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto · <strong>Canasta {c["short"]}</strong>.</div></div>
+<a class="badge-link" href="{excel_url}">Excel ↗</a>
 </div>'''
 
     return f'''{extra_css}<details class="canasta-block" style="margin-bottom:32px;">

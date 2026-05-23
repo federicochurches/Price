@@ -10,18 +10,18 @@ API:
 
 def render_severity_row(label, banda_bg, banda_fg, rango, distribution_pct, count, total):
     pct_label = f'{count/total*100:.1f}%'.replace('.',',') if total > 0 else '0,0%'
-    # Badge SÓLIDO (paleta D)
-    # Súper Crítica ya viene invertida en LEVELS (bg=rojo oscuro sólido, fg=rosa claro texto), respetar
-    # Resto: invertir → badge bg = banda_fg (sólido oscuro), texto blanco
+    # Paleta D: Súper Crítica = bg sólido oscuro (#A32D2D) + fg claro (#FCEBEB) — ya viene invertida
+    # Resto: bg claro pastel + fg texto oscuro (canónico BANDAS.md)
     label_low = label.lower()
-    if 'súper' in label_low or 'super' in label_low:
-        badge_bg = banda_bg  # ya es sólido (#A32D2D)
-        badge_fg = banda_fg  # ya es texto claro (#FCEBEB)
-        bar_color = banda_bg  # barra también sólida
+    is_super = 'súper' in label_low or 'super' in label_low
+    if is_super:
+        badge_bg = banda_bg   # #A32D2D (ya es sólido oscuro)
+        badge_fg = banda_fg   # #FCEBEB (ya es claro)
+        bar_color = banda_bg  # barra del mismo color
     else:
-        badge_bg = banda_fg  # color sólido de banda
-        badge_fg = '#FFFFFF'
-        bar_color = banda_fg
+        badge_bg = banda_bg   # color pastel (bg canónico)
+        badge_fg = banda_fg   # texto oscuro (fg canónico)
+        bar_color = banda_fg  # barra usa el color oscuro (sólido)
     return f'''<div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
 <span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rango}</span>

@@ -93,7 +93,7 @@ def build_findings():
             'Aceptable':     ('#3B2F7A','#EEE9FF','#5C469C'),
             'Revisar':       ('#7A4A10','#FFF3E0','#A86A1D'),
             'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
-            'Súper Crítica': ('#FFFFFF','rgba(22,22,22,.80)','#161616'),
+            'Súper Crítica': ('#FCEBEB','#A32D2D','#161616'),
             'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
         }
         c = COLORS.get(banda, ('#8A8377','#F2EEE6','#8A8377'))
@@ -417,7 +417,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
     for i, r in df.iterrows():
         bnd = r.get('BandaNoDispo', '')
         bnd_color = BANDA_COLORS.get(bnd,{}).get('fg','#EA0074')
-        bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd != 'Súper Crítica' else 'rgba(22,22,22,.80)'
+        bnd_bg = BANDA_COLORS.get(bnd,{}).get('bg','#FCE4F1') if bnd != 'Súper Crítica' else '#A32D2D'
         bnd_fg = '#FFFFFF' if bnd == 'Súper Crítica' else bnd_color
         pill = (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;'
                 f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:4px;">{bnd}</span>')

@@ -27,7 +27,7 @@ def render_finding(idx, finding, accent_color):
     return f'''<li style="display:flex;gap:8px;align-items:baseline;font-size:11.5px;line-height:1.45;color:var(--ink-soft);margin-bottom:7px;">
 <span style="flex-shrink:0;display:inline-block;width:14px;font-weight:700;color:var(--ink-muted);font-size:10px;text-align:right;">{n_str}</span>
 <span style="flex-shrink:0;display:inline-block;min-width:50px;font-weight:700;color:{accent_color};font-size:12px;text-align:right;letter-spacing:-.01em;font-variant-numeric:tabular-nums;">{valor}</span>
-<span style="flex:1;"><strong style="color:var(--ink);">{titulo}</strong> {desc}</span>
+<span style="flex:1;"><span style="color:var(--ink);">{titulo}</span> {desc}</span>
 </li>'''
 
 def render_resumen_ejecutivo(findings, accent_color, scope='global', header_title='Resumen Ejecutivo'):
