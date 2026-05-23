@@ -232,8 +232,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            # Badge de banda: usar BandaEficacia si existe, sino calcular
-            _bnd = r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val else '')
+            # Badge de banda: solo en destino/corp/canasta/channel (NO en hotel)
+            _bnd = '' if t_key == 'hotel' else (
+                r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val else ''))
             _badge = _mini_badge(_bnd)
             _hidden = ' sb-hidden' if i >= 10 else ''
             _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
@@ -376,7 +377,8 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            _bnd_cv = r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val else '')
+            _bnd_cv = '' if t_key == 'hotel' else (
+                r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val else ''))
             _badge_cv = _mini_badge(_bnd_cv)
             _hidden = ' sb-hidden' if i >= 10 else ''
             _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'

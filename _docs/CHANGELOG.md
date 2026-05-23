@@ -911,3 +911,27 @@ Ver `FIXES_W20_FINAL.md` para checklist completo de validación y configuración
 
 ## Week 17 · Abril 2026
 - Bandas D, Sin Conversión separada, pills Súper Crítica, Channel agrupado CR, tabs hero
+
+---
+
+## [W20-s14] · 23 Mayo 2026 · Fixes visuales UI/UX batch 2
+
+### Fixes aplicados
+- **Aceptable naranja**: `gauge_5levels` y `historico_module_v2.py` actualizados → `#F59E0B` sólido en todos los contextos (el violet `#5C469C` era incorrecto)
+- **Badge hotel suprimido**: KPI cards CR y RND — tabs Hotel no muestran badge de banda (ruido visual). Afecta `render_cr_p1.py`, `render_rnd_p1.py`, `render_cr_p3.py`, `render_rnd_p3.py`
+- **Badge channel en dimensiones CR**: `render_chan_table` en `render_bloque_dimensiones_cr` ahora muestra badge `BandaEficacia` al lado del nombre del canal
+- **`_mini_badge` y `mini_badge` en render_helpers**: funciones centralizadas accesibles vía `from render_helpers import *`
+- **Opción C searchbox**: `position:relative` en `.sb-inline-wrap`, input ancho `120px` (antes `88px`)
+- **Canastas en KPI cards globales**: `panel_html = col1 + col2 + rest` (en lugar del vacío `rows_html`) — corrige que B2B (OP) no aparecía en el tab Canasta
+- **Header repetido al final de tablas de análisis**: `show_header=False` en `hidden_rows` — fix aplicado en `render_top_table_cr` y `render_top_table`
+- **IPM sin decimales**: `es_num2()` local retorna `int(round(v))` en `render_rnd_p2.py` y `render_rnd_p3.py`
+- **Botón × para limpiar searchbox**: CSS `.sb-clear-btn` + JS `clearBtn` en `attachSearchbox`; elemento `<button>` inyectado en 14 `sb-inline-wrap`
+- **Autocomplete solo tab activo**: `buildLabels()` usa `getActiveRows(false)` — evita cross-card contamination
+- **Doble wrapper div en canastas RND**: eliminado div duplicado en `kpi_card_canasta` return
+- **REVISAR naranja**: `gauge_5levels` → `#F59E0B` sólido (antes ocre `#D4A878`)
+- **Orden col1(1-5)/col2(6-10)**: KPI cards globales y canastas — `_render_panel_top_table_cr/rnd` y `tab_rows_canasta`
+- **Badges en todas las listas**: todas las dimensiones (corp/dest/hotel/país/channel/canasta) con badge de banda
+
+### Archivos modificados
+`render_helpers.py` · `historico_module_v2.py` · `historico_module_rnd.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `template_severity.py`
+

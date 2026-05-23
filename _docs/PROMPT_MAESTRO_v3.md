@@ -1221,3 +1221,40 @@ _scripts/asset_rnd_head.html     display:block tabs activos (era grid 1fr 1fr), 
 
 **Última actualización:** Mayo 2026 · post W20 sesiones 7-13 · commits s7→s13 · UI/UX + Searchbox + Histórico completo
 
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesiones 14-15 · Fixes visuales batch 2)
+
+### Badges en listas KPI — regla definitiva
+- **SÍ badge**: Destino · Corp · País · Channel · Canasta — en KPI cards globales y canastas
+- **NO badge**: Hotel — suprimido en `render_cr_p1/p3.py` y `render_rnd_p1/p3.py` (flag `t_key == 'hotel'` o `parse_hotel`)
+- Badge en **análisis por dimensión** → tab Channel: `render_chan_table` en `render_bloque_dimensiones_cr` incluye `mini_badge(BandaEficacia)` al lado del nombre
+- `_mini_badge` y `mini_badge` centralizados en `render_helpers.py` (accesibles vía `from render_helpers import *`)
+
+### Paleta D — Aceptable naranja definitivo
+- `gauge_5levels`: Aceptable `#5C469C` (violet incorrecto) → `#F59E0B` (naranja sólido)
+- `historico_module_v2.py`: Aceptable violet → `bg:#FEF3C7 fg:#92400E` (naranja pastel)
+- Revisar: `#D4A878` (ocre) → `#F59E0B` (naranja sólido) ya desde sesión 13
+
+### Opción C searchbox — especificación definitiva
+- `.sb-inline-wrap`: `position:relative` + `border-left:1px solid var(--rule)` + padding
+- `.sb-inline`: `width:120px` + `font-size:10px` + transición en `:focus`
+- `.sb-clear-btn`: `position:absolute;right:4px;top:50%` — visible solo cuando `input.value` no vacío
+- `buildLabels()`: construye labels desde `getActiveRows(false)` — solo tab activo, sin cross-card
+- Implementado en: análisis por hotel (4 tabs), análisis por dimensión (3 tabs), KPI cards (inline)
+
+### Canastas en KPI cards globales
+- `panel_html = col1 + col2 + rest` para `t_key in ('canasta', 'channel')` — ya no usa el vacío `rows_html`
+- Las 3 canastas (B2C · CUG · B2B OP) ahora visibles en el tab Canasta de ambas cards globales
+
+### Análisis por dimensión · tab Channel
+- `render_chan_table`: badge de banda inline al lado del nombre del canal
+- Badge se calcula como `r.get('BandaEficacia','') or banda_eficacia(ef_val)`
+
+### Archivos modificados (sesiones 14-15)
+`render_helpers.py` · `historico_module_v2.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html`
+
+---
+
+**Última actualización:** 23 Mayo 2026 · post W20 s14-15 · badges hotel suprimido · Aceptable naranja · Opción C searchbox definitivo · mini_badge centralizado

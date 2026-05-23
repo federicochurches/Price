@@ -330,3 +330,31 @@ Los siguientes bugs quedaron abiertos para atender en W21:
 **Última actualización:** Mayo 2026 · post W20 sesiones 7-13 · UI/UX completo + Searchbox + Top 100
 
 
+
+---
+
+## UI/UX Post W20 — Decisiones consolidadas
+
+### Badges en listas KPI
+- **Mostrar badge**: Destino · Corp · País · Channel · Canasta
+- **NO mostrar badge**: Hotel (demasiado ruido visual)
+- Badge = pill 8px con color de banda (paleta D canónica)
+
+### Opción C — Searchbox inline en tabs-row
+- Campo vive a la derecha de los tabs, separado por divisor vertical `border-left:1px solid var(--rule)`
+- Ancho `120px` en reposo; lupa SVG como icono visual
+- Botón × (`.sb-clear-btn`) para limpiar filtro activo — CSS `position:absolute;right:4px`
+- Autocomplete via `buildLabels()` que solo lee el tab activo (`getActiveRows(false)`)
+
+### Paleta D definitiva — colores sólidos para gauges y badges
+| Banda | bg | fg |
+|---|---|---|
+| Exitosa | `#085041` | `#FFFFFF` |
+| Aceptable | `#F59E0B` | `#FFFFFF` |
+| Revisar | `#F59E0B` | `#FFFFFF` |
+| Crítica | `#FCE4F1` | `#99162B` |
+| Súper Crítica | `#FECACA` | `#7F1D1D` |
+| Sin Conversión | `#F2EEE6` | `#5F5E5A` |
+
+**Nota**: Aceptable y Revisar comparten el naranja `#F59E0B` en el gauge. El badge de Aceptable usa `bg:#FEF3C7 fg:#92400E` (pastel naranja).
+

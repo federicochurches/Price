@@ -1068,7 +1068,9 @@ def render_bloque_dimensiones_cr():
             _cv20_raw = r.get('ConvRate_W17', cv_val)
             _cv20 = round(float(_cv20_raw) * 100, 4) if _cv20_raw and not (isinstance(_cv20_raw, float) and math.isnan(float(_cv20_raw))) else _cv21
             _lbl_chan = truncate(r["ExternalProviderName"],28)
-            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {_lbl_chan}</div></div>'
+            _bnd_ch = r.get('BandaEficacia','') or (banda_eficacia(ef_val) if ef_val else '')
+            _bdg_ch = mini_badge(_bnd_ch)
+            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;display:flex;align-items:center;gap:4px;">{i+1}. {_lbl_chan}{_bdg_ch}</div></div>'
                      f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'

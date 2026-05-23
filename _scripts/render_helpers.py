@@ -37,6 +37,16 @@ BANDA_COLORS = {
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 
+def _mini_badge(bnd):
+    """Badge de banda inline 8px."""
+    if not bnd or not isinstance(bnd, str): return ''
+    bc = BANDA_COLORS.get(bnd, {})
+    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
+    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+
+def mini_badge(bnd):
+    return _mini_badge(bnd)
+
 def banda_pill(banda, target=None, font_size='11px'):
     """Renderiza pill de severity · estilo compacto · target opcional embebido.
     Si se pasa target, se muestra como '· Target X%' a la derecha del nombre.
@@ -70,7 +80,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#5C469C'),
+            ('Aceptable',     '#F59E0B'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
@@ -78,7 +88,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#5C469C'),
+            ('Aceptable',      '#F59E0B'),
             ('Exitosa',        '#085041'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
@@ -86,7 +96,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#5C469C'),
+            ('Aceptable',     '#F59E0B'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
@@ -94,7 +104,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#5C469C'),
+            ('Aceptable',      '#F59E0B'),
             ('Exitosa',        '#085041'),
         ]
     cells = []

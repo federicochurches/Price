@@ -222,8 +222,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
             except: _nd_w20 = _nd_w21
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            _bnd_nd = r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else ''
-            if not _bnd_nd and val:
+            # No badge en hotel (demasiado ruido), sí en pais/destino/corp/canasta
+            _bnd_nd = '' if t_key == 'hotel' else (
+                r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else '')
+            if not _bnd_nd and val and t_key != 'hotel':
                 from engine import banda_nodispo as _bn; _bnd_nd = _bn(val)
             _badge_nd = _mini_badge(_bnd_nd)
             _hidden = ' sb-hidden' if i >= 10 else ''
@@ -325,8 +327,9 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
             except: _ipm_w20 = _ipm_w21
             hidden_cls = ' sb-hidden' if i >= 10 else ''
-            _bnd_ipm = r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else ''
-            if not _bnd_ipm and val:
+            _bnd_ipm = '' if t_key == 'hotel' else (
+                r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else '')
+            if not _bnd_ipm and val and t_key != 'hotel':
                 from engine import banda_rpm as _brpm; _bnd_ipm = _brpm(val, 1)
             _badge_ipm = _mini_badge(_bnd_ipm)
             _hidden2 = ' sb-hidden' if i >= 10 else ''

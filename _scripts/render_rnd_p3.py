@@ -329,10 +329,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 _w20h_raw = r.get('NoDispo_W17', None)
                 try: _w20h = round(float(_w20h_raw)*100,4) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
                 except: _w20h = _w21h
-            _bnd_r3 = r.get('BandaNoDispo', '') if 'BandaNoDispo' in r.index else ''
-            if not _bnd_r3 and not is_rpm and val:
+            # No badge en hotel, sí en pais/dest/corp
+            _bnd_r3 = '' if parse_hotel else (
+                r.get('BandaNoDispo', '') if 'BandaNoDispo' in r.index else '')
+            if not _bnd_r3 and not is_rpm and val and not parse_hotel:
                 from engine import banda_nodispo as _bnd_fn; _bnd_r3 = _bnd_fn(val)
-            if is_rpm and not _bnd_r3:
+            if is_rpm and not _bnd_r3 and not parse_hotel:
                 _bnd_r3 = r.get('BandaRPM', '')
             _badge_r3 = _mini_badge(_bnd_r3)
             _hidden_r3 = ' sb-hidden' if i >= 10 else ''

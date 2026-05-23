@@ -365,8 +365,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             try:
                 _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
             except: _w20 = _w21
-            _bnd3 = r.get('BandaConvRate' if is_cv else 'BandaEficacia', '') if ('BandaConvRate' in r.index or 'BandaEficacia' in r.index) else ''
-            if not _bnd3 and val:
+            # No badge en hotel, sí en corp/dest/channel/canasta
+            _bnd3 = '' if parse_hotel else (
+                r.get('BandaConvRate' if is_cv else 'BandaEficacia', '') if ('BandaConvRate' in r.index or 'BandaEficacia' in r.index) else '')
+            if not _bnd3 and val and not parse_hotel:
                 _bnd3 = banda_convrate(val, int(r.get('Bookings',0))) if is_cv else banda_eficacia(val)
             _badge3 = _mini_badge(_bnd3)
             _hidden3 = ' sb-hidden' if i >= 10 else ''
