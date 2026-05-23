@@ -271,10 +271,7 @@ def render_severity_eficacia():
 <p class="section-kicker">Distribución de hoteles del Top volumen CR (P80) por banda de Eficacia (success/CR únicos).</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
 <div>{rows}</div>
-<div class="pull-note" style="margin-top:0;"><strong>Interpretación.</strong> {fmt_int_es(n_exito)} hoteles ({n_exito/total*100:.1f}%) en zona Exitosa. <strong>{fmt_int_es(n_critmas)} hoteles ({n_critmas/total*100:.1f}%)</strong> en Crítica+ requieren escalamiento técnico: {n_supc} Súper Críticos son la primera prioridad.</div>
-</div>
 </section>
 '''
 
@@ -341,7 +338,6 @@ def render_severities_combinadas():
 {rows_cv}
 </div>
 </div>
-<div class="pull-note" style="margin-top:18px;"><strong>Interpretación.</strong> En Eficacia, <strong>{fmt_int_es(n_critmas_ef)} hoteles ({n_critmas_ef/total_ef*100:.1f}%)</strong> en Crítica+ requieren escalamiento técnico ({n_supc_ef} Súper Críticos primero). En Conv Rate, <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total_cv*100:.1f}%) sin conversión</strong> son cohorte estructural; de los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit_cv)} en Crítica (&lt; 0,8%) son la primera fila.</div>
 </section>
 '''
 
@@ -654,7 +650,6 @@ def render_channel_agrupado():
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">{cards}</div>
-<div class="pull-note"><strong>Brecha sistémica.</strong> Third Party representa solo {cr_share_tp:.1f}% del volumen pero su ConvRate ({fmt_pct2(g_tp["ConvRate"])}) está {cv_gap:.2f}pp por debajo de Producto Propio ({fmt_pct2(g_pp["ConvRate"])}). El gap señala un problema de canal: pricing, competitividad o latencia técnica de los integradores externos. Acción sugerida: auditoría de paridad y tarifas en Expedia/HotelBeds, principales operadores Third Party.</div>
 </section>
 '''.replace(',1f', '.1f')
 

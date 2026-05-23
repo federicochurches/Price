@@ -97,7 +97,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-label:hover{color:var(--ink-soft);background:var(--rule-soft);border-color:var(--rule-soft);}
 .tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
 .tab-panel{display:none;}
-.tab-panel > div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+.tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+.sb-hidden{display:none !important;}
 #tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
 #tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
 #tab-nd-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
@@ -109,7 +110,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 #tab-rpm-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
 #tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;row-gap:0;}
 .tab-panel[data-tab="canasta"]{grid-template-columns:1fr !important;}
-.tab-panel div:has(> strong + span){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.tab-panel div:has(> strong + span):not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row){display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .tab-panel strong{color:var(--ink);font-weight:400;}
 .tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:var(--amber);font-weight:700;}
 #tab-nd-destino:checked ~ .tabs-row label[for="tab-nd-destino"],
@@ -353,8 +354,12 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       rows.forEach(function(r){
         var lbl = norm(r.getAttribute('data-hist-label'));
         var match = !q || lbl.indexOf(q) >= 0;
-        r.style.display = match ? '' : 'none';
-        if (match) visible++;
+        if (match) {
+          r.classList.remove('sb-hidden');
+          visible++;
+        } else {
+          r.classList.add('sb-hidden');
+        }
       });
       if (counter){
         if (q){

@@ -196,10 +196,7 @@ def render_severity_nodispo():
 <p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo. El target es &lt;3% (banda Exitosa).</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
 <div>{rows}</div>
-<div class="pull-note" style="margin-top:0;"><strong>Interpretación.</strong> {fmt_int_es(n_exito)} hoteles ({n_exito/total*100:.1f}%) están en zona Exitosa. <strong>{fmt_int_es(n_critmas)} hoteles ({n_critmas/total*100:.2f}%)</strong> en Severity Crítica+ requieren escalamiento: {n_supc} Súper Críticos son los más urgentes.</div>
-</div>
 </section>
 '''.replace('.','.',2)
 
@@ -265,7 +262,6 @@ def render_severities_combinadas():
 {rows_ipm}
 </div>
 </div>
-<div class="pull-note" style="margin-top:18px;"><strong>Interpretación.</strong> En %NoDispo, {fmt_int_es(n_critmas)} hoteles ({n_critmas/total_nd*100:.2f}%) en Severity Crítica+ requieren escalamiento. En IPM, <strong>{fmt_int_es(n_sc)} hoteles ({n_sc/total_ipm*100:.1f}%) sin conversión</strong> son cohorte estructural; de los {fmt_int_es(n_proc)} procesables, {fmt_int_es(n_crit_ipm)} están en Crítica (&lt; $200) — primera fila de escalamiento.</div>
 </section>
 '''
 
@@ -724,10 +720,10 @@ def render_bloque_hoteles():
     kicker_crit = f'{fmt_int_es(n_crit_total)} hoteles del P80 con %NoDispo &gt; 20% (banda Crítica+). De estos, <strong>{n_supcrit} son Súper Críticos</strong> (&gt; 60%) — primer foco de escalamiento inmediato a Supply.'
     
     panels = (
+        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{kicker_crit}</p>{panel_crit}</div>'
         f'<div class="tab-panel" data-tab="dnc"><p class="tab-kicker">{kicker_dnc}</p>{panel_dnc}</div>'
         f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{kicker_br}</p>{panel_br}</div>'
         f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{kicker_sc}</p>{panel_sc}</div>'
-        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{kicker_crit}</p>{panel_crit}</div>'
     )
     
     hist_hotel = render_historico_seccion_rnd(
@@ -751,15 +747,15 @@ def render_bloque_hoteles():
 </div>
 {searchbox_html('sb-rnd-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tabs-block">
-<input checked id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
+<input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
+<input id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
-<input id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <div class="tabs-row">
+<label class="tab-label" for="tab-h-crit">Críticos</label>
 <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
-<label class="tab-label" for="tab-h-crit">Críticos</label>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>

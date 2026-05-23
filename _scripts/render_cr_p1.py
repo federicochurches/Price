@@ -226,7 +226,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+            cell = (f'<div class="kpi-row" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
                     f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
                     f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
@@ -366,7 +366,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            cell = (f'<div style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
+            cell = (f'<div class="kpi-row" style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}">'
                     f'<strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {lab}</strong>'
                     f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
