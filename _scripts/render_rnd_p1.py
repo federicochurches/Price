@@ -217,7 +217,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             hidden_cls = ' sb-hidden' if i >= 10 else ''
             rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                           f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);font-weight:600;">'
                           f'{i+1}. {lab}</span>'
                           f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
                           + (f'{wow_pill}</div>' if show_wow else '</div>'))
@@ -309,7 +309,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             hidden_cls = ' sb-hidden' if i >= 10 else ''
             rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" style="display:grid;grid-template-columns:{grid};align-items:baseline;cursor:pointer;border-radius:3px;padding:1px 3px;transition:background .12s;"'
                           f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-weight:400;">'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);font-weight:600;">'
                           f'{i+1}. {lab}</span>'
                           f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
                           + (f'{wow_pill}</div>' if show_wow else '</div>'))

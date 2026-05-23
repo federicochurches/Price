@@ -463,6 +463,16 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
     attachTooltip();
+    // Redibujar si el canvas está dentro de un <details> cerrado al cargar
+    var el = document.getElementById(CID);
+    if (el) {{
+      var det = el.closest('details');
+      if (det) {{
+        det.addEventListener('toggle', function() {{
+          if (det.open) {{ requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }}
+        }});
+      }}
+    }}
   }}
 
   // Listeners de eventos custom (se registran siempre, no dependen de readyState)

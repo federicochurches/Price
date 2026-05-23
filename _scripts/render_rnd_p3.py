@@ -323,7 +323,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             hidden_cls = ' sb-hidden' if i >= 10 else ''
             rows_html += (f'<div class="{hidden_cls.strip()}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
                           f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:baseline;gap:4px;cursor:pointer;border-radius:3px;transition:background .12s;">'
-                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink);font-weight:400;">{i+1}. {lab}</span>'
+                          f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--accent);font-weight:600;">{i+1}. {lab}</span>'
                           f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
                           f'{wow_html}</div>')
         return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">{rows_html}</div>'
