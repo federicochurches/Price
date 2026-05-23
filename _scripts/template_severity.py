@@ -10,10 +10,22 @@ API:
 
 def render_severity_row(label, banda_bg, banda_fg, rango, distribution_pct, count, total):
     pct_label = f'{count/total*100:.1f}%'.replace('.',',') if total > 0 else '0,0%'
+    # Badge SÓLIDO (paleta D)
+    # Súper Crítica ya viene invertida en LEVELS (bg=rojo oscuro sólido, fg=rosa claro texto), respetar
+    # Resto: invertir → badge bg = banda_fg (sólido oscuro), texto blanco
+    label_low = label.lower()
+    if 'súper' in label_low or 'super' in label_low:
+        badge_bg = banda_bg  # ya es sólido (#A32D2D)
+        badge_fg = banda_fg  # ya es texto claro (#FCEBEB)
+        bar_color = banda_bg  # barra también sólida
+    else:
+        badge_bg = banda_fg  # color sólido de banda
+        badge_fg = '#FFFFFF'
+        bar_color = banda_fg
     return f'''<div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:{banda_bg} !important;color:{banda_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
+<span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
 <span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rango}</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{distribution_pct}%;background:{banda_fg};"></div></div>
+<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{distribution_pct}%;background:{bar_color};"></div></div>
 <span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{count:,}</span>
 <span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct_label}</span>
 </div>'''.replace(',','.')

@@ -24,9 +24,9 @@ def render_finding(idx, finding, accent_color):
     valor = finding.get('numero','')
     titulo = finding.get('titulo','')
     desc = finding.get('desc','')
-    return f'''<li style="display:flex;gap:10px;align-items:baseline;font-size:12.5px;line-height:1.55;color:var(--ink-soft);margin-bottom:14px;">
-<span style="flex-shrink:0;display:inline-block;width:18px;font-weight:700;color:var(--ink-muted);font-size:11px;text-align:right;">{n_str}</span>
-<span style="flex-shrink:0;display:inline-block;min-width:55px;font-weight:700;color:{accent_color};font-size:13px;text-align:right;letter-spacing:-.01em;font-variant-numeric:tabular-nums;">{valor}</span>
+    return f'''<li style="display:flex;gap:8px;align-items:baseline;font-size:11.5px;line-height:1.45;color:var(--ink-soft);margin-bottom:7px;">
+<span style="flex-shrink:0;display:inline-block;width:14px;font-weight:700;color:var(--ink-muted);font-size:10px;text-align:right;">{n_str}</span>
+<span style="flex-shrink:0;display:inline-block;min-width:50px;font-weight:700;color:{accent_color};font-size:12px;text-align:right;letter-spacing:-.01em;font-variant-numeric:tabular-nums;">{valor}</span>
 <span style="flex:1;"><strong style="color:var(--ink);">{titulo}</strong> {desc}</span>
 </li>'''
 
@@ -42,11 +42,11 @@ def render_resumen_ejecutivo(findings, accent_color, scope='global', header_titl
     col2_items = ''.join(render_finding(i+5, f, accent_color) for i, f in enumerate(findings[5:10]))
     
     return f'''<!-- Resumen Ejecutivo · header fuera del card · estilo template -->
-<div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+<div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
 <span style="color:{accent_color};">🎯</span><span>{header_title}</span>
 </div>
-<div style="padding:28px 32px;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:6px;margin-bottom:24px;">
-<div class="exec-2cols" style="display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;">
+<div style="padding:16px 22px;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:4px;margin-bottom:18px;">
+<div class="exec-2cols" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;">
 <ol style="list-style:none;padding:0;margin:0;">
 {col1_items}
 </ol>

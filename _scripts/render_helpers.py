@@ -37,27 +37,30 @@ BANDA_COLORS = {
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 
-def banda_pill(banda, target=None, font_size='13px'):
-    """Renderiza pill de severity · estilo Opción D (paleta D)
-    El parámetro `target` se mantiene por compatibilidad de firma pero se IGNORA
-    (decisión post W20 sesión 4: target va como caption separado, no dentro del badge).
+def banda_pill(banda, target=None, font_size='11px'):
+    """Renderiza pill de severity · estilo compacto · target opcional embebido.
+    Si se pasa target, se muestra como '· Target X%' a la derecha del nombre.
     """
     c = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
     bg = c['bg']
     fg = c['fg']
     bd = c['bd']
-    # Mapear nombre de banda a versión mayúscula con espacios correctos
     banda_upper = banda.upper()
-    return (f'<span style="display:inline-block;font-size:{font_size};font-weight:700;letter-spacing:.04em;'
-            f'text-transform:uppercase;padding:10px 22px;border-radius:3px;background:{bg};color:{fg};'
-            f'border:1px solid {bd};text-align:center;">{banda_upper}</span>')
+    inner = banda_upper
+    if target:
+        inner = (f'{banda_upper}'
+                 f'<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">'
+                 f'· Target {target}</span>')
+    return (f'<span style="display:inline-flex;align-items:center;font-size:{font_size};font-weight:700;letter-spacing:.04em;'
+            f'text-transform:uppercase;padding:6px 12px;border-radius:3px;background:{bg};color:{fg};'
+            f'border:1px solid {bd};white-space:nowrap;">{inner}</span>')
 
 
 def target_caption(target_text, font_size='11px'):
     """Caption gris fino para mostrar target debajo del badge.
-    Reemplaza la parte '· Target X%' que antes iba dentro del pill."""
-    return (f'<div style="font-size:{font_size};font-weight:500;color:var(--ink-muted);'
-            f'letter-spacing:.02em;margin-top:6px;">Target {target_text}</div>')
+    Después de W20 sesión 8 el target va EMBEBIDO en banda_pill,
+    por lo que esta función devuelve string vacío para mantener compatibilidad."""
+    return ''
 
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
@@ -260,19 +263,17 @@ def clean_destino_name(name, max_len=28):
 
 def searchbox_html(input_id, scope_selector, placeholder="Buscar hotel, destino, corporativo..."):
     """Genera HTML del searchbox para insertar antes de un bloque de tablas.
-    El JS en asset_*_head.html toma data-sb-scope y data-sb-counter automaticamente.
+    El JS en asset_*_head.html toma data-sb-scope automaticamente.
     
     input_id        : ID unico del input (ej. 'sb-cr-hotel')
     scope_selector  : selector CSS del bloque cuyas filas filtrar (ej. '#hoteles-block')
     placeholder     : texto del placeholder
     """
-    counter_id = input_id + '-count'
     return (
         f'<div class="sb-wrap">'
         f'<input class="sb-input" type="text" id="{input_id}" '
         f'placeholder="{placeholder}" '
-        f'data-sb-scope="{scope_selector}" data-sb-counter="{counter_id}" '
+        f'data-sb-scope="{scope_selector}" '
         f'autocomplete="off" spellcheck="false">'
-        f'<span class="sb-count" id="{counter_id}"></span>'
         f'</div>'
     )

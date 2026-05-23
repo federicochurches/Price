@@ -235,6 +235,9 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     return serie;
   }}
 
+  // Estado de puntos para tooltip
+  var pointsCache = [];
+
   // ── Canvas: escala LOCAL ───────────────────────────────────────────────
   function drawCanvas(vals) {{
     var el = document.getElementById(CID);
@@ -309,11 +312,14 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     ctx.stroke();
 
     // Puntos
+    pointsCache = [];
     for (var i=0; i<n; i++) {{
       var isLast = (i === n-1);
       var alpha  = isLast ? 1 : (0.25 + 0.55*(i/(n-1)));
+      var px = xOf(i), py = yOf(vals[i]);
+      pointsCache.push({{x: px, y: py, val: vals[i], semana: SEMANAS[i]}});
       ctx.beginPath();
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2, 0, Math.PI*2);
+      ctx.arc(px, py, isLast ? 3.5 : 2, 0, Math.PI*2);
       ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba('+r+','+g+','+b+','+alpha.toFixed(2)+')';
       ctx.fill();
       if (isLast) {{ ctx.strokeStyle='#F8F4EC'; ctx.lineWidth=1.5; ctx.stroke(); }}
@@ -327,6 +333,48 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
         ctx.fillText(SEMANAS[i], xOf(i), H-3);
       }}
     }}
+  }}
+
+  // Tooltip al hover
+  function attachTooltip() {{
+    var el = document.getElementById(CID);
+    if (!el) return;
+    var tt = el.parentElement.querySelector('.hist-tooltip-' + CID);
+    if (!tt) {{
+      tt = document.createElement('div');
+      tt.className = 'hist-tooltip-' + CID;
+      tt.style.cssText = 'position:absolute;pointer-events:none;background:#161616;color:#FAF7F2;padding:5px 9px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;transform:translate(-50%,-115%);z-index:50;display:none;box-shadow:0 2px 6px rgba(0,0,0,.20);';
+      el.parentElement.style.position = 'relative';
+      el.parentElement.appendChild(tt);
+    }}
+    el.addEventListener('mousemove', function(e) {{
+      var rect = el.getBoundingClientRect();
+      var mx = e.clientX - rect.left;
+      var my = e.clientY - rect.top;
+      var best = null, bestDist = 14;
+      for (var i=0; i<pointsCache.length; i++) {{
+        var p = pointsCache[i];
+        var d = Math.sqrt((p.x-mx)*(p.x-mx) + (p.y-my)*(p.y-my));
+        if (d < bestDist) {{ bestDist = d; best = p; }}
+      }}
+      if (best) {{
+        var fmtVal;
+        if (IS_ND) {{
+          fmtVal = best.val.toFixed(2).replace('.', ',') + '%';
+        }} else {{
+          fmtVal = '$' + best.val.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, '.');
+        }}
+        tt.textContent = best.semana + ' · ' + fmtVal;
+        tt.style.left = best.x + 'px';
+        tt.style.top = best.y + 'px';
+        tt.style.display = 'block';
+        el.style.cursor = 'crosshair';
+      }} else {{
+        tt.style.display = 'none';
+        el.style.cursor = 'default';
+      }}
+    }});
+    el.addEventListener('mouseleave', function() {{ tt.style.display = 'none'; el.style.cursor = 'default'; }});
   }}
 
   // ── Sparkline: escala GLOBAL ───────────────────────────────────────────
@@ -414,6 +462,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     drawCanvas(VALS_DEF);
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
+    attachTooltip();
   }}
 
   // Listeners de eventos custom (se registran siempre, no dependen de readyState)

@@ -346,8 +346,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-top:4px;">{val18_str}</div>
-<div style="margin-top:10px;">{pill_with_target}</div>
+<div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{val18_str}</div>
+<div>{pill_with_target}</div>
+</div>
 {gauge}
 {wb}
 <div style="display:flex;gap:0;margin-top:14px;border-bottom:1px solid var(--rule);">{tabs_labels}</div>
@@ -418,13 +420,15 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     # === RESUMEN EJECUTIVO con pills de banda y WoW ===
     def pill_b(nombre):
-        COLORS = {'Exitosa':('#085041','#E1F5EE'),'Aceptable':('#5C469C','#EDE8F7'),
-                  'Revisar':('#A86A1D','#FFF4E0'),'Crítica':('#C0392B','#FCE4F1'),
-                  'Súper Crítica':('#ffffff','rgba(22,22,22,.80)'),'Sin Conv':('#8A8377','#F2EEE6')}
-        ct, cb = COLORS.get(nombre, ('#161616','#F2EEE6'))
+        # Paleta D sólida: bg = color de banda, texto blanco/claro
+        SOLID = {'Exitosa':'#085041','Aceptable':'#5C469C',
+                 'Revisar':'#A86A1D','Crítica':'#C0392B',
+                 'Súper Crítica':'#161616','Sin Conv':'#8A8377'}
+        bg = SOLID.get(nombre, '#161616')
+        fg = '#FCEBEB' if nombre == 'Súper Crítica' else '#FFFFFF'
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;'
                 f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
-                f'background:{cb} !important;color:{ct} !important;'
+                f'background:{bg} !important;color:{fg} !important;'
                 f'vertical-align:middle;margin:0 2px;">{nombre}</span>')
     def pill_d(texto, mejora):
         color = '#2F6C34' if mejora else '#C0392B'
@@ -536,7 +540,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False).head(10))
 
     bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-rnd" style="margin:32px 0 0;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
+<h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">🏨</span> Análisis por hotel</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-dnc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -546,7 +550,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
-{searchbox_html(f'sb-rnd-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-rnd', 'Buscar hotel...')}
 <div class="tab-panels">
 {tab_panel_hotel('dnc', df_dnc_c, 'Hotel', 'Hotel', parse_hotel=True)}
 {tab_panel_hotel('br',  df_br_c,  'Hotel', 'Hotel', parse_hotel=True)}
@@ -571,7 +574,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(10).reset_index(drop=True) if 'agg_pais' in c else df_pais
 
     bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-rnd" style="margin:32px 0 32px;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
+<h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:24px 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">📊</span> Análisis por dimensión</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -581,7 +584,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-pais">País</label>
 </div>
-{searchbox_html(f'sb-rnd-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-rnd', 'Buscar corporativo, destino o país...')}
 <div class="tab-panels">
 {tab_panel_dim('corp', df_corp_dim, 'CorpName', 'Corporativo')}
 {tab_panel_dim('dest', df_dest_dim, 'Destino',  'Destino')}

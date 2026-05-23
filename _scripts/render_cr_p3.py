@@ -24,6 +24,8 @@ def _fmt_wow_cv(v):
     return f'<em class="wow-pill {cls}">{arrow}{abs(v):.2f}</em>'.replace('.',',')
 from template_seguimiento import render_seguimiento_block
 
+with open('asset_cr_footer.html') as f: FOOTER = f.read()
+
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
@@ -77,10 +79,11 @@ def get_pill_wow(name, wow_map):
     return '<em class="wow-pill nd">—</em>'
 
 def pill_b(nombre):
-    """Pill de banda con colores del sistema D."""
+    """Pill de banda con colores SÓLIDOS (paleta D)."""
     c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
-    bg = 'rgba(22,22,22,.80)' if nombre == 'Súper Crítica' else c['bg']
-    fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
+    # Badge sólido: bg = color sólido de banda, texto blanco/claro
+    bg = c['fg']  # color sólido oscuro de banda
+    fg = '#FCEBEB' if nombre == 'Súper Crítica' else '#FFFFFF'
     return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
             f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
             f'text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;margin:0 2px;">{nombre}</span>')
@@ -358,8 +361,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;margin-top:4px;">{v18str}</div>
-<div style="margin-top:10px;">{pill_with_target}</div>
+<div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+<div style="font-size:42px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
+<div>{pill_with_target}</div>
+</div>
 {gauge}
 {wb}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
@@ -579,7 +584,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_sc_c   = _add_hotel_wow(p80[p80['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
 
     bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-cr" style="margin:32px 0 0;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
+<h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">🏨</span> Análisis por hotel</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-crit" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -589,7 +594,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
 </div>
-{searchbox_html(f'sb-cr-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-cr', 'Buscar hotel...')}
 <div class="tab-panels">
 {tab_panel_hotel('crit', df_crit_c, parse_hotel=True)}
 {tab_panel_hotel('br',   df_br_c,   parse_hotel=True)}
@@ -619,8 +623,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 lab = truncate(str(raw), 22)
             bnd = banda_eficacia(r['Eficacia'])
             c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-            bg = 'rgba(22,22,22,.80)' if bnd == 'Súper Crítica' else c_bnd['bg']
-            fg = '#FFFFFF' if bnd == 'Súper Crítica' else c_bnd['fg']
+            # Badge sólido: bg=color de banda, texto blanco/claro
+            bg = c_bnd['fg']
+            fg = '#FCEBEB' if bnd == 'Súper Crítica' else '#FFFFFF'
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
                          f'background:{bg} !important;color:{fg} !important;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
             # WoW pill con umbral
@@ -747,7 +752,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     )
 
     bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-cr" style="margin:32px 0 32px;">
-<div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
+<h3 style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin:24px 0 12px;display:flex;align-items:center;gap:8px;"><span style="font-size:20px;">📊</span> Análisis por dimensión</h3>
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
@@ -757,7 +762,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
 </div>
-{searchbox_html(f'sb-cr-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-cr', 'Buscar corporativo, destino o channel...')}
 <div class="tab-panels">
 {tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
 {tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}
@@ -909,6 +913,7 @@ CANASTA_SECTION = f'''<section id="por-canasta">
 for idx_key, c_key in [('op','B2B-OP'),('cug','CUG'),('b2c','B2C')]:
     CANASTA_SECTION += render_canasta_block(CANASTA[c_key], idx_str=idx_key)
 CANASTA_SECTION += '</section>\n'
+CANASTA_SECTION += FOOTER
 
 with open('part3_cr.html','w') as f:
     f.write(CANASTA_SECTION)
