@@ -16,12 +16,16 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Imports desde _helpers/
-from _helpers.template_seguimiento import generar_archivo_seguimiento
+try:
+    from _helpers.template_seguimiento import generar_archivo_seguimiento
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from template_seguimiento import generar_archivo_seguimiento
 
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
 WEEK        = int(os.getenv('VOL_NUM', '20'))
-PERIODO     = os.getenv('PERIODO', '12–18 may 2026')
+PERIODO     = os.getenv('PERIODO', '11–17 may 2026')
 FECHA_PUB   = os.getenv('FECHA_PUB', 'Lunes 19 mayo 2026')
 
 WEEK_PREV        = int(os.getenv('VOL_NUM_PREV', '19')) if os.getenv('VOL_NUM_PREV') else WEEK - 1

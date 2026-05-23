@@ -16,7 +16,7 @@ M = D['M']; TOP = D['TOP']
 
 # ── Cargar configuración semanal ──────────────────────────────────────────────────
 VOL_NUM   = D.get('VOL_NUM', '20')
-PERIODO   = D.get('PERIODO', '12–18 may 2026')
+PERIODO   = D.get('PERIODO', '11–17 may 2026')
 MES_AÑO   = D.get('MES_AÑO', 'Mayo 2026')
 FECHA_PUB = D.get('FECHA_PUB', 'LUNES 18 de Mayo de 2026')
 # ─────────────────────────────────────────────────────────────────────────────────

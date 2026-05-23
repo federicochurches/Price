@@ -25,7 +25,7 @@ def load_rnd(path, week):
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
 WEEK     = os.getenv('WEEK', 'W20')
 VOL_NUM  = os.getenv('VOL_NUM', '20')
-PERIODO  = os.getenv('PERIODO', '12–18 may 2026')
+PERIODO  = os.getenv('PERIODO', '11–17 may 2026')
 MES_AÑO  = os.getenv('MES_AÑO', 'Mayo 2026')
 FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 18 de Mayo de 2026')  # Día de publicación del reporte
 

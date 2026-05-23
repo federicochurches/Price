@@ -11,7 +11,7 @@ from pathlib import Path
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
 WEEK      = os.getenv('WEEK', 'W20')
-PERIODO   = os.getenv('PERIODO', '12–18 may 2026')
+PERIODO   = os.getenv('PERIODO', '11–17 may 2026')
 VOL_NUM   = os.getenv('VOL_NUM', '20')
 PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
 PICKLE_CR  = os.getenv('PICKLE_CR', f'cr_w{VOL_NUM}_data.pkl')
@@ -35,8 +35,8 @@ with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
 
 # === RND ===
-mr18  = DR['M']['global_w18']
-mr17  = DR['M']['global_w17']
+mr18  = DR['M']['global_w20']
+mr17  = DR['M']['global_w19']
 
 rnd_pct     = mr18['pct_nodispo'] * 100
 rnd_pct_wow = (mr18['pct_nodispo'] - mr17['pct_nodispo']) * 100
@@ -56,15 +56,15 @@ rnd_n_critmas  = int(DR['sev_nd'].get('Crítica', 0) + DR['sev_nd'].get('Súper 
 rnd_n_sin_conv = int(DR['sev_rpm'].get('Sin Conversión', 0))
 rnd_pct_sin_conv = rnd_n_sin_conv / rnd_p80 * 100
 
-cug18       = DR['M']['CUG (UOP)_w18']
-cug17       = DR['M']['CUG (UOP)_w17']
+cug18       = DR['M']['CUG (UOP)_w20']
+cug17       = DR['M']['CUG (UOP)_w19']
 cug_ipm_w18 = cug18['gb_usd'] / cug18['trafico'] * 1_000_000 if cug18['trafico'] > 0 else 0
 cug_ipm_w17 = cug17['gb_usd'] / cug17['trafico'] * 1_000_000 if cug17['trafico'] > 0 else 1
 cug_ipm_wow = (cug_ipm_w18 / cug_ipm_w17 - 1) * 100
 
 # === CR ===
-mc   = DC['M']['global_w18']
-mc17 = DC['M']['global_w17']
+mc   = DC['M']['global_w20']
+mc17 = DC['M']['global_w19']
 
 cr_ef       = mc['eficacia'] * 100
 cr_cv       = mc['conv_rate'] * 100
@@ -79,7 +79,7 @@ cr_pct_sin_conv = cr_n_sin_conv / cr_p80 * 100
 g_tp = DC['g_grupo'][DC['g_grupo']['Grupo'] == 'Third Party'].iloc[0]
 g_pp = DC['g_grupo'][DC['g_grupo']['Grupo'] == 'Producto Propio'].iloc[0]
 
-b2c_cv = DC['M']['B2C_w18']['conv_rate'] * 100
+b2c_cv = DC['M']['B2C_w20']['conv_rate'] * 100
 
 # ── Helper formato español ────────────────────────────────────────────────────
 def es(x, decimals=2):
