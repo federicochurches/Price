@@ -537,7 +537,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     wow_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
             except:
                 wow_html = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-            rows += (f'<div class="panel-row">'
+            rows += (f'<div class="panel-row" data-hist-label="{label}">'
                      f'<span class="label"><div>{start_idx+i+1}. {label}</div>{sub_html}</span>'
                      f'<span class="efic">{fmt_pct2(r["ConvRate"]) if "ConvRate" in r.index else "—"}</span>'
                      f'<span class="efic">{fmt_pct2(r["Eficacia"])}</span>'
@@ -566,8 +566,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     df_br_c   = _add_hotel_wow(p80[(p80['Bookings']>0)&(p80['BandaConvRate'].isin(['Crítica','Revisar']))].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
     df_sc_c   = _add_hotel_wow(p80[p80['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10).reset_index(drop=True))
 
-    bloque_hotel_html = f'''<div style="margin:32px 0 0;">
+    bloque_hotel_html = f'''<div id="canasta-{idx_str}-hotel-cr" style="margin:32px 0 0;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 10px;">🏨 Análisis por Hotel</div>
+{searchbox_html(f'sb-cr-canasta-{idx_str}-hotel', f'#canasta-{idx_str}-hotel-cr', 'Buscar hotel...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:16px;">
 <input checked id="tab-{idx_str}-h-crit" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
@@ -628,7 +629,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             cv_val = r.get('ConvRate', None)
             cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
             n = start_idx + i + 1
-            rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
+            rows += (f'<div data-hist-label="{lab}" style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
                      f'<div style="display:flex;align-items:center;gap:4px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
                      f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {lab}</span>{pill_banda}</div>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
@@ -733,8 +734,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         f'</div></div>'
     )
 
-    bloque_dim_html = f'''<div style="margin:32px 0 32px;">
+    bloque_dim_html = f'''<div id="canasta-{idx_str}-dim-cr" style="margin:32px 0 32px;">
 <div style="font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink);margin:0 0 6px;">📊 Análisis por Dimensión</div>
+{searchbox_html(f'sb-cr-canasta-{idx_str}-dim', f'#canasta-{idx_str}-dim-cr', 'Buscar corporativo, destino o channel...')}
 <div class="tabs-block" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:8px 16px 16px;">
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
