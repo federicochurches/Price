@@ -258,7 +258,7 @@ Severity NO se aplica uniformemente · **separamos hoteles "procesables" (con co
 ```
 01 · Resumen Ejecutivo (10 findings · 2 cols)
 02 · Severity (NoDispo + IPM en 2 cols · NoDispo magenta · IPM amber)
-03 · Análisis por hotel (bloque con 3 tabs: Demanda NC · Bajo Rendimiento · Sin Conversión)
+03 · Análisis por hotel (bloque con 4 tabs: Demanda NC · Bajo Rendimiento · Sin Conversión · Críticos)
 04 · Análisis por dimensión (bloque con 3 tabs: Corporativo · Destino · País)
 05 · Plan de Acción (6 acciones · 2 cols)
 06+ · Análisis por canasta (B2C · B2B-OP · CUG)
@@ -992,3 +992,71 @@ El módulo histórico RND ya estaba correcto desde sesión 2 — no requirió ca
 ---
 
 **Última actualización:** Mayo 2026 · post W20 sesión 4 · módulo histórico CR hotel+dim + Opción D badges + paleta D Exitosa verde + sin "Banda" label + target caption separado · bugs #81–#93
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión 5 · Tab Críticos RND + Searchbox cobertura completa)
+
+### Tab "Críticos" en Análisis por hotel RND (4ª óptica)
+
+La sección Análisis por hotel RND tenía solo 3 tabs (Demanda NC · Bajo Rendimiento · Sin Conversión). Faltaba la 4ª óptica: **hoteles con `BandaNoDispo` en Crítica o Súper Crítica** (`%NoDispo > 20%`).
+
+**Implementación:**
+- `_scripts/asset_rnd_head.html`: agregado `tab-h-crit` al CSS (selectores de visibilidad de panel y tab activo).
+- `_scripts/render_rnd_p2.py`:
+  - Bloque `cols_crit` + `df_crit_all` filtrando `p80_hotel` por `BandaNoDispo ∈ ['Crítica','Súper Crítica']`, sorted desc por `%NoDispo`, top 50.
+  - Input `<input id="tab-h-crit">` + label `<label for="tab-h-crit">Críticos</label>` agregados al bloque de tabs.
+  - Panel `crit` agregado al string `panels`.
+  - Subtítulo de sección: "3 ópticas analíticas" → **"4 ópticas analíticas"**.
+
+**Resultado validado W20:** 358 hoteles del P80 (337 Crítica + 21 Súper Crítica). Top 1: Grand Hyatt Istanbul 93.22%.
+
+### Searchbox cliente-side · cobertura completa
+
+El searchbox ya existía como helper en `render_helpers.py` + JS auto-attach en assets head. Esta sesión cerró el último gap: el filtrado en las **canastas colapsables**.
+
+**Cambios:**
+- `_scripts/render_cr_p3.py` y `render_rnd_p3.py`:
+  - Filas `panel-row` enriquecidas con `data-hist-label="{label}"`
+  - Bloques hotel/dim de cada canasta: `id="canasta-{idx_str}-{hotel|dim}-{cr|rnd}"` + `searchbox_html(...)`
+
+**Cobertura final: 18 searchboxes (9 por reporte):**
+- Hero KPI cards
+- Análisis por hotel
+- Análisis por dimensión
+- Canastas B2C/OP/CUG × hotel+dim (6)
+
+**Comportamiento:**
+- Filtrado **instantáneo** cliente-side
+- **Case-insensitive y sin acentos** (NFD normalize)
+- **Contador** dinámico: `"X de Y visibles"` al filtrar
+- Color focus por reporte: magenta RND, violet CR
+- Búsqueda solo en **primera columna** (`data-hist-label`)
+
+### Bugs reportados verificados
+
+Auditoría completa con playwright:
+
+| Bug reportado | Diagnóstico |
+|---|---|
+| `Uncaught SyntaxError: Unexpected token 'else'` × 6 | **Falso positivo** — ya resuelto en commits previos (0 errores JS verificados) |
+| Severity cards con transparencia | **Falso positivo** — paleta D con colores sólidos |
+| Módulos históricos no aparecen en RND | **Falso positivo** — 8 módulos funcionando |
+| Severity canastas sin paleta D | **Falso positivo** — paleta D aplicada |
+| Tab Críticos faltante en Análisis por hotel RND | **REAL** — corregido |
+
+### Archivos modificados
+`_scripts/asset_rnd_head.html` · `_scripts/render_rnd_p2.py` · `_scripts/render_cr_p3.py` · `_scripts/render_rnd_p3.py` · `rates-nodispo/week-20/RatesNoDispo_Reporte_Editorial.html` · `checkrates/week-20/CheckRates_Reporte_Editorial.html`
+
+### Commits
+- `05bd9c7` · fix(rnd): agregar tab Críticos en Análisis por hotel (4ª óptica)
+- `86a9bef` · feat(canastas): searchbox en Análisis por hotel + dim de cada canasta CR/RND
+
+### Pendientes
+- Datos históricos reales W14-W20 en pickle (hoy `_FICTICIOS`)
+- Persistencia de filtro searchbox entre tabs (decisión pendiente)
+- Validar pipeline completo con datasets W21 cuando llegue la semana
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesión 5 · Tab Críticos RND + Searchbox completo

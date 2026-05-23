@@ -1,6 +1,81 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Week 20 · 23 Mayo 2026 · Sesión 5 · Tab Críticos RND + Searchbox cobertura completa
+
+### ✨ Feature 1 · 4ª óptica "Críticos" en Análisis por hotel RND
+
+La sección Análisis por hotel RND tenía solo 3 tabs (Demanda No Convertida · Bajo Rendimiento · Sin Conversión). Faltaba la 4ª óptica: **hoteles con `BandaNoDispo` en Crítica o Súper Crítica** (`%NoDispo > 20%`).
+
+**Cambios:**
+- `_scripts/asset_rnd_head.html`: agregado `tab-h-crit` al CSS (selectores de visibilidad de panel y tab activo).
+- `_scripts/render_rnd_p2.py`:
+  - Nuevo bloque `cols_crit` + `df_crit_all` filtrando `p80_hotel` por `BandaNoDispo` ∈ `['Crítica','Súper Crítica']`, sorted desc por `%NoDispo`, top 50.
+  - Input radio `tab-h-crit` + label "Críticos" agregado al bloque de tabs.
+  - Panel `crit` agregado al string `panels` con kicker contextual (total Críticos + Súper Críticos).
+  - Subtítulo de sección: "3 ópticas analíticas" → **"4 ópticas analíticas"**.
+
+**Resultado validado:** Tab Críticos renderiza con 358 hoteles del P80 (337 Crítica + 21 Súper Crítica). Top 1 W20: Grand Hyatt Istanbul 93.22%.
+
+**Commit:** `05bd9c7` · fix(rnd): agregar tab Críticos en Análisis por hotel (4ª óptica)
+
+### 🔍 Feature 2 · Searchbox cliente-side cobertura completa CR + RND
+
+El searchbox ya existía como helper (`render_helpers.searchbox_html`) + JS auto-attach en `asset_*_head.html`. Esta sesión cerró el último gap: el filtrado en las **canastas colapsables**.
+
+**Cambios:**
+- `_scripts/render_cr_p3.py`:
+  - Filas `panel-row` enriquecidas con `data-hist-label="{label}"` (para que el JS de filtrado pueda matchear).
+  - Bloque Análisis por hotel: `id="canasta-{idx_str}-hotel-cr"` + searchbox "Buscar hotel..."
+  - Bloque Análisis por dimensión: `id="canasta-{idx_str}-dim-cr"` + searchbox "Buscar corporativo, destino o channel..."
+- `_scripts/render_rnd_p3.py`: mismos cambios análogos para canastas RND.
+
+**Cobertura final:** **18 searchboxes funcionales (9 por reporte):**
+- Hero KPI cards (1)
+- Análisis por hotel (1)
+- Análisis por dimensión (1)
+- Canastas B2C/OP/CUG × hotel+dim (6)
+
+**Comportamiento:**
+- Filtrado **instantáneo** cliente-side (input event)
+- **Case-insensitive y sin acentos** (NFD normalize) — `"cancun"` matchea `"Cancún"`
+- **Contador** dinámico: `"X de Y visibles"` al filtrar, `"Y filas"` en estado base
+- Color focus por reporte: **magenta** RND `#EA0074`, **violet** CR `#5C469C`
+- Búsqueda solo en la **primera columna** (nombre de hotel/destino/corp/channel) vía `data-hist-label`
+
+**Validación playwright:** `"hyatt"` → 86→1 en RND, 66→2 en CR, sin errores JS.
+
+**Commit:** `86a9bef` · feat(canastas): searchbox en Análisis por hotel + dim de cada canasta CR/RND
+
+### 🧹 Diagnóstico de bugs reportados
+
+Auditoría completa de los 5 bugs reportados al inicio de la sesión:
+
+| Bug reportado | Diagnóstico |
+|---|---|
+| `Uncaught SyntaxError: Unexpected token 'else'` × 6 | **Falso positivo** — ya estaba arreglado en commits previos (`ba41f26`, `8727103`). 0 errores JS verificados con playwright en HTMLs W20 actuales. |
+| Severity cards con transparencia | **Falso positivo** — paleta D aplicada con colores sólidos (verificado visualmente). |
+| Módulos históricos no aparecen en RND | **Falso positivo** — 8 módulos históricos RND funcionando (2 globales + 6 canastas). |
+| Severity canastas sin paleta D | **Falso positivo** — paleta D aplicada correctamente en canastas. |
+| Tab Críticos faltante en Análisis por hotel RND | **REAL** — corregido (Feature 1 de esta sesión). |
+
+### 📦 Estado final repo
+
+3 commits push en `main` esta sesión:
+```
+86a9bef feat(canastas): searchbox en Análisis por hotel + dim de cada canasta CR/RND
+05bd9c7 fix(rnd): agregar tab Críticos en Análisis por hotel (4ª óptica)
+[+ docs update commit]
+```
+
+### 🔜 Pendientes futuros
+
+- Datos históricos reales W14-W20 en pickle (hoy `_FICTICIOS` en `historico_module_v2.py` y `historico_module_rnd.py`)
+- Validar pipeline completo con datasets W21 cuando llegue la semana
+- Persistencia de filtro searchbox entre tabs (decisión pendiente)
+- Revocar PAT GitHub al final de toda la sesión
+
+---
 ## Week 20 · 23 Mayo 2026 · Sesión 4 · Módulo histórico CR hotel/dim + Reformulación badges Opción D
 
 ### ✨ Feature 1 · Módulo histórico CR en Análisis por hotel + Análisis por dimensión

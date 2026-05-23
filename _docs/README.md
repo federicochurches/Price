@@ -153,6 +153,54 @@ Ver `_docs/BANDAS.md` para la paleta D completa y todos los detalles del sistema
 
 ---
 
+## 🔍 Searchbox cliente-side (post W20 sesión 5)
+
+Filtro instantáneo en todas las tablas del reporte. **18 searchboxes funcionales** (9 por reporte).
+
+### Cobertura
+
+| Sección | CR | RND |
+|---|---|---|
+| Hero KPI cards | ✅ 1 | ✅ 1 |
+| Análisis por hotel | ✅ 1 | ✅ 1 |
+| Análisis por dimensión | ✅ 1 | ✅ 1 |
+| Canastas (B2C/OP/CUG × hotel+dim) | ✅ 6 | ✅ 6 |
+
+### Comportamiento
+
+- **Filtrado instantáneo cliente-side** (event `input`)
+- **Case-insensitive y sin acentos** vía `String.prototype.normalize('NFD')` — `"cancun"` matchea `"Cancún"`
+- **Contador** dinámico: `"X de Y visibles"` al filtrar, `"Y filas"` en estado base
+- Color focus por reporte: **magenta** RND (`#EA0074`), **violet** CR (`#5C469C`)
+- Búsqueda solo en la **primera columna** (nombre del hotel/destino/corp/channel) vía atributo `data-hist-label` en cada fila
+
+### Arquitectura
+
+| Componente | Ubicación |
+|---|---|
+| Helper Python (render del input + counter) | `_scripts/render_helpers.py::searchbox_html(input_id, scope_selector, placeholder)` |
+| CSS + JS auto-attach | `_scripts/asset_cr_head.html` y `_scripts/asset_rnd_head.html` |
+| Función JS principal | `window.attachSearchbox(scopeSelector, inputId, counterId)` |
+| Atributo en cada fila filtrable | `data-hist-label="{nombre}"` |
+
+### Cómo agregar un searchbox nuevo
+
+```python
+# En cualquier render script
+from render_helpers import searchbox_html
+
+html = f'''
+<div id="mi-seccion">
+  {searchbox_html('sb-mi-seccion', '#mi-seccion', 'Buscar...')}
+  <table>...</table>  <!-- filas con data-hist-label="..." -->
+</div>
+'''
+```
+
+El JS de `asset_*_head.html` detecta automáticamente todos los `.sb-input[data-sb-scope]` al cargar la página.
+
+---
+
 ## 🚀 FLUJO EJECUTABLE W21+ · 1 COMANDO (NUEVO - Mayo 2026)
 
 ### ✨ Pipeline automatizado con YAML
