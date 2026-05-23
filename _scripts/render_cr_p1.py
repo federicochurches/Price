@@ -253,8 +253,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<input id="sb-kpi-ef" class="sb-input sb-card-ef" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ef-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-ef" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-ef-panels" style="font-size:10px;"></div></div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
@@ -386,8 +385,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs}</div>
-<input id="sb-kpi-cv" class="sb-input sb-card-cv" type="text" placeholder="Buscar en estas pestañas…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-cv-panels" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-kpi-cv" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#kpi-cv-panels" style="font-size:10px;"></div></div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico_cr('convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''

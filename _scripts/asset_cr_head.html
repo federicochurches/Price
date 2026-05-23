@@ -331,6 +331,21 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 }
 .sb-input:focus{border-color:#5C469C;box-shadow:0 0 0 2px rgba(92,70,156,.12);}
 .sb-input::placeholder{color:var(--ink-muted);font-style:italic;}
+/* Searchbox Opción C: inline en tabs-row con divisor */
+.sb-inline-wrap{
+  display:flex;align-items:center;gap:5px;
+  padding:0 4px 4px 10px;
+  margin-left:auto;flex-shrink:0;
+  border-left:1px solid var(--rule);
+}
+.sb-inline{
+  width:88px;font-size:10px;font-family:inherit;
+  color:var(--ink);background:transparent;
+  border:none;outline:none;padding:2px 0;
+  transition:width .2s;
+}
+.sb-inline:focus{width:128px;}
+.sb-inline::placeholder{color:var(--ink-muted);}
 .sb-count{
   font-size:10px;font-weight:600;color:var(--ink-muted);
   text-transform:uppercase;letter-spacing:.06em;

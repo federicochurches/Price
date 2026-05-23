@@ -404,8 +404,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>
 {gauge}
 {wb}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;">{tabs_labels}</div>
-<input id="{sb_id}" class="sb-input" type="text" placeholder="Buscar…" autocomplete="off" spellcheck="false" data-sb-scope="#{panels_id}" style="margin:8px 0 4px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_labels}<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="{sb_id}" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#{panels_id}" style="font-size:10px;"></div></div>
 <div id="{panels_id}" class="tab-panels">{panels}</div>
 {hist_mod}
 </div>'''
@@ -682,12 +681,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <input checked id="tab-{idx_str}-h-crit" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-br" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-h-sc" name="tabs-{idx_str}-h" style="display:none;" type="radio"/>
-<div class="tabs-row" style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:0;">
+<div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding-bottom:0;margin-bottom:12px;align-items:flex-end;">
 <label class="tab-label" for="tab-{idx_str}-h-crit">Críticos</label>
 <label class="tab-label" for="tab-{idx_str}-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-{idx_str}-h-sc">Sin Conversión</label>
-</div>
-<input id="sb-{idx_str}-hotel" class="sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-hotel-cr" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-{idx_str}-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-hotel-cr" style="font-size:10px;"></div></div>
 <div class="tab-panels">
 {tab_panel_hotel('crit', df_crit_c, parse_hotel=True)}
 {tab_panel_hotel('br',   df_br_c,   parse_hotel=True)}
@@ -859,12 +857,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <input checked id="tab-{idx_str}-d-corp" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-dest" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
 <input id="tab-{idx_str}-d-channel" name="tabs-{idx_str}-d" style="display:none;" type="radio"/>
-<div class="tabs-row" style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:0;">
+<div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding-bottom:0;margin-bottom:12px;align-items:flex-end;">
 <label class="tab-label" for="tab-{idx_str}-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-{idx_str}-d-dest">Destino</label>
 <label class="tab-label" for="tab-{idx_str}-d-channel">Channel</label>
-</div>
-<input id="sb-{idx_str}-dim" class="sb-input" type="text" placeholder="Buscar corporativo o destino…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-dim-cr" style="margin:0 0 8px;width:100%;box-sizing:border-box;padding:5px 9px;font-size:11px;font-family:inherit;color:var(--ink);background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;outline:none;">
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-{idx_str}-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#canasta-{idx_str}-dim-cr" style="font-size:10px;"></div></div>
 <div class="tab-panels">
 {tab_panel_dim_cr('corp', df_corp_dim, 'CorpName', 'Corporativo', ref_w17=ref_corp)}
 {tab_panel_dim_cr('dest', df_dest_dim, 'Destino',  'Destino', ref_w17=ref_dest)}
