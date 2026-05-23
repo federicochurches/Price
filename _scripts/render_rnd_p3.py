@@ -512,6 +512,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">IPM</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
                   f'</div>')
+
+        def _dim_badge(bnd):
+            if not bnd or not isinstance(bnd, str): return ''
+            bc = BANDA_COLORS.get(bnd, {})
+            bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
+            return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
         rows = header
         for i, r in df.iterrows():
             row_idx = start_idx + i
@@ -554,7 +560,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f' data-hist-w21="{_nd21}" data-hist-w20="{_nd20}"'
                      f' data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}"'
                      f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                     f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {label}</span>'
+                     f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
+                     f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{row_idx+1}. {label}</span>'
+                     + _dim_badge(r.get('BandaNoDispo','')) +
+                     f'</div>'
                      f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
                      f'<span style="text-align:right;">{wow_html}</span>'
                      f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
@@ -581,7 +590,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             bnd = r.get('BandaNoDispo','')
             c_bnd = BANDA_COLORS.get(bnd, {})
-            if bnd == 'Súper Crítica': bnd_bg='#A32D2D'; bnd_fg='#FCEBEB'
+            if bnd == 'Súper Crítica': bnd_bg='#FECACA'; bnd_fg='#7F1D1D'
             else: bnd_bg=c_bnd.get('bg','#F2EEE6'); bnd_fg=c_bnd.get('fg','#5F5E5A')
             badge = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;'
                      f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;">{bnd}</span>')
@@ -606,9 +615,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         f' data-hist-label="{hotel_name}"'
                         f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                         f'<div>'
-                        f'<div style="font-size:11px;font-weight:600;color:{RND_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>'
+                        f'<div style="display:flex;align-items:center;gap:5px;">'
+                        f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {hotel_name}</span>'
+                        f'{badge}'
+                        f'</div>'
                         f'{sub_html}'
-                        f'<div style="margin-top:1px;">{badge}</div>'
                         f'</div>'
                         f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(nd_val)}</span>'
                         f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'

@@ -148,7 +148,7 @@ def render_resumen_ej():
 
     def pill_b(nombre):
         c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
-        bg = '#A32D2D' if nombre == 'Súper Crítica' else c['bg']
+        bg = '#FECACA' if nombre == 'Súper Crítica' else c['bg']
         fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
                 f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
@@ -289,7 +289,7 @@ def render_severities_combinadas():
             bar_w = max(min(pct, 100), 0.5)
             # Badge paleta D: bg pastel (excepto Súper Crítica que es sólida)
             if name == 'Súper Crítica':
-                badge_bg = '#A32D2D'; badge_fg = '#FCEBEB'
+                badge_bg = '#FECACA'; badge_fg = '#7F1D1D'
             elif name == 'Sin Conversión':
                 badge_bg = '#F2EEE6'; badge_fg = '#5F5E5A'
             else:
@@ -549,7 +549,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         bnd = r.get('BandaEficacia','')
         c = BANDA_COLORS.get(bnd, {})
         if bnd == 'Súper Crítica':
-            bnd_bg = '#A32D2D'; bnd_fg = '#FCEBEB'
+            bnd_bg = '#FECACA'; bnd_fg = '#7F1D1D'
         else:
             bnd_bg = c.get('bg','#F2EEE6'); bnd_fg = c.get('fg','#5F5E5A')
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
@@ -826,9 +826,18 @@ CHAN_AGR = render_channel_agrupado()
 
 # ============ NUEVO · BLOQUES CON TABS (post mejora secciones globales) ============
 def _render_panel_top_table_cr(df, cols, with_hist=False):
-    """Panel de tabla con 100 filas: 10 visibles en grid 2 cols, 11-100 sb-hidden."""
-    table = render_top_table_cr(df, cols, with_hist=with_hist)
-    return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{table}</div>'
+    """Panel: col1(filas 1-5) + col2(filas 6-10) con header en cada col, filas 11-100 sb-hidden."""
+    df = df.reset_index(drop=True)  # index 0..N
+    df1 = df.iloc[:5].copy()        # index 0-4
+    df2 = df.iloc[5:10].copy()      # asignar index 5-9
+    df_rest = df.iloc[10:].copy()   # asignar index 10+
+    df2.index = range(5, 5+len(df2))
+    df_rest.index = range(10, 10+len(df_rest))
+    col1 = render_top_table_cr(df1, cols, with_hist=with_hist)
+    col2 = render_top_table_cr(df2, cols, with_hist=with_hist)
+    hidden_rows = render_top_table_cr(df_rest, cols, with_hist=with_hist)
+    grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
+    return grid + hidden_rows
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
                                  banda_ef, val_ef,

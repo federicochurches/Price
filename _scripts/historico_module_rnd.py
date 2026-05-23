@@ -15,10 +15,10 @@ IPM_ACCENT  = '#4FC3F4'   # cyan corporativo (Arctic Blue) · acento IPM
 # Colores del sistema D (idénticos a render_helpers.py)
 _BANDA_COLORS = {
     'Exitosa':        {'bg': '#E1F5EE', 'fg': '#085041', 'bd': '#1D9E75',  'footer': '#085041'},
-    'Aceptable':      {'bg': '#EDE8F7', 'fg': '#3C3489', 'bd': '#5C469C',  'footer': '#3C3489'},
+    'Aceptable':      {'bg': '#FEF3C7', 'fg': '#92400E', 'bd': '#F59E0B',  'footer': '#92400E'},
     'Revisar':        {'bg': '#FFEDD5', 'fg': '#7C2D12', 'bd': '#F97316',  'footer': '#7C2D12'},
     'Crítica':        {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B',  'footer': '#99162B'},
-    'Súper Crítica':  {'bg': '#A32D2D', 'fg': '#FCEBEB', 'bd': '#791F1F',  'footer': '#FCEBEB'},
+    'Súper Crítica':  {'bg': '#FECACA', 'fg': '#7F1D1D', 'bd': '#DC2626',  'footer': '#7F1D1D'},
     'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377',  'footer': '#5F5E5A'},
 }
 _BANDA_COLORS_JS = {
@@ -124,7 +124,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     canvas_target = target * 100 if is_nodispo else target
 
     return f'''<div id="hist-{canvas_id}"
-     style="margin-top:16px;padding:12px 14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+     style="margin-top:8px;padding:10px 12px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
 
   <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -343,7 +343,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     if (!tt) {{
       tt = document.createElement('div');
       tt.className = 'hist-tooltip-' + CID;
-      tt.style.cssText = 'position:absolute;pointer-events:none;background:#161616;color:#FAF7F2;padding:5px 9px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;transform:translate(-50%,-115%);z-index:50;display:none;box-shadow:0 2px 6px rgba(0,0,0,.20);';
+      tt.style.cssText = 'position:absolute;pointer-events:none;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:4px 8px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;transform:translate(-50%,-115%);z-index:50;display:none;box-shadow:0 2px 6px rgba(0,0,0,.08);';
       el.parentElement.style.position = 'relative';
       el.parentElement.appendChild(tt);
     }}

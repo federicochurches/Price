@@ -716,7 +716,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
             # Paleta D canónica: SC sólida, resto bg pastel + fg oscuro
             if bnd == 'Súper Crítica':
-                bg = '#A32D2D'; fg = '#FCEBEB'
+                bg = '#FECACA'; fg = '#7F1D1D'
             else:
                 bg = c_bnd['bg']; fg = c_bnd['fg']
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'

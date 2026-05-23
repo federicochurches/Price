@@ -93,7 +93,7 @@ def build_findings():
             'Aceptable':     ('#3B2F7A','#EEE9FF','#5C469C'),
             'Revisar':       ('#7A4A10','#FFF3E0','#A86A1D'),
             'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
-            'Súper Crítica': ('#FCEBEB','#A32D2D','#161616'),
+            'Súper Crítica': ('#7F1D1D','#FECACA','#DC2626'),
             'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
         }
         c = COLORS.get(banda, ('#8A8377','#F2EEE6','#8A8377'))
@@ -213,7 +213,7 @@ def render_severities_combinadas():
             'Aceptable':     {'bg':'#EDE8F7','fg':'#3C3489','bar':'#5C469C'},
             'Revisar':       {'bg':'#FFEDD5','fg':'#7C2D12','bar':'#D4A878'},
             'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
-            'Súper Crítica': {'bg':'#A32D2D','fg':'#FCEBEB','bar':'#A32D2D'},
+            'Súper Crítica': {'bg':'#FECACA','fg':'#7F1D1D','bar':'#DC2626'},
             'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},
         }
         for name, rng, _ in levels_data:
@@ -427,7 +427,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0):
         bnd = r.get('BandaNoDispo', '')
         c_bnd = BANDA_COLORS.get(bnd, {})
         if bnd == 'Súper Crítica':
-            bnd_bg = '#A32D2D'; bnd_fg = '#FCEBEB'
+            bnd_bg = '#FECACA'; bnd_fg = '#7F1D1D'
         else:
             bnd_bg = c_bnd.get('bg','#F2EEE6'); bnd_fg = c_bnd.get('fg','#5F5E5A')
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
@@ -593,7 +593,7 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
   var parent = section.closest('section') || document.body;
 
   function resetToGlobal() {{
-    parent.querySelectorAll('[data-hist-nd]').forEach(function(r) {{
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
       r.style.background = ''; r.removeAttribute('data-selected-hist');
     }});
     // Disparar reset en ambos módulos históricos
@@ -609,17 +609,17 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
         e.target.id === 'hist-{canvas_id_ipm}-label') {{
       resetToGlobal(); return;
     }}
-    var row = e.target.closest('[data-hist-nd]');
+    var row = e.target.closest('[data-hist-w21]');
     if (!row) return;
     if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
 
-    var nd_curr  = parseFloat(row.getAttribute('data-hist-nd'));
-    var nd_prev  = parseFloat(row.getAttribute('data-hist-nd-prev') || nd_curr);
-    var ipm_curr = parseFloat(row.getAttribute('data-hist-ipm'));
-    var ipm_prev = parseFloat(row.getAttribute('data-hist-ipm-prev') || ipm_curr);
+    var nd_curr  = parseFloat(row.getAttribute('data-hist-w21'));
+    var nd_prev  = parseFloat(row.getAttribute('data-hist-w20') || nd_curr);
+    var ipm_curr = parseFloat(row.getAttribute('data-hist-ipm-w21'));
+    var ipm_prev = parseFloat(row.getAttribute('data-hist-ipm-w20') || ipm_curr);
     var lbl = row.getAttribute('data-hist-label') || '';
 
-    parent.querySelectorAll('[data-hist-nd]').forEach(function(r) {{
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
       r.style.background = ''; r.removeAttribute('data-selected-hist');
     }});
     row.setAttribute('data-selected-hist', '1');
@@ -645,9 +645,19 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
 
 # ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
 def _render_panel_top_table(df, cols, idx_offset=0):
-    """Tabla Top: 100 filas, 10 visibles en grid 2 cols, resto sb-hidden."""
-    table = render_top_table('','',df,cols)
-    return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{table}</div>'
+    """Panel: col1(1-5) + col2(6-10) con header en cada col, filas 11-100 sb-hidden."""
+    df = df.reset_index(drop=True)  # index 0..N
+    df1 = df.iloc[:5].copy()        # index 0-4
+    df2 = df.iloc[5:10].copy()      # index 5-9
+    df_rest = df.iloc[10:].copy()   # index 10+
+    # Asignar índices correctos para que sb-hidden funcione (i >= 10)
+    df2.index = range(5, 5+len(df2))
+    df_rest.index = range(10, 10+len(df_rest))
+    col1 = render_top_table('','',df1,cols)
+    col2 = render_top_table('','',df2,cols)
+    hidden_rows = render_top_table('','',df_rest,cols)
+    grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
+    return grid + hidden_rows
 
 def render_bloque_hoteles():
     """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""

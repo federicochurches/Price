@@ -30,10 +30,10 @@ def clean_hotel_name(name):
 # ============ HELPERS DE COLOR PARA BANDAS ============
 BANDA_COLORS = {
     'Exitosa':       {'bg':'#E1F5EE', 'fg':'#085041', 'bd':'#1D9E75'},
-    'Aceptable':     {'bg':'#EDE8F7', 'fg':'#3C3489', 'bd':'#5C469C'},
+    'Aceptable':     {'bg':'#FEF3C7', 'fg':'#92400E', 'bd':'#F59E0B'},
     'Revisar':       {'bg':'#FFEDD5', 'fg':'#7C2D12', 'bd':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
-    'Súper Crítica': {'bg':'#A32D2D', 'fg':'#FCEBEB', 'bd':'#791F1F'},
+    'Súper Crítica': {'bg':'#FECACA', 'fg':'#7F1D1D', 'bd':'#DC2626'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 

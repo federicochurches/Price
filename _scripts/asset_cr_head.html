@@ -504,6 +504,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     
     input.addEventListener('input', function(){
+      buildDropdown(input.value);
       filter();
     });
     window.addEventListener('scroll', function(){ if(dropdown.classList.contains('visible')) positionDropdown(); }, true);
