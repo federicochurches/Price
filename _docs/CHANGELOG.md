@@ -935,3 +935,89 @@ Ver `FIXES_W20_FINAL.md` para checklist completo de validación y configuración
 ### Archivos modificados
 `render_helpers.py` · `historico_module_v2.py` · `historico_module_rnd.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `template_severity.py`
 
+
+---
+
+## [W20-s15+] · 23 Mayo 2026 · Searchbox Prop A+D + wow_pill V1
+
+### 🔍 Searchbox — migración a Prop A + Prop D (3 modos JS)
+
+Rediseño completo del sistema de búsqueda cliente-side. Objetivo: eliminar duplicación y tener un único punto de entrada por contexto.
+
+#### 3 modos de searchbox (JS Engine W21)
+
+| Modo | Trigger | Dónde |
+|---|---|---|
+| **Pill** (Prop A) | `input[data-sb-pill]` | KPI cards hero + canastas — pill redondeada en `tabs-row` |
+| **Header** (Prop D) | `input[data-sb-table]` | Bloques hotel + dim — integrado en primera columna del header de tabla |
+| **Legado** | `input[data-sb-scope]` | Compatibilidad retroactiva (sin cambios) |
+
+#### Nuevas funciones en `render_helpers.py`
+
+```python
+wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓')
+# Pill verde/rojo/gris border-radius:20px según signo del delta
+
+searchbox_pill_html(input_id, accent_color, placeholder, count_id)
+# Genera .sb-pill-wrap para tabs-row de KPI cards (Prop A)
+
+searchbox_header_html(input_id, accent_color, placeholder, th_id)
+# Genera .sb-th para primera columna del header de tabla (Prop D)
+```
+
+#### wow_pill V1 — pill semántica en KPI-top
+
+La pill WoW ahora aparece junto al valor principal (debajo del badge de banda) en todas las cards KPI hero y canastas. Lógica de orientación:
+
+| Métrica | Verde si | Implementación |
+|---|---|---|
+| Eficacia / ConvRate / IPM | Delta > 0 (sube) | `wow_pill_html(delta)` |
+| %NoDispo | Delta < 0 (baja) | `wow_pill_html(-delta, prefix_pos='↓', prefix_neg='↑')` |
+
+#### IDs canónicos post-migración
+
+**Global — bloques hotel y dim (Prop D, uno por tab):**
+| Tab | CR | RND |
+|---|---|---|
+| Hotel Críticos | `sb-h-crit` | `sb-rh-crit` |
+| Hotel Bajo Rend | `sb-h-br` | `sb-rh-br` |
+| Hotel Sin Conv | `sb-h-sc` | `sb-rh-sc` |
+| Hotel Menor CV | `sb-h-mcv` | — |
+| Hotel DNC | — | `sb-rh-dnc` |
+| Dim Corporativo | `sb-d-corp` | `sb-rd-corp` |
+| Dim Destino | `sb-d-dest` | `sb-rd-dest` |
+| Dim Channel | — (no filtrable) | — |
+| Dim País | — | `sb-rd-pais` |
+
+**Canastas (por `idx_str` = `op` / `cug` / `b2c`):**
+| Contexto | CR | RND |
+|---|---|---|
+| KPI card Ef/NoDispo | `sb-kpi-{idx}-ef` | `sb-kpi-{idx}-nd` |
+| KPI card CV/IPM | `sb-kpi-{idx}-cv` | `sb-kpi-{idx}-ipm` |
+| Hotel tab-key | `sb-{idx}-h-{t_key}` | `sb-{idx}-rh-{t_key}` |
+| Dim tab-key | `sb-{idx}-d-{t_key}` | `sb-{idx}-rd-{t_key}` |
+
+#### Cambios eliminados (IDs legacy)
+Los `sb-inline-wrap` con IDs `sb-cr-hotel`, `sb-cr-dim`, `sb-rnd-hotel`, `sb-rnd-dim`, `sb-{idx}-hotel`, `sb-{idx}-dim` fueron eliminados de los `tabs-row` de bloque. El JS legado (`data-sb-scope`) sigue funcionando para las KPI cards que lo usen.
+
+#### Regla definitiva: cero duplicación
+- `sb-inline-wrap` exteriores en `tabs-row` de bloque → **eliminados**
+- Cards KPI → `searchbox_pill_html` (Prop A, pill en la fila de tabs)
+- Tablas hotel + dim → `searchbox_header_html` en col1 de header (Prop D)
+
+#### data-lbl en filas
+Todas las filas de tablas hotel y dim ahora llevan `data-lbl="nombre corp"` para que `attachTable` (modo Prop D) filtre por ese atributo en lugar de `data-hist-label`.
+
+### 🎨 fix A1 · Empty state visible
+Cuando ninguna fila coincide con la búsqueda, aparece un mensaje `Sin resultados para «query»` en vez de tabla vacía silenciosa.
+
+### 🎨 fix A2 · Reset grid al cambiar tab
+El listener `change` en radios limpia todos los inputs de searchbox y resetea el grid a `1fr 1fr` al cambiar de pestaña.
+
+### 📁 Archivos modificados
+`render_helpers.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py`
+
+### Commits
+- `b121f55` · feat(W20s): searchbox Prop A+D + wow_pill V1 · CR+RND global+canastas
+- `97e9d07` · regen(W20): reportes editoriales CR+RND con searchbox Prop A+D · wow_pill V1
+

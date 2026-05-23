@@ -106,7 +106,7 @@ Salida: /mnt/user-data/outputs/
 | Archivo | Descripción |
 |---|---|
 | `engine.py` | Bandas + thresholds (banda_eficacia, banda_convrate, banda_rpm, banda_nodispo) |
-| `render_helpers.py` | Format español, clean_hotel_name, truncate, banda_pill, `_CITY_DASH_PATTERN` |
+| `render_helpers.py` | Format español, clean_hotel_name, truncate, banda_pill, `_CITY_DASH_PATTERN`, `wow_pill_html`, `searchbox_pill_html`, `searchbox_header_html`, `mini_badge`, `target_caption` |
 | `template_resumen.py` | Render Resumen Ejecutivo |
 | `template_alertas.py` | Render alertas críticas |
 | `template_severity.py` | Render bloques severity |
@@ -1258,3 +1258,61 @@ _scripts/asset_rnd_head.html     display:block tabs activos (era grid 1fr 1fr), 
 ---
 
 **Última actualización:** 23 Mayo 2026 · post W20 s14-15 · badges hotel suprimido · Aceptable naranja · Opción C searchbox definitivo · mini_badge centralizado
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión 15+ · Searchbox Prop A+D + wow_pill V1)
+
+### Sistema de searchbox — 3 modos JS (migración completa)
+
+Rediseño del sistema de búsqueda inline. Antes: un único `sb-inline-wrap` compartido entre todos los tabs de un bloque → filtraba cross-tab. Ahora: un searchbox **por contexto** con lógica de aislamiento.
+
+#### Nuevas funciones en `render_helpers.py`
+
+| Función | Uso |
+|---|---|
+| `wow_pill_html(delta, unit, prefix_pos, prefix_neg)` | Pill verde/rojo/gris border-radius:20px |
+| `searchbox_pill_html(input_id, accent_color, placeholder, count_id)` | Pill en tabs-row de KPI cards (Prop A) |
+| `searchbox_header_html(input_id, accent_color, placeholder, th_id)` | Header integrado en col1 de tabla (Prop D) |
+
+#### Regla definitiva: cero duplicación
+
+- **KPI cards (hero + canastas)** → `searchbox_pill_html()` al final de `tabs_labels`
+- **Tablas hotel + dim (global + canastas)** → `searchbox_header_html()` como primera columna del `<div>` header
+- **`sb-inline-wrap` en `tabs-row` de bloques** → **eliminados** (eran el único searchbox antes)
+
+#### wow_pill V1 en KPI-top
+
+```python
+# En kpi_card_canasta y cards hero, debajo del badge:
+_wow_pp = wow_pill_html(delta, unit='pp')          # CR: Eficacia / ConvRate
+_wow_rnd = wow_pill_html(-delta, unit='pp',         # RND NoDispo: invertida
+                          prefix_pos='↓', prefix_neg='↑')
+```
+
+La pill aparece en `display:flex;align-items:flex-end` junto al valor grande y el badge, con caption "vs sem. ant." delante.
+
+#### JS Engine W21 en `asset_*_head.html`
+
+Tres funciones de auto-attach:
+- `attachPill()` — para `[data-sb-pill]`: filtra panel activo, reset al cambiar tab
+- `attachTable()` — para `[data-sb-table]`: filtra `[data-lbl]` en bloque padre
+- `attachSearchbox()` — modo legado `[data-sb-scope]`: sin cambios de interfaz, + empty state + fix A2
+
+**fix A1:** empty state `"Sin resultados para «query»"` cuando ninguna fila coincide.  
+**fix A2:** al cambiar tab, input se vacía y grid resetea a `1fr 1fr`.
+
+#### data-lbl en filas de tabla
+
+Las filas de tablas hotel ahora llevan `data-lbl="hotel corp"` y las de dim `data-lbl="nombre"` para que `attachTable` (Prop D) filtre por ese atributo.
+
+### Commits de esta sesión
+- `b121f55` · feat(W20s): searchbox Prop A+D + wow_pill V1 · CR+RND global+canastas
+- `97e9d07` · regen(W20): reportes editoriales CR+RND con searchbox Prop A+D · wow_pill V1
+
+### Archivos modificados
+`render_helpers.py` · `asset_cr_head.html` · `asset_rnd_head.html` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py`
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 sesión 15+ · Searchbox Prop A+D + wow_pill V1 · 3 modos JS engine
+

@@ -10,7 +10,7 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | Archivo | Función |
 |---|---|
 | `engine.py` | Funciones core: bandas (`banda_nodispo`, `banda_rpm`, `banda_eficacia`, `banda_convrate`), agregaciones, Pareto P80, channel grupo |
-| `render_helpers.py` | Helpers de formato: `fmt_int_es`, `fmt_pct2`, `fmt_num2`, `fmt_big`, `clean_hotel_name`, `truncate`, `banda_pill`, `gauge_5levels`, `wow_box` |
+| `render_helpers.py` | Helpers de formato y UI: `fmt_int_es`, `fmt_pct2`, `fmt_num2`, `fmt_big`, `clean_hotel_name`, `truncate`, `banda_pill`, `gauge_5levels`, `wow_box`, `wow_pill_html`, `searchbox_pill_html`, `searchbox_header_html`, `mini_badge`, `target_caption` |
 | `calc_rnd.py` | Calcula métricas globales y por canasta RND → guarda `rnd_wNN_data.pkl` |
 | `calc_cr.py` | Calcula métricas globales y por canasta CR → guarda `cr_wNN_data.pkl` |
 | `areas_catalogo.py` | Catálogo Áreas Accountable v2 + función de mapeo |
@@ -172,48 +172,88 @@ Ver `_docs/BANDAS.md` para la paleta D completa y todos los detalles del sistema
 
 ---
 
-## 🔍 Searchbox cliente-side · Estado post W20 sesiones 7–13
+## 🔍 Searchbox cliente-side · Estado post W20 sesión 15+
 
-### Cobertura final (26 searchboxes)
+### 3 modos de searchbox (JS Engine W21 · `asset_*_head.html`)
+
+| Modo | Trigger HTML | Contexto |
+|---|---|---|
+| **Pill** (Prop A) | `input[data-sb-pill]` | KPI cards hero + canastas — pill redondeada en `tabs-row` |
+| **Header** (Prop D) | `input[data-sb-table]` | Bloques hotel + dim — integrado en primera columna del header |
+| **Legado** | `input[data-sb-scope]` | Compatibilidad retroactiva |
+
+El modo Pill filtra solo el tab activo (`.tp-* display!='none'`). El modo Header filtra `[data-lbl]` dentro del `.tbl-wrap` correspondiente. Ambos muestran empty state y resetean al cambiar tab.
+
+### Regla de unicidad: cero duplicación
+
+Un solo punto de búsqueda por contexto:
+- **Cards KPI** → `searchbox_pill_html()` en la fila de tabs (Prop A)
+- **Tablas hotel + dim** → `searchbox_header_html()` en col1 del header (Prop D)
+- **`sb-inline-wrap` en `tabs-row` de bloques** → eliminados
+
+### Cobertura (26 searchboxes)
 
 | Sección | CR | RND |
 |---|---|---|
-| Hero KPI card Eficacia/NoDispo | ✅ dentro de la card | ✅ dentro de la card |
-| Hero KPI card ConvRate/IPM | ✅ dentro de la card | ✅ dentro de la card |
-| Análisis por hotel (global) | ✅ `sb-cr-hotel` | ✅ `sb-rnd-hotel` |
-| Análisis por dimensión (global) | ✅ `sb-cr-dim` | ✅ `sb-rnd-dim` |
-| Canastas KPI card Ef/NoDispo × 3 | ✅ 3 sb | ✅ 3 sb |
-| Canastas KPI card CV/IPM × 3 | ✅ 3 sb | ✅ 3 sb |
-| Canastas hotel tabla × 3 | ✅ 3 sb | ✅ 3 sb |
-| Canastas dim tabla × 3 | ✅ 3 sb | ✅ 3 sb |
+| Hero KPI card Eficacia/NoDispo | ✅ Prop A `sb-kpi-*-ef/nd` | ✅ Prop A |
+| Hero KPI card ConvRate/IPM | ✅ Prop A `sb-kpi-*-cv/ipm` | ✅ Prop A |
+| Análisis por hotel (global) · 4 tabs CR / 4 RND | ✅ Prop D por tab | ✅ Prop D por tab |
+| Análisis por dimensión (global) · Corp+Dest | ✅ Prop D | ✅ Prop D |
+| Canastas KPI card Ef/NoDispo × 3 | ✅ Prop A | ✅ Prop A |
+| Canastas KPI card CV/IPM × 3 | ✅ Prop A | ✅ Prop A |
+| Canastas hotel tabla × 3 tabs × 3 canastas | ✅ Prop D | ✅ Prop D |
+| Canastas dim tabla × 2 tabs × 3 canastas | ✅ Prop D | ✅ Prop D |
 
-### Comportamiento final
+### Comportamiento
 
-- **Solo filtra en el tab activo**: `getActiveRows()` usa `getComputedStyle(panel).display !== 'none'`
-- **Top 100 en DOM**: 10 visibles al abrir; 90 accesibles vía search (`data-row-idx`, `sb-hidden`)
-- **Cross-tab limpio**: al cambiar pestaña, el search se limpia automáticamente (listener `change`)
-- **Sin dropdown**: el autocomplete fue eliminado — solo filtrado inline (más limpio)
-- **Case-insensitive + sin acentos**: `normalize('NFD')` — `"cancun"` matchea `"Cancún"`
-- **Búsqueda por nombre**: atributo `data-hist-label` en cada fila (primera columna)
+- **Solo filtra tab activo** — ningún modo contamina otros tabs ni otras cards
+- **Top 100 en DOM** — 10 visibles al abrir; 90 accesibles vía search (`sb-hidden`)
+- **Cross-tab limpio** — al cambiar pestaña: input se vacía, grid resetea a `1fr 1fr`
+- **Empty state** (fix A1) — `"Sin resultados para «query»"` si nada coincide
+- **Case-insensitive + sin acentos** — `normalize('NFD')` — `"cancun"` matchea `"Cancún"`
+- **Búsqueda por** — `data-lbl` (Prop D) o `data-hist-label` (legacy/pill)
 
-### Arquitectura de las filas interactivas
-
-Cada fila de tabla lleva estos atributos para el doble funcionamiento (search + histórico):
+### Arquitectura de las filas
 
 ```html
-<div class="sb-hidden"         <!-- oculta si i >= 10 al cargar -->
-     data-row-idx="11"         <!-- posición 0-based dentro del tab -->
-     data-hist-label="Cancún"  <!-- para search y label histórico -->
-     data-hist-w21="2.81"      <!-- valor semana actual (×100 para %) -->
-     data-hist-w20="2.48"      <!-- valor semana anterior -->
+<!-- Tablas hotel (render_top_table_cr/rnd, tab_panel_hotel) -->
+<div class="sb-hidden"
+     data-row-idx="11"
+     data-hist-label="Cancún"
+     data-lbl="Grand Hyatt Cancún GRUPO RIU"
+     data-hist-w21="2.81" data-hist-w20="2.48"
      style="cursor:pointer;...">
+
+<!-- Tablas dim (añaden data-lbl con nombre de dimensión) -->
+<div data-lbl="RIU Hotels & Resorts"
+     data-hist-label="RIU Hotels & Resorts" ...>
+
+<!-- RND: también llevan IPM -->
+     data-hist-ipm-w21="1097" data-hist-ipm-w20="657"
 ```
 
-Para RND, filas de hotel y dim añaden también:
-```html
-     data-hist-ipm-w21="1097"
-     data-hist-ipm-w20="657"
-```
+### IDs canónicos
+
+**Global · bloques hotel y dim (Prop D, uno por tab):**
+
+| Tab | CR | RND |
+|---|---|---|
+| Hotel Críticos | `sb-h-crit` | `sb-rh-crit` |
+| Hotel Bajo Rend | `sb-h-br` | `sb-rh-br` |
+| Hotel Sin Conv | `sb-h-sc` | `sb-rh-sc` |
+| Hotel Menor CV/DNC | `sb-h-mcv` | `sb-rh-dnc` |
+| Dim Corporativo | `sb-d-corp` | `sb-rd-corp` |
+| Dim Destino | `sb-d-dest` | `sb-rd-dest` |
+| Dim País | — | `sb-rd-pais` |
+
+**Canastas (por `idx_str` = `op` / `cug` / `b2c`):**
+
+| Contexto | CR | RND |
+|---|---|---|
+| KPI Ef/NoDispo | `sb-kpi-{idx}-ef` | `sb-kpi-{idx}-nd` |
+| KPI CV/IPM | `sb-kpi-{idx}-cv` | `sb-kpi-{idx}-ipm` |
+| Hotel tab t_key | `sb-{idx}-h-{t_key}` | `sb-{idx}-rh-{t_key}` |
+| Dim tab t_key | `sb-{idx}-d-{t_key}` | `sb-{idx}-rd-{t_key}` |
 
 ---
 
@@ -224,13 +264,14 @@ Para RND, filas de hotel y dim añaden también:
 ```
 ┌─────────────────────────────────────────┐
 │ KPI label                               │  ← 10px uppercase muted
-│ Valor grande   [BADGE]·Target           │  ← 40px / badge paleta D
+│ Valor grande   [BADGE]                  │  ← 40px / badge paleta D
+│                Target X%               │  ← target_caption() separado
+│                vs sem. ant. ↑ +0,8     │  ← wow_pill V1 verde/rojo/gris
 │ ▓▓▓░░░░░░░░░░░ (gauge 5 niveles 6px)   │  ← height:6px, opacity:1
 │ ┌ W20 ─┬─ WoW ─┬─ W19 ─┐              │
 │ └──────┴───────┴────────┘              │  ← wow_box compacto
 │ ─────────────────────────────────────── │
-│ DESTINO│CORP│HOTEL│CHANNEL│CANASTA      │  ← radio tabs CSS puro
-│ [Buscar en estas pestañas...]           │  ← sb-input inline
+│ DESTINO│CORP│HOTEL│CHANNEL│CANASTA [🔍] │  ← tabs + pill searchbox Prop A
 │ 1. Monterrey   59,99% ↓30,8            │  ← 10 visibles, 90 sb-hidden
 │ 2. Ishigaki    68,83% ↑1,5             │
 │ ...                                     │
@@ -239,6 +280,20 @@ Para RND, filas de hotel y dim añaden también:
 │ [curva W16-W20] [métricas 5W]          │
 │ [sparkline global vs target]            │
 └─────────────────────────────────────────┘
+```
+
+### wow_pill V1 (post W20s15)
+
+Pill semántica verde/rojo/gris junto al valor principal:
+
+```python
+# En render_helpers.py
+wow_pill_html(delta, unit='pp', prefix_pos='↑', prefix_neg='↓')
+# Verde si delta>0, rojo si delta<0, gris si ~0 o None
+
+# Orientación por métrica:
+# NoDispo (bajar = bueno): pasar -delta con prefix invertidos
+wow_pill_html(-delta, unit='pp', prefix_pos='↓', prefix_neg='↑')
 ```
 
 ### Sizing
@@ -323,11 +378,11 @@ Los siguientes bugs quedaron abiertos para atender en W21:
 |---|---|---|
 | P1 | En canastas RND el histórico de hotel/dim muestra "undefined" en eje X | `render_rnd_p3.py`, `historico_module_rnd.py` |
 | P2 | Canasta CR dim: al hacer click en fila no actualiza siempre el histórico (el listener de hotel/dim compite con el listener interno de `.kpi-card`) | `render_cr_p3.py` |
-| P3 | Cards KPI canasta: filas de tab en 2 columnas no muestran header por columna (solo 1 header global) | `render_cr_p3.py`, `render_rnd_p3.py` |
+| P3 | ~~Cards KPI canasta: filas de tab sin header por columna~~ **RESUELTO** en W20s15 — Prop D integra el searchbox en el header de col1 | — |
 | P4 | RND `tab_panel_hotel` en canastas usa `BANDA_COLORS` que puede no estar importado si el pickle cambia | `render_rnd_p3.py` |
 | P5 | `extract_hist_data.py` pendiente (actualización automática de `historico_data.py`) | nuevo archivo |
 
-**Última actualización:** Mayo 2026 · post W20 sesiones 7-13 · UI/UX completo + Searchbox + Top 100
+**Última actualización:** Mayo 2026 · post W20 sesión 15+ · Searchbox Prop A+D + wow_pill V1 · 3 modos JS · IDs canónicos actualizados
 
 
 
