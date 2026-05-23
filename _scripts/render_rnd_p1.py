@@ -226,7 +226,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             _bnd_nd = '' if t_key == 'hotel' else (
                 r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else '')
             if not _bnd_nd and val and t_key != 'hotel':
-                from engine import banda_nodispo as _bn; _bnd_nd = _bn(val)
+                from engine import banda_nodispo as _bn; _bnd_nd = _bn(val) if val is not None else ''
             _badge_nd = _mini_badge(_bnd_nd)
             if i < 5: _cls = ''
             elif i < 10: _cls = 'rows-more'

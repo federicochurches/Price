@@ -234,7 +234,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
             _bnd = '' if t_key == 'hotel' else (
-                r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val else ''))
+                r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val is not None else ''))
             _badge = _mini_badge(_bnd)
             # Clases de visibilidad: top5 visible, next5 oculta (rows-more), rest sb-hidden
             if i < 5:
@@ -396,7 +396,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
             _bnd_cv = '' if t_key == 'hotel' else (
-                r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val else ''))
+                r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val is not None else ''))
             _badge_cv = _mini_badge(_bnd_cv)
             if i < 5: _cls = ''
             elif i < 10: _cls = 'rows-more'
