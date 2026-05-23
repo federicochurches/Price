@@ -338,10 +338,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 }
 .sb-count.has-query{color:#5C469C;}
 .sb-dropdown{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  position:fixed;
   background:var(--paper);border:1px solid var(--rule);border-radius:3px;
   box-shadow:0 4px 12px rgba(22,22,22,.08);
-  max-height:240px;overflow-y:auto;z-index:100;
+  max-height:240px;overflow-y:auto;z-index:9999;
   display:none;
 }
 .sb-dropdown.visible{display:block;}
@@ -383,7 +383,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown';
     dropdown.id = inputId + '-dropdown';
-    inputWrap.appendChild(dropdown);
+    document.body.appendChild(dropdown);
+
+    function positionDropdown(){
+      var rect = input.getBoundingClientRect();
+      dropdown.style.top  = (rect.bottom + 4) + 'px';
+      dropdown.style.left = rect.left + 'px';
+      dropdown.style.width = rect.width + 'px';
+    }
     
     // Lista única de labels para autocomplete
     var labels = [];
@@ -413,6 +420,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
         html += '<div class="sb-suggestion" data-value="' + escapeHtml(l) + '" data-idx="' + i + '">' + highlighted + '</div>';
       });
       dropdown.innerHTML = html;
+      positionDropdown();
       dropdown.classList.add('visible');
       highlightedIdx = -1;
       // Bind clicks
@@ -482,6 +490,8 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     input.addEventListener('input', function(){
       filter();
     });
+    window.addEventListener('scroll', function(){ if(dropdown.classList.contains('visible')) positionDropdown(); }, true);
+    window.addEventListener('resize', function(){ if(dropdown.classList.contains('visible')) positionDropdown(); });
     // focus listener (dropdown desactivado)
     input.addEventListener('blur', function(){ setTimeout(function(){ dropdown.classList.remove('visible'); }, 150); });
     input.addEventListener('keydown', function(e){
