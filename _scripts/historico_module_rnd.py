@@ -430,26 +430,29 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     updateMetrics(VALS_DEF, 'Global');
     attachListeners();
   }}
+
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  document.addEventListener('hist-update', function(e) {{
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = e.detail.w_prev;
+    var lbl    = e.detail.label || '';
+    var vals   = VALS_DEF.slice();
+    vals[vals.length-1] = w_curr;
+    vals[vals.length-2] = w_prev;
+    drawCanvas(vals);
+    updateSpark(vals);
+    updateMetrics(vals, lbl);
+  }});
+  document.addEventListener('hist-reset', function(e) {{
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateSpark(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  }});
+
+  // Arranque del módulo: si el DOM aún está cargando esperamos, si no lo iniciamos ya
   if (document.readyState==='loading')
-    // Listener para actualizaciones desde sección (tablas de análisis)
-    document.addEventListener('hist-update', function(e) {{
-      if (e.detail.cid !== CID) return;
-      var w_curr = e.detail.w_curr;
-      var w_prev = e.detail.w_prev;
-      var lbl    = e.detail.label || '';
-      var vals   = VALS_DEF.slice();
-      vals[vals.length-1] = w_curr;
-      vals[vals.length-2] = w_prev;
-      drawCanvas(vals);
-      updateSpark(vals);
-      updateMetrics(vals, lbl);
-    }});
-    document.addEventListener('hist-reset', function(e) {{
-      if (e.detail.cid !== CID) return;
-      drawCanvas(VALS_DEF);
-      updateSpark(VALS_DEF);
-      updateMetrics(VALS_DEF, 'Global');
-    }});
     document.addEventListener('DOMContentLoaded', init);
   else
     requestAnimationFrame(init);
