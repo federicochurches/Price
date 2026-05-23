@@ -18,6 +18,7 @@ from engine import *
 from render_helpers import *
 from template_seguimiento import render_seguimiento_block
 from render_cr_p1 import render_alerts_block
+from historico_module_v2 import render_historico_cr
 
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
@@ -380,7 +381,7 @@ def _fmt_wow(v):
     return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
 
 # ============ SECCIÓN TOP 5 helper ============
-def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
+def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False):
     grid = ' '.join(c['width'] for c in cols_def)
     header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:8px 0;border-bottom:2px solid {accent_color};margin-bottom:4px;">'
     for c in cols_def:
@@ -407,7 +408,19 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT):
                 row_cells += f'<span style="text-align:right;">{val}</span>'
             else:
                 row_cells += f'<span style="text-align:{align};color:{color};font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
-        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{row_cells}</div>'
+        # Atributos data-hist-* opcionales para módulo histórico de sección
+        hist_attrs = ''
+        if with_hist:
+            ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
+            ef_prev = ef_curr - float(r.get('Eficacia_WoW_pp', 0) or 0)
+            cv_curr = round(float(r.get('ConvRate', 0)) * 100, 4)
+            cv_prev = cv_curr - float(r.get('ConvRate_WoW_pp', 0) or 0)
+            lbl = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
+            hist_attrs = (f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev, 4)}"'
+                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev, 4)}"'
+                          f' data-hist-label="{lbl}"')
+        cursor = 'cursor:pointer;' if with_hist else ''
+        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;{cursor}">{row_cells}</div>'
     return rows
 
 def render_criticos():
@@ -506,7 +519,7 @@ def render_sin_conv():
 '''
 
 # ============ SECCIÓN POR DIMENSIÓN (Corp / Destino / Channel) ============
-def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
+def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hist=False):
     """Renderiza una tabla (1 columna) con N filas. start_idx para numerar continuo."""
     import math
     has_wow = wow_col and wow_col in df.columns
@@ -562,7 +575,25 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None):
             except:
                 wow_html = _WOW_NEUTRO
             cells += wow_html
-        rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
+        # Atributos data-hist-* opcionales para módulo histórico de sección
+        hist_attrs = ''
+        if with_hist:
+            ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
+            wow_v = r.get(wow_col) if wow_col else 0
+            try: wow_f = float(wow_v) if wow_v == wow_v else 0
+            except: wow_f = 0
+            ef_prev = ef_curr - wow_f
+            cv_curr = round(float(r.get('ConvRate', 0)) * 100, 4)
+            cv_wow = r.get('ConvRate_WoW_pp', 0)
+            try: cv_wow_f = float(cv_wow) if cv_wow == cv_wow else 0
+            except: cv_wow_f = 0
+            cv_prev = cv_curr - cv_wow_f
+            lbl_short = truncate(str(label_val), 28)
+            hist_attrs = (f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev, 4)}"'
+                          f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev, 4)}"'
+                          f' data-hist-label="{lbl_short}"')
+        cursor = 'cursor:pointer;' if with_hist else ''
+        rows += f'<div{hist_attrs} style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;{cursor}">{cells}</div>'
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
@@ -788,15 +819,78 @@ POR_CHAN = render_por_channel_split()
 CHAN_AGR = render_channel_agrupado()
 
 # ============ NUEVO · BLOQUES CON TABS (post mejora secciones globales) ============
-def _render_panel_top_table_cr(df, cols):
+def _render_panel_top_table_cr(df, cols, with_hist=False):
     df1 = df.iloc[:5].reset_index(drop=True)
     df2 = df.iloc[5:10].reset_index(drop=True) if len(df)>5 else None
-    col1 = render_top_table_cr(df1, cols)
+    col1 = render_top_table_cr(df1, cols, with_hist=with_hist)
     if df2 is not None and len(df2)>0:
         df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-        col2 = render_top_table_cr(df2_renum, cols)
+        col2 = render_top_table_cr(df2_renum, cols, with_hist=with_hist)
         return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
     return f'<div>{col1}</div>'
+
+def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
+                                 banda_ef, val_ef,
+                                 banda_cv, val_cv):
+    """
+    Módulo histórico doble (Eficacia + ConvRate) para secciones de análisis CR.
+    Un wrapper por sección — se actualiza al clickear cualquier fila de la tabla.
+    canvas_id_ef : ej. 'hcr-hotel-ef'
+    canvas_id_cv : ej. 'hcr-hotel-cv'
+    """
+    html_ef = render_historico_cr('eficacia', banda_ef, val_ef, canvas_id_ef)
+    html_cv = render_historico_cr('convrate', banda_cv, val_cv, canvas_id_cv)
+
+    js = f"""
+<script>
+(function() {{
+  var section = document.getElementById('hist-{canvas_id_ef}-container');
+  if (!section) return;
+  var parent = section.closest('section') || document.body;
+
+  function resetToGlobal() {{
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    document.dispatchEvent(new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_ef}'}}}}));
+    document.dispatchEvent(new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_cv}'}}}}));
+  }}
+
+  parent.addEventListener('click', function(e) {{
+    var row = e.target.closest('[data-hist-w21]');
+    if (!row) return;
+    // Solo filas DENTRO del bloque de tabs (no en los módulos históricos mismos)
+    if (e.target.closest('.kpi-card')) return;
+    if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
+
+    var ef_curr = parseFloat(row.getAttribute('data-hist-w21'));
+    var ef_prev = parseFloat(row.getAttribute('data-hist-w20') || ef_curr);
+    var cv_curr = parseFloat(row.getAttribute('data-hist-cv-w21'));
+    var cv_prev = parseFloat(row.getAttribute('data-hist-cv-w20') || cv_curr);
+    var lbl = row.getAttribute('data-hist-label') || '';
+
+    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
+      r.style.background = ''; r.removeAttribute('data-selected-hist');
+    }});
+    row.setAttribute('data-selected-hist', '1');
+    row.style.background = 'var(--accent-soft)';
+
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
+      cid: '{canvas_id_ef}', w_curr: ef_curr, w_prev: ef_prev, label: lbl
+    }}}}));
+    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
+      cid: '{canvas_id_cv}', w_curr: cv_curr, w_prev: cv_prev, label: lbl
+    }}}}));
+  }});
+}})();
+</script>"""
+
+    return f'''<div id="hist-{canvas_id_ef}-container"
+     style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;margin-bottom:8px;">
+  <div>{html_ef}</div>
+  <div>{html_cv}</div>
+</div>{js}'''
+
 
 def render_bloque_hoteles_cr():
     """Sección 04 · 4 tabs: Críticos · Bajo Rend · Sin Conv · Menor CR."""
@@ -817,18 +911,18 @@ def render_bloque_hoteles_cr():
     
     df_crit = pd.concat([TOP['criticos'], TOP['criticos_extra']], ignore_index=True)
     df_crit.index = range(len(df_crit))
-    panel_crit = _render_panel_top_table_cr(df_crit, cols_main)
+    panel_crit = _render_panel_top_table_cr(df_crit, cols_main, with_hist=True)
     
     df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
     df_br.index = range(len(df_br))
-    panel_br = _render_panel_top_table_cr(df_br, cols_main)
+    panel_br = _render_panel_top_table_cr(df_br, cols_main, with_hist=True)
     
     df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
     df_sc.index = range(len(df_sc))
-    panel_sc = _render_panel_top_table_cr(df_sc, cols_sc)
+    panel_sc = _render_panel_top_table_cr(df_sc, cols_sc, with_hist=True)
     
     df_mcv = TOP['menor_cv'].head(10).reset_index(drop=True)
-    panel_mcv = _render_panel_top_table_cr(df_mcv, cols_main)
+    panel_mcv = _render_panel_top_table_cr(df_mcv, cols_main, with_hist=True)
     
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     
@@ -842,6 +936,15 @@ def render_bloque_hoteles_cr():
         f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{k_br}</p>{panel_br}</div>'
         f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{k_sc}</p>{panel_sc}</div>'
         f'<div class="tab-panel" data-tab="mcv"><p class="tab-kicker">{k_mcv}</p>{panel_mcv}</div>'
+    )
+    
+    hist_hotel = render_historico_seccion_cr(
+        canvas_id_ef = 'hcr-hotel-ef',
+        canvas_id_cv = 'hcr-hotel-cv',
+        banda_ef = banda_eficacia(M['global_current']['eficacia']),
+        val_ef   = M['global_current']['eficacia'],
+        banda_cv = banda_convrate(M['global_current']['conv_rate'], M['global_current']['bookings']),
+        val_cv   = M['global_current']['conv_rate'],
     )
     
     return f'''<section id="por-hotel" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
@@ -866,6 +969,7 @@ def render_bloque_hoteles_cr():
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
+{hist_hotel}
 <div class="detail-callout" style="margin-top:18px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
@@ -893,8 +997,8 @@ def render_bloque_dimensiones_cr():
             df_top10_wow['BandaEficacia'] = df_top10_wow['Eficacia'].apply(banda_eficacia)
         df1 = df_top10_wow.iloc[:5].reset_index(drop=True)
         df2 = df_top10_wow.iloc[5:10].reset_index(drop=True)
-        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0, wow_col=wow_col)
-        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5, wow_col=wow_col) if len(df2)>0 else ''
+        col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0, wow_col=wow_col, with_hist=True)
+        col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5, wow_col=wow_col, with_hist=True) if len(df2)>0 else ''
         if col2:
             return f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
         return f'<div>{col1}</div>'
@@ -978,6 +1082,15 @@ def render_bloque_dimensiones_cr():
         f'<div class="tab-panel" data-tab="chan"><p class="tab-kicker">{k_chan}</p>{panel_chan}</div>'
     )
     
+    hist_dim = render_historico_seccion_cr(
+        canvas_id_ef = 'hcr-dim-ef',
+        canvas_id_cv = 'hcr-dim-cv',
+        banda_ef = banda_eficacia(M['global_current']['eficacia']),
+        val_ef   = M['global_current']['eficacia'],
+        banda_cv = banda_convrate(M['global_current']['conv_rate'], M['global_current']['bookings']),
+        val_cv   = M['global_current']['conv_rate'],
+    )
+    
     return f'''<section id="por-dimension" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head">
 <div>
@@ -998,6 +1111,7 @@ def render_bloque_dimensiones_cr():
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
+{hist_dim}
 </section>
 '''
 

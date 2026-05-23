@@ -2,3 +2,7 @@ desktop.ini
 
 # ZIPs de release
 *.zip
+
+# Python bytecode
+__pycache__/
+*.pyc

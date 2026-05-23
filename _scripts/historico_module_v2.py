@@ -362,6 +362,24 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     attachListeners();
   }}
 
+  // Listeners de eventos custom (se registran siempre, no dependen de readyState)
+  // Permiten que un wrapper externo (módulo de sección) actualice este canvas
+  document.addEventListener('hist-update', function(e) {{
+    if (e.detail.cid !== CID) return;
+    var w_curr = e.detail.w_curr;
+    var w_prev = (e.detail.w_prev !== undefined) ? e.detail.w_prev : w_curr;
+    var lbl    = e.detail.label || '';
+    if (isNaN(w_curr)) return;
+    var serie = buildSerie(w_curr, isNaN(w_prev) ? w_curr : w_prev);
+    drawCanvas(serie);
+    updateMetrics(serie, lbl);
+  }});
+  document.addEventListener('hist-reset', function(e) {{
+    if (e.detail.cid !== CID) return;
+    drawCanvas(VALS_DEF);
+    updateMetrics(VALS_DEF, 'Global');
+  }});
+
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', init);
   else
