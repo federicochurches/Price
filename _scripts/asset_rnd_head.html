@@ -439,35 +439,51 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var countEl  = countId ? document.getElementById(countId) : null;
     var clearBtn = clearId ? document.getElementById(clearId) : null;
 
-    function getActivePanel(){ var panels=card.querySelectorAll('.tab-panel, .tab-panel-c'); for(var i=0;i<panels.length;i++){if(window.getComputedStyle(panels[i]).display!=='none'){return panels[i];}} return null; }
+    function getActivePanel(){
+      var panels = card.querySelectorAll('.tab-panel, .tab-panel-c');
+      for (var i=0; i<panels.length; i++){
+        if (window.getComputedStyle(panels[i]).display !== 'none') return panels[i];
+      }
+      return null;
+    }
+
+    function initPanel(panel){
+      if (!panel) return;
+      panel.querySelectorAll('[data-hist-label]').forEach(function(r){
+        var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+        r.style.display = ri < 5 ? '' : 'none';
+      });
+    }
+
+    card.querySelectorAll('.tab-panel, .tab-panel-c').forEach(initPanel);
+
+    function showEmpty(panel, q){
+      var emp = null;
+      for (var i=0; i<panel.children.length; i++){
+        if (panel.children[i].classList.contains('sb-empty-state')){ emp = panel.children[i]; break; }
+      }
+      if (!emp){
+        emp = document.createElement('div'); emp.className = 'sb-empty-state';
+        emp.innerHTML = '<p>Sin resultados para <strong class="sb-empty-q"></strong></p>';
+        panel.appendChild(emp);
+      }
+      var sq = emp.querySelector('.sb-empty-q');
+      if (sq) sq.textContent = q ? '\u201c' + q + '\u201d' : '';
+      emp.classList.toggle('visible', !!q);
+    }
 
     function filter(){
       var q = norm(input.value.trim());
       var panel = getActivePanel(); if (!panel) return;
       var rows = panel.querySelectorAll('[data-hist-label]');
       var vis = 0, total = rows.length;
+      panel.querySelectorAll('.rows-toggle').forEach(function(btn){ btn.style.display = q ? 'none' : ''; });
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q) {
-          if (match) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); r.style.display = ''; vis++; }
-          else       { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
-        } else {
-          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          r.style.display = '';
-          if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); vis++; }
-          else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); }
-          else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
-        }
+        if (q){ r.style.display = match ? '' : 'none'; if (match) vis++; }
+        else  { var ri=parseInt(r.getAttribute('data-row-idx')||'0'); r.style.display=ri<5?'':'none'; if(ri<5)vis++; }
       });
-      if (!q) {
-        panel.querySelectorAll('.rows-toggle').forEach(function(btn){
-          btn.classList.remove('open');
-          var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
-          var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
-        });
-      }
-      if (q) setEmptyState(panel, input.value.trim(), vis);
-      else   clearEmptyState(panel);
+      showEmpty(panel, q && vis === 0 ? input.value.trim() : '');
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
       if (countEl){
         if (q){ countEl.textContent=vis+' / '+total; countEl.className='sb-pill-count '+(vis===0?'no-r':'has-q'); }
@@ -475,35 +491,20 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       }
     }
 
-    function reset(){
-      var panel = getActivePanel();
-      if (panel){
-        var rows = panel.querySelectorAll('[data-hist-label]');
-        rows.forEach(function(r){
-          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          if (ri < 10) { r.classList.remove('sb-hidden'); r.style.display = ''; }
-          else         { r.classList.add('sb-hidden'); }
-        });
-        panel.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-          el.style.gridTemplateColumns = '1fr 1fr';
-        });
-        clearEmptyState(panel);
-      }
-      if (clearBtn) clearBtn.style.display = 'none';
-      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
-    }
-
     input.addEventListener('input', filter);
-    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; reset(); input.focus(); }); }
-    card.addEventListener('change', function(e){ if(e.target.type!=='radio')return; input.value=''; reset(); });
+    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); input.focus(); }); }
+    card.addEventListener('change', function(e){
+      if (e.target.type !== 'radio') return;
+      input.value=''; if(clearBtn)clearBtn.style.display='none'; if(countEl){countEl.textContent='';countEl.className='sb-pill-count';}
+      setTimeout(function(){ var p=getActivePanel(); initPanel(p); if(p)showEmpty(p,''); }, 10);
+    });
 
-    /* ── Autocomplete dropdown para pill ── */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
     function posDD(){ var r=input.getBoundingClientRect(); dropdown.style.top=(r.bottom+4)+'px'; dropdown.style.left=r.left+'px'; dropdown.style.minWidth=Math.max(r.width,180)+'px'; }
     function buildDD(q){
-      var qn=norm(q); if(!qn||qn.length<1){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
+      var qn=norm(q); if(!qn){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
       var panel=getActivePanel(); if(!panel){dropdown.classList.remove('visible');return;}
       var seen={},labels=[];
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){ var l=r.getAttribute('data-hist-label'); if(l&&!seen[l]){seen[l]=true;labels.push(l);} });
@@ -519,6 +520,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
     card.addEventListener('change', function(){ dropdown.classList.remove('visible'); });
   }
+
 
   /* ── MODO TABLE (Prop D) ── */
   function attachTable(input){
@@ -556,37 +558,21 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
   else autoAttach();
 })();
-
 /* ── fix A2 · Reset al cambiar tab (radio con display:none en HTML) ── */
 (function(){
   document.addEventListener('change', function(e){
     var inp = e.target;
     if (inp.type !== 'radio' || inp.style.display !== 'none') return;
-    var card = inp.closest('.kpi-card, .tabs-block, details');
+    var card = inp.closest('.tabs-block, details');
     if (!card) return;
-    card.querySelectorAll('input.sb-input, input[data-sb-pill], input[data-sb-table]').forEach(function(sb){
+    card.querySelectorAll('input.sb-input, input[data-sb-table]').forEach(function(sb){
       if (!sb.value.trim()) return;
       sb.value = ''; sb.dispatchEvent(new Event('input'));
     });
-    card.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-      el.style.gridTemplateColumns = '';
-    });
-    card.querySelectorAll('.sb-empty-state').forEach(function(emp){
-      emp.classList.remove('visible');
-    });
-    card.querySelectorAll('[data-hist-label]').forEach(function(r){
-      var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-      if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); r.style.display = ''; }
-      else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); r.style.display = ''; }
-      else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
-    });
-    card.querySelectorAll('.rows-toggle').forEach(function(btn){
-      btn.classList.remove('open');
-      var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
-      var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
-    });
+    card.querySelectorAll('.sb-empty-state').forEach(function(emp){ emp.classList.remove('visible'); });
   });
 })();
+
 
 /* ── Botón "Ver 5 más / Ver menos" en tabs KPI ── */
 (function(){

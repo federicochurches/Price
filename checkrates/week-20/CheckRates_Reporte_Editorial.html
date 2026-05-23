@@ -470,81 +470,100 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var countEl  = countId ? document.getElementById(countId) : null;
     var clearBtn = clearId ? document.getElementById(clearId) : null;
 
-    function getActivePanel(){ var panels=card.querySelectorAll('.tab-panel, .tab-panel-c'); for(var i=0;i<panels.length;i++){if(window.getComputedStyle(panels[i]).display!=='none'){return panels[i];}} return null; }
+    function getActivePanel(){
+      var panels = card.querySelectorAll('.tab-panel, .tab-panel-c');
+      for (var i=0; i<panels.length; i++){
+        if (window.getComputedStyle(panels[i]).display !== 'none') return panels[i];
+      }
+      return null;
+    }
+
+    /* Inicializar visibilidad de UN panel: 0-4 visible, 5-9 oculto (ver más), 10+ oculto */
+    function initPanel(panel){
+      if (!panel) return;
+      panel.querySelectorAll('[data-hist-label]').forEach(function(r){
+        var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+        r.style.display = ri < 5 ? '' : 'none';
+      });
+    }
+
+    /* Inicializar TODOS los panels de la card al cargar */
+    card.querySelectorAll('.tab-panel, .tab-panel-c').forEach(initPanel);
 
     function filter(){
       var q = norm(input.value.trim());
       var panel = getActivePanel(); if (!panel) return;
       var rows = panel.querySelectorAll('[data-hist-label]');
       var vis = 0, total = rows.length;
+
+      /* Ocultar botón ver-más mientras se busca; restaurar al limpiar */
+      panel.querySelectorAll('.rows-toggle').forEach(function(btn){
+        btn.style.display = q ? 'none' : '';
+      });
+
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q) {
-          /* Buscando: mostrar matches (incluyendo rows-more y sb-hidden), ocultar no-matches */
-          if (match) {
-            r.classList.remove('sb-hidden');
-            r.classList.remove('rows-more');
-            r.style.display = '';
-            vis++;
-          } else {
-            r.classList.add('sb-hidden');
-            r.classList.remove('rows-more');
-          }
+        if (q){
+          /* Buscando: mostrar todos los matches sin importar índice */
+          r.style.display = match ? '' : 'none';
+          if (match) vis++;
         } else {
-          /* Sin query: restaurar vista default (0-4 visible, 5-9 rows-more, 10+ sb-hidden) */
+          /* Sin query: restaurar a vista default (solo filas 0-4 visibles) */
           var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          r.style.display = '';
-          if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); vis++; }
-          else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); }
-          else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
+          r.style.display = ri < 5 ? '' : 'none';
+          if (ri < 5) vis++;
         }
       });
-      /* Restaurar botón ver-más al limpiar búsqueda */
-      if (!q) {
-        panel.querySelectorAll('.rows-toggle').forEach(function(btn){
-          btn.classList.remove('open');
-          var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
-          var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
-        });
-      }
-      if (q) setEmptyState(panel, input.value.trim(), vis);
-      else   clearEmptyState(panel);
+
+      /* Empty state: solo cuando hay query y cero resultados */
+      showEmpty(panel, q && vis === 0 ? input.value.trim() : '');
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
       if (countEl){
-        if (q){ countEl.textContent=vis+' / '+total; countEl.className='sb-pill-count '+(vis===0?'no-r':'has-q'); }
-        else  { countEl.textContent=''; countEl.className='sb-pill-count'; }
+        if (q){ countEl.textContent = vis + ' / ' + total; countEl.className = 'sb-pill-count ' + (vis===0?'no-r':'has-q'); }
+        else  { countEl.textContent = ''; countEl.className = 'sb-pill-count'; }
       }
     }
 
-    function reset(){
-      var panel = getActivePanel();
-      if (panel){
-        var rows = panel.querySelectorAll('[data-hist-label]');
-        rows.forEach(function(r){
-          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          if (ri < 10) { r.classList.remove('sb-hidden'); r.style.display = ''; }
-          else         { r.classList.add('sb-hidden'); }
-        });
-        panel.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-          el.style.gridTemplateColumns = '1fr 1fr';
-        });
-        clearEmptyState(panel);
+    /* Mostrar/ocultar empty state dentro del panel (evita contaminar otros panels) */
+    function showEmpty(panel, q){
+      var emp = null;
+      for (var i=0; i<panel.children.length; i++){
+        if (panel.children[i].classList.contains('sb-empty-state')){ emp = panel.children[i]; break; }
       }
-      if (clearBtn) clearBtn.style.display = 'none';
-      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
+      if (!emp){
+        emp = document.createElement('div'); emp.className = 'sb-empty-state';
+        emp.innerHTML = '<p>Sin resultados para <strong class="sb-empty-q"></strong></p>';
+        panel.appendChild(emp);
+      }
+      var sq = emp.querySelector('.sb-empty-q');
+      if (sq) sq.textContent = q ? '\u201c' + q + '\u201d' : '';
+      emp.classList.toggle('visible', !!q);
     }
 
     input.addEventListener('input', filter);
-    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; reset(); input.focus(); }); }
-    card.addEventListener('change', function(e){ if(e.target.type!=='radio')return; input.value=''; reset(); });
+    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); input.focus(); }); }
 
-    /* ── Autocomplete dropdown para pill ── */
+    /* Al cambiar tab: limpiar input, reinicializar el nuevo panel activo */
+    card.addEventListener('change', function(e){
+      if (e.target.type !== 'radio') return;
+      input.value = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
+      /* Pequeño delay para que el CSS cambie el panel activo antes de inicializar */
+      setTimeout(function(){
+        var panel = getActivePanel();
+        initPanel(panel);
+        if (panel) showEmpty(panel, '');
+      }, 10);
+    });
+
+    /* Autocomplete dropdown */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
     function posDD(){ var r=input.getBoundingClientRect(); dropdown.style.top=(r.bottom+4)+'px'; dropdown.style.left=r.left+'px'; dropdown.style.minWidth=Math.max(r.width,180)+'px'; }
     function buildDD(q){
-      var qn=norm(q); if(!qn||qn.length<1){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
+      var qn=norm(q); if(!qn){dropdown.classList.remove('visible');dropdown.innerHTML='';return;}
       var panel=getActivePanel(); if(!panel){dropdown.classList.remove('visible');return;}
       var seen={},labels=[];
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){ var l=r.getAttribute('data-hist-label'); if(l&&!seen[l]){seen[l]=true;labels.push(l);} });
@@ -608,37 +627,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 })();
 
 /* ── fix A2 · Reset al cambiar tab (radio con display:none en HTML) ── */
+/* Nota: el reset de pills lo maneja attachPill.change con initPanel()    */
+/* Este bloque solo maneja tabs-block y otros contenedores no-pill        */
 (function(){
   document.addEventListener('change', function(e){
     var inp = e.target;
     if (inp.type !== 'radio' || inp.style.display !== 'none') return;
-    var card = inp.closest('.kpi-card, .tabs-block, details');
+    var card = inp.closest('.tabs-block, details');
     if (!card) return;
-    /* Limpiar inputs de búsqueda */
-    card.querySelectorAll('input.sb-input, input[data-sb-pill], input[data-sb-table]').forEach(function(sb){
+    card.querySelectorAll('input.sb-input, input[data-sb-table]').forEach(function(sb){
       if (!sb.value.trim()) return;
       sb.value = ''; sb.dispatchEvent(new Event('input'));
     });
-    card.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-      el.style.gridTemplateColumns = '';
-    });
-    /* Limpiar TODOS los empty-states de la card al cambiar tab */
-    card.querySelectorAll('.sb-empty-state').forEach(function(emp){
-      emp.classList.remove('visible');
-    });
-    /* Restaurar rows-more ocultas y sb-hidden correctas */
-    card.querySelectorAll('[data-hist-label]').forEach(function(r){
-      var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-      if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); r.style.display = ''; }
-      else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); r.style.display = ''; }
-      else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
-    });
-    /* Resetear botones Ver más */
-    card.querySelectorAll('.rows-toggle').forEach(function(btn){
-      btn.classList.remove('open');
-      var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
-      var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
-    });
+    card.querySelectorAll('.sb-empty-state').forEach(function(emp){ emp.classList.remove('visible'); });
   });
 })();
 
