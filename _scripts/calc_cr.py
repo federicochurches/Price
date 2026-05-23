@@ -158,9 +158,9 @@ sev_ef_p80 = p80_hotel['BandaEficacia'].value_counts()
 sev_cv_p80 = p80_hotel['BandaConvRate'].value_counts()
 
 # ── TOP TABLES ────────────────────────────────────────────────────────────────
-# Críticos: peor Eficacia · P80 (incluir 0%, incluir sin Bookings si tiene alto CR)
-df_crit_pool = p80_hotel.copy()
-# Priorizar por Eficacia (0% primero), luego por volumen CR
+# Críticos: peor Eficacia · P80 · solo BKGS>0 (los BKGS=0 están en tab "Sin Conversión")
+df_crit_pool = p80_hotel[p80_hotel['Bookings']>0].copy()
+# Priorizar por Eficacia ascendente, luego por volumen CR
 df_crit_pool = df_crit_pool.sort_values(['Eficacia', 'CR_Unicos'], ascending=[True, False]).reset_index(drop=True)
 # Bajo rendimiento: ConvRate Crítica/Revisar · BKGS>0 · alto CR
 df_br_pool = p80_hotel[(p80_hotel['Bookings']>0) & 
