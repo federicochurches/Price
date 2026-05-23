@@ -315,6 +315,7 @@ em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
 /* ── Searchbox (post W20s5) ──────────────────────────────────────────────── */
+.kpi-card{box-sizing:border-box;width:100%;}
 .sb-wrap{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0;position:relative;}
 .sb-input-wrap{flex:1;max-width:340px;position:relative;}
 .sb-input{
@@ -452,7 +453,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       // En modo búsqueda: colapsar column-count a 1 para que sb-hidden funcione bien
       var tabRows = scope.querySelectorAll('.kpi-tab-rows');
       tabRows.forEach(function(el){
-        el.style.columnCount = q ? '1' : '2';
+        el.style.gridTemplateColumns = q ? '1fr' : '1fr 1fr';
       });
       if (counter){
         if (q){

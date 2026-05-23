@@ -222,7 +222,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                           f'<span class="tab-val" style="text-align:right;">{fmt_pct2(val)}</span>'
                           + (f'{wow_pill}</div>' if show_wow else '</div>'))
         if t_key not in ('canasta',):
-            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
+            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -314,7 +314,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                           f'<span class="tab-val" style="text-align:right;">${fmt_num2(val)}</span>'
                           + (f'{wow_pill}</div>' if show_wow else '</div>'))
         if t_key not in ('canasta',):
-            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
+            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -412,7 +412,6 @@ def render_alerts_block():
 h1, subhead, pct18, rpm18, pct17, rpm17, pct_wow, rpm_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;">{subhead}</p>
-{searchbox_html('sb-rnd-hero', '#kpis-hero-section', 'Buscar en país, destino, corporativo o hotel…')}
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
 {render_kpi_card_rpm(rpm18, rpm17, rpm_wow)}

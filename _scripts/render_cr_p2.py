@@ -1130,7 +1130,7 @@ BLOQUE_DIM_CR = render_bloque_dimensiones_cr()
 PLAN_ACCION = render_plan_accion()
 
 ALERTAS_GLOBAL = render_alerts_block()
-PART2 = RESUMEN + ALERTAS_GLOBAL + SEV_COMBINADA + BLOQUE_HOTELES_CR + CHAN_AGR + BLOQUE_DIM_CR + PLAN_ACCION
+PART2 = RESUMEN + ALERTAS_GLOBAL + SEV_COMBINADA + BLOQUE_HOTELES_CR + BLOQUE_DIM_CR + PLAN_ACCION
 
 with open('part2_cr.html','w') as f:
     f.write(PART2)

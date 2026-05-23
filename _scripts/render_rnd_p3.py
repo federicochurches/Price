@@ -322,7 +322,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--ink);font-weight:400;">{i+1}. {lab}</span>'
                           f'<span style="text-align:right;font-size:11px;">{val_str}</span>'
                           f'{wow_html}</div>')
-        return f'<div class="kpi-tab-rows" style="column-count:2;column-gap:14px;">{rows_html}</div>'
+        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">{rows_html}</div>'
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):

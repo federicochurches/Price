@@ -233,7 +233,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                           f'{wow_pill}</div>')
         # Layout 2 cols con grid auto-fill: CSS column-count para las visibles
         if t_key not in ('channel', 'canasta'):
-            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
+            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -366,7 +366,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                           f'<span style="text-align:right;">{fmt_pct2(val)}</span>'
                           f'{wow_pill}</div>')
         if t_key not in ('channel', 'canasta'):
-            panel_html = f'<div class="kpi-tab-rows" style="column-count:2;column-gap:18px;">{rows_html}</div>'
+            panel_html = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;">{rows_html}</div>'
         else:
             panel_html = rows_html
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -471,7 +471,6 @@ def render_alerts_block():
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;">{subhead}</p>
-{searchbox_html('sb-cr-hero', '#kpis-hero-section', 'Buscar en destino, corporativo, hotel o channel…')}
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow, 'W20', 'W19')}
 {render_kpi_card_convrate(cv18, cv17, cv_wow, 'W20', 'W19')}
