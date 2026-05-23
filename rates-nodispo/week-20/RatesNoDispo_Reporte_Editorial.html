@@ -288,7 +288,76 @@ em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700
 em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
 em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
+
+/* ── Searchbox (post W20s5) ──────────────────────────────────────────────── */
+.sb-wrap{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0;}
+.sb-input{
+  flex:1;max-width:340px;padding:7px 11px;
+  font-size:12px;font-family:inherit;color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--rule);border-radius:3px;
+  transition:border-color .15s,box-shadow .15s;
+  outline:none;
+}
+.sb-input:focus{border-color:#EA0074;box-shadow:0 0 0 2px rgba(234,0,116,.12);}
+.sb-input::placeholder{color:var(--ink-muted);font-style:italic;}
+.sb-count{
+  font-size:10px;font-weight:600;color:var(--ink-muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.sb-count.has-query{color:#EA0074;}
 </style>
+<script>
+/* Searchbox global · client-side filter por data-hist-label */
+(function(){
+  function norm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  
+  window.attachSearchbox = function(scopeSelector, inputId, counterId){
+    var scope = document.querySelector(scopeSelector);
+    if (!scope) return;
+    var input = document.getElementById(inputId);
+    var counter = counterId ? document.getElementById(counterId) : null;
+    if (!input) return;
+    
+    var rows = scope.querySelectorAll('[data-hist-label]');
+    if (!rows.length) return;
+    
+    function filter(){
+      var q = norm(input.value.trim());
+      var visible = 0, total = rows.length;
+      rows.forEach(function(r){
+        var lbl = norm(r.getAttribute('data-hist-label'));
+        var match = !q || lbl.indexOf(q) >= 0;
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (counter){
+        if (q){
+          counter.textContent = visible + ' de ' + total + ' visibles';
+          counter.classList.add('has-query');
+        } else {
+          counter.textContent = total + ' filas';
+          counter.classList.remove('has-query');
+        }
+      }
+    }
+    input.addEventListener('input', filter);
+    filter();
+  };
+  
+  // Auto-attach: cualquier input con clase .sb-input y data-sb-scope
+  function autoAttach(){
+    document.querySelectorAll('.sb-input[data-sb-scope]').forEach(function(input){
+      var scope = input.getAttribute('data-sb-scope');
+      var counter = input.getAttribute('data-sb-counter');
+      window.attachSearchbox(scope, input.id, counter);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
+  else autoAttach();
+})();
+</script>
 </head>
 <body>
 <div class="shell">
@@ -315,8 +384,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <span>Vol. 20</span>
 </div>
 </header>
-<section class="hero">
+<section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;"><strong style="color:#EA0074;font-weight:700;">9,5B</span> Tráfico · <strong style="color:#EA0074;font-weight:700;">19.456</span> hoteles · <strong style="color:#EA0074;font-weight:700;">44.375</span> Bookings · <strong style="color:#EA0074;font-weight:700;">10.429.456,03</span> GB · <strong style="color:#EA0074;font-weight:700;">19.456</span> hoteles P80.</p>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-rnd-hero" placeholder="Buscar en país, destino, corporativo o hotel…" data-sb-scope="#kpis-hero-section" data-sb-counter="sb-rnd-hero-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-rnd-hero-count"></span></div>
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
 <div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-nd-pais" name="tabs-nd" style="display:none;" type="radio"/>
@@ -1094,6 +1164,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
 </div>
 </div>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-rnd-hotel" placeholder="Buscar hotel por nombre…" data-sb-scope="#por-hotel" data-sb-counter="sb-rnd-hotel-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-rnd-hotel-count"></span></div>
 <div class="tabs-block">
 <input checked id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
@@ -1810,6 +1881,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>
 </div>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-rnd-dim" placeholder="Buscar corporativo, destino o país…" data-sb-scope="#por-dimension" data-sb-counter="sb-rnd-dim-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-rnd-dim-count"></span></div>
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>

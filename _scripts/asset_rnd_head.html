@@ -286,5 +286,74 @@ em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700
 em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
 em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
+
+/* ── Searchbox (post W20s5) ──────────────────────────────────────────────── */
+.sb-wrap{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0;}
+.sb-input{
+  flex:1;max-width:340px;padding:7px 11px;
+  font-size:12px;font-family:inherit;color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--rule);border-radius:3px;
+  transition:border-color .15s,box-shadow .15s;
+  outline:none;
+}
+.sb-input:focus{border-color:#EA0074;box-shadow:0 0 0 2px rgba(234,0,116,.12);}
+.sb-input::placeholder{color:var(--ink-muted);font-style:italic;}
+.sb-count{
+  font-size:10px;font-weight:600;color:var(--ink-muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.sb-count.has-query{color:#EA0074;}
 </style>
+<script>
+/* Searchbox global · client-side filter por data-hist-label */
+(function(){
+  function norm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  
+  window.attachSearchbox = function(scopeSelector, inputId, counterId){
+    var scope = document.querySelector(scopeSelector);
+    if (!scope) return;
+    var input = document.getElementById(inputId);
+    var counter = counterId ? document.getElementById(counterId) : null;
+    if (!input) return;
+    
+    var rows = scope.querySelectorAll('[data-hist-label]');
+    if (!rows.length) return;
+    
+    function filter(){
+      var q = norm(input.value.trim());
+      var visible = 0, total = rows.length;
+      rows.forEach(function(r){
+        var lbl = norm(r.getAttribute('data-hist-label'));
+        var match = !q || lbl.indexOf(q) >= 0;
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (counter){
+        if (q){
+          counter.textContent = visible + ' de ' + total + ' visibles';
+          counter.classList.add('has-query');
+        } else {
+          counter.textContent = total + ' filas';
+          counter.classList.remove('has-query');
+        }
+      }
+    }
+    input.addEventListener('input', filter);
+    filter();
+  };
+  
+  // Auto-attach: cualquier input con clase .sb-input y data-sb-scope
+  function autoAttach(){
+    document.querySelectorAll('.sb-input[data-sb-scope]').forEach(function(input){
+      var scope = input.getAttribute('data-sb-scope');
+      var counter = input.getAttribute('data-sb-counter');
+      window.attachSearchbox(scope, input.id, counter);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
+  else autoAttach();
+})();
+</script>
 </head>

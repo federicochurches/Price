@@ -482,8 +482,9 @@ def render_alerts_block():
 
 # Build hero
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
-HERO = f'''<section class="hero">
+HERO = f'''<section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;">{subhead}</p>
+{searchbox_html('sb-cr-hero', '#kpis-hero-section', 'Buscar en destino, corporativo, hotel o channel…')}
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow, 'W20', 'W19')}
 {render_kpi_card_convrate(cv18, cv17, cv_wow, 'W20', 'W19')}

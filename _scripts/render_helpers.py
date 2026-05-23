@@ -256,3 +256,23 @@ def clean_destino_name(name, max_len=28):
         if m2:
             s = m2.group(1)
     return truncate(s, max_len)
+
+
+def searchbox_html(input_id, scope_selector, placeholder="Buscar hotel, destino, corporativo..."):
+    """Genera HTML del searchbox para insertar antes de un bloque de tablas.
+    El JS en asset_*_head.html toma data-sb-scope y data-sb-counter automaticamente.
+    
+    input_id        : ID unico del input (ej. 'sb-cr-hotel')
+    scope_selector  : selector CSS del bloque cuyas filas filtrar (ej. '#hoteles-block')
+    placeholder     : texto del placeholder
+    """
+    counter_id = input_id + '-count'
+    return (
+        f'<div class="sb-wrap">'
+        f'<input class="sb-input" type="text" id="{input_id}" '
+        f'placeholder="{placeholder}" '
+        f'data-sb-scope="{scope_selector}" data-sb-counter="{counter_id}" '
+        f'autocomplete="off" spellcheck="false">'
+        f'<span class="sb-count" id="{counter_id}"></span>'
+        f'</div>'
+    )

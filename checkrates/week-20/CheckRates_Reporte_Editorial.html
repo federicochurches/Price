@@ -314,7 +314,76 @@ em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700
 em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
 em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
+
+/* ── Searchbox (post W20s5) ──────────────────────────────────────────────── */
+.sb-wrap{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0;}
+.sb-input{
+  flex:1;max-width:340px;padding:7px 11px;
+  font-size:12px;font-family:inherit;color:var(--ink);
+  background:var(--paper);
+  border:1px solid var(--rule);border-radius:3px;
+  transition:border-color .15s,box-shadow .15s;
+  outline:none;
+}
+.sb-input:focus{border-color:#5C469C;box-shadow:0 0 0 2px rgba(92,70,156,.12);}
+.sb-input::placeholder{color:var(--ink-muted);font-style:italic;}
+.sb-count{
+  font-size:10px;font-weight:600;color:var(--ink-muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.sb-count.has-query{color:#5C469C;}
 </style>
+<script>
+/* Searchbox global · client-side filter por data-hist-label */
+(function(){
+  function norm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  
+  window.attachSearchbox = function(scopeSelector, inputId, counterId){
+    var scope = document.querySelector(scopeSelector);
+    if (!scope) return;
+    var input = document.getElementById(inputId);
+    var counter = counterId ? document.getElementById(counterId) : null;
+    if (!input) return;
+    
+    var rows = scope.querySelectorAll('[data-hist-label]');
+    if (!rows.length) return;
+    
+    function filter(){
+      var q = norm(input.value.trim());
+      var visible = 0, total = rows.length;
+      rows.forEach(function(r){
+        var lbl = norm(r.getAttribute('data-hist-label'));
+        var match = !q || lbl.indexOf(q) >= 0;
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (counter){
+        if (q){
+          counter.textContent = visible + ' de ' + total + ' visibles';
+          counter.classList.add('has-query');
+        } else {
+          counter.textContent = total + ' filas';
+          counter.classList.remove('has-query');
+        }
+      }
+    }
+    input.addEventListener('input', filter);
+    filter();
+  };
+  
+  // Auto-attach: cualquier input con clase .sb-input y data-sb-scope
+  function autoAttach(){
+    document.querySelectorAll('.sb-input[data-sb-scope]').forEach(function(input){
+      var scope = input.getAttribute('data-sb-scope');
+      var counter = input.getAttribute('data-sb-counter');
+      window.attachSearchbox(scope, input.id, counter);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoAttach);
+  else autoAttach();
+})();
+</script>
 </head>
 <body>
 <div class="shell">
@@ -341,8 +410,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <span>Vol. 20</span>
 </div>
 </header>
-<section class="hero">
+<section class="hero" id="kpis-hero-section">
 <p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;"><strong style="color:#5C469C;font-weight:700;">1.492.747</strong> CR únicos · <strong style="color:#5C469C;font-weight:700;">2.080</strong> hoteles · <strong style="color:#5C469C;font-weight:700;">17.720</strong> Bookings · <strong style="color:#5C469C;font-weight:700;">2.080</strong> hoteles P80.</p>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-cr-hero" placeholder="Buscar en destino, corporativo, hotel o channel…" data-sb-scope="#kpis-hero-section" data-sb-counter="sb-cr-hero-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-cr-hero-count"></span></div>
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
 <div class="kpi-card" style="border:1px solid var(--rule);padding:18px 20px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
@@ -1053,6 +1123,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <p class="section-kicker">Hoteles del P80 vistos desde cuatro ángulos analíticos: críticos (peor eficacia con BKGS&gt;0), bajo rendimiento (ConvRate insuficiente con volumen), sin conversión (BKGS=0), y menor ConvRate (peores conversores absolutos).</p>
 </div>
 </div>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-cr-hotel" placeholder="Buscar hotel por nombre…" data-sb-scope="#por-hotel" data-sb-counter="sb-cr-hotel-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-cr-hotel-count"></span></div>
 <div class="tabs-block">
 <input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
@@ -1708,6 +1779,7 @@ Las métricas reflejan desempeño en el segmento más relevante para Supply Opti
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>
 </div>
+<div class="sb-wrap"><input class="sb-input" type="text" id="sb-cr-dim" placeholder="Buscar corporativo, destino o channel…" data-sb-scope="#por-dimension" data-sb-counter="sb-cr-dim-count" autocomplete="off" spellcheck="false"><span class="sb-count" id="sb-cr-dim-count"></span></div>
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>

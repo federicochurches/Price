@@ -733,6 +733,7 @@ def render_bloque_hoteles():
 <p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
 </div>
 </div>
+{searchbox_html('sb-rnd-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tabs-block">
 <input checked id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
@@ -802,6 +803,7 @@ def render_bloque_dimensiones():
 <p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
 </div>
 </div>
+{searchbox_html('sb-rnd-dim', '#por-dimension', 'Buscar corporativo, destino o país…')}
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>

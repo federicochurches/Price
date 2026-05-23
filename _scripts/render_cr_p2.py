@@ -948,6 +948,7 @@ def render_bloque_hoteles_cr():
 <p class="section-kicker">Hoteles del P80 vistos desde cuatro ángulos analíticos: críticos (peor eficacia con BKGS&gt;0), bajo rendimiento (ConvRate insuficiente con volumen), sin conversión (BKGS=0), y menor ConvRate (peores conversores absolutos).</p>
 </div>
 </div>
+{searchbox_html('sb-cr-hotel', '#por-hotel', 'Buscar hotel por nombre…')}
 <div class="tabs-block">
 <input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
@@ -1092,6 +1093,7 @@ def render_bloque_dimensiones_cr():
 <p class="section-kicker">Distribución del volumen P80 por corporativo, destino y channel. Channel mantiene el split Producto Propio · Third Party para análisis de connectivity.</p>
 </div>
 </div>
+{searchbox_html('sb-cr-dim', '#por-dimension', 'Buscar corporativo, destino o channel…')}
 <div class="tabs-block">
 <input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
 <input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
