@@ -190,19 +190,19 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         ('hotel','Hotel', TAB_NoDispo['hotel']),
         ('canasta','Canasta', TAB_NoDispo['canasta']),
     ]:
-        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
-        rows_html = col1 = col2 = rest = ''
+        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
+        rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
             if t_key=='canasta':
                 lab = r['Canasta']; val = nd_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = nd_val
+                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = nd_val
             elif t_key=='pais':
                 lab = clean_pais_name(r['PaisDestino']); val = nd_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 26); val = r['%NoDispo']
+                lab = truncate(r[col], 32); val = r['%NoDispo']
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
@@ -223,15 +223,15 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
             try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
             except: _nd_w20 = _nd_w21
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
-            # No badge en hotel (demasiado ruido), sí en pais/destino/corp/canasta
             _bnd_nd = '' if t_key == 'hotel' else (
                 r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else '')
             if not _bnd_nd and val and t_key != 'hotel':
                 from engine import banda_nodispo as _bn; _bnd_nd = _bn(val)
             _badge_nd = _mini_badge(_bnd_nd)
-            _hidden = ' sb-hidden' if i >= 10 else ''
-            _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
+            if i < 5: _cls = ''
+            elif i < 10: _cls = 'rows-more'
+            else: _cls = 'sb-hidden'
+            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
@@ -240,14 +240,22 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f'{_badge_nd}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5: col1 += _row
-            elif i < 10: col2 += _row
+            if i < 5: top5 += _row
+            elif i < 10: next5 += _row
             else: rest += _row
         if t_key not in ('canasta',):
-            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
-                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+            has_more = len(df_t) > 5
+            ver_mas_btn = ''
+            if has_more:
+                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
+                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                               f'<span class="toggle-label">Ver 5 más</span> '
+                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
-            panel_html = col1 + col2 + rest
+            panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
@@ -300,19 +308,19 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         ('hotel','Hotel', TAB_RPM['hotel']),
         ('canasta','Canasta', TAB_RPM['canasta']),
     ]:
-        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
-        rows_html = col1 = col2 = rest = ''
+        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
+        rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
             if t_key=='canasta':
                 lab = r['Canasta']; val = rpm_val
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 30); val = rpm_val
+                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = rpm_val
             elif t_key=='pais':
                 lab = clean_pais_name(r['PaisDestino']); val = rpm_val
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 26); val = rpm_val
+                lab = truncate(r[col], 32); val = rpm_val
             show_wow = t_key in ('pais', 'destino', 'corp')
             wow_pill = ''
             if show_wow:
@@ -333,14 +341,15 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
             try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
             except: _ipm_w20 = _ipm_w21
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
             _bnd_ipm = '' if t_key == 'hotel' else (
                 r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else '')
             if not _bnd_ipm and val and t_key != 'hotel':
                 from engine import banda_rpm as _brpm; _bnd_ipm = _brpm(val, 1)
             _badge_ipm = _mini_badge(_bnd_ipm)
-            _hidden2 = ' sb-hidden' if i >= 10 else ''
-            _row2 = (f'<div class="{_hidden2.strip()}" data-row-idx="{i}"'
+            if i < 5: _cls2 = ''
+            elif i < 10: _cls2 = 'rows-more'
+            else: _cls2 = 'sb-hidden'
+            _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
@@ -349,14 +358,22 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f'{_badge_ipm}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5: col1 += _row2
-            elif i < 10: col2 += _row2
+            if i < 5: top5 += _row2
+            elif i < 10: next5 += _row2
             else: rest += _row2
         if t_key not in ('canasta',):
-            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
-                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+            has_more = len(df_t) > 5
+            ver_mas_btn = ''
+            if has_more:
+                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
+                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                               f'<span class="toggle-label">Ver 5 más</span> '
+                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
-            panel_html = col1 + col2 + rest
+            panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">

@@ -315,8 +315,12 @@ em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
 /* ── Searchbox · W21 (pill + header-sb + wow-pill) ───────────────────────── */
-.kpi-card{box-sizing:border-box;width:100%;}
-.kpi-tab-rows [data-hist-label], .kpi-tab-rows [data-row-idx]{font-size:11px;}
+/* ── Filas "Ver más" en tabs KPI ── */
+.rows-more{display:none;}
+.rows-toggle:hover .toggle-label{text-decoration:underline;}
+.rows-toggle.open .toggle-icon{display:inline-block;transform:rotate(180deg);}
+.kpi-tab-rows [data-hist-label]{font-size:11px;}
+.sb-hidden{display:none !important;}
 
 /* Legado sb-wrap / sb-input (usado en secciones standalone pre-W21) */
 .sb-wrap{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0;position:relative;}
@@ -462,26 +466,38 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     function filter(){
       var q = norm(input.value.trim());
       var panel = getActivePanel(); if (!panel) return;
-      /* Buscar TODAS las filas con data-hist-label, incluidas las sb-hidden (filas 11-100) */
       var rows = panel.querySelectorAll('[data-hist-label]');
       var vis = 0, total = rows.length;
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
         if (q) {
-          /* Buscando: mostrar matches, ocultar no-matches */
-          if (match) { r.classList.remove('sb-hidden'); r.style.display = ''; vis++; }
-          else       { r.classList.add('sb-hidden'); }
+          /* Buscando: mostrar matches (incluyendo rows-more y sb-hidden), ocultar no-matches */
+          if (match) {
+            r.classList.remove('sb-hidden');
+            r.classList.remove('rows-more');
+            r.style.display = '';
+            vis++;
+          } else {
+            r.classList.add('sb-hidden');
+            r.classList.remove('rows-more');
+          }
         } else {
-          /* Sin query: restaurar vista default (1-10 visibles, 11+ sb-hidden) */
+          /* Sin query: restaurar vista default (0-4 visible, 5-9 rows-more, 10+ sb-hidden) */
           var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          if (ri < 10) { r.classList.remove('sb-hidden'); r.style.display = ''; vis++; }
-          else         { r.classList.add('sb-hidden'); }
+          r.style.display = '';
+          if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); vis++; }
+          else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); }
+          else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
         }
       });
-      /* Resetear grid al limpiar, expandir a 1 col al buscar */
-      panel.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-        el.style.gridTemplateColumns = q ? '1fr' : '1fr 1fr';
-      });
+      /* Restaurar botón ver-más al limpiar búsqueda */
+      if (!q) {
+        panel.querySelectorAll('.rows-toggle').forEach(function(btn){
+          btn.classList.remove('open');
+          var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
+          var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
+        });
+      }
       if (q) setEmptyState(panel, input.value.trim(), vis);
       else   clearEmptyState(panel);
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
@@ -586,18 +602,53 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 (function(){
   document.addEventListener('change', function(e){
     var inp = e.target;
-    /* Los radios de tabs tienen style="display:none" en el HTML */
     if (inp.type !== 'radio' || inp.style.display !== 'none') return;
     var card = inp.closest('.kpi-card, .tabs-block, details');
     if (!card) return;
+    /* Limpiar inputs de búsqueda */
     card.querySelectorAll('input.sb-input, input[data-sb-pill], input[data-sb-table]').forEach(function(sb){
       if (!sb.value.trim()) return;
-      sb.value = '';
-      sb.dispatchEvent(new Event('input'));
+      sb.value = ''; sb.dispatchEvent(new Event('input'));
     });
     card.querySelectorAll('.kpi-tab-rows').forEach(function(el){
-      el.style.gridTemplateColumns = '1fr 1fr';
+      el.style.gridTemplateColumns = '';
     });
+    /* Limpiar TODOS los empty-states de la card al cambiar tab */
+    card.querySelectorAll('.sb-empty-state').forEach(function(emp){
+      emp.classList.remove('visible');
+    });
+    /* Restaurar rows-more ocultas y sb-hidden correctas */
+    card.querySelectorAll('[data-hist-label]').forEach(function(r){
+      var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+      if (ri < 5) { r.classList.remove('sb-hidden'); r.classList.remove('rows-more'); r.style.display = ''; }
+      else if (ri < 10) { r.classList.remove('sb-hidden'); r.classList.add('rows-more'); r.style.display = ''; }
+      else { r.classList.add('sb-hidden'); r.classList.remove('rows-more'); }
+    });
+    /* Resetear botones Ver más */
+    card.querySelectorAll('.rows-toggle').forEach(function(btn){
+      btn.classList.remove('open');
+      var lbl = btn.querySelector('.toggle-label'); if (lbl) lbl.textContent = 'Ver 5 más';
+      var ico = btn.querySelector('.toggle-icon'); if (ico) ico.style.transform = '';
+    });
+  });
+})();
+
+/* ── Botón "Ver 5 más / Ver menos" en tabs KPI ── */
+(function(){
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.rows-toggle');
+    if (!btn) return;
+    var panel = btn.closest('.tab-panel, .tab-panel-c');
+    if (!panel) return;
+    var isOpen = btn.classList.toggle('open');
+    var lbl = btn.querySelector('.toggle-label');
+    var ico = btn.querySelector('.toggle-icon');
+    /* Mostrar/ocultar filas-more (índices 5-9) */
+    panel.querySelectorAll('.rows-more').forEach(function(r){
+      r.style.display = isOpen ? '' : 'none';
+    });
+    if (lbl) lbl.textContent = isOpen ? 'Ver menos' : 'Ver 5 más';
+    if (ico) ico.style.transform = isOpen ? 'rotate(180deg)' : '';
   });
 })();
 

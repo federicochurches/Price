@@ -75,14 +75,15 @@ def target_caption(target_text, font_size='11px'):
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     """Gauge bar 5 niveles · height:6px · opacity:1 uniforme · BANDAS.md
-    Colores: Súper Crítica negro · Crítica rojo · Revisar naranja · Aceptable violet · Exitosa verde
+    Colores: Súper Crítica negro · Crítica rojo · Revisar naranja · Aceptable amarillo · Exitosa verde
+    La banda activa se identifica por el badge/pill arriba, no por el gauge.
     """
     if niveles_rnd_or_cr == 'nodispo':
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#5C469C'),
+            ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
@@ -90,7 +91,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#5C469C'),
+            ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#085041'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
@@ -98,7 +99,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
-            ('Aceptable',     '#5C469C'),
+            ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#085041'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
@@ -106,14 +107,12 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
-            ('Aceptable',      '#5C469C'),
+            ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#085041'),
         ]
     cells = []
     for nombre, color in levels:
-        # Banda activa: borde superior marcado; todas opacity:1
-        active_style = 'box-shadow:0 -2px 0 0 var(--ink);' if nombre == banda_actual else ''
-        cells.append(f'<div style="flex:1;background:{color};height:6px;opacity:1;{active_style}"></div>')
+        cells.append(f'<div style="flex:1;background:{color};height:6px;opacity:1;"></div>')
     return '<div style="display:flex;gap:2px;margin-top:10px;">' + ''.join(cells) + '</div>'
 
 def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num='W20', week_prev='W19'):

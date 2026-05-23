@@ -205,21 +205,20 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # Tabs: primeras 10 visibles en 2 cols, filas 11-100 con sb-hidden
-        # Al buscar el JS muestra las que matchean y activa modo lista
-        rows_html = col1 = col2 = rest = ''
+        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto channel/canasta)
+        rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['Eficacia']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['Eficacia']
+                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = r['Eficacia']
             elif t_key=='corp':
-                lab = truncate(clean_corp_name(r['CorpName']), 26); val = r['Eficacia']
+                lab = truncate(clean_corp_name(r['CorpName']), 32); val = r['Eficacia']
             elif t_key=='destino':
-                lab = clean_destino_name(r['Destino'], 26); val = r['Eficacia']
+                lab = clean_destino_name(r['Destino'], 32); val = r['Eficacia']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 26); val = r['Eficacia']
+                lab = truncate(r[col], 32); val = r['Eficacia']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('Eficacia_WoW_pp', None)
@@ -234,12 +233,17 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            # Badge de banda: solo en destino/corp/canasta/channel (NO en hotel)
             _bnd = '' if t_key == 'hotel' else (
                 r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val else ''))
             _badge = _mini_badge(_bnd)
-            _hidden = ' sb-hidden' if i >= 10 else ''
-            _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
+            # Clases de visibilidad: top5 visible, next5 oculta (rows-more), rest sb-hidden
+            if i < 5:
+                _cls = ''
+            elif i < 10:
+                _cls = 'rows-more'  # oculto por CSS, mostrado con botón
+            else:
+                _cls = 'sb-hidden'
+            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
@@ -248,14 +252,23 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                     f'{_badge}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     f'{wow_pill}</div>')
-            if i < 5: col1 += _row
-            elif i < 10: col2 += _row
+            if i < 5: top5 += _row
+            elif i < 10: next5 += _row
             else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
-                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+            total_rows = len(df_t)
+            has_more = total_rows > 5
+            ver_mas_btn = ''
+            if has_more:
+                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
+                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                               f'<span class="toggle-label">Ver 5 más</span> '
+                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
-            panel_html = col1 + col2 + rest  # canasta/channel: lista simple
+            panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
@@ -355,20 +368,20 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # 100 filas: 1-10 visibles en 2 cols, 11-100 sb-hidden
-        rows_html = col1 = col2 = rest = ''
+        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto channel/canasta)
+        rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             if t_key=='canasta':
                 lab = r['Canasta']; val = r['ConvRate']
             elif t_key=='hotel':
-                lab = truncate(clean_hotel_name(r['Hotel']), 26); val = r['ConvRate']
+                lab = truncate(clean_hotel_name(r['Hotel']), 32); val = r['ConvRate']
             elif t_key=='corp':
-                lab = truncate(clean_corp_name(r['CorpName']), 26); val = r['ConvRate']
+                lab = truncate(clean_corp_name(r['CorpName']), 32); val = r['ConvRate']
             elif t_key=='destino':
-                lab = clean_destino_name(r['Destino'], 26); val = r['ConvRate']
+                lab = clean_destino_name(r['Destino'], 32); val = r['ConvRate']
             else:
                 col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                lab = truncate(r[col], 26); val = r['ConvRate']
+                lab = truncate(r[col], 32); val = r['ConvRate']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
                 wow_pp = r.get('ConvRate_WoW_pp', None)
@@ -383,12 +396,13 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('ConvRate_W17', None)
             _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            hidden_cls = ' sb-hidden' if i >= 10 else ''
             _bnd_cv = '' if t_key == 'hotel' else (
                 r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val else ''))
             _badge_cv = _mini_badge(_bnd_cv)
-            _hidden = ' sb-hidden' if i >= 10 else ''
-            _row = (f'<div class="{_hidden.strip()}" data-row-idx="{i}"'
+            if i < 5: _cls = ''
+            elif i < 10: _cls = 'rows-more'
+            else: _cls = 'sb-hidden'
+            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 54px 40px;align-items:center;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
@@ -397,14 +411,23 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                     f'{_badge_cv}</div>'
                     f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     f'{wow_pill}</div>')
-            if i < 5: col1 += _row
-            elif i < 10: col2 += _row
+            if i < 5: top5 += _row
+            elif i < 10: next5 += _row
             else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            panel_html = (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;">'
-                          f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+            total_rows = len(df_t)
+            has_more = total_rows > 5
+            ver_mas_btn = ''
+            if has_more:
+                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
+                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                               f'<span class="toggle-label">Ver 5 más</span> '
+                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
-            panel_html = col1 + col2 + rest  # canasta/channel: lista simple
+            panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
