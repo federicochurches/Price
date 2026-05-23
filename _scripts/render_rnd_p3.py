@@ -384,7 +384,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="margin-top:4px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
 <div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{val18_str}</div>
 <div>{pill_with_target}</div>
 </div>

@@ -235,7 +235,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <input id="tab-nd-canasta" name="tabs-nd" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
-<div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div>{pill_with_target}</div>
 </div>
@@ -327,7 +327,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <input id="tab-rpm-canasta" name="tabs-rpm" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
-<div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div>{pill_with_target}</div>
 </div>

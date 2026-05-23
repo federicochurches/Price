@@ -127,7 +127,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       <div id="hist-{canvas_id}-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">{v_avg:.2f}%</div>
     </div>
     <div id="hist-{canvas_id}-banda-box"
-         style="text-align:center;padding:10px 6px;border-radius:3px;background:{b_bg};border:1px solid {b_bd};">
+         style="display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 6px;border-radius:3px;background:{b_bg};border:1px solid {b_bd};">
       <div id="hist-{canvas_id}-banda" style="font-size:11px;font-weight:700;color:{b_fg};line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</div>
     </div>
   </div>

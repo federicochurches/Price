@@ -246,7 +246,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 <input id="tab-ef-canasta" name="tabs-ef" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
-<div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
 <div>{pill_with_target}</div>
 </div>
@@ -379,7 +379,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 <input id="tab-cv-canasta" name="tabs-cv" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
-<div style="margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
+<div style="margin-top:4px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
 <div>{pill_with_target}</div>
 </div>
