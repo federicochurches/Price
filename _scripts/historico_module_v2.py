@@ -1,5 +1,7 @@
 """
-render_historico_cr — Módulo histórico reactivo v4.
+render_historico_cr — Módulo histórico reactivo v5 (W20 sesión 6).
+- Datos reales W16-W20 (extraídos de pickles cr_w{16-20}_data.pkl)
+- Ventana de 5 semanas (W16-W20) → el último valor es la semana actual del reporte
 - Título: "Evolución Histórica"
 - Sin pill WoW delta en el header
 - Badge Súper Crítica: bg oscuro + texto blanco
@@ -8,6 +10,7 @@ render_historico_cr — Módulo histórico reactivo v4.
 - Curvas: escala local del elemento seleccionado
 """
 import json as _json
+from historico_data import get_serie, SEMANAS
 
 # ── Colores exactos del sistema D (render_helpers.py) ─────────────────────────
 _BANDA_COLORS = {
@@ -29,39 +32,28 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     """
     metric_type : 'eficacia' | 'convrate'
     banda_actual: string banda actual (sistema D)
-    val_actual  : float [0,1]
-    canvas_id   : ID único del canvas
-    hist_vals   : lista 7 floats W14-W20 en % (None = ficticios)
+    val_actual  : float [0,1] (valor de la semana ACTUAL del reporte, ej. W20)
+    canvas_id   : ID único del canvas (su sufijo determina el scope: -global-, -op-, -cug-, -b2c-)
+    hist_vals   : DEPRECATED — se ignora. Los valores históricos vienen de historico_data.HIST_DATA.
+                  Mantenido para compatibilidad de firma con render_historico_seccion_cr.
     global_ceil : techo global para las barras (ej: 97.0 para eficacia).
                   Si None, usa el target.
     """
     target = 97.0 if metric_type == 'eficacia' else 2.5
     bar_ceil = global_ceil if global_ceil is not None else target
 
-    _FICTICIOS = {
-        'eficacia': {
-            'global': [91.8, 92.3, 92.7, 92.1, 93.0, 93.4, 93.8],
-            'op':     [93.1, 93.8, 94.2, 93.6, 94.5, 94.8, 95.1],
-            'cug':    [94.5, 95.0, 95.3, 94.8, 95.6, 95.9, 96.2],
-            'b2c':    [88.2, 89.1, 88.7, 89.5, 90.1, 90.4, 91.0],
-        },
-        'convrate': {
-            'global': [1.18, 1.14, 1.22, 1.19, 1.15, 1.20, 1.24],
-            'op':     [1.42, 1.38, 1.51, 1.45, 1.39, 1.47, 1.52],
-            'cug':    [2.31, 2.28, 2.45, 2.38, 2.51, 2.44, 2.58],
-            'b2c':    [0.61, 0.58, 0.64, 0.62, 0.59, 0.63, 0.66],
-        },
-    }
-
+    # Determinar scope desde el canvas_id
     scope = 'global'
     for k in ('op', 'cug', 'b2c'):
         if k in canvas_id:
             scope = k; break
 
-    w14_w20      = hist_vals if hist_vals else _FICTICIOS[metric_type][scope]
-    w21_val      = round(val_actual * 100, 2)
-    vals_default = w14_w20 + [w21_val]
-    semanas      = ['W14', 'W15', 'W16', 'W17', 'W18', 'W19', 'W20', 'W21']
+    # Serie completa W16-W20 desde datos reales (val_actual es W20)
+    w_current_val = round(val_actual * 100, 2)
+    vals_default  = get_serie('cr', metric_type, scope, w_current_val)
+    semanas       = list(SEMANAS)   # ['W16','W17','W18','W19','W20']
+    n_weeks       = len(semanas)
+    idx_current   = n_weeks - 1     # índice del último valor (semana actual)
 
     v_min  = min(vals_default); v_max = max(vals_default)
     v_avg  = sum(vals_default) / len(vals_default)
@@ -81,7 +73,7 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
             ratio  = min(v / ceil, 1.0) if ceil > 0 else 0.5
             height = max(int(2 + 16 * ratio), 2)
             alpha  = round(0.20 + 0.75 * ratio, 2)
-            if i == 7:
+            if i == idx_current:
                 bg = 'var(--accent)'
             else:
                 bg = f'rgba(92,70,156,{alpha})'
@@ -96,7 +88,8 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     vals_json        = _json.dumps(vals_default)
     semanas_json     = _json.dumps(semanas)
     banda_colors_js  = _json.dumps(_BANDA_COLORS_JS)
-    base_ratios      = [round(v / (w14_w20[-1] + 0.0001), 6) for v in w14_w20[:6]]
+    # base_ratios: ratios de cada semana histórica vs la última, para escalar al click
+    base_ratios      = [round(v / (vals_default[-1] + 0.0001), 6) for v in vals_default[:-1]]
     base_ratios_json = _json.dumps(base_ratios)
 
     return f'''<div id="hist-{canvas_id}"
@@ -122,15 +115,15 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
       <div id="hist-{canvas_id}-actual" style="font-size:13px;font-weight:700;color:var(--accent);margin-top:2px;">{v_curr:.2f}%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 8W</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
       <div id="hist-{canvas_id}-max" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">{v_max:.2f}%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 8W</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
       <div id="hist-{canvas_id}-min" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">{v_min:.2f}%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 8W</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
       <div id="hist-{canvas_id}-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">{v_avg:.2f}%</div>
     </div>
     <div id="hist-{canvas_id}-banda-box"
@@ -147,8 +140,8 @@ def render_historico_cr(metric_type, banda_actual, val_actual, canvas_id,
     <div id="hist-{canvas_id}-spark"
          style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W14</span>
-      <span style="font-size:7px;color:var(--accent);font-weight:700;">W21</span>
+      <span style="font-size:7px;color:var(--ink-muted);">{semanas[0]}</span>
+      <span style="font-size:7px;color:var(--accent);font-weight:700;">{semanas[-1]}</span>
     </div>
   </div>
 

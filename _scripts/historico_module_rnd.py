@@ -1,10 +1,13 @@
 """
-historico_module_rnd.py — Módulo histórico reactivo para RND.
+historico_module_rnd.py — Módulo histórico reactivo para RND (v2 W20 sesión 6).
+- Datos reales W16-W20 (extraídos de pickles rnd_w{16-20}_data.pkl)
+- Ventana de 5 semanas (W16-W20) → el último valor es la semana actual del reporte
 Dos métricas con lógica diferenciada:
   - NoDispo: escala INVERTIDA (menor = mejor), target < 5%, accent magenta #EA0074
   - IPM:     escala normal (mayor = mejor), target ≥ $650, accent cyan #4FC3F4 (Arctic Blue)
 """
 import json as _json
+from historico_data import get_serie, SEMANAS
 
 RND_ACCENT  = '#EA0074'   # magenta principal RND
 IPM_ACCENT  = '#4FC3F4'   # cyan corporativo (Arctic Blue) · acento IPM
@@ -27,68 +30,49 @@ _BANDA_COLORS_JS = {
 def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
                           current_week='W20', hist_vals=None, global_ceil=None):
     """
-    IMPORTANTE: current_week debe ser la semana ACTUAL, NO la próxima.
-    Ejemplo: Si hoy es W20, pasar 'W20' (no 'W21')
-    El módulo genera 8 semanas: W(N-7) a W(N)
+    metric_type  : 'nodispo' | 'ipm'
+    banda_actual : string banda actual (sistema D)
+    val_actual   : float (nodispo: [0,1]; ipm: USD/M directo) — valor de la semana ACTUAL
+    canvas_id    : ID único del canvas (su sufijo determina el scope: -global-, -op-, -cug-, -b2c-)
+    current_week : DEPRECATED — se ignora. Las semanas vienen de historico_data.SEMANAS.
+    hist_vals    : DEPRECATED — se ignora. Los valores históricos vienen de historico_data.HIST_DATA.
+    global_ceil  : techo global para las barras.
     """
     is_nodispo = metric_type == 'nodispo'
     target     = 0.05  if is_nodispo else 650.0   # < 5% NoDispo | ≥ $650 IPM
     bar_ceil   = global_ceil if global_ceil is not None else (0.60 if is_nodispo else 3000.0)
     accent     = RND_ACCENT if is_nodispo else IPM_ACCENT
 
-    # ── Generar semanas dinámicas ───────────────────────────────────────────
-    # Extraer número de week (ej: 'W20' → 20)
-    try:
-        week_num = int(current_week[1:])
-    except:
-        week_num = 20
-    
-    # Generar 8 semanas previas (ej: W20 actual → W13-W20)
-    week_start = week_num - 7
-    semanas = [f'W{week_start + i}' for i in range(8)]  # W13-W20 si current_week='W20'
+    # Semanas desde historico_data (ventana fija W16-W20)
+    semanas    = list(SEMANAS)   # ['W16','W17','W18','W19','W20']
+    n_weeks    = len(semanas)
+    idx_current = n_weeks - 1
 
-    # Datos ficticios W(N-7)-W(N)
-    _FICTICIOS = {
-        'nodispo': {
-            'global': [8.2, 7.8, 8.5, 8.1, 7.9, 8.3, 8.0, 7.9],
-            'op':     [9.1, 8.8, 9.3, 8.9, 9.0, 9.2, 8.8, 8.9],
-            'cug':    [6.5, 6.2, 6.8, 6.4, 6.3, 6.6, 6.5, 6.4],
-            'b2c':    [5.1, 4.9, 5.3, 5.0, 5.2, 5.1, 4.8, 5.0],
-        },
-        'ipm': {
-            'global': [820, 840, 810, 860, 830, 850, 870, 845],
-            'op':     [920, 940, 910, 960, 930, 950, 970, 955],
-            'cug':    [1100, 1120, 1090, 1140, 1110, 1130, 1150, 1135],
-            'b2c':    [580, 600, 570, 610, 590, 605, 615, 605],
-        },
-    }
-
+    # Determinar scope desde canvas_id
     scope = 'global'
     for k in ('op', 'cug', 'b2c'):
         if k in canvas_id:
             scope = k; break
 
-    w13_w20 = hist_vals if hist_vals else _FICTICIOS[metric_type][scope]
-
-    # Convertir val_actual a la unidad de display
-    # nodispo: val en [0,1] → mostrar en %, hist en %
-    # ipm: val ya en USD/M
+    # Convertir val_actual a la unidad de display y obtener serie completa
+    # nodispo: val en [0,1] → mostrar en %, hist ya en %
+    # ipm: val ya en USD/M, hist en USD/M
     if is_nodispo:
-        w20_val      = round(val_actual * 100, 2)
-        vals_default = [round(v, 2) for v in w13_w20]  # todo en %, 8 valores
-        vals_default[-1] = w20_val  # reemplazar último con valor actual
-        fmt_val      = lambda v: f'{v:.2f}%'
-        target_disp  = '< 5%'
-        unit         = '%'
+        w_current_val = round(val_actual * 100, 2)
+        vals_default  = get_serie('rnd', 'nodispo', scope, w_current_val)
+        vals_default  = [round(v, 2) for v in vals_default]
+        fmt_val       = lambda v: f'{v:.2f}%'
+        target_disp   = '< 5%'
+        unit          = '%'
     else:
-        w20_val      = round(float(val_actual), 1)
-        vals_default = [round(v, 1) for v in w13_w20]  # todo en USD/M, 8 valores
-        vals_default[-1] = w20_val  # reemplazar último con valor actual
-        fmt_val      = lambda v: f'${v:,.0f}'
-        target_disp  = '≥ $650'
-        unit         = ' USD/M'
+        w_current_val = round(float(val_actual), 1)
+        vals_default  = get_serie('rnd', 'ipm', scope, w_current_val)
+        vals_default  = [round(v, 1) for v in vals_default]
+        fmt_val       = lambda v: f'${v:,.0f}'
+        target_disp   = '≥ $650'
+        unit          = ' USD/M'
 
-    semanas_list = semanas  # usar semanas generadas dinámicamente
+    semanas_list = semanas
 
     v_min  = min(vals_default); v_max = max(vals_default)
     v_avg  = sum(vals_default) / len(vals_default)
@@ -111,7 +95,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
                 ratio = min(v / bar_ceil, 1.0) if bar_ceil > 0 else 0.5
             height = max(int(2 + 16 * ratio), 2)
             alpha  = round(0.20 + 0.75 * ratio, 2)
-            bg     = accent if i == 7 else f'rgba({_hex_to_rgb(accent)},{alpha})'
+            bg     = accent if i == idx_current else f'rgba({_hex_to_rgb(accent)},{alpha})'
             bars += (f'<div style="flex:1;background:{bg};height:{height}px;'
                      f'border-radius:1px 1px 0 0;" title="{semanas_list[i]}: {fmt_val(v)}"></div>')
         return bars
@@ -132,7 +116,7 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
     vals_json        = _json.dumps(vals_default)
     semanas_json     = _json.dumps(semanas_list)
     banda_colors_js  = _json.dumps(_BANDA_COLORS_JS)
-    base_ratios      = [round(v / (w13_w20[-1] + 0.0001), 6) for v in w13_w20[:7]]
+    base_ratios      = [round(v / (vals_default[-1] + 0.0001), 6) for v in vals_default[:-1]]
     base_ratios_json = _json.dumps(base_ratios)
 
     # Canvas: para NoDispo invertimos la lectura (target arriba = malo)
@@ -162,15 +146,15 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
       <div id="hist-{canvas_id}-actual" style="font-size:13px;font-weight:700;color:{accent};margin-top:2px;">{actual_str}</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{"Mín 8W" if is_nodispo else "Máx 8W"}</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{"Mín 5W" if is_nodispo else "Máx 5W"}</div>
       <div id="hist-{canvas_id}-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">{fmt_val(v_min) if is_nodispo else fmt_val(v_max)}</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{"Máx 8W" if is_nodispo else "Mín 8W"}</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{"Máx 5W" if is_nodispo else "Mín 5W"}</div>
       <div id="hist-{canvas_id}-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">{fmt_val(v_max) if is_nodispo else fmt_val(v_min)}</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 8W</div>
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
       <div id="hist-{canvas_id}-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">{avg_str}</div>
     </div>
     <div id="hist-{canvas_id}-banda-box"
