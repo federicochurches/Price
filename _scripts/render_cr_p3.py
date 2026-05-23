@@ -331,18 +331,18 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 </div>'''
 
     # ── Tab rows con pills WoW ────────────────────────────────────────────────
-    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False):
-        col1 = col2 = rest = ''
+    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False, tab_key=''):
+        top5 = next5 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw), 20)
+                lab = truncate(clean_hotel_name(raw), 28)
             elif dim_col == 'CorpName':
-                lab = truncate(clean_corp_name(raw), 20)
+                lab = truncate(clean_corp_name(raw), 28)
             elif dim_col == 'Destino':
-                lab = clean_destino_name(raw, 20)
+                lab = clean_destino_name(raw, 28)
             else:
-                lab = truncate(str(raw), 20)
+                lab = truncate(str(raw), 28)
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
             import math
@@ -365,26 +365,37 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             try:
                 _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
             except: _w20 = _w21
-            # No badge en hotel, sí en corp/dest/channel/canasta
             _bnd3 = '' if parse_hotel else (
                 r.get('BandaConvRate' if is_cv else 'BandaEficacia', '') if ('BandaConvRate' in r.index or 'BandaEficacia' in r.index) else '')
             if not _bnd3 and val and not parse_hotel:
                 _bnd3 = banda_convrate(val, int(r.get('Bookings',0))) if is_cv else banda_eficacia(val)
             _badge3 = _mini_badge(_bnd3)
-            _hidden3 = ' sb-hidden' if i >= 10 else ''
-            _row3 = (f'<div class="{_hidden3.strip()}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
-                     f' style="display:grid;grid-template-columns:1fr 46px 36px;align-items:center;gap:4px;'
+            if i < 5: _cls3 = ''
+            elif i < 10: _cls3 = 'rows-more'
+            else: _cls3 = 'sb-hidden'
+            _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{lab}"'
+                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 46px 36px;align-items:center;gap:4px;'
                      f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
                      f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
                      f'{_badge3}</div>'
                      f'<span style="font-size:11px;text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
-            if i < 5: col1 += _row3
-            elif i < 10: col2 += _row3
+            if i < 5: top5 += _row3
+            elif i < 10: next5 += _row3
             else: rest += _row3
-        return (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">'
-                f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+        has_more = len(df) > 5 and not parse_hotel  # hotel también tiene ver más
+        # Canasta y channel no tienen ver más (pocos elementos)
+        is_simple = tab_key in ('canasta', 'channel', 'provider')
+        ver_mas_btn = ''
+        if has_more and not is_simple:
+            ver_mas_btn = (f'<button class="rows-toggle" data-panel="{tab_key}" '
+                           f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                           f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                           f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                           f'<span class="toggle-label">Ver 5 más</span> '
+                           f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+        return f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
 
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
@@ -409,7 +420,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             parse_hotel = tk == 'hotel'
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
             # wm es ahora el nombre de la columna WoW (string) o None
-            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col)
+            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
             panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
         metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')

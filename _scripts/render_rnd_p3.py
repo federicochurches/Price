@@ -276,22 +276,22 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def gauge_canasta(banda, tipo):
         return gauge_5levels(banda, tipo)
 
-    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False):
-        """Genera filas de tab con top 100, 10 visibles + resto sb-hidden."""
+    def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False, tab_key=''):
+        """Genera filas de tab con top 100, 5 visibles + 5 rows-more + resto sb-hidden."""
         import math
-        col1 = col2 = rest = ''
+        top5 = next5 = rest = ''
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
-                lab = truncate(clean_hotel_name(str(raw)), 22)
+                lab = truncate(clean_hotel_name(str(raw)), 28)
             elif dim_col == 'PaisDestino':
-                lab = clean_pais_name(str(raw), max_len=20)
+                lab = clean_pais_name(str(raw), max_len=24)
             elif dim_col == 'Destino':
-                lab = clean_destino_name(str(raw), 20)
+                lab = clean_destino_name(str(raw), 24)
             elif dim_col == 'CorpName':
-                lab = clean_corp_name(str(raw), 22)
+                lab = clean_corp_name(str(raw), 28)
             else:
-                lab = truncate(str(raw), 22)
+                lab = truncate(str(raw), 28)
             val = r.get(val_col, 0)
             if is_rpm:
                 val = max(val, 0)
@@ -329,7 +329,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 _w20h_raw = r.get('NoDispo_W17', None)
                 try: _w20h = round(float(_w20h_raw)*100,4) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
                 except: _w20h = _w21h
-            # No badge en hotel, sí en pais/dest/corp
             _bnd_r3 = '' if parse_hotel else (
                 r.get('BandaNoDispo', '') if 'BandaNoDispo' in r.index else '')
             if not _bnd_r3 and not is_rpm and val and not parse_hotel:
@@ -337,20 +336,30 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if is_rpm and not _bnd_r3 and not parse_hotel:
                 _bnd_r3 = r.get('BandaRPM', '')
             _badge_r3 = _mini_badge(_bnd_r3)
-            _hidden_r3 = ' sb-hidden' if i >= 10 else ''
-            _row_r3 = (f'<div class="{_hidden_r3.strip()}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
-                       f' style="display:grid;grid-template-columns:1fr 52px 44px;align-items:center;gap:4px;'
+            if i < 5: _cls_r3 = ''
+            elif i < 10: _cls_r3 = 'rows-more'
+            else: _cls_r3 = 'sb-hidden'
+            _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{lab}"'
+                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px;align-items:center;gap:4px;'
                        f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                        f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
                        f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {lab}</span>'
                        f'{_badge_r3}</div>'
                        f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{val_str}</span>'
                        f'{wow_html}</div>')
-            if i < 5: col1 += _row_r3
-            elif i < 10: col2 += _row_r3
+            if i < 5: top5 += _row_r3
+            elif i < 10: next5 += _row_r3
             else: rest += _row_r3
-        return (f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;">'
-                f'<div>{col1}</div><div>{col2}</div></div>{rest}')
+        is_simple = tab_key in ('canasta',)
+        ver_mas_btn = ''
+        if len(df) > 5 and not is_simple:
+            ver_mas_btn = (f'<button class="rows-toggle" data-panel="{tab_key}" '
+                           f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                           f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+                           f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                           f'<span class="toggle-label">Ver 5 más</span> '
+                           f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+        return f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
@@ -398,7 +407,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             dim_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(tk, tk)
             parse_hotel = tk == 'hotel'
             val_col = 'RPM' if is_rpm else '%NoDispo'
-            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm)
+            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm, tab_key=tk)
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
 
         metric_type_hist = 'ipm' if prefix != '' else 'nodispo'
