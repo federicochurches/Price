@@ -69,7 +69,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#D4A878'),
+            ('Revisar',       '#F59E0B'),
             ('Aceptable',     '#5C469C'),
             ('Exitosa',       '#085041'),
         ]
@@ -77,7 +77,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#D4A878'),
+            ('Revisar',        '#F59E0B'),
             ('Aceptable',      '#5C469C'),
             ('Exitosa',        '#085041'),
         ]
@@ -85,7 +85,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#D4A878'),
+            ('Revisar',       '#F59E0B'),
             ('Aceptable',     '#5C469C'),
             ('Exitosa',       '#085041'),
         ]
@@ -93,7 +93,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#D4A878'),
+            ('Revisar',        '#F59E0B'),
             ('Aceptable',      '#5C469C'),
             ('Exitosa',        '#085041'),
         ]
@@ -150,9 +150,12 @@ def fmt_pct2(x):
     return f'{x*100:.2f}%'.replace('.', ',')
 
 def fmt_num2(x):
-    if pd.isna(x): return '-'
-    return f'{x:,.2f}'.replace(',', '|').replace('.', ',').replace('|', '.')
-
+    """Formatea número sin decimales (para IPM)."""
+    try:
+        v = float(x)
+        return f'{int(round(v)):,}'.replace(',','.')
+    except:
+        return '—'
 def fmt_int_es(x):
     if pd.isna(x): return '-'
     return f'{int(round(x)):,}'.replace(',', '.')

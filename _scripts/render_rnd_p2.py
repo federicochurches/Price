@@ -85,7 +85,8 @@ def build_findings():
         sign = '+' if v >= 0 else ''
         return f'{sign}{v:.1f}%'.replace('.',',')
     def es_num2(v):
-        return f'{v:,.2f}'.replace(',','|').replace('.',',').replace('|','.')
+        try: return f'{int(round(float(v))):,}'.replace(',','.')
+        except: return '—'
     
     def pill_banda(banda, target=''):
         COLORS = {
@@ -276,15 +277,19 @@ def render_severities_combinadas():
 '''
 
 # ============ SECCIÓN TOP 5 (Demanda No Convertida, Bajo Rendimiento, Sin Conversión, Por Corp/Dest/Pais) ============
-def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker=''):
+def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker='', show_header=True):
     """Top 100: primeras 10 visibles, resto sb-hidden, estilos unificados 11px."""
     grid = ' '.join(c['width'] for c in cols_def).strip()
-    header = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
-    for c in cols_def:
-        h_align = c.get('align','right')
-        color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
-        header += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};">{c["label"]}</span>'
-    header += '</div>'
+    if show_header:
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        for c in cols_def:
+            h_align = c.get('align','right')
+            color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
+            _hd += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};">{c["label"]}</span>'
+        _hd += '</div>'
+        header = _hd
+    else:
+        header = ''
     
     rows = header
     for i, r in df.iterrows():
@@ -655,7 +660,7 @@ def _render_panel_top_table(df, cols, idx_offset=0):
     df_rest.index = range(10, 10+len(df_rest))
     col1 = render_top_table('','',df1,cols)
     col2 = render_top_table('','',df2,cols)
-    hidden_rows = render_top_table('','',df_rest,cols)
+    hidden_rows = render_top_table('','',df_rest,cols, show_header=False)
     grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
     return grid + hidden_rows
 
@@ -769,7 +774,7 @@ def render_bloque_hoteles():
 <label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#por-hotel" style="font-size:10px;"></div>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-hotel" class="sb-inline sb-input" type="text" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" data-sb-scope="#por-hotel" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
@@ -834,7 +839,7 @@ def render_bloque_dimensiones():
 <label class="tab-label" for="tab-d-corp">Corporativo</label>
 <label class="tab-label" for="tab-d-dest">Destino</label>
 <label class="tab-label" for="tab-d-pais">País</label>
-<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#por-dimension" style="font-size:10px;"></div>
+<div class="sb-inline-wrap"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.5;"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="sb-rnd-dim" class="sb-inline sb-input" type="text" placeholder="Filtrar…" autocomplete="off" spellcheck="false" data-sb-scope="#por-dimension" style="font-size:10px;"><button class="sb-clear-btn" tabindex="-1" title="Limpiar filtro">×</button></div>
 </div>
 <div class="tab-panels">{panels}</div>
 </div>
