@@ -1546,4 +1546,29 @@ _(ver CHANGELOG para detalle)_
 
 ---
 
+---
+
+## 📝 Cambios · 24 May 2026 · Channel split canónico CR
+
+**Descripción:** Channel split CR (global + canastas) ahora itera sobre catálogo fijo en vez de filtrar por `.isin()`. Canales sin datos esa semana aparecen atenuados con `—` en vez de desaparecer.
+
+### Problema
+`.isin(LISTA)` sobre el DataFrame disponible → si Travelclick, Omnibees u otro canal no tenía tráfico esa semana, desaparecía del tab Channel sin aviso visual.
+
+### Solución
+| Función | Archivo | Descripción |
+|---|---|---|
+| `_sorted_canonical()` + `_lookup_chan()` | `render_cr_p1.py` | Card Eficacia global · HotelBeds con startswith |
+| `_sorted_canonical_cv()` | `render_cr_p1.py` | Card ConvRate global |
+| `_build_chan_df()` | `render_cr_p2.py` | Análisis por dimensión tab Channel · dummy rows NaN · kicker "activos" |
+| `_sorted_c()` + guard `_val_is_nan` | `render_cr_p3.py` | Canastas · `tab_rows_canasta` |
+
+### Comportamiento de filas sin datos
+- `opacity:.45` · `pointer-events:none` · sin badge · todos los valores `—`
+- Se renderizan al final de cada grupo (PP o TP), después de los que tienen datos
+
+### Archivos modificados
+`render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py`
+
+
 **Última actualización:** May 2026 · Batch fixes: undefined histórico canal, HotelBeds rename, ch
