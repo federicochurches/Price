@@ -19,7 +19,7 @@ _BANDA_COLORS = {
     'Aceptable':      {'bg': '#FEF9C3', 'fg': '#713F12', 'bd': '#FCD34D',  'bar': '#FCD34D',  'footer': '#713F12'},
     'Revisar':        {'bg': '#FED7AA', 'fg': '#C2410C', 'bd': '#F97316',  'bar': '#F97316',  'footer': '#C2410C'},
     'Crítica':        {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B',  'bar': '#C0392B',  'footer': '#99162B'},
-    'Súper Crítica':  {'bg': '#161616', 'fg': '#FFFFFF', 'bd': '#DC2626',  'bar': '#DC2626',  'footer': '#FFFFFF'},
+    'Súper Crítica':  {'bg': '#EDECEC', 'fg': '#4A3F3F', 'bd': '#9B2222',  'bar': '#C0392B',  'footer': '#4A3F3F'},
     'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377',  'bar': '#8A8377',  'footer': '#5F5E5A'},
 }
 _BANDA_COLORS_JS = {
