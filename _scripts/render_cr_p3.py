@@ -371,10 +371,15 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if i < 5: _cls3 = ''
             elif i < 10: _cls3 = 'rows-more'
             else: _cls3 = 'sb-hidden'
+            _corp_sub3 = truncate(clean_corp_name(str(r.get('CorpName', ''))), 22) if parse_hotel and 'CorpName' in r.index else ''
+            _hotel_cell = (f'<div style="min-width:0;overflow:hidden;">'
+                           f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                           + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub3}</span>' if _corp_sub3 else '')
+                           + f'</div>') if parse_hotel else f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
             _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                      f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
                      f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                     f'{_hotel_cell}'
                      f'<div style="display:flex;align-items:center;">{_badge3}</div>'
                      f'<span style="font-size:11px;font-weight:600;color:var(--accent);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
