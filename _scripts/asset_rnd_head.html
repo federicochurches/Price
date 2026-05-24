@@ -523,11 +523,29 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
     function filter(){
       var q = norm(input.value.trim());
-      wrapper.querySelectorAll('[data-lbl]').forEach(function(r){
+      var rows = wrapper.querySelectorAll('[data-lbl]');
+      var vis = 0, total = rows.length;
+      rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-lbl')||'').indexOf(q) >= 0;
-        r.classList.toggle('hidden', !match);
+        if (match){
+          r.classList.remove('sb-hidden');
+          r.classList.remove('rows-more');
+          r.style.display = 'grid';
+          vis++;
+        } else {
+          r.classList.add('sb-hidden');
+          r.style.display = 'none';
+        }
       });
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+      /* Cuando se limpia la búsqueda, restaurar el estado original: top5 visible, resto sb-hidden */
+      if (!q){
+        rows.forEach(function(r){
+          var ri = parseInt(r.getAttribute('data-row-idx')||'0');
+          if(ri < 5){ r.classList.remove('sb-hidden'); r.style.display='grid'; }
+          else { r.classList.add('sb-hidden'); r.style.display='none'; }
+        });
+      }
     }
 
     input.addEventListener('input', function(){ filter(); buildDD(input.value); });
