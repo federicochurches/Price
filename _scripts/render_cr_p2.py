@@ -147,11 +147,9 @@ def render_resumen_ej():
     banda_cv = banda_convrate(cv, M['global_current']['bookings'])
 
     def pill_b(nombre):
-        c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
-        bg = '#161616' if nombre == 'Súper Crítica' else c['bg']
-        fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
+        bc = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
-                f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
+                f'border-radius:2px;background:{bc["bg"]};color:{bc["fg"]};'
                 f'text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;margin:0 2px;">{nombre}</span>')
 
     def pill_d(texto, mejora):
@@ -236,7 +234,7 @@ def render_resumen_ej():
 # ============ SECCIÓN SEVERITY EFICACIA ============
 def render_severity_eficacia():
     levels = [
-        ('Súper Crítica','&lt; 60%','#161616'),
+        ('Súper Crítica','&lt; 60%','#DC2626'),
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#F97316'),
         ('Aceptable','93–97%','#FCD34D'),
@@ -244,17 +242,17 @@ def render_severity_eficacia():
     ]
     total = int(sev_ef_p80.sum())
     rows = ''
-    for name, rng, color in levels:
+    for name, rng, bar_color in levels:
         n = int(sev_ef_p80.get(name, 0))
         pct = n/total*100 if total else 0
         bar_w = max(min(pct, 100), 0.5)
-        # Badge SÓLIDO (paleta D): bg = color de banda, texto blanco/claro
-        bg = color
-        fg = '#FFFFFF' if name == 'Súper Crítica' else '#FFFFFF'
+        # Badge paleta D: Súper Crítica fondo sólido oscuro, resto bg pastel + fg oscuro
+        bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
+        badge_bg = bc['bg']; badge_fg = bc['fg']
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{bg};color:{fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                 f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg};color:{badge_fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                 f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                 f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bar_color};border-radius:2px;"></div></div>'
                  f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
                  f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
                  f'</div>')
@@ -283,22 +281,17 @@ def render_severities_combinadas():
     def render_table(sev_dict, levels_data):
         total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
         rows = ''
-        for name, rng, color in levels_data:
+        for name, rng, _ in levels_data:
             n = int(sev_dict.get(name, 0))
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
-            # Badge paleta D: bg pastel (excepto Súper Crítica que es sólida)
-            if name == 'Súper Crítica':
-                badge_bg = '#161616'; badge_fg = '#FFFFFF'
-            elif name == 'Sin Conversión':
-                badge_bg = '#F2EEE6'; badge_fg = '#5F5E5A'
-            else:
-                badge_bg = BANDA_COLORS.get(name, {}).get('bg', '#F2EEE6')
-                badge_fg = BANDA_COLORS.get(name, {}).get('fg', '#161616')
+            # Badge paleta D: BANDA_COLORS es la única fuente de verdad
+            bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
+            badge_bg = bc['bg']; badge_fg = bc['fg']; bar_color = bc['bar']
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                     f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg};color:{badge_fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                     f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bar_color};border-radius:2px;"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
                      f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
                      f'</div>')
@@ -579,13 +572,9 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     for i, r in df.iterrows():
         row_idx = start_idx + i   # 0-based para sb-hidden
         bnd = r.get('BandaEficacia','')
-        c = BANDA_COLORS.get(bnd, {})
-        if bnd == 'Súper Crítica':
-            bnd_bg = '#161616'; bnd_fg = '#FFFFFF'
-        else:
-            bnd_bg = c.get('bg','#F2EEE6'); bnd_fg = c.get('fg','#5F5E5A')
+        bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
+                f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
         n = row_idx + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
@@ -668,9 +657,8 @@ def render_channel_agrupado():
     g_tp = g[g['Grupo']=='Third Party'].iloc[0]
     
     def pill_banda(b):
-        bg = "rgba(22,22,22,.80)" if b=="Súper Crítica" else BANDA_COLORS.get(b,{}).get('bg','#E1F5EE')
-        fg = "#FFFFFF" if b=="Súper Crítica" else BANDA_COLORS.get(b,{}).get('fg', CR_ACCENT)
-        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.05em;">{b}</span>'
+        bc = BANDA_COLORS.get(b, BANDA_COLORS['Sin Conversión'])
+        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.05em;">{b}</span>'
     
     def grupo_card(g, color_b, icon):
         return (f'<div style="background:var(--paper);border-radius:4px;padding:18px;border-top:3px solid {color_b};">'
@@ -812,9 +800,8 @@ def render_por_channel_split():
         rows += '</div>'
         for i, r in df.iterrows():
             bnd = r.get('BandaEficacia','')
-            bnd_color = BANDA_COLORS.get(bnd,{}).get('fg', color_b)
-            bnd_bg = "rgba(22,22,22,.80)" if bnd=="Súper Crítica" else BANDA_COLORS.get(bnd,{}).get('bg','#E1F5EE')
-            bnd_fg = "#FFFFFF" if bnd=="Súper Crítica" else bnd_color
+            bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
+            bnd_bg = bc['bg']; bnd_fg = bc['fg']
             pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
                     f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
             cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {truncate(r[dim_col],30)}{pill}</div></div>'
@@ -957,19 +944,16 @@ def render_bloque_hoteles_cr():
         {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     
-    df_crit = pd.concat([TOP['criticos'], TOP['criticos_extra']], ignore_index=True)
-    df_crit.index = range(len(df_crit))
+    df_crit = TOP['criticos'].reset_index(drop=True)
     panel_crit = _render_panel_top_table_cr(df_crit, cols_main, with_hist=True, sb_id='sb-h-crit')
     
-    df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
-    df_br.index = range(len(df_br))
+    df_br = TOP['bajo_rend'].reset_index(drop=True)
     panel_br = _render_panel_top_table_cr(df_br, cols_main, with_hist=True, sb_id='sb-h-br')
     
-    df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
-    df_sc.index = range(len(df_sc))
+    df_sc = TOP['sin_conv'].reset_index(drop=True)
     panel_sc = _render_panel_top_table_cr(df_sc, cols_sc, with_hist=True, sb_id='sb-h-sc')
     
-    df_mcv = TOP['menor_cv'].head(10).reset_index(drop=True)
+    df_mcv = TOP['menor_cv'].head(100).reset_index(drop=True)
     panel_mcv = _render_panel_top_table_cr(df_mcv, cols_main, with_hist=True, sb_id='sb-h-mcv')
     
     n_total_sc = (p80_hotel['Bookings']==0).sum()
