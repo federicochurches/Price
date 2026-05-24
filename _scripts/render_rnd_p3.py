@@ -207,7 +207,7 @@ def _render_canasta_alertas_rnd(c, accent_color='#EA0074'):
         )
         ipm_val = max(rpm_obj.get('IPM', rpm_obj.get('RPM', 0)), 0)
         sub_rpm = render_alert_subcell(
-            'IPM', '#5C469C', '#EDE8F7', lbl_rpm,
+            'IPM', '#5C469C', '#FEF9C3', lbl_rpm,
             f'${fmt_num2(ipm_val)}', '#5C469C'
         )
         return render_alert_card(card_title, icon, accent_color, sub_nd, sub_rpm)

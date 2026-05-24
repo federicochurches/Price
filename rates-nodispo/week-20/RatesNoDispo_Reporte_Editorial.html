@@ -494,7 +494,6 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   /* ── MODO TABLE (Prop D) ── */
   function attachTable(input){
-    /* Buscar wrapper: ancestro que contenga filas [data-lbl] */
     var wrapper = input.closest('.tbl-wrap');
     if (!wrapper){
       var el = input.parentElement;
@@ -505,25 +504,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     if (!wrapper) return;
 
-    /* Botón X: puede venir del pill unificado (id=input.id+'-clear') o del wrapper */
     var clearBtn = document.getElementById(input.id + '-clear') || wrapper.querySelector('.sb-tbl-clear');
 
-    function filter(){
-      var q = norm(input.value.trim());
-      var rows = wrapper.querySelectorAll('[data-lbl]');
-      var vis = 0, total = rows.length;
-      rows.forEach(function(r){
-        var match = !q || norm(r.getAttribute('data-lbl')||'').indexOf(q) >= 0;
-        r.classList.toggle('hidden', !match);
-        if (match) vis++;
-      });
-      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
-    }
-
-    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
-    if (clearBtn) clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); });
-
-    /* Autocomplete dropdown — mismo estilo que attachPill */
+    /* Declarar dropdown ANTES de los listeners */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
@@ -538,6 +521,18 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       dropdown.innerHTML=html; posDD(); dropdown.classList.add('visible');
       dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dropdown.classList.remove('visible');}); });
     }
+
+    function filter(){
+      var q = norm(input.value.trim());
+      wrapper.querySelectorAll('[data-lbl]').forEach(function(r){
+        var match = !q || norm(r.getAttribute('data-lbl')||'').indexOf(q) >= 0;
+        r.classList.toggle('hidden', !match);
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+    }
+
+    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
+    if (clearBtn) clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); });
     input.addEventListener('blur', function(){ setTimeout(function(){dropdown.classList.remove('visible');},150); });
     window.addEventListener('scroll', function(){if(dropdown.classList.contains('visible'))posDD();}, true);
     window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
@@ -670,7 +665,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-global-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-global-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-global-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -689,7 +684,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-global-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-global-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-global-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -705,7 +700,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.81];
   var BASE_RATIOS= [1.313121, 1.291769, 1.01064, 0.822035];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -1100,7 +1095,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-global-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-global-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-global-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -1119,7 +1114,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-global-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-global-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-global-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -1135,7 +1130,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 1194.5];
   var BASE_RATIOS= [0.55337, 0.480536, 0.438677, 0.417748];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -1480,7 +1475,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
 <span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
 </div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>🏨</span><span>Hoteles</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Grand Hyatt Istanbul</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hyatt · Istanbul Area</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">93,22%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">637,3K · 0 BKGS</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hampton Inn & Suites Sacramento-Elk G…</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hilton · Sacramento Area</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">545,0K · 1 BKGS</div></div></div></div><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>📍</span><span>Destinos</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Phuket Area</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">1,2M · 0 BKGS</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">30,59%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">IPM 0</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Costa Brava Area</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">1,3M · 1 BKGS</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">2</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">%ND 7,27%</div></div></div></div><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>🏛</span><span>Corp</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sercotel</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">166,7K · 0 BKGS</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">30,59%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">IPM 0</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">On Vacation</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">3,8M · 2 BKGS</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">17</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">%ND 5,26%</div></div></div></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>🏨</span><span>Hoteles</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Grand Hyatt Istanbul</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hyatt · Istanbul Area</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">93,22%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">637,3K · 0 BKGS</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hampton Inn & Suites Sacramento-Elk G…</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hilton · Sacramento Area</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">0</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">545,0K · 1 BKGS</div></div></div></div><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>📍</span><span>Destinos</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Phuket Area</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">1,2M · 0 BKGS</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">30,59%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">IPM 0</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Costa Brava Area</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">1,3M · 1 BKGS</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">2</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">%ND 7,27%</div></div></div></div><div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid #EA0074;"><div style="font-size:10px;font-weight:700;color:#EA0074;letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span>🏛</span><span>Corp</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#EA0074;background:#FCE4F1;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">% NoDispo</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sercotel</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">166,7K · 0 BKGS</div><div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">30,59%</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">IPM 0</div></div><div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);"><div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div><div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">On Vacation</div><div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">3,8M · 2 BKGS</div><div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">17</div><div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">%ND 5,26%</div></div></div></div></div>
 </div>
 </section>
 
@@ -1617,7 +1612,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-hotel-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-hotel-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -1636,7 +1631,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-hotel-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-hotel-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-hotel-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -1652,7 +1647,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.81];
   var BASE_RATIOS= [1.313121, 1.291769, 1.01064, 0.822035];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -2026,7 +2021,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -2045,7 +2040,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-hotel-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -2061,7 +2056,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 1194.5];
   var BASE_RATIOS= [0.55337, 0.480536, 0.438677, 0.417748];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -2513,7 +2508,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-dim-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-dim-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -2532,7 +2527,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-dim-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-dim-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-dim-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -2548,7 +2543,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.81];
   var BASE_RATIOS= [1.313121, 1.291769, 1.01064, 0.822035];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -2922,7 +2917,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -2941,7 +2936,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-dim-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -2957,7 +2952,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 1194.5];
   var BASE_RATIOS= [0.55337, 0.480536, 0.438677, 0.417748];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -3559,7 +3554,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -3578,7 +3573,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -3594,7 +3589,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.19];
   var BASE_RATIOS= [1.424592, 1.451988, 1.196292, 0.881238];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -4017,7 +4012,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-rpm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-rpm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-rpm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -4036,7 +4031,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-rpm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-rpm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-rpm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -4052,7 +4047,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 1171.7];
   var BASE_RATIOS= [0.499275, 0.44636, 0.455748, 0.408808];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -4429,7 +4424,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">99,51%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Extended Suites Merid…</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$0</div>
 </div>
@@ -4446,7 +4441,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">99,51%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Fresno</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$1</div>
 </div>
@@ -4463,7 +4458,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">28,65%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Oyo Rooms</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$8</div>
 </div>
@@ -4668,7 +4663,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-hotel-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-hotel-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -4687,7 +4682,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-hotel-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-hotel-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-hotel-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -4703,7 +4698,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.19];
   var BASE_RATIOS= [1.424592, 1.451988, 1.196292, 0.881238];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -5076,7 +5071,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -5095,7 +5090,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-hotel-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -5111,7 +5106,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 1171.7];
   var BASE_RATIOS= [0.499275, 0.44636, 0.455748, 0.408808];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -5540,7 +5535,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-dim-nd-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-dim-nd-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -5559,7 +5554,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-dim-nd-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-dim-nd-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-dim-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
   </div>
 </div>
@@ -5575,7 +5570,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.19];
   var BASE_RATIOS= [1.424592, 1.451988, 1.196292, 0.881238];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -5948,7 +5943,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-op-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-op-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-op-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -5967,7 +5962,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-op-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-op-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-op-dim-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -5983,7 +5978,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 1171.7];
   var BASE_RATIOS= [0.499275, 0.44636, 0.455748, 0.408808];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -6513,7 +6508,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 3.55];
   var BASE_RATIOS= [1.340807, 1.222501, 0.864764, 0.768992];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -6936,7 +6931,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-cug-rpm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-cug-rpm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-cug-rpm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -6955,7 +6950,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-cug-rpm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-cug-rpm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-cug-rpm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -6971,7 +6966,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1692.1];
   var BASE_RATIOS= [0.650671, 0.51179, 0.389457, 0.387684];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -7348,7 +7343,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">99,40%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Holiday Inn Express H…</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$1</div>
 </div>
@@ -7365,7 +7360,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">52,57%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Costa Brava</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$4</div>
 </div>
@@ -7382,7 +7377,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">31,21%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">NH</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$29</div>
 </div>
@@ -7622,7 +7617,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 3.55];
   var BASE_RATIOS= [1.340807, 1.222501, 0.864764, 0.768992];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -7995,7 +7990,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-cug-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-cug-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-cug-hotel-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -8014,7 +8009,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-cug-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-cug-hotel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-cug-hotel-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -8030,7 +8025,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1692.1];
   var BASE_RATIOS= [0.650671, 0.51179, 0.389457, 0.387684];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -8494,7 +8489,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 3.55];
   var BASE_RATIOS= [1.340807, 1.222501, 0.864764, 0.768992];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -8867,7 +8862,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div id="hist-hrnd-cug-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-hrnd-cug-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#085041;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+      <div id="hist-hrnd-cug-dim-ipm-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
 
@@ -8886,7 +8881,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
   <!-- Footer -->
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-cug-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#085041;">EXITOSA</span>
+    <span id="hist-hrnd-cug-dim-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-hrnd-cug-dim-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
   </div>
 </div>
@@ -8902,7 +8897,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1692.1];
   var BASE_RATIOS= [0.650671, 0.51179, 0.389457, 0.387684];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -9432,7 +9427,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.39];
   var BASE_RATIOS= [1.215303, 1.321495, 1.085514, 0.991121];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -9890,7 +9885,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 343.2];
   var BASE_RATIOS= [0.495338, 0.533217, 0.600233, 0.547785];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -10267,7 +10262,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">86,49%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Hotel Misión Monterre…</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$8</div>
 </div>
@@ -10284,7 +10279,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">50,61%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">La Romana</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$18</div>
 </div>
@@ -10301,7 +10296,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 <div style="font-size:18px;font-weight:600;color:#EA0074;margin-top:6px;letter-spacing:-.02em;line-height:1;">20,07%</div>
 </div>
 <div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">
-<div style="font-size:9px;font-weight:700;color:#5C469C;background:#EDE8F7;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
+<div style="font-size:9px;font-weight:700;color:#5C469C;background:#FEF9C3;padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">IPM</div>
 <div style="font-size:11px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;">Selina</div>
 <div style="font-size:18px;font-weight:600;color:#5C469C;margin-top:6px;letter-spacing:-.02em;line-height:1;">$10</div>
 </div>
@@ -10541,7 +10536,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.39];
   var BASE_RATIOS= [1.215303, 1.321495, 1.085514, 0.991121];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -10949,7 +10944,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 343.2];
   var BASE_RATIOS= [0.495338, 0.533217, 0.600233, 0.547785];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -11413,7 +11408,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.39];
   var BASE_RATIOS= [1.215303, 1.321495, 1.085514, 0.991121];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {
@@ -11821,7 +11816,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
   var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 343.2];
   var BASE_RATIOS= [0.495338, 0.533217, 0.600233, 0.547785];
-  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#085041", "footer": "#085041"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#FECACA", "fg": "#7F1D1D", "footer": "#7F1D1D"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
   function getBanda(val) {

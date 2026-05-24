@@ -272,7 +272,7 @@ def _render_canasta_alertas_cr(c, accent_color=CR_ACCENT):
             fmt_pct2(ef_obj['Eficacia']), '#EA0074'
         )
         sub_cv = render_alert_subcell(
-            'ConvRate', CR_ACCENT, '#EDE8F7',
+            'ConvRate', CR_ACCENT, '#FEF9C3',
             truncate(clean_hotel_name(str(cv_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(cv_obj[name_col])) if name_col=='Destino' else str(cv_obj[name_col])), 22),
             fmt_pct2(cv_obj['ConvRate']), CR_ACCENT
         )

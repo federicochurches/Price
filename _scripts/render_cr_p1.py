@@ -504,7 +504,7 @@ def render_alerts_block():
         {'pill':'Eficacia','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_ef['Hotel']),38),'sub':f'{h_ef["CorpName"]} · {h_ef["Destino"]}',
          'value':fmt_pct2(h_ef['Eficacia']),'foot':f'{fmt_int_es(h_ef["CR_Unicos"])} CR · {int(h_ef["Bookings"])} BKGS'},
-        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EDE8F7',
+        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EEE9F7',
          'name':truncate(clean_hotel_name(h_cv['Hotel']),38),'sub':f'{h_cv["CorpName"]} · {h_cv["Destino"]}',
          'value':fmt_pct2(h_cv['ConvRate']),'foot':f'{fmt_int_es(h_cv["CR_Unicos"])} CR · {int(h_cv["Bookings"])} BKGS'},
     ]
@@ -512,7 +512,7 @@ def render_alerts_block():
         {'pill':'Eficacia','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':clean_destino_name(d_ef['Destino'],38),'sub':f'{fmt_int_es(d_ef["CR_Unicos"])} CR · {int(d_ef["Bookings"])} BKGS',
          'value':fmt_pct2(d_ef['Eficacia']),'foot':f'CR {fmt_pct2(d_ef["ConvRate"])}'},
-        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EDE8F7',
+        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EEE9F7',
          'name':clean_destino_name(d_cv['Destino'],38),'sub':f'{fmt_int_es(d_cv["CR_Unicos"])} CR · {int(d_cv["Bookings"])} BKGS',
          'value':fmt_pct2(d_cv['ConvRate']),'foot':f'Ef {fmt_pct2(d_cv["Eficacia"])}'},
     ]
@@ -520,7 +520,7 @@ def render_alerts_block():
         {'pill':'Eficacia','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(ch_ef['ExternalProviderName'],38),'sub':f'{fmt_int_es(ch_ef["CR_Unicos"])} CR · {int(ch_ef["Bookings"])} BKGS',
          'value':fmt_pct2(ch_ef['Eficacia']),'foot':f'CR {fmt_pct2(ch_ef["ConvRate"])}'},
-        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EDE8F7',
+        {'pill':'ConvRate','pill_color':'#5C469C','pill_bg':'#EEE9F7',
          'name':truncate(ch_cv['ExternalProviderName'],38),'sub':f'{fmt_int_es(ch_cv["CR_Unicos"])} CR · {int(ch_cv["Bookings"])} BKGS',
          'value':fmt_pct2(ch_cv['ConvRate']),'foot':f'Ef {fmt_pct2(ch_cv["Eficacia"])}'},
     ]

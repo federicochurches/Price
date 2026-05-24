@@ -558,25 +558,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     if (!wrapper) return;
 
-    /* Botón X: puede venir del pill unificado (id=input.id+'-clear') o del wrapper */
+    /* Botón X */
     var clearBtn = document.getElementById(input.id + '-clear') || wrapper.querySelector('.sb-tbl-clear');
 
-    function filter(){
-      var q = norm(input.value.trim());
-      var rows = wrapper.querySelectorAll('[data-lbl]');
-      var vis = 0, total = rows.length;
-      rows.forEach(function(r){
-        var match = !q || norm(r.getAttribute('data-lbl')||'').indexOf(q) >= 0;
-        r.classList.toggle('hidden', !match);
-        if (match) vis++;
-      });
-      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
-    }
-
-    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
-    if (clearBtn) clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); });
-
-    /* Autocomplete dropdown — mismo estilo que attachPill */
+    /* Autocomplete dropdown — declarar antes de los listeners */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
@@ -591,6 +576,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       dropdown.innerHTML=html; posDD(); dropdown.classList.add('visible');
       dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dropdown.classList.remove('visible');}); });
     }
+
+    function filter(){
+      var q = norm(input.value.trim());
+      var rows = wrapper.querySelectorAll('[data-lbl]');
+      rows.forEach(function(r){
+        var match = !q || norm(r.getAttribute('data-lbl')||'').indexOf(q) >= 0;
+        r.classList.toggle('hidden', !match);
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+    }
+
+    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
+    if (clearBtn) clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); });
     input.addEventListener('blur', function(){ setTimeout(function(){dropdown.classList.remove('visible');},150); });
     window.addEventListener('scroll', function(){if(dropdown.classList.contains('visible'))posDD();}, true);
     window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
