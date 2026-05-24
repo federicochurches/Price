@@ -25,6 +25,16 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 ---
 
+## 🔧 Fix reciente · Channel split canónico CR (24 May 2026)
+
+**Problema resuelto:** canales sin datos esa semana desaparecían del tab Channel en todos los contextos CR (hero global, análisis por dimensión, canastas).
+
+**Fix:** iteración sobre catálogo fijo (`PRODUCTO_PROPIO` + `THIRD_PARTY`). Canales ausentes → fila atenuada `opacity:.45` con `—`.
+
+**Impacto:** `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py`
+
+---
+
 ## 🎨 Paleta canónica de bandas (post W20 sesión Mayo 2026)
 
 **Fuente de verdad:** `BANDA_COLORS` en `render_helpers.py`
