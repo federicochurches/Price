@@ -504,9 +504,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === RESUMEN EJECUTIVO con pills de banda y WoW ===
     def pill_b(nombre):
         # Paleta D sólida: bg = color de banda, texto blanco/claro
-        SOLID = {'Exitosa':'#085041','Aceptable':'#5C469C',
-                 'Revisar':'#A86A1D','Crítica':'#C0392B',
-                 'Súper Crítica':'#161616','Sin Conv':'#8A8377'}
+        SOLID = {'Exitosa':'#1A6B4A','Aceptable':'#713F12',
+                 'Revisar':'#C2410C','Crítica':'#C0392B',
+                 'Súper Crítica':'#7F1D1D','Sin Conv':'#8A8377'}
         bg = SOLID.get(nombre, '#161616')
         fg = '#FCEBEB' if nombre == 'Súper Crítica' else '#FFFFFF'
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;'
