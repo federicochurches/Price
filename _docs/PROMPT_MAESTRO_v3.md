@@ -1463,3 +1463,45 @@ Todas las cards KPI ahora tienen estructura idéntica:
 ---
 
 **Última actualización:** Mayo 2026 · post W20 · Sprint A+B + fixes global vs canastas · commits 8e934bdf · b3daea6a · e61c87ce
+
+---
+
+## 🤖 Proceso de commit automático (W21+)
+
+### Flujo estándar tras cualquier cambio
+
+**1. Actualizar docs** (antes de commitear):
+```bash
+# Para pipeline completo:
+python3 update_docs.py --week 21 --periodo "18–24 may 2026" --tipo pipeline
+
+# Para fix puntual:
+python3 update_docs.py --week 21 --tipo fix --descripcion "Fix badges canastas"
+```
+
+**2. Commit + ZIP**:
+```bash
+python3 github_commit.py --week 21 --periodo "18–24 may 2026" --token ghp_xxx
+```
+
+**O en un solo comando** (si hay `github_token` en el YAML):
+```bash
+python3 run_pipeline.py WEEK_CONFIG_W21.yml   # Pasos 7+8 se ejecutan solos
+```
+
+### Lo que hace cada script
+
+**`update_docs.py`** — actualiza los 3 documentos canónicos:
+- `CHANGELOG.md`: bloque con tabla KPIs reales (del pickle), outputs generados, commits
+- `README.md`: sección "Última semana publicada" con KPIs + URLs
+- `PROMPT_MAESTRO_v3.md`: bloque de cambios de la semana
+
+**`github_commit.py`** — hace el commit vía API GitHub:
+- Combina: contenido del `Price_WNN.zip` + scripts en `_scripts/` + docs en `_docs/`
+- Genera `ProyectoClaude_PRICE_WNN.zip` con los archivos del proyecto Claude
+
+### Invariante: siempre docs antes de commit
+
+> Nunca commitear sin haber corrido `update_docs.py` primero.  
+> El paso 7 del pipeline lo garantiza automáticamente.
+

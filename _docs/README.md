@@ -469,6 +469,60 @@ Los siguientes bugs quedaron abiertos para atender en W21:
 
 **Nota**: Aceptable y Revisar comparten el naranja `#F59E0B` en el gauge. El badge de Aceptable usa `bg:#FEF3C7 fg:#92400E` (pastel naranja).
 
+## 🤖 Automatización del pipeline (W21+)
+
+### Flujo completo en 1 comando
+
+```bash
+python3 run_pipeline.py WEEK_CONFIG_W21.yml
+```
+
+El pipeline tiene **8 pasos** (los 6 de siempre + 2 nuevos):
+
+| Paso | Script | Descripción |
+|---|---|---|
+| 1–6 | _(existentes)_ | calc → render → assemble → excel → mail → hub |
+| **7** | `update_docs.py` | Actualiza CHANGELOG + README + PROMPT_MAESTRO con KPIs reales del pickle |
+| **8** | `github_commit.py` | Commit vía GitHub API + ZIP del proyecto Claude |
+
+Pasos 7 y 8 son **non-critical** — si fallan no abortan el pipeline.
+
+### Activar el commit automático (Paso 8)
+
+Agregar al YAML de config:
+```yaml
+github_token: ghp_xxx   # Token GitHub con permisos de escritura al repo
+```
+
+O exportar antes de correr:
+```bash
+export GITHUB_TOKEN=ghp_xxx
+python3 run_pipeline.py WEEK_CONFIG_W21.yml
+```
+
+### Para fixes puntuales (fuera de pipeline)
+
+```bash
+# 1. Actualizar docs
+python3 update_docs.py --week 21 --tipo fix \
+  --descripcion "Fix Severity en canastas" \
+  --commits "abc123,def456"
+
+# 2. Commitear
+python3 github_commit.py --week 21 --tipo fix \
+  --mensaje "fix(canastas): Severity + rows-more dim" \
+  --token ghp_xxx
+```
+
+### Scripts de automatización
+
+| Script | Uso |
+|---|---|
+| `update_docs.py` | Actualiza los 3 docs · modo `pipeline` (con KPIs) o `fix` (cambio puntual) |
+| `github_commit.py` | Commit vía API · reemplaza `commit_release.py` · también genera ZIP del proyecto Claude |
+| `run_pipeline.py` | Orquestador · llama a update_docs y github_commit automáticamente |
+
+
 ## 🔧 Regla de mantenimiento: Global vs Canastas (post-W20)
 
 ### Principio general
