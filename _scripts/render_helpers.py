@@ -306,14 +306,13 @@ def wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓'):
     """
     import math
     if wow_val is None or (isinstance(wow_val, float) and math.isnan(wow_val)):
-        # Neutro sin datos
         return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
-                f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
                 f'background:#F2EEE6;color:#8A8377;">—</span>')
     v = float(wow_val)
     if abs(v) < 0.005:
         return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
-                f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
                 f'background:#F2EEE6;color:#8A8377;">— 0,0{unit}</span>')
     if v > 0:
         bg, fg, arrow = '#EAF3DE', '#2F6C34', prefix_pos
@@ -321,7 +320,7 @@ def wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓'):
         bg, fg, arrow = '#FCE8E6', '#C0392B', prefix_neg
     val_str = f'{abs(v):.1f}'.replace('.', ',')
     return (f'<span style="display:inline-flex;align-items:center;gap:2px;'
-            f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+            f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
             f'background:{bg};color:{fg};">{arrow} {val_str}{unit}</span>')
 
 
