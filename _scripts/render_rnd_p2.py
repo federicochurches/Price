@@ -241,7 +241,7 @@ def render_severities_combinadas():
     n_crit_ipm = int(sev_rpm['Crítica'])
     n_proc = total_ipm - n_sc
     
-    return f'''<section id="severity-combinada">
+    return f'''<section id="severity-combinada" style="margin-top:48px;">
 <div class="section-head">
 <div>
 <div class="section-num">Sección 02</div>
