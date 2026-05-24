@@ -579,13 +579,13 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
-        cells = (f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};display:flex;align-items:center;gap:4px;min-width:0;">'
+        cells = (f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px;min-width:0;">'
                  f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {label_val}</span>{pill}</div></div>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{cv_str}</span>'
                  f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan"))) if has_cv_wow else ""}'
-                 f'<span style="text-align:right;color:{CR_ACCENT};font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
+                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
         if has_wow:
             wow_v = r.get(wow_col, None)
             try:
