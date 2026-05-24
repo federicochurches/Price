@@ -1,12 +1,12 @@
-# Sistema de Bandas · Paleta D · Vigente desde Week 20 · Actualizado W20 sesión final
+# Sistema de Bandas · Paleta D · Vigente desde Week 20
 
-Las bandas dividen los hoteles del P80 en 5 niveles de severidad por cada métrica. La paleta de colores **Paleta D** es la vigente desde W20 y los badges usan el estilo **Opción D** (mayúsculas, sin target dentro del badge).
+Las bandas dividen los hoteles del P80 en 5 niveles de severidad por cada métrica. La paleta de colores se actualizó en Week 20 a la **Paleta D** y los badges adoptaron el estilo **Opción D** (mayúsculas, sin target dentro del badge).
 
 ---
 
 ## Paleta D · colores definitivos · ÚNICA FUENTE: `render_helpers.BANDA_COLORS`
 
-> ⚠️ **Regla de oro:** Los colores de bandas NUNCA se hardcodean fuera de `BANDA_COLORS` en `render_helpers.py`. Cualquier otro dict local de colores de banda es un bug.
+> ⚠️ **Regla de oro:** Los colores de bandas NUNCA se hardcodean fuera de `BANDA_COLORS` en `render_helpers.py`. Cualquier otro dict local de colores de banda en el código es un bug.
 
 | Banda | fg (texto) | bg (fondo) | bd (borde) | bar (barra severity) |
 |---|---|---|---|---|
@@ -14,15 +14,42 @@ Las bandas dividen los hoteles del P80 en 5 niveles de severidad por cada métri
 | **Aceptable** | `#713F12` ámbar oscuro | `#FEF9C3` amarillo claro | `#FCD34D` | `#FCD34D` |
 | **Revisar** | `#C2410C` naranja oscuro | `#FED7AA` naranja claro | `#F97316` | `#F97316` |
 | **Crítica** | `#99162B` rojo oscuro | `#FCE4F1` rosado claro | `#C0392B` | `#C0392B` |
-| **Súper Crítica** | `#4A3F3F` gris oscuro cálido | `#EDECEC` gris claro cálido | `#9B2222` | `#C0392B` |
+| **Súper Crítica** | `#4A3F3F` gris oscuro cálido | `#EDECEC` gris claro | `#9B2222` | `#C0392B` |
 | **Sin Conversión** | `#5F5E5A` gris oscuro | `#F2EEE6` crema | `#8A8377` | `#8A8377` |
 
-> **Súper Crítica** usa gris cálido (no negro) para evitar contraste excesivo con las otras bandas pastel. El borde rojo oscuro comunica la severidad máxima.
+> **Súper Crítica** es la única banda sin color saturado — gris claro para reducir contraste, borde rojo oscuro para comunicar severidad.  
+> Las demás son texto oscuro + fondo claro (pastel).
 
-### Barra Gauge · regla definitiva
-Todas las barras: `height:6px · opacity:1` — colores sólidos puros, sin transparencia.  
+### Nota sobre divergencia histórica
+BANDAS.md previo (post W20 s3) documentaba colores que nunca llegaron al código (Exitosa `#085041`, Aceptable `#3C3489`, Súper Crítica `#A32D2D`). Esta versión refleja la realidad del código a partir de W21.
+
+---
+
+## Gauge de 5 niveles · regla definitiva
+
+Todas las barras: `height:8px · border-radius:2px` — colores sólidos puros, sin transparencia.  
 Barra Revisar: `#F97316` (naranja) ≠ barra Aceptable: `#FCD34D` (amarillo) — **son diferentes**.  
 Implementación: `gauge_5levels(banda_actual, tipo)` en `render_helpers.py`.
+
+---
+
+## Estilo Opción D · badge pill
+
+Todos los badges de banda (Hero KPIs, módulos históricos, tablas Severity, pills inline):
+
+```
+font-size: 11px–13px (13px hero · 11px canastas · 9px severity rows)
+font-weight: 700
+letter-spacing: .04–.06em
+text-transform: uppercase
+padding: según contexto
+border-radius: 2–3px
+border: 1px solid {bd}
+```
+
+El texto del badge es **solo el nombre de la banda en mayúsculas**. El target va como caption gris separado.
+
+Función: `banda_pill(banda, target=None, font_size='11px')` en `render_helpers.py`.
 
 ---
 
@@ -43,7 +70,7 @@ Implementación: `gauge_5levels(banda_actual, tipo)` en `render_helpers.py`.
 ### IPM · Income Per Million USD (RND)
 
 > IPM = `gb_usd / Trafico × 1.000.000`  
-> Variables Python usan `rpm`/`BandaRPM` por compatibilidad; todos los displays dicen "IPM".
+> Variables Python usan `rpm`/`BandaRPM` por compatibilidad; displays dicen "IPM".
 
 | Banda | Rango |
 |---|---|
@@ -81,24 +108,6 @@ Implementación: `gauge_5levels(banda_actual, tipo)` en `render_helpers.py`.
 
 ---
 
-## Estilo Opción D · badge pill
-
-Todos los badges de banda (Hero KPIs, módulos históricos, tablas Severity, pills inline):
-
-```
-font-size: 11px–13px (13px hero · 11px canastas · 9px severity rows)
-font-weight: 700
-letter-spacing: .04–.06em
-text-transform: uppercase
-padding: según contexto
-border-radius: 2–3px
-border: 1px solid {bd}
-```
-
-El texto es **solo el nombre de la banda en mayúsculas**. El target va como caption gris separado (función `target_caption()`).
-
----
-
 ## Sistema D · "Sin Conversión" como cohorte aparte
 
 Sin Conversión **NO es la peor banda** — es una **cohorte estructural separada** (BKGS=0, requiere diagnóstico técnico, no severidad). Aplica a Conv Rate (CR) e IPM (RND).
@@ -109,7 +118,7 @@ Sin Conversión **NO es la peor banda** — es una **cohorte estructural separad
 
 | Archivo | Qué define |
 |---|---|
-| `render_helpers.py` | **`BANDA_COLORS`** · dict maestro · `banda_pill()` · `gauge_5levels()` · `target_caption()` · `_mini_badge()` |
+| `render_helpers.py` | **`BANDA_COLORS`** · dict maestro · `banda_pill()` · `gauge_5levels()` · `target_caption()` |
 | `template_severity.py` | `LEVELS_*` · `make_severity_levels()` · `render_severity_block()` · importa de `render_helpers` |
 | `historico_module_v2.py` | `_BANDA_COLORS` local (CR) · debe coincidir con `render_helpers` |
 | `historico_module_rnd.py` | `_BANDA_COLORS` local (RND) · debe coincidir · `IPM_ACCENT=#4FC3F4` es excepción válida |
@@ -128,38 +137,25 @@ Cualquier otro `#4FC3F4` es un bug.
 
 ---
 
-## CSS · reglas peligrosas eliminadas (historial)
-
-Las siguientes reglas CSS existían en `asset_cr_head.html` y causaban bugs de color. Están eliminadas:
-
-| Regla eliminada | Problema | Commit |
-|---|---|---|
-| `.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:var(--amber);font-weight:700;}` | Pintaba todos los spans de tab-panel en amarillo (#FCD34D) | da51e4b3 |
-| `.tab-panel div span:not(.tab-key):not(.wow-pill):not(.wow-spacer){color:#5C469C !important;font-weight:700;}` | Con `!important` ganaba sobre inline styles, pintaba valores en violeta | a64115d4 |
-
-**Regla vigente (inofensiva):** `.tab-panel div span.tab-val{color:var(--amber);font-weight:600;}` — solo aplica a spans con clase `.tab-val` que ya no se genera en el código actual.
-
----
-
-## Checklist anti-regresión
+## Checklist anti-regresión · aplicar en cada sesión de cambios de color
 
 ```bash
-# No deben quedar dicts locales de color de banda:
+# Verificar que no quedan dicts locales de color de banda:
 grep -rn "BADGE_COLORS\|SOLID = {" _scripts/*.py
 
-# No deben quedar fg=FFFFFF para todos (solo Súper Crítica lo tuvo, ahora tiene #4A3F3F):
-grep -rn "fg.*FFFFFF" _scripts/*.py | grep -v "historico"
+# Verificar que no quedan fg=FFFFFF para todos (solo Súper Crítica lo tiene):
+grep -rn "fg.*FFFFFF.*else.*FFFFFF" _scripts/*.py
 
-# Barra Revisar y Aceptable deben ser distintos colores en gauge:
-grep -n "Revisar\|Aceptable" _scripts/render_helpers.py | grep "FCD34D\|F97316"
+# Verificar que Revisar y Aceptable tienen colores distintos en gauge:
+grep -n "Revisar\|Aceptable" _scripts/render_helpers.py | grep "#FCD34D"
 
-# Cyan fuera de contextos permitidos:
+# Verificar cyan fuera de contextos permitidos:
 grep -rn "#4FC3F4" _scripts/*.py | grep -v "historico_module_rnd\|IPM_ACCENT\|Third Party"
 
-# No debe existir ninguna regla CSS !important de color en span:
-grep -rn "span.*!important\|!important.*color" _scripts/*.html | grep -v "wow-pill\|display:none\|grid-template"
+# Verificar que barra Súper Crítica no usa #161616 (el fondo):
+grep -rn "bar.*161616\|161616.*bar" _scripts/*.py
 ```
 
 ---
 
-**Última actualización:** 24 Mayo 2026 · Sesión W20 final · Paleta D efectiva · Súper Crítica gris cálido · CSS legacy eliminado
+**Última actualización:** Mayo 2026 · post W20 · alineación BANDAS.md con código real · paleta efectiva W21+
