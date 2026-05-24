@@ -1,6 +1,44 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+## Cambio · Mayo 2026 · Automatización docs + commit en pipeline
+
+### Contexto
+Los pasos 7 (docs) y 8 (commit + ZIP) son ahora parte del pipeline automático.
+
+### Scripts nuevos
+
+| Script | Descripción |
+|---|---|
+| `update_docs.py` | Paso 7 · actualiza CHANGELOG + README + PROMPT_MAESTRO con KPIs del pickle · modo `pipeline` y `fix` |
+| `github_commit.py` | Paso 8 · commit vía GitHub API + ZIP del proyecto Claude · reemplaza `commit_release.py` |
+
+### Cambios en `run_pipeline.py`
+- Agregados **Paso 7: UPDATE DOCS** y **Paso 8: COMMIT + ZIP** como pasos non-critical
+- Paso 8 se activa si hay `github_token` en el YAML o `GITHUB_TOKEN` en el entorno
+- Si no hay token, el paso 8 se saltea con aviso (no bloquea el pipeline)
+
+### Uso del token en YAML
+```yaml
+# WEEK_CONFIG_W21.yml
+github_token: ghp_xxx   # Opcional — si no está, agregar manualmente vía env
+```
+
+### Uso standalone de los nuevos scripts
+```bash
+# Solo docs (ej: después de un fix puntual)
+python3 update_docs.py --week 21 --periodo "18–24 may 2026" --tipo fix --descripcion "Fix searchbox"
+
+# Commit completo (pipeline)
+python3 github_commit.py --week 21 --periodo "18–24 may 2026" --token ghp_xxx
+
+# Commit de fix puntual
+python3 github_commit.py --week 21 --tipo fix --mensaje "Fix badges canastas" --token ghp_xxx
+```
+
+### Archivos modificados
+`run_pipeline.py` · `update_docs.py` (nuevo) · `github_commit.py` (nuevo)
+
 ## Week 20 · Mayo 2026 · Sesiones 7–13 · UI/UX completo + Searchbox interactivo + Top 100
 
 ### Resumen ejecutivo de cambios

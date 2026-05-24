@@ -7,11 +7,12 @@ Uso:
     
 Ejemplo:
     python3 run_pipeline.py WEEK_CONFIG_W21.yml
+    python3 run_pipeline.py WEEK_CONFIG_W21.yml  # Requiere github_token en YAML o GITHUB_TOKEN env
 
 Características:
     - Lee configuración centralizada desde YAML
     - Exporta variables de entorno a todos los scripts
-    - Ejecuta 6 pasos del pipeline automáticamente
+    - Ejecuta 8 pasos del pipeline automáticamente (6 datos + docs + commit)
     - Genera logs detallados con timestamps
     - Validación de datasets pre-ejecución
     - Rollback inteligente en caso de errores críticos
@@ -24,6 +25,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 import json
+import importlib.util
 
 # ── COLORES PARA SALIDA ────────────────────────────────────────────────────
 class Colors:
@@ -265,6 +267,16 @@ def get_pipeline_steps(config):
             'cmd': 'python3 render_mail_v3.py && python3 build_package.py',
             'critical': False,
         },
+        {
+            'name': '7. UPDATE DOCS',
+            'cmd': None,   # Ejecutado directamente en Python, no via subprocess
+            'critical': False,
+        },
+        {
+            'name': '8. COMMIT + ZIP',
+            'cmd': None,   # Ejecutado directamente en Python, no via subprocess
+            'critical': False,
+        },
     ]
 
 # ── MAIN ───────────────────────────────────────────────────────────────────
@@ -324,6 +336,68 @@ def main():
             else:
                 logger.warning(f"⚠️  {step['name']} falló pero es non-critical, continuando...")
     
+    # ── PASO 7: UPDATE DOCS ─────────────────────────────────────────────────
+    paso7_step = next((s for s in steps if s['name'] == '7. UPDATE DOCS'), None)
+    if paso7_step and '6. MAIL + HUB' not in failed_steps:
+        logger.section("📝 PASO 7: UPDATE DOCS")
+        try:
+            import subprocess as _sp
+            week_num = int(config['week'])
+            script_path = Path(config.get('paths', {}).get('project', '.')) / 'update_docs.py'
+            if not script_path.exists():
+                script_path = Path(__file__).parent / 'update_docs.py'
+            cmd_docs = [
+                'python3', str(script_path),
+                '--week', str(week_num),
+                '--vol-num', str(config.get('vol_num', week_num)),
+                '--periodo', config.get('periodo', ''),
+                '--mes-anio', config.get('mes_anio', ''),
+                '--fecha-pub', config.get('fecha_pub', ''),
+                '--tipo', 'pipeline',
+                '--scripts-dir', str(Path(__file__).parent),
+                '--docs-dir', str(Path(__file__).parent),
+            ]
+            result = _sp.run(cmd_docs, capture_output=False, timeout=120)
+            if result.returncode == 0:
+                logger.success("✅ Documentación actualizada (CHANGELOG + README + PROMPT_MAESTRO)")
+            else:
+                logger.warning("⚠️  update_docs.py completó con advertencias")
+        except Exception as e:
+            logger.warning(f"⚠️  Update docs falló (non-critical): {e}")
+            failed_steps.append('7. UPDATE DOCS')
+
+    # ── PASO 8: COMMIT + ZIP ─────────────────────────────────────────────────
+    paso8_step = next((s for s in steps if s['name'] == '8. COMMIT + ZIP'), None)
+    github_token = config.get('github_token', os.environ.get('GITHUB_TOKEN', ''))
+    if paso8_step and github_token and '4. ASSEMBLE RND + CR' not in failed_steps:
+        logger.section("🚀 PASO 8: COMMIT GITHUB + ZIP PROYECTO")
+        try:
+            import subprocess as _sp
+            week_num = int(config['week'])
+            script_path = Path(config.get('paths', {}).get('project', '.')) / 'github_commit.py'
+            if not script_path.exists():
+                script_path = Path(__file__).parent / 'github_commit.py'
+            cmd_commit = [
+                'python3', str(script_path),
+                '--week', str(week_num),
+                '--periodo', config.get('periodo', ''),
+                '--tipo', 'pipeline',
+                '--token', github_token,
+                '--outputs-dir', config.get('paths', {}).get('outputs', '/mnt/user-data/outputs'),
+                '--scripts-dir', str(Path(__file__).parent),
+            ]
+            result = _sp.run(cmd_commit, capture_output=False, timeout=600)
+            if result.returncode == 0:
+                logger.success(f"✅ Commit + ZIP completados")
+            else:
+                logger.warning("⚠️  github_commit.py completó con advertencias")
+        except Exception as e:
+            logger.warning(f"⚠️  Commit falló (non-critical): {e}")
+            failed_steps.append('8. COMMIT + ZIP')
+    elif paso8_step and not github_token:
+        logger.warning("⏭  Paso 8 saltado: no hay GITHUB_TOKEN en config ni en variables de entorno")
+        logger.warning("   Para activar: agregar 'github_token: ghp_xxx' al YAML o export GITHUB_TOKEN=ghp_xxx")
+
     # RESUMEN FINAL
     logger.section("📋 RESUMEN")
     
