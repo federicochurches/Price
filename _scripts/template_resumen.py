@@ -45,7 +45,7 @@ def render_resumen_ejecutivo(findings, accent_color, scope='global', header_titl
 <div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
 <span style="color:{accent_color};">🎯</span><span>{header_title}</span>
 </div>
-<div style="padding:16px 22px;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:4px;margin-bottom:18px;">
+<div style="padding:16px 22px;font-weight:400;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:4px;margin-bottom:18px;">
 <div class="exec-2cols" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;">
 <ol style="list-style:none;padding:0;margin:0;">
 {col1_items}
