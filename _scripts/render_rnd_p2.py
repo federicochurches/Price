@@ -348,7 +348,7 @@ def render_demanda_nc():
 </div>
 <div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Demanda No Convertida</strong> está en la pestaña <em>«Demanda No Convertida»</em> del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Demanda No Convertida</strong> está en la pestaña <em>«Demanda No Convertida»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -376,7 +376,7 @@ def render_bajo_rend():
 </div>
 <div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -407,7 +407,7 @@ def render_no_convierten():
 </div>
 {body}
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto · separada de Bajo Rendimiento.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto · separada de Bajo Rendimiento.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -420,8 +420,8 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     """
     import math
     RND_ACCENT = '#EA0074'
-    grid = '1fr 62px 36px 58px 36px'
-    headers = [dim_label, '%NoDispo', 'WoW', 'IPM', 'WoW']
+    grid = '1fr 72px 62px 36px 58px 36px'
+    headers = [dim_label, 'Severity', '%NoDispo', 'WoW', 'IPM', 'WoW']
 
     # Header con o sin searchbox
     hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
@@ -431,7 +431,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
                                            placeholder=f'{dim_label}…',
                                            th_id=f'th-{sb_id}')
         else:
-            align = 'left' if h == dim_label else 'right'
+            align = 'left' if h in (dim_label, 'Severity') else 'right'
             color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
             hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
     hrow += '</div>'
@@ -441,8 +441,10 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
         bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
-                f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.04em;margin-left:4px;flex-shrink:0;">{bnd}</span>')
+        badge_cell = (f'<div style="display:flex;align-items:center;">'
+                      f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+                      f'</div>')
         if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
         elif dim_col == 'CorpName': raw_label = clean_corp_name(r[dim_col])
@@ -464,8 +466,8 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         ipm_base = r.get('IPM_W18', 0)
         wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
 
-        cells = (f'<div style="display:flex;align-items:center;gap:2px;overflow:hidden;">'
-                 f'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {truncate(raw_label,26)}</span>{pill}</div>'
+        cells = (f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">{row_idx+1}. {truncate(raw_label,26)}</span></div>'
+                 f'{badge_cell}'
                  f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
                  f'<span style="text-align:right;">{wow_nd}</span>'
                  f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
@@ -785,7 +787,7 @@ def render_bloque_hoteles():
 </div>
 {hist_hotel}
 <div class="detail-callout" style="margin-top:18px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de cada óptica (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
 </div>
 </section>
