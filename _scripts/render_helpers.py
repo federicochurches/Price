@@ -35,7 +35,7 @@ BANDA_COLORS = {
     'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D', 'bar':'#FCD34D'},
     'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316', 'bar':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B', 'bar':'#C0392B'},
-    'Súper Crítica': {'bg':'#161616', 'fg':'#FFFFFF', 'bd':'#DC2626', 'bar':'#DC2626'},
+    'Súper Crítica': {'bg':'#EDECEC', 'fg':'#4A3F3F', 'bd':'#9B2222', 'bar':'#C0392B'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377', 'bar':'#8A8377'},
 }
 
@@ -77,12 +77,12 @@ def target_caption(target_text, font_size='11px'):
 
 def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     """Gauge bar 5 niveles · height:6px · opacity:1 uniforme · BANDAS.md
-    Colores: Súper Crítica negro · Crítica rojo · Revisar naranja · Aceptable amarillo · Exitosa verde
+    Colores: Súper Crítica rojo oscuro · Crítica rojo · Revisar naranja · Aceptable amarillo · Exitosa verde
     La banda activa se identifica por el badge/pill arriba, no por el gauge.
     """
     if niveles_rnd_or_cr == 'nodispo':
         levels = [
-            ('Súper Crítica', '#161616'),
+            ('Súper Crítica', '#C0392B'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),
@@ -98,7 +98,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [
-            ('Súper Crítica', '#161616'),
+            ('Súper Crítica', '#C0392B'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),
