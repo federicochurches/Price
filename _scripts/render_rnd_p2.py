@@ -89,19 +89,11 @@ def build_findings():
         except: return '—'
     
     def pill_banda(banda, target=''):
-        COLORS = {
-            'Exitosa':       ('#1A6B4A','#E1F5EE','#1D9E75'),
-            'Aceptable':     ('#713F12','#FEF9C3','#FCD34D'),
-            'Revisar':       ('#C2410C','#FED7AA','#F97316'),
-            'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
-            'Súper Crítica': ('#FFFFFF','#161616','#DC2626'),
-            'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
-        }
-        c = COLORS.get(banda, ('#8A8377','#F2EEE6','#8A8377'))
+        bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
         tgt = f' <span style="font-weight:400;opacity:.8;font-size:8px;">· {target}</span>' if target else ''
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.04em;'
                 f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
-                f'background:{c[1]};color:{c[0]};border:1px solid {c[2]};">{banda}{tgt}</span>')
+                f'background:{bc["bg"]};color:{bc["fg"]};border:1px solid {bc["bd"]};">{banda}{tgt}</span>')
 
     def pill_wow_nd(v):
         """Pill WoW para %NoDispo: verde si baja."""
@@ -164,7 +156,7 @@ def render_resumen_ej():
 # ============ SECCIÓN SEVERITY %NoDispo ============
 def render_severity_nodispo():
     levels = [
-        ('Súper Crítica','&gt; 60%','#161616'),
+        ('Súper Crítica','&gt; 60%','#DC2626'),
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#F97316'),
         ('Aceptable','3–5%','#FCD34D'),
@@ -172,14 +164,17 @@ def render_severity_nodispo():
     ]
     total = int(sev_nd.sum())
     rows = ''
-    for name, rng, color in levels:
+    for name, rng, bar_color in levels:
         n = int(sev_nd[name])
         pct = n/total*100 if total else 0
         bar_w = max(min(pct, 100), 0.5)
+        # Badge paleta D: BANDA_COLORS es la única fuente de verdad
+        bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
+        badge_bg = bc['bg']; badge_fg = bc['fg']
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                 f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg};color:{badge_fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                 f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
+                 f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bar_color};border-radius:2px;"></div></div>'
                  f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
                  f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
                  f'</div>')
@@ -208,24 +203,16 @@ def render_severities_combinadas():
     def render_table(sev_dict, levels_data, accent='#EA0074', fmt_label='pct'):
         total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
         rows = ''
-        # Paleta D: Súper Crítica bg sólido oscuro, resto bg pastel + fg oscuro
-        BADGE_COLORS = {
-            'Exitosa':       {'bg':'#E1F5EE','fg':'#1A6B4A','bar':'#1A6B4A'},
-            'Aceptable':     {'bg':'#FEF9C3','fg':'#713F12','bar':'#FCD34D'},
-            'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#F97316'},
-            'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
-            'Súper Crítica': {'bg':'#161616','fg':'#FFFFFF','bar':'#DC2626'},
-            'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},
-        }
         for name, rng, _ in levels_data:
             n = int(sev_dict.get(name, 0))
             pct = n/total*100 if total else 0
             bar_w = max(min(pct, 100), 0.5)
-            bc = BADGE_COLORS.get(name, {'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'})
+            # Badge paleta D: BANDA_COLORS es la única fuente de verdad (importado de render_helpers)
+            bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
             rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
                      f'<span style="display:inline-block;padding:3px 8px;background:{bc["bg"]};color:{bc["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                      f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                     f'<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bc["bar"]};"></div></div>'
+                     f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bc["bar"]};border-radius:2px;"></div></div>'
                      f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
                      f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
                      f'</div>')
@@ -453,13 +440,9 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     for i, r in df.iterrows():
         row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
-        c_bnd = BANDA_COLORS.get(bnd, {})
-        if bnd == 'Súper Crítica':
-            bnd_bg = '#161616'; bnd_fg = '#FFFFFF'
-        else:
-            bnd_bg = c_bnd.get('bg','#F2EEE6'); bnd_fg = c_bnd.get('fg','#5F5E5A')
+        bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
-                f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;margin-left:4px;flex-shrink:0;">{bnd}</span>')
+                f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.04em;margin-left:4px;flex-shrink:0;">{bnd}</span>')
         if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
         elif dim_col == 'CorpName': raw_label = clean_corp_name(r[dim_col])
@@ -679,20 +662,16 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
 
 # ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
 def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
-    """Panel: col1(1-5) + col2(6-10) con header en cada col, filas 11-100 sb-hidden.
-    sb_id: si se pasa, header de col1 integra searchbox_header_html (Prop D).
+    """Panel: top 5 visible, filas 6-10 rows-more, filas 11-100 sb-hidden.
+    Todas las filas llevan data-lbl para que attachTable las encuentre y pueda
+    buscar sobre el pool completo de 100.
+    sb_id: si se pasa, header integra searchbox_header_html (Prop D).
     """
     df = df.reset_index(drop=True)
-    df1 = df.iloc[:5].copy()
-    df2 = df.iloc[5:10].copy()
-    df_rest = df.iloc[10:].copy()
-    df2.index = range(5, 5+len(df2))
-    df_rest.index = range(10, 10+len(df_rest))
-    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
-    col1 = render_top_table('','',df_all,cols, sb_id=sb_id)
-    hidden_rows = render_top_table('','',df_rest,cols, show_header=False)
-    grid = f'<div class="tbl-wrap">{col1}</div>'
-    return grid + hidden_rows
+    # Una sola llamada con todo el df: render_top_table asigna clases sb-hidden/rows-more
+    # y genera data-lbl para TODAS las filas cuando recibe sb_id
+    full_table = render_top_table('', '', df, cols, sb_id=sb_id)
+    return f'<div class="tbl-wrap">{full_table}</div>'
 
 def render_bloque_hoteles():
     """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
@@ -722,8 +701,7 @@ def render_bloque_hoteles():
         {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
     ]
-    df_dnc = pd.concat([TOP['demanda_nc'], TOP['demanda_nc_extra']], ignore_index=True)
-    df_dnc.index = range(len(df_dnc))
+    df_dnc = TOP['demanda_nc'].reset_index(drop=True)
     panel_dnc = _render_panel_top_table(df_dnc, cols_dnc, sb_id='sb-rh-dnc')
     top1_dnc = df_dnc.iloc[0]
     kicker_dnc = f'Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(top1_dnc["Hotel"],38)}</strong> ({fmt_big(top1_dnc["DemandaNoConvertida"])} búsquedas perdidas).'
@@ -735,8 +713,7 @@ def render_bloque_hoteles():
         {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
     ]
-    df_br = pd.concat([TOP['bajo_rend'], TOP['bajo_rend_extra']], ignore_index=True)
-    df_br.index = range(len(df_br))
+    df_br = TOP['bajo_rend'].reset_index(drop=True)
     panel_br = _render_panel_top_table(df_br, cols_br, sb_id='sb-rh-br')
     kicker_br = 'Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.'
     
@@ -747,8 +724,7 @@ def render_bloque_hoteles():
         {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
     ]
-    df_sc = pd.concat([TOP['sin_conv'], TOP['sin_conv_extra']], ignore_index=True)
-    df_sc.index = range(len(df_sc))
+    df_sc = TOP['sin_conv'].reset_index(drop=True)
     panel_sc = _render_panel_top_table(df_sc, cols_sc, sb_id='sb-rh-sc')
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     kicker_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de IPM.'
