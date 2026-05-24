@@ -342,10 +342,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else: _cls_r3 = 'sb-hidden'
             _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{raw_lab}"'
                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;align-items:center;gap:4px;'
-                       f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                       f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                        f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
                        f'<div style="display:flex;align-items:center;">{_badge_r3}</div>'
-                       f'<span style="text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;">{val_str}</span>'
+                       f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;">{val_str}</span>'
                        f'{wow_html}</div>')
             if i < 5: top5 += _row_r3
             elif i < 10: next5 += _row_r3

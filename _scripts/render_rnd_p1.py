@@ -236,13 +236,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge_nd}</div>'
-                    f'<span style="text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
+                    f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row
             elif i < 10: next5 += _row
@@ -357,13 +357,13 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge_ipm}</div>'
-                    f'<span style="text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
+                    f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row2
             elif i < 10: next5 += _row2
