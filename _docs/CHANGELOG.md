@@ -2,6 +2,29 @@
 
 ---
 ---
+## Fix · Channel split canónico CR · 24 May 2026
+
+**Descripción:** Canal sin datos esa semana ya no desaparece silenciosamente — se muestra atenuado con `—` en todos los contextos channel de CR.
+
+### Problema
+El split Producto Propio / Third Party filtraba con `.isin()` sobre el DataFrame disponible. Si un canal no tenía tráfico esa semana (ej. Travelclick en B2C), desaparecía del tab Channel sin aviso.
+
+### Fix
+Iteración sobre catálogo canónico fijo. Canales sin datos → fila con `opacity:.45`, `—` en todos los valores, sin badge, sin `pointer-events`.
+
+### Detalles técnicos
+| Contexto | Cambio |
+|---|---|
+| Card Eficacia global (`render_cr_p1.py`) | `_sorted_canonical()` + `_lookup_chan()` con soporte `HotelBeds*` startswith |
+| Card ConvRate global (`render_cr_p1.py`) | `_sorted_canonical_cv()` — mismo patrón |
+| Análisis por Dimensión tab Channel (`render_cr_p2.py`) | `_build_chan_df()` genera dummy rows NaN · `render_chan_table` detecta `_row_is_dummy` · kicker dice "activos" |
+| Canastas B2C/OP/CUG (`render_cr_p3.py`) | `_sorted_c()` + guard `_val_is_nan` en `tab_rows_canasta` |
+
+### Archivos modificados
+`render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py`
+
+---
+
 ## Fix/Cambio · W20 · 24 May 2026
 
 **Descripción:** Batch fixes: undefined histórico canal, HotelBeds rename, channel split canastas, hotel IDs, bold análisis, colores dim negro
