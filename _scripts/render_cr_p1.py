@@ -272,7 +272,8 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -438,7 +439,8 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
