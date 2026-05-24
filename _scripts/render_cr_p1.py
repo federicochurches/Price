@@ -160,24 +160,55 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
         ('canasta', TAB_EF['canasta']),
     ]:
         if t_key == 'channel':
-            # Split en Producto Propio + Third Party (ordenado peor→mejor por Eficacia)
-            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('Eficacia').reset_index(drop=True)
-            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('Eficacia').reset_index(drop=True)
-
-            def chan_row(i, r, val_col):
+            # Split en Producto Propio + Third Party — catálogo canónico fijo
+            # Para canales sin datos esa semana se renderiza '—'
+            def _lookup_chan(nombre, df_src):
+                """Busca nombre en df_src; si no existe devuelve row dummy con NaN."""
                 import math
+                # Normalizar: HotelBeds* → 'HotelBeds'
+                _name_norm = nombre
+                mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+                hits = df_src[mask]
+                if len(hits) == 0:
+                    return None
+                return hits.iloc[0]
+
+            # Ordenar los que tienen datos por Eficacia (peor primero), luego los sin datos al final
+            def _sorted_canonical(lista, df_src, val_col):
+                with_data = []
+                without_data = []
+                for nombre in lista:
+                    r = _lookup_chan(nombre, df_src)
+                    if r is not None:
+                        with_data.append((nombre, r))
+                    else:
+                        without_data.append((nombre, None))
+                with_data.sort(key=lambda x: x[1][val_col] if not (x[1][val_col] != x[1][val_col]) else 999)
+                return with_data + without_data
+
+            _pp_sorted = _sorted_canonical(PRODUCTO_PROPIO, df_t, 'Eficacia')
+            _tp_sorted = _sorted_canonical(THIRD_PARTY, df_t, 'Eficacia')
+
+            _WOW_MUTED_EF = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+
+            def chan_row(i, nombre, r, val_col):
+                import math
+                # r=None → canal sin datos esta semana: fila atenuada con guiones
+                if r is None:
+                    return (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;opacity:.45;">'
+                            f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;color:var(--ink-muted);">{i+1}. {nombre}</span>'
+                            f'<span style="text-align:right;color:var(--ink-muted);">—</span>'
+                            f'{_WOW_MUTED_EF}</div>')
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
                     val_str = '—'
                 else:
                     val_str = fmt_pct2(raw_val)
                 wow_col = val_col + '_WoW_pp'
-                # Pill WoW: verde con = si val==100%, gris si delta<0.05, color si delta>=0.05
                 try:
                     wow_v = r[wow_col]
                     if wow_v != wow_v: raise ValueError
                     if raw_val is not None and not math.isnan(float(raw_val)) and abs(raw_val - 1.0) < 0.0001:
-                        # 100% exacto → pill verde neutra con =
                         wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EAF3DE;color:#2F6C34;margin-left:4px;white-space:nowrap;">= 0,0</em>'
                     elif abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
@@ -187,19 +218,19 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;white-space:nowrap;">{wow_txt}</em>'
                     else:
-                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+                        wow_pill = _WOW_MUTED_EF
                 except:
-                    wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+                    wow_pill = _WOW_MUTED_EF
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
-                _lbl = str(r.get('ExternalProviderName', ''))
+                _lbl = str(r.get('ExternalProviderName', nombre))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
                         f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
                         f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
-            rows_pp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_pp.iterrows())
-            rows_tp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_tp.iterrows())
+            rows_pp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_pp_sorted))
+            rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
@@ -327,12 +358,36 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
         ('canasta', TAB_CV['canasta']),
     ]:
         if t_key == 'channel':
-            # Split en Producto Propio + Third Party (peor→mejor por ConvRate)
-            df_pp = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('ConvRate').reset_index(drop=True)
-            df_tp = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('ConvRate').reset_index(drop=True)
+            # Split en Producto Propio + Third Party — catálogo canónico fijo
+            def _lookup_chan_cv(nombre, df_src):
+                mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+                hits = df_src[mask]
+                return hits.iloc[0] if len(hits) > 0 else None
 
-            def chan_row_cv(i, r, val_col):
+            def _sorted_canonical_cv(lista, df_src, val_col):
+                with_data = []
+                without_data = []
+                for nombre in lista:
+                    r = _lookup_chan_cv(nombre, df_src)
+                    if r is not None:
+                        with_data.append((nombre, r))
+                    else:
+                        without_data.append((nombre, None))
+                with_data.sort(key=lambda x: x[1][val_col] if not (x[1][val_col] != x[1][val_col]) else 999)
+                return with_data + without_data
+
+            _pp_sorted_cv = _sorted_canonical_cv(PRODUCTO_PROPIO, df_t, 'ConvRate')
+            _tp_sorted_cv = _sorted_canonical_cv(THIRD_PARTY, df_t, 'ConvRate')
+
+            _WOW_MUTED_CV = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+
+            def chan_row_cv(i, nombre, r, val_col):
                 import math
+                if r is None:
+                    return (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;opacity:.45;">'
+                            f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;color:var(--ink-muted);">{i+1}. {nombre}</span>'
+                            f'<span style="text-align:right;color:var(--ink-muted);">—</span>'
+                            f'{_WOW_MUTED_CV}</div>')
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
                     val_str = '—'
@@ -350,19 +405,19 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                         wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
                         wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;white-space:nowrap;">{wow_txt}</em>'
                     else:
-                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+                        wow_pill = _WOW_MUTED_CV
                 except:
-                    wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
+                    wow_pill = _WOW_MUTED_CV
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
-                _lbl = str(r.get('ExternalProviderName', ''))
+                _lbl = str(r.get('ExternalProviderName', nombre))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
                         f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
                         f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
-            rows_pp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_pp.iterrows())
-            rows_tp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_tp.iterrows())
+            rows_pp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_pp_sorted_cv))
+            rows_tp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_tp_sorted_cv))
             chan_html = (
                 f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
