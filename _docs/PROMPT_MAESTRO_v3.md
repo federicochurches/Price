@@ -1395,3 +1395,142 @@ ZIP: `ProyectoClaude_PRICE_W20.zip` · 280 KB · 43 archivos · generado 24/05/2
 ---
 
 **Última actualización:** 24 Mayo 2026 · Pipeline W20 completo · WoW real · Fixes UI/UX batch final
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (Sprint A + B + Fixes globales vs canastas)
+
+### Sprint A · Fixes rápidos
+
+| Bug | Archivo | Descripción |
+|---|---|---|
+| A | `render_cr_p3.py`, `render_rnd_p3.py` | Headers de columna faltaban en tabs KPI de canastas → `tab_rows_canasta` ahora genera `Severity / Métrica / WoW` |
+| B | `render_cr_p1.py` | "vs sem. ant." faltaba en hero global CR → agregado a ambas cards (Eficacia + ConvRate) |
+| C | `render_cr_p3.py` | `wow_pill_html` parseaba `wow_str` con string manipulation frágil → `wow_delta` (float) pasado directamente |
+| I | confirmado resuelto | Eje X "undefined" en histórico RND canastas → era bug de versión anterior, ya resuelto desde sesión 6 |
+| J | `render_cr_p3.py`, `render_rnd_p3.py` | Regex listener `render_historico_seccion_cr/rnd` no matcheaba `canasta-{idx}-hotel-cr` → regex sin guión final |
+
+### Sprint B · Centralización de helpers
+
+**Nuevas funciones en `render_helpers.py`:**
+
+```python
+tab_column_header(cols, widths)     # Header columnas para tabs KPI — reemplaza _tab_hdr hardcodeados
+make_wow_pill_row(wow_v, ...)       # Pill WoW filas de tabs — unifica CR (inline) con RND (CSS class)
+wow_box(..., compact=False/True)    # compact=True = canastas; elimina wow_box_canasta() local
+```
+
+**Regla:** cualquier cambio visual en KPI cards → editar solo `render_helpers.py`.
+
+### Fix searchbox canastas — scope aislado
+
+Canastas CR migradas de CSS radio tabs a JS tabs aislados:
+- Panels: `class="tab-panel"` → `class="tp-{card_id}"`  
+- `getActivePanel()` en `asset_cr_head.html` y `asset_rnd_head.html`: busca primero `.tp-*` para aislar scope del searchbox por canasta
+
+### Fix layout KPI cards — global vs canastas
+
+Todas las cards KPI ahora tienen estructura idéntica:
+- `font-size: 40px` (era 36px en canastas)
+- `align-items: flex-start` (era `center` en canastas)
+- `gap: 14px` (era `12px` en canastas)
+- Badge a la derecha del valor, "vs sem. ant." debajo del número (igual que global)
+- "vs sem. ant." agregado a global RND (faltaba)
+
+### Fix Análisis por Hotel y Dimensión — canastas
+
+**Análisis por Hotel:**
+- Columna `Severity` (badge paleta D) como columna separada en CR y RND canastas
+- RND: columnas expandidas para incluir WoW NoDispo + WoW IPM
+
+**Análisis por Dimensión:**
+- Columna `Severity` separada en CR y RND canastas
+- Patrón de visibilidad: `5 visible + 5 rows-more + 90 sb-hidden` (igual que global)
+- Botón "Ver 5 más" agregado
+
+### Regla de mantenimiento global vs canastas
+
+| Tipo | Tocar |
+|---|---|
+| Visual puro | Solo `render_helpers.py` |
+| Datos (nueva columna) | `calc_*.py` + `render_*_p1.py` + `render_*_p3.py` |
+| Estructura tabs | `asset_*_head.html` + p1 + p3 |
+| Módulo histórico | `historico_module_v2/rnd.py` + verificar IDs |
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p1.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html`
+
+---
+
+**Última actualización:** Mayo 2026 · post W20 · Sprint A+B + fixes global vs canastas · commits 8e934bdf · b3daea6a · e61c87ce
+
+---
+
+## 🤖 Proceso de commit automático (W21+)
+
+### Flujo estándar tras cualquier cambio
+
+**1. Actualizar docs** (antes de commitear):
+```bash
+# Para pipeline completo:
+python3 update_docs.py --week 21 --periodo "18–24 may 2026" --tipo pipeline
+
+# Para fix puntual:
+python3 update_docs.py --week 21 --tipo fix --descripcion "Fix badges canastas"
+```
+
+**2. Commit + ZIP**:
+```bash
+python3 github_commit.py --week 21 --periodo "18–24 may 2026" --token ghp_xxx
+```
+
+**O en un solo comando** (si hay `github_token` en el YAML):
+```bash
+python3 run_pipeline.py WEEK_CONFIG_W21.yml   # Pasos 7+8 se ejecutan solos
+```
+
+### Lo que hace cada script
+
+**`update_docs.py`** — actualiza los 3 documentos canónicos:
+- `CHANGELOG.md`: bloque con tabla KPIs reales (del pickle), outputs generados, commits
+- `README.md`: sección "Última semana publicada" con KPIs + URLs
+- `PROMPT_MAESTRO_v3.md`: bloque de cambios de la semana
+
+**`github_commit.py`** — hace el commit vía API GitHub:
+- Combina: contenido del `Price_WNN.zip` + scripts en `_scripts/` + docs en `_docs/`
+- Genera `ProyectoClaude_PRICE_WNN.zip` con los archivos del proyecto Claude
+
+### Invariante: siempre docs antes de commit
+
+> Nunca commitear sin haber corrido `update_docs.py` primero.  
+> El paso 7 del pipeline lo garantiza automáticamente.
+
+---
+
+## 📝 Pipeline W20 · Mayo 2026 (ejecutado 24/05/2026)
+
+**Período:** 11–17 may 2026  
+**Tipo:** Pipeline completo (7 pasos: calc → render → assemble → excel → mail → hub → docs)
+
+- RND: NoDispo 2,81% (+0,33pp) · IPM $1.194 (+81,7%)
+- CR: Eficacia 92,75% (-0,71pp) · ConvRate 1,19% (+0,03pp)
+
+### Archivos modificados
+`rnd_w20_data.pkl` · `cr_w20_data.pkl` · `RatesNoDispo_Reporte_Editorial.html` · `CheckRates_Reporte_Editorial.html` · 8 Excels · `Mail_W20.html` · `index.html`
+
+---
+
+**Última actualización:** Mayo 2026 · Pipeline W20 · 11–17 may 2026
+
+---
+
+## 📝 Cambios · 24 May 2026 · W20
+
+**Descripción:** Fix batch UI: ConvRate sin bold, WoW ConvRate dim canastas CR, Severity left-align, parse_hotel=False, Channel clickeable CR, Tráfico col RND hotel canastas, IPM badge violeta alertas RND
+
+### Archivos modificados
+_(ver CHANGELOG para detalle)_
+
+---
+
+**Última actualización:** May 2026 · Fix batch UI: ConvRate sin bold, WoW ConvRate dim canastas C

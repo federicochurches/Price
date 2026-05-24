@@ -4,6 +4,11 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 ---
 
+## 📌 Última semana publicada
+
+**Week 20 · 11-17 may 2026 · May 2026**
+
+
 ## 📊 Estado del pipeline · Week 20 (ejecutado 24/05/2026)
 
 | Métrica | W19 | W20 | WoW |
@@ -468,4 +473,120 @@ Los siguientes bugs quedaron abiertos para atender en W21:
 | Sin Conversión | `#F2EEE6` | `#5F5E5A` |
 
 **Nota**: Aceptable y Revisar comparten el naranja `#F59E0B` en el gauge. El badge de Aceptable usa `bg:#FEF3C7 fg:#92400E` (pastel naranja).
+
+## 🤖 Automatización del pipeline (W21+)
+
+### Flujo completo en 1 comando
+
+```bash
+python3 run_pipeline.py WEEK_CONFIG_W21.yml
+```
+
+El pipeline tiene **8 pasos** (los 6 de siempre + 2 nuevos):
+
+| Paso | Script | Descripción |
+|---|---|---|
+| 1–6 | _(existentes)_ | calc → render → assemble → excel → mail → hub |
+| **7** | `update_docs.py` | Actualiza CHANGELOG + README + PROMPT_MAESTRO con KPIs reales del pickle |
+| **8** | `github_commit.py` | Commit vía GitHub API + ZIP del proyecto Claude |
+
+Pasos 7 y 8 son **non-critical** — si fallan no abortan el pipeline.
+
+### Activar el commit automático (Paso 8)
+
+Agregar al YAML de config:
+```yaml
+github_token: ghp_xxx   # Token GitHub con permisos de escritura al repo
+```
+
+O exportar antes de correr:
+```bash
+export GITHUB_TOKEN=ghp_xxx
+python3 run_pipeline.py WEEK_CONFIG_W21.yml
+```
+
+### Para fixes puntuales (fuera de pipeline)
+
+```bash
+# 1. Actualizar docs
+python3 update_docs.py --week 21 --tipo fix \
+  --descripcion "Fix Severity en canastas" \
+  --commits "abc123,def456"
+
+# 2. Commitear
+python3 github_commit.py --week 21 --tipo fix \
+  --mensaje "fix(canastas): Severity + rows-more dim" \
+  --token ghp_xxx
+```
+
+### Scripts de automatización
+
+| Script | Uso |
+|---|---|
+| `update_docs.py` | Actualiza los 3 docs · modo `pipeline` (con KPIs) o `fix` (cambio puntual) |
+| `github_commit.py` | Commit vía API · reemplaza `commit_release.py` · también genera ZIP del proyecto Claude |
+| `run_pipeline.py` | Orquestador · llama a update_docs y github_commit automáticamente |
+
+
+## 🔧 Regla de mantenimiento: Global vs Canastas (post-W20)
+
+### Principio general
+Los componentes visuales están centralizados en `render_helpers.py`. Los cambios se propagan automáticamente a p1 (global) y p3 (canastas).
+
+### Qué tocar según el tipo de cambio
+
+| Tipo de cambio | Archivos a editar |
+|---|---|
+| Visual puro (padding, color, font-size, spacing) | Solo `render_helpers.py` → heredado por p1 y p3 |
+| Datos (nueva columna, nueva métrica) | `calc_*.py` + `render_*_p1.py` + `render_*_p3.py` (siempre los dos) |
+| Estructura de tabs (agregar/quitar tab) | `asset_*_head.html` (CSS selector) + p1 + p3 |
+| Módulo histórico | `historico_module_v2.py` o `historico_module_rnd.py` + verificar IDs únicos en p1 y p3 |
+
+### Checklist antes de commitear
+```
+[ ] ¿El cambio visual usa helper centralizado o se duplicó?
+[ ] ¿Se revisó tanto p1 (global) como p3 (canastas) para CR y RND?
+[ ] ¿Los column grids de filas de tabs siguen el estándar?
+[ ] ¿Las pills WoW en filas usan make_wow_pill_row() o CSS class?
+[ ] ¿Los headers de columna están en TODOS los tab panels?
+```
+
+### Helpers centralizados en `render_helpers.py`
+
+| Helper | Uso | Reemplaza |
+|---|---|---|
+| `tab_column_header(cols, widths)` | Header `Severity / Métrica / WoW` en tabs KPI | Strings `_tab_hdr` hardcodeados en p1 |
+| `make_wow_pill_row(wow_v, ...)` | Pill WoW en filas de tabs | Bloques `<em style=...>` inline duplicados |
+| `wow_box(..., compact=False/True)` | WoW box global y canastas | `wow_box_canasta()` local eliminada de p3 |
+| `wow_pill_html(wow_val, unit)` | Pill WoW grande (hero) | — |
+| `banda_pill(banda, target)` | Badge de banda | — |
+| `gauge_5levels(banda, tipo)` | Gauge visual 5 niveles | — |
+| `searchbox_pill_html(...)` | Searchbox en tabs-row de KPI cards | — |
+| `searchbox_header_html(...)` | Searchbox en header de tablas análisis | — |
+
+### Patrón de tabs en canastas KPI (CR)
+Desde post-W20, las cards KPI de canastas CR usan activación **JS** en lugar de CSS radio selector global:
+- Panels: `class="tp-{card_id}"` con `display:none` inicial
+- `getActivePanel()` en `asset_cr_head.html` detecta primero `.tp-*` para aislar el scope del searchbox
+- El patrón original de RND p3 (JS) se adoptó en CR p3 para evitar contaminación entre canastas y global
+
+### Estructura columnas estándar (post-W20)
+
+**Análisis por Hotel — canastas CR:**
+`Hotel | Severity (80px) | ConvRate (58px) | Eficacia (58px) | WoW (38px)`
+
+**Análisis por Hotel — canastas RND:**
+`Hotel | Severity (80px) | %NoDispo (62px) | WoW (36px) | IPM (58px) | WoW IPM (36px)`
+
+**Análisis por Dimensión — canastas CR:**
+`Nombre | Severity (80px) | Checkrates (68px) | BKGS (56px) | ConvRate (62px) | WoW (36px) | Eficacia (62px) | WoW (36px)`
+
+**Análisis por Dimensión — canastas RND:**
+`Nombre | Severity (80px) | %NoDispo (62px) | WoW (38px) | IPM (62px) | WoW (38px)`
+
+**Visibilidad filas (global y canastas):**
+- KPI tabs: 10 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden`
+- Análisis hotel: 100 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden` + botón "Ver 5 más"
+- Análisis dimensión: 100 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden` + botón "Ver 5 más"
+
 

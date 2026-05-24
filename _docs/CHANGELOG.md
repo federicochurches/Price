@@ -1,6 +1,96 @@
 # CHANGELOG · Proyecto PRICE · Supply Analytics
 
 ---
+---
+## Fix batch post-W20 · 24 Mayo 2026 · UI/UX bugs 7 issues
+
+### Cambios
+| Fix | Reporte | Descripción |
+|---|---|---|
+| ConvRate sin bold | CR | Dim tables global (p2) y canastas (p3) — `color:var(--ink-muted)` |
+| WoW ConvRate en dim canastas | CR | `tab_panel_dim_cr` ahora merges `ConvRate_W17` para calcular WoW |
+| Severity text-align:left | CR+RND | Header de `dim_table_with_wow` y equivalente RND |
+| parse_hotel=False | CR+RND | Canastas no parsean nombre hotel — código `(123456)` ya no visible |
+| Channel clickeable | CR | Tab channel en canastas: `data-hist-label` + `cursor:pointer` |
+| Tráfico en hotel canastas | RND | Columna Tráfico añadida, grid expandido a 5 cols |
+| IPM badge violeta | RND | Alertas global: `#EDE9F8` violet (no `#FEF9C3` amarillo) |
+
+### Commit
+`8a2f6cc8c4cf` — fix(ui): 7 fixes UI W20
+
+### Archivos modificados
+`render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p3.py`
+
+## Fix/Cambio · W20 · 24 May 2026
+
+**Descripción:** Fix batch UI: ConvRate sin bold, WoW ConvRate dim canastas CR, Severity left-align, parse_hotel=False, Channel clickeable CR, Tráfico col RND hotel canastas, IPM badge violeta alertas RND
+
+## Pipeline W20 · Mayo 2026 · 11–17 may 2026
+
+**Fecha publicación:** LUNES 18 DE MAYO DE 2026  
+**Tipo:** Pipeline completo (6 pasos)
+
+### KPIs W20
+
+| Métrica | W19 | W20 | WoW |
+|---|---|---|---|
+| **%NoDispo** | 2,48% | 2,81% | +0,33pp |
+| **IPM** | $657 | $1.194 | +81,7% |
+| **Eficacia** | 93,46% | 92,75% | -0,71pp |
+| **Conv Rate** | 1,16% | 1,19% | +0,03pp |
+
+Hoteles P80 RND: 19.456 · CR: 2.080 · CR únicos: 1.492.747
+
+### Outputs generados
+
+| Archivo | Descripción |
+|---|---|
+| `RatesNoDispo_Reporte_Editorial.html` | Reporte editorial RND W20 |
+| `CheckRates_Reporte_Editorial.html` | Reporte editorial CR W20 |
+| `Analisis_Rates_NoDispo_7d.xlsx` + 3 canastas | Excel RND global + B2C/OP/CUG |
+| `Analisis_Checkrates_7d.xlsx` + 3 canastas | Excel CR global + B2C/OP/CUG |
+| `Mail_W20.html` | Mail semanal |
+| `index.html` | Hub actualizado |
+| `Price_W20.zip` | ZIP repo listo para commit |
+
+## Cambio · Mayo 2026 · Automatización docs + commit en pipeline
+
+### Contexto
+Los pasos 7 (docs) y 8 (commit + ZIP) son ahora parte del pipeline automático.
+
+### Scripts nuevos
+
+| Script | Descripción |
+|---|---|
+| `update_docs.py` | Paso 7 · actualiza CHANGELOG + README + PROMPT_MAESTRO con KPIs del pickle · modo `pipeline` y `fix` |
+| `github_commit.py` | Paso 8 · commit vía GitHub API + ZIP del proyecto Claude · reemplaza `commit_release.py` |
+
+### Cambios en `run_pipeline.py`
+- Agregados **Paso 7: UPDATE DOCS** y **Paso 8: COMMIT + ZIP** como pasos non-critical
+- Paso 8 se activa si hay `github_token` en el YAML o `GITHUB_TOKEN` en el entorno
+- Si no hay token, el paso 8 se saltea con aviso (no bloquea el pipeline)
+
+### Uso del token en YAML
+```yaml
+# WEEK_CONFIG_W21.yml
+github_token: ghp_xxx   # Opcional — si no está, agregar manualmente vía env
+```
+
+### Uso standalone de los nuevos scripts
+```bash
+# Solo docs (ej: después de un fix puntual)
+python3 update_docs.py --week 21 --periodo "18–24 may 2026" --tipo fix --descripcion "Fix searchbox"
+
+# Commit completo (pipeline)
+python3 github_commit.py --week 21 --periodo "18–24 may 2026" --token ghp_xxx
+
+# Commit de fix puntual
+python3 github_commit.py --week 21 --tipo fix --mensaje "Fix badges canastas" --token ghp_xxx
+```
+
+### Archivos modificados
+`run_pipeline.py` · `update_docs.py` (nuevo) · `github_commit.py` (nuevo)
+
 ## Week 20 · Mayo 2026 · Sesiones 7–13 · UI/UX completo + Searchbox interactivo + Top 100
 
 ### Resumen ejecutivo de cambios
@@ -1065,6 +1155,110 @@ El listener `change` en radios limpia todos los inputs de searchbox y resetea el
 
 `asset_cr_head.html` · `asset_rnd_head.html` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py` · `template_resumen.py` · `template_severity.py` · `render_helpers.py` · `historico_module_v2.py` · `historico_module_rnd.py`
 
+
+---
+
+## Sesión post-W20 · Mayo 2026 · Refactoring Global vs Canastas (Sprint A + B + fixes visuales)
+
+### Contexto
+Sesión de análisis, refactoring y fixes de consistencia visual/funcional entre el reporte global (p1/p2) y las canastas (p3), aplicada sobre CR y RND. Incluye 3 commits: pipeline W20 regenerado, fixes layout KPI cards, y fixes Análisis por Hotel/Dimensión.
+
+**Commits:**
+- `8e934bdf` · feat: Week 20 · RatesNoDispo + CheckRates + hub index · 11-17 may 2026 (pipeline completo + scripts sprint)
+- `b3daea6a` · fix(kpi-cards): igualar layout top-section global vs canastas CR+RND
+- `e61c87ce` · fix(canastas): igualar Análisis por Hotel y Dimensión con global CR+RND
+
+---
+
+### Sprint A · Fixes rápidos (Bugs detectados en análisis de divergencias)
+
+| Bug | Archivo(s) | Descripción |
+|---|---|---|
+| A | `render_cr_p3.py`, `render_rnd_p3.py` | Headers de columna (`Severity / Métrica / WoW`) faltaban en tabs de KPI cards de canastas → agregado en `tab_rows_canasta` |
+| B | `render_cr_p1.py` | Caption `"vs sem. ant."` faltaba en hero global CR (Eficacia + ConvRate) → agregado con pill WoW inline |
+| C | `render_cr_p3.py` | `wow_pill_html` parseaba `wow_str` con string manipulation frágil → reemplazado por parámetro `wow_delta` (float) directo en `kpi_card_canasta` |
+| J | `render_cr_p3.py`, `render_rnd_p3.py` | Regex del listener `render_historico_seccion_cr/rnd` no matcheaba `canasta-{idx}-hotel-cr` (requería guión extra) → quitar guión final del grupo |
+
+---
+
+### Sprint B · Centralización de helpers en `render_helpers.py`
+
+#### Nuevas funciones
+
+| Función | Descripción |
+|---|---|
+| `tab_column_header(cols, widths)` | Header de columnas para tabs de KPI cards — reemplaza 4 strings `_tab_hdr` hardcodeados en p1 CR y RND |
+| `make_wow_pill_row(wow_v, is_mejora_si_positivo, threshold)` | Pill WoW compacta para filas de tabs — unifica el sistema CR (inline styles) con RND (CSS classes) |
+| `wow_box(..., compact=False/True)` | Parámetro `compact` añadido — elimina `wow_box_canasta()` local de CR p3 y RND p3 |
+
+#### `wow_box(compact=True)` — elimina duplicación
+- `wow_box_canasta()` local en `render_cr_p3.py` y `render_rnd_p3.py` **eliminada**
+- `kpi_card_canasta()` en ambos usa `wow_box(..., compact=True)` con semanas dinámicas
+
+#### `tab_column_header()` — reemplaza hardcoded headers
+- CR p1: `_tab_hdr` Eficacia (`1fr 80px 54px 40px`) y ConvRate (`1fr 80px 68px 40px`)
+- RND p1: `_tab_hdr` NoDispo (`1fr 72px 54px 40px`) e IPM (`1fr 72px 54px 40px`)
+- CR p3 y RND p3: `tab_rows_canasta` ahora inyecta header vía esta función
+
+#### `make_wow_pill_row()` — unificación pills CR→RND
+- CR p1 (tabs destino/corp/hotel Eficacia + ConvRate): migrado de 8 líneas de `<em style=...>` inline
+- CR p3 `tab_rows_canasta`: idem
+
+---
+
+### Fix searchbox canastas — scope aislado (CR p3)
+
+**Problema raíz:** las cards KPI de canastas CR usaban `<div class="tab-panel">` genérico. El CSS del asset head activa panels con selector `~ .tab-panels .tab-panel[data-tab="destino"]` sin scope → el `getActivePanel()` del searchbox podía encontrar el panel del global en lugar del de la canasta.
+
+**Solución:** migrar panels de canastas CR al patrón JS aislado de RND:
+- Panels: `class="tab-panel"` → `class="tp-{card_id}"` con `display:none` inicial
+- Activación: CSS radio → JS scoped a `id="kpi-{card_id}"`
+- `getActivePanel()` en ambos asset heads: detecta primero panels `.tp-*` (JS-activados) antes de recurrir a `.tab-panel` (CSS-activados)
+- `initPanel` también inicializa panels `.tp-*` al cargar
+
+**Archivos:** `render_cr_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html`
+
+---
+
+### Fix layout KPI cards — igualar global vs canastas
+
+Todas las cards KPI (hero global + canastas) ahora tienen el mismo layout:
+
+| Propiedad | Antes (canastas) | Ahora |
+|---|---|---|
+| `font-size` valor | `36px` | `40px` |
+| `align-items` fila top | `center` | `flex-start` |
+| `gap` fila top | `12px` | `14px` |
+| Badge + "vs sem ant" | columna vertical | valor grande + badge a la derecha, "vs sem ant" debajo del número |
+| `tabs-row` clase (RND) | sin clase, `gap:0` | `class="tabs-row"`, `gap:2px` |
+| `panels` div clase (RND) | sin `class` | `class="tab-panels"` |
+
+Bonus: "vs sem. ant." agregado al **global RND** (solo lo tenía CR global).
+
+---
+
+### Fix Análisis por Hotel y por Dimensión — canastas CR + RND
+
+#### Análisis por Hotel
+
+| Sección | Antes | Ahora |
+|---|---|---|
+| CR hotel — Severity | No había columna separada | Columna `Severity` con badge paleta D · grid `1fr 80px 58px 58px 38px` |
+| RND hotel — Severity | Badge inline dentro del nombre | Columna `Severity` separada · grid `1fr 80px 62px 36px 58px 36px` |
+| RND hotel — columnas | Hotel · %NoDispo · IPM · WoW | Hotel · **Severity** · %NoDispo · **WoW** · IPM · **WoW IPM** |
+
+#### Análisis por Dimensión
+
+| Sección | Antes | Ahora |
+|---|---|---|
+| CR dim — Severity | Inline dentro del nombre (badge + label) | Columna `Severity` separada · grid con columna extra `80px` |
+| RND dim — Severity | Badge inline | Columna `Severity` separada · grid con columna extra `80px` |
+| CR dim — visibilidad | 10 filas visibles, resto `sb-hidden` | **5 visible + 5 `rows-more` + 90 `sb-hidden`** |
+| RND dim — visibilidad | Idem | Idem |
+| Botón "Ver 5 más" | No existía en dim de canastas | **Agregado** en CR y RND canastas |
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p1.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p3.py` · `asset_cr_head.html` · `asset_rnd_head.html`
 
 ---
 
