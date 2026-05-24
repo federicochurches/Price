@@ -426,47 +426,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       if (!panel) return;
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){
         var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
+        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}
+        else{r.style.display='none';}
       });
     }
 
     card.querySelectorAll('.tab-panel, .tab-panel-c').forEach(initPanel);
-      }
-      if (!emp){
-        emp.innerHTML = '<p>Sin resultados para <strong class="sb-empty-q"></strong></p>';
-        panel.appendChild(emp);
-      }
-      var sq = emp.querySelector('.sb-empty-q');
-      if (sq) sq.textContent = q ? '\u201c' + q + '\u201d' : '';
-      emp.classList.toggle('visible', !!q);
-    }
 
-    function filter(){
-      var q = norm(input.value.trim());
-      var panel = getActivePanel(); if (!panel) return;
-      var rows = panel.querySelectorAll('[data-hist-label]');
-      var vis = 0, total = rows.length;
-      panel.querySelectorAll('.rows-toggle').forEach(function(btn){ btn.style.display = q ? 'none' : ''; });
-      rows.forEach(function(r){
-        var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q){ if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';} }
-        else  { var ri=parseInt(r.getAttribute('data-row-idx')||'0'); if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';} }
-      });
-      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
-      if (countEl){
-        if (q){ countEl.textContent=vis+' / '+total; countEl.className='sb-pill-count '+(vis===0?'no-r':'has-q'); }
-        else  { countEl.textContent=''; countEl.className='sb-pill-count'; }
-      }
-    }
-
-    input.addEventListener('input', filter);
-    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); input.focus(); }); }
-    card.addEventListener('change', function(e){
-      if (e.target.type !== 'radio') return;
-      input.value=''; if(clearBtn)clearBtn.style.display='none'; if(countEl){countEl.textContent='';countEl.className='sb-pill-count';}
-      setTimeout(function(){ var p=getActivePanel(); initPanel(p); if(p) }, 10);
-    });
-
+    /* Autocomplete dropdown — declarado antes de filter() para que clearBtn lo use */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
@@ -482,11 +449,44 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       dropdown.innerHTML=html; posDD(); dropdown.classList.add('visible');
       dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dropdown.classList.remove('visible');}); });
     }
-    input.addEventListener('input', function(){ buildDD(input.value); });
+
+    function filter(){
+      var q = norm(input.value.trim());
+      var panel = getActivePanel(); if (!panel) return;
+      var rows = panel.querySelectorAll('[data-hist-label]');
+      var vis = 0, total = rows.length;
+      panel.querySelectorAll('.rows-toggle').forEach(function(btn){ btn.style.display = q ? 'none' : ''; });
+      rows.forEach(function(r){
+        var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
+        if (q){
+          if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';}
+        } else {
+          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+          if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
+          if (ri < 5) vis++;
+        }
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+      if (countEl){
+        if (q){ countEl.textContent = vis + ' / ' + total; countEl.className = 'sb-pill-count ' + (vis===0?'no-r':'has-q'); }
+        else  { countEl.textContent = ''; countEl.className = 'sb-pill-count'; }
+      }
+    }
+
+    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
+    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); }); }
     input.addEventListener('blur', function(){ setTimeout(function(){dropdown.classList.remove('visible');},150); });
     window.addEventListener('scroll', function(){if(dropdown.classList.contains('visible'))posDD();}, true);
     window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
-    card.addEventListener('change', function(){ dropdown.classList.remove('visible'); });
+
+    card.addEventListener('change', function(e){
+      if (e.target.type !== 'radio') return;
+      input.value = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
+      dropdown.classList.remove('visible');
+      setTimeout(function(){ initPanel(getActivePanel()); }, 10);
+    });
   }
 
 

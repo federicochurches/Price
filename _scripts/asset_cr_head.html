@@ -450,79 +450,18 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       return null;
     }
 
-    /* Inicializar visibilidad de UN panel: 0-4 visible, 5-9 oculto (ver más), 10+ oculto */
     function initPanel(panel){
       if (!panel) return;
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){
         var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
+        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}
+        else{r.style.display='none';}
       });
     }
 
-    /* Inicializar TODOS los panels de la card al cargar */
     card.querySelectorAll('.tab-panel, .tab-panel-c').forEach(initPanel);
 
-    function filter(){
-      var q = norm(input.value.trim());
-      var panel = getActivePanel(); if (!panel) return;
-      var rows = panel.querySelectorAll('[data-hist-label]');
-      var vis = 0, total = rows.length;
-
-      /* Ocultar botón ver-más mientras se busca; restaurar al limpiar */
-      panel.querySelectorAll('.rows-toggle').forEach(function(btn){
-        btn.style.display = q ? 'none' : '';
-      });
-
-      rows.forEach(function(r){
-        var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q){
-          /* Buscando: mostrar todos los matches sin importar índice */
-          if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';}
-        } else {
-          /* Sin query: restaurar a vista default (solo filas 0-4 visibles) */
-          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
-          if (ri < 5) vis++;
-        }
-      });
-
-      /* Empty state: solo cuando hay query y cero resultados */
-      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
-      if (countEl){
-        if (q){ countEl.textContent = vis + ' / ' + total; countEl.className = 'sb-pill-count ' + (vis===0?'no-r':'has-q'); }
-        else  { countEl.textContent = ''; countEl.className = 'sb-pill-count'; }
-      }
-    }
-
-    /* Mostrar/ocultar empty state dentro del panel (evita contaminar otros panels) */
-      }
-      if (!emp){
-        emp.innerHTML = '<p>Sin resultados para <strong class="sb-empty-q"></strong></p>';
-        panel.appendChild(emp);
-      }
-      var sq = emp.querySelector('.sb-empty-q');
-      if (sq) sq.textContent = q ? '\u201c' + q + '\u201d' : '';
-      emp.classList.toggle('visible', !!q);
-    }
-
-    input.addEventListener('input', filter);
-    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); input.focus(); }); }
-
-    /* Al cambiar tab: limpiar input, reinicializar el nuevo panel activo */
-    card.addEventListener('change', function(e){
-      if (e.target.type !== 'radio') return;
-      input.value = '';
-      if (clearBtn) clearBtn.style.display = 'none';
-      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
-      /* Pequeño delay para que el CSS cambie el panel activo antes de inicializar */
-      setTimeout(function(){
-        var panel = getActivePanel();
-        initPanel(panel);
-        if (panel)
-      }, 10);
-    });
-
-    /* Autocomplete dropdown */
+    /* Autocomplete dropdown — declarado antes de filter() para que clearBtn lo use */
     var dropdown = document.createElement('div');
     dropdown.className = 'sb-dropdown'; dropdown.id = input.id + '-dd';
     document.body.appendChild(dropdown);
@@ -538,12 +477,46 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       dropdown.innerHTML=html; posDD(); dropdown.classList.add('visible');
       dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dropdown.classList.remove('visible');}); });
     }
-    input.addEventListener('input', function(){ buildDD(input.value); });
+
+    function filter(){
+      var q = norm(input.value.trim());
+      var panel = getActivePanel(); if (!panel) return;
+      var rows = panel.querySelectorAll('[data-hist-label]');
+      var vis = 0, total = rows.length;
+      panel.querySelectorAll('.rows-toggle').forEach(function(btn){ btn.style.display = q ? 'none' : ''; });
+      rows.forEach(function(r){
+        var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
+        if (q){
+          if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';}
+        } else {
+          var ri = parseInt(r.getAttribute('data-row-idx') || '0');
+          if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
+          if (ri < 5) vis++;
+        }
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+      if (countEl){
+        if (q){ countEl.textContent = vis + ' / ' + total; countEl.className = 'sb-pill-count ' + (vis===0?'no-r':'has-q'); }
+        else  { countEl.textContent = ''; countEl.className = 'sb-pill-count'; }
+      }
+    }
+
+    input.addEventListener('input', function(){ filter(); buildDD(input.value); });
+    if (clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; filter(); dropdown.classList.remove('visible'); input.focus(); }); }
     input.addEventListener('blur', function(){ setTimeout(function(){dropdown.classList.remove('visible');},150); });
     window.addEventListener('scroll', function(){if(dropdown.classList.contains('visible'))posDD();}, true);
     window.addEventListener('resize', function(){if(dropdown.classList.contains('visible'))posDD();});
-    card.addEventListener('change', function(){ dropdown.classList.remove('visible'); });
+
+    card.addEventListener('change', function(e){
+      if (e.target.type !== 'radio') return;
+      input.value = '';
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (countEl){ countEl.textContent=''; countEl.className='sb-pill-count'; }
+      dropdown.classList.remove('visible');
+      setTimeout(function(){ initPanel(getActivePanel()); }, 10);
+    });
   }
+
 
   /* ── MODO TABLE (Prop D) ── */
   function attachTable(input){
