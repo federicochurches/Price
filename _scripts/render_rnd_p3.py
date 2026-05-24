@@ -343,9 +343,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{raw_lab}"'
                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;align-items:center;gap:4px;'
                        f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                       f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                       f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
                        f'<div style="display:flex;align-items:center;">{_badge_r3}</div>'
-                       f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;">{val_str}</span>'
+                       f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
                        f'{wow_html}</div>')
             if i < 5: top5 += _row_r3
             elif i < 10: next5 += _row_r3
@@ -609,7 +609,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f' data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}"'
                      f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="display:flex;align-items:center;gap:4px;min-width:0;">'
-                     f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{row_idx+1}. {label}</span>'
+                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{row_idx+1}. {label}</span>'
                      + _dim_badge(r.get('BandaNoDispo','')) +
                      f'</div>'
                      f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
@@ -664,7 +664,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div>'
                           f'<div style="display:flex;align-items:center;gap:5px;">'
-                          f'<span style="font-size:11px;font-weight:600;color:{RND_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {hotel_name}</span>'
+                          f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {hotel_name}</span>'
                           f'{badge}'
                           f'</div>'
                           f'{sub_html}'
@@ -830,17 +830,17 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             for i, r in sub.iterrows():
                 hotel_name = truncate(clean_hotel_name(r['Hotel']), 26)
                 corp = r.get('CorpName','')
-                cells = (f'<div><div style="color:#EA0074;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{start_idx+i+1}. {hotel_name}</div>'
+                cells = (f'<div><div style="color:var(--ink);font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{start_idx+i+1}. {hotel_name}</div>'
                          f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;">{clean_corp_name(corp)}</div></div>'
                          f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_big(r["Trafico"])}</span>')
                 if mode == 'dnc':
-                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
+                    cells += f'<span style="text-align:right;color:var(--ink);font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
                     cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))
                 elif mode == 'br':
-                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">${fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
+                    cells += f'<span style="text-align:right;color:var(--ink);font-weight:600;">${fmt_num2(max(r.get("RPM",r.get("IPM",0)),0))}</span>'
                     cells += _fmt_wow_ipm(r.get('IPM_WoW_pp'), ipm_prev=r.get('IPM_W18', 0))
                 elif mode == 'sc':
-                    cells += f'<span style="text-align:right;color:#EA0074;font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
+                    cells += f'<span style="text-align:right;color:var(--ink);font-weight:600;">{fmt_pct2(r["%NoDispo"])}</span>'
                     cells += _fmt_wow_nd(r.get('NoDispo_WoW_pp'))
                 html += f'<div style="display:grid;grid-template-columns:{cols_grid};gap:6px;padding:6px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">{cells}</div>'
             return html
