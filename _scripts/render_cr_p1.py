@@ -193,9 +193,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', ''))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:flex;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
-                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {_lbl}</span>'
-                        f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
+                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
+                        f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
             rows_pp = ''.join(chan_row(i, r, 'Eficacia') for i, r in df_pp.iterrows())
@@ -362,9 +362,9 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', ''))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:flex;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
-                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {_lbl}</span>'
-                        f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
+                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
+                        f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
             rows_pp = ''.join(chan_row_cv(i, r, 'ConvRate') for i, r in df_pp.iterrows())
