@@ -204,10 +204,16 @@ def build_project_zip(week_num, scripts_dir, outputs_dir):
 
     all_script_files = list(scripts.glob('*.py')) + list(scripts.glob('*.html')) + list(scripts.glob('*.md'))
     
+    # Patrones a excluir del proyecto Claude
+    EXCLUDE = {
+        'part1_cr.html', 'part2_cr.html', 'part3_cr.html',
+        'part1_rnd.html', 'part2_rnd.html', 'part3_rnd.html',
+    }
+
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as zf:
         seen = set()
         for f in sorted(all_script_files):
-            if f.name.startswith('__') or f.name in seen:
+            if f.name.startswith('__') or f.name in seen or f.name in EXCLUDE:
                 continue
             zf.write(str(f), f.name)
             seen.add(f.name)
