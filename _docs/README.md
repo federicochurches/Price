@@ -4,6 +4,22 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 ---
 
+## 📊 Estado del pipeline · Week 20 (ejecutado 24/05/2026)
+
+| Métrica | W19 | W20 | WoW |
+|---|---|---|---|
+| Eficacia CR global | 93,30% | 92,75% | −0,55pp |
+| ConvRate CR global | 1,14% | 1,19% | +0,05pp |
+| %NoDispo RND global | 2,33% | 2,74% | +0,41pp |
+| IPM RND global | 99 | .217 | +144% |
+| Hoteles P80 CR | — | 2.080 | — |
+| Hoteles P80 RND | — | 19.456 | — |
+
+**Datasets W20:**  (72.282 filas) +  (149.349 filas)  
+**Datasets W19:**  (67.444 filas) +  (157.994 filas)
+
+---
+
 ## 🎨 Paleta canónica de bandas (post W20 sesión Mayo 2026)
 
 **Fuente de verdad:** `BANDA_COLORS` en `render_helpers.py`
@@ -14,7 +30,7 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 | Aceptable | `#FEF9C3` | `#713F12` | `#FCD34D` | Amarillo |
 | Revisar | `#FED7AA` | `#C2410C` | `#F97316` | Naranja |
 | Crítica | `#FCE4F1` | `#99162B` | `#C0392B` | Rosa/rojo |
-| Súper Crítica | `#161616` | `#FFFFFF` | `#DC2626` | **Negro sólido** |
+| Súper Crítica | `#EDECEC` | `#4A3F3F` | `#9B2222` bd / `#C0392B` bar | Gris cálido (no negro) |
 | Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` | Gris muted |
 
 **Reglas de uso:**
