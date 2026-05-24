@@ -327,11 +327,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else:
                 lab = truncate(raw_lab, 28)
             val = r[val_col] if val_col in r.index else 0
+            import math as _math_cell
+            _val_is_nan = (val != val) or (isinstance(val, float) and _math_cell.isnan(float(val)))
             val_str = fmt_pct2(val)
             import math
             wow_pill = make_wow_pill_row(r[wow_col] if (wow_col and wow_col in r.index) else None)
-            import math as _math_cell
-            _w21 = round(float(val) * 100, 4) if val and not _math_cell.isnan(float(val)) else 0
+            _w21 = round(float(val) * 100, 4) if (val and not _val_is_nan) else 0
             _w20_col = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
             _w20_raw = r.get(_w20_col, None) if hasattr(r, 'get') else None
             try:
@@ -350,11 +351,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                            f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                            + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub3}</span>' if _corp_sub3 else '')
                            + f'</div>') if parse_hotel else f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+            # Filas dummy (canal sin datos): atenuar + sin cursor + sin badge
+            _no_data_style = 'opacity:.45;pointer-events:none;' if _val_is_nan else ''
             _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                      f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
-                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;{_no_data_style}">'
                      f'{_hotel_cell}'
-                     f'<div style="display:flex;align-items:center;">{_badge3}</div>'
+                     f'<div style="display:flex;align-items:center;">{_badge3 if not _val_is_nan else ""}</div>'
                      f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
             if i < 5: top5 += _row3
@@ -431,10 +434,30 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             dim_col = {'destino':'Destino','corp':'CorpName','hotel':'Hotel','channel':'ExternalProviderName'}.get(tk, tk)
             parse_hotel = False  # no parsear nombres de hotel en canastas
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
-            # Para channel: split Producto Propio / Third Party como en global
+            # Para channel: split Producto Propio / Third Party — catálogo canónico fijo
             if tk == 'channel' and df_t is not None and len(df_t) > 0:
-                df_pp_c = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].reset_index(drop=True)
-                df_tp_c = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].reset_index(drop=True)
+                def _lookup_c(nombre, df_src):
+                    mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+                    hits = df_src[mask]
+                    return hits.iloc[0] if len(hits) > 0 else None
+                def _sorted_c(lista, df_src, vc):
+                    import pandas as _pd
+                    with_data, without_data = [], []
+                    for nombre in lista:
+                        r = _lookup_c(nombre, df_src)
+                        if r is not None:
+                            with_data.append(r)
+                        else:
+                            dummy = _pd.Series({'ExternalProviderName': nombre, vc: float('nan'), 'Bookings': 0, 'CR_Unicos': 0})
+                            without_data.append(dummy)
+                    def sort_key(r):
+                        v = r.get(vc, float('nan'))
+                        return v if (v == v) else 999
+                    with_data.sort(key=sort_key)
+                    import pandas as _pd2
+                    return _pd2.DataFrame(with_data + without_data).reset_index(drop=True)
+                df_pp_c = _sorted_c(PRODUCTO_PROPIO, df_t, val_col)
+                df_tp_c = _sorted_c(THIRD_PARTY, df_t, val_col)
                 rows_pp = tab_rows_canasta(df_pp_c, dim_col, False, wow_col=wm, val_col=val_col, tab_key=tk)
                 rows_tp = tab_rows_canasta(df_tp_c, dim_col, False, wow_col=wm, val_col=val_col, tab_key=tk)
                 panel_html = (
