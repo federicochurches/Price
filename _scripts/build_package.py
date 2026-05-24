@@ -542,6 +542,19 @@ for f in CLEANUP:
     if f.exists():
         f.unlink()
         cleaned += 1
+
+# Limpiar part*.html del directorio de trabajo (intermedios del render)
+SCRIPT_DIR = Path(__file__).parent
+PART_FILES = [
+    'part1_cr.html', 'part2_cr.html', 'part3_cr.html',
+    'part1_rnd.html', 'part2_rnd.html', 'part3_rnd.html',
+]
+for fname in PART_FILES:
+    p = SCRIPT_DIR / fname
+    if p.exists():
+        p.unlink()
+        cleaned += 1
+
 if cleaned:
-    print(f'\n🧹 Limpiados {cleaned} archivos intermedios de outputs/')
+    print(f'\n🧹 Limpiados {cleaned} archivos intermedios de outputs/ y directorio de trabajo')
 print(f'   Outputs finales: Price_W{WEEK}.zip · ProyectoClaude_PRICE_WNN.zip')
