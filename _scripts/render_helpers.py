@@ -29,12 +29,14 @@ def clean_hotel_name(name):
 
 # ============ HELPERS DE COLOR PARA BANDAS ============
 BANDA_COLORS = {
-    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#1A6B4A', 'bd':'#1D9E75'},
-    'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D'},
-    'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316'},
-    'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
-    'Súper Crítica': {'bg':'#161616', 'fg':'#FFFFFF', 'bd':'#DC2626'},
-    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
+    # Paleta D · única fuente de verdad · sincronizada con BANDAS.md
+    # bg=fondo badge · fg=texto badge · bd=borde badge · bar=color barra de progreso severity
+    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#1A6B4A', 'bd':'#1D9E75', 'bar':'#1A6B4A'},
+    'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D', 'bar':'#FCD34D'},
+    'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316', 'bar':'#F97316'},
+    'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B', 'bar':'#C0392B'},
+    'Súper Crítica': {'bg':'#161616', 'fg':'#FFFFFF', 'bd':'#DC2626', 'bar':'#DC2626'},
+    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377', 'bar':'#8A8377'},
 }
 
 def _mini_badge(bnd):
@@ -82,7 +84,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#FCD34D'),
+            ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#1A6B4A'),
         ]
@@ -90,7 +92,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#FCD34D'),
+            ('Revisar',        '#F97316'),
             ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#1A6B4A'),
         ]
@@ -98,7 +100,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#FCD34D'),
+            ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#1A6B4A'),
         ]
@@ -106,7 +108,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#FCD34D'),
+            ('Revisar',        '#F97316'),
             ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#1A6B4A'),
         ]
