@@ -190,8 +190,11 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                         wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
                 except:
                     wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
-                return (f'<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
-                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {r["ExternalProviderName"]}</span>'
+                _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
+                _lbl = str(r.get('ExternalProviderName', ''))
+                return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
+                        f' style="display:flex;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
+                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {_lbl}</span>'
                         f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
@@ -356,8 +359,11 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                         wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
                 except:
                     wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;min-width:28px;text-align:center;">—</em>'
-                return (f'<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
-                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {r["ExternalProviderName"]}</span>'
+                _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
+                _lbl = str(r.get('ExternalProviderName', ''))
+                return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
+                        f' style="display:flex;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
+                        f'<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">{i+1}. {_lbl}</span>'
                         f'<span style="flex-shrink:0;text-align:right;min-width:48px;">{val_str}</span>'
                         f'{wow_pill}</div>')
 
