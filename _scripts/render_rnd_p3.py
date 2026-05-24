@@ -147,7 +147,7 @@ def _build_canasta_findings_rnd(c):
     if h_worst_nd is not None:
         findings.append({
             'numero': es_pct(h_worst_nd['%NoDispo']*100,2),
-            'titulo': f'{truncate(clean_hotel_name(h_worst_nd["Hotel"]),28)} · peor %NoDispo',
+            'titulo': f'{truncate(truncate(str(h_worst_nd["Hotel"])),28)} · peor %NoDispo',
             'desc': f'{fmt_big(h_worst_nd["Trafico"])} búsquedas · {h_worst_nd["CorpName"]} · escalamiento individual prioritario.'
         })
     if top1_corp is not None and top2_corp is not None:
@@ -159,13 +159,13 @@ def _build_canasta_findings_rnd(c):
     if h_worst_rpm is not None:
         findings.append({
             'numero': '$' + es_num2(h_worst_rpm['RPM']),
-            'titulo': f'{truncate(clean_hotel_name(h_worst_rpm["Hotel"]),28)} · peor IPM',
+            'titulo': f'{truncate(truncate(str(h_worst_rpm["Hotel"])),28)} · peor IPM',
             'desc': f'BKGS {int(h_worst_rpm["Bookings"])} · {h_worst_rpm["CorpName"]} · pricing y matching técnico requieren revisión.'
         })
     if h_top_dnc is not None:
         findings.append({
             'numero': fmt_big(h_top_dnc["Trafico"]),
-            'titulo': f'{truncate(clean_hotel_name(h_top_dnc["Hotel"]),28)} · #1 tráfico',
+            'titulo': f'{truncate(truncate(str(h_top_dnc["Hotel"])),28)} · #1 tráfico',
             'desc': f'%NoDispo {es_pct(h_top_dnc["%NoDispo"]*100,2)} · {h_top_dnc["CorpName"]} · caso de mayor palanca de impacto.'
         })
     findings.append({
@@ -199,25 +199,25 @@ def _render_canasta_alertas_rnd(c, accent_color='#EA0074'):
         rpm_obj = worst_ipm(df, label_col)
         if nd_obj is None or rpm_obj is None:
             return ''
-        lbl_nd  = label_fn(nd_obj[label_col])  if label_fn else truncate(str(nd_obj[label_col]), 22)
-        lbl_rpm = label_fn(rpm_obj[label_col]) if label_fn else truncate(str(rpm_obj[label_col]), 22)
+        lbl_nd  = label_fn(nd_obj[label_col])  if label_fn else truncate(str(nd_obj[label_col]))
+        lbl_rpm = label_fn(rpm_obj[label_col]) if label_fn else truncate(str(rpm_obj[label_col]))
         sub_nd = render_alert_subcell(
             '% NoDispo', '#EA0074', '#FCE4F1', lbl_nd,
             f'{nd_obj["%NoDispo"]*100:.2f}%'.replace('.',','), '#EA0074'
         )
         ipm_val = max(rpm_obj.get('IPM', rpm_obj.get('RPM', 0)), 0)
         sub_rpm = render_alert_subcell(
-            'IPM', '#5C469C', '#FEF9C3', lbl_rpm,
+            'IPM', '#5C469C', '#EDE9F8', lbl_rpm,
             f'${fmt_num2(ipm_val)}', '#5C469C'
         )
         return render_alert_card(card_title, icon, accent_color, sub_nd, sub_rpm)
 
     card_h  = card_for('Hoteles',  '🏨', p80, 'Hotel',
-                        lambda x: truncate(clean_hotel_name(str(x)), 22))
+                        lambda x: truncate(truncate(str(x)), 22))
     card_d  = card_for('Destinos', '📍', agg_dest, 'Destino',
-                        lambda x: clean_destino_name(str(x), 22)) if agg_dest is not None else ''
+                        lambda x: clean_destino_name(str(x))) if agg_dest is not None else ''
     card_co = card_for('Corp',     '🏢', agg_corp, 'CorpName',
-                        lambda x: clean_corp_name(str(x), 22)) if agg_corp is not None else ''
+                        lambda x: clean_corp_name(str(x))) if agg_corp is not None else ''
 
     return render_alertas_block(
         f'Alertas · Casos Críticos · Canasta {c["short"]}',
@@ -268,7 +268,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             raw = r[dim_col]
             raw_lab = str(raw)
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw_lab), 28)
+                lab = truncate(truncate(str(raw_lab)), 28)
             elif dim_col == 'PaisDestino':
                 lab = clean_pais_name(raw_lab, max_len=24)
             elif dim_col == 'Destino':
@@ -324,11 +324,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if i < 5: _cls_r3 = ''
             elif i < 10: _cls_r3 = 'rows-more'
             else: _cls_r3 = 'sb-hidden'
+            _traf_r3 = fmt_big(r.get('Trafico', 0)) if not is_rpm else ''
             _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{raw_lab}"'
-                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;align-items:center;gap:4px;'
+                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 60px 52px 44px;align-items:center;gap:4px;'
                        f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                        f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
                        f'<div style="display:flex;align-items:center;">{_badge_r3}</div>'
+                       f'<span style="text-align:right;font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{_traf_r3}</span>'
                        f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
                        f'{wow_html}</div>')
             if i < 5: top5 += _row_r3
@@ -348,11 +350,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             _hdr_rnd = ''
         else:
             _metric_lbl_rnd = 'IPM' if is_rpm else '%NoDispo'
-            _hdr_rnd = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;'
+            _traf_hdr = '' if is_rpm else 'Tráfico'
+            _hdr_rnd = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 60px 52px 44px;'
                         f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
                         f'<span></span>'
                         f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">Severity</span>'
+                        f'color:var(--ink-muted);text-align:left;padding:2px 0;">Severity</span>'
+                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_traf_hdr}</span>'
                         f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
                         f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl_rnd}</span>'
                         f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
@@ -405,7 +410,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         panels = ''
         for tk, tl, df_t, wm, is_rpm in tab_configs:
             dim_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(tk, tk)
-            parse_hotel = tk == 'hotel'
+            parse_hotel = False  # no parsear nombres de hotel en canastas
             val_col = 'RPM' if is_rpm else '%NoDispo'
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wm, val_col, prefix, is_rpm, tab_key=tk)
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
@@ -546,8 +551,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0, sb_id=None):
         import math
         RND_ACCENT = '#EA0074'
-        grid = '1fr 80px 62px 38px 62px 38px'
-        headers = [dim_label, 'Severity', '%NoDispo', 'WoW', 'IPM', 'WoW']
+        grid = '1fr 80px 72px 62px 38px 62px 38px'
+        headers = [dim_label, 'Severity', 'Tráfico', '%NoDispo', 'WoW', 'IPM', 'WoW']
         hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
         for idx_h, h in enumerate(headers):
             if idx_h == 0 and sb_id:
@@ -555,7 +560,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                                                placeholder=f'{dim_label}…',
                                                th_id=f'th-{sb_id}')
             else:
-                align = 'right' if h != dim_label else 'left'
+                align = 'left' if h in (dim_label, 'Severity') else 'right'
                 color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
                 hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
         hrow += '</div>'
@@ -570,11 +575,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         for i, r in df.iterrows():
             row_idx = start_idx + i
             raw = r[dim_col]
-            if parse_hotel: label = truncate(clean_hotel_name(raw), 26)
+            if parse_hotel: label = truncate(truncate(str(raw)), 26)
             elif dim_col == 'PaisDestino': label = clean_pais_name(raw)
             elif dim_col == 'Destino': label = clean_destino_name(raw, 26)
             elif dim_col == 'CorpName': label = clean_corp_name(raw)
-            else: label = truncate(str(raw), 26)
+            else: label = truncate(str(raw))
             ipm_val = max(r.get('RPM', r.get('IPM', 0)), 0)
             wow_v = r.get('NoDispo_WoW_pp', None)
             if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))) or abs(wow_v) < 0.05:
@@ -613,6 +618,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{row_idx+1}. {label}</span></div>'
                      + (lambda b: f'<div style="display:flex;align-items:center;">{b}</div>' if b else '<div></div>')(_dim_badge(r.get('BandaNoDispo',''))) +
+                     f'<span style="font-size:11px;text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{fmt_big(r.get("Trafico",r.get("TR",0)))}</span>'
                      f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
                      f'<span style="text-align:right;">{wow_html}</span>'
                      f'<span style="font-size:11px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
@@ -645,7 +651,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         import math as _mh
         rows_html = header
         for i, r in df_full.iterrows():
-            hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
+            hotel_name = truncate(truncate(str(r.get('Hotel')) or '-'), 28)
             sub = clean_corp_name(r.get('CorpName',''))
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             bnd = r.get('BandaNoDispo','')
@@ -835,7 +841,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             cols_grid = '1fr 70px 65px 44px'
             html = ''
             for i, r in sub.iterrows():
-                hotel_name = truncate(clean_hotel_name(r['Hotel']), 26)
+                hotel_name = truncate(truncate(str(r['Hotel'])), 26)
                 corp = r.get('CorpName','')
                 cells = (f'<div><div style="color:var(--ink);font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{start_idx+i+1}. {hotel_name}</div>'
                          f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;">{clean_corp_name(corp)}</div></div>'
@@ -876,7 +882,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         plan_canasta_rows += (
             f'<div class="action-row qw">'
             f'<div class="action-owner-badge">Supply Comercial / Supply Optimization</div>'
-            f'<div class="accion">Escalar el caso #1 de tráfico de canasta {canasta_label}: <strong>{truncate(clean_hotel_name(h_top_dnc["Hotel"]),32)}</strong> ({h_top_dnc["CorpName"]}) con %NoDispo {fmt_pct2(h_top_dnc["%NoDispo"])}.</div>'
+            f'<div class="accion">Escalar el caso #1 de tráfico de canasta {canasta_label}: <strong>{truncate(truncate(str(h_top_dnc["Hotel"])),32)}</strong> ({h_top_dnc["CorpName"]}) con %NoDispo {fmt_pct2(h_top_dnc["%NoDispo"])}.</div>'
             f'<div class="action-meta-bottom"><span class="cluster-tag">Quick Win</span><span class="meta-item"><strong>Plazo</strong> 5 días</span><span class="meta-item"><strong>Métrica</strong> %ND &lt; 20%</span></div>'
             f'</div>'
         )
@@ -884,7 +890,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         plan_canasta_rows += (
             f'<div class="action-row qw">'
             f'<div class="action-owner-badge">Supply Optimization / TPS</div>'
-            f'<div class="accion">Diagnóstico técnico de <strong>{truncate(clean_hotel_name(h_top_sc["Hotel"]),32)}</strong> ({fmt_big(h_top_sc["Trafico"])} búsquedas, 0 BKGS) · revisar mapping y paridad en canasta {canasta_label}.</div>'
+            f'<div class="accion">Diagnóstico técnico de <strong>{truncate(truncate(str(h_top_sc["Hotel"])),32)}</strong> ({fmt_big(h_top_sc["Trafico"])} búsquedas, 0 BKGS) · revisar mapping y paridad en canasta {canasta_label}.</div>'
             f'<div class="action-meta-bottom"><span class="cluster-tag">Quick Win</span><span class="meta-item"><strong>Plazo</strong> 1 semana</span><span class="meta-item"><strong>Métrica</strong> Conv Rate &gt; 0</span></div>'
             f'</div>'
         )

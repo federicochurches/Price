@@ -154,7 +154,7 @@ def _build_canasta_findings_cr(c):
     ef_wow = (ef - ef17) * 100
     cv_wow = (cv - cv17) * 100
     n_p80  = len(c['p80'])
-    n_critmas_ef = int(c['sev_ef'].get('Crítica',0) + c['sev_ef'].get('Súper Crítica',0))
+    n_critmas_ef = int(c['sev_ef'].get('Crítica') + c['sev_ef'].get('Súper Crítica',0))
     n_supcrit_ef = int(c['sev_ef'].get('Súper Crítica',0))
     n_sc  = int(c['sev_cv'].get('Sin Conversión',0))
     n_crit_cv = int(c['sev_cv'].get('Crítica',0))
@@ -199,7 +199,7 @@ def _build_canasta_findings_cr(c):
     if h_worst_ef is not None:
         findings.append({
             'numero': es_pct(h_worst_ef['Eficacia']*100,2),
-            'titulo': f'{truncate(clean_hotel_name(h_worst_ef["Hotel"]),28)} · peor Eficacia',
+            'titulo': f'{truncate(truncate(str(h_worst_ef["Hotel"])),28)} · peor Eficacia',
             'desc': f'{fmt_int_es(h_worst_ef["CR_Unicos"])} CR · {h_worst_ef["CorpName"]} · escalamiento individual prioritario.'
         })
     if top1_corp is not None and top2_corp is not None:
@@ -216,13 +216,13 @@ def _build_canasta_findings_cr(c):
     if h_worst_cv is not None:
         findings.append({
             'numero': es_pct(h_worst_cv['ConvRate']*100,2),
-            'titulo': f'{truncate(clean_hotel_name(h_worst_cv["Hotel"]),28)} · peor ConvRate',
+            'titulo': f'{truncate(truncate(str(h_worst_cv["Hotel"])),28)} · peor ConvRate',
             'desc': f'{fmt_int_es(h_worst_cv["CR_Unicos"])} CR · {h_worst_cv["CorpName"]} · falla sistémica de conversión.'
         })
     if h_top_sc is not None:
         findings.append({
             'numero': fmt_int_es(h_top_sc["CR_Unicos"]),
-            'titulo': f'{truncate(clean_hotel_name(h_top_sc["Hotel"]),28)} · #1 Sin Conv',
+            'titulo': f'{truncate(truncate(str(h_top_sc["Hotel"])),28)} · #1 Sin Conv',
             'desc': f'CR sin convertir · {h_top_sc["CorpName"]} · primer caso para revisión técnica esta semana.'
         })
     findings.append({
@@ -265,12 +265,12 @@ def _render_canasta_alertas_cr(c, accent_color=CR_ACCENT):
         if ef_obj is None or cv_obj is None: return ''
         sub_ef = render_alert_subcell(
             'Eficacia', '#EA0074', '#FCE4F1',
-            truncate(clean_hotel_name(str(ef_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(ef_obj[name_col])) if name_col=='Destino' else str(ef_obj[name_col])), 22),
+            truncate(truncate(str(ef_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(ef_obj[name_col])) if name_col=='Destino' else str(ef_obj[name_col]))),
             fmt_pct2(ef_obj['Eficacia']), '#EA0074'
         )
         sub_cv = render_alert_subcell(
             'ConvRate', CR_ACCENT, '#FEF9C3',
-            truncate(clean_hotel_name(str(cv_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(cv_obj[name_col])) if name_col=='Destino' else str(cv_obj[name_col])), 22),
+            truncate(truncate(str(cv_obj[name_col])) if name_col=='Hotel' else (clean_destino_name(str(cv_obj[name_col])) if name_col=='Destino' else str(cv_obj[name_col]))),
             fmt_pct2(cv_obj['ConvRate']), CR_ACCENT
         )
         return render_alert_card(title, icon, accent_color, sub_ef, sub_cv)
@@ -317,7 +317,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             raw = r[dim_col]
             raw_lab = str(raw)
             if parse_hotel:
-                lab = truncate(clean_hotel_name(raw_lab), 28)
+                lab = truncate(truncate(str(raw_lab)), 28)
             elif dim_col == 'CorpName':
                 lab = truncate(clean_corp_name(raw_lab), 28)
             elif dim_col == 'Destino':
@@ -343,7 +343,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             if i < 5: _cls3 = ''
             elif i < 10: _cls3 = 'rows-more'
             else: _cls3 = 'sb-hidden'
-            _corp_sub3 = truncate(clean_corp_name(str(r.get('CorpName', ''))), 22) if parse_hotel and 'CorpName' in r.index else ''
+            _corp_sub3 = truncate(clean_corp_name(str(r.get('CorpName', '')))) if parse_hotel and 'CorpName' in r.index else ''
             _hotel_cell = (f'<div style="min-width:0;overflow:hidden;">'
                            f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                            + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub3}</span>' if _corp_sub3 else '')
@@ -353,7 +353,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'{_hotel_cell}'
                      f'<div style="display:flex;align-items:center;">{_badge3}</div>'
-                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
+                     f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
             if i < 5: top5 += _row3
             elif i < 10: next5 += _row3
@@ -378,7 +378,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                     f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
                     f'<span></span>'
                     f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">Severity</span>'
+                    f'color:var(--ink-muted);text-align:left;padding:2px 0;">Severity</span>'
                     f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
                     f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl}</span>'
                     f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
@@ -427,7 +427,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         panels = ''
         for tk, tl, df_t, wm in tab_configs:
             dim_col = {'destino':'Destino','corp':'CorpName','hotel':'Hotel','channel':'ExternalProviderName'}.get(tk, tk)
-            parse_hotel = tk == 'hotel'
+            parse_hotel = False  # no parsear nombres de hotel en canastas
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
             # wm es ahora el nombre de la columna WoW (string) o None
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
@@ -596,7 +596,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         for i, r in df.iterrows():
             raw = r[dim_col]
             if parse_hotel:
-                label = truncate(clean_hotel_name(raw), 28)
+                label = truncate(truncate(str(raw)), 28)
                 corp = clean_corp_name(r.get('CorpName',''))
                 chan = hotel_channel_map.get(raw, '')
                 sub = f'{corp} · {chan}' if chan and chan != corp else corp
@@ -607,7 +607,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 label = clean_destino_name(raw, 28)
                 sub = ''
             else:
-                label = truncate(str(raw), 28)
+                label = truncate(str(raw))
                 sub = ''
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">{sub}</div>' if sub else ''
             # WoW Eficacia
@@ -661,7 +661,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         import math as _mh
         rows_html = header
         for i, r in df_full.iterrows():
-            hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 28)
+            hotel_name = truncate(truncate(str(r.get('Hotel')) or '-'), 28)
             sub = clean_corp_name(r.get('CorpName',''))
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             ef_val = r.get('Eficacia', 0)
@@ -754,7 +754,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                                                placeholder=f'{dim_label}…',
                                                th_id=f'th-{sb_id}')
             else:
-                align = 'left' if h == dim_label else 'right'
+                align = 'left' if h in (dim_label, 'Severity') else 'right'
                 color = CR_ACCENT if h == dim_label else 'var(--ink-muted)'
                 rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
         rows += '</div>'
@@ -763,7 +763,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             raw = r[dim_col]
             if dim_col == 'CorpName': lab = truncate(clean_corp_name(raw), 22)
             elif dim_col == 'Destino': lab = clean_destino_name(raw, 22)
-            else: lab = truncate(str(raw), 22)
+            else: lab = truncate(str(raw))
             bnd = banda_eficacia(r['Eficacia'])
             bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
@@ -802,7 +802,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'<div style="display:flex;align-items:center;">{pill_banda}</div>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                     f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                     f'<span style="text-align:right;font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))}'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
                      f'{wow_cell}</div>')
@@ -820,8 +820,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         sb_id_dim = f'sb-{idx_str}-d-{t_key}'
         df100 = df_full.head(100).reset_index(drop=True)
         if ref_w17 is not None and dim_col in ref_w17.columns:
-            df100 = df100.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
-            df100['Eficacia_WoW_pp'] = (df100['Eficacia'] - df100['Eficacia_W17']) * 100
+            merge_cols = [dim_col]
+            if 'Eficacia_W17' in ref_w17.columns: merge_cols.append('Eficacia_W17')
+            if 'ConvRate_W17' in ref_w17.columns: merge_cols.append('ConvRate_W17')
+            df100 = df100.merge(ref_w17[merge_cols], on=dim_col, how='left')
+            if 'Eficacia_W17' in df100.columns:
+                df100['Eficacia_WoW_pp'] = (df100['Eficacia'] - df100['Eficacia_W17']) * 100
+            if 'ConvRate_W17' in df100.columns:
+                df100['ConvRate_WoW_pp'] = (df100['ConvRate'] - df100['ConvRate_W17']) * 100
         rows_html = dim_table_with_wow(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id_dim)
         body = f'<div class="tbl-wrap">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
@@ -887,7 +893,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                         wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 3px;border-radius:3px;background:#F2EEE6;color:#8A8377;text-align:center;">—</em>'
                 except:
                     wow_html = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 3px;border-radius:3px;background:#F2EEE6;color:#8A8377;text-align:center;">—</em>'
-            rows += (f'<div style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;">'
+            ef_curr_ch = round(float(ef_val or 0)*100, 4)
+            ef_prev_ch = ef_curr_ch - float(r.get('Eficacia_WoW_pp', 0) or 0)
+            chan_lab = truncate(str(r.get('ExternalProviderName','')))
+            rows += (f'<div data-hist-label="{chan_lab}" data-hist-w21="{ef_curr_ch}" data-hist-w20="{ef_prev_ch}"'
+                        f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule-soft);font-size:11px;cursor:pointer;">'
                      f'<span style="font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{i+1}. {truncate(r["ExternalProviderName"],20)}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
@@ -983,7 +993,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         plan_rows += (
             f'<div class="action-row qw">'
             f'<div class="action-owner-badge">Supply Optimization</div>'
-            f'<div class="accion">Escalar caso Crítico de canasta {canasta_label}: <strong>{truncate(clean_hotel_name(h_top_crit["Hotel"]),38)}</strong> ({h_top_crit["CorpName"]}) con Eficacia {fmt_pct2(h_top_crit["Eficacia"])} y {fmt_int_es(h_top_crit["CR_Unicos"])} CR.</div>'
+            f'<div class="accion">Escalar caso Crítico de canasta {canasta_label}: <strong>{truncate(truncate(str(h_top_crit["Hotel"])),38)}</strong> ({h_top_crit["CorpName"]}) con Eficacia {fmt_pct2(h_top_crit["Eficacia"])} y {fmt_int_es(h_top_crit["CR_Unicos"])} CR.</div>'
             f'<div class="action-meta-bottom"><span class="cluster-tag">Quick Win</span><span class="meta-item"><strong>Plazo</strong> 5 días</span><span class="meta-item"><strong>Métrica</strong> Eficacia &gt; 85%</span></div>'
             f'</div>'
         )
@@ -991,7 +1001,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         plan_rows += (
             f'<div class="action-row qw">'
             f'<div class="action-owner-badge">Supply Optimization / TPS</div>'
-            f'<div class="accion">Diagnóstico técnico de <strong>{truncate(clean_hotel_name(h_top_sc["Hotel"]),38)}</strong> ({fmt_int_es(h_top_sc["CR_Unicos"])} CR sin BKGS) en canasta {canasta_label} · revisar mapping y paridad.</div>'
+            f'<div class="accion">Diagnóstico técnico de <strong>{truncate(truncate(str(h_top_sc["Hotel"])),38)}</strong> ({fmt_int_es(h_top_sc["CR_Unicos"])} CR sin BKGS) en canasta {canasta_label} · revisar mapping y paridad.</div>'
             f'<div class="action-meta-bottom"><span class="cluster-tag">Quick Win</span><span class="meta-item"><strong>Plazo</strong> 1 semana</span><span class="meta-item"><strong>Métrica</strong> Bookings &gt; 0</span></div>'
             f'</div>'
         )
