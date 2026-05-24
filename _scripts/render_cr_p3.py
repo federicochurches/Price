@@ -67,7 +67,7 @@ def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, ba
   if (!section) return;
   // Subir hasta el bloque canasta-*-hotel o canasta-*-dim, luego section o details
   var parent = section.parentElement;
-  while (parent && !parent.id?.match(/^canasta-.*-(hotel|dim)-/) && parent.tagName !== 'SECTION' && parent.tagName !== 'DETAILS' && parent !== document.body) {{
+  while (parent && !parent.id?.match(/^canasta-.*-(hotel|dim)/) && parent.tagName !== 'SECTION' && parent.tagName !== 'DETAILS' && parent !== document.body) {{
     parent = parent.parentElement;
   }}
   if (!parent) parent = document.body;
@@ -310,23 +310,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     wow_str_cv = (f'↑ +{cv_wow:.2f}pp' if cv_wow > 0 else f'↓ {cv_wow:.2f}pp').replace('.', ',')
 
     # ── WoW box ──────────────────────────────────────────────────────────────
-    def wow_box_canasta(v17, v18, wow_str, wow_color, accent):
-        bg_wow = '#E0F0E2' if wow_color == '#2F6C34' else '#FCE4F1'
-        return f'''<div style="margin-top:14px;background:var(--paper);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
-<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT-1}</div>
-  <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
-</div>
-<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT}</div>
-  <div style="font-size:16px;font-weight:700;color:{accent};margin-top:2px;">{v18}</div>
-</div>
-<div style="flex:1;text-align:center;background:{bg_wow};padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>
-  <div style="font-size:16px;font-weight:700;color:{wow_color};margin-top:2px;">{wow_str}</div>
-</div>
-</div>'''
-
     # ── Tab rows con pills WoW ────────────────────────────────────────────────
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False, tab_key=''):
         top5 = next5 = rest = ''
@@ -344,18 +327,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             val = r[val_col] if val_col in r.index else 0
             val_str = fmt_pct2(val)
             import math
-            wow_pill = '<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;text-align:center;display:block;min-width:32px;">—</em>'
-            if wow_col and wow_col in r.index:
-                try:
-                    wow_v = r[wow_col]
-                    if wow_v == wow_v and wow_v is not None and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.005:
-                        mejora = wow_v > 0
-                        wc = '#2F6C34' if mejora else '#C0392B'
-                        wb2 = '#EAF3DE' if mejora else '#FCE8E6'
-                        arrow = '↑' if wow_v > 0 else '↓'
-                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb2};color:{wc};text-align:center;display:block;min-width:32px;">{wow_txt}</em>'
-                except: pass
+            wow_pill = make_wow_pill_row(r[wow_col] if (wow_col and wow_col in r.index) else None)
             import math as _math_cell
             _w21 = round(float(val) * 100, 4) if val and not _math_cell.isnan(float(val)) else 0
             _w20_col = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
@@ -397,21 +369,57 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                            f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                            f'<span class="toggle-label">Ver 5 más</span> '
                            f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-        return f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+        # Header de columnas (no en canasta/channel que tienen pocas filas sin ambigüedad)
+        if is_simple:
+            _hdr = ''
+        else:
+            _metric_lbl = 'Conv Rate' if is_cv else 'Eficacia'
+            _hdr = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;'
+                    f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+                    f'<span></span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">Severity</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl}</span>'
+                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">WoW</span>'
+                    f'</div>')
+        return f'<div class="kpi-tab-rows">{_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
 
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
-                          gauge_tipo, tab_configs, card_id=''):
+                          gauge_tipo, tab_configs, card_id='', wow_delta=None):
         pill   = banda_pill(banda, target=pill_target, font_size='11px')
         pill_with_target = pill + target_caption(pill_target, font_size='10px')
         gauge  = gauge_5levels(banda, gauge_tipo)
         v18str = fmt_pct2(val18)
         v17str = fmt_pct2(val17)
-        wb     = wow_box_canasta(v17str, v18str, wow_str, wow_color, CR_ACCENT)
+        wb     = wow_box(v17str, v18str, wow_str, wow_color, CR_ACCENT,
+                         week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_NUM_INT-1}', compact=True)
         tabs_inputs = ''.join(
-            f'<input {"checked " if i==0 else ""}id="tab-{card_id}-{tk}" name="tabs-{card_id}" style="display:none;" type="radio"/>'
+            f'<input {"checked " if i==0 else ""}id="tab-{card_id}-{tk}" data-tab="{tk}" name="tabs-{card_id}" style="display:none;" type="radio"/>'
             for i,(tk,_,_,_) in enumerate(tab_configs)
         )
+        js_tabs = f'''<script>
+(function(){{
+  var card = document.querySelector('[id="kpi-{card_id}"]');
+  if(!card) return;
+  var inputs = card.querySelectorAll('input[name="tabs-{card_id}"]');
+  function activate(inp){{
+    card.querySelectorAll('.tp-{card_id}').forEach(function(p){{p.style.display='none';}});
+    card.querySelectorAll('label[for^="tab-{card_id}"]').forEach(function(l){{
+      l.style.color='';l.style.borderColor='transparent';l.style.background='';
+    }});
+    var panel = card.querySelector('.tp-{card_id}[data-tab="'+inp.dataset.tab+'"]');
+    if(panel) panel.style.display='block';
+    var lbl = card.querySelector('label[for="'+inp.id+'"]');
+    if(lbl){{lbl.style.color='#5C469C';lbl.style.borderColor='#5C469C';lbl.style.background='var(--paper)';}}
+  }}
+  inputs.forEach(function(inp){{ inp.addEventListener('change',function(){{activate(inp);}});}});
+  var first = card.querySelector('input[checked]')||inputs[0];
+  if(first) activate(first);
+}})();
+</script>'''
         tabs_labels = ''.join(
             f'<label class="tab-label" for="tab-{card_id}-{tk}">{tl}</label>'
             for tk, tl, _, _ in tab_configs
@@ -423,13 +431,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
             # wm es ahora el nombre de la columna WoW (string) o None
             panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
-            panels += f'<div class="tab-panel" data-tab="{tk}">{panel_html}</div>'
+            panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
         metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
         sb_id = f'sb-kpi-{card_id}'
         panels_id = f'kpi-{card_id}-panels'
-        _wow_pp = wow_pill_html(float(wow_str.replace(',','.').replace('pp','').replace('%','').strip().lstrip('↑↓=+').strip()) * (1 if '↑' in wow_str else -1 if '↓' in wow_str else 0), unit='pp') if wow_str and wow_str not in ('—',) else wow_pill_html(None)
-        return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
+        _wow_pp = wow_pill_html(wow_delta, unit='pp') if wow_delta is not None else wow_pill_html(None)
+        return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="margin-top:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -444,6 +452,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_labels}{searchbox_pill_html(sb_id, accent_color='#5C469C', placeholder='Buscar…', count_id=f'cnt-{card_id}')}</div>
 <div id="{panels_id}" class="tab-panels">{panels}</div>
 {hist_mod}
+{js_tabs}
 </div>'''
 
     # Datos para tabs de KPI
@@ -525,10 +534,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     card_ef = kpi_card_canasta('Eficacia', ef_w18, ef_w17, banda_ef, '≥ 97%',
                                 wow_str_ef, wow_color_ef, 'eficacia', tabs_ef,
-                                card_id=f'{idx_str}-ef')
+                                card_id=f'{idx_str}-ef', wow_delta=ef_wow)
     card_cv = kpi_card_canasta('ConvRate', cv_w18, cv_w17, banda_cv, '≥ 2,5%',
                                 wow_str_cv, wow_color_cv, 'convrate', tabs_cv,
-                                card_id=f'{idx_str}-cv')
+                                card_id=f'{idx_str}-cv', wow_delta=cv_wow)
 
     kpi_block = f'<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">{card_ef}{card_cv}</div>'
 

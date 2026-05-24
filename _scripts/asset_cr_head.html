@@ -461,6 +461,12 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var clearBtn = clearId ? document.getElementById(clearId) : null;
 
     function getActivePanel(){
+      // Check JS-activated panels first (class tp-* used in canastas KPI cards)
+      var tpPanels = card.querySelectorAll('[class^="tp-"]');
+      for (var i=0; i<tpPanels.length; i++){
+        if (window.getComputedStyle(tpPanels[i]).display !== 'none') return tpPanels[i];
+      }
+      // Fall back to CSS-activated panels (class tab-panel / tab-panel-c)
       var panels = card.querySelectorAll('.tab-panel, .tab-panel-c');
       for (var i=0; i<panels.length; i++){
         if (window.getComputedStyle(panels[i]).display !== 'none') return panels[i];
@@ -478,6 +484,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
 
     card.querySelectorAll('.tab-panel, .tab-panel-c').forEach(initPanel);
+    card.querySelectorAll('[class^="tp-"]').forEach(initPanel);
 
     /* Autocomplete dropdown — declarado antes de filter() para que clearBtn lo use */
     var dropdown = document.createElement('div');

@@ -27,7 +27,7 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm, banda_nd, val_nd, 
   var section = document.getElementById('hist-{canvas_id_nd}-container');
   if (!section) return;
   var parent = section.parentElement;
-  while (parent && !(/^canasta-.*-(hotel|dim)-/.test(parent.id||'')) && parent.tagName !== 'SECTION' && parent.tagName !== 'DETAILS' && parent !== document.body) {{
+  while (parent && !(/^canasta-.*-(hotel|dim)/.test(parent.id||'')) && parent.tagName !== 'SECTION' && parent.tagName !== 'DETAILS' && parent !== document.body) {{
     parent = parent.parentElement;
   }}
   if (!parent) parent = document.body;
@@ -257,22 +257,6 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     tab_rpm = c.get('tab_rpm', {})   # idem con RPM_WoW_pct
 
     # ── KPI cards con gauge + wow_box + tabs ─────────────────────────────────
-    def wow_box_canasta(v17, v18, wow_str, wow_color, accent):
-        return f'''<div style="margin-top:14px;background:var(--paper);border-radius:4px;padding:8px;display:flex;align-items:stretch;gap:8px;">
-<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT-1}</div>
-  <div style="font-size:16px;font-weight:700;color:var(--ink-soft);margin-top:2px;">{v17}</div>
-</div>
-<div style="flex:1;text-align:center;background:var(--paper);padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W{WEEK_NUM_INT}</div>
-  <div style="font-size:16px;font-weight:700;color:{accent};margin-top:2px;">{v18}</div>
-</div>
-<div style="flex:1;text-align:center;background:{'#E0F0E2' if wow_color=='#2F6C34' else '#FCE4F1'};padding:8px 4px;border-radius:3px;">
-  <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>
-  <div style="font-size:16px;font-weight:700;color:{wow_color};margin-top:2px;">{wow_str}</div>
-</div>
-</div>'''
-
     def gauge_canasta(banda, tipo):
         return gauge_5levels(banda, tipo)
 
@@ -359,7 +343,22 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                            f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                            f'<span class="toggle-label">Ver 5 más</span> '
                            f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-        return f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+        # Header de columnas (no en canasta que tiene pocos items sin ambigüedad)
+        if is_simple:
+            _hdr_rnd = ''
+        else:
+            _metric_lbl_rnd = 'IPM' if is_rpm else '%NoDispo'
+            _hdr_rnd = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 44px;'
+                        f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+                        f'<span></span>'
+                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">Severity</span>'
+                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl_rnd}</span>'
+                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">WoW</span>'
+                        f'</div>')
+        return f'<div class="kpi-tab-rows">{_hdr_rnd}{top5}{next5}</div>{rest}{ver_mas_btn}'
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
@@ -368,7 +367,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         gauge = gauge_canasta(banda, gauge_tipo)
         val18_str = fmt_pct2(val18) if prefix == '' else f'${fmt_num2(val18)}'
         val17_str = fmt_pct2(val17) if prefix == '' else f'${fmt_num2(val17)}'
-        wb = wow_box_canasta(val17_str, val18_str, wow_str, wow_color, '#EA0074')
+        wb = wow_box(val17_str, val18_str, wow_str, wow_color, '#EA0074',
+                    week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_NUM_INT-1}', compact=True)
 
         # CSS + JS para pestaña activa — JS es más robusto dentro de divs anidados
         js_tabs = f'''<script>

@@ -226,14 +226,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                 raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['Eficacia']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
-                wow_pp = r.get('Eficacia_WoW_pp', None)
-                if wow_pp is not None and wow_pp == wow_pp:
-                    mejora = wow_pp > 0
-                    color = '#2F6C34' if mejora else '#C0392B'
-                    bg    = '#EAF3DE' if mejora else '#FCE8E6'
-                    arrow = '↑' if wow_pp > 0 else '↓'
-                    txt   = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
-                    wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{bg};color:{color};margin-left:4px;vertical-align:middle;">{txt}</em>'
+                wow_pill = make_wow_pill_row(r.get('Eficacia_WoW_pp', None))
             import math as _math
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('Eficacia_W17', None)
@@ -272,7 +265,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Eficacia</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            _tab_hdr = tab_column_header(['Severity','Eficacia','WoW'], 'minmax(0,1fr) 80px 54px 40px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
@@ -289,7 +282,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
-<div style="margin-top:5px;">{_wow_pill_ef}</div>
+<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ef}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -396,14 +389,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                 raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['ConvRate']
             wow_pill = ''
             if t_key in ('destino', 'corp', 'hotel'):
-                wow_pp = r.get('ConvRate_WoW_pp', None)
-                if wow_pp is not None and wow_pp == wow_pp:
-                    mejora = wow_pp > 0
-                    color = '#2F6C34' if mejora else '#C0392B'
-                    bg    = '#EAF3DE' if mejora else '#FCE8E6'
-                    arrow = '↑' if wow_pp > 0 else '↓'
-                    txt   = f'{arrow}{abs(wow_pp):.1f}'.replace('.', ',')
-                    wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{bg};color:{color};margin-left:4px;vertical-align:middle;">{txt}</em>'
+                wow_pill = make_wow_pill_row(r.get('ConvRate_WoW_pp', None))
             import math as _math
             _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
             _w20_raw = r.get('ConvRate_W17', None)
@@ -439,7 +425,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 68px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            _tab_hdr = tab_column_header(['Severity','Conv Rate','WoW'], 'minmax(0,1fr) 80px 68px 40px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
@@ -456,7 +442,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
-<div style="margin-top:5px;">{_wow_pill_cv}</div>
+<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_cv}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>

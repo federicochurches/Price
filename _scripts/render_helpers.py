@@ -117,24 +117,39 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         cells.append(f'<div style="flex:1;background:{color};height:6px;opacity:1;"></div>')
     return '<div style="display:flex;gap:2px;margin-top:10px;">' + ''.join(cells) + '</div>'
 
-def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color, week_num='W20', week_prev='W19'):
-    """Caja compacta W20/WoW/W19."""
+def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color,
+            week_num='W20', week_prev='W19', compact=False):
+    """Caja W(N-1) / WoW / W(N).
+
+    compact=False → global (margin-top:8px, padding:5px, font:15px, gap:6px, bg:paper-soft)
+    compact=True  → canastas (margin-top:14px, padding:8px, font:16px, gap:8px, bg:paper)
+    Los valores compact son los de la antigua wow_box_canasta — ahora unificados aquí.
+    """
     if wow_color == '#2F6C34':   wow_bg = '#E0F0E2'
     elif wow_color == '#C0392B': wow_bg = '#FCE4F1'
     else:                        wow_bg = '#F2EEE6'
+    mt  = '14px' if compact else '8px'
+    pad = '8px 4px' if compact else '5px 4px'
+    fs  = '16px'    if compact else '15px'
+    gap = '8px'     if compact else '6px'
+    p   = '8px'     if compact else '6px'
+    br  = '4px'     if compact else '3px'
+    outer_bg = 'var(--paper)' if compact else 'var(--paper-soft)'
+    cell_br  = '3px' if compact else '2px'
+    lbl_fs   = '9px' if compact else '8px'
     return (
-        f'<div style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;">'
-        f'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
-          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_num}</div>'
-          f'<div style="font-size:15px;font-weight:700;color:{accent_color};margin-top:1px;letter-spacing:-.01em;">{curr_str}</div>'
+        f'<div style="margin-top:{mt};background:{outer_bg};border-radius:{br};padding:{p};display:flex;align-items:stretch;gap:{gap};">'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:{pad};border-radius:{cell_br};">'
+          f'<div style="font-size:{lbl_fs};letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_prev}</div>'
+          f'<div style="font-size:{fs};font-weight:700;color:var(--ink-soft);margin-top:2px;">{curr_label}</div>'
         f'</div>'
-        f'<div style="flex:1;text-align:center;background:{wow_bg};padding:5px 4px;border-radius:2px;">'
-          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>'
-          f'<div style="font-size:15px;font-weight:700;color:{wow_color};margin-top:1px;letter-spacing:-.01em;">{wow_str}</div>'
+        f'<div style="flex:1;text-align:center;background:var(--paper);padding:{pad};border-radius:{cell_br};">'
+          f'<div style="font-size:{lbl_fs};letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_num}</div>'
+          f'<div style="font-size:{fs};font-weight:700;color:{accent_color};margin-top:2px;">{curr_str}</div>'
         f'</div>'
-        f'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
-          f'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">{week_prev}</div>'
-          f'<div style="font-size:15px;font-weight:700;color:var(--ink-soft);margin-top:1px;letter-spacing:-.01em;">{curr_label}</div>'
+        f'<div style="flex:1;text-align:center;background:{wow_bg};padding:{pad};border-radius:{cell_br};">'
+          f'<div style="font-size:{lbl_fs};letter-spacing:.08em;text-transform:uppercase;color:{wow_color};font-weight:700;">WoW</div>'
+          f'<div style="font-size:{fs};font-weight:700;color:{wow_color};margin-top:2px;">{wow_str}</div>'
         f'</div>'
       f'</div>'
     )
@@ -288,6 +303,59 @@ def searchbox_html(input_id, scope_selector, placeholder="Buscar hotel, destino,
 
 
 # ── NUEVAS FUNCIONES · Plan A+D · W21 ────────────────────────────────────────
+
+def tab_column_header(cols, widths):
+    """Header de columnas para tabs de KPI cards (global y canastas).
+
+    cols   : lista de strings — nombres de columnas después de la col de nombre.
+             La primera celda (nombre del elemento) siempre queda vacía.
+             Ejemplo: ['Severity', 'Eficacia', 'WoW']
+    widths : string de grid-template-columns.
+             Ejemplo: 'minmax(0,1fr) 80px 54px 40px'
+
+    Uso:
+        tab_column_header(['Severity','Eficacia','WoW'], 'minmax(0,1fr) 80px 54px 40px')
+        tab_column_header(['Severity','%NoDispo','WoW'],  'minmax(0,1fr) 72px 54px 40px')
+    """
+    _lbl_style = (
+        'font-size:9px;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;'
+    )
+    spans = '<span></span>' + ''.join(
+        f'<span style="{_lbl_style}">{c}</span>' for c in cols
+    )
+    return (
+        f'<div style="display:grid;grid-template-columns:{widths};'
+        f'gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+        f'{spans}</div>'
+    )
+
+
+def make_wow_pill_row(wow_v, is_mejora_si_positivo=True, threshold=0.005):
+    """Pill WoW compacta para filas de tabs de KPI cards.
+
+    Unifica el sistema CR (inline-style) con el sistema RND (CSS class).
+    Retorna un <em class="wow-pill ..."> — las clases .wow-pill.nd/up/dn
+    deben estar definidas en los assets CSS (asset_cr_head y asset_rnd_head).
+
+    wow_v                : float o None — delta en las unidades de la métrica
+    is_mejora_si_positivo: True  → Eficacia/ConvRate/IPM (subir es bueno)
+                           False → NoDispo (bajar es bueno)
+    threshold            : delta mínimo para mostrar cambio (default 0.005)
+    """
+    import math
+    if wow_v is None or (isinstance(wow_v, float) and (math.isnan(wow_v) or math.isinf(wow_v))):
+        return '<em class="wow-pill nd">—</em>'
+    v = float(wow_v)
+    if abs(v) < threshold:
+        return '<em class="wow-pill nd">—</em>'
+    mejora = (v > 0) == is_mejora_si_positivo
+    cls    = 'dn' if mejora else 'up'
+    arrow  = '↑' if v > 0 else '↓'
+    txt    = f'{arrow}{abs(v):.1f}'.replace('.', ',')
+    return f'<em class="wow-pill {cls}">{txt}</em>'
+
+
 
 def wow_pill_html(wow_val, unit='pp', prefix_pos='↑', prefix_neg='↓'):
     """Pill WoW redondeada con fondo semántico (V1).
