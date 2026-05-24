@@ -469,3 +469,65 @@ Los siguientes bugs quedaron abiertos para atender en W21:
 
 **Nota**: Aceptable y Revisar comparten el naranja `#F59E0B` en el gauge. El badge de Aceptable usa `bg:#FEF3C7 fg:#92400E` (pastel naranja).
 
+## 🔧 Regla de mantenimiento: Global vs Canastas (post-W20)
+
+### Principio general
+Los componentes visuales están centralizados en `render_helpers.py`. Los cambios se propagan automáticamente a p1 (global) y p3 (canastas).
+
+### Qué tocar según el tipo de cambio
+
+| Tipo de cambio | Archivos a editar |
+|---|---|
+| Visual puro (padding, color, font-size, spacing) | Solo `render_helpers.py` → heredado por p1 y p3 |
+| Datos (nueva columna, nueva métrica) | `calc_*.py` + `render_*_p1.py` + `render_*_p3.py` (siempre los dos) |
+| Estructura de tabs (agregar/quitar tab) | `asset_*_head.html` (CSS selector) + p1 + p3 |
+| Módulo histórico | `historico_module_v2.py` o `historico_module_rnd.py` + verificar IDs únicos en p1 y p3 |
+
+### Checklist antes de commitear
+```
+[ ] ¿El cambio visual usa helper centralizado o se duplicó?
+[ ] ¿Se revisó tanto p1 (global) como p3 (canastas) para CR y RND?
+[ ] ¿Los column grids de filas de tabs siguen el estándar?
+[ ] ¿Las pills WoW en filas usan make_wow_pill_row() o CSS class?
+[ ] ¿Los headers de columna están en TODOS los tab panels?
+```
+
+### Helpers centralizados en `render_helpers.py`
+
+| Helper | Uso | Reemplaza |
+|---|---|---|
+| `tab_column_header(cols, widths)` | Header `Severity / Métrica / WoW` en tabs KPI | Strings `_tab_hdr` hardcodeados en p1 |
+| `make_wow_pill_row(wow_v, ...)` | Pill WoW en filas de tabs | Bloques `<em style=...>` inline duplicados |
+| `wow_box(..., compact=False/True)` | WoW box global y canastas | `wow_box_canasta()` local eliminada de p3 |
+| `wow_pill_html(wow_val, unit)` | Pill WoW grande (hero) | — |
+| `banda_pill(banda, target)` | Badge de banda | — |
+| `gauge_5levels(banda, tipo)` | Gauge visual 5 niveles | — |
+| `searchbox_pill_html(...)` | Searchbox en tabs-row de KPI cards | — |
+| `searchbox_header_html(...)` | Searchbox en header de tablas análisis | — |
+
+### Patrón de tabs en canastas KPI (CR)
+Desde post-W20, las cards KPI de canastas CR usan activación **JS** en lugar de CSS radio selector global:
+- Panels: `class="tp-{card_id}"` con `display:none` inicial
+- `getActivePanel()` en `asset_cr_head.html` detecta primero `.tp-*` para aislar el scope del searchbox
+- El patrón original de RND p3 (JS) se adoptó en CR p3 para evitar contaminación entre canastas y global
+
+### Estructura columnas estándar (post-W20)
+
+**Análisis por Hotel — canastas CR:**
+`Hotel | Severity (80px) | ConvRate (58px) | Eficacia (58px) | WoW (38px)`
+
+**Análisis por Hotel — canastas RND:**
+`Hotel | Severity (80px) | %NoDispo (62px) | WoW (36px) | IPM (58px) | WoW IPM (36px)`
+
+**Análisis por Dimensión — canastas CR:**
+`Nombre | Severity (80px) | Checkrates (68px) | BKGS (56px) | ConvRate (62px) | WoW (36px) | Eficacia (62px) | WoW (36px)`
+
+**Análisis por Dimensión — canastas RND:**
+`Nombre | Severity (80px) | %NoDispo (62px) | WoW (38px) | IPM (62px) | WoW (38px)`
+
+**Visibilidad filas (global y canastas):**
+- KPI tabs: 10 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden`
+- Análisis hotel: 100 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden` + botón "Ver 5 más"
+- Análisis dimensión: 100 en DOM, 5 visible · 5 `rows-more` · 90 `sb-hidden` + botón "Ver 5 más"
+
+
