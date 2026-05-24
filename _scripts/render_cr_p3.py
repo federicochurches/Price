@@ -440,12 +440,12 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
-<div style="margin-top:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-<div style="font-size:36px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
-<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:3px;">
-{pill_with_target}
-<div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pp}</div>
+<div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+<div>
+<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
+<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pp}</div>
 </div>
+<div style="padding-top:4px;">{pill_with_target}</div>
 </div>
 {gauge}
 {wb}
