@@ -212,7 +212,7 @@ def render_severities_combinadas():
         BADGE_COLORS = {
             'Exitosa':       {'bg':'#E1F5EE','fg':'#085041','bar':'#085041'},
             'Aceptable':     {'bg':'#EDE8F7','fg':'#3C3489','bar':'#5C469C'},
-            'Revisar':       {'bg':'#FFEDD5','fg':'#7C2D12','bar':'#D4A878'},
+            'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#D4A878'},
             'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
             'Súper Crítica': {'bg':'#FECACA','fg':'#7F1D1D','bar':'#DC2626'},
             'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},

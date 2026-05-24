@@ -30,8 +30,8 @@ def clean_hotel_name(name):
 # ============ HELPERS DE COLOR PARA BANDAS ============
 BANDA_COLORS = {
     'Exitosa':       {'bg':'#E1F5EE', 'fg':'#1A6B4A', 'bd':'#1D9E75'},
-    'Aceptable':     {'bg':'#FEF3C7', 'fg':'#92400E', 'bd':'#F59E0B'},
-    'Revisar':       {'bg':'#FFEDD5', 'fg':'#7C2D12', 'bd':'#F97316'},
+    'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D'},
+    'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
     'Súper Crítica': {'bg':'#FECACA', 'fg':'#7F1D1D', 'bd':'#DC2626'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
@@ -82,7 +82,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#F59E0B'),
+            ('Revisar',       '#FCD34D'),
             ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#1A6B4A'),
         ]
@@ -90,7 +90,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#F59E0B'),
+            ('Revisar',        '#FCD34D'),
             ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#1A6B4A'),
         ]
@@ -98,7 +98,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Súper Crítica', '#161616'),
             ('Crítica',       '#C0392B'),
-            ('Revisar',       '#F59E0B'),
+            ('Revisar',       '#FCD34D'),
             ('Aceptable',     '#FCD34D'),
             ('Exitosa',       '#1A6B4A'),
         ]
@@ -106,7 +106,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         levels = [
             ('Sin Conversión', '#8A8377'),
             ('Crítica',        '#C0392B'),
-            ('Revisar',        '#F59E0B'),
+            ('Revisar',        '#FCD34D'),
             ('Aceptable',      '#FCD34D'),
             ('Exitosa',        '#1A6B4A'),
         ]
@@ -374,26 +374,14 @@ def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Buscar…
 def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscar…',
                            th_id=None):
     """Searchbox integrado en el primer <th> de una tabla (Prop D).
-
-    Reemplaza el label de la primera columna del header por un input de filtro.
-    El contenedor recibe un ID opcional (th_id) para que el JS pueda aplicar
-    el tint de foco (rgba del color de acento, 5%).
-
-    El input usa data-sb-table="true" para que el JS de los assets lo distinga
-    del pill y aplique filterTbl() en lugar de filterKpi().
-
-    Uso en render scripts — dentro de la función que construye el header grid:
-        th_hotel = searchbox_header_html('sb-h-crit', accent_color='#5C469C',
-                                          placeholder='Hotel o corporativo…',
-                                          th_id='th-h-crit')
-        header = f'<div style="display:grid;grid-template-columns:{grid};">{th_hotel}...'
+    Mismo estilo pill que las cards KPI (border-radius:20px, botón X).
     """
-    th_id_attr = f'id="{th_id}"' if th_id else ''
-    focus_bg   = f'rgba({int(accent_color[1:3],16)},{int(accent_color[3:5],16)},{int(accent_color[5:7],16)},.05)'
+    clear_id = input_id + '-clear'
     return (
-        f'<div {th_id_attr} class="sb-th" '
-        f'style="display:flex;align-items:center;gap:5px;padding:7px 0;min-width:0;">'
-        f'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" '
+        f'<div class="sb-pill" style="display:inline-flex;align-items:center;gap:5px;'
+        f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
+        f'padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;min-width:0;">'
+        f'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" '
         f'stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" '
         f'stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true">'
         f'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
@@ -401,11 +389,17 @@ def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscar�
         f'data-sb-table="true" '
         f'autocomplete="off" spellcheck="false" '
         f'style="background:none;border:none;outline:none;font-size:10px;'
-        f'font-family:inherit;color:var(--ink);width:100%;min-width:0;'
+        f'font-family:inherit;color:var(--ink);width:120px;min-width:0;'
         f'caret-color:{accent_color};" '
-        f'onfocus="var t=this.closest(\'.sb-th\');t.style.background=\'{focus_bg}\';'
-        f't.style.borderRadius=\'3px\';t.style.paddingLeft=\'4px\';" '
-        f'onblur="if(!this.value){{var t=this.closest(\'.sb-th\');'
-        f't.style.background=\'\';t.style.paddingLeft=\'\';}}">'
+        f'onfocus="var p=this.closest(\'.sb-pill\');p.style.borderColor=\'{accent_color}\';'
+        f'p.style.boxShadow=\'0 0 0 2px {accent_color}1A\';" '
+        f'onblur="if(!this.value){{var p=this.closest(\'.sb-pill\');'
+        f'p.style.borderColor=\'\';p.style.boxShadow=\'\';}}">'
+        f'<button id="{clear_id}" type="button" '
+        f'style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;'
+        f'line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" '
+        f'title="Limpiar búsqueda" aria-label="Limpiar búsqueda" '
+        f'onclick="var i=document.getElementById(\'{input_id}\');i.value=\'\';'
+        f'i.dispatchEvent(new Event(\'input\'));this.style.display=\'none\';">×</button>'
         f'</div>'
     )

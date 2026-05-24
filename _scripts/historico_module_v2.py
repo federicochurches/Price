@@ -15,8 +15,8 @@ from historico_data import get_serie, SEMANAS
 # ── Colores exactos del sistema D (render_helpers.py) ─────────────────────────
 _BANDA_COLORS = {
     'Exitosa':        {'bg': '#E1F5EE', 'fg': '#085041', 'bd': '#1D9E75',  'footer': '#085041'},
-    'Aceptable':      {'bg': '#FEF3C7', 'fg': '#92400E', 'bd': '#F59E0B',  'footer': '#92400E'},
-    'Revisar':        {'bg': '#FFEDD5', 'fg': '#7C2D12', 'bd': '#F97316',  'footer': '#7C2D12'},
+    'Aceptable':      {'bg': '#FEF9C3', 'fg': '#713F12', 'bd': '#FCD34D',  'footer': '#713F12'},
+    'Revisar':        {'bg': '#FED7AA', 'fg': '#C2410C', 'bd': '#F97316',  'footer': '#C2410C'},
     'Crítica':        {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B',  'footer': '#99162B'},
     'Súper Crítica':  {'bg': '#FECACA', 'fg': '#7F1D1D', 'bd': '#DC2626',  'footer': '#7F1D1D'},
     'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377',  'footer': '#5F5E5A'},

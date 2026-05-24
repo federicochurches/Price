@@ -79,32 +79,32 @@ def render_severity_2cols(left_block, right_block):
 # Aceptable = naranja · Revisar = naranja oscuro · colores distintos y coherentes con gauge_5levels
 LEVELS_EFICACIA = [
     {'label':'Exitosa',       'rango':'> 97%',   'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable',     'rango':'93–97%',  'bg':'#FEF3C7', 'fg':'#92400E'},
-    {'label':'Revisar',       'rango':'85–93%',  'bg':'#FFEDD5', 'fg':'#7C2D12'},
+    {'label':'Aceptable',     'rango':'93–97%',  'bg':'#FEF9C3', 'fg':'#713F12'},
+    {'label':'Revisar',       'rango':'85–93%',  'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',       'rango':'60–85%',  'bg':'#FCE4F1', 'fg':'#99162B'},
     {'label':'Súper Crítica', 'rango':'< 60%',   'bg':'#FECACA', 'fg':'#7F1D1D'},
 ]
 
 LEVELS_CONVRATE = [
     {'label':'Exitosa',   'rango':'> 2,5%',   'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable', 'rango':'1,5–2,5%', 'bg':'#FEF3C7', 'fg':'#92400E'},
-    {'label':'Revisar',   'rango':'0,8–1,5%', 'bg':'#FFEDD5', 'fg':'#7C2D12'},
+    {'label':'Aceptable', 'rango':'1,5–2,5%', 'bg':'#FEF9C3', 'fg':'#713F12'},
+    {'label':'Revisar',   'rango':'0,8–1,5%', 'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',   'rango':'< 0,8%',   'bg':'#FCE4F1', 'fg':'#99162B'},
     {'label':'Sin Conv',  'rango':'BKGS=0',   'bg':'#F2EEE6', 'fg':'#5F5E5A'},
 ]
 
 LEVELS_NODISPO = [
     {'label':'Exitosa',       'rango':'< 3%',    'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable',     'rango':'3–5%',    'bg':'#FEF3C7', 'fg':'#92400E'},
-    {'label':'Revisar',       'rango':'5–20%',   'bg':'#FFEDD5', 'fg':'#7C2D12'},
+    {'label':'Aceptable',     'rango':'3–5%',    'bg':'#FEF9C3', 'fg':'#713F12'},
+    {'label':'Revisar',       'rango':'5–20%',   'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',       'rango':'20–60%',  'bg':'#FCE4F1', 'fg':'#99162B'},
     {'label':'Súper Crítica', 'rango':'> 60%',   'bg':'#FECACA', 'fg':'#7F1D1D'},
 ]
 
 LEVELS_RPM = [
     {'label':'Exitosa',   'rango':'≥ $650',     'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable', 'rango':'$500–$649',  'bg':'#FEF3C7', 'fg':'#92400E'},
-    {'label':'Revisar',   'rango':'$200–$499',  'bg':'#FFEDD5', 'fg':'#7C2D12'},
+    {'label':'Aceptable', 'rango':'$500–$649',  'bg':'#FEF9C3', 'fg':'#713F12'},
+    {'label':'Revisar',   'rango':'$200–$499',  'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',   'rango':'< $199',     'bg':'#FCE4F1', 'fg':'#99162B'},
     {'label':'Sin Conv',  'rango':'BKGS=0',     'bg':'#F2EEE6', 'fg':'#5F5E5A'},
 ]
