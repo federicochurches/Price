@@ -194,10 +194,12 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
+            _corp_sub = ''
             if t_key=='canasta':
                 raw_lab = r['Canasta']; lab = raw_lab; val = nd_val
             elif t_key=='hotel':
                 raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = nd_val
+                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
             elif t_key=='pais':
                 raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = nd_val
             else:
@@ -235,9 +237,12 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                    f'<div style="min-width:0;overflow:hidden;">'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
+                    + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge_nd}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
+                    f'<span style="text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row
             elif i < 10: next5 += _row
@@ -311,10 +316,12 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         rows_html = top5 = next5 = rest = ''
         for i, r in df_t.iterrows():
             rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
+            _corp_sub = ''
             if t_key=='canasta':
                 raw_lab = r['Canasta']; lab = raw_lab; val = rpm_val
             elif t_key=='hotel':
                 raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = rpm_val
+                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
             elif t_key=='pais':
                 raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = rpm_val
             else:
@@ -351,9 +358,12 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
                     f'padding:4px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                    f'<div style="min-width:0;overflow:hidden;">'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
+                    + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge_ipm}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
+                    f'<span style="text-align:right;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row2
             elif i < 10: next5 += _row2

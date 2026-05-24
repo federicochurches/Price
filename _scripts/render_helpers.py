@@ -29,7 +29,7 @@ def clean_hotel_name(name):
 
 # ============ HELPERS DE COLOR PARA BANDAS ============
 BANDA_COLORS = {
-    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#085041', 'bd':'#1D9E75'},
+    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#1A6B4A', 'bd':'#1D9E75'},
     'Aceptable':     {'bg':'#FEF3C7', 'fg':'#92400E', 'bd':'#F59E0B'},
     'Revisar':       {'bg':'#FFEDD5', 'fg':'#7C2D12', 'bd':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
@@ -84,7 +84,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
             ('Aceptable',     '#FCD34D'),
-            ('Exitosa',       '#085041'),
+            ('Exitosa',       '#1A6B4A'),
         ]
     elif niveles_rnd_or_cr == 'rpm':
         levels = [
@@ -92,7 +92,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
             ('Aceptable',      '#FCD34D'),
-            ('Exitosa',        '#085041'),
+            ('Exitosa',        '#1A6B4A'),
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [
@@ -100,7 +100,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F59E0B'),
             ('Aceptable',     '#FCD34D'),
-            ('Exitosa',       '#085041'),
+            ('Exitosa',       '#1A6B4A'),
         ]
     elif niveles_rnd_or_cr == 'convrate':
         levels = [
@@ -108,7 +108,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
             ('Crítica',        '#C0392B'),
             ('Revisar',        '#F59E0B'),
             ('Aceptable',      '#FCD34D'),
-            ('Exitosa',        '#085041'),
+            ('Exitosa',        '#1A6B4A'),
         ]
     cells = []
     for nombre, color in levels:
