@@ -416,7 +416,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;align-items:center;gap:10px;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 68px 40px;align-items:center;gap:10px;'
                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
@@ -439,7 +439,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 80px 68px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Conv Rate</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
