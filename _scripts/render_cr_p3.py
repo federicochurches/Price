@@ -373,15 +373,15 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             else: _cls3 = 'sb-hidden'
             _corp_sub3 = truncate(clean_corp_name(str(r.get('CorpName', ''))), 22) if parse_hotel and 'CorpName' in r.index else ''
             _hotel_cell = (f'<div style="min-width:0;overflow:hidden;">'
-                           f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                           f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                            + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub3}</span>' if _corp_sub3 else '')
-                           + f'</div>') if parse_hotel else f'<span style="font-size:11px;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
+                           + f'</div>') if parse_hotel else f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
             _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
                      f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
                      f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'{_hotel_cell}'
                      f'<div style="display:flex;align-items:center;">{_badge3}</div>'
-                     f'<span style="font-size:11px;font-weight:600;color:var(--accent);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
+                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
                      f'{wow_pill}</div>')
             if i < 5: top5 += _row3
             elif i < 10: next5 += _row3
@@ -678,7 +678,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' data-hist-label="{hotel_name}"'
                           f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
                           f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                          f'<div><div style="font-size:11px;font-weight:600;color:{CR_ACCENT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                          f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
@@ -785,13 +785,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                      f' data-hist-label="{lab}"{tbl_attr}'
                      f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                     f'<div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:{CR_ACCENT};min-width:0;">'
+                     f'<div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--ink);min-width:0;">'
                      f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {lab}</span>{pill_banda}</div>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))}'
-                     f'<span style="text-align:right;font-size:11px;color:{CR_ACCENT};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
+                     f'<span style="text-align:right;font-size:11px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
                      f'{wow_cell}</div>')
         return rows
 
