@@ -105,7 +105,7 @@ def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, ba
 CR_ACCENT = '#5C469C'
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
 
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
@@ -322,6 +322,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 lab = truncate(clean_corp_name(raw_lab), 28)
             elif dim_col == 'Destino':
                 lab = clean_destino_name(raw_lab, 28)
+            elif dim_col == 'Hotel':
+                lab = truncate(clean_hotel_name(raw_lab), 28)
             else:
                 lab = truncate(raw_lab, 28)
             val = r[val_col] if val_col in r.index else 0
@@ -429,8 +431,21 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             dim_col = {'destino':'Destino','corp':'CorpName','hotel':'Hotel','channel':'ExternalProviderName'}.get(tk, tk)
             parse_hotel = False  # no parsear nombres de hotel en canastas
             val_col = 'ConvRate' if 'cv' in card_id else 'Eficacia'
-            # wm es ahora el nombre de la columna WoW (string) o None
-            panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
+            # Para channel: split Producto Propio / Third Party como en global
+            if tk == 'channel' and df_t is not None and len(df_t) > 0:
+                df_pp_c = df_t[df_t['ExternalProviderName'].isin(PRODUCTO_PROPIO)].reset_index(drop=True)
+                df_tp_c = df_t[df_t['ExternalProviderName'].isin(THIRD_PARTY)].reset_index(drop=True)
+                rows_pp = tab_rows_canasta(df_pp_c, dim_col, False, wow_col=wm, val_col=val_col, tab_key=tk)
+                rows_tp = tab_rows_canasta(df_tp_c, dim_col, False, wow_col=wm, val_col=val_col, tab_key=tk)
+                panel_html = (
+                    f'<div style="font-size:9px;font-weight:700;color:{CR_ACCENT};letter-spacing:.10em;text-transform:uppercase;margin-bottom:4px;">🏠 Producto Propio</div>'
+                    + rows_pp
+                    + f'<div style="font-size:9px;font-weight:700;color:var(--ink-muted);letter-spacing:.10em;text-transform:uppercase;margin:8px 0 4px;">🔌 Third Party</div>'
+                    + rows_tp
+                )
+            else:
+                # wm es ahora el nombre de la columna WoW (string) o None
+                panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
         metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
         hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')

@@ -590,9 +590,9 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
         cells = (f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{n}. {label_val}</span></div>'
                  f'{badge_cell}'
-                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink-muted);font-size:11px;font-variant-numeric:tabular-nums;">{cv_str}</span>'
+                 f'<span style="text-align:right;color:var(--ink-muted);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
                  f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan"))) if has_cv_wow else ""}'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
         if has_wow:
@@ -696,7 +696,7 @@ def render_channel_agrupado():
 <div class="section-num">Sección 07</div>
 <h2 class="section-title">🔌 Análisis por tipo de producto</h2>
 <span class="section-subtitle" style="color:{CR_ACCENT}">Producto Propio vs Third Party</span>
-<p class="section-kicker">Vista consolidada por familia de canal según decisión post Week 17. Producto Propio: DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees. Third Party: Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate.</p>
+<p class="section-kicker">Vista consolidada por familia de canal según decisión post Week 17. Producto Propio: DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees. Third Party: Expedia, HotelBeds, Hotel Unico V2, Travelgate.</p>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">{cards}</div>
@@ -737,7 +737,7 @@ def render_plan_accion():
 </div>
 <div class="action-row mp">
 <div class="action-owner-badge">Supply Optimization / TPS</div>
-<div class="accion">Auditar canal <strong>Third Party</strong> ({fmt_pct2(g_tp["ConvRate"])} ConvRate Crítica) · revisar paridad de tarifas y velocidad de respuesta de Expedia y HotelBeds Apitude.</div>
+<div class="accion">Auditar canal <strong>Third Party</strong> ({fmt_pct2(g_tp["ConvRate"])} ConvRate Crítica) · revisar paridad de tarifas y velocidad de respuesta de Expedia y HotelBeds.</div>
 <div class="action-meta-bottom"><span class="cluster-tag">Mid Priority · MP1</span><span class="meta-item"><strong>Plazo</strong> 2 semanas</span><span class="meta-item"><strong>Métrica</strong> ConvRate &gt; 0,8%</span></div>
 </div>
 <div class="action-row mp">
@@ -789,7 +789,7 @@ def render_por_channel_split():
     Decisión post W17 · todos los channels mostrados (no Top 5/10), agrupados por familia.
     """
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
     
     df_all = TOP['channels']
     df_pp = df_all[df_all['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
@@ -814,10 +814,10 @@ def render_por_channel_split():
             pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 6px;border-radius:2px;'
                     f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.05em;margin-left:6px;">{bnd}</span>')
             cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;">{i+1}. {truncate(r[dim_col],30)}{pill}</div></div>'
-                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink-muted);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["ConvRate"])}</span>')
             rows += f'<div style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;">{cells}</div>'
         return rows
     
@@ -1046,7 +1046,7 @@ def render_bloque_dimensiones_cr():
     
     # Channel · split PP/TP en el mismo panel
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
     df_chan = TOP['channels']
 
     # Merge WoW channel con g_channel_w17

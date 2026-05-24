@@ -228,10 +228,12 @@ def render_historico_rnd(metric_type, banda_actual, val_actual, canvas_id,
 
   // ── Serie para elemento clickeado ─────────────────────────────────────
   function buildSerie(w21, w20) {{
+    // Escala los n-1 puntos históricos (W16..W19) usando w20 como base,
+    // luego reemplaza el último punto con w21 (semana actual).
+    // Resultado: exactamente n=SEMANAS.length puntos.
     var serie = BASE_RATIOS.map(function(r) {{
       return parseFloat((r * w20).toFixed(2));
     }});
-    serie.push(parseFloat(w20.toFixed(2)));
     serie.push(parseFloat(w21.toFixed(2)));
     return serie;
   }}

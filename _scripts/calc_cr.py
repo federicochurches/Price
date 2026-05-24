@@ -22,7 +22,7 @@ WEEK_NUM = int(WEEK.replace('W', ''))
 VOL_NUM_PREV = int(VOL_NUM) - 1
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
 
 CANAL_VALIDO = ['B2C', 'B2B (OP)', 'CUG (UOP)']
 
@@ -76,6 +76,13 @@ def calc_p80(df):
 # Aplicar filtro MIN_CR primero
 df18 = df18[df18['CR_Unicos'] >= MIN_CR].copy()
 df17 = df17[df17['CR_Unicos'] >= MIN_CR].copy() if len(df17) > 0 else df17
+
+# Normalizar nombre de canales para display
+_CHANNEL_RENAME = {'HotelBeds Apitude': 'HotelBeds', 'Hotel Unico V2': 'Hotel Unico'}
+df18['ExternalProviderName'] = df18['ExternalProviderName'].replace(_CHANNEL_RENAME)
+if len(df17) > 0:
+    df17['ExternalProviderName'] = df17['ExternalProviderName'].replace(_CHANNEL_RENAME)
+
 
 p80_hotels = calc_p80(df18)
 

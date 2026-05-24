@@ -306,7 +306,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                               f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd_val}</span>'
                               f'</div>')
             else:
-                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{val}</span>'
+                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
         nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
         ipm_curr = round(max(float(r.get('IPM', r.get('RPM', 0))), 0), 1)

@@ -149,7 +149,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
         tabs += f'<label class="tab-label" for="tab-ef-{t_key}">{t_label}</label>'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
     
     panels = ''
     for t_key, df_t in [
@@ -316,7 +316,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='
         tabs += f'<label class="tab-label" for="tab-cv-{t_key}">{t_label}</label>'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
     
     panels = ''
     for t_key, df_t in [
