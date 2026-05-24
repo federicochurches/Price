@@ -648,10 +648,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
         """Lista plana top 100: 5 visible, 5 rows-more, 90 sb-hidden.
         Todo dentro de un único tbl-wrap para que attachTable vea las 100."""
-        grid = '1fr 48px 48px 38px'
+        grid = '1fr 80px 58px 58px 38px'
         sb_hid = f'sb-{idx_str}-h-{t_key}'
         header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
                   f'{searchbox_header_html(sb_hid, accent_color=CR_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:9px 0;">Severity</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">ConvRate</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">Eficacia</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW</span>'
@@ -688,6 +689,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
                           f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
+                          + (lambda bv: f'<div style="display:flex;align-items:center;"><span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
@@ -743,8 +745,8 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         sb_id: si se pasa, primera columna del header es searchbox integrado (Prop D).
         """
         import math
-        grid = 'minmax(0,1fr) 68px 56px 62px 36px 62px 36px'
-        headers = [dim_label, 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']
+        grid = 'minmax(0,1fr) 80px 68px 56px 62px 36px 62px 36px'
+        headers = [dim_label, 'Severity', 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']
         rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
         for idx_h, h in enumerate(headers):
             if idx_h == 0 and sb_id:
@@ -787,21 +789,31 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             try: cv_wow_f = float(cv_wow) if cv_wow == cv_wow else 0
             except: cv_wow_f = 0
             cv_prev = cv_curr - cv_wow_f
-            hidden_cls = ' sb-hidden' if row_idx >= 10 else ''
+            if row_idx < 5: hidden_cls = ''
+            elif row_idx < 10: hidden_cls = ' rows-more'
+            else: hidden_cls = ' sb-hidden'
             tbl_attr = f' data-lbl="{lab}"' if sb_id else ''
             rows += (f'<div class="{hidden_cls.strip()}" data-row-idx="{row_idx}"'
                      f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
                      f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                      f' data-hist-label="{lab}"{tbl_attr}'
                      f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                     f'<div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--ink);min-width:0;">'
-                     f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{row_idx+1}. {lab}</span>{pill_banda}</div>'
+                     f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{row_idx+1}. {lab}</span></div>'
+                     f'<div style="display:flex;align-items:center;">{pill_banda}</div>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))}'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>'
                      f'{wow_cell}</div>')
+        # Ver 5 más button (if there are rows-more rows)
+        if len(df) > 5:
+            rows += (f'<button class="rows-toggle" '
+                     f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                     f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;'
+                     f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                     f'<span class="toggle-label">Ver 5 más</span> '
+                     f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
         return rows
 
     def tab_panel_dim_cr(t_key, df_full, dim_col, dim_label, ref_w17=None):
