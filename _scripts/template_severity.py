@@ -1,120 +1,132 @@
 """
-Helper · Severidad por canasta (Eficacia + Conv Rate o %NoDispo + RPM)
-siguiendo estructura del template literal: 2 columnas, cada una con tabla de 5 filas
-y barra horizontal proporcional.
+template_severity.py · Bloques Severity para canastas CR y RND
+Paleta D · BANDA_COLORS de render_helpers es la ÚNICA fuente de verdad de colores.
 
 API:
-  render_severity_table(title, icon, accent_color, levels, total)
-    levels: list of (label, banda_color, banda_bg, rango_text, count, distribution_pct)
+  make_severity_levels(sev_dict, levels_def)         → lista de tuplas con datos + colores
+  render_severity_block(titulo, icon, accent, levels, total)  → HTML de un bloque col
+  render_severity_2cols(blk1, blk2)                  → wrapper grid 2 cols
+
+Constantes:
+  LEVELS_EFICACIA, LEVELS_CONVRATE, LEVELS_NODISPO, LEVELS_RPM
+  Cada item: (nombre_banda, rango_label)
 """
 
-def render_severity_row(label, banda_bg, banda_fg, rango, distribution_pct, count, total):
-    pct_label = f'{count/total*100:.1f}%'.replace('.',',') if total > 0 else '0,0%'
-    # Paleta D: Súper Crítica = bg sólido oscuro (#161616) + fg claro (#FFFFFF) — ya viene invertida
-    # Resto: bg claro pastel + fg texto oscuro (canónico BANDAS.md)
-    label_low = label.lower()
-    is_super = 'súper' in label_low or 'super' in label_low
-    if is_super:
-        badge_bg = banda_bg   # #161616 (ya es sólido oscuro)
-        badge_fg = banda_fg   # #FFFFFF (ya es claro)
-        bar_color = banda_bg  # barra del mismo color
-    else:
-        badge_bg = banda_bg   # color pastel (bg canónico)
-        badge_fg = banda_fg   # texto oscuro (fg canónico)
-        bar_color = banda_fg  # barra usa el color oscuro (sólido)
-    return f'''<div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">
-<span style="display:inline-block;padding:3px 8px;background:{badge_bg} !important;color:{badge_fg} !important;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{label}</span>
-<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rango}</span>
-<div style="height:11px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{distribution_pct}%;background:{bar_color};"></div></div>
-<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{count:,}</span>
-<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct_label}</span>
-</div>'''.replace(',','.')
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from render_helpers import BANDA_COLORS, fmt_int_es
 
-def render_severity_block(title, icon, header_color, levels_data, total):
-    """
-    title: '% Eficacia', 'Conv Rate', '% No Dispo', 'RPM'
-    icon: '●' o el que aplique
-    header_color: color del título y bullet
-    levels_data: lista de dicts:
-      {'label':'Exitosa','rango':'> 97%','count':3080,'bg':'#E1F5EE','fg':'#1A6B4A'}
-    total: total para calcular %
-    """
-    # Encabezado
-    header_row = f'''<div style="display:grid;grid-template-columns:100px 70px 1fr 60px 50px;gap:8px;padding:7px 0;border-bottom:2px solid var(--ink);margin-bottom:4px;">
-<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Nivel</span>
-<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Rango</span>
-<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">Distribución</span>
-<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">Hot.</span>
-<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);text-align:right;">%</span>
-</div>'''
-    
-    rows = ''
-    max_count = max((l['count'] for l in levels_data), default=1)
-    for level in levels_data:
-        dist_pct = (level['count']/max_count*100) if max_count > 0 else 0
-        rows += render_severity_row(
-            level['label'], level['bg'], level['fg'],
-            level['rango'], dist_pct, level['count'], total
-        )
-    
-    return f'''<div>
-<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-<span style="color:{header_color};">{icon}</span><span>{title}</span>
-</div>
-{header_row}
-{rows}
-</div>'''
+# ── Definiciones de niveles por métrica ──────────────────────────────────────
+# Solo nombre y rango; los colores siempre vienen de BANDA_COLORS
 
-
-def render_severity_2cols(left_block, right_block):
-    return f'''<h3 style="font-size:15px;font-weight:600;margin:32px 0 16px;color:var(--ink);">Severity</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
-{left_block}
-{right_block}
-</div>'''
-
-
-# Datos predefinidos de bandas · Paleta D (post W20 sesión 4)
-# Convención: bg = fondo claro pastel; fg = texto y barras color sólido oscuro
-# Aceptable = naranja · Revisar = naranja oscuro · colores distintos y coherentes con gauge_5levels
 LEVELS_EFICACIA = [
-    {'label':'Exitosa',       'rango':'> 97%',   'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable',     'rango':'93–97%',  'bg':'#FEF9C3', 'fg':'#713F12'},
-    {'label':'Revisar',       'rango':'85–93%',  'bg':'#FED7AA', 'fg':'#C2410C'},
-    {'label':'Crítica',       'rango':'60–85%',  'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Súper Crítica', 'rango':'< 60%',   'bg':'#161616', 'fg':'#FFFFFF'},
+    ('Súper Crítica', '&lt; 60%'),
+    ('Crítica',       '60–85%'),
+    ('Revisar',       '85–93%'),
+    ('Aceptable',     '93–97%'),
+    ('Exitosa',       '≥ 97%'),
 ]
 
 LEVELS_CONVRATE = [
-    {'label':'Exitosa',   'rango':'> 2,5%',   'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable', 'rango':'1,5–2,5%', 'bg':'#FEF9C3', 'fg':'#713F12'},
-    {'label':'Revisar',   'rango':'0,8–1,5%', 'bg':'#FED7AA', 'fg':'#C2410C'},
-    {'label':'Crítica',   'rango':'< 0,8%',   'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Sin Conv',  'rango':'BKGS=0',   'bg':'#F2EEE6', 'fg':'#5F5E5A'},
+    ('Sin Conversión', 'BKGS=0'),
+    ('Crítica',        '&lt; 0,8%'),
+    ('Revisar',        '0,8–1,5%'),
+    ('Aceptable',      '1,5–2,5%'),
+    ('Exitosa',        '≥ 2,5%'),
 ]
 
 LEVELS_NODISPO = [
-    {'label':'Exitosa',       'rango':'< 3%',    'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable',     'rango':'3–5%',    'bg':'#FEF9C3', 'fg':'#713F12'},
-    {'label':'Revisar',       'rango':'5–20%',   'bg':'#FED7AA', 'fg':'#C2410C'},
-    {'label':'Crítica',       'rango':'20–60%',  'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Súper Crítica', 'rango':'> 60%',   'bg':'#161616', 'fg':'#FFFFFF'},
+    ('Súper Crítica', '&gt; 60%'),
+    ('Crítica',       '20–60%'),
+    ('Revisar',       '5–20%'),
+    ('Aceptable',     '3–5%'),
+    ('Exitosa',       '&lt; 3%'),
 ]
 
 LEVELS_RPM = [
-    {'label':'Exitosa',   'rango':'≥ $650',     'bg':'#E1F5EE', 'fg':'#1A6B4A'},
-    {'label':'Aceptable', 'rango':'$500–$649',  'bg':'#FEF9C3', 'fg':'#713F12'},
-    {'label':'Revisar',   'rango':'$200–$499',  'bg':'#FED7AA', 'fg':'#C2410C'},
-    {'label':'Crítica',   'rango':'< $199',     'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Sin Conv',  'rango':'BKGS=0',     'bg':'#F2EEE6', 'fg':'#5F5E5A'},
+    ('Sin Conversión', 'BKGS=0'),
+    ('Crítica',        '&lt; $200'),
+    ('Revisar',        '$200–$499'),
+    ('Aceptable',      '$500–$649'),
+    ('Exitosa',        '≥ $650'),
 ]
 
-def make_severity_levels(sev_dict, levels_template):
-    """Construye lista de levels con counts de un dict {Banda: count}.
-    Maneja sinónimos: 'Sin Conversión' -> 'Sin Conv'."""
-    syn = {'Sin Conv':'Sin Conversión'}
-    out = []
-    for lvl in levels_template:
-        key = syn.get(lvl['label'], lvl['label'])
-        out.append({**lvl, 'count': int(sev_dict.get(key, 0))})
-    return out
+
+def make_severity_levels(sev_dict, levels_def):
+    """
+    Combina sev_dict (conteos por banda) con levels_def (lista de tuplas nombre+rango)
+    y añade los colores desde BANDA_COLORS.
+
+    Retorna lista de dicts:
+      [{'name': str, 'rng': str, 'n': int, 'pct': float,
+        'bg': str, 'fg': str, 'bar': str}, ...]
+    """
+    total = int(sev_dict.sum()) if hasattr(sev_dict, 'sum') else int(sum(sev_dict.values()))
+    rows = []
+    for nombre, rng in levels_def:
+        n = int(sev_dict.get(nombre, 0))
+        pct = n / total * 100 if total else 0
+        bc = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
+        rows.append({
+            'name': nombre,
+            'rng':  rng,
+            'n':    n,
+            'pct':  pct,
+            'bg':   bc['bg'],
+            'fg':   bc['fg'],
+            'bar':  bc['bar'],
+            'total': total,
+        })
+    return rows
+
+
+def render_severity_block(titulo, icon, accent_color, levels, total):
+    """
+    Renderiza un bloque de severity vertical (una columna).
+
+    titulo       : texto del subheader (ej. 'Eficacia', '% NoDispo')
+    icon         : símbolo decorativo (ej. '●')
+    accent_color : color del subheader
+    levels       : lista de dicts de make_severity_levels()
+    total        : total de hoteles del bloque
+    """
+    rows_html = ''
+    for row in levels:
+        bar_w = max(min(row['pct'], 100), 0.5)
+        rows_html += (
+            f'<div style="display:grid;grid-template-columns:120px 70px 1fr 55px 42px;'
+            f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
+            f'<span style="display:inline-block;padding:3px 8px;'
+            f'background:{row["bg"]};color:{row["fg"]};'
+            f'font-size:9px;font-weight:700;text-transform:uppercase;'
+            f'letter-spacing:.06em;text-align:center;">{row["name"]}</span>'
+            f'<span style="font-size:10px;color:var(--ink-muted);'
+            f'font-variant-numeric:tabular-nums;">{row["rng"]}</span>'
+            f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;">'
+            f'<div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;'
+            f'background:{row["bar"]};border-radius:2px;"></div></div>'
+            f'<span style="font-weight:600;text-align:right;'
+            f'font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(row["n"])}</span>'
+            f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);'
+            f'font-size:10px;">{row["pct"]:.1f}%</span>'
+            f'</div>'
+        )
+
+    return (
+        f'<div>'
+        f'<h3 style="font-size:11px;font-weight:700;text-transform:uppercase;'
+        f'letter-spacing:.10em;color:{accent_color};margin:0 0 10px;">'
+        f'{icon} {titulo} · {fmt_int_es(total)} hoteles</h3>'
+        f'{rows_html}'
+        f'</div>'
+    )
+
+
+def render_severity_2cols(blk1, blk2):
+    """Wrapper grid 2 columnas para dos bloques de severity."""
+    return (
+        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">'
+        f'{blk1}'
+        f'{blk2}'
+        f'</div>'
+    )
