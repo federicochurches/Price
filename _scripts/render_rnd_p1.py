@@ -256,7 +256,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">IPM</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -377,7 +378,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            panel_html = f'<div class="kpi-tab-rows">{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = """<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 54px 40px;gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;"><span></span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">Severity</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">%NoDispo</span><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;">WoW</span></div>"""
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
