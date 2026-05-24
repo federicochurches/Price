@@ -406,8 +406,15 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
                 chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
                 sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
                 row_cells += (f'<div>'
-                              f'<div style="font-size:11px;font-weight:600;color:{accent_color};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
+                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
                               f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub_line}</div>'
+                              f'</div>')
+            elif c.get('key') == 'bnd':
+                bnd_val = r.get('BandaEficacia','') or r.get('BandaConvRate','')
+                bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
+                row_cells += (f'<div style="display:flex;align-items:center;">'
+                              f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd_val}</span>'
                               f'</div>')
             elif c.get('key') == 'wow':
                 row_cells += f'<span style="text-align:right;font-size:11px;">{val}</span>'
@@ -468,7 +475,7 @@ def render_criticos():
 </div>
 <div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Hoteles Críticos</strong> está en la pestaña <em>«Críticos»</em> del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Hoteles Críticos</strong> está en la pestaña <em>«Críticos»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -498,7 +505,7 @@ def render_bajo_rendimiento():
 </div>
 <div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -529,7 +536,7 @@ def render_sin_conv():
 </div>
 {body}
 <div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
@@ -546,12 +553,12 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     has_wow = wow_col and wow_col in df.columns
     has_cv_wow = 'ConvRate_WoW_pp' in df.columns if df is not None and hasattr(df, 'columns') else False
     if has_wow and has_cv_wow:
-        grid = '1fr 80px 60px 68px 38px 68px 38px'
+        grid = '1fr 72px 80px 60px 68px 38px 68px 38px'
     elif has_wow:
-        grid = '1fr 90px 70px 70px 75px 50px'
+        grid = '1fr 72px 90px 70px 70px 75px 50px'
     else:
-        grid = '1fr 90px 70px 70px 75px'
-    headers = [dim_label,'Checkrates','BKGS','ConvRate']
+        grid = '1fr 72px 90px 70px 70px 75px'
+    headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate']
     if has_cv_wow: headers.append('WoW')
     headers.append('Eficacia')
     if has_wow: headers.append('WoW')
@@ -564,7 +571,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                                           placeholder=f'{dim_label}…',
                                           th_id=f'th-{sb_id}')
         else:
-            align = 'left' if label==dim_label else 'right'
+            align = 'left' if label in (dim_label, 'Severity') else 'right'
             color = CR_ACCENT if label==dim_label else 'var(--ink-muted)'
             rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{label}</span>'
     rows += '</div>'
@@ -573,14 +580,16 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         row_idx = start_idx + i   # 0-based para sb-hidden
         bnd = r.get('BandaEficacia','')
         bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">{bnd}</span>')
+        badge_cell = (f'<div style="display:flex;align-items:center;">'
+                      f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                      f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+                      f'</div>')
         n = row_idx + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
-        cells = (f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px;min-width:0;">'
-                 f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{n}. {label_val}</span>{pill}</div></div>'
+        cells = (f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{n}. {label_val}</span></div>'
+                 f'{badge_cell}'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
                  f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{cv_str}</span>'
@@ -931,6 +940,7 @@ def render_bloque_hoteles_cr():
     """Sección 04 · 4 tabs: Críticos · Bajo Rend · Sin Conv · Menor CR."""
     cols_main = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'72px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'cv','label':'ConvRate','width':'58px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
         {'key':'wowcv','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
@@ -939,6 +949,7 @@ def render_bloque_hoteles_cr():
     ]
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'72px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'62px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
@@ -1003,7 +1014,7 @@ def render_bloque_hoteles_cr():
 </div>
 {hist_hotel}
 <div class="detail-callout" style="margin-top:18px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de cada óptica está en pestañas separadas del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
 </div>
 </section>
