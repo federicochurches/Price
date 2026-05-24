@@ -823,7 +823,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             df100 = df100.merge(ref_w17[[dim_col, 'Eficacia_W17']], on=dim_col, how='left')
             df100['Eficacia_WoW_pp'] = (df100['Eficacia'] - df100['Eficacia_W17']) * 100
         rows_html = dim_table_with_wow(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id_dim)
-        body = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
+        body = f'<div class="tbl-wrap">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
     # Datos W17 de canasta para WoW — usar refs globales del pickle

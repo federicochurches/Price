@@ -361,7 +361,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         return f'<div class="kpi-tab-rows">{_hdr_rnd}{top5}{next5}</div>{rest}{ver_mas_btn}'
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
-                          gauge_tipo, df_tabs, tab_configs, prefix='', card_id=''):
+                          gauge_tipo, df_tabs, tab_configs, prefix='', card_id='', wow_delta=None):
         pill = banda_pill(banda, target=pill_target, font_size='11px')
         pill_with_target = pill + target_caption(pill_target, font_size='10px')
         gauge = gauge_canasta(banda, gauge_tipo)
@@ -416,12 +416,13 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         panels_id = f'kpi-{card_id}-panels'
         # Pill WoW: NoDispo invertida (bajar = verde), IPM directa (subir = verde)
         _is_ipm = prefix != ''
-        try:
-            _delta = float(wow_str.replace(',','.').replace('pp','').replace('%','').strip())
-            _delta = _delta if '↑' in wow_str else -_delta if '↓' in wow_str else 0
-            _wow_rnd = wow_pill_html(-_delta if not _is_ipm else _delta, unit='%' if _is_ipm else 'pp',
-                                     prefix_pos=('↑' if _is_ipm else '↓'), prefix_neg=('↓' if _is_ipm else '↑'))
-        except Exception:
+        if wow_delta is not None:
+            # wow_delta ya es float; NoDispo invertida (bajar=verde), IPM directa (subir=verde)
+            _wow_rnd = wow_pill_html(-wow_delta if not _is_ipm else wow_delta,
+                                     unit='%' if _is_ipm else 'pp',
+                                     prefix_pos=('↑' if _is_ipm else '↓'),
+                                     prefix_neg=('↓' if _is_ipm else '↑'))
+        else:
             _wow_rnd = wow_pill_html(None)
         return f'''<div class="kpi-card" id="kpi-{card_id}" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 {tabs_inputs}
@@ -491,10 +492,10 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     card_nd  = kpi_card_canasta('% de No Dispo', pct_w18, pct_w17, banda_nd, '&lt; 3%',
                                  wow_str_nd, wow_color_nd, 'nodispo', df_dest, tabs_nd,
-                                 prefix='', card_id=f'{idx_str}-nd')
+                                 prefix='', card_id=f'{idx_str}-nd', wow_delta=pct_wow)
     card_rpm = kpi_card_canasta('IPM · Income Per Million USD', rpm_w18, rpm_w17, banda_rp, '≥ $650',
                                  wow_str_rp, wow_color_rp, 'rpm', df_dest_rpm, tabs_rpm,
-                                 prefix='$', card_id=f'{idx_str}-rpm')
+                                 prefix='$', card_id=f'{idx_str}-rpm', wow_delta=rpm_wow)
 
     kpi_block = f'<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">{card_nd}{card_rpm}</div>'
     
@@ -727,7 +728,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         sb_id_dim = f'sb-{idx_str}-rd-{t_key}'
         df100 = df_full.head(100).reset_index(drop=True)
         rows_html = panel_inner_rnd(df100, dim_col, dim_label, parse_hotel=False, start_idx=0, sb_id=sb_id_dim)
-        body = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">{rows_html}</div>'
+        body = f'<div class="tbl-wrap">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
     df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
