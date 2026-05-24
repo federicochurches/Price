@@ -920,7 +920,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     file_suffix = canasta_filename_map.get(idx_str, 'B2C')
     excel_canasta_url = f'Analisis_Rates_NoDispo_{file_suffix}_7d.xlsx'
     banner_descarga_canasta = f'''<div class="detail-callout">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de cada óptica está en pestañas separadas del Excel adjunto · <strong>Canasta {c['short']}</strong>.</div></div>
+<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de cada óptica está en pestañas separadas del Excel adjunto · <strong>Canasta {c['short']}</strong>.</div></div>
 <a class="badge-link" href="{excel_canasta_url}">Excel ↗</a>
 </div>'''
     
