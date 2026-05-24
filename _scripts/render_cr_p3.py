@@ -135,7 +135,7 @@ def pill_b(nombre):
     c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
     # Badge sólido: bg = color sólido de banda, texto blanco/claro
     bg = c['fg']  # color sólido oscuro de banda
-    fg = '#FCEBEB' if nombre == 'Súper Crítica' else '#FFFFFF'
+    fg = '#FFFFFF' if nombre == 'Súper Crítica' else '#FFFFFF'
     return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
             f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
             f'text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;margin:0 2px;">{nombre}</span>')
@@ -765,7 +765,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             bnd = banda_eficacia(r['Eficacia'])
             c_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
             if bnd == 'Súper Crítica':
-                bg = '#FECACA'; fg = '#7F1D1D'
+                bg = '#161616'; fg = '#FFFFFF'
             else:
                 bg = c_bnd['bg']; fg = c_bnd['fg']
             pill_banda = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'

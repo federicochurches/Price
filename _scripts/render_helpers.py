@@ -33,7 +33,7 @@ BANDA_COLORS = {
     'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D'},
     'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B'},
-    'Súper Crítica': {'bg':'#FECACA', 'fg':'#7F1D1D', 'bd':'#DC2626'},
+    'Súper Crítica': {'bg':'#161616', 'fg':'#FFFFFF', 'bd':'#DC2626'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377'},
 }
 

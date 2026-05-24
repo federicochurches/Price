@@ -506,9 +506,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         # Paleta D sólida: bg = color de banda, texto blanco/claro
         SOLID = {'Exitosa':'#1A6B4A','Aceptable':'#713F12',
                  'Revisar':'#C2410C','Crítica':'#C0392B',
-                 'Súper Crítica':'#7F1D1D','Sin Conv':'#8A8377'}
+                 'Súper Crítica':'#FFFFFF','Sin Conv':'#8A8377'}
         bg = SOLID.get(nombre, '#161616')
-        fg = '#FCEBEB' if nombre == 'Súper Crítica' else '#FFFFFF'
+        fg = '#FFFFFF' if nombre == 'Súper Crítica' else '#FFFFFF'
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.05em;'
                 f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
                 f'background:{bg} !important;color:{fg} !important;'
@@ -647,7 +647,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             bnd = r.get('BandaNoDispo','')
             c_bnd = BANDA_COLORS.get(bnd, {})
-            if bnd == 'Súper Crítica': bnd_bg='#FECACA'; bnd_fg='#7F1D1D'
+            if bnd == 'Súper Crítica': bnd_bg='#161616'; bnd_fg='#FFFFFF'
             else: bnd_bg=c_bnd.get('bg','#F2EEE6'); bnd_fg=c_bnd.get('fg','#5F5E5A')
             badge = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;'
                      f'background:{bnd_bg};color:{bnd_fg};text-transform:uppercase;letter-spacing:.04em;">{bnd}</span>')

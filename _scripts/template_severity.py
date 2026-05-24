@@ -10,13 +10,13 @@ API:
 
 def render_severity_row(label, banda_bg, banda_fg, rango, distribution_pct, count, total):
     pct_label = f'{count/total*100:.1f}%'.replace('.',',') if total > 0 else '0,0%'
-    # Paleta D: Súper Crítica = bg sólido oscuro (#FECACA) + fg claro (#7F1D1D) — ya viene invertida
+    # Paleta D: Súper Crítica = bg sólido oscuro (#161616) + fg claro (#FFFFFF) — ya viene invertida
     # Resto: bg claro pastel + fg texto oscuro (canónico BANDAS.md)
     label_low = label.lower()
     is_super = 'súper' in label_low or 'super' in label_low
     if is_super:
-        badge_bg = banda_bg   # #FECACA (ya es sólido oscuro)
-        badge_fg = banda_fg   # #7F1D1D (ya es claro)
+        badge_bg = banda_bg   # #161616 (ya es sólido oscuro)
+        badge_fg = banda_fg   # #FFFFFF (ya es claro)
         bar_color = banda_bg  # barra del mismo color
     else:
         badge_bg = banda_bg   # color pastel (bg canónico)
@@ -82,7 +82,7 @@ LEVELS_EFICACIA = [
     {'label':'Aceptable',     'rango':'93–97%',  'bg':'#FEF9C3', 'fg':'#713F12'},
     {'label':'Revisar',       'rango':'85–93%',  'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',       'rango':'60–85%',  'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Súper Crítica', 'rango':'< 60%',   'bg':'#FECACA', 'fg':'#7F1D1D'},
+    {'label':'Súper Crítica', 'rango':'< 60%',   'bg':'#161616', 'fg':'#FFFFFF'},
 ]
 
 LEVELS_CONVRATE = [
@@ -98,7 +98,7 @@ LEVELS_NODISPO = [
     {'label':'Aceptable',     'rango':'3–5%',    'bg':'#FEF9C3', 'fg':'#713F12'},
     {'label':'Revisar',       'rango':'5–20%',   'bg':'#FED7AA', 'fg':'#C2410C'},
     {'label':'Crítica',       'rango':'20–60%',  'bg':'#FCE4F1', 'fg':'#99162B'},
-    {'label':'Súper Crítica', 'rango':'> 60%',   'bg':'#FECACA', 'fg':'#7F1D1D'},
+    {'label':'Súper Crítica', 'rango':'> 60%',   'bg':'#161616', 'fg':'#FFFFFF'},
 ]
 
 LEVELS_RPM = [

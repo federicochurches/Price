@@ -148,7 +148,7 @@ def render_resumen_ej():
 
     def pill_b(nombre):
         c = BANDA_COLORS.get(nombre, BANDA_COLORS['Sin Conversión'])
-        bg = '#FECACA' if nombre == 'Súper Crítica' else c['bg']
+        bg = '#161616' if nombre == 'Súper Crítica' else c['bg']
         fg = '#FFFFFF' if nombre == 'Súper Crítica' else c['fg']
         return (f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;'
                 f'border-radius:2px;background:{bg} !important;color:{fg} !important;'
@@ -250,7 +250,7 @@ def render_severity_eficacia():
         bar_w = max(min(pct, 100), 0.5)
         # Badge SÓLIDO (paleta D): bg = color de banda, texto blanco/claro
         bg = color
-        fg = '#FCEBEB' if name == 'Súper Crítica' else '#FFFFFF'
+        fg = '#FFFFFF' if name == 'Súper Crítica' else '#FFFFFF'
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
                  f'<span style="display:inline-block;padding:3px 8px;background:{bg};color:{fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
@@ -289,7 +289,7 @@ def render_severities_combinadas():
             bar_w = max(min(pct, 100), 0.5)
             # Badge paleta D: bg pastel (excepto Súper Crítica que es sólida)
             if name == 'Súper Crítica':
-                badge_bg = '#FECACA'; badge_fg = '#7F1D1D'
+                badge_bg = '#161616'; badge_fg = '#FFFFFF'
             elif name == 'Sin Conversión':
                 badge_bg = '#F2EEE6'; badge_fg = '#5F5E5A'
             else:
@@ -581,7 +581,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         bnd = r.get('BandaEficacia','')
         c = BANDA_COLORS.get(bnd, {})
         if bnd == 'Súper Crítica':
-            bnd_bg = '#FECACA'; bnd_fg = '#7F1D1D'
+            bnd_bg = '#161616'; bnd_fg = '#FFFFFF'
         else:
             bnd_bg = c.get('bg','#F2EEE6'); bnd_fg = c.get('fg','#5F5E5A')
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'

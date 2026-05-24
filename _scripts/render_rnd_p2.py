@@ -94,7 +94,7 @@ def build_findings():
             'Aceptable':     ('#713F12','#FEF9C3','#FCD34D'),
             'Revisar':       ('#C2410C','#FED7AA','#F97316'),
             'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
-            'Súper Crítica': ('#7F1D1D','#FECACA','#DC2626'),
+            'Súper Crítica': ('#FFFFFF','#161616','#DC2626'),
             'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
         }
         c = COLORS.get(banda, ('#8A8377','#F2EEE6','#8A8377'))
@@ -177,7 +177,7 @@ def render_severity_nodispo():
         pct = n/total*100 if total else 0
         bar_w = max(min(pct, 100), 0.5)
         rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FCEBEB" if name=="Súper Crítica" else "#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
+                 f'<span style="display:inline-block;padding:3px 8px;background:{color};color:{("#FFFFFF")};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
                  f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
                  f'<div style="height:12px;background:var(--paper-soft);position:relative;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{color};"></div></div>'
                  f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
@@ -214,7 +214,7 @@ def render_severities_combinadas():
             'Aceptable':     {'bg':'#FEF9C3','fg':'#713F12','bar':'#FCD34D'},
             'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#F97316'},
             'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
-            'Súper Crítica': {'bg':'#FECACA','fg':'#7F1D1D','bar':'#DC2626'},
+            'Súper Crítica': {'bg':'#161616','fg':'#FFFFFF','bar':'#DC2626'},
             'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},
         }
         for name, rng, _ in levels_data:
@@ -455,7 +455,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         bnd = r.get('BandaNoDispo', '')
         c_bnd = BANDA_COLORS.get(bnd, {})
         if bnd == 'Súper Crítica':
-            bnd_bg = '#FECACA'; bnd_fg = '#7F1D1D'
+            bnd_bg = '#161616'; bnd_fg = '#FFFFFF'
         else:
             bnd_bg = c_bnd.get('bg','#F2EEE6'); bnd_fg = c_bnd.get('fg','#5F5E5A')
         pill = (f'<span style="display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;'
