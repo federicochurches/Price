@@ -2,6 +2,10 @@
 
 ---
 ---
+## Fix/Cambio · W20 · 24 May 2026
+
+**Descripción:** Batch fixes: undefined histórico canal, HotelBeds rename, channel split canastas, hotel IDs, bold análisis, colores dim negro
+
 ## Fix batch post-W20 · 24 Mayo 2026 · UI/UX bugs 7 issues
 
 ### Cambios

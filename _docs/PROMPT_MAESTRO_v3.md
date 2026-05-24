@@ -1534,3 +1534,16 @@ _(ver CHANGELOG para detalle)_
 ---
 
 **Última actualización:** May 2026 · Fix batch UI: ConvRate sin bold, WoW ConvRate dim canastas C
+
+---
+
+## 📝 Cambios · 24 May 2026 · W20
+
+**Descripción:** Batch fixes: undefined histórico canal, HotelBeds rename, channel split canastas, hotel IDs, bold análisis, colores dim negro
+
+### Archivos modificados
+_(ver CHANGELOG para detalle)_
+
+---
+
+**Última actualización:** May 2026 · Batch fixes: undefined histórico canal, HotelBeds rename, ch
