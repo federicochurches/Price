@@ -495,7 +495,9 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
                       f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{truncate(raw_label, 28)}"')
         tbl_attr = f' data-lbl="{raw_label}"' if sb_id else ''
-        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        if row_idx < 5: hidden = ''
+        elif row_idx < 10: hidden = ' rows-more'
+        else: hidden = ' sb-hidden'
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
                  f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
@@ -511,14 +513,10 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
-    """Top 10 a 2 columnas (5+5) por destino/corp/país RND."""
+    """Top 10 a 1 columna con Ver 5 más por destino/corp/país RND."""
     df_top10 = df_full.head(10).reset_index(drop=True)
-    df1 = df_top10.iloc[:5].reset_index(drop=True)
-    df2 = df_top10.iloc[5:10].reset_index(drop=True)
     
-    col1 = _render_dim_table_rnd(df1, dim_col, dim_label, start_idx=0)
-    col2 = _render_dim_table_rnd(df2, dim_col, dim_label, start_idx=5) if len(df2) > 0 else ''
-    
+    col1 = _render_dim_table_rnd(df_top10, dim_col, dim_label, start_idx=0)
     body = f'<div>{col1}</div>'
     
     return f'''<section id="top-{key}" style="margin-bottom:80px;"><div class="section-head">
@@ -823,7 +821,7 @@ def render_bloque_dimensiones():
     def panel_for_dim(df_full, dim_col, dim_label, sb_id=None):
         df100 = df_full.head(100).reset_index(drop=True)
         rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id)
-        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{rows_html}</div>'
+        return f'<div>{rows_html}</div>'
     
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', sb_id='sb-rd-corp')
     panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino', sb_id='sb-rd-dest')

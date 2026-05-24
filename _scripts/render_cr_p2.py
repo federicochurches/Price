@@ -644,8 +644,8 @@ def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='h
     df1 = df_top10.iloc[:5].reset_index(drop=True)
     df2 = df_top10.iloc[5:10].reset_index(drop=True)
     
-    col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0)
-    col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5) if len(df2) > 0 else ''
+    import pandas as _pd; df_all_dim = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = _render_dim_table(df_all_dim, dim_col, dim_label, start_idx=0)
     
     body = f'<div>{col1}</div>'
     
@@ -1044,7 +1044,7 @@ def render_bloque_dimensiones_cr():
         if 'BandaEficacia' not in df_top_wow.columns:
             df_top_wow['BandaEficacia'] = df_top_wow['Eficacia'].apply(banda_eficacia)
         rows_html = _render_dim_table(df_top_wow, dim_col, dim_label, start_idx=0, wow_col=wow_col, with_hist=True, sb_id=sb_id)
-        return f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">{rows_html}</div>'
+        return f'<div>{rows_html}</div>'
 
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', ref_df=g_corp_w17, sb_id='sb-d-corp')
     panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino', ref_df=g_dest_w17, sb_id='sb-d-dest')
