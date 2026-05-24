@@ -234,7 +234,7 @@ def render_resumen_ej():
 # ============ SECCIÓN SEVERITY EFICACIA ============
 def render_severity_eficacia():
     levels = [
-        ('Súper Crítica','&lt; 60%','#DC2626'),
+        ('Súper Crítica','&lt; 60%','#C0392B'),
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#F97316'),
         ('Aceptable','93–97%','#FCD34D'),
@@ -298,7 +298,7 @@ def render_severities_combinadas():
         return rows, total
     
     levels_ef = [
-        ('Súper Crítica','&lt; 60%','#161616'),
+        ('Súper Crítica','&lt; 60%','#C0392B'),
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#F97316'),
         ('Aceptable','93–97%','#FCD34D'),
