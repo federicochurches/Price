@@ -1361,3 +1361,37 @@ Cuando se cambia un color, siempre hacer `grep -r '#COLOR'` en **todos** los arc
 
 **Última actualización:** Mayo 2026 · post W20 sesión fixes · bugs #48–#59 · paleta canónica definitiva
 
+
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión final · Fixes UI/UX + Pipeline W20 completo)
+
+### Pipeline W20 con WoW real
+- Primera ejecución con datasets W19 reales (antes W19 era vacío)
+- WoW CR: Eficacia 93,30%→92,75% (−0,55pp) · ConvRate 1,14%→1,19% (+0,05pp)
+- WoW RND: %NoDispo 2,33%→2,74% (+0,41pp) · IPM $499→$1.217 (+144%)
+
+### Bugs CSS críticos resueltos
+
+**Bug #74 (a64115d4):** `asset_cr_head.html` tenía DOS instancias de la regla legacy de color de spans. La segunda tenía `color:#5C469C !important` → ganaba sobre cualquier inline style → todos los valores en tabs de cards KPI aparecían en violeta. Eliminada.
+
+**Bug #75 (049b6fb6):** `searchbox_header_html` generaba el `sb-pill` directo como hijo de celda de grid (`1fr`) → el pill se estiraba al 100% del ancho. Fix: envolver en `<div style="display:flex;align-items:center;">`.
+
+### Cambios de diseño
+
+- **Súper Crítica**: negro sólido (`#161616`/`#FFFFFF`) → gris cálido (`#EDECEC`/`#4A3F3F`) — menos contraste, más armónico con otras bandas pastel
+- **Badge Severity como columna**: movido de inline-junto-al-nombre a columna separada en todas las tablas de análisis hotel y dimensión (CR y RND)
+- **Headers de columna en tabs KPI**: filas `Severity | Eficacia | WoW` / `Severity | %NoDispo | WoW` / `Severity | IPM | WoW` agregadas sobre las filas de datos
+- **Conv Rate 68px**: columna expandida de 54px a 68px para que el label entre en una línea
+- **Headers RND corregidos**: card izquierda (NoDispo) → `%NoDispo`, card derecha (IPM) → `IPM` (estaban al revés)
+- **Top 50 → Top 100**: todos los callouts de descarga Excel
+- **RE sin bold**: `font-weight:400` en div card del Resumen Ejecutivo cancela herencia del header
+- **Separación Severity/RE en RND**: `margin-top:48px` en `<section id="severity-combinada">`
+
+### Estado de archivos del proyecto Claude
+ZIP: `ProyectoClaude_PRICE_W20.zip` · 280 KB · 43 archivos · generado 24/05/2026
+
+---
+
+**Última actualización:** 24 Mayo 2026 · Pipeline W20 completo · WoW real · Fixes UI/UX batch final
