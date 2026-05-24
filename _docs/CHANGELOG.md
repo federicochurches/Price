@@ -1065,3 +1065,68 @@ El listener `change` en radios limpia todos los inputs de searchbox y resetea el
 
 `asset_cr_head.html` · `asset_rnd_head.html` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py` · `template_resumen.py` · `template_severity.py` · `render_helpers.py` · `historico_module_v2.py` · `historico_module_rnd.py`
 
+
+---
+
+## Sesión W20 · Mayo 2026 · Fixes UI/UX + Pipeline W20 con WoW real
+
+### Contexto
+Sesión de fixes visuales y UI/UX extensa antes de ejecutar el pipeline W20 final con datasets W19 reales. 13 commits aplicados el 24/05/2026.
+
+### Bugs corregidos
+
+| # | Commit | Archivo(s) | Descripción |
+|---|---|---|---|
+| 60 | 0d17c28d | `render_helpers.py` | Searchbox header: `width:120px→72px`, `padding:3px→2px 6px`, `svg:12→10px` — primera reducción |
+| 61 | 0020be6c | `render_rnd_p2.py` | Badge Severity como columna en `_render_dim_table_rnd` — grid `1fr 62px→1fr 72px 62px`, header "Severity" separado del nombre |
+| 62 | 0020be6c | `render_cr_p2.py` | Badge Severity como columna en `_render_dim_table_cr` — grid actualizado, header "Severity" independiente |
+| 63 | 0020be6c | `render_cr_p2.py` | Searchbox `padding:4px 0` y `align-items:end` en header de tabla dimensión CR para separarlo de la línea |
+| 64 | 610a9f23 | `render_helpers.py` | Searchbox header: igualar a pill → `width:48px` (en route hacia 100px final) |
+| 65 | 5d4b5713 | `render_cr_p1.py` | Headers de columna (Severity/Eficacia/WoW) en tabs de cards KPI hero CR |
+| 66 | b01b5834 | `render_rnd_p1.py` | Headers de columna (%NoDispo/IPM/WoW) en tabs de cards KPI hero RND |
+| 67 | 58cd2082 | `render_rnd_p2.py` | `margin-top:48px` en `<section id="severity-combinada">` — separación visual RE/Severity en RND |
+| 68 | 3716844c | `template_resumen.py` | `font-weight:400` en div card del RE — cancela herencia bold del header-overline |
+| 69 | da51e4b3 | `asset_cr_head.html` | Eliminar regla CSS amber genérica: `.tab-panel div span:not(.tab-key){color:var(--amber)}` → `.tab-panel div span.tab-val` (más específica, no afecta kpi-tab-rows) |
+| 70 | 34a5b69e | `render_helpers.py` | Searchbox header: `width:100px`, `padding:3px 8px`, `svg:12px` — igualar exactamente a searchbox pill |
+| 71 | 956c55e0 | `render_cr_p1.py` | Grid Conv Rate: `54px→68px` en header y filas — "Conv Rate" cabe en una línea |
+| 72 | df137426 | `render_rnd_p1.py` | Headers RND corregidos: card izquierda (NoDispo) → `%NoDispo`, card derecha (IPM) → `IPM` (estaban al revés) |
+| 73 | 65f89f39 | `render_rnd_p2.py` | `cols_dnc`, `cols_sc`, `cols_crit` en análisis hotel RND: agregar columnas IPM + WoW (antes solo tenían %NoDispo) |
+| 74 | a64115d4 | `asset_cr_head.html` | Eliminar segunda instancia de la regla CSS: `.tab-panel div span{color:#5C469C !important}` — esta tenía `!important` y ganaba sobre cualquier inline style, causando que todos los valores en tabs aparecieran en violeta |
+| 75 | 049b6fb6 | `render_helpers.py` | Searchbox header: envolver `sb-pill` en `<div style="display:flex;align-items:center;">` — sin este wrapper el pill se estiraba al 100% de la primera columna del grid |
+
+### Cambios de diseño/arquitectura
+
+#### Severity como columna independiente
+Badge de banda movido de inline-junto-al-nombre a **columna separada** en todas las tablas de análisis:
+- CR: análisis por hotel (4 tabs) y análisis por dimensión
+- RND: análisis por hotel (4 tabs: Críticos, Demanda NC, Bajo Rendimiento, Sin Conversión) y análisis por dimensión
+
+#### Headers de columna en tabs de cards KPI
+Agregado header de columna antes de las filas de datos en los tabs:
+- CR hero: `'' | Severity | Eficacia | WoW` y `'' | Severity | Conv Rate | WoW`
+- RND hero: `'' | Severity | %NoDispo | WoW` y `'' | Severity | IPM | WoW`
+
+#### Top 50 → Top 100
+Todos los callouts de descarga Excel actualizados: 8 instancias en CR (p2+p3) y RND (p2+p3).
+
+#### Searchbox estandarizado
+`searchbox_header_html` (tablas análisis) ahora usa exactamente los mismos parámetros de tamaño que `searchbox_pill_html` (tabs de cards KPI): svg 12px, padding 3px 8px, input 100px, wrapper div flex.
+
+### Paleta canónica actualizada
+
+**Súper Crítica** cambiada de negro sólido a gris cálido pastel (mayo 2026):
+| | Antes | Ahora |
+|---|---|---|
+| bg | `#161616` negro | `#EDECEC` gris claro cálido |
+| fg | `#FFFFFF` blanco | `#4A3F3F` gris oscuro cálido |
+| bd | `#DC2626` | `#9B2222` |
+| bar | `#DC2626` | `#C0392B` |
+
+### Pipeline W20 ejecutado (24/05/2026)
+- Datasets: W20 + W19 (WoW real por primera vez)
+- WoW RND: %NoDispo W19=2,33% → W20=2,74% (+0,41pp)
+- WoW CR: Eficacia W19=93,30% → W20=92,75% (−0,55pp), ConvRate W19=1,14% → W20=1,19% (+0,05pp)
+
+### Archivos modificados en esta sesión
+`asset_cr_head.html` · `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `template_resumen.py` · `template_severity.py` · `historico_module_v2.py` · `historico_module_rnd.py`
+
