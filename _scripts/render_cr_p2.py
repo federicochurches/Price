@@ -238,7 +238,7 @@ def render_severity_eficacia():
     levels = [
         ('Súper Crítica','&lt; 60%','#161616'),
         ('Crítica','60–85%','#C0392B'),
-        ('Revisar','85–93%','#D4A878'),
+        ('Revisar','85–93%','#F97316'),
         ('Aceptable','93–97%','#FCD34D'),
         ('Exitosa','≥ 97%','#1A6B4A'),
     ]
@@ -307,14 +307,14 @@ def render_severities_combinadas():
     levels_ef = [
         ('Súper Crítica','&lt; 60%','#161616'),
         ('Crítica','60–85%','#C0392B'),
-        ('Revisar','85–93%','#D4A878'),
+        ('Revisar','85–93%','#F97316'),
         ('Aceptable','93–97%','#FCD34D'),
         ('Exitosa','≥ 97%','#1A6B4A'),
     ]
     levels_cv = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','&lt; 0,8%','#C0392B'),
-        ('Revisar','0,8–1,5%','#D4A878'),
+        ('Revisar','0,8–1,5%','#F97316'),
         ('Aceptable','1,5–2,5%','#FCD34D'),
         ('Exitosa','≥ 2,5%','#1A6B4A'),
     ]
@@ -875,7 +875,7 @@ def _render_panel_top_table_cr(df, cols, with_hist=False, sb_id=None):
     else:
         col1 = render_top_table_cr(df_all, cols, with_hist=with_hist)
 
-    return f'<div>{col1}</div>'
+    return f'<div class="tbl-wrap">{col1}</div>'
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
                                  banda_ef, val_ef,
@@ -1044,7 +1044,7 @@ def render_bloque_dimensiones_cr():
         if 'BandaEficacia' not in df_top_wow.columns:
             df_top_wow['BandaEficacia'] = df_top_wow['Eficacia'].apply(banda_eficacia)
         rows_html = _render_dim_table(df_top_wow, dim_col, dim_label, start_idx=0, wow_col=wow_col, with_hist=True, sb_id=sb_id)
-        return f'<div>{rows_html}</div>'
+        return f'<div class="tbl-wrap">{rows_html}</div>'
 
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', ref_df=g_corp_w17, sb_id='sb-d-corp')
     panel_dest = panel_for_dim(TOP['destinos'], 'Destino', 'Destino', ref_df=g_dest_w17, sb_id='sb-d-dest')

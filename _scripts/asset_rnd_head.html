@@ -100,7 +100,8 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tab-label:hover{color:var(--ink-soft);background:var(--rule-soft);border-color:var(--rule-soft);}
 .tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
 .tab-panel{display:none;}
-.tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row):not(.kpi-tab-rows):not(.rows-toggle){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+.tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row):not(.kpi-tab-rows):not(.rows-toggle):not(.tbl-wrap){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
+.tbl-wrap{display:block;}
 .sb-hidden{display:none !important;}
 #tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
 #tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],

@@ -166,7 +166,7 @@ def render_severity_nodispo():
     levels = [
         ('Súper Crítica','&gt; 60%','#161616'),
         ('Crítica','20–60%','#C0392B'),
-        ('Revisar','5–20%','#D4A878'),
+        ('Revisar','5–20%','#F97316'),
         ('Aceptable','3–5%','#FCD34D'),
         ('Exitosa','&lt; 3%','#1A6B4A'),
     ]
@@ -212,7 +212,7 @@ def render_severities_combinadas():
         BADGE_COLORS = {
             'Exitosa':       {'bg':'#E1F5EE','fg':'#1A6B4A','bar':'#1A6B4A'},
             'Aceptable':     {'bg':'#FEF9C3','fg':'#713F12','bar':'#FCD34D'},
-            'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#D4A878'},
+            'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#F97316'},
             'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
             'Súper Crítica': {'bg':'#FECACA','fg':'#7F1D1D','bar':'#DC2626'},
             'Sin Conversión':{'bg':'#F2EEE6','fg':'#5F5E5A','bar':'#8A8377'},
@@ -234,14 +234,14 @@ def render_severities_combinadas():
     levels_nd = [
         ('Súper Crítica','&gt; 60%','#161616'),
         ('Crítica','20–60%','#C0392B'),
-        ('Revisar','5–20%','#D4A878'),
+        ('Revisar','5–20%','#F97316'),
         ('Aceptable','3–5%','#FCD34D'),
         ('Exitosa','&lt; 3%','#1A6B4A'),
     ]
     levels_ipm = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','< $199','#C0392B'),
-        ('Revisar','$200–$499','#D4A878'),
+        ('Revisar','$200–$499','#F97316'),
         ('Aceptable','$500–$649','#FCD34D'),
         ('Exitosa','≥ $650','#1A6B4A'),
     ]
@@ -691,7 +691,7 @@ def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
     import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
     col1 = render_top_table('','',df_all,cols, sb_id=sb_id)
     hidden_rows = render_top_table('','',df_rest,cols, show_header=False)
-    grid = f'<div>{col1}</div>'
+    grid = f'<div class="tbl-wrap">{col1}</div>'
     return grid + hidden_rows
 
 def render_bloque_hoteles():
@@ -821,7 +821,7 @@ def render_bloque_dimensiones():
     def panel_for_dim(df_full, dim_col, dim_label, sb_id=None):
         df100 = df_full.head(100).reset_index(drop=True)
         rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id)
-        return f'<div>{rows_html}</div>'
+        return f'<div class="tbl-wrap">{rows_html}</div>'
     
     panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', sb_id='sb-rd-corp')
     panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino', sb_id='sb-rd-dest')
