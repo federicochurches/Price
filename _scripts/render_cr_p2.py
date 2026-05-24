@@ -239,8 +239,8 @@ def render_severity_eficacia():
         ('Súper Crítica','&lt; 60%','#161616'),
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#D4A878'),
-        ('Aceptable','93–97%','#5C469C'),
-        ('Exitosa','≥ 97%','#085041'),
+        ('Aceptable','93–97%','#FCD34D'),
+        ('Exitosa','≥ 97%','#1A6B4A'),
     ]
     total = int(sev_ef_p80.sum())
     rows = ''
@@ -308,15 +308,15 @@ def render_severities_combinadas():
         ('Súper Crítica','&lt; 60%','#161616'),
         ('Crítica','60–85%','#C0392B'),
         ('Revisar','85–93%','#D4A878'),
-        ('Aceptable','93–97%','#5C469C'),
-        ('Exitosa','≥ 97%','#085041'),
+        ('Aceptable','93–97%','#FCD34D'),
+        ('Exitosa','≥ 97%','#1A6B4A'),
     ]
     levels_cv = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','&lt; 0,8%','#C0392B'),
         ('Revisar','0,8–1,5%','#D4A878'),
-        ('Aceptable','1,5–2,5%','#5C469C'),
-        ('Exitosa','≥ 2,5%','#085041'),
+        ('Aceptable','1,5–2,5%','#FCD34D'),
+        ('Exitosa','≥ 2,5%','#1A6B4A'),
     ]
     
     rows_ef, total_ef = render_table(sev_ef_p80, levels_ef)
@@ -385,7 +385,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     grid = ' '.join(c['width'] for c in cols_def)
     header = ''
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
         for idx_c, c in enumerate(cols_def):
             if idx_c == 0 and sb_id:
                 # Prop D: primera columna = searchbox integrado
@@ -434,10 +434,21 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
         lbl_for_tbl = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36) if sb_id else ''
         tbl_attr = f' data-lbl="{lbl_for_tbl} {clean_corp_name(r.get("CorpName",""))}"' if sb_id else ''
         cursor = 'cursor:pointer;' if with_hist else ''
-        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        if row_idx < 5: hidden = ''
+        elif row_idx < 10: hidden = ' rows-more'
+        else: hidden = ' sb-hidden'
         rows_html += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
                       f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
                       f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{row_cells}</div>')
+    # Botón Ver 5 más (si hay filas rows-more)
+    n_total = len(df)
+    if n_total > 5:
+        rows_html += (f'<button class="rows-toggle" '
+                      f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                      f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
+                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                      f'<span class="toggle-label">Ver 5 más</span> '
+                      f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
     return rows_html
 
 def render_criticos():
@@ -451,9 +462,8 @@ def render_criticos():
         {'key':'ef','label':'Eficacia','width':'58px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
-    col1 = render_top_table_cr(df1, cols)
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table_cr(df2_renum, cols)
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table_cr(df_all, cols)
     
     return f'''<section id="hoteles-criticos" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
@@ -463,7 +473,7 @@ def render_criticos():
 <p class="section-kicker">Hoteles del P80 con mayor severidad por Eficacia. Combinan volumen CR alto con tasa de errores elevada — primer foco de remediación técnica.</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
+<div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Hoteles Críticos</strong> está en la pestaña <em>«Críticos»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
@@ -482,9 +492,8 @@ def render_bajo_rendimiento():
         {'key':'ef','label':'Eficacia','width':'58px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
-    col1 = render_top_table_cr(df1, cols)
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table_cr(df2_renum, cols)
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table_cr(df_all, cols)
     
     return f'''<section id="bajo-rendimiento" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
@@ -494,7 +503,7 @@ def render_bajo_rendimiento():
 <p class="section-kicker">Hoteles con tráfico significativo pero ConvRate insuficiente. Convierten, pero por debajo del target ≥2,5% — oportunidad de tunning de pricing/disponibilidad.</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
+<div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Checkrates_7d.xlsx">Excel ↗</a>
@@ -511,13 +520,11 @@ def render_sin_conv():
         {'key':'ef','label':'Eficacia','width':'62px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
-    col1 = render_top_table_cr(df1, cols)
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table_cr(df2_renum, cols) if len(df2)>0 else ''
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table_cr(df_all, cols) if len(df2)>0 else ''
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     
-    body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-            if col2 else f'<div>{col1}</div>')
+    body = f'<div>{col1}</div>'
     
     return f'''<section id="sin-conversion" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
@@ -622,7 +629,9 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                           f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev, 4)}"'
                           f' data-hist-label="{lbl_short}"')
         cursor = 'cursor:pointer;' if with_hist else ''
-        hidden = ' sb-hidden' if row_idx >= 10 else ''
+        if row_idx < 5: hidden = ''
+        elif row_idx < 10: hidden = ' rows-more'
+        else: hidden = ' sb-hidden'
         tbl_attr = f' data-lbl="{label_val}"' if sb_id else ''
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
                  f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
@@ -638,8 +647,7 @@ def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='h
     col1 = _render_dim_table(df1, dim_col, dim_label, start_idx=0)
     col2 = _render_dim_table(df2, dim_col, dim_label, start_idx=5) if len(df2) > 0 else ''
     
-    body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-            if col2 else f'<div>{col1}</div>')
+    body = f'<div>{col1}</div>'
     
     return f'''<section id="top-{key}" style="margin-bottom:64px;border-top:1px solid var(--rule);padding-top:48px;"><div class="section-head">
 <div>
@@ -857,23 +865,17 @@ def _render_panel_top_table_cr(df, cols, with_hist=False, sb_id=None):
     """
     df = df.reset_index(drop=True)  # index 0..N
     df1 = df.iloc[:5].copy()        # index 0-4
-    df2 = df.iloc[5:10].copy()      # asignar index 5-9
-    df_rest = df.iloc[10:].copy()   # asignar index 10+
-    df2.index = range(5, 5+len(df2))
-    df_rest.index = range(10, 10+len(df_rest))
+    import pandas as _pd
+    df_all = _pd.concat([df1, df.iloc[5:]]).reset_index(drop=True)
 
-    # Construir header con o sin searchbox integrado
+    # Construir tabla única con searchbox si aplica
     if sb_id:
-        # Prop D: primera columna del header = searchbox
-        cols_mod = list(cols)  # copia para no mutar
-        col1 = render_top_table_cr(df1, cols_mod, with_hist=with_hist, sb_id=sb_id)
+        cols_mod = list(cols)
+        col1 = render_top_table_cr(df_all, cols_mod, with_hist=with_hist, sb_id=sb_id)
     else:
-        col1 = render_top_table_cr(df1, cols, with_hist=with_hist)
+        col1 = render_top_table_cr(df_all, cols, with_hist=with_hist)
 
-    col2 = render_top_table_cr(df2, cols, with_hist=with_hist)
-    hidden_rows = render_top_table_cr(df_rest, cols, with_hist=with_hist, show_header=False)
-    grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
-    return grid + hidden_rows
+    return f'<div>{col1}</div>'
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
                                  banda_ef, val_ef,

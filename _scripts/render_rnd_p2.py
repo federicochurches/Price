@@ -90,9 +90,9 @@ def build_findings():
     
     def pill_banda(banda, target=''):
         COLORS = {
-            'Exitosa':       ('#085041','#E1F5EE','#1D9E75'),
-            'Aceptable':     ('#3B2F7A','#EEE9FF','#5C469C'),
-            'Revisar':       ('#7A4A10','#FFF3E0','#A86A1D'),
+            'Exitosa':       ('#1A6B4A','#E1F5EE','#1D9E75'),
+            'Aceptable':     ('#713F12','#FEF9C3','#FCD34D'),
+            'Revisar':       ('#C2410C','#FED7AA','#F97316'),
             'Crítica':       ('#9B2222','#FDEAEA','#C0392B'),
             'Súper Crítica': ('#7F1D1D','#FECACA','#DC2626'),
             'Sin Conversión':('#8A8377','#F2EEE6','#8A8377'),
@@ -167,8 +167,8 @@ def render_severity_nodispo():
         ('Súper Crítica','&gt; 60%','#161616'),
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#D4A878'),
-        ('Aceptable','3–5%','#5C469C'),
-        ('Exitosa','&lt; 3%','#085041'),
+        ('Aceptable','3–5%','#FCD34D'),
+        ('Exitosa','&lt; 3%','#1A6B4A'),
     ]
     total = int(sev_nd.sum())
     rows = ''
@@ -210,8 +210,8 @@ def render_severities_combinadas():
         rows = ''
         # Paleta D: Súper Crítica bg sólido oscuro, resto bg pastel + fg oscuro
         BADGE_COLORS = {
-            'Exitosa':       {'bg':'#E1F5EE','fg':'#085041','bar':'#085041'},
-            'Aceptable':     {'bg':'#EDE8F7','fg':'#3C3489','bar':'#5C469C'},
+            'Exitosa':       {'bg':'#E1F5EE','fg':'#1A6B4A','bar':'#1A6B4A'},
+            'Aceptable':     {'bg':'#FEF9C3','fg':'#713F12','bar':'#FCD34D'},
             'Revisar':       {'bg':'#FED7AA','fg':'#C2410C','bar':'#D4A878'},
             'Crítica':       {'bg':'#FCE4F1','fg':'#99162B','bar':'#C0392B'},
             'Súper Crítica': {'bg':'#FECACA','fg':'#7F1D1D','bar':'#DC2626'},
@@ -235,15 +235,15 @@ def render_severities_combinadas():
         ('Súper Crítica','&gt; 60%','#161616'),
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#D4A878'),
-        ('Aceptable','3–5%','#5C469C'),
-        ('Exitosa','&lt; 3%','#085041'),
+        ('Aceptable','3–5%','#FCD34D'),
+        ('Exitosa','&lt; 3%','#1A6B4A'),
     ]
     levels_ipm = [
         ('Sin Conversión','BKGS=0','#8A8377'),
         ('Crítica','< $199','#C0392B'),
         ('Revisar','$200–$499','#D4A878'),
-        ('Aceptable','$500–$649','#5C469C'),
-        ('Exitosa','≥ $650','#085041'),
+        ('Aceptable','$500–$649','#FCD34D'),
+        ('Exitosa','≥ $650','#1A6B4A'),
     ]
     
     rows_nd, total_nd = render_table(sev_nd, levels_nd)
@@ -283,7 +283,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     """
     grid = ' '.join(c['width'] for c in cols_def).strip()
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
         for idx_c, c in enumerate(cols_def):
             if idx_c == 0 and sb_id:
                 _hd += searchbox_header_html(sb_id, accent_color=accent_color,
@@ -322,11 +322,21 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                       f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
                       f' data-hist-label="{lbl}"')
         tbl_attr = f' data-lbl="{lbl} {r.get("CorpName","")}"' if sb_id else ''
-        hidden = ' sb-hidden' if i >= 10 else ''
+        if i < 5: hidden = ''
+        elif i < 10: hidden = ' rows-more'
+        else: hidden = ' sb-hidden'
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
                  f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{row_cells}</div>')
+    # Botón Ver 5 más si hay filas rows-more
+    if len(df) > 5:
+        rows += (f'<button class="rows-toggle" '
+                 f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                 f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
+                 f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                 f'<span class="toggle-label">Ver 5 más</span> '
+                 f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
     return rows
 
 def render_demanda_nc():
@@ -340,8 +350,6 @@ def render_demanda_nc():
     ]
     col1 = render_top_table('','',df1,cols)
     # ajustar índices del df2
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table('','',df2_renum,cols)
     
     return f'''<section id="demanda-nc" style="margin-bottom:80px;"><div class="section-head">
 <div>
@@ -351,7 +359,7 @@ def render_demanda_nc():
 <p class="section-kicker">Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(df1.iloc[0]["Hotel"],38)}</strong> ({fmt_big(df1.iloc[0]["DemandaNoConvertida"])} búsquedas perdidas).</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
+<div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Demanda No Convertida</strong> está en la pestaña <em>«Demanda No Convertida»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
@@ -368,9 +376,8 @@ def render_bajo_rend():
         {'key':'bk','label':'BKGS','width':'55px','fmt':lambda r:fmt_int_es(r['Bookings'])},
         {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
     ]
-    col1 = render_top_table('','',df1,cols)
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table('','',df2_renum,cols)
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table('','',df_all,cols)
     
     return f'''<section id="bajo-rendimiento" style="margin-bottom:80px;"><div class="section-head">
 <div>
@@ -380,7 +387,7 @@ def render_bajo_rend():
 <p class="section-kicker">Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.</p>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>
+<div>{col1}</div>
 <div class="detail-callout" style="margin-top:24px;">
 <div><div class="lbl">Detalle completo</div><div class="msg">El Top 50 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
 <a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
@@ -397,13 +404,11 @@ def render_no_convierten():
         {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
     ]
-    col1 = render_top_table('','',df1,cols)
-    df2_renum = df2.copy(); df2_renum.index = range(5, 5+len(df2_renum))
-    col2 = render_top_table('','',df2_renum,cols) if len(df2)>0 else ''
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table('','',df_all,cols) if len(df2)>0 else ''
     n_total_sc = (p80_hotel['Bookings']==0).sum()
     
-    body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-            if col2 else f'<div>{col1}</div>')
+    body = f'<div>{col1}</div>'
     
     return f'''<section id="sin-conversion" style="margin-bottom:80px;"><div class="section-head">
 <div>
@@ -495,6 +500,14 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
                  f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{cells}</div>')
+    # Botón Ver 5 más si hay filas rows-more
+    if len(df) > 5:
+        rows += (f'<button class="rows-toggle" '
+                 f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                 f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
+                 f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                 f'<span class="toggle-label">Ver 5 más</span> '
+                 f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
     return rows
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
@@ -506,8 +519,7 @@ def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='h
     col1 = _render_dim_table_rnd(df1, dim_col, dim_label, start_idx=0)
     col2 = _render_dim_table_rnd(df2, dim_col, dim_label, start_idx=5) if len(df2) > 0 else ''
     
-    body = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;"><div>{col1}</div><div>{col2}</div></div>'
-            if col2 else f'<div>{col1}</div>')
+    body = f'<div>{col1}</div>'
     
     return f'''<section id="top-{key}" style="margin-bottom:80px;"><div class="section-head">
 <div>
@@ -678,10 +690,10 @@ def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
     df_rest = df.iloc[10:].copy()
     df2.index = range(5, 5+len(df2))
     df_rest.index = range(10, 10+len(df_rest))
-    col1 = render_top_table('','',df1,cols, sb_id=sb_id)
-    col2 = render_top_table('','',df2,cols)
+    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
+    col1 = render_top_table('','',df_all,cols, sb_id=sb_id)
     hidden_rows = render_top_table('','',df_rest,cols, show_header=False)
-    grid = f'<div class="kpi-tab-rows" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"><div>{col1}</div><div>{col2}</div></div>'
+    grid = f'<div>{col1}</div>'
     return grid + hidden_rows
 
 def render_bloque_hoteles():
