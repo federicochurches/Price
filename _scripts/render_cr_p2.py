@@ -564,7 +564,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     if has_wow: headers.append('WoW')
 
     # Header: Prop D si sb_id, normal en caso contrario
-    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:4px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;align-items:end;">'
     for idx_h, label in enumerate(headers):
         if idx_h == 0 and sb_id:
             rows += searchbox_header_html(sb_id, accent_color=CR_ACCENT,
