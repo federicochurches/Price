@@ -193,14 +193,24 @@ def build_blobs_map(week_num, outputs_dir, scripts_dir):
 
     return blobs
 
-def build_project_zip(week_num, scripts_dir, outputs_dir):
+def build_project_zip(week_num, scripts_dir, outputs_dir, docs_dir=None):
     """
     Genera el ZIP del proyecto Claude con todos los archivos de _scripts/.
     42-44 archivos: scripts + docs + Mail.
+    docs_dir: si se especifica, los .md del proyecto se toman de ahí (tienen prioridad sobre scripts_dir).
     """
     scripts = Path(scripts_dir)
     outputs = Path(outputs_dir)
     out = outputs / f'ProyectoClaude_PRICE_W{week_num}.zip'
+
+    # Si hay docs_dir, copiar los docs actualizados al scripts_dir antes de empaquetar
+    if docs_dir:
+        docs_path = Path(docs_dir)
+        for doc in ['CHANGELOG.md', 'README.md', 'PROMPT_MAESTRO_v3.md', 'BANDAS.md']:
+            src = docs_path / doc
+            if src.exists():
+                import shutil
+                shutil.copy2(str(src), str(scripts / doc))
 
     all_script_files = list(scripts.glob('*.py')) + list(scripts.glob('*.html')) + list(scripts.glob('*.md'))
     
