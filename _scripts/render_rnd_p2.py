@@ -156,7 +156,7 @@ def render_resumen_ej():
 # ============ SECCIÓN SEVERITY %NoDispo ============
 def render_severity_nodispo():
     levels = [
-        ('Súper Crítica','&gt; 60%','#DC2626'),
+        ('Súper Crítica','&gt; 60%','#C0392B'),
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#F97316'),
         ('Aceptable','3–5%','#FCD34D'),
@@ -219,7 +219,7 @@ def render_severities_combinadas():
         return rows, total
     
     levels_nd = [
-        ('Súper Crítica','&gt; 60%','#161616'),
+        ('Súper Crítica','&gt; 60%','#C0392B'),
         ('Crítica','20–60%','#C0392B'),
         ('Revisar','5–20%','#F97316'),
         ('Aceptable','3–5%','#FCD34D'),
