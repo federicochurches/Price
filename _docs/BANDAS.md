@@ -14,10 +14,10 @@ Las bandas dividen los hoteles del P80 en 5 niveles de severidad por cada métri
 | **Aceptable** | `#713F12` ámbar oscuro | `#FEF9C3` amarillo claro | `#FCD34D` | `#FCD34D` |
 | **Revisar** | `#C2410C` naranja oscuro | `#FED7AA` naranja claro | `#F97316` | `#F97316` |
 | **Crítica** | `#99162B` rojo oscuro | `#FCE4F1` rosado claro | `#C0392B` | `#C0392B` |
-| **Súper Crítica** | `#FFFFFF` blanco | `#161616` negro | `#DC2626` | `#DC2626` |
+| **Súper Crítica** | `#4A3F3F` gris oscuro cálido | `#EDECEC` gris claro | `#9B2222` | `#C0392B` |
 | **Sin Conversión** | `#5F5E5A` gris oscuro | `#F2EEE6` crema | `#8A8377` | `#8A8377` |
 
-> **Súper Crítica** es la única banda con **fondo sólido oscuro + texto blanco**.  
+> **Súper Crítica** es la única banda sin color saturado — gris claro para reducir contraste, borde rojo oscuro para comunicar severidad.  
 > Las demás son texto oscuro + fondo claro (pastel).
 
 ### Nota sobre divergencia histórica
