@@ -477,11 +477,11 @@ def render_alerts_block():
 # Build hero
 h1, subhead, pct18, rpm18, pct17, rpm17, pct_wow, rpm_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
-<p class="hero-subhead" style="font-size:14px;color:var(--ink-soft);margin:24px 0;line-height:1.5;">{subhead}</p>
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 24px;">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 16px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
 {render_kpi_card_rpm(rpm18, rpm17, rpm_wow)}
 </div>
+<p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 {render_alerts_block()}
 </section>
 '''
