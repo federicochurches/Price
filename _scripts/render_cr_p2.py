@@ -1060,8 +1060,22 @@ def render_bloque_dimensiones_cr():
         if 'ConvRate_W17' in df_chan.columns:
             df_chan['ConvRate_WoW_pp'] = (df_chan['ConvRate'] - df_chan['ConvRate_W17']) * 100
 
-    df_pp = df_chan[df_chan['ExternalProviderName'].isin(PRODUCTO_PROPIO)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
-    df_tp = df_chan[df_chan['ExternalProviderName'].isin(THIRD_PARTY)].sort_values('CR_Unicos', ascending=False).reset_index(drop=True)
+    # Catálogo canónico: iterar sobre lista fija, incluir canales sin datos como dummy
+    def _build_chan_df(lista, df_src):
+        import pandas as _pd
+        with_data, without_data = [], []
+        for nombre in lista:
+            mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+            hits = df_src[mask]
+            if len(hits) > 0:
+                with_data.append(hits.iloc[0])
+            else:
+                without_data.append(_pd.Series({'ExternalProviderName': nombre, 'Eficacia': float('nan'), 'ConvRate': float('nan'), 'CR_Unicos': 0, 'Bookings': 0}))
+        with_data.sort(key=lambda r: r.get('CR_Unicos', 0) if r.get('CR_Unicos',0)==r.get('CR_Unicos',0) else 0, reverse=True)
+        return _pd.DataFrame(with_data + without_data).reset_index(drop=True)
+
+    df_pp = _build_chan_df(PRODUCTO_PROPIO, df_chan)
+    df_tp = _build_chan_df(THIRD_PARTY, df_chan)
 
     def render_chan_table(df, color_b):
         import math
@@ -1099,15 +1113,17 @@ def render_bloque_dimensiones_cr():
             _lbl_chan = truncate(r["ExternalProviderName"],28)
             _bnd_ch = r.get('BandaEficacia','') or (banda_eficacia(ef_val) if ef_val else '')
             _bdg_ch = mini_badge(_bnd_ch)
-            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;display:flex;align-items:center;gap:4px;">{i+1}. {_lbl_chan}{_bdg_ch}</div></div>'
-                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
-                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
+            _row_is_dummy = (ef_val is None or (isinstance(ef_val, float) and math.isnan(ef_val)))
+            _dummy_style = 'opacity:.45;pointer-events:none;' if _row_is_dummy else ''
+            cells = (f'<div><div style="font-weight:600;color:{color_b};line-height:1.3;display:flex;align-items:center;gap:4px;">{i+1}. {_lbl_chan}{_bdg_ch if not _row_is_dummy else ""}</div></div>'
+                     f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{"—" if _row_is_dummy else fmt_int_es(r["CR_Unicos"])}</span>'
+                     f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{"—" if _row_is_dummy else fmt_int_es(r["Bookings"])}</span>'
                      f'<span style="text-align:right;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
                      f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan"))) if has_cv_wow else ""}'
                      f'<span style="text-align:right;color:{color_b};font-weight:600;font-variant-numeric:tabular-nums;">{ef_str}</span>')
             if has_wow:
                 cells += _fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))
-            rows += (f'<div class="kpi-row" style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;transition:background .12s;" '
+            rows += (f'<div class="kpi-row" style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:12px;cursor:pointer;transition:background .12s;{_dummy_style}" '
                      f'data-hist-w21="{_ef21}" data-hist-w20="{_ef20}" '
                      f'data-hist-cv-w21="{_cv21}" data-hist-cv-w20="{_cv20}" '
                      f'data-hist-label="{_lbl_chan}">{cells}</div>')
@@ -1125,7 +1141,9 @@ def render_bloque_dimensiones_cr():
     
     k_corp = f'Top corporativos por volumen CR. <strong>{top_corp["CorpName"]}</strong> lidera con {fmt_int_es(top_corp["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_corp["Eficacia"])} (banda {top_corp["BandaEficacia"]}) y ConvRate {fmt_pct2(top_corp["ConvRate"])}.'
     k_dest = f'Top destinos por volumen CR. <strong>{top_dest["Destino"]}</strong> con {fmt_int_es(top_dest["CR_Unicos"])} CR · Eficacia {fmt_pct2(top_dest["Eficacia"])} y ConvRate {fmt_pct2(top_dest["ConvRate"])}.'
-    k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {len(df_pp)} channels · <strong style="color:{CR_ACCENT};">Third Party</strong>: {len(df_tp)} channels.'
+    _pp_active = int(df_pp['Eficacia'].notna().sum()) if 'Eficacia' in df_pp.columns else len(df_pp)
+    _tp_active = int(df_tp['Eficacia'].notna().sum()) if 'Eficacia' in df_tp.columns else len(df_tp)
+    k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {_pp_active} channels activos · <strong style="color:{CR_ACCENT};">Third Party</strong>: {_tp_active} channels activos.'
     
     panels = (
         f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
