@@ -380,6 +380,7 @@ def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscarâ
     """
     clear_id = input_id + '-clear'
     return (
+        f'<div style="display:flex;align-items:center;">'
         f'<div class="sb-pill" style="display:inline-flex;align-items:center;gap:4px;'
         f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
         f'padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;min-width:0;">'
@@ -403,5 +404,6 @@ def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscarâ
         f'title="Limpiar bÃºsqueda" aria-label="Limpiar bÃºsqueda" '
         f'onclick="var i=document.getElementById(\'{input_id}\');i.value=\'\';'
         f'i.dispatchEvent(new Event(\'input\'));this.style.display=\'none\';">Ã—</button>'
+        f'</div>'
         f'</div>'
     )
