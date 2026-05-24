@@ -4,6 +4,46 @@ Pipeline Python para generar los Reportes Editoriales (HTML), Excels de Análisi
 
 ---
 
+## 🎨 Paleta canónica de bandas (post W20 sesión Mayo 2026)
+
+**Fuente de verdad:** `BANDA_COLORS` en `render_helpers.py`
+
+| Banda | bg | fg | bd/barra | Notas |
+|---|---|---|---|---|
+| Exitosa | `#E1F5EE` | `#1A6B4A` | `#1A6B4A` | Verde teal |
+| Aceptable | `#FEF9C3` | `#713F12` | `#FCD34D` | Amarillo |
+| Revisar | `#FED7AA` | `#C2410C` | `#F97316` | Naranja |
+| Crítica | `#FCE4F1` | `#99162B` | `#C0392B` | Rosa/rojo |
+| Súper Crítica | `#161616` | `#FFFFFF` | `#DC2626` | **Negro sólido** |
+| Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` | Gris muted |
+
+**Reglas de uso:**
+- El **badge** (pill de banda) usa `bg` + `fg`
+- La **barra de progreso** en Severity usa `bd/barra`
+- `#5C469C` (violet) es el accent de CR — válido en subheads, tabs, accent. NO en severity
+- `#EA0074` (magenta) es el accent de RND — igual
+- `#4FC3F4` (cyan) es SOLO para IPM accent en módulos históricos RND y label Third Party en CR
+
+## 🔧 Sistema JS de searchbox (post W20 sesión 15+)
+
+**Tres modos — un input por contexto:**
+
+| Modo | Atributo | Dónde |
+|---|---|---|
+| Pill (Prop A) | `data-sb-pill` | KPI cards hero + canastas |
+| Header (Prop D) | `data-sb-table` | Tablas hotel + dim |
+| Legado | `data-sb-scope` | Compatibilidad |
+
+**Funciones JS en assets:**
+- `attachPill(input)` — filtra `[data-hist-label]` en panel activo + dropdown autocomplete
+- `attachTable(input)` — filtra `[data-lbl]` en wrapper `.tbl-wrap` + dropdown autocomplete
+- `attachSearchbox(scope, id, counter)` — modo legado
+
+**Regla crítica de layout:** Los wrappers de tablas deben tener `class="tbl-wrap"` para evitar que el selector `.tab-panel > div:not(...)` les aplique `display:flex`. El CSS define `.tbl-wrap{display:block}`.
+
+
+---
+
 ## 📋 Inventario de archivos
 
 ### Cálculo y agregación

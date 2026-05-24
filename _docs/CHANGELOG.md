@@ -1021,3 +1021,47 @@ El listener `change` en radios limpia todos los inputs de searchbox y resetea el
 - `b121f55` · feat(W20s): searchbox Prop A+D + wow_pill V1 · CR+RND global+canastas
 - `97e9d07` · regen(W20): reportes editoriales CR+RND con searchbox Prop A+D · wow_pill V1
 
+
+---
+
+## W20 · Post-sesión 15+ · Fixes UI/UX · Mayo 2026
+
+### 🐛 Bugs corregidos (commits b63591f → 4289f22)
+
+| # | Commit | Descripción |
+|---|---|---|
+| 48 | b63591f | Audit colores severity: `#EDE8F7` (violeta Aceptable viejo) → `#FEF9C3` en p3 + `#085041` (verde viejo) → `#1A6B4A` en módulos históricos |
+| 49 | b63591f | `attachTable` bug raíz: `var dropdown` declarado DESPUÉS del `clearBtn` listener → `dropdown=undefined` en runtime. Fix: declarar antes. CR+RND |
+| 50 | 1b6c53e | Badge NoDispo ausente en tab Hotel (RND): exclusión `if t_key == 'hotel'` eliminada de `_bnd_nd` en `render_rnd_p1.py` |
+| 51 | 1b6c53e | Resumen Ejecutivo: títulos sin bold → `font-weight:600` en `<span>` de `render_finding` (`template_resumen.py`) |
+| 52 | 1b6c53e | Análisis por hotel horizontal: `attachSearchbox` sobreescribía `gridTemplateColumns:1fr 1fr` en todos los `.kpi-tab-rows`. Fix: eliminar esa línea de JS en ambos assets |
+| 53 | 1b6c53e | Análisis por dimensión a 2 columnas: `render_top_dimension` y `panel_for_dim` en CR y RND pasaban `df1` (5 filas) en lugar de `df_all` (10). Fix: tabla única con `rows-more` en filas 5-9 |
+| 54 | 6f00853 | `.canasta-alert-bar` background `#EDE8F7` → `var(--paper-soft)` en `asset_cr_head.html` |
+| 55 | 6f00853 | `render_rnd_p3.py` dict `SOLID`: `Exitosa #085041→#1A6B4A`, `Aceptable #5C469C→#713F12`, `Revisar #A86A1D→#C2410C`, `Súper Crítica #161616→#7F1D1D` (corregido luego a `#FFFFFF`) |
+| 56 | 3785bff | `attachPill` reescritura limpia: código huérfano del `showEmpty` (cleanup anterior) dejaba llaves desbalanceadas que cerraban la función antes del bloque `var dropdown` + `buildDD` → autocomplete no funcionaba. Fix: reescritura completa sin código huérfano, 1 listener `input` unificado |
+| 57 | 7c2c556 | Barra de progreso Revisar: `#D4A878` (ocre) → `#F97316` (naranja) en `render_cr_p2.py` (3x) y `render_rnd_p2.py` (4x). Los badges bg/fg ya eran correctos |
+| 58 | 7c2c556 | Layout horizontal análisis por hotel y dimensión: wrappers `<div>` sin clase tomaban `display:flex` del selector `.tab-panel > div:not(...)`. Fix: `class="tbl-wrap"` + `:not(.tbl-wrap)` en selector + `.tbl-wrap{display:block}` en ambos assets |
+| 59 | 4289f22 | Súper Crítica rosa → negro sólido: `#FECACA`/`#7F1D1D`/`#FCEBEB` → `bg:#161616 fg:#FFFFFF` en 8 archivos (`render_cr_p2`, `render_rnd_p2`, `template_severity`, `render_helpers.BANDA_COLORS`, `render_cr_p3`, `render_rnd_p3`, `historico_module_v2`, `historico_module_rnd`) |
+
+### 📋 Paleta canónica definitiva (post sesión Mayo 2026)
+
+| Banda | bg | fg | bd/barra |
+|---|---|---|---|
+| Exitosa | `#E1F5EE` | `#1A6B4A` | `#1A6B4A` |
+| Aceptable | `#FEF9C3` | `#713F12` | `#FCD34D` |
+| Revisar | `#FED7AA` | `#C2410C` | `#F97316` |
+| Crítica | `#FCE4F1` | `#99162B` | `#C0392B` |
+| Súper Crítica | `#161616` | `#FFFFFF` | `#DC2626` |
+| Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` |
+
+### ⚠️ Pendientes para próxima sesión
+
+- Colores en canastas CR y RND (p3) — no verificados visualmente
+- Módulo histórico: validar que Súper Crítica aparece negro en canvas/sparkline
+- Top 100 en análisis por hotel y dimensión: verificar que "Ver 5 más" funciona correctamente en todas las tabs
+- `extract_hist_data.py` para automatizar actualización del histórico W21+
+
+### 📁 Archivos modificados en esta sesión
+
+`asset_cr_head.html` · `asset_rnd_head.html` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py` · `template_resumen.py` · `template_severity.py` · `render_helpers.py` · `historico_module_v2.py` · `historico_module_rnd.py`
+

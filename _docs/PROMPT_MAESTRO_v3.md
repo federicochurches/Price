@@ -1316,3 +1316,48 @@ Las filas de tablas hotel ahora llevan `data-lbl="hotel corp"` y las de dim `dat
 
 **Última actualización:** Mayo 2026 · post W20 sesión 15+ · Searchbox Prop A+D + wow_pill V1 · 3 modos JS engine
 
+
+---
+
+## 📝 Cambios post W20 · Mayo 2026 (sesión fixes colores + UI · commits b63591f–4289f22)
+
+### Paleta canónica definitiva — ÚNICA FUENTE: `BANDA_COLORS` en `render_helpers.py`
+
+| Banda | bg | fg | barra severidad |
+|---|---|---|---|
+| Exitosa | `#E1F5EE` | `#1A6B4A` | `#1A6B4A` |
+| Aceptable | `#FEF9C3` | `#713F12` | `#FCD34D` |
+| Revisar | `#FED7AA` | `#C2410C` | `#F97316` |
+| Crítica | `#FCE4F1` | `#99162B` | `#C0392B` |
+| Súper Crítica | `#161616` | `#FFFFFF` | `#DC2626` |
+| Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` |
+
+**`#5C469C`** es el accent de CR (subheads, tabs, alert cards) — NO es color de banda.  
+**`#F97316`** es la barra de Revisar — diferente del fg `#C2410C`.  
+**Súper Crítica** = negro sólido en todos los contextos (badge, barra, histórico, canastas).
+
+### Bugs corregidos
+
+- **Autocomplete (bug raíz):** `attachPill` tenía código huérfano del `showEmpty` que cerraba la función antes de `var dropdown`. `buildDD` quedaba fuera del scope → dropdown nunca aparecía. Reescritura limpia en `asset_cr_head.html` y `asset_rnd_head.html`.
+- **`attachTable` crash:** `dropdown` declarado después del `clearBtn.addEventListener` → `dropdown=undefined`. Fix: declarar antes.
+- **Layout horizontal análisis por hotel:** `attachSearchbox` sobreescribía `gridTemplateColumns:1fr 1fr` en todos los `.kpi-tab-rows`. Línea eliminada.
+- **Layout horizontal análisis por dimensión:** wrappers `<div>` sin clase tomaban `display:flex` del selector `.tab-panel > div:not(...)`. Fix: `class="tbl-wrap"` + `.tbl-wrap{display:block}` + `:not(.tbl-wrap)` en el selector.
+- **Barra de progreso Revisar:** `#D4A878` (ocre) → `#F97316` (naranja) en `render_cr_p2` y `render_rnd_p2`.
+- **Badge Súper Crítica rosa:** `#FECACA`/`#7F1D1D` → `#161616`/`#FFFFFF` en 8 archivos.
+- **Badge NoDispo hotel (RND):** exclusión `if t_key == 'hotel'` eliminada.
+- **Resumen Ejecutivo sin bold:** `font-weight:600` en títulos de `render_finding`.
+- **Análisis por dimensión 2 cols:** `render_top_dimension` ahora pasa `df_all` (10 filas) con `rows-more` en filas 5-9.
+
+### Regla de workflow para cambios de color
+
+Cuando se cambia un color, siempre hacer `grep -r '#COLOR'` en **todos** los archivos antes de asumir que está corregido. Los colores están hardcodeados en múltiples archivos independientes. Verificar siempre con audit post-build antes de pushear.
+
+### Pendientes para siguiente sesión
+
+- Colores en canastas CR y RND (verificar visualmente)
+- Módulo histórico: Súper Crítica negro en canvas/sparkline
+- `extract_hist_data.py` para automatizar historial W21+
+- Verificar "Ver 5 más" en todas las tabs
+
+**Última actualización:** Mayo 2026 · post W20 sesión fixes · bugs #48–#59 · paleta canónica definitiva
+
