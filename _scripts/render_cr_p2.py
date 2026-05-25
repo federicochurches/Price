@@ -378,7 +378,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     grid = ' '.join(c['width'] for c in cols_def)
     header = ''
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
         for idx_c, c in enumerate(cols_def):
             if idx_c == 0 and sb_id:
                 # Prop D: primera columna = searchbox integrado
@@ -438,7 +438,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
         elif row_idx < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
         rows_html += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                      f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
+                      f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
                       f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{row_cells}</div>')
     # Botón Ver 5 más (si hay filas rows-more)
     n_total = len(df)
@@ -632,7 +632,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         else: hidden = ' sb-hidden'
         tbl_attr = f' data-lbl="{label_val}"' if sb_id else ''
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                 f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
+                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{cells}</div>')
     return rows
 
