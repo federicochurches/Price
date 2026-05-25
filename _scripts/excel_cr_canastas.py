@@ -113,10 +113,36 @@ for canasta_key, canasta_data in CANASTA.items():
         agg_hotel = canasta_data.get('agg_hotel', pd.DataFrame())
         sev_ef = canasta_data.get('sev_ef', pd.Series())
         sev_cv = canasta_data.get('sev_cv', pd.Series())
-        critic = canasta_data.get('critic', pd.DataFrame()).head(100)
-        bajo = canasta_data.get('bajo', pd.DataFrame()).head(100)
-        sin_conv = canasta_data.get('sin_conv', pd.DataFrame()).head(100)
-        menor_cv = canasta_data.get('menor_cv', pd.DataFrame()).head(100)
+        # Top 100 derivados de p80 canasta con orden Eficacia ASC (menor = peor primero)
+        _p80c = canasta_data.get('p80', canasta_data.get('agg_hotel', pd.DataFrame()))
+        if _p80c.empty:
+            critic = bajo = sin_conv = menor_cv = pd.DataFrame()
+        else:
+            # Críticos: peor Eficacia, BKGS > 0
+            critic = (_p80c[_p80c['Bookings'] > 0]
+                      .sort_values('Eficacia', ascending=True)
+                      .head(100).reset_index(drop=True))
+            # Bajo rendimiento: ConvRate Crítica/Revisar, BKGS > 0, orden Eficacia ASC
+            if 'BandaConvRate' in _p80c.columns:
+                _br_mask = (_p80c['Bookings'] > 0) & (_p80c['BandaConvRate'].isin(['Crítica','Revisar']))
+            else:
+                _br_mask = _p80c['Bookings'] > 0
+            bajo = (_p80c[_br_mask]
+                    .sort_values('Eficacia', ascending=True)
+                    .head(100).reset_index(drop=True))
+            # Sin Conversión: BKGS = 0, orden Eficacia ASC
+            sin_conv = (_p80c[_p80c['Bookings'] == 0]
+                        .sort_values('Eficacia', ascending=True)
+                        .head(100).reset_index(drop=True))
+            # Menor ConvRate: BKGS > 0, orden ConvRate ASC
+            sort_cv = 'ConvRate' if 'ConvRate' in _p80c.columns else 'Eficacia'
+            menor_cv = (_p80c[_p80c['Bookings'] > 0]
+                        .sort_values(sort_cv, ascending=True)
+                        .head(100).reset_index(drop=True))
+        # Limpiar ID del nombre de hotel en todos los dfs
+        for _df_name in [critic, bajo, sin_conv, menor_cv]:
+            if not _df_name.empty and 'Hotel' in _df_name.columns:
+                _df_name['Hotel'] = _df_name['Hotel'].apply(clean_hotel_name)
         
         # Pestaña 1: Severity Eficacia
         ws = wb.create_sheet('Severity Eficacia')
@@ -129,7 +155,7 @@ for canasta_key, canasta_data in CANASTA.items():
                 data.append({'Banda':n,'Rango':rng,'Hoteles':cnt})
         if data:
             df_sev = pd.DataFrame(data)
-            add_table(ws, df_sev, start_row=5, banda_col='Banda')
+            add_table(ws, df_sev, start_row=5, num_formats={'%':'0.0%','Eficacia':'0.00%','ConvRate':'0.00%'}, banda_col='Banda')
         
         # Pestaña 2: Severity ConvRate
         ws = wb.create_sheet('Severity ConvRate')
@@ -142,26 +168,30 @@ for canasta_key, canasta_data in CANASTA.items():
                 data.append({'Banda':n,'Rango':rng,'Hoteles':cnt})
         if data:
             df_sev = pd.DataFrame(data)
-            add_table(ws, df_sev, start_row=5, banda_col='Banda')
+            add_table(ws, df_sev, start_row=5, num_formats={'%':'0.0%','Eficacia':'0.00%','ConvRate':'0.00%'}, banda_col='Banda')
         
         # Pestaña 3: Top 100 Críticos
         ws = wb.create_sheet('Críticos')
         add_title(ws, f'Top Críticos · {canasta_name}')
+        if 'Rk' not in critic.columns and not critic.empty: critic.insert(0, 'Rk', range(1, len(critic)+1))
         add_table(ws, critic, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaEficacia')
         
         # Pestaña 4: Top 100 Bajo Rendimiento
         ws = wb.create_sheet('Bajo Rendimiento')
         add_title(ws, f'Top Bajo Rendimiento · {canasta_name}')
+        if 'Rk' not in bajo.columns and not bajo.empty: bajo.insert(0, 'Rk', range(1, len(bajo)+1))
         add_table(ws, bajo, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaEficacia')
         
         # Pestaña 5: Sin Conversión
         ws = wb.create_sheet('Sin Conversión')
         add_title(ws, f'Sin Conversión · {canasta_name}')
+        if 'Rk' not in sin_conv.columns and not sin_conv.empty: sin_conv.insert(0, 'Rk', range(1, len(sin_conv)+1))
         add_table(ws, sin_conv, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaConvRate')
         
         # Pestaña 6: Menor ConvRate
         ws = wb.create_sheet('Menor ConvRate')
         add_title(ws, f'Menor ConvRate · {canasta_name}')
+        if 'Rk' not in menor_cv.columns and not menor_cv.empty: menor_cv.insert(0, 'Rk', range(1, len(menor_cv)+1))
         add_table(ws, menor_cv, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaConvRate')
         
         # Pestañas por dimensión (si existen)

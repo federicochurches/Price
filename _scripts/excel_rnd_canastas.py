@@ -117,10 +117,19 @@ for canasta_key, canasta_data in CANASTA.items():
         p80_hotel = canasta_data.get('p80_hotel', pd.DataFrame())
         sev_nd = canasta_data.get('sev_nd', {})
         sev_rpm = canasta_data.get('sev_rpm', {})
-        bajo_rend = canasta_data.get('bajo_rend', pd.DataFrame()).head(100)
-        bajo_rend_extra = canasta_data.get('bajo_rend_extra', pd.DataFrame())
-        sin_conv = canasta_data.get('sin_conv', pd.DataFrame()).head(100)
-        sin_conv_extra = canasta_data.get('sin_conv_extra', pd.DataFrame())
+        # Top 100 derivados de p80_hotel canasta (no de sub-dfs de 10/50 rows)
+        _p80 = canasta_data.get('p80_hotel', canasta_data.get('p80', pd.DataFrame()))
+        if _p80.empty:
+            bajo_rend = bajo_rend_extra = sin_conv = sin_conv_extra = pd.DataFrame()
+        else:
+            # BR: BKGS>0, orden %NoDispo DESC
+            _br = _p80[_p80['Bookings'] > 0].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True)
+            bajo_rend = _br
+            bajo_rend_extra = pd.DataFrame()  # ya está en bajo_rend
+            # SC: BKGS=0, orden Trafico DESC
+            _sc = _p80[_p80['Bookings'] == 0].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
+            sin_conv = _sc
+            sin_conv_extra = pd.DataFrame()
         
         # Pestaña 1: Severity %NoDispo
         ws = wb.create_sheet('Severity %NoDispo')
@@ -158,12 +167,14 @@ for canasta_key, canasta_data in CANASTA.items():
         ws = wb.create_sheet('Bajo Rendimiento')
         add_title(ws, f'Top 100 Bajo Rendimiento · {canasta_name}')
         bajo_rend_all = pd.concat([bajo_rend, bajo_rend_extra], ignore_index=True).drop_duplicates().head(100)
+        if 'Rk' not in bajo_rend_all.columns: bajo_rend_all.insert(0, 'Rk', range(1, len(bajo_rend_all)+1))
         add_table(ws, bajo_rend_all, start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0','DemandaNoConvertida':'#,##0'}, banda_col='BandaNoDispo')
         
         # Pestaña 4: Top 100 Sin Conversión
         ws = wb.create_sheet('Sin Conversión')
         add_title(ws, f'Top 100 Sin Conversión · {canasta_name}')
         sin_conv_all = pd.concat([sin_conv, sin_conv_extra], ignore_index=True).drop_duplicates().head(100)
+        if 'Rk' not in sin_conv_all.columns: sin_conv_all.insert(0, 'Rk', range(1, len(sin_conv_all)+1))
         add_table(ws, sin_conv_all, start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0','DemandaNoConvertida':'#,##0'}, banda_col='BandaNoDispo')
         
         # Pestañas por dimensión (si existen)
