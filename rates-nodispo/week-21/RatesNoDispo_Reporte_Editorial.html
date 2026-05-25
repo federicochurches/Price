@@ -145,10 +145,10 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tabs-row{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap;}
 .tab-label{padding:8px 14px;font-size:10px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;user-select:none;transition:all .15s;margin-bottom:-1px;}
 .tab-label:hover{color:var(--ink-soft);background:var(--rule-soft);border-color:var(--rule-soft);}
-.tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;}
+.tab-panels{padding-top:10px;font-size:11px;color:var(--ink-soft);line-height:1.7;min-height:200px;width:100%;}
 .tab-panel{display:none;}
 .tab-panel > div:not([style*="display:grid"]):not([style*="display: grid"]):not(.kpi-row):not(.kpi-tab-rows):not(.rows-toggle):not(.tbl-wrap){display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;}
-.tbl-wrap{display:block;}
+.tbl-wrap{display:block;width:100%;}
 .sb-hidden{display:none !important;}
 #tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
 #tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
@@ -336,6 +336,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .kpi-card input[type="radio"][id*="-canasta"]:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
 .kpi-card input[type="radio"][id*="-channel"]:checked ~ .tab-panels .tab-panel[data-tab="channel"]{
   display:block;
+  width:100%;
 }
 /* legacy tab-panel span color removed */
 em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;white-space:nowrap;}
@@ -345,7 +346,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 
 /* ── Searchbox · W21 (pill + header-sb + wow-pill) ───────────────────────── */
 /* ── Filas "Ver más" en tabs KPI ── */
-.kpi-tab-rows{display:block;}
+.kpi-tab-rows{display:block;width:100%;}
 .rows-more{display:none !important;}
 .rows-toggle:hover .toggle-label{text-decoration:underline;}
 .rows-toggle.open .toggle-icon{display:inline-block;transform:rotate(180deg);}
