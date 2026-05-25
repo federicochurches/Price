@@ -480,7 +480,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">{metric}</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:600;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:{CR_ACCENT};line-height:1;">{v18str}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pp}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -739,9 +739,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                           + (lambda bv: f'<div style="display:flex;align-items:center;"><span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                          f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
                           + (_build_wow_cv_cell(r.get('ConvRate_WoW_pp'))) +
-                          f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
+                          f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
         if len(df_full) > 5:
             rows_html += (f'<button class="rows-toggle" style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
