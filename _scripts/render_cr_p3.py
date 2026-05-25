@@ -744,7 +744,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
         if len(df_full) > 5:
-            rows_html += (f'<button class="rows-toggle" style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
+            rows_html += (f'<button class="rows-toggle" style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
                           f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;text-transform:uppercase;'
                           f'padding:4px 0;display:flex;align-items:center;gap:4px;">'
                           f'<span class="toggle-label">Ver 5 más</span>'
@@ -859,7 +859,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         # Ver 5 más button (if there are rows-more rows)
         if len(df) > 5:
             rows += (f'<button class="rows-toggle" '
-                     f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
+                     f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
                      f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;'
                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                      f'<span class="toggle-label">Ver 5 más</span> '
