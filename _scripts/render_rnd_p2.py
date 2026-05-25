@@ -310,7 +310,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
             else:
                 pr = "12px" if idx_c == len(cols_def)-1 else "8px"
                 td_cells += (f'<td style="padding:7px {pr} 7px 0;text-align:{align};font-size:11px;'
-                             f'font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{val}</td>')
+                             f'font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{val}</td>')
 
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
         nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
@@ -500,11 +500,12 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
 
         # Generate cells with proper padding
-        def _td(content, align='right', is_first=False, is_last=False):
+        def _td(content, align='right', is_first=False, is_last=False, bold=True):
             pl = '12px' if is_first else '0'
             pr = '12px' if is_last else '8px'
+            fw = 'font-weight:700;' if bold else ''
             return (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
-                    f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{content}</td>')
+                    f'{fw}color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{content}</td>')
 
         name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{row_idx+1}. {truncate(raw_label,36)}</div>'
         td_cells = (
@@ -512,7 +513,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
             f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
             f'{_td(fmt_big(r.get("Trafico",r.get("trafico",0))), "right")}'
             f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
-            f'{_td(wow_nd, "right")}'
+            f'{_td(wow_nd, "right", bold=False)}'
             f'{_td("$"+fmt_num2(ipm_val), "right")}'
             f'<td style="padding:7px 20px 7px 0;text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{wow_ipm}</td>'
         )
