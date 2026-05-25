@@ -127,7 +127,7 @@ def _mini_badge(bnd):
     return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
 
 
-def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='W19'):
+def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}'):
     banda = banda_eficacia(ef_w18)
     target = "≥ 97%"
     pill = banda_pill(banda, target=target)
@@ -325,7 +325,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num='W20', week_prev='
 {render_historico_cr('eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
 
-def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num='W20', week_prev='W19'):
+def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}'):
     banda = banda_convrate(cv_w18, M['global_current']['bookings'])
     target = "≥ 2,5%"
     pill = banda_pill(banda, target=target)
@@ -588,8 +588,8 @@ def render_alerts_block():
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 16px;">
-{render_kpi_card_eficacia(ef18, ef17, ef_wow, 'W20', 'W19')}
-{render_kpi_card_convrate(cv18, cv17, cv_wow, 'W20', 'W19')}
+{render_kpi_card_eficacia(ef18, ef17, ef_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
+{render_kpi_card_convrate(cv18, cv17, cv_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 </section>
