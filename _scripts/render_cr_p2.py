@@ -457,7 +457,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     n_total = len(df)
     if n_total > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -1016,10 +1016,10 @@ def render_bloque_hoteles_cr():
     k_mcv = 'Top 10 hoteles con BKGS&gt;0 ordenados por menor ConvRate · listados sin importar volumen, foco directo en conversión.'
     
     panels = (
-        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{k_crit}</p>{panel_crit}</div>'
-        f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{k_br}</p>{panel_br}</div>'
-        f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{k_sc}</p>{panel_sc}</div>'
-        f'<div class="tab-panel" data-tab="mcv"><p class="tab-kicker">{k_mcv}</p>{panel_mcv}</div>'
+        f'<div class="tab-panel" data-tab="crit">{panel_crit}</div>'
+        f'<div class="tab-panel" data-tab="br">{panel_br}</div>'
+        f'<div class="tab-panel" data-tab="sc">{panel_sc}</div>'
+        f'<div class="tab-panel" data-tab="mcv">{panel_mcv}</div>'
     )
     
     hist_hotel = render_historico_seccion_cr(
@@ -1187,9 +1187,9 @@ def render_bloque_dimensiones_cr():
     k_chan = f'Channels segregados por familia. <strong style="color:#5C469C;">Producto Propio</strong>: {_pp_active} channels activos · <strong style="color:{CR_ACCENT};">Third Party</strong>: {_tp_active} channels activos.'
     
     panels = (
-        f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
-        f'<div class="tab-panel" data-tab="dest"><p class="tab-kicker">{k_dest}</p>{panel_dest}</div>'
-        f'<div class="tab-panel" data-tab="chan"><p class="tab-kicker">{k_chan}</p>{panel_chan}</div>'
+        f'<div class="tab-panel" data-tab="corp">{panel_corp}</div>'
+        f'<div class="tab-panel" data-tab="dest">{panel_dest}</div>'
+        f'<div class="tab-panel" data-tab="chan">{panel_chan}</div>'
     )
     
     hist_dim = render_historico_seccion_cr(
