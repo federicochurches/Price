@@ -118,7 +118,12 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     return '<div style="display:flex;gap:2px;margin-top:10px;">' + ''.join(cells) + '</div>'
 
 def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color,
-            week_num='W20', week_prev='W19', compact=False):
+            week_num=None, week_prev=None, compact=False):
+    # Dynamic week labels from env if not passed explicitly
+    import os as _os
+    _wn = int(_os.getenv('VOL_NUM', '20'))
+    if week_num is None: week_num = f'W{_wn}'
+    if week_prev is None: week_prev = f'W{_wn-1}'
     """Caja W(N-1) / WoW / W(N).
 
     compact=False → global (margin-top:8px, padding:5px, font:15px, gap:6px, bg:paper-soft)
