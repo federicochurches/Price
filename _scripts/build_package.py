@@ -53,10 +53,10 @@ with open(PICKLE_RND, 'rb') as f:
 with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
 
-mr   = DR['M']['global_w20']
-mr17 = DR['M']['global_w19']
-mc   = DC['M']['global_w20']
-mc17 = DC['M']['global_w19']
+mr   = DR['M'][f'global_w{WEEK}']
+mr17 = DR['M'][f'global_w{WEEK_PREV}']
+mc   = DC['M'][f'global_w{WEEK}']
+mc17 = DC['M'][f'global_w{WEEK_PREV}']
 
 rnd_pct  = mr['pct_nodispo'] * 100
 rnd_ipm  = mr['ipm']
