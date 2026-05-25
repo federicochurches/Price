@@ -1245,4 +1245,57 @@ No correr pipeline completo en cada iteración de fix visual. Flujo correcto:
 ### Archivos modificados
 `asset_shared_head.html` · `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py`
 
-**Última actualización:** W21 (post) · Mayo 2026 · sev-badge · toggle fix · wow-pill · colwidths · wow_box paper-soft
+---
+
+## Sesión Post-W21 (segunda parte) · Mayo 2026 · WoW NaN en pickles + CSS tabs fondo
+
+### Bug sistémico: WoW NaN en TOP[] y CANASTA[]
+
+**Causa raíz:** `g_hotel_w17` en `calc_rnd.py` usaba `agg_hotel()` que agrupa por `Hotel + Corp + País + Destino`, generando 234 hoteles duplicados. Al hacer `p80_hotel.merge(g_hotel_w17, on='Hotel')`, los duplicados producían joins incorrectos → `NoDispo_WoW_pp` quedaba NaN para los sub-dfs derivados.
+
+El problema afectaba **tres niveles**:
+1. `TOP['demanda_nc']`, `TOP['bajo_rend']`, `TOP['sin_conv']` — **calc_rnd.py**
+2. `TOP['criticos']`, `TOP['bajo_rend']` — **calc_cr.py** (construidos antes de TAB_EF/TAB_CV)
+3. Todos los sub-dfs de `CANASTA[]` — ambos calcs (construidos antes del enriquecimiento)
+
+**Fix permanente (3 commits):**
+- `calc_rnd.py`: `g_hotel_w17` ahora agrega solo por Hotel (sin duplicados) + bloque post-construcción que enriquece `TOP[]` y `CANASTA[]` con WoW desde `p80_hotel`
+- `calc_cr.py`: bloque post-construcción que enriquece `TOP[]` con WoW desde `TAB_EF['hotel']` + `TAB_CV['hotel']`, y `CANASTA[]` con el mismo lookup
+
+**Patrón de enriquecimiento (canon para W22+):**
+```python
+# Al final de cada calc_*.py, antes del pickle.dump:
+_wow_lkp = p80_hotel[['Hotel','NoDispo_WoW_pp','IPM_WoW_pp']].drop_duplicates('Hotel')
+for _ck, _cd in CANASTA_DATA.items():
+    for _sk, _df in _cd.items():
+        if 'Hotel' in _df.columns and _df['NoDispo_WoW_pp'].notna().sum() == 0:
+            _df2 = _df.drop(columns=[...]).merge(_wow_lkp, on='Hotel', how='left')
+            _cd[_sk] = _df2
+```
+
+### Bug CSS: fondo oscuro en tabs activos RND
+
+**Causa raíz:** En `asset_shared_head.html`, los selectores de tabs activos (Críticos, DNC, BR, SC, Corp, Destino, País) terminaban en coma **sin cerrar el bloque** `{display:block;}`. El CSS concatenaba esos selectores con las propiedades de `.canasta-block` que seguía inmediatamente, haciendo que los tab-panels activos heredaran `background:var(--paper-soft)` → fondo más oscuro visible en pantalla.
+
+**Fix:** cada grupo de selectores ahora cierra correctamente:
+```css
+.tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
+.tabs-block #tab-h-dnc:checked ~ .tab-panels .tab-panel[data-tab="dnc"],
+.tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
+.tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"]{display:block;}
+```
+
+### Proceso de trabajo post-sesión
+
+Se definió el flujo completo de trabajo semanal documentado en `README_QUICK.md`. Ver sección correspondiente.
+
+### Commits de esta sesión
+- `ae26570a` — Fix WoW RND: TOP[] enriquecido desde p80_hotel
+- `09249569` — Fix WoW CR: TOP[] enriquecido desde TAB_EF/TAB_CV
+- `2259c8c5` — Fix WoW canastas: CANASTA[] sub-dfs enriquecidos
+- `4fc00936` — Fix CSS: tabs activos `{display:block;}` en shared_head
+
+### Archivos modificados
+`calc_rnd.py` · `calc_cr.py` · `asset_shared_head.html`
+
+**Última actualización:** W21 (post-2) · Mayo 2026 · WoW NaN fix · CSS tabs display:block

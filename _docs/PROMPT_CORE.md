@@ -51,8 +51,8 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 ### Scripts del pipeline
 | Archivo | Descripción |
 |---|---|
-| `calc_cr.py` | Cálculos CR → `cr_wNN_data.pkl` |
-| `calc_rnd.py` | Cálculos RND → `rnd_wNN_data.pkl` · auto-transforma formato pivotado |
+| `calc_cr.py` | Cálculos CR → `cr_wNN_data.pkl` · enriquece TOP[] y CANASTA[] con WoW post-construcción |
+| `calc_rnd.py` | Cálculos RND → `rnd_wNN_data.pkl` · auto-transforma formato pivotado · enriquece TOP[] y CANASTA[] con WoW post-construcción |
 | `render_cr_p1.py` | KPIs hero CR · week labels dinámicos desde `WEEK_NUM_INT` |
 | `render_cr_p2.py` | Severity + Tablas hotel/dim CR · colwidths calibrados · `_fmt_wow_cv` inline |
 | `render_cr_p3.py` | Canastas CR · `clean_hotel_name()` + WoW ConvRate en tabla hotel |
@@ -426,6 +426,8 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 14. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
 15. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
 16. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
+17. Dejar selectores CSS de tabs activos sin cerrar `{display:block;}` — se concatenan con la regla siguiente y heredan su background
+18. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo en `TAB_EF`/`TAB_CV` — usar el bloque de enriquecimiento post-construcción en `calc_*.py`
 
 ---
 
@@ -437,7 +439,7 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 | P2 | Canasta CR dim: click no siempre actualiza histórico | `render_cr_p3.py` |
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 
-> Bugs P3 y P4 cerrados en sesión W21.
+> Bugs P3, P4, P6 (WoW NaN), P7 (CSS tabs fondo) cerrados en sesión W21-post.
 
 ---
 
@@ -460,4 +462,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (post) · Mayo 2026 · sev-badge unificado · toggle fix · wow-pill sin margin · colwidths calibrados · wow_box paper-soft · Súper Crítica outline visible
+**Última actualización:** W21 (post-2) · Mayo 2026 · WoW fix TOP[]/CANASTA[] · CSS tabs display:block · proceso workflow documentado
