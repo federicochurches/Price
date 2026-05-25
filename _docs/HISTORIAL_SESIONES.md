@@ -1080,4 +1080,74 @@ _(ver CHANGELOG para detalle)_
 `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py`
 
 
-**Última actualización:** May 2026 · Batch fixes: undefined histórico canal, HotelBeds rename, ch
+
+---
+
+## 📝 Cambios post W21 · Mayo 2026 (sesión W21 · Migración a HTML tables + cleanup visual)
+
+### Migración CSS grid → HTML table en tablas grandes
+Las tablas de "Análisis por hotel" y "Análisis por dimensión" (RND + CR) reescritas usando HTML `<table>` con `table-layout:fixed` + `<colgroup>` con anchos explícitos por columna. Motivo: CSS grid con `1fr` + columnas fijas dejaba espacio inconsistente entre columnas en distintos viewports y la columna del nombre acaparaba todo el sobrante.
+
+**Patrón nuevo:**
+- `<table style="width:100%;border-collapse:collapse;table-layout:fixed;">`
+- `<colgroup>` con `<col style="width:800px">` para nombre + cols de datos fijas
+- Truco: width:800px en nombre hace que esa columna absorba casi todo el espacio sobrante (proporcionalmente) en lugar de distribuirse entre cols de datos
+- `<thead>` + `<tbody>` con `<tr>` y `<td>` reales
+- Padding: 12px en bordes (left primera col, right última col), 8px en intermedias
+
+**Funciones reescritas:**
+- `render_top_table()` en `render_rnd_p2.py`
+- `_render_dim_table_rnd()` en `render_rnd_p2.py`
+- `render_top_table_cr()` en `render_cr_p2.py`
+- `_render_dim_table()` en `render_cr_p2.py`
+
+### Anchos de columnas calibrados con Geist 7px-11px
+Test diagnóstico (`test_geist.html`) confirmó anchos reales:
+- SÚPER CRÍTICA: 62px → cell 80px ✅
+- ACEPTABLE: 48px → cell 80px ✅
+- Pill WoW `↑11,02`: ~50px → cell 56px ✅
+
+### Canastas RND/CR · Grids reducidos
+Los grids internos de canastas (panel_inner_rnd, tab_panel_hotel, etc) reducidos para evitar overflow en contenedor de 2 columnas (~570px cada uno):
+- RND hotel/dim canasta: `1fr 70px 60px 50px 32px 50px 32px`
+- CR hotel/dim canasta: `minmax(0,1fr) 70px 56px 48px 52px 30px 52px 30px`
+- Agregado `width:100%` a todos los grids de canastas
+
+### `.tbl-wrap` overflow-x:hidden
+Cambio en `asset_shared_head.html`:
+```css
+.tbl-wrap{display:block;max-width:100%;overflow-x:hidden;box-sizing:border-box;}
+```
+Recorta cualquier contenido que desborde en lugar de mostrar scrollbar horizontal — soluciona el scrollbar visible que aparecía bajo las canastas.
+
+### Kickers removidos de hotel y dim (RND + CR)
+Los `<p class="tab-kicker">` que precedían las tablas en cada tab panel fueron removidos. Quedaba texto descriptivo redundante encima de cada tabla. Las funciones siguen calculando las variables `kicker_*` para potencial uso futuro pero ya no se renderizan.
+
+**Tabs afectados:**
+- RND hotel: crit, dnc, br, sc
+- RND dim: corp, dest, pais
+- CR hotel: crit, br, sc, mcv
+- CR dim: corp, dest, chan
+
+### Headers WoW unificados en canastas CR
+"WoW CV" y "WoW Ef" → "WoW" (4 instancias en `render_cr_p3.py`).
+
+### Pestañas CR alineadas
+`<div class="tabs-row">` en hotel CR ahora con `style="align-items:flex-end;"` para que coincida con el patrón RND.
+
+### Ver más button reposicionado
+- Antes: `margin-top:6px;margin-left:12px`
+- Ahora: `margin-top:12px;margin-left:0`
+Aplicado en todos los renders (RND p2/p3, CR p2/p3).
+
+### Bugs identificados durante la sesión
+- **CSS regla heredada:** `#tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"] {display:grid;grid-template-columns:1fr 1fr}` hacía que los tab-panels activos fueran grids de 2 columnas → KPI cards y tablas quedaban en 50% del ancho. Fix: `display:block` (cubierto en sesiones previas).
+- **Geist vs system-ui:** El test diagnóstico inicial mostraba que sin Geist las tablas se veían bien. Geist tiene métricas distintas — calibración de columnas debe hacerse con Geist cargado.
+
+### Archivos modificados
+`render_rnd_p2.py` · `render_rnd_p3.py` · `render_cr_p2.py` · `render_cr_p3.py` · `asset_shared_head.html`
+
+**Pipeline W21 ejecutado completo:** reportes HTML, 8 Excels, Mail_W21.html, index.html hub, Price_W21.zip (19MB), ProyectoClaude_PRICE_W21.zip (43 archivos planos).
+
+
+**Última actualización:** W21 · Mayo 2026 · HTML tables + cleanup visual
