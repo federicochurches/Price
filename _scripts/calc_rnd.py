@@ -101,8 +101,14 @@ cumsum = g_hotel_all['Trafico'].cumsum(); total = g_hotel_all['Trafico'].sum()
 p80_hotel = g_hotel_all[cumsum <= total*0.90].copy()
 
 # ── Agregados globales W18 para WoW ───────────────────────────────
-g_hotel_w17 = agg_hotel(df17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','RPM':'RPM_W18'})\
-    [['Hotel','%NoDispo_W18','IPM_W18','RPM_W18']]
+# WoW lookup solo por Hotel (agregar sin Corp/Pais/Destino para evitar duplicados en merge)
+_gh17 = df17.groupby('Hotel').agg(
+    _Trafico=('Trafico','sum'), _TND=('TraficoNoDispo','sum'), _gb=('gb_usd','sum')
+).reset_index()
+_gh17['%NoDispo_W18'] = (_gh17['_TND'] / _gh17['_Trafico'].replace(0, np.nan)).fillna(0)
+_gh17['IPM_W18']      = (_gh17['_gb'].clip(lower=0) / _gh17['_Trafico'].replace(0, np.nan) * 1_000_000).fillna(0)
+_gh17['RPM_W18']      = _gh17['IPM_W18']
+g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18']]
 g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
     [['CorpName','%NoDispo_W18','IPM_W18']]
 g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
@@ -221,7 +227,17 @@ TOP = {
     'bajo_rend':        top50_br.head(100).reset_index(drop=True),
     'bajo_rend_extra':  top50_br.iloc[10:].reset_index(drop=True),
     'sin_conv':         top50_sc.head(100).reset_index(drop=True),
-    'sin_conv_extra':   top50_sc.iloc[10:].reset_index(drop=True),
+    'sin_conv_extra':   top50_sc.iloc[10:].reset_index(drop=True),}
+
+# ── Enriquecer TOP[] con WoW desde p80_hotel (evita NaN por duplicados en merge) ──
+_wow_lkp = p80_hotel[['Hotel','NoDispo_WoW_pp','IPM_WoW_pp','%NoDispo_W18','IPM_W18']].drop_duplicates('Hotel')
+for _k in ['demanda_nc','demanda_nc_extra','bajo_rend','bajo_rend_extra','sin_conv','sin_conv_extra']:
+    if _k in TOP:
+        _df = TOP[_k]
+        _drop = [c for c in ['NoDispo_WoW_pp','IPM_WoW_pp','%NoDispo_W18','IPM_W18','RPM_W18'] if c in _df.columns]
+        _df = _df.drop(columns=_drop).merge(_wow_lkp, on='Hotel', how='left')
+        TOP[_k] = _df
+TOP = {
     'corps':   g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'destinos':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'paises':  g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
