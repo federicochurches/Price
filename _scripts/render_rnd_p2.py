@@ -270,7 +270,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     """
     grid = ' '.join(c['width'] for c in cols_def).strip()
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
+        _hd = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
         for idx_c, c in enumerate(cols_def):
             if idx_c == 0 and sb_id:
                 _hd += searchbox_header_html(sb_id, accent_color=accent_color,
@@ -320,7 +320,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
         elif i < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
-                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
+                 f' style="display:grid;grid-template-columns:{grid};gap:10px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{row_cells}</div>')
     # Botón Ver 5 más si hay filas rows-more
@@ -431,7 +431,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     headers = [dim_label, 'Severity', '%NoDispo', 'WoW', 'IPM', 'WoW']
 
     # Header con o sin searchbox
-    hrow = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+    hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
     for idx_h, h in enumerate(headers):
         if idx_h == 0 and sb_id:
             hrow += searchbox_header_html(sb_id, accent_color=RND_ACCENT,
@@ -491,7 +491,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         elif row_idx < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
         rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;'
+                 f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;'
                  f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                  f'{cells}</div>')
     # Botón Ver 5 más si hay filas rows-more
