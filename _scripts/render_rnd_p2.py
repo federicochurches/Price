@@ -335,7 +335,15 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                    f'<span class="toggle-label">Ver 5 más</span> '
                    f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
 
-    return (f'<table style="width:100%;border-collapse:collapse;table-layout:auto;">'
+    # Build colgroup from cols_def widths
+    col_tags = ''
+    for col in cols_def:
+        w = col['width']
+        if w == '1fr':
+            col_tags += '<col>'  # flexible
+        else:
+            col_tags += f'<col style="width:{w};">'
+    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><colgroup>{col_tags}</colgroup>'
             f'{header}<tbody>{tbody}</tbody></table>{ver_mas}')
 
 def render_demanda_nc():
