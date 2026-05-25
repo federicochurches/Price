@@ -140,6 +140,33 @@ Para TRs el `''` resetea al display nativo (`table-row`); para divs sigue aplica
 **Líneas afectadas:** 423 (filter searchbox), 458 (init), 492 / 495 (otro filter), 564 / 576 (otro toggle), 627 (Ver más / Ver menos toggle).
 
 
+### Sesión post W21 · Bold values + CR dim col widths + bugs visuales menores
+
+**Bold en valores Eficacia y ConvRate (CR):**
+Los valores numéricos de Eficacia y ConvRate en CR ahora se renderizan con `font-weight:700`. Aplica:
+- Globales (cards hero KPI 93,15% / 1,57%): `font-size:40px;font-weight:700`
+- Canastas (cards KPI por canasta): `font-size:40px;font-weight:700`
+- Filas internas de cards hero (destino/corp/hotel/channel): cell value `font-weight:700`
+- Filas de tabla dim (Corp/Destino/Channel): TD value `font-weight:700`
+- Filas de tabla hotel: TD value cuando `col.key in ('cv','ef')` → `font-weight:700`
+- Filas hotel canasta: span values con `font-weight:700`
+- Class `.efic` (canastas panel-row): `font-weight:700` en `asset_shared_head.html`
+
+**CR dim · column widths reducidos:**
+Las tablas de Análisis por dimensión (Corp/Destino/Channel) tenían colgroups con total 1236px que desbordaba el contenedor de ~1168px y cortaba la columna WoW final. Reducido a totales que caben:
+- 8 cols (con WoW CV + WoW Ef): `[800, 76, 68, 52, 52, 32, 52, 32]` = 1164px
+- 7 cols (con WoW Ef): `[800, 76, 78, 62, 60, 65, 42]` = 1183px
+- 6 cols (sin WoW): `[800, 80, 80, 64, 64, 70]` = 1158px
+
+**Verificaciones de bugs reportados:**
+- Canastas WoW: confirmado presente en RND (358+348 con flechas) y CR (149+90)
+- Guiones en columnas WoW: son hoteles/destinos sin data WoW (esperado, no bug)
+- WoW ConvRate en hotel CR: presente en tabs crit/br/mcv (Sin Conversión no aplica - sin BKGS)
+
+### Archivos modificados
+`render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `asset_shared_head.html`
+
+
 **Última actualización:** Mayo 2026 · post W19 · build_package + hub pipeline · bugs #16 #17 #18 · destinatarios 15
 
 ## 📝 Cambios post W19 · Mayo 2026 (sesión fixes Excel + HTML)
