@@ -331,7 +331,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -458,7 +458,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     th_cells = ''
     for idx_h, h in enumerate(headers):
         pl = '12px' if idx_h == 0 else '0'
-        pr = '12px' if idx_h == n_cols - 1 else '8px'
+        pr = '20px' if idx_h == n_cols - 1 else '8px'
         if idx_h == 0 and sb_id:
             th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};text-align:left;">'
                          f'{searchbox_header_html(sb_id, accent_color=RND_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
@@ -514,7 +514,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
             f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
             f'{_td(wow_nd, "right")}'
             f'{_td("$"+fmt_num2(ipm_val), "right")}'
-            f'<td style="padding:7px 12px 7px 0;text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{wow_ipm}</td>'
+            f'<td style="padding:7px 20px 7px 0;text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{wow_ipm}</td>'
         )
 
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
@@ -535,7 +535,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
