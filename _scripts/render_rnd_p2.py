@@ -439,43 +439,51 @@ def render_no_convierten():
 '''
 
 def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
-    """Tabla RND: 100 filas, 10 visibles, resto sb-hidden. Badges paleta D. 11px.
-    sb_id: si se pasa, primera columna del header es searchbox integrado (Prop D).
-    Badge de banda: BandaNoDispo en todas las dimensiones (Corp, Destino, País).
-    """
+    """Tabla RND dim como HTML table — table-layout:fixed con colgroup."""
     import math
     RND_ACCENT = '#EA0074'
-    grid = '1fr 80px 65px 58px 50px 52px 50px'
+    # Columnas: nombre, severity, tráfico, %nodispo, wow, ipm, wow
+    col_widths = [280, 80, 65, 58, 50, 52, 50]
     headers = [dim_label, 'Severity', 'Tráfico', '%NoDispo', 'WoW', 'IPM', 'WoW']
+    aligns = ['left', 'left', 'right', 'right', 'right', 'right', 'right']
+    n_cols = len(headers)
 
-    # Header con o sin searchbox
-    hrow = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+    # Colgroup
+    colgroup = '<colgroup>'
+    for w in col_widths:
+        colgroup += f'<col style="width:{w}px;">'
+    colgroup += '</colgroup>'
+
+    # Header
+    th_cells = ''
     for idx_h, h in enumerate(headers):
+        pl = '12px' if idx_h == 0 else '0'
+        pr = '12px' if idx_h == n_cols - 1 else '8px'
         if idx_h == 0 and sb_id:
-            hrow += searchbox_header_html(sb_id, accent_color=RND_ACCENT,
-                                           placeholder=f'{dim_label}…',
-                                           th_id=f'th-{sb_id}')
+            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};text-align:left;">'
+                         f'{searchbox_header_html(sb_id, accent_color=RND_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
+                         f'</th>')
         else:
-            align = 'left' if h in (dim_label, 'Severity') else 'right'
-            color = RND_ACCENT if h == dim_label else 'var(--ink-muted)'
-            hrow += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{h}</span>'
-    hrow += '</div>'
-    rows = hrow
+            color = RND_ACCENT if idx_h == 0 else 'var(--ink-muted)'
+            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};'
+                         f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
+                         f'color:{color};text-align:{aligns[idx_h]};white-space:nowrap;">{h}</th>')
+    header = f'<thead><tr>{th_cells}</tr></thead>'
 
+    tbody = ''
     for i, r in df.iterrows():
         row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
         bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_cell = (f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">'
-                      f'<span style="flex-shrink:1;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
-                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:clip;">{bnd}</span>'
-                      f'</div>')
+        badge_html = (f'<span style="font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
+                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.03em;">{bnd}</span>')
+
         if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
         elif dim_col == 'CorpName': raw_label = clean_corp_name(r[dim_col])
         else: raw_label = r[dim_col]
         ipm_val = max(r.get('IPM', r.get('RPM', 0)), 0)
-        
+
         def _wow_pill(v, invert=False, pct_base=None, is_pct_val=True):
             if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))):
                 return '<em class="wow-pill nd">—</em>'
@@ -491,13 +499,24 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         ipm_base = r.get('IPM_W18', 0)
         wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
 
-        cells = (f'<div style="overflow:hidden;text-align:left;"><span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">{row_idx+1}. {truncate(raw_label,36)}</span></div>'
-                 f'{badge_cell}'
-                 f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_big(r.get("Trafico",r.get("trafico",0)))}</span>'
-                 f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
-                 f'<span style="text-align:right;">{wow_nd}</span>'
-                 f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(ipm_val)}</span>'
-                 f'<span style="text-align:right;">{wow_ipm}</span>')
+        # Generate cells with proper padding
+        def _td(content, align='right', is_first=False, is_last=False):
+            pl = '12px' if is_first else '0'
+            pr = '12px' if is_last else '8px'
+            return (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
+                    f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{content}</td>')
+
+        name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{row_idx+1}. {truncate(raw_label,36)}</div>'
+        td_cells = (
+            f'<td style="padding:7px 8px 7px 12px;text-align:left;">{name_html}</td>'
+            f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
+            f'{_td(fmt_big(r.get("Trafico",r.get("trafico",0))), "right")}'
+            f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
+            f'{_td(wow_nd, "right")}'
+            f'{_td("$"+fmt_num2(ipm_val), "right")}'
+            f'<td style="padding:7px 12px 7px 0;text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{wow_ipm}</td>'
+        )
+
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
         nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
         ipm_curr = round(max(ipm_val, 0), 1)
@@ -509,19 +528,21 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         if row_idx < 5: hidden = ''
         elif row_idx < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
-        rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;'
-                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                 f'{cells}</div>')
-    # Botón Ver 5 más si hay filas rows-more
+        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                  f' style="cursor:pointer;transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
+                  f'{td_cells}</tr>')
+
+    ver_mas = ''
     if len(df) > 5:
-        rows += (f'<button class="rows-toggle" '
-                 f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                 f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
-                 f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                 f'<span class="toggle-label">Ver 5 más</span> '
-                 f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-    return rows
+        ver_mas = (f'<button class="rows-toggle" '
+                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
+                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                   f'<span class="toggle-label">Ver 5 más</span> '
+                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+
+    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+            f'{colgroup}{header}<tbody>{tbody}</tbody></table>{ver_mas}')
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
     """Top 10 a 1 columna con Ver 5 más por destino/corp/país RND."""
