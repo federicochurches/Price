@@ -551,9 +551,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def panel_inner_rnd(df, dim_col, dim_label, parse_hotel=False, start_idx=0, sb_id=None):
         import math
         RND_ACCENT = '#EA0074'
-        grid = '1fr 80px 72px 62px 38px 62px 38px'
+        grid = '1fr 70px 60px 50px 32px 50px 32px'
         headers = [dim_label, 'Severity', 'Tráfico', '%NoDispo', 'WoW', 'IPM', 'WoW']
-        hrow = f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+        hrow = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
         for idx_h, h in enumerate(headers):
             if idx_h == 0 and sb_id:
                 hrow += searchbox_header_html(sb_id, accent_color=RND_ACCENT,
@@ -615,7 +615,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             rows += (f'<div class="{hidden_cls.strip()}" data-row-idx="{row_idx}" data-hist-label="{label}"{tbl_attr}'
                      f' data-hist-w21="{_nd21}" data-hist-w20="{_nd20}"'
                      f' data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm20}"'
-                     f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{row_idx+1}. {label}</span></div>'
                      + (lambda b: f'<div style="display:flex;align-items:center;">{b}</div>' if b else '<div></div>')(_dim_badge(r.get('BandaNoDispo',''))) +
                      f'<span style="font-size:11px;text-align:right;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{fmt_big(r.get("Trafico",r.get("TR",0)))}</span>'
@@ -626,7 +626,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'</div>')
         if len(df) > 5:
             rows += (f'<button class="rows-toggle" '
-                     f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                     f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                      f'font-size:10px;font-weight:600;color:{RND_ACCENT};letter-spacing:.04em;'
                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                      f'<span class="toggle-label">Ver 5 más</span> '
@@ -637,9 +637,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         """Lista plana top 100: 5 visible, 5 rows-more, 90 sb-hidden.
         Todo dentro de un único tbl-wrap para que attachTable vea las 100."""
         RND_ACCENT = '#EA0074'
-        grid = '1fr 80px 62px 36px 58px 36px'
+        grid = '1fr 70px 50px 32px 50px 32px'
         sb_hid = f'sb-{idx_str}-rh-{t_key}'
-        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
+        header = (f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {RND_ACCENT};margin-bottom:2px;">'
                   f'{searchbox_header_html(sb_hid, accent_color=RND_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:9px 0;">Severity</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">%NoDispo</span>'
@@ -677,7 +677,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' data-hist-ipm-w21="{_ipm21}" data-hist-ipm-w20="{_ipm21}"'
                           f' data-hist-label="{hotel_name}"'
                           f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
-                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                          f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                           f'{badge}'
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(nd_val)}</span>'
@@ -686,7 +686,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           + (lambda iv, ib: '<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>' if not ib or ib <= 0 else ('<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#EAF3DE;color:#2F6C34;">↑' + f"{abs(r.get('IPM_WoW_pp', 0) / ib * 100):.1f}%</em>".replace('.', ',') if r.get('IPM_WoW_pp', 0) and r.get('IPM_WoW_pp', 0) > 0 else ('<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#FCE8E6;color:#C0392B;">↓' + f"{abs(r.get('IPM_WoW_pp', 0) / ib * 100):.1f}%</em>".replace('.', ',') if r.get('IPM_WoW_pp') else '<em style="font-style:normal;font-size:9px;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>')))(ipm_val, r.get('IPM_W18', 0)) +
                           '</div>')
         if len(df_full) > 5:
-            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;background:none;border:none;cursor:pointer;'
+            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                           f'font-size:10px;font-weight:600;color:{RND_ACCENT};letter-spacing:.04em;text-transform:uppercase;'
                           f'padding:4px 0;display:flex;align-items:center;gap:4px;">'
                           f'<span class="toggle-label">Ver 5 más</span>'
