@@ -125,6 +125,21 @@ Cambiar en `calc_rnd.py`: mismo patrón
 
 ---
 
+### Bug crítico · display:grid en TRs (sesión W21 cleanup post-migración)
+
+**Síntoma:** En las pestañas hotel RND (Críticos/DNC/BR/SC), las filas se veían con fondo distinto y alineamiento ligeramente roto comparado con las dim tabs. Diferencias visuales sutiles entre pestañas que no debían existir.
+
+**Causa raíz:** El JS de searchbox / "Ver más" en `asset_shared_head.html` setea `r.style.display = 'grid'` cuando muestra filas. Esto se escribió originalmente para filas que eran `<div>` con CSS grid, pero tras la migración W21 a HTML tables las filas son `<tr>`. Aplicar `display:grid` a un `<tr>` rompe el comportamiento `table-row` nativo: las celdas se renderizan como grid items en lugar de cells, el alineamiento de columnas se rompe y el fondo del TR pierde control sobre los TDs.
+
+**Fix:** 7 reemplazos en `asset_shared_head.html` para hacer el display condicional al tipo de elemento:
+```javascript
+r.style.display = (r.tagName === 'TR' ? '' : 'grid');
+```
+Para TRs el `''` resetea al display nativo (`table-row`); para divs sigue aplicando `grid`. Mantiene compatibilidad con código legacy de grids al mismo tiempo que las nuevas tablas funcionan correctamente.
+
+**Líneas afectadas:** 423 (filter searchbox), 458 (init), 492 / 495 (otro filter), 564 / 576 (otro toggle), 627 (Ver más / Ver menos toggle).
+
+
 **Última actualización:** Mayo 2026 · post W19 · build_package + hub pipeline · bugs #16 #17 #18 · destinatarios 15
 
 ## 📝 Cambios post W19 · Mayo 2026 (sesión fixes Excel + HTML)
