@@ -457,7 +457,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     n_total = len(df)
     if n_total > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -589,7 +589,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     th_cells = ''
     for idx_h, label in enumerate(headers):
         pl = '12px' if idx_h == 0 else '0'
-        pr = '12px' if idx_h == n_cols - 1 else '8px'
+        pr = '20px' if idx_h == n_cols - 1 else '8px'
         if idx_h == 0 and sb_id:
             th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {CR_ACCENT};text-align:left;">'
                          f'{searchbox_header_html(sb_id, accent_color=CR_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
@@ -647,7 +647,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                     wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};">{txt}</em>'
             except:
                 pass
-            td_cells += f'<td style="padding:7px 12px 7px 0;text-align:right;white-space:nowrap;">{wow_html}</td>'
+            td_cells += f'<td style="padding:7px 20px 7px 0;text-align:right;white-space:nowrap;">{wow_html}</td>'
 
         hist_attrs = ''
         if with_hist:
@@ -674,8 +674,17 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                   f' style="{cursor}transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
                   f'{td_cells}</tr>')
 
+    ver_mas = ''
+    if len(df) > 5:
+        ver_mas = (f'<button class="rows-toggle" '
+                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                   f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;'
+                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                   f'<span class="toggle-label">Ver 5 más</span> '
+                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+
     return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
-            f'{colgroup}<thead><tr>{th_cells}</tr></thead><tbody>{tbody}</tbody></table>')
+            f'{colgroup}<thead><tr>{th_cells}</tr></thead><tbody>{tbody}</tbody></table>{ver_mas}')
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
     """Top 10 a 2 columnas (5+5). df_full debe tener al menos 10 rows ideal."""
