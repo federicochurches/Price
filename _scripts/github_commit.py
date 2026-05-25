@@ -17,7 +17,7 @@ Desde run_pipeline.py:
 Qué commitea:
     - ZIP del repo (Price_WNN.zip): todos los archivos generados por build_package.py
     - Scripts actualizados en _scripts/ (render_*.py, asset_*.html, render_helpers.py, etc.)
-    - Documentación actualizada en _docs/ (CHANGELOG.md, README.md, PROMPT_MAESTRO_v3.md)
+    - Documentación actualizada en _docs/ (CHANGELOG.md, README.md, PROMPT_CORE.md)
 
 Qué genera localmente:
     - ProyectoClaude_PRICE_WNN.zip: ZIP del proyecto para claude.ai
@@ -61,8 +61,8 @@ SCRIPT_FILES = [
     'engine.py', 'areas_catalogo.py',
 ]
 
-DOC_FILES = ['CHANGELOG.md', 'README.md', 'PROMPT_MAESTRO_v3.md',
-             'BANDAS.md', 'COMMIT_GUIDE.md', 'INVENTARIO.md']
+DOC_FILES = ['CHANGELOG.md', 'README.md', 'PROMPT_CORE.md',
+             'HISTORIAL_SESIONES.md', 'BANDAS.md', 'COMMIT_GUIDE.md', 'INVENTARIO.md']
 
 def get_token(args):
     """Obtiene el token GitHub: argumento > env var > archivo."""
@@ -206,7 +206,7 @@ def build_project_zip(week_num, scripts_dir, outputs_dir, docs_dir=None):
     # Si hay docs_dir, copiar los docs actualizados al scripts_dir antes de empaquetar
     if docs_dir:
         docs_path = Path(docs_dir)
-        for doc in ['CHANGELOG.md', 'README.md', 'PROMPT_MAESTRO_v3.md', 'BANDAS.md']:
+        for doc in ['CHANGELOG.md', 'README.md', 'PROMPT_CORE.md', 'HISTORIAL_SESIONES.md', 'BANDAS.md']:
             src = docs_path / doc
             if src.exists():
                 import shutil

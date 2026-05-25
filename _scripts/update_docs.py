@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 update_docs.py · Paso 7 del pipeline PRICE
-Actualiza CHANGELOG.md, README.md y PROMPT_MAESTRO_v3.md con los datos de la semana actual.
+Actualiza CHANGELOG.md, README.md y PROMPT_CORE.md con los datos de la semana actual.
 
 Uso standalone:
     python3 update_docs.py --week 21 --periodo "18–24 may 2026" --tipo pipeline
@@ -13,6 +13,10 @@ Desde run_pipeline.py:
 Modos:
     pipeline   → bloque completo con KPIs reales del pickle + archivos generados
     fix        → bloque de fix/cambio puntual (sin KPIs)
+
+Nota: PROMPT_CORE.md reemplaza a PROMPT_MAESTRO_v3.md desde W21 (optimización tokens).
+      HISTORIAL_SESIONES.md contiene el historial de sesiones W16-W20 (solo en Knowledge,
+      no se actualiza automáticamente — es arqueología, no contexto operativo).
 """
 
 import argparse
@@ -205,9 +209,9 @@ URLs: [Hub](https://analytics-desk.netlify.app) · [CR](https://federicochurches
     print(f"  ✅ README actualizado: {path}")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PROMPT MAESTRO
+# PROMPT CORE (reemplaza PROMPT_MAESTRO_v3.md desde W21)
 # ─────────────────────────────────────────────────────────────────────────────
-def update_prompt_maestro(path, week_num, periodo, mes_anio, kpis, tipo, descripcion, commits):
+def update_prompt_core(path, week_num, periodo, mes_anio, kpis, tipo, descripcion, commits):
     path = Path(path)
     content = path.read_text(encoding='utf-8') if path.exists() else ''
 
@@ -265,7 +269,7 @@ _(ver CHANGELOG para detalle)_
     content = content.rstrip() + '\n' + block
 
     path.write_text(content, encoding='utf-8')
-    print(f"  ✅ PROMPT_MAESTRO actualizado: {path}")
+    print(f"  ✅ PROMPT_CORE actualizado: {path}")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MAIN
@@ -317,8 +321,8 @@ def main():
         _find_doc('README.md') if not args.docs_dir else docs_dir / 'README.md',
         week_num, vol_num, periodo, mes_anio, kpis, args.tipo
     )
-    update_prompt_maestro(
-        _find_doc('PROMPT_MAESTRO_v3.md') if not args.docs_dir else docs_dir / 'PROMPT_MAESTRO_v3.md',
+    update_prompt_core(
+        _find_doc('PROMPT_CORE.md') if not args.docs_dir else docs_dir / 'PROMPT_CORE.md',
         week_num, periodo, mes_anio, kpis, args.tipo, args.descripcion, commits
     )
 
