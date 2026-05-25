@@ -167,6 +167,18 @@ Las tablas de Análisis por dimensión (Corp/Destino/Channel) tenían colgroups 
 `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `asset_shared_head.html`
 
 
+### Bold también en RND (sesión post-fix)
+El bold de Eficacia/ConvRate aplicado en CR se extiende a RND para consistencia:
+- Hero global %NoDispo (40px) y IPM (40px): `font-weight:700`
+- Filas internas hero (destino/corp/hotel/pais): cell value `font-weight:700`
+- Tabla hotel (4 ópticas): TD value `font-weight:700` (Tráfico, %NoDispo, IPM)
+- Tabla dim (Corp/Destino/País): `_td(bold=True)` por default; WoW pills se pasan con `bold=False` para no doblar el peso ya aplicado por su inline style
+- Canastas RND: KPI 40px + spans de valores en bold
+
+### Archivos modificados
+`render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py`
+
+
 **Última actualización:** Mayo 2026 · post W19 · build_package + hub pipeline · bugs #16 #17 #18 · destinatarios 15
 
 ## 📝 Cambios post W19 · Mayo 2026 (sesión fixes Excel + HTML)
