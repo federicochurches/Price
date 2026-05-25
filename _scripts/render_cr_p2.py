@@ -457,7 +457,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     n_total = len(df)
     if n_total > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -1045,7 +1045,7 @@ def render_bloque_hoteles_cr():
 <input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
 <input id="tab-h-mcv" name="tabs-h" style="display:none" type="radio"/>
-<div class="tabs-row">
+<div class="tabs-row" style="align-items:flex-end;">
 <label class="tab-label" for="tab-h-crit">Críticos</label>
 <label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
 <label class="tab-label" for="tab-h-sc">Sin Conversión</label>
