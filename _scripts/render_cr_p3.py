@@ -683,23 +683,34 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'</div>')
         return rows
 
+
+    def _build_wow_cv_cell(wow_pp):
+        import math as _mc
+        if wow_pp is None or (isinstance(wow_pp, float) and _mc.isnan(wow_pp)) or abs(wow_pp) < 0.005:
+            return '<em style="font-style:normal;font-size:9px;color:var(--ink-muted);">—</em>'
+        wc = '#2F6C34' if wow_pp > 0 else '#C0392B'
+        wb = '#EAF3DE' if wow_pp > 0 else '#FCE8E6'
+        arrow = '↑' if wow_pp > 0 else '↓'
+        return f'<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};">{arrow}{str(round(abs(wow_pp),1)).replace(".",",")}</em>'
+
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
         """Lista plana top 100: 5 visible, 5 rows-more, 90 sb-hidden.
         Todo dentro de un único tbl-wrap para que attachTable vea las 100."""
-        grid = '1fr 80px 58px 58px 38px'
+        grid = '1fr 80px 58px 38px 58px 38px'
         sb_hid = f'sb-{idx_str}-h-{t_key}'
         header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
                   f'{searchbox_header_html(sb_hid, accent_color=CR_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:9px 0;">Severity</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">ConvRate</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW CV</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">Eficacia</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW Ef</span>'
                   f'</div>')
         df_full = df_full.reset_index(drop=True)
         import math as _mh
         rows_html = header
         for i, r in df_full.iterrows():
-            hotel_name = truncate(truncate(str(r.get('Hotel')) or '-'), 28)
+            hotel_name = truncate(clean_hotel_name(str(r.get('Hotel') or '-')), 28)
             sub = clean_corp_name(r.get('CorpName',''))
             sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">{sub}</div>' if sub else ''
             ef_val = r.get('Eficacia', 0)
@@ -729,6 +740,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                           + (lambda bv: f'<div style="display:flex;align-items:center;"><span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
+                          + (_build_wow_cv_cell(r.get('ConvRate_WoW_pp'))) +
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
         if len(df_full) > 5:
