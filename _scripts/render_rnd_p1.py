@@ -235,7 +235,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
@@ -357,7 +357,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                    f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
