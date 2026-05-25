@@ -696,9 +696,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
         """Lista plana top 100: 5 visible, 5 rows-more, 90 sb-hidden.
         Todo dentro de un único tbl-wrap para que attachTable vea las 100."""
-        grid = '1fr 80px 58px 38px 58px 38px'
+        grid = '1fr 70px 50px 32px 50px 32px'
         sb_hid = f'sb-{idx_str}-h-{t_key}'
-        header = (f'<div style="display:grid;grid-template-columns:{grid};gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+        header = (f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
                   f'{searchbox_header_html(sb_hid, accent_color=CR_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:9px 0;">Severity</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">ConvRate</span>'
@@ -736,7 +736,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                           f' data-hist-label="{hotel_name}"'
                           f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
-                          f' style="display:grid;grid-template-columns:{grid};gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                          f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
                           + (lambda bv: f'<div style="display:flex;align-items:center;"><span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
@@ -744,7 +744,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
         if len(df_full) > 5:
-            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;background:none;border:none;cursor:pointer;'
+            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                           f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;text-transform:uppercase;'
                           f'padding:4px 0;display:flex;align-items:center;gap:4px;">'
                           f'<span class="toggle-label">Ver 5 más</span>'
@@ -795,9 +795,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         sb_id: si se pasa, primera columna del header es searchbox integrado (Prop D).
         """
         import math
-        grid = 'minmax(0,1fr) 80px 68px 56px 62px 36px 62px 36px'
+        grid = 'minmax(0,1fr) 70px 56px 48px 52px 30px 52px 30px'
         headers = [dim_label, 'Severity', 'Checkrates', 'BKGS', 'ConvRate', 'WoW', 'Eficacia', 'WoW']
-        rows = f'<div style="display:grid;grid-template-columns:{grid};gap:6px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
+        rows = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:6px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
         for idx_h, h in enumerate(headers):
             if idx_h == 0 and sb_id:
                 rows += searchbox_header_html(sb_id, accent_color=CR_ACCENT,
@@ -847,7 +847,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
                      f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                      f' data-hist-label="{lab}"{tbl_attr}'
-                     f' style="display:grid;grid-template-columns:{grid};gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                     f' style="display:grid;grid-template-columns:{grid};width:100%;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                      f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{row_idx+1}. {lab}</span></div>'
                      f'<div style="display:flex;align-items:center;">{pill_banda}</div>'
                      f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
@@ -859,7 +859,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         # Ver 5 más button (if there are rows-more rows)
         if len(df) > 5:
             rows += (f'<button class="rows-toggle" '
-                     f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                     f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                      f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;'
                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                      f'<span class="toggle-label">Ver 5 más</span> '
