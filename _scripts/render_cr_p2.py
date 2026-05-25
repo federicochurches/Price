@@ -378,7 +378,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
     for col in cols_def:
         w = col['width']
         if w == '1fr':
-            col_tags += '<col style="width:280px;">'  # nombre col fija para distribución proporcional
+            col_tags += '<col style="width:800px;">'  # nombre absorbe sobrante
         else:
             col_tags += f'<col style="width:{w};">'
     colgroup = f'<colgroup>{col_tags}</colgroup>'
@@ -419,7 +419,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
                 chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
                 sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
                 sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub_line}</div>' if sub_line else ''
-                td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:left;">'
+                td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:left;overflow:hidden;">'
                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
                              f'{sub_html}</td>')
             elif col.get('key') == 'bnd':
@@ -566,15 +566,15 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
 
     # Define column widths based on what's available
     if has_wow and has_cv_wow:
-        col_widths = [280, 90, 80, 60, 65, 38, 65, 38]
+        col_widths = [800, 90, 80, 60, 65, 38, 65, 38]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','WoW','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right','right']
     elif has_wow:
-        col_widths = [280, 90, 90, 70, 70, 75, 50]
+        col_widths = [800, 90, 90, 70, 70, 75, 50]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right']
     else:
-        col_widths = [280, 90, 90, 70, 70, 75]
+        col_widths = [800, 90, 90, 70, 70, 75]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia']
         aligns  = ['left','left','right','right','right','right']
     n_cols = len(headers)
@@ -619,7 +619,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                     f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{extra}">{content}</td>')
 
         name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{n}. {label_val}</div>'
-        td_cells = f'<td style="padding:7px 8px 7px 12px;text-align:left;">{name_html}</td>'
+        td_cells = f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">{name_html}</td>'
         td_cells += f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
         td_cells += _td(fmt_int_es(r["CR_Unicos"]), 'right', '0', '8px')
         td_cells += _td(fmt_int_es(r["Bookings"]), 'right', '0', '8px')
