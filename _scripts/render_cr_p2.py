@@ -553,11 +553,11 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     has_wow = wow_col and wow_col in df.columns
     has_cv_wow = 'ConvRate_WoW_pp' in df.columns if df is not None and hasattr(df, 'columns') else False
     if has_wow and has_cv_wow:
-        grid = '1fr 72px 80px 60px 68px 38px 68px 38px'
+        grid = '1fr 90px 80px 60px 68px 38px 68px 38px'
     elif has_wow:
-        grid = '1fr 72px 90px 70px 70px 75px 50px'
+        grid = '1fr 90px 90px 70px 70px 75px 50px'
     else:
-        grid = '1fr 72px 90px 70px 70px 75px'
+        grid = '1fr 90px 90px 70px 70px 75px'
     headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate']
     if has_cv_wow: headers.append('WoW')
     headers.append('Eficacia')
@@ -940,7 +940,7 @@ def render_bloque_hoteles_cr():
     """Sección 04 · 4 tabs: Críticos · Bajo Rend · Sin Conv · Menor CR."""
     cols_main = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'72px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'90px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'cv','label':'ConvRate','width':'58px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
         {'key':'wowcv','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
@@ -949,7 +949,7 @@ def render_bloque_hoteles_cr():
     ]
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'72px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'90px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'62px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
         {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
