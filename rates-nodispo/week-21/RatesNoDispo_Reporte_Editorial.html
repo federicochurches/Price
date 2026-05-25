@@ -476,7 +476,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var hi=-1;
     function buildDropdown(q){ var qn=norm(q); if(!qn){dropdown.classList.remove('visible');dropdown.innerHTML='';return;} var m=buildLabels().filter(function(l){return norm(l).indexOf(qn)>=0;}).slice(0,8); if(!m.length){dropdown.classList.remove('visible');dropdown.innerHTML='';return;} var html=''; m.forEach(function(l,i){var nl=norm(l),idx=nl.indexOf(qn),hl=escapeHtml(l); if(idx>=0)hl=escapeHtml(l.substring(0,idx))+'<mark>'+escapeHtml(l.substring(idx,idx+q.length))+'</mark>'+escapeHtml(l.substring(idx+q.length)); html+='<div class="sb-suggestion" data-value="'+escapeHtml(l)+'" data-idx="'+i+'">'+hl+'</div>';}); dropdown.innerHTML=html; positionDropdown(); dropdown.classList.add('visible'); hi=-1; dropdown.querySelectorAll('.sb-suggestion').forEach(function(el){ el.addEventListener('mousedown',function(e){e.preventDefault();var val=el.getAttribute('data-value');input.value=val;filter();dropdown.classList.remove('visible');clickMatchingRow(val,scope);}); el.addEventListener('mouseenter',function(){dropdown.querySelectorAll('.sb-suggestion').forEach(function(s){s.classList.remove('highlighted');});el.classList.add('highlighted');hi=parseInt(el.getAttribute('data-idx'));}); }); }
     function getActiveRows(includeAll){ if(includeAll) return scope.querySelectorAll('[data-hist-label]'); var panels=scope.querySelectorAll('.tab-panel, .tab-panel-c'); for(var i=0;i<panels.length;i++){if(window.getComputedStyle(panels[i]).display!=='none'){return panels[i].querySelectorAll('[data-hist-label]');}} return scope.querySelectorAll('[data-hist-label]'); }
-    function filter(){ var q=norm(input.value.trim()); var rows=getActiveRows(!!q); var vis=0,total=rows.length; rows.forEach(function(r){ var lbl=norm(r.getAttribute('data-hist-label')); var match=!q||lbl.indexOf(q)>=0; var ri=parseInt(r.getAttribute('data-row-idx')||'0'); if(match){var show=q?true:(ri<5);if(show){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.classList.add('sb-hidden');r.style.display='none';}}else{r.classList.add('sb-hidden');} });  if(counter){if(q){counter.textContent=vis+' de '+total+' visibles';counter.classList.add('has-query');}else{counter.textContent='';counter.classList.remove('has-query');}} }
+    function filter(){ var q=norm(input.value.trim()); var rows=getActiveRows(!!q); var vis=0,total=rows.length; rows.forEach(function(r){ var lbl=norm(r.getAttribute('data-hist-label')); var match=!q||lbl.indexOf(q)>=0; var ri=parseInt(r.getAttribute('data-row-idx')||'0'); if(match){var show=q?true:(ri<5);if(show){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display=(r.tagName==='TR'?'':'grid');vis++;}else{r.classList.add('sb-hidden');r.style.display='none';}}else{r.classList.add('sb-hidden');} });  if(counter){if(q){counter.textContent=vis+' de '+total+' visibles';counter.classList.add('has-query');}else{counter.textContent='';counter.classList.remove('has-query');}} }
     input.addEventListener('input',function(){buildDropdown(input.value);filter();});
     window.addEventListener('scroll',function(){if(dropdown.classList.contains('visible'))positionDropdown();},true);
     window.addEventListener('resize',function(){if(dropdown.classList.contains('visible'))positionDropdown();});
@@ -511,7 +511,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       if (!panel) return;
       panel.querySelectorAll('[data-hist-label]').forEach(function(r){
         var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}
+        if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display=(r.tagName==='TR'?'':'grid');}
         else{r.style.display='none';}
       });
     }
@@ -545,10 +545,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       rows.forEach(function(r){
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
         if (q){
-          if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';vis++;}else{r.style.display='none';}
+          if(match){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display=(r.tagName==='TR'?'':'grid');vis++;}else{r.style.display='none';}
         } else {
           var ri = parseInt(r.getAttribute('data-row-idx') || '0');
-          if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display='grid';}else{r.style.display='none';}
+          if(ri<5){r.classList.remove('sb-hidden');r.classList.remove('rows-more');r.style.display=(r.tagName==='TR'?'':'grid');}else{r.style.display='none';}
           if (ri < 5) vis++;
         }
       });
@@ -617,7 +617,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
         if (match){
           r.classList.remove('sb-hidden');
           r.classList.remove('rows-more');
-          r.style.display = 'grid';
+          r.style.display = (r.tagName==='TR'?'':'grid');
           vis++;
         } else {
           r.classList.add('sb-hidden');
@@ -629,7 +629,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       if (!q){
         rows.forEach(function(r){
           var ri = parseInt(r.getAttribute('data-row-idx')||'0');
-          if(ri < 5){ r.classList.remove('sb-hidden'); r.style.display='grid'; }
+          if(ri < 5){ r.classList.remove('sb-hidden'); r.style.display=(r.tagName==='TR'?'':'grid'); }
           else { r.classList.add('sb-hidden'); r.style.display='none'; }
         });
       }
@@ -680,7 +680,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var ico = btn.querySelector('.toggle-icon');
     /* Mostrar/ocultar filas-more (índices 5-9) */
     panel.querySelectorAll('.rows-more').forEach(function(r){
-      if(isOpen){r.classList.remove('rows-more');r.classList.remove('sb-hidden');r.style.display='grid';}else{r.classList.add('rows-more');r.style.display='none';}
+      if(isOpen){r.classList.remove('rows-more');r.classList.remove('sb-hidden');r.style.display=(r.tagName==='TR'?'':'grid');}else{r.classList.add('rows-more');r.style.display='none';}
     });
     if (lbl) lbl.textContent = isOpen ? 'Ver menos' : 'Ver 5 más';
     if (ico) ico.style.transform = isOpen ? 'rotate(180deg)' : '';
