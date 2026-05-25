@@ -296,9 +296,9 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                 sub = r.get('CorpName', '')
                 sub_html = (f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;'
                             f'letter-spacing:.05em;margin-top:1px;">{sub}</div>') if sub else ''
-                td_cells += (f'<td style="padding:7px 8px 7px 12px;text-align:left;">'
+                td_cells += (f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">'
                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
-                             f'overflow:hidden;text-overflow:ellipsis;max-width:260px;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
+                             f'overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                              f'{sub_html}</td>')
             elif col.get('key') == 'bnd':
                 bnd_val = r.get('BandaNoDispo','') or r.get('BandaRPM','')
@@ -345,7 +345,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     for col in cols_def:
         w = col.get('width', '1fr')
         if w == '1fr':
-            col_tags += '<col style="width:280px;">'  # nombre fijo
+            col_tags += '<col style="width:800px;">'  # nombre fijo
         else:
             col_tags += f'<col style="width:{w};">'
     return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><colgroup>{col_tags}</colgroup>'
@@ -443,7 +443,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     import math
     RND_ACCENT = '#EA0074'
     # Columnas: nombre, severity, tráfico, %nodispo, wow, ipm, wow
-    col_widths = [280, 80, 65, 58, 50, 52, 50]
+    col_widths = [800, 80, 65, 58, 50, 52, 50]
     headers = [dim_label, 'Severity', 'Tráfico', '%NoDispo', 'WoW', 'IPM', 'WoW']
     aligns = ['left', 'left', 'right', 'right', 'right', 'right', 'right']
     n_cols = len(headers)
@@ -508,7 +508,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
 
         name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{row_idx+1}. {truncate(raw_label,36)}</div>'
         td_cells = (
-            f'<td style="padding:7px 8px 7px 12px;text-align:left;">{name_html}</td>'
+            f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">{name_html}</td>'
             f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
             f'{_td(fmt_big(r.get("Trafico",r.get("trafico",0))), "right")}'
             f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
