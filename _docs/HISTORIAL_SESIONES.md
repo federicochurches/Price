@@ -1298,4 +1298,30 @@ Se definió el flujo completo de trabajo semanal documentado en `README_QUICK.md
 ### Archivos modificados
 `calc_rnd.py` · `calc_cr.py` · `asset_shared_head.html`
 
-**Última actualización:** W21 (post-2) · Mayo 2026 · WoW NaN fix · CSS tabs display:block
+---
+
+## Sesión Post-W21 (tercera parte) · Mayo 2026 · Correcciones Excel
+
+### Problemas identificados y corregidos
+
+**1. Top 50 → Top 100 en hojas de hotel RND canastas**
+Los sub-dfs `bajo_rend` y `sin_conv` del pickle solo tenían 50 rows. Las hojas de Excel derivaban de esas claves en vez de usar `p80_hotel` directamente. Fix: construir el top 100 desde `canasta_data['p80_hotel']` filtrando y ordenando localmente.
+
+**2. Top 10 → Top 100 en hojas de hotel CR canastas**
+Las claves `critic`, `bajo`, `sin_conv`, `menor_cv` del pickle CANASTA CR tenían 10 rows (construidas con `head(10)` para el reporte editorial HTML). Fix: derivar desde `canasta_data['p80']` con el mismo criterio de filtro y orden.
+
+**3. Orden corregido**
+- RND hojas hotel: `%NoDispo DESC` (mayor a menor) en todas las tabs
+- RND Sin Conversión: `Trafico DESC`
+- CR hojas hotel: `Eficacia ASC` (menor = peor primero) en todas las tabs
+
+**4. Formato % corregido en canastas**
+Las tablas de canasta no tenían `num_formats` → los valores aparecían como float crudo (0.4944...). Agregado `num_formats={'%NoDispo':'0.00%', 'Eficacia':'0.00%', 'ConvRate':'0.00%', 'IPM':'$#,##0'}` en todas las `add_table()` calls.
+
+**5. Nombre hotel CR sin ID**
+Los hoteles en el pickle CR tienen prefijo `(100091) - Hotel Name`. La función `clean_hotel_name()` (ya existente en `excel_cr.py`) se extendió a `excel_cr_canastas.py` aplicándose después de derivar los dfs desde `p80`.
+
+### Archivos modificados
+`excel_rnd.py` · `excel_rnd_canastas.py` · `excel_cr.py` · `excel_cr_canastas.py`
+
+**Última actualización:** W21 (post-3) · Mayo 2026 · Excel canastas top100 · orden · formato · limpieza ID hotel

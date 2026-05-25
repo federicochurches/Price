@@ -401,12 +401,27 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 
 ## 📌 Reglas Generales
 
-- **Top 5** en Editorial · **Top 100** en Excel de Análisis
+- **Top 5** en Editorial · **Top 100** en Excel de Análisis (desde `p80_hotel`/`p80` canasta, NO desde sub-dfs de 10/50 rows del pickle)
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
 - CUG y B2B-OP son prioridad estratégica (Weight 0.6)
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
 - Commit siempre incluye ZIP proyecto Claude con **todos los archivos planos**
 - ZIP proyecto Claude: plano sin carpetas, todos los `.py`, `.html`, `.md` del proyecto
+
+### Excels · Reglas canónicas
+
+| Parámetro | RND | CR |
+|---|---|---|
+| **Origen datos** | `p80_hotel` del CANASTA dict | `p80` del CANASTA dict |
+| **Orden hojas hotel** | `%NoDispo DESC` (mayor a menor) | `Eficacia ASC` (menor = peor primero) |
+| **Orden Sin Conversión** | `Trafico DESC` | `Eficacia ASC` |
+| **Formato %NoDispo** | `0.00%` (valor es fracción 0-1) | — |
+| **Formato Eficacia / ConvRate** | — | `0.00%` (valor es fracción 0-1) |
+| **Formato IPM** | `$#,##0` | — |
+| **Nombre hotel CR** | — | Limpiar prefijo `(ID) - ` con `clean_hotel_name()` |
+| **Top N** | 100 en todas las pestañas | 100 en todas las pestañas |
+
+---
 
 ## 🎯 Cosas que NUNCA hay que hacer
 
@@ -462,4 +477,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (post-2) · Mayo 2026 · WoW fix TOP[]/CANASTA[] · CSS tabs display:block · proceso workflow documentado
+**Última actualización:** W21 (post-3) · Mayo 2026 · Excel canastas top100 · orden · formato · limpieza ID hotel
