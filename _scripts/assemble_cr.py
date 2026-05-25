@@ -17,6 +17,12 @@ p1 = Path('./part1_cr.html').read_text(encoding='utf-8')
 p2 = Path('./part2_cr.html').read_text(encoding='utf-8')
 p3 = Path('./part3_cr.html').read_text(encoding='utf-8')
 
+# ── Resolver {{SHARED_HEAD}} — inyectar CSS/JS compartido ─────────────────
+shared_head_path = Path(os.path.dirname(os.path.abspath(__file__))) / 'asset_shared_head.html'
+if shared_head_path.exists() and '{{SHARED_HEAD}}' in p1:
+    shared_head = shared_head_path.read_text(encoding='utf-8')
+    p1 = p1.replace('{{SHARED_HEAD}}', shared_head)
+
 def replace_placeholders(s):
     return (s.replace('{{WEEK_NUM}}', WK)
              .replace('{{MES_AÑO}}', MES)
@@ -25,9 +31,6 @@ def replace_placeholders(s):
 p1 = replace_placeholders(p1)
 p2 = replace_placeholders(p2)
 p3 = replace_placeholders(p3)
-
-# El footer viene del template (asset_cr_footer.html)
-# No se genera footer adicional aquí
 
 final = (
     '<!DOCTYPE html>\n<html lang="es">\n'
