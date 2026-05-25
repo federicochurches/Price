@@ -318,6 +318,18 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     if c_key == 'CUG': CANASTA_DATA['cug'] = c_data
     if c_key == 'B2C': CANASTA_DATA['b2c'] = c_data
 
+# ── Enriquecer CANASTA[] con WoW desde p80_hotel ────────────────────────────
+_wow_lkp_c = p80_hotel[['Hotel','NoDispo_WoW_pp','IPM_WoW_pp']].drop_duplicates('Hotel')
+for _ck, _cd in CANASTA_DATA.items():
+    if not isinstance(_cd, dict): continue
+    for _sk, _df in _cd.items():
+        if not isinstance(_df, pd.DataFrame) or 'Hotel' not in _df.columns: continue
+        _nn = _df['NoDispo_WoW_pp'].notna().sum() if 'NoDispo_WoW_pp' in _df.columns else 0
+        if _nn > 0: continue
+        _drop = [_c for _c in ['NoDispo_WoW_pp','IPM_WoW_pp'] if _c in _df.columns]
+        _df2 = _df.drop(columns=_drop).merge(_wow_lkp_c, on='Hotel', how='left')
+        _cd[_sk] = _df2
+
 # ── Guardar pickle ────────────────────────────────────────────────
 D = {
     'WEEK': WEEK,

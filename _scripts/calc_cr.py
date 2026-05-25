@@ -419,6 +419,20 @@ D = {
     'g_hotel_w17': g_hotel_w17,
 }
 
+# ── Enriquecer CANASTA[] con WoW desde TAB_EF/TAB_CV ──────────────────────
+_wow_ef_c = TAB_EF['hotel'][['Hotel','Eficacia_WoW_pp']].drop_duplicates('Hotel')
+_wow_cv_c = TAB_CV['hotel'][['Hotel','ConvRate_WoW_pp']].drop_duplicates('Hotel')
+_wow_lkp_c = _wow_ef_c.merge(_wow_cv_c, on='Hotel', how='outer')
+for _ck, _cd in CANASTA.items():
+    if not isinstance(_cd, dict): continue
+    for _sk, _df in _cd.items():
+        if not isinstance(_df, pd.DataFrame) or 'Hotel' not in _df.columns: continue
+        _nn = sum(_df[_wc].notna().sum() for _wc in ['Eficacia_WoW_pp','ConvRate_WoW_pp'] if _wc in _df.columns)
+        if _nn > 0: continue
+        _drop = [_c for _c in ['Eficacia_WoW_pp','ConvRate_WoW_pp'] if _c in _df.columns]
+        _df2 = _df.drop(columns=_drop).merge(_wow_lkp_c, on='Hotel', how='left')
+        _cd[_sk] = _df2
+
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'cr_w{VOL_NUM}_data.pkl'),'wb') as f:
     pickle.dump(D, f)
 
