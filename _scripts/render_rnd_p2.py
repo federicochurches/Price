@@ -331,7 +331,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -535,7 +535,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
