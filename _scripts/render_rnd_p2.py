@@ -343,7 +343,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     for col in cols_def:
         w = col.get('width', '1fr')
         if w == '1fr':
-            col_tags += '<col>'  # flexible, takes remaining space
+            col_tags += '<col style="width:280px;">'  # nombre fijo
         else:
             col_tags += f'<col style="width:{w};">'
     return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><colgroup>{col_tags}</colgroup>'
