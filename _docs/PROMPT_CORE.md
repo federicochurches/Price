@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W22+ · Mayo 2026 · Patrón HTML tables**
+**Versión W22+ · Mayo 2026 · Patrón HTML tables · sev-badge unificado**
 
 ---
 
@@ -54,10 +54,11 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 | `calc_cr.py` | Cálculos CR → `cr_wNN_data.pkl` |
 | `calc_rnd.py` | Cálculos RND → `rnd_wNN_data.pkl` · auto-transforma formato pivotado |
 | `render_cr_p1.py` | KPIs hero CR · week labels dinámicos desde `WEEK_NUM_INT` |
-| `render_cr_p2.py` | Severity + Tablas hotel/dim CR · Severity 90px |
+| `render_cr_p2.py` | Severity + Tablas hotel/dim CR · colwidths calibrados · `_fmt_wow_cv` inline |
 | `render_cr_p3.py` | Canastas CR · `clean_hotel_name()` + WoW ConvRate en tabla hotel |
 | `render_rnd_p1.py` | KPIs hero RND · grid 76px 54px 36px · Severity overflow:hidden |
-| `render_rnd_p2.py` | Severity + Tablas hotel/dim RND · Severity 90px |
+| `render_rnd_p2.py` | Severity + Tablas hotel/dim RND · aligns center Severity |
+| `render_rnd_p3.py` | Canastas RND · grids WoW ≥48px · `_build_wow_ipm_cell()` |
 | `assemble_cr.py` / `assemble_rnd.py` | Ensambla parciales → HTML final · resuelve `{{SHARED_HEAD}}` |
 | `excel_rnd.py` / `excel_rnd_canastas.py` | 4 Excels RND |
 | `excel_cr.py` / `excel_cr_canastas.py` | 4 Excels CR |
@@ -70,8 +71,8 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 | Archivo | Descripción |
 |---|---|
 | `engine.py` | Bandas + thresholds |
-| `render_helpers.py` | `wow_box()` dinámico, `tab_column_header()` Severity left-align, `clean_hotel_name()`, badges, pills, searchbox |
-| `asset_shared_head.html` | CSS compartido · `wow-pill` · selectores `kpi-card [id*="-pais"]` activos |
+| `render_helpers.py` | `wow_box()` siempre `paper-soft`, `BANDA_COLORS`, `sev-badge`, `clean_hotel_name()` |
+| `asset_shared_head.html` | CSS compartido · `.sev-badge` unificado · `.wow-pill` sin margin-left · toggle fix |
 | `template_resumen.py` | Render Resumen Ejecutivo |
 | `template_alertas.py` | Render alertas críticas |
 | `template_severity.py` | Render bloques severity |
@@ -90,7 +91,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 | `asset_rnd_head.html` | CSS + JS + vars RND (magenta `#EA0074`) |
 | `asset_rnd_masthead.html` | Header RND con logo |
 | `asset_rnd_footer.html` | Footer RND |
-| `asset_shared_head.html` | CSS compartido CR+RND · 630 líneas · resuelto por assemble |
+| `asset_shared_head.html` | CSS compartido CR+RND · ~640 líneas · resuelto por assemble |
 
 ---
 
@@ -107,10 +108,15 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 ✓ Dataset_RatesNoDispo_W(N-1).xlsx · para WoW
 ```
 
-### Quirks de datos conocidos
-- **RND formato pivotado:** el dataset puede venir con 3 canastas × 4 columnas (16 cols) en lugar de largo (9 cols). `calc_rnd.py` lo detecta y transforma automáticamente.
-- **WoW sin dataset previo:** si no se recibe W(N-1), los deltas WoW quedan en NaN (se muestra "—" sin error).
-- **Período CR hardcodeado:** en `render_cr_p1.py` usar `{PERIODO}` — nunca fecha literal.
+### Regla de workflow (NO correr pipeline hasta validación visual)
+```
+1. Aplicar fix en script
+2. render parciales + assemble HTML (solo, sin pipeline completo)
+3. PAUSA → validación visual del usuario
+4. Si OK → pipeline completo (Excels + Mail + build_package + commit)
+5. Documentar + empacar ZIP proyecto Claude
+```
+**Nunca correr pipeline completo en cada iteración de fix visual.**
 
 ### Commit semanal
 ```
@@ -178,8 +184,10 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 | Aceptable | `#FEF9C3` | `#713F12` | `#FCD34D` |
 | Revisar | `#FED7AA` | `#C2410C` | `#F97316` |
 | Crítica | `#FCE4F1` | `#99162B` | `#C0392B` |
-| Súper Crítica | `#EDECEC` | `#4A3F3F` | `#DC2626` |
+| Súper Crítica | `#E8E6E3` | `#2D2828` | `#DC2626` |
 | Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` |
+
+> **Nota Súper Crítica:** el gris `#E8E6E3` con fg oscuro `#2D2828` + el `outline:1px solid rgba(0,0,0,0.15)` del `.sev-badge` garantizan visibilidad sobre cualquier fondo crema.
 
 #### % NoDispo (RND)
 | Banda | Rango |
@@ -233,6 +241,7 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 ### wow_box · Labels dinámicos
 
 `wow_box()` en `render_helpers.py` lee `VOL_NUM` del env → labels `W{N-1}` / `W{N}` automáticos.
+`outer_bg` siempre `var(--paper-soft)` — tanto global como canastas — para garantizar contraste de las celdas internas.
 Los renders `render_cr_p1.py` pasan `week_num=f'W{WEEK_NUM_INT}'` explícitamente.
 **Nunca hardcodear 'W20'/'W19' en llamadas a `wow_box()`.**
 
@@ -269,8 +278,10 @@ Las tablas de "Análisis por hotel" y "Análisis por dimensión" (RND + CR) usan
 
 **Padding bordes:**
 - Primera col (nombre): `padding-left:12px`
-- Última col (WoW): `padding-right:12px`
-- Intermedias: `padding-right:8px`
+- Última col (WoW): `padding-right:12px` (antes 20px → causaba recorte visual del pill)
+- Intermedias: `padding-right:8px` a `10px`
+
+**Header Severity:** `text-align:center` con `pl='0', pr='0'` (padding simétrico) para que el texto "SEVERITY" quede centrado sobre los badges.
 
 **Funciones que usan este patrón:**
 - `render_top_table()` en `render_rnd_p2.py`
@@ -278,12 +289,24 @@ Las tablas de "Análisis por hotel" y "Análisis por dimensión" (RND + CR) usan
 - `render_top_table_cr()` en `render_cr_p2.py`
 - `_render_dim_table()` en `render_cr_p2.py`
 
-### Canastas · Grids reducidos (caben en 2 columnas)
+### Colwidths calibrados (contenedor ~1168px)
 
-Las canastas se renderizan en grid de 2 cols (~570px cada uno). Para evitar overflow:
-- RND hotel/dim canasta: `1fr 70px 60px 50px 32px 50px 32px`
-- CR hotel/dim canasta: `minmax(0,1fr) 70px 56px 48px 52px 30px 52px 30px`
-- Todos con `width:100%` explícito
+**RND hotel/dim (7 cols):** `[800, 80, 65, 58, 50, 52, 50]`
+**CR hotel (7 cols):** `[800, 60, 56, 48, 50, 52, 50, 52]` = 1168px
+**CR dim 8-cols:** `[800, 60, 56, 48, 50, 52, 50, 52]` = 1168px
+**CR dim 7-cols:** `[800, 64, 60, 50, 58, 78, 58]` = 1168px
+**CR dim 6-cols:** `[800, 70, 72, 60, 80, 86]` = 1168px
+
+> WoW cols mínimo **48px** para mostrar pills con 2 decimales (ej: `↓0,16pp`).
+
+### Canastas · Grids reducidos (caben en 2 columnas ~570px)
+
+**RND canastas dim:** `1fr 60px 54px 48px 48px 52px 48px`
+**RND canastas hotel:** `1fr 60px 48px 48px 52px 48px`
+**CR canastas hotel:** `1fr 60px 50px 48px 52px 48px`
+- `gap:4px` (antes 8px) para maximizar espacio disponible
+- `padding:6px 8px 6px 0` en rows (padding derecho para que WoW no pegue al borde)
+- `width:100%` explícito obligatorio
 
 ### .tbl-wrap CSS
 
@@ -293,6 +316,61 @@ Las canastas se renderizan en grid de 2 cols (~570px cada uno). Para evitar over
 ```
 
 `overflow-x:hidden` recorta cualquier desborde — nunca scrollbar horizontal.
+
+### .sev-badge · Clase unificada
+
+```css
+.sev-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 7px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
+  line-height: 1.2;
+  outline: 1px solid rgba(0,0,0,0.15);  /* visibilidad contra fondo crema */
+}
+```
+
+- **Sin `min-width`** — cada badge toma su ancho natural; evita truncado en cols de 60px.
+- `outline` en lugar de `border` para no afectar el box-sizing.
+- Aplicada a TODAS las severity badges (4582 RND + 2891 CR en W21).
+- Solo `background` y `color` van inline (vienen de `BANDA_COLORS`).
+
+### wow-pill · Clase CSS y comportamiento
+
+```css
+em.wow-pill { font-style:normal; display:inline-block; font-size:8px; font-weight:700;
+              padding:1px 5px; border-radius:3px; white-space:nowrap; }
+em.wow-pill.up  { background:#FCE8E6 !important; color:#C0392B !important; }
+em.wow-pill.dn  { background:#EAF3DE !important; color:#2F6C34 !important; }
+em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
+```
+
+- **Sin `margin-left`** — se removió el `margin-left:4px` que causaba el "guion" visual al lado de los pills.
+- `_fmt_wow_cv()` en `render_cr_p2.py` usa **inline style completo** (no clase CSS) para independencia de cache.
+- WoW NoDispo (pp): sin sufijo `%` · WoW IPM (relativo): con sufijo `%` · controlado por `is_percent=True`.
+
+### Toggle "Ver más / Ver menos"
+
+El JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-more` (que se remueve en el primer expand y no se puede re-seleccionar en el segundo click).
+
+```js
+var extraRows = panel.querySelectorAll('[data-row-idx]');
+extraRows.forEach(function(r){
+  var idx = parseInt(r.getAttribute('data-row-idx')||'0');
+  if (idx < 5 || idx >= 10) return;
+  if (r.classList.contains('sb-hidden')) return;
+  if(isOpen){ r.classList.remove('rows-more'); r.style.display=(r.tagName==='TR'?'':'grid'); }
+  else       { r.classList.add('rows-more');   r.style.display='none'; }
+});
+```
 
 ### asset_shared_head.html · Selectores activos
 
@@ -344,6 +422,10 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 10. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
 11. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
 12. Setear `r.style.display = 'grid'` directo en JS — usar `r.tagName==='TR'?'':'grid'` para no romper TRs HTML
+13. Usar `margin-left` en `.wow-pill` — causa "guion fantasma" al lado del pill
+14. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
+15. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
+16. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
 
 ---
 
@@ -378,4 +460,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 · Mayo 2026 · HTML tables hotel+dim · canastas grid reducido · kickers removidos · overflow-x:hidden · WoW labels normalizados
+**Última actualización:** W21 (post) · Mayo 2026 · sev-badge unificado · toggle fix · wow-pill sin margin · colwidths calibrados · wow_box paper-soft · Súper Crítica outline visible

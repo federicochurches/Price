@@ -347,15 +347,17 @@ def render_severities_combinadas():
 _WOW_NEUTRO = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
 
 def _fmt_wow_cv(v):
-    """WoW ConvRate en pp — verde si sube."""
+    """WoW ConvRate en pp — verde si sube. Inline style (no depende de CSS class)."""
     import math
+    _ND = '<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;white-space:nowrap;">—</em>'
     if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))) or abs(v) < 0.001:
-        return '<em class="wow-pill nd">—</em>'
+        return _ND
     mejora = v > 0
-    cls = 'dn' if mejora else 'up'
+    wc = '#2F6C34' if mejora else '#C0392B'
+    wb = '#EAF3DE' if mejora else '#FCE8E6'
     arrow = '↑' if v > 0 else '↓'
     txt = f'{arrow}{abs(v):.2f}'.replace('.', ',')
-    return f'<em class="wow-pill {cls}">{txt}</em>'
+    return f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{txt}</em>'
 
 def _fmt_wow(v):
     """Formatea delta WoW: pill verde/rojo o pill gris neutro."""
@@ -398,7 +400,9 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
             else:
                 h_align = col.get('align', 'right')
                 color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
-                th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {accent_color};'
+                # Center-aligned headers (Severity) use symmetric padding
+                pl_th, pr_th = (pl, pr) if h_align != 'center' else ('0', '0')
+                th_cells += (f'<th style="padding:6px {pr_th} 6px {pl_th};border-bottom:2px solid {accent_color};'
                              f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
                              f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
         header = f'<thead><tr>{th_cells}</tr></thead>'
@@ -426,8 +430,7 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
                 bnd_val = r.get('BandaEficacia','') or r.get('BandaConvRate','')
                 bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
                 td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:left;white-space:nowrap;">'
-                             f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                             f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;">{bnd_val}</span>'
+                             f'<span class="sev-badge" style="background:{bc["bg"]};color:{bc["fg"]};">{bnd_val}</span>'
                              f'</td>')
             else:
                 fw = 'font-weight:700;' if col.get('key') in ('cv','ef') else ''
@@ -474,9 +477,9 @@ def render_criticos():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'cv','label':'ConvRate','width':'58px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
-        {'key':'wowcv','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
+        {'key':'wowcv','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
         {'key':'ef','label':'Eficacia','width':'58px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'wow','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
+        {'key':'wow','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
     col1 = render_top_table_cr(df_all, cols)
@@ -504,9 +507,9 @@ def render_bajo_rendimiento():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'cv','label':'ConvRate','width':'58px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
-        {'key':'wowcv','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
+        {'key':'wowcv','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
         {'key':'ef','label':'Eficacia','width':'58px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'wow','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
+        {'key':'wow','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
     col1 = render_top_table_cr(df_all, cols)
@@ -534,7 +537,7 @@ def render_sin_conv():
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'62px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
+        {'key':'wow','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
     col1 = render_top_table_cr(df_all, cols) if len(df2)>0 else ''
@@ -567,15 +570,15 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
 
     # Define column widths based on what's available
     if has_wow and has_cv_wow:
-        col_widths = [800, 76, 68, 52, 52, 32, 52, 32]
+        col_widths = [800, 60, 56, 48, 50, 52, 50, 52]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','WoW','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right','right']
     elif has_wow:
-        col_widths = [800, 76, 78, 62, 60, 65, 42]
+        col_widths = [800, 64, 60, 50, 58, 78, 58]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right']
     else:
-        col_widths = [800, 80, 80, 64, 64, 70]
+        col_widths = [800, 70, 72, 60, 80, 86]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia']
         aligns  = ['left','left','right','right','right','right']
     n_cols = len(headers)
@@ -590,7 +593,11 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
     th_cells = ''
     for idx_h, label in enumerate(headers):
         pl = '12px' if idx_h == 0 else '0'
-        pr = '20px' if idx_h == n_cols - 1 else '8px'
+        pr = '12px' if idx_h == n_cols - 1 else '8px'
+        # Center-aligned headers (Severity) use symmetric padding
+        if aligns[idx_h] == 'center':
+            pl = '0'
+            pr = '0'
         if idx_h == 0 and sb_id:
             th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {CR_ACCENT};text-align:left;">'
                          f'{searchbox_header_html(sb_id, accent_color=CR_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
@@ -607,28 +614,27 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         row_idx = start_idx + i
         bnd = r.get('BandaEficacia','')
         bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_html = (f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                      f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;">{bnd}</span>')
+        badge_html = (f'<span class="sev-badge" style="background:{bc["bg"]};color:{bc["fg"]};">{bnd}</span>')
         n = row_idx + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
 
         # Build cells
-        def _td(content, align='right', pl='0', pr='8px', extra=''):
+        def _td(content, align='right', pl='0', pr='10px', extra=''):
             return (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
                     f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{extra}">{content}</td>')
 
         name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{n}. {label_val}</div>'
         td_cells = f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">{name_html}</td>'
-        td_cells += f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
-        td_cells += _td(fmt_int_es(r["CR_Unicos"]), 'right', '0', '8px')
-        td_cells += _td(fmt_int_es(r["Bookings"]), 'right', '0', '8px')
-        td_cells += _td(cv_str, 'right', '0', '8px', 'font-weight:700;')
+        td_cells += f'<td style="padding:7px 10px 7px 0;text-align:center;white-space:nowrap;">{badge_html}</td>'
+        td_cells += _td(fmt_int_es(r["CR_Unicos"]), 'right', '0', '10px')
+        td_cells += _td(fmt_int_es(r["Bookings"]), 'right', '0', '10px')
+        td_cells += _td(cv_str, 'right', '0', '10px', 'font-weight:700;')
 
         if has_cv_wow:
             cv_wow_html = _fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))
-            td_cells += f'<td style="padding:7px 8px 7px 0;text-align:right;font-size:11px;white-space:nowrap;">{cv_wow_html}</td>'
+            td_cells += f'<td style="padding:7px 10px 7px 0;text-align:right;font-size:11px;white-space:nowrap;">{cv_wow_html}</td>'
 
         # Eficacia column - might be last if no wow_col
         is_last_eficacia = not has_wow
@@ -648,7 +654,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                     wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};">{txt}</em>'
             except:
                 pass
-            td_cells += f'<td style="padding:7px 20px 7px 0;text-align:right;white-space:nowrap;">{wow_html}</td>'
+            td_cells += f'<td style="padding:7px 12px 7px 0;text-align:right;white-space:nowrap;">{wow_html}</td>'
 
         hist_attrs = ''
         if with_hist:
@@ -994,16 +1000,16 @@ def render_bloque_hoteles_cr():
         {'key':'bnd','label':'Severity','width':'90px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'cv','label':'ConvRate','width':'58px','fmt':lambda r:fmt_pct2(r['ConvRate'])},
-        {'key':'wowcv','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
+        {'key':'wowcv','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow_cv(r.get('ConvRate_WoW_pp', float('nan')))},
         {'key':'ef','label':'Eficacia','width':'58px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'wow','label':'WoW','width':'38px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
+        {'key':'wow','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
         {'key':'bnd','label':'Severity','width':'90px','fmt':lambda r:'','align':'left'},
         {'key':'cr','label':'Checkrates','width':'72px','fmt':lambda r:fmt_int_es(r['CR_Unicos'])},
         {'key':'ef','label':'Eficacia','width':'62px','fmt':lambda r:fmt_pct2(r['Eficacia'])},
-        {'key':'wow','label':'WoW','width':'44px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
+        {'key':'wow','label':'WoW','width':'48px','fmt':lambda r:_fmt_wow(r.get('Eficacia_WoW_pp', float('nan')))},
     ]
     
     df_crit = TOP['criticos'].reset_index(drop=True)

@@ -125,8 +125,12 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tabs-block{border:1px solid var(--rule);background:var(--paper);border-radius:8px;padding:20px 24px;margin-top:8px;box-shadow:0 1px 3px rgba(22,22,22,.04),inset 0 1px 0 rgba(255,255,255,.5);overflow:hidden;}
 .tabs-block .tabs-row{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding:0 0 0 4px;margin-bottom:14px;}
 .tabs-block .tab-panels{padding-top:6px;font-size:12px;color:var(--ink);line-height:1.5;min-height:auto;}
-.tabs-block .tab-panel{display:none;}
+.tabs-block .tab-panel{display:none;background:transparent;}
+.tbl-wrap{background:transparent;}
+.tbl-wrap table{background:transparent;}
+.tbl-wrap table tbody tr{background:transparent;}
 .tabs-block .tab-panel > div{display:block;padding:0;}
+.sev-badge{display:inline-flex;justify-content:center;align-items:center;font-size:7px;font-weight:700;padding:2px 4px;border-radius:2px;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;text-align:center;box-sizing:border-box;line-height:1.2;outline:1px solid rgba(0,0,0,0.15);}
 .tab-kicker{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0 0 14px;font-style:italic;}
 
 /* KPI Hero · tabs Eficacia (tab-ef-*) */
@@ -283,7 +287,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   width:100%;
 }
 /* legacy tab-panel span color removed */
-em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;white-space:nowrap;}
+em.wow-pill{font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap;}
 em.wow-pill.up{background:#FCE8E6 !important;color:#C0392B !important;}
 em.wow-pill.dn{background:#EAF3DE !important;color:#2F6C34 !important;}
 em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
@@ -623,8 +627,20 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var lbl = btn.querySelector('.toggle-label');
     var ico = btn.querySelector('.toggle-icon');
     /* Mostrar/ocultar filas-more (índices 5-9) */
-    panel.querySelectorAll('.rows-more').forEach(function(r){
-      if(isOpen){r.classList.remove('rows-more');r.classList.remove('sb-hidden');r.style.display=(r.tagName==='TR'?'':'grid');}else{r.classList.add('rows-more');r.style.display='none';}
+    /* Seleccionar filas extra por data-row-idx 5-9 (no por clase .rows-more porque la removemos en expand) */
+    var extraRows = panel.querySelectorAll('[data-row-idx]');
+    extraRows.forEach(function(r){
+      var idx = parseInt(r.getAttribute('data-row-idx')||'0');
+      if (idx < 5 || idx >= 10) return;
+      /* Saltar las que están ocultas por searchbox */
+      if (r.classList.contains('sb-hidden')) return;
+      if(isOpen){
+        r.classList.remove('rows-more');
+        r.style.display=(r.tagName==='TR'?'':'grid');
+      } else {
+        r.classList.add('rows-more');
+        r.style.display='none';
+      }
     });
     if (lbl) lbl.textContent = isOpen ? 'Ver menos' : 'Ver 5 más';
     if (ico) ico.style.transform = isOpen ? 'rotate(180deg)' : '';

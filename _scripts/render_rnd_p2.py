@@ -278,7 +278,10 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                 h_align = col.get('align', 'right')
                 color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
                 pr = "12px" if idx_c == len(cols_def)-1 else "8px"
-                th_cells += (f'<th style="padding:6px {pr} 6px 0;border-bottom:2px solid {accent_color};'
+                pl = "0"
+                if h_align == 'center':
+                    pl = "0"; pr = "0"
+                th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {accent_color};'
                              f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
                              f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
         header = f'<thead><tr>{th_cells}</tr></thead>'
@@ -303,9 +306,8 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
             elif col.get('key') == 'bnd':
                 bnd_val = r.get('BandaNoDispo','') or r.get('BandaRPM','')
                 bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
-                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">'
-                             f'<span style="font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
-                             f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.03em;">{bnd_val}</span>'
+                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:center;white-space:nowrap;">'
+                             f'<span class="sev-badge" style="background:{bc["bg"]};color:{bc["fg"]};">{bnd_val}</span>'
                              f'</td>')
             else:
                 pr = "12px" if idx_c == len(cols_def)-1 else "8px"
@@ -458,14 +460,15 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     th_cells = ''
     for idx_h, h in enumerate(headers):
         pl = '12px' if idx_h == 0 else '0'
-        pr = '20px' if idx_h == n_cols - 1 else '8px'
+        pr = '12px' if idx_h == n_cols - 1 else '8px'
         if idx_h == 0 and sb_id:
             th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};text-align:left;">'
                          f'{searchbox_header_html(sb_id, accent_color=RND_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
                          f'</th>')
         else:
             color = RND_ACCENT if idx_h == 0 else 'var(--ink-muted)'
-            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};'
+            pl_th, pr_th = (pl, pr) if aligns[idx_h] != 'center' else ('0', '0')
+            th_cells += (f'<th style="padding:6px {pr_th} 6px {pl_th};border-bottom:2px solid {RND_ACCENT};'
                          f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
                          f'color:{color};text-align:{aligns[idx_h]};white-space:nowrap;">{h}</th>')
     header = f'<thead><tr>{th_cells}</tr></thead>'
@@ -475,8 +478,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
         bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_html = (f'<span style="font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
-                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.03em;">{bnd}</span>')
+        badge_html = f'<span class="sev-badge" style="background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};">{bnd}</span>'
 
         if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
@@ -510,7 +512,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{row_idx+1}. {truncate(raw_label,36)}</div>'
         td_cells = (
             f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">{name_html}</td>'
-            f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
+            f'<td style="padding:7px 8px 7px 0;text-align:center;white-space:nowrap;">{badge_html}</td>'
             f'{_td(fmt_big(r.get("Trafico",r.get("trafico",0))), "right")}'
             f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
             f'{_td(wow_nd, "right", bold=False)}'
@@ -726,15 +728,16 @@ def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
 def render_bloque_hoteles():
     """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
     # Demanda No Convertida
-    def _fmt_wow_rnd(v, mejora_si_negativo=False):
-        """Pill WoW para RND: verde si baja %NoDispo, rojo si sube."""
+    def _fmt_wow_rnd(v, mejora_si_negativo=False, is_percent=False):
+        """Pill WoW para RND: verde si baja %NoDispo, rojo si sube.
+        is_percent=True: añade '%' al final (para WoW de IPM relativo)
+        is_percent=False: solo número (para WoW de %NoDispo en pp)
+        """
         import math
         if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
             return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
         if abs(v) < 0.05:
             return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-        # Para %NoDispo: bajar es bueno (verde si negativo)
-        # Para IPM: subir es bueno (verde si positivo)
         if mejora_si_negativo:
             mejora = v < 0
         else:
@@ -742,17 +745,18 @@ def render_bloque_hoteles():
         wc = '#2F6C34' if mejora else '#C0392B'
         wb = '#EAF3DE' if mejora else '#FCE8E6'
         arrow = '↓' if v < 0 else '↑'
-        txt = f'{arrow}{abs(v):.2f}'.replace('.', ',')
+        suffix = '%' if is_percent else ''
+        txt = f'{arrow}{abs(v):.1f}{suffix}'.replace('.', ',')
         return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
 
     cols_dnc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
         {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
         {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
+        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
     ]
     df_dnc = TOP['demanda_nc'].reset_index(drop=True)
     panel_dnc = _render_panel_top_table(df_dnc, cols_dnc, sb_id='sb-rh-dnc')
@@ -762,10 +766,10 @@ def render_bloque_hoteles():
     # Bajo Rendimiento
     cols_br = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
         {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
+        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
     ]
     df_br = TOP['bajo_rend'].reset_index(drop=True)
     panel_br = _render_panel_top_table(df_br, cols_br, sb_id='sb-rh-br')
@@ -774,12 +778,12 @@ def render_bloque_hoteles():
     # Sin Conversión
     cols_sc = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
         {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
         {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
+        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
     ]
     df_sc = TOP['sin_conv'].reset_index(drop=True)
     panel_sc = _render_panel_top_table(df_sc, cols_sc, sb_id='sb-rh-sc')
@@ -789,12 +793,12 @@ def render_bloque_hoteles():
     # Críticos: hoteles con BandaNoDispo en Crítica o Súper Crítica (>20% NoDispo)
     cols_crit = [
         {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'left'},
+        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
         {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
         {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
         {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
         {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False)},
+        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
     ]
     df_crit_all = p80_hotel[p80_hotel['BandaNoDispo'].isin(['Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
     df_crit = df_crit_all.head(100).reset_index(drop=True)

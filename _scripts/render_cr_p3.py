@@ -54,7 +54,7 @@ def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
     bc = BANDA_COLORS.get(bnd, {})
     bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+    return f'<span class="sev-badge" style="background:{bg};color:{fg};">{bnd}</span>'
 
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv):
@@ -696,7 +696,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def tab_panel_hotel(t_key, df_full, parse_hotel=False):
         """Lista plana top 100: 5 visible, 5 rows-more, 90 sb-hidden.
         Todo dentro de un único tbl-wrap para que attachTable vea las 100."""
-        grid = '1fr 70px 50px 32px 50px 32px'
+        grid = '1fr 60px 50px 48px 52px 48px'
         sb_hid = f'sb-{idx_str}-h-{t_key}'
         header = (f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;padding:0;border-bottom:2px solid {CR_ACCENT};margin-bottom:2px;">'
                   f'{searchbox_header_html(sb_hid, accent_color=CR_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
@@ -738,7 +738,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f' data-lbl="{hotel_name} {r.get("CorpName","")}"'
                           f' style="display:grid;grid-template-columns:{grid};width:100%;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                           f'<div><div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{i+1}. {hotel_name}</div>{sub_html}</div>'
-                          + (lambda bv: f'<div style="display:flex;align-items:center;"><span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
+                          + (lambda bv: f'<div style="display:flex;align-items:center;"><span class="sev-badge" style="background:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["bg"]};color:{BANDA_COLORS.get(bv, BANDA_COLORS["Sin Conversión"])["fg"]};">{bv}</span></div>')(r.get('BandaEficacia','') or banda_eficacia(ef_val)) +
                           f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(cv_val)}</span>'
                           + (_build_wow_cv_cell(r.get('ConvRate_WoW_pp'))) +
                           f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'

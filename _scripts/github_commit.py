@@ -48,7 +48,7 @@ SCRIPT_FILES = [
     'render_helpers.py',
     'render_cr_p1.py', 'render_cr_p2.py', 'render_cr_p3.py',
     'render_rnd_p1.py', 'render_rnd_p2.py', 'render_rnd_p3.py',
-    'asset_cr_head.html', 'asset_rnd_head.html',
+    'asset_shared_head.html', 'asset_cr_head.html', 'asset_rnd_head.html',
     'asset_cr_masthead.html', 'asset_rnd_masthead.html',
     'asset_cr_footer.html', 'asset_rnd_footer.html',
     'calc_cr.py', 'calc_rnd.py',

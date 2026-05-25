@@ -167,18 +167,6 @@ Las tablas de Análisis por dimensión (Corp/Destino/Channel) tenían colgroups 
 `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `asset_shared_head.html`
 
 
-### Bold también en RND (sesión post-fix)
-El bold de Eficacia/ConvRate aplicado en CR se extiende a RND para consistencia:
-- Hero global %NoDispo (40px) y IPM (40px): `font-weight:700`
-- Filas internas hero (destino/corp/hotel/pais): cell value `font-weight:700`
-- Tabla hotel (4 ópticas): TD value `font-weight:700` (Tráfico, %NoDispo, IPM)
-- Tabla dim (Corp/Destino/País): `_td(bold=True)` por default; WoW pills se pasan con `bold=False` para no doblar el peso ya aplicado por su inline style
-- Canastas RND: KPI 40px + spans de valores en bold
-
-### Archivos modificados
-`render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py`
-
-
 **Última actualización:** Mayo 2026 · post W19 · build_package + hub pipeline · bugs #16 #17 #18 · destinatarios 15
 
 ## 📝 Cambios post W19 · Mayo 2026 (sesión fixes Excel + HTML)
@@ -1203,5 +1191,58 @@ Aplicado en todos los renders (RND p2/p3, CR p2/p3).
 
 **Pipeline W21 ejecutado completo:** reportes HTML, 8 Excels, Mail_W21.html, index.html hub, Price_W21.zip (19MB), ProyectoClaude_PRICE_W21.zip (43 archivos planos).
 
+---
 
-**Última actualización:** W21 · Mayo 2026 · HTML tables + cleanup visual
+## Sesión Post-W21 · Mayo 2026 · Visual polish: sev-badge, toggle, wow-pill, colwidths
+
+### Contexto
+Sesión de correcciones visuales post-pipeline W21, sin cambio de datos. Todos los cambios son de presentación HTML/CSS/JS. No se ejecutó pipeline completo — se hizo render parcial + validación visual iterativa.
+
+### .sev-badge · Clase CSS unificada
+Se creó la clase `.sev-badge` en `asset_shared_head.html` y se aplicó a **todas** las severity badges en todos los renders (4582 instancias RND + 2891 CR). Reemplaza styles inline largos y heterogéneos.
+
+Especificación final:
+- `font-size:7px` (antes variaba entre 7-9px por archivo)
+- Sin `min-width` — evita truncado de "SÚPER CRÍTICA" en cols de 60px
+- `outline:1px solid rgba(0,0,0,0.15)` — visibilidad contra fondo crema sin alterar box-sizing
+- `letter-spacing:.02em` para que "SÚPER CRÍTICA" quepa en el espacio disponible
+
+### Migración wow-pill · margin-left removido
+El CSS de `.wow-pill` tenía `margin-left:4px` que causaba un "guion fantasma" visible al lado de los pills en las tablas. Removido.
+
+`_fmt_wow_cv()` en `render_cr_p2.py` convertido a **inline style completo** (no depende de clase CSS) para independencia de cache del browser.
+
+### Toggle "Ver más / Ver menos" · Bug fix
+El handler JS buscaba `.rows-more` para ocultar filas en el segundo click (colapsar). Como la clase se remueve en el primer expand, el segundo click no encontraba las filas y no colapsaba. Fix: selector cambiado a `[data-row-idx]` filtrando índices 5-9, que es estable entre toggles.
+
+### wow_box · outer_bg unificado
+`wow_box(compact=True)` para canastas usaba `outer_bg:var(--paper)` que se mimetizaba con el fondo de `.canasta-content` (también `var(--paper)`), haciendo invisibles las celdas W(N-1) y W(N). Cambiado a `var(--paper-soft)` para ambos modos (compact y global), garantizando contraste.
+
+### Colwidths calibrados
+**RND hotel/dim (7 cols):** sin cambio  
+**CR dim 8-cols:** `[800, 60, 56, 48, 50, 52, 50, 52]` = 1168px  
+— WoW cols aumentadas de 32px → 52px para mostrar pills con 2 decimales sin truncado  
+**CR dim 7-cols:** `[800, 64, 60, 50, 58, 78, 58]` = 1168px  
+**CR dim 6-cols:** `[800, 70, 72, 60, 80, 86]` = 1168px  
+
+**Canastas RND dim:** grid `1fr 60px 54px 48px 48px 52px 48px`  
+**Canastas RND hotel:** grid `1fr 60px 48px 48px 52px 48px`  
+**Canastas CR hotel:** grid `1fr 60px 50px 48px 52px 48px`  
+
+### Severity header alineado al centro
+TH "SEVERITY" en todas las tablas hotel y dim (CR + RND) cambiado a `text-align:center` con padding simétrico (`pl=0, pr=0`) para que el texto quede centrado sobre los badges centrados. Badge TD también `text-align:center`.
+
+### Padding última columna: 20px → 12px
+El padding-right:20px en la última celda (WoW Eficacia/IPM) comprimía el espacio del pill. Reducido a 12px en `render_cr_p2.py` y `render_rnd_p2.py`.
+
+### Súper Crítica · color definitivo
+Después de iteraciones: `bg:#E8E6E3, fg:#2D2828` (gris oscuro sobre gris claro). El outline del sev-badge garantiza la separación visual contra el papel crema. **No se cambió a rojo** — mantiene semántica de la Paleta D.
+
+### Regla de workflow establecida
+No correr pipeline completo en cada iteración de fix visual. Flujo correcto:
+1. Fix en script → render parcial → assemble → validación visual → (si OK) pipeline completo.
+
+### Archivos modificados
+`asset_shared_head.html` · `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_rnd_p2.py` · `render_rnd_p3.py`
+
+**Última actualización:** W21 (post) · Mayo 2026 · sev-badge · toggle fix · wow-pill · colwidths · wow_box paper-soft

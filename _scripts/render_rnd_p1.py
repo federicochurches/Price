@@ -15,7 +15,7 @@ def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
     bc = BANDA_COLORS.get(bnd, {})
     bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span style="flex-shrink:1;min-width:0;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:clip;white-space:nowrap;">{bnd}</span>'
+    return f'<span class="sev-badge" style="background:{bg};color:{fg};">{bnd}</span>'
 
 
 # Cargar datos

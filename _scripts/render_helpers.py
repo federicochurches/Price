@@ -35,7 +35,7 @@ BANDA_COLORS = {
     'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D', 'bar':'#FCD34D'},
     'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316', 'bar':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B', 'bar':'#C0392B'},
-    'Súper Crítica': {'bg':'#EDECEC', 'fg':'#4A3F3F', 'bd':'#9B2222', 'bar':'#C0392B'},
+    'Súper Crítica': {'bg':'#E8E6E3',  'fg':'#2D2828', 'bd':'#9B2222', 'bar':'#DC2626'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377', 'bar':'#8A8377'},
 }
 
@@ -44,7 +44,7 @@ def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
     bc = BANDA_COLORS.get(bnd, {})
     bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+    return f'<span class="sev-badge" style="background:{bg};color:{fg};">{bnd}</span>'
 
 def mini_badge(bnd):
     return _mini_badge(bnd)
@@ -139,7 +139,7 @@ def wow_box(curr_label, curr_str, wow_str, wow_color, accent_color,
     gap = '8px'     if compact else '6px'
     p   = '8px'     if compact else '6px'
     br  = '4px'     if compact else '3px'
-    outer_bg = 'var(--paper)' if compact else 'var(--paper-soft)'
+    outer_bg = 'var(--paper-soft)'  # both compact and global use paper-soft for contrast
     cell_br  = '3px' if compact else '2px'
     lbl_fs   = '9px' if compact else '8px'
     return (
