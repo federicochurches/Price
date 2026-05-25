@@ -301,9 +301,9 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
             elif c.get('key') == 'bnd':
                 bnd_val = r.get('BandaNoDispo','') or r.get('BandaRPM','')
                 bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
-                row_cells += (f'<div style="display:flex;align-items:center;">'
-                              f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd_val}</span>'
+                row_cells += (f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">'
+                              f'<span style="flex-shrink:1;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
+                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:clip;">{bnd_val}</span>'
                               f'</div>')
             else:
                 row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
@@ -448,9 +448,9 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         row_idx = start_idx + i
         bnd = r.get('BandaNoDispo', '')
         bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_cell = (f'<div style="display:flex;align-items:center;">'
-                      f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+        badge_cell = (f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">'
+                      f'<span style="flex-shrink:1;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
+                      f'background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:clip;">{bnd}</span>'
                       f'</div>')
         if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
         elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
