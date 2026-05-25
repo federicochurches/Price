@@ -626,7 +626,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                      f'</div>')
         if len(df) > 5:
             rows += (f'<button class="rows-toggle" '
-                     f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                     f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                      f'font-size:10px;font-weight:600;color:{RND_ACCENT};letter-spacing:.04em;'
                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                      f'<span class="toggle-label">Ver 5 más</span> '
@@ -686,7 +686,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           + (lambda iv, ib: '<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>' if not ib or ib <= 0 else ('<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#EAF3DE;color:#2F6C34;">↑' + f"{abs(r.get('IPM_WoW_pp', 0) / ib * 100):.1f}%</em>".replace('.', ',') if r.get('IPM_WoW_pp', 0) and r.get('IPM_WoW_pp', 0) > 0 else ('<em style="font-style:normal;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:#FCE8E6;color:#C0392B;">↓' + f"{abs(r.get('IPM_WoW_pp', 0) / ib * 100):.1f}%</em>".replace('.', ',') if r.get('IPM_WoW_pp') else '<em style="font-style:normal;font-size:9px;padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>')))(ipm_val, r.get('IPM_W18', 0)) +
                           '</div>')
         if len(df_full) > 5:
-            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+            rows_html += (f'<button class="rows-toggle" style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                           f'font-size:10px;font-weight:600;color:{RND_ACCENT};letter-spacing:.04em;text-transform:uppercase;'
                           f'padding:4px 0;display:flex;align-items:center;gap:4px;">'
                           f'<span class="toggle-label">Ver 5 más</span>'
