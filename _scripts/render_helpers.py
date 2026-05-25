@@ -322,12 +322,11 @@ def tab_column_header(cols, widths):
         tab_column_header(['Severity','Eficacia','WoW'], 'minmax(0,1fr) 80px 54px 40px')
         tab_column_header(['Severity','%NoDispo','WoW'],  'minmax(0,1fr) 72px 54px 40px')
     """
-    _lbl_style = (
-        'font-size:9px;font-weight:700;text-transform:uppercase;'
-        'letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;'
-    )
+    _lbl_left  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;'
+    _lbl_right = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;'
+    _LEFT_COLS = {'Severity','severity'}
     spans = '<span></span>' + ''.join(
-        f'<span style="{_lbl_style}">{c}</span>' for c in cols
+        f'<span style="{_lbl_left if c in _LEFT_COLS else _lbl_right}">{c}</span>' for c in cols
     )
     return (
         f'<div style="display:grid;grid-template-columns:{widths};'
