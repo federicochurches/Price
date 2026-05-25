@@ -372,54 +372,67 @@ def _fmt_wow(v):
 
 # ============ SECCIÓN TOP 5 helper ============
 def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, start_idx=0, show_header=True, sb_id=None):
-    """Tabla de top hoteles/dims: top 100, primeras 10 visibles, resto sb-hidden.
-    sb_id: si se pasa y show_header=True, la primera columna del header es un searchbox integrado (Prop D).
-    """
-    grid = ' '.join(c['width'] for c in cols_def)
+    """Tabla top hoteles CR como HTML table — table-layout:fixed + colgroup + padding bordes."""
+    # Colgroup
+    col_tags = ''
+    for col in cols_def:
+        w = col['width']
+        if w == '1fr':
+            col_tags += '<col style="width:280px;">'  # nombre col fija para distribución proporcional
+        else:
+            col_tags += f'<col style="width:{w};">'
+    colgroup = f'<colgroup>{col_tags}</colgroup>'
+    n_cols = len(cols_def)
+
+    # Header
     header = ''
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
-        for idx_c, c in enumerate(cols_def):
+        th_cells = ''
+        for idx_c, col in enumerate(cols_def):
+            pl = '12px' if idx_c == 0 else '0'
+            pr = '12px' if idx_c == n_cols - 1 else '8px'
             if idx_c == 0 and sb_id:
-                # Prop D: primera columna = searchbox integrado
-                _hd += searchbox_header_html(sb_id, accent_color=accent_color,
-                                              placeholder='Hotel o corporativo…',
-                                              th_id=f'th-{sb_id}')
+                th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {accent_color};text-align:left;">'
+                             f'{searchbox_header_html(sb_id, accent_color=accent_color, placeholder="Hotel o corporativo…", th_id=f"th-{sb_id}")}'
+                             f'</th>')
             else:
-                h_align = c.get('align','right')
-                color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
-                _hd += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};padding:9px 0;">{c["label"]}</span>'
-        _hd += '</div>'
-        header = _hd
+                h_align = col.get('align', 'right')
+                color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
+                th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {accent_color};'
+                             f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
+                             f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
+        header = f'<thead><tr>{th_cells}</tr></thead>'
 
-    rows_html = header
+    tbody = ''
     for i, r in df.iterrows():
-        row_num = i + 1  # posición 1-based real del df
-        row_idx = i      # 0-based para sb-hidden (primeras 10 visibles)
-        row_cells = ''
-        for c in cols_def:
-            align = c.get('align','right')
-            val = c['fmt'](r) if callable(c['fmt']) else c['fmt']
-            if c.get('key') == 'hotel':
+        row_num = i + 1
+        row_idx = i
+        td_cells = ''
+        for idx_c, col in enumerate(cols_def):
+            align = col.get('align', 'right')
+            val = col['fmt'](r) if callable(col['fmt']) else col['fmt']
+            pl = '12px' if idx_c == 0 else '0'
+            pr = '12px' if idx_c == n_cols - 1 else '8px'
+            if col.get('key') == 'hotel':
                 hotel_name = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36)
                 sub = clean_corp_name(r.get('CorpName',''))
                 chan = r.get('Channel', hotel_channel_map.get(r.get('Hotel',''), ''))
                 sub_line = f'{sub} · {chan}' if chan and chan not in ('', 'N/D', sub) else sub
-                row_cells += (f'<div>'
-                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
-                              f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub_line}</div>'
-                              f'</div>')
-            elif c.get('key') == 'bnd':
+                sub_html = f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub_line}</div>' if sub_line else ''
+                td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:left;">'
+                             f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{row_num}. {hotel_name}</div>'
+                             f'{sub_html}</td>')
+            elif col.get('key') == 'bnd':
                 bnd_val = r.get('BandaEficacia','') or r.get('BandaConvRate','')
                 bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
-                row_cells += (f'<div style="display:flex;align-items:center;">'
-                              f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd_val}</span>'
-                              f'</div>')
-            elif c.get('key') == 'wow':
-                row_cells += f'<span style="text-align:right;font-size:11px;">{val}</span>'
+                td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:left;white-space:nowrap;">'
+                             f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                             f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;">{bnd_val}</span>'
+                             f'</td>')
             else:
-                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{val}</span>'
+                td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
+                             f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{val}</td>')
+
         hist_attrs = ''
         if with_hist:
             ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
@@ -430,26 +443,28 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
             hist_attrs = (f' data-hist-w21="{ef_curr}" data-hist-w20="{round(ef_prev,4)}"'
                           f' data-hist-cv-w21="{cv_curr}" data-hist-cv-w20="{round(cv_prev,4)}"'
                           f' data-hist-label="{lbl}"')
-        # Prop D: las filas llevan data-lbl para que attachTable las encuentre
         lbl_for_tbl = truncate(clean_hotel_name(r.get('Hotel') or '-'), 36) if sb_id else ''
         tbl_attr = f' data-lbl="{lbl_for_tbl} {clean_corp_name(r.get("CorpName",""))}"' if sb_id else ''
         cursor = 'cursor:pointer;' if with_hist else ''
         if row_idx < 5: hidden = ''
         elif row_idx < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
-        rows_html += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                      f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
-                      f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{row_cells}</div>')
-    # Botón Ver 5 más (si hay filas rows-more)
+        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                  f' style="{cursor}transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
+                  f'{td_cells}</tr>')
+
+    ver_mas = ''
     n_total = len(df)
     if n_total > 5:
-        rows_html += (f'<button class="rows-toggle" '
-                      f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                      f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
-                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                      f'<span class="toggle-label">Ver 5 más</span> '
-                      f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-    return rows_html
+        ver_mas = (f'<button class="rows-toggle" '
+                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
+                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                   f'<span class="toggle-label">Ver 5 más</span> '
+                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+
+    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+            f'{colgroup}{header}<tbody>{tbody}</tbody></table>{ver_mas}')
 
 def render_criticos():
     df1 = TOP['criticos']
@@ -544,59 +559,84 @@ def render_sin_conv():
 
 # ============ SECCIÓN POR DIMENSIÓN (Corp / Destino / Channel) ============
 def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hist=False, sb_id=None):
-    """Tabla de dimensión (corp/destino/channel).
-    sb_id: si se pasa, la primera columna del header es searchbox integrado (Prop D).
-    Badge de banda: Corporativo (BandaEficacia), Destino (BandaEficacia), Channel (ver render_chan_table).
-    """
-    """Tabla dimensión: 100 filas, 10 visibles, resto sb-hidden. Estilos unificados."""
+    """Tabla dim CR como HTML table — table-layout:fixed + colgroup + padding bordes."""
     import math
     has_wow = wow_col and wow_col in df.columns
     has_cv_wow = 'ConvRate_WoW_pp' in df.columns if df is not None and hasattr(df, 'columns') else False
+
+    # Define column widths based on what's available
     if has_wow and has_cv_wow:
-        grid = '1fr 90px 80px 60px 68px 38px 68px 38px'
+        col_widths = [280, 90, 80, 60, 65, 38, 65, 38]
+        headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','WoW','Eficacia','WoW']
+        aligns  = ['left','left','right','right','right','right','right','right']
     elif has_wow:
-        grid = '1fr 90px 90px 70px 70px 75px 50px'
+        col_widths = [280, 90, 90, 70, 70, 75, 50]
+        headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia','WoW']
+        aligns  = ['left','left','right','right','right','right','right']
     else:
-        grid = '1fr 90px 90px 70px 70px 75px'
-    headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate']
-    if has_cv_wow: headers.append('WoW')
-    headers.append('Eficacia')
-    if has_wow: headers.append('WoW')
+        col_widths = [280, 90, 90, 70, 70, 75]
+        headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia']
+        aligns  = ['left','left','right','right','right','right']
+    n_cols = len(headers)
 
-    # Header: Prop D si sb_id, normal en caso contrario
-    rows = f'<div style="display:grid;grid-template-columns:{grid};gap:10px;padding:4px 0;border-bottom:2px solid {CR_ACCENT};margin-bottom:4px;align-items:end;">'
+    # Colgroup
+    colgroup = '<colgroup>'
+    for w in col_widths:
+        colgroup += f'<col style="width:{w}px;">'
+    colgroup += '</colgroup>'
+
+    # Header
+    th_cells = ''
     for idx_h, label in enumerate(headers):
+        pl = '12px' if idx_h == 0 else '0'
+        pr = '12px' if idx_h == n_cols - 1 else '8px'
         if idx_h == 0 and sb_id:
-            rows += searchbox_header_html(sb_id, accent_color=CR_ACCENT,
-                                          placeholder=f'{dim_label}…',
-                                          th_id=f'th-{sb_id}')
+            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {CR_ACCENT};text-align:left;">'
+                         f'{searchbox_header_html(sb_id, accent_color=CR_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
+                         f'</th>')
         else:
-            align = 'left' if label in (dim_label, 'Severity') else 'right'
-            color = CR_ACCENT if label==dim_label else 'var(--ink-muted)'
-            rows += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{align};padding:9px 0;">{label}</span>'
-    rows += '</div>'
+            color = CR_ACCENT if idx_h == 0 else 'var(--ink-muted)'
+            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {CR_ACCENT};'
+                         f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
+                         f'color:{color};text-align:{aligns[idx_h]};white-space:nowrap;">{label}</th>')
+    header = f'<thead><tr>{th_cells}</tr></thead>'
 
+    tbody = ''
     for i, r in df.iterrows():
-        row_idx = start_idx + i   # 0-based para sb-hidden
+        row_idx = start_idx + i
         bnd = r.get('BandaEficacia','')
         bc = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_cell = (f'<div style="display:flex;align-items:center;">'
-                      f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
-                      f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
-                      f'</div>')
+        badge_html = (f'<span style="font-size:8px;font-weight:700;padding:2px 5px;border-radius:2px;'
+                      f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;">{bnd}</span>')
         n = row_idx + 1
         label_val = clean_corp_name(r[dim_col]) if dim_col == 'CorpName' else (clean_destino_name(r[dim_col]) if dim_col == 'Destino' else truncate(r[dim_col], 28))
         cv_val = r.get('ConvRate', None)
         cv_str = fmt_pct2(cv_val) if cv_val is not None and not (isinstance(cv_val, float) and math.isnan(cv_val)) else '—'
-        cells = (f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{n}. {label_val}</span></div>'
-                 f'{badge_cell}'
-                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_int_es(r["CR_Unicos"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-variant-numeric:tabular-nums;">{fmt_int_es(r["Bookings"])}</span>'
-                 f'<span style="text-align:right;color:var(--ink-muted);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{cv_str}</span>'
-                 f'{_fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan"))) if has_cv_wow else ""}'
-                 f'<span style="text-align:right;color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{fmt_pct2(r["Eficacia"])}</span>')
+
+        # Build cells
+        def _td(content, align='right', pl='0', pr='8px', extra=''):
+            return (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
+                    f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{extra}">{content}</td>')
+
+        name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{n}. {label_val}</div>'
+        td_cells = f'<td style="padding:7px 8px 7px 12px;text-align:left;">{name_html}</td>'
+        td_cells += f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
+        td_cells += _td(fmt_int_es(r["CR_Unicos"]), 'right', '0', '8px')
+        td_cells += _td(fmt_int_es(r["Bookings"]), 'right', '0', '8px')
+        td_cells += _td(cv_str, 'right', '0', '8px', 'color:var(--ink-muted);font-weight:600;')
+
+        if has_cv_wow:
+            cv_wow_html = _fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))
+            td_cells += f'<td style="padding:7px 8px 7px 0;text-align:right;font-size:11px;white-space:nowrap;">{cv_wow_html}</td>'
+
+        # Eficacia column - might be last if no wow_col
+        is_last_eficacia = not has_wow
+        pr_ef = '12px' if is_last_eficacia else '8px'
+        td_cells += _td(fmt_pct2(r["Eficacia"]), 'right', '0', pr_ef, 'font-weight:600;')
+
         if has_wow:
             wow_v = r.get(wow_col, None)
+            wow_html = _WOW_NEUTRO
             try:
                 if wow_v is not None and wow_v == wow_v and not math.isnan(float(wow_v)) and abs(wow_v) >= 0.005:
                     mejora = wow_v > 0
@@ -604,12 +644,11 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
                     wbg = '#EAF3DE' if mejora else '#FCE8E6'
                     arrow = '↑' if wow_v > 0 else '↓'
                     txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                    wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};text-align:right;">{txt}</em>'
-                else:
-                    wow_html = _WOW_NEUTRO
+                    wow_html = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wbg};color:{wc};">{txt}</em>'
             except:
-                wow_html = _WOW_NEUTRO
-            cells += wow_html
+                pass
+            td_cells += f'<td style="padding:7px 12px 7px 0;text-align:right;white-space:nowrap;">{wow_html}</td>'
+
         hist_attrs = ''
         if with_hist:
             ef_curr = round(float(r.get('Eficacia', 0)) * 100, 4)
@@ -631,10 +670,12 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         elif row_idx < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
         tbl_attr = f' data-lbl="{label_val}"' if sb_id else ''
-        rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
-                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);{cursor}">{cells}</div>')
-    return rows
+        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
+                  f' style="{cursor}transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
+                  f'{td_cells}</tr>')
+
+    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+            f'{colgroup}<thead><tr>{th_cells}</tr></thead><tbody>{tbody}</tbody></table>')
 
 def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
     """Top 10 a 2 columnas (5+5). df_full debe tener al menos 10 rows ideal."""
