@@ -271,13 +271,14 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
         th_cells = ''
         for idx_c, col in enumerate(cols_def):
             if idx_c == 0 and sb_id:
-                th_cells += (f'<th style="padding:6px 8px 6px 0;border-bottom:2px solid {accent_color};text-align:left;">'
+                th_cells += (f'<th style="padding:6px 8px 6px 12px;border-bottom:2px solid {accent_color};text-align:left;">'
                              f'{searchbox_header_html(sb_id, accent_color=accent_color, placeholder="Hotel o corporativo…", th_id=f"th-{sb_id}")}'
                              f'</th>')
             else:
                 h_align = col.get('align', 'right')
                 color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
-                th_cells += (f'<th style="padding:6px 8px 6px 0;border-bottom:2px solid {accent_color};'
+                pr = "12px" if idx_c == len(cols_def)-1 else "8px"
+                th_cells += (f'<th style="padding:6px {pr} 6px 0;border-bottom:2px solid {accent_color};'
                              f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
                              f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
         header = f'<thead><tr>{th_cells}</tr></thead>'
@@ -287,7 +288,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     tbody = ''
     for i, r in df.iterrows():
         td_cells = ''
-        for col in cols_def:
+        for idx_c, col in enumerate(cols_def):
             align = col.get('align', 'right')
             val = col['fmt'](r) if callable(col['fmt']) else col['fmt']
             if col.get('key') == 'hotel':
@@ -295,7 +296,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                 sub = r.get('CorpName', '')
                 sub_html = (f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;'
                             f'letter-spacing:.05em;margin-top:1px;">{sub}</div>') if sub else ''
-                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:left;">'
+                td_cells += (f'<td style="padding:7px 8px 7px 12px;text-align:left;">'
                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
                              f'overflow:hidden;text-overflow:ellipsis;max-width:260px;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                              f'{sub_html}</td>')
@@ -307,7 +308,8 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.03em;">{bnd_val}</span>'
                              f'</td>')
             else:
-                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:{align};font-size:11px;'
+                pr = "12px" if idx_c == len(cols_def)-1 else "8px"
+                td_cells += (f'<td style="padding:7px {pr} 7px 0;text-align:{align};font-size:11px;'
                              f'font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{val}</td>')
 
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
