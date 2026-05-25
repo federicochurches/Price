@@ -25,17 +25,17 @@ df18['BandaRPM'] = df18.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis
 # CREAR TOP 50 para cada categoría
 # 1. DEMANDA NO CONVERTIDA (TraficoNoDispo > 0, ordenado por DemandaNoConvertida DESC)
 df_dnc = df18[df18['TraficoNoDispo'] > 0].copy()
-df_dnc_top50 = df_dnc.nlargest(50, 'DemandaNoConvertida')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].reset_index(drop=True)
+df_dnc_top50 = df_dnc.sort_values('%NoDispo', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].reset_index(drop=True)
 df_dnc_top50.insert(0, 'Rk', range(1, len(df_dnc_top50)+1))
 
 # 2. BAJO RENDIMIENTO (Bookings > 0, BandaRPM in Crítica/Revisar, ordenado por Trafico DESC)
 df_br = df18[(df18['Bookings'] > 0) & (df18['BandaRPM'].isin(['Crítica','Revisar']))].copy()
-df_br_top50 = df_br.nlargest(50, 'Trafico')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].reset_index(drop=True)
+df_br_top50 = df_br.sort_values('%NoDispo', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].reset_index(drop=True)
 df_br_top50.insert(0, 'Rk', range(1, len(df_br_top50)+1))
 
 # 3. SIN CONVERSIÓN (Bookings = 0, ordenado por Trafico DESC)
 df_sc = df18[df18['Bookings'] == 0].copy()
-df_sc_top50 = df_sc.nlargest(50, 'Trafico')[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','BandaNoDispo']].reset_index(drop=True)
+df_sc_top50 = df_sc.sort_values('Trafico', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','BandaNoDispo']].reset_index(drop=True)
 df_sc_top50.insert(0, 'Rk', range(1, len(df_sc_top50)+1))
 
 wb = Workbook()
@@ -134,8 +134,8 @@ add_table(ws3, df_rpm, start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
 
 # ==================== HOJA 4: DEMANDA NO CONVERTIDA Top 50 ====================
 ws4 = wb.create_sheet('Demanda No Convertida')
-add_title(ws4, 'Top 50 · Demanda No Convertida',
-          f'Hoteles con mayor volumen de búsquedas perdidas (TraficoNoDispo) · Total: {len(df_dnc)} hoteles con demanda NC')
+add_title(ws4, 'Top 100 · Demanda No Convertida',
+          f'Top 100 hoteles · ordenado por %NoDispo ↓ (mayor a menor) · Total: {len(df_dnc)} hoteles con demanda NC')
 df_dnc_out = df_dnc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
 add_table(ws4, df_dnc_out,
           start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0','DemandaNoConvertida':'#,##0'},
@@ -143,7 +143,7 @@ add_table(ws4, df_dnc_out,
 
 # ==================== HOJA 5: BAJO RENDIMIENTO Top 50 ====================
 ws5 = wb.create_sheet('Bajo Rendimiento')
-add_title(ws5, 'Top 50 · Bajo Rendimiento',
+add_title(ws5, 'Top 100 · Bajo Rendimiento',
           f'Hoteles con BKGS>0 pero IPM en banda Crítica/Revisar (<$650) · Total: {len(df_br)} hoteles')
 df_br_out = df_br_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
 add_table(ws5, df_br_out,
@@ -152,7 +152,7 @@ add_table(ws5, df_br_out,
 
 # ==================== HOJA 6: SIN CONVERSIÓN Top 50 ====================
 ws6 = wb.create_sheet('Sin Conversión')
-add_title(ws6, 'Top 50 · Sin Conversión',
+add_title(ws6, 'Top 100 · Sin Conversión',
           f'Hoteles con Bookings=0 · Total: {len(df_sc)} hoteles sin conversión · cohorte estructural')
 df_sc_out = df_sc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','BandaNoDispo']].rename(columns={'Trafico':'Tráfico'})
 add_table(ws6, df_sc_out,

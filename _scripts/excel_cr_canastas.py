@@ -1,3 +1,4 @@
+import re
 """
 Excel Análisis CheckRates por Canasta · 3 Excels (B2C, OP, CUG)
 Genera un Excel de 9 pestañas para cada canasta
@@ -10,6 +11,11 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
+def clean_hotel_name(name):
+    if name and isinstance(name, str):
+        return re.sub(r"^\(\d+\)\s*-\s*", "", name).strip()
+    return name
+
 
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as _f:
     D = pickle.load(_f)
@@ -141,38 +147,38 @@ for canasta_key, canasta_data in CANASTA.items():
         # Pestaña 3: Top 100 Críticos
         ws = wb.create_sheet('Críticos')
         add_title(ws, f'Top Críticos · {canasta_name}')
-        add_table(ws, critic, start_row=5, banda_col='BandaEficacia')
+        add_table(ws, critic, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaEficacia')
         
         # Pestaña 4: Top 100 Bajo Rendimiento
         ws = wb.create_sheet('Bajo Rendimiento')
         add_title(ws, f'Top Bajo Rendimiento · {canasta_name}')
-        add_table(ws, bajo, start_row=5, banda_col='BandaEficacia')
+        add_table(ws, bajo, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaEficacia')
         
         # Pestaña 5: Sin Conversión
         ws = wb.create_sheet('Sin Conversión')
         add_title(ws, f'Sin Conversión · {canasta_name}')
-        add_table(ws, sin_conv, start_row=5, banda_col='BandaConvRate')
+        add_table(ws, sin_conv, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaConvRate')
         
         # Pestaña 6: Menor ConvRate
         ws = wb.create_sheet('Menor ConvRate')
         add_title(ws, f'Menor ConvRate · {canasta_name}')
-        add_table(ws, menor_cv, start_row=5, banda_col='BandaConvRate')
+        add_table(ws, menor_cv, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaConvRate')
         
         # Pestañas por dimensión (si existen)
         if 'g_corp' in canasta_data:
             ws = wb.create_sheet('Por Corporativo')
             add_title(ws, f'Top Corporativos · {canasta_name}')
-            add_table(ws, canasta_data['g_corp'], start_row=5)
+            add_table(ws, canasta_data['g_corp'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
         
         if 'g_dest' in canasta_data:
             ws = wb.create_sheet('Por Destino')
             add_title(ws, f'Top Destinos · {canasta_name}')
-            add_table(ws, canasta_data['g_dest'], start_row=5)
+            add_table(ws, canasta_data['g_dest'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
         
         if 'g_chan' in canasta_data:
             ws = wb.create_sheet('Por Channel')
             add_title(ws, f'Top Channels · {canasta_name}')
-            add_table(ws, canasta_data['g_chan'], start_row=5)
+            add_table(ws, canasta_data['g_chan'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
         
         # Guardar
         filename = f'Analisis_Checkrates_{canasta_name}_7d.xlsx'

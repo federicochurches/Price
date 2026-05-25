@@ -158,34 +158,34 @@ for canasta_key, canasta_data in CANASTA.items():
         ws = wb.create_sheet('Bajo Rendimiento')
         add_title(ws, f'Top 100 Bajo Rendimiento · {canasta_name}')
         bajo_rend_all = pd.concat([bajo_rend, bajo_rend_extra], ignore_index=True).drop_duplicates().head(100)
-        add_table(ws, bajo_rend_all, start_row=5, banda_col='BandaNoDispo')
+        add_table(ws, bajo_rend_all, start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0','DemandaNoConvertida':'#,##0'}, banda_col='BandaNoDispo')
         
         # Pestaña 4: Top 100 Sin Conversión
         ws = wb.create_sheet('Sin Conversión')
         add_title(ws, f'Top 100 Sin Conversión · {canasta_name}')
         sin_conv_all = pd.concat([sin_conv, sin_conv_extra], ignore_index=True).drop_duplicates().head(100)
-        add_table(ws, sin_conv_all, start_row=5, banda_col='BandaNoDispo')
+        add_table(ws, sin_conv_all, start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0','DemandaNoConvertida':'#,##0'}, banda_col='BandaNoDispo')
         
         # Pestañas por dimensión (si existen)
         if 'corps_10' in canasta_data:
             ws = wb.create_sheet('Por Corporativo')
             add_title(ws, f'Top Corporativos · {canasta_name}')
-            add_table(ws, canasta_data['corps_10'], start_row=5)
+            add_table(ws, canasta_data['corps_10'], start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0'})
         
         if 'destinos_10' in canasta_data:
             ws = wb.create_sheet('Por Destino')
             add_title(ws, f'Top Destinos · {canasta_name}')
-            add_table(ws, canasta_data['destinos_10'], start_row=5)
+            add_table(ws, canasta_data['destinos_10'], start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0'})
         
         if 'paises_10' in canasta_data:
             ws = wb.create_sheet('Por País')
             add_title(ws, f'Top Países · {canasta_name}')
-            add_table(ws, canasta_data['paises_10'], start_row=5)
+            add_table(ws, canasta_data['paises_10'], start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0'})
         
         # Pestaña: P80 completo
         ws = wb.create_sheet('P80 Completo')
         add_title(ws, f'P80 Hoteles · {canasta_name}')
-        add_table(ws, p80_hotel, start_row=5, banda_col='BandaNoDispo')
+        add_table(ws, p80_hotel, start_row=5, num_formats={'%NoDispo':'0.00%','IPM':'$#,##0','RPM':'$#,##0','Trafico':'#,##0','Bookings':'#,##0','gb_usd':'$#,##0','DemandaNoConvertida':'#,##0'}, banda_col='BandaNoDispo')
         
         # Guardar
         filename = f'Analisis_Rates_NoDispo_{canasta_name}_7d.xlsx'

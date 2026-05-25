@@ -11,11 +11,20 @@ from openpyxl.utils import get_column_letter
 from datetime import datetime
 from engine import banda_eficacia, banda_convrate
 
+import re
+
+def clean_hotel_name(name):
+    """Quita el prefijo (ID) - del nombre del hotel."""
+    if name and isinstance(name, str):
+        return re.sub(r'^\(\d+\)\s*-\s*', '', name).strip()
+    return name
+
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as _f:
     D = pickle.load(_f)
 M = D['M']; TOP = D['TOP']; CANASTA = D['CANASTA']
 sev_ef_p80 = D['sev_ef_p80']; sev_cv_p80 = D['sev_cv_p80']
-g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
+g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel'].copy()
+p80_hotel['Hotel'] = p80_hotel['Hotel'].apply(clean_hotel_name)
 g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
 
 # Agregar columna Channel a p80_hotel usando hotel_channel_map

@@ -7,7 +7,7 @@ import pickle
 import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
-from historico_module import render_historico
+from historico_module_rnd import render_historico_rnd
 from template_seguimiento import render_seguimiento_block
 
 with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
@@ -649,8 +649,8 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
     canvas_id_nd  : ej. 'hrnd-hotel-nd'
     canvas_id_ipm : ej. 'hrnd-hotel-ipm'
     """
-    html_nd  = render_historico('rnd', 'nodispo', banda_nd,  val_nd,  canvas_id_nd)
-    html_ipm = render_historico('rnd', 'ipm',     banda_ipm, val_ipm, canvas_id_ipm)
+    html_nd  = render_historico_rnd('nodispo', banda_nd,  val_nd,  canvas_id_nd,  current_week)
+    html_ipm = render_historico_rnd('ipm',     banda_ipm, val_ipm, canvas_id_ipm, current_week)
 
     # Wrapper con JS que conecta clicks de filas con data-hist-* al módulo
     js = f"""
