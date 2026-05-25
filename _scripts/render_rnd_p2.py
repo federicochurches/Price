@@ -427,7 +427,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     """
     import math
     RND_ACCENT = '#EA0074'
-    grid = 'minmax(0,1fr) 80px 58px 34px 54px 34px'
+    grid = 'minmax(0,1fr) 80px 58px 56px 54px 56px'
     headers = [dim_label, 'Severity', '%NoDispo', 'WoW', 'IPM', 'WoW']
 
     # Header con o sin searchbox
