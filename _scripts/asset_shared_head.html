@@ -128,7 +128,10 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 .tabs-block .tab-panel{display:none;background:transparent;}
 .tbl-wrap{background:transparent;}
 .tbl-wrap table{background:transparent;}
-.tbl-wrap table tbody tr{background:transparent;}
+.tbl-wrap table tbody tr{background:var(--paper);}
+.tbl-wrap table tbody tr:nth-child(even){background:var(--paper);}
+.tbl-wrap table tbody tr:nth-child(odd){background:var(--paper);}
+.tbl-wrap table tbody td{background:var(--paper);}
 .tabs-block .tab-panel > div{display:block;padding:0;}
 .sev-badge{display:inline-flex;justify-content:center;align-items:center;font-size:7px;font-weight:700;padding:2px 4px;border-radius:2px;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;text-align:center;box-sizing:border-box;line-height:1.2;outline:1px solid rgba(0,0,0,0.15);}
 .tab-kicker{font-size:12px;color:var(--ink-soft);line-height:1.55;margin:0 0 14px;font-style:italic;}
@@ -137,19 +140,23 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 /* KPI Hero · tabs ConvRate (tab-cv-*) */
 
-/* Hoteles · 4 tabs CR (Críticos · Bajo Rend · Sin Conv · Menor ConvRate) */
+/* Hoteles · 4 tabs RND (Críticos · DNC · BR · SC) */
 .tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
+.tabs-block #tab-h-dnc:checked ~ .tab-panels .tab-panel[data-tab="dnc"],
 .tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
-.tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"],
+.tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"]{display:block;}
 #tab-h-crit:checked ~ .tabs-row label[for="tab-h-crit"],
+#tab-h-dnc:checked ~ .tabs-row label[for="tab-h-dnc"],
 #tab-h-br:checked ~ .tabs-row label[for="tab-h-br"],
-#tab-h-sc:checked ~ .tabs-row label[for="tab-h-sc"],
+#tab-h-sc:checked ~ .tabs-row label[for="tab-h-sc"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
-/* Dimensiones · 3 tabs CR (Corp · Destino · Channel) */
+/* Dimensiones · 3 tabs RND (Corp · Destino · País) */
 .tabs-block #tab-d-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
 .tabs-block #tab-d-dest:checked ~ .tab-panels .tab-panel[data-tab="dest"],
+.tabs-block #tab-d-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"]{display:block;}
 #tab-d-corp:checked ~ .tabs-row label[for="tab-d-corp"],
 #tab-d-dest:checked ~ .tabs-row label[for="tab-d-dest"],
+#tab-d-pais:checked ~ .tabs-row label[for="tab-d-pais"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
 
 /* Canastas colapsables · barra minimalista */
 .canasta-block{margin-top:14px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;overflow:hidden;transition:border-color .15s;}
