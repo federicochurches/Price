@@ -343,6 +343,7 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 9. Usar `1fr` en colgroup — siempre ancho fijo (800px nombre + cols datos fijas)
 10. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
 11. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
+12. Setear `r.style.display = 'grid'` directo en JS — usar `r.tagName==='TR'?'':'grid'` para no romper TRs HTML
 
 ---
 
