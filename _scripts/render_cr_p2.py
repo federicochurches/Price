@@ -430,8 +430,9 @@ def render_top_table_cr(df, cols_def, accent_color=CR_ACCENT, with_hist=False, s
                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.04em;">{bnd_val}</span>'
                              f'</td>')
             else:
+                fw = 'font-weight:700;' if col.get('key') in ('cv','ef') else ''
                 td_cells += (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
-                             f'color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{val}</td>')
+                             f'{fw}color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{val}</td>')
 
         hist_attrs = ''
         if with_hist:
@@ -566,15 +567,15 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
 
     # Define column widths based on what's available
     if has_wow and has_cv_wow:
-        col_widths = [800, 90, 80, 60, 65, 38, 65, 38]
+        col_widths = [800, 76, 68, 52, 52, 32, 52, 32]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','WoW','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right','right']
     elif has_wow:
-        col_widths = [800, 90, 90, 70, 70, 75, 50]
+        col_widths = [800, 76, 78, 62, 60, 65, 42]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia','WoW']
         aligns  = ['left','left','right','right','right','right','right']
     else:
-        col_widths = [800, 90, 90, 70, 70, 75]
+        col_widths = [800, 80, 80, 64, 64, 70]
         headers = [dim_label,'Severity','Checkrates','BKGS','ConvRate','Eficacia']
         aligns  = ['left','left','right','right','right','right']
     n_cols = len(headers)
@@ -623,7 +624,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         td_cells += f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">{badge_html}</td>'
         td_cells += _td(fmt_int_es(r["CR_Unicos"]), 'right', '0', '8px')
         td_cells += _td(fmt_int_es(r["Bookings"]), 'right', '0', '8px')
-        td_cells += _td(cv_str, 'right', '0', '8px', 'color:var(--ink-muted);font-weight:600;')
+        td_cells += _td(cv_str, 'right', '0', '8px', 'font-weight:700;')
 
         if has_cv_wow:
             cv_wow_html = _fmt_wow_cv(r.get("ConvRate_WoW_pp", float("nan")))
@@ -632,7 +633,7 @@ def _render_dim_table(df, dim_col, dim_label, start_idx=0, wow_col=None, with_hi
         # Eficacia column - might be last if no wow_col
         is_last_eficacia = not has_wow
         pr_ef = '12px' if is_last_eficacia else '8px'
-        td_cells += _td(fmt_pct2(r["Eficacia"]), 'right', '0', pr_ef, 'font-weight:600;')
+        td_cells += _td(fmt_pct2(r["Eficacia"]), 'right', '0', pr_ef, 'font-weight:700;')
 
         if has_wow:
             wow_v = r.get(wow_col, None)
