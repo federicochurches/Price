@@ -702,9 +702,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                   f'{searchbox_header_html(sb_hid, accent_color=CR_ACCENT, placeholder="Hotel…", th_id=f"th-{sb_hid}")}'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:9px 0;">Severity</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">ConvRate</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW CV</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW</span>'
                   f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">Eficacia</span>'
-                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW Ef</span>'
+                  f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:9px 0;">WoW</span>'
                   f'</div>')
         df_full = df_full.reset_index(drop=True)
         import math as _mh
@@ -744,7 +744,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                           f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(ef_val)}</span>'
                           f'{wow_html}</div>')
         if len(df_full) > 5:
-            rows_html += (f'<button class="rows-toggle" style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+            rows_html += (f'<button class="rows-toggle" style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                           f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;text-transform:uppercase;'
                           f'padding:4px 0;display:flex;align-items:center;gap:4px;">'
                           f'<span class="toggle-label">Ver 5 más</span>'
@@ -859,7 +859,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         # Ver 5 más button (if there are rows-more rows)
         if len(df) > 5:
             rows += (f'<button class="rows-toggle" '
-                     f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
+                     f'style="margin-top:12px;margin-left:0;background:none;border:none;cursor:pointer;'
                      f'font-size:10px;font-weight:600;color:{CR_ACCENT};letter-spacing:.04em;'
                      f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                      f'<span class="toggle-label">Ver 5 más</span> '
