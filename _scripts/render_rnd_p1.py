@@ -222,7 +222,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             grid = 'minmax(0,1fr) 72px 54px 40px' if show_wow else 'minmax(0,1fr) 72px 54px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
-            _nd_w20_raw = r.get('NoDispo_W17', r.get('%NoDispo_W17', None))
+            _nd_w20_raw = r.get('%NoDispo_W18', r.get('NoDispo_W17', r.get('%NoDispo_W17', None)))
             try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
             except: _nd_w20 = _nd_w21
             _bnd_nd = r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else ''
