@@ -262,6 +262,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
 
 
 /* RND v4 · selectores prefijo-agnósticos para tabs */
+.kpi-card input[type="radio"][id*="-pais"]:checked ~ .tabs-row label[for*="-pais"],
 .kpi-card input[type="radio"][id*="-destino"]:checked ~ .tabs-row label[for*="-destino"],
 .kpi-card input[type="radio"][id*="-corp"]:checked ~ .tabs-row label[for*="-corp"],
 .kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tabs-row label[for*="-hotel"],
@@ -272,6 +273,7 @@ footer{border-top:2px solid var(--ink);padding:40px 0 32px;margin-top:80px;font-
   border:1px solid var(--rule);
   border-bottom:1px solid var(--paper);
 }
+.kpi-card input[type="radio"][id*="-pais"]:checked ~ .tab-panels .tab-panel[data-tab="pais"],
 .kpi-card input[type="radio"][id*="-destino"]:checked ~ .tab-panels .tab-panel[data-tab="destino"],
 .kpi-card input[type="radio"][id*="-corp"]:checked ~ .tab-panels .tab-panel[data-tab="corp"],
 .kpi-card input[type="radio"][id*="-hotel"]:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
