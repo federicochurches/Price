@@ -15,7 +15,7 @@ def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
     bc = BANDA_COLORS.get(bnd, {})
     bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">{bnd}</span>'
+    return f'<span style="flex-shrink:1;min-width:0;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;background:{bg};color:{fg};text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:clip;white-space:nowrap;">{bnd}</span>'
 
 
 # Cargar datos
@@ -219,7 +219,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 90px 58px 40px' if show_wow else 'minmax(0,1fr) 90px 58px'
+            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
             _nd_w20_raw = r.get('%NoDispo_W18', r.get('NoDispo_W17', r.get('%NoDispo_W17', None)))
@@ -240,7 +240,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
-                    f'<div style="display:flex;align-items:center;">{_badge_nd}</div>'
+                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_nd}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row
@@ -256,7 +256,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 90px 58px 40px')
+            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 76px 54px 36px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest
@@ -341,7 +341,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 90px 58px 40px' if show_wow else 'minmax(0,1fr) 90px 58px'
+            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
             import math as _mipm
             _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
@@ -362,7 +362,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
-                    f'<div style="display:flex;align-items:center;">{_badge_ipm}</div>'
+                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
                     + (f'{wow_pill}</div>' if show_wow else '</div>'))
             if i < 5: top5 += _row2
@@ -378,7 +378,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 90px 58px 40px')
+            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 76px 54px 36px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest
