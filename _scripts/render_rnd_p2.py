@@ -265,48 +265,51 @@ def render_severities_combinadas():
 
 # ============ SECCIÓN TOP 5 (Demanda No Convertida, Bajo Rendimiento, Sin Conversión, Por Corp/Dest/Pais) ============
 def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker='', show_header=True, sb_id=None):
-    """Top 100: primeras 10 visibles, resto sb-hidden, estilos unificados 11px.
-    sb_id: si se pasa y show_header=True, primera columna del header es searchbox integrado (Prop D).
-    """
-    grid = ' '.join(c['width'] for c in cols_def).strip()
+    """Top 100 como HTML table — distribuye columnas proporcionalmente sin espacio vacío."""
+    # Header
     if show_header:
-        _hd = f'<div style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;padding:0 0 6px 0;border-bottom:2px solid {accent_color};margin-bottom:2px;">'
-        for idx_c, c in enumerate(cols_def):
+        th_cells = ''
+        for idx_c, col in enumerate(cols_def):
             if idx_c == 0 and sb_id:
-                _hd += searchbox_header_html(sb_id, accent_color=accent_color,
-                                              placeholder='Hotel o corporativo…',
-                                              th_id=f'th-{sb_id}')
+                th_cells += (f'<th style="padding:6px 8px 6px 0;border-bottom:2px solid {accent_color};text-align:left;">'
+                             f'{searchbox_header_html(sb_id, accent_color=accent_color, placeholder="Hotel o corporativo…", th_id=f"th-{sb_id}")}'
+                             f'</th>')
             else:
-                h_align = c.get('align','right')
-                color = accent_color if c.get('key') in ('hotel','label') else 'var(--ink-muted)'
-                _hd += f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{color};text-align:{h_align};padding:9px 0;">{c["label"]}</span>'
-        _hd += '</div>'
-        header = _hd
+                h_align = col.get('align', 'right')
+                color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
+                th_cells += (f'<th style="padding:6px 8px 6px 0;border-bottom:2px solid {accent_color};'
+                             f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
+                             f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
+        header = f'<thead><tr>{th_cells}</tr></thead>'
     else:
         header = ''
-    
-    rows = header
+
+    tbody = ''
     for i, r in df.iterrows():
-        row_cells = ''
-        for c in cols_def:
-            align = c.get('align','right')
-            val = c['fmt'](r) if callable(c['fmt']) else c['fmt']
-            if c.get('key') == 'hotel':
+        td_cells = ''
+        for col in cols_def:
+            align = col.get('align', 'right')
+            val = col['fmt'](r) if callable(col['fmt']) else col['fmt']
+            if col.get('key') == 'hotel':
                 hotel_name = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 36)
-                sub = r.get('CorpName','')
-                row_cells += (f'<div style="overflow:hidden;text-align:left;">'
-                              f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
-                              f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub}</div>'
-                              f'</div>')
-            elif c.get('key') == 'bnd':
+                sub = r.get('CorpName', '')
+                sub_html = (f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;'
+                            f'letter-spacing:.05em;margin-top:1px;">{sub}</div>') if sub else ''
+                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:left;">'
+                             f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
+                             f'overflow:hidden;text-overflow:ellipsis;max-width:260px;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
+                             f'{sub_html}</td>')
+            elif col.get('key') == 'bnd':
                 bnd_val = r.get('BandaNoDispo','') or r.get('BandaRPM','')
                 bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
-                row_cells += (f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">'
-                              f'<span style="flex-shrink:1;font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
-                              f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:clip;">{bnd_val}</span>'
-                              f'</div>')
+                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:left;white-space:nowrap;">'
+                             f'<span style="font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;'
+                             f'background:{bc["bg"]};color:{bc["fg"]};text-transform:uppercase;letter-spacing:.03em;">{bnd_val}</span>'
+                             f'</td>')
             else:
-                row_cells += f'<span style="text-align:{align};color:var(--ink);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;">{val}</span>'
+                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:{align};font-size:11px;'
+                             f'font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{val}</td>')
+
         nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
         nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
         ipm_curr = round(max(float(r.get('IPM', r.get('RPM', 0))), 0), 1)
@@ -319,19 +322,21 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
         if i < 5: hidden = ''
         elif i < 10: hidden = ' rows-more'
         else: hidden = ' sb-hidden'
-        rows += (f'<div{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
-                 f' style="display:grid;grid-template-columns:{grid};width:100%;gap:10px;align-items:center;'
-                 f'padding:7px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                 f'{row_cells}</div>')
-    # Botón Ver 5 más si hay filas rows-more
+        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
+                  f' style="cursor:pointer;transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
+                  f'{td_cells}</tr>')
+
+    ver_mas = ''
     if len(df) > 5:
-        rows += (f'<button class="rows-toggle" '
-                 f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                 f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
-                 f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                 f'<span class="toggle-label">Ver 5 más</span> '
-                 f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-    return rows
+        ver_mas = (f'<button class="rows-toggle" '
+                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
+                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+                   f'<span class="toggle-label">Ver 5 más</span> '
+                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
+
+    return (f'<table style="width:100%;border-collapse:collapse;table-layout:auto;">'
+            f'{header}<tbody>{tbody}</tbody></table>{ver_mas}')
 
 def render_demanda_nc():
     df1 = TOP['demanda_nc']
