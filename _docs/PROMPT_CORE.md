@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W22+ · Mayo 2026**
+**Versión W22+ · Mayo 2026 · Patrón HTML tables**
 
 ---
 
@@ -240,12 +240,59 @@ Los renders `render_cr_p1.py` pasan `week_num=f'W{WEEK_NUM_INT}'` explícitament
 
 ```
 RND cards:  minmax(0,1fr) 76px 54px 36px
-RND tablas: cols_def Severity width='90px'
 CR cards:   según cols_def (Severity 90px)
 ```
 
 Celda Severity: `display:flex;align-items:center;min-width:0;overflow:hidden;`
 Badge: `flex-shrink:1;font-size:7px;` — evita expandir la celda fija y comprimir `1fr`.
+
+### Tablas grandes (hotel + dim) · HTML table pattern
+
+Las tablas de "Análisis por hotel" y "Análisis por dimensión" (RND + CR) usan **HTML `<table>` con `table-layout:fixed`** (no CSS grid). Patrón canónico:
+
+```html
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+  <colgroup>
+    <col style="width:800px;">  <!-- nombre: absorbe sobrante -->
+    <col style="width:90px;">   <!-- severity -->
+    <col style="width:72px;">   <!-- traffic -->
+    <col style="width:62px;">   <!-- %nodispo o convrate -->
+    <col style="width:56px;">   <!-- WoW pill -->
+    ...
+  </colgroup>
+  <thead>...</thead>
+  <tbody><tr><td>...</td></tr></tbody>
+</table>
+```
+
+**Truco clave:** width:800px en columna nombre hace que esa columna absorba casi todo el espacio sobrante (proporcionalmente al total declarado), evitando que las columnas de datos se inflen. Cols de datos mantienen sus tamaños asignados ±1-2%.
+
+**Padding bordes:**
+- Primera col (nombre): `padding-left:12px`
+- Última col (WoW): `padding-right:12px`
+- Intermedias: `padding-right:8px`
+
+**Funciones que usan este patrón:**
+- `render_top_table()` en `render_rnd_p2.py`
+- `_render_dim_table_rnd()` en `render_rnd_p2.py`
+- `render_top_table_cr()` en `render_cr_p2.py`
+- `_render_dim_table()` en `render_cr_p2.py`
+
+### Canastas · Grids reducidos (caben en 2 columnas)
+
+Las canastas se renderizan en grid de 2 cols (~570px cada uno). Para evitar overflow:
+- RND hotel/dim canasta: `1fr 70px 60px 50px 32px 50px 32px`
+- CR hotel/dim canasta: `minmax(0,1fr) 70px 56px 48px 52px 30px 52px 30px`
+- Todos con `width:100%` explícito
+
+### .tbl-wrap CSS
+
+```css
+.tbl-wrap{display:block;max-width:100%;overflow-x:hidden;box-sizing:border-box;}
+.tbl-wrap > div{justify-content:start;}
+```
+
+`overflow-x:hidden` recorta cualquier desborde — nunca scrollbar horizontal.
 
 ### asset_shared_head.html · Selectores activos
 
@@ -292,6 +339,10 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 5. Combinar Bajo Rendimiento con Sin Conversión en una pestaña
 6. Editar `index.html` directamente — siempre regenerar con `build_package.py`
 7. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
+8. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed` + `<colgroup>`
+9. Usar `1fr` en colgroup — siempre ancho fijo (800px nombre + cols datos fijas)
+10. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
+11. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
 
 ---
 
@@ -326,4 +377,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 · Mayo 2026 · fixes truncado KPI · week labels dinámicos · dataset RND pivotado
+**Última actualización:** W21 · Mayo 2026 · HTML tables hotel+dim · canastas grid reducido · kickers removidos · overflow-x:hidden · WoW labels normalizados
