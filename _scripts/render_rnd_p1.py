@@ -237,7 +237,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);display:block;word-break:break-word;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_nd}</div>'
@@ -359,7 +359,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);display:block;word-break:break-word;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
