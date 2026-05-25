@@ -331,7 +331,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -535,7 +535,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
     ver_mas = ''
     if len(df) > 5:
         ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+                   f'style="margin-top:6px;margin-left:12px;background:none;border:none;cursor:pointer;'
                    f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
                    f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                    f'<span class="toggle-label">Ver 5 más</span> '
@@ -804,10 +804,10 @@ def render_bloque_hoteles():
     kicker_crit = f'{fmt_int_es(n_crit_total)} hoteles del P80 con %NoDispo &gt; 20% (banda Crítica+). De estos, <strong>{n_supcrit} son Súper Críticos</strong> (&gt; 60%) — primer foco de escalamiento inmediato a Supply.'
     
     panels = (
-        f'<div class="tab-panel" data-tab="crit"><p class="tab-kicker">{kicker_crit}</p>{panel_crit}</div>'
-        f'<div class="tab-panel" data-tab="dnc"><p class="tab-kicker">{kicker_dnc}</p>{panel_dnc}</div>'
-        f'<div class="tab-panel" data-tab="br"><p class="tab-kicker">{kicker_br}</p>{panel_br}</div>'
-        f'<div class="tab-panel" data-tab="sc"><p class="tab-kicker">{kicker_sc}</p>{panel_sc}</div>'
+        f'<div class="tab-panel" data-tab="crit">{panel_crit}</div>'
+        f'<div class="tab-panel" data-tab="dnc">{panel_dnc}</div>'
+        f'<div class="tab-panel" data-tab="br">{panel_br}</div>'
+        f'<div class="tab-panel" data-tab="sc">{panel_sc}</div>'
     )
     
     hist_hotel = render_historico_seccion_rnd(
@@ -871,9 +871,9 @@ def render_bloque_dimensiones():
     k_pais = f'Distribución por país. <strong>{clean_pais_name(top_pais["PaisDestino"], max_len=50)}</strong> concentra {fmt_big(top_pais["Trafico"])} de búsquedas con %NoDispo {fmt_pct2(top_pais["%NoDispo"])}.'
     
     panels = (
-        f'<div class="tab-panel" data-tab="corp"><p class="tab-kicker">{k_corp}</p>{panel_corp}</div>'
-        f'<div class="tab-panel" data-tab="dest"><p class="tab-kicker">{k_dest}</p>{panel_dest}</div>'
-        f'<div class="tab-panel" data-tab="pais"><p class="tab-kicker">{k_pais}</p>{panel_pais}</div>'
+        f'<div class="tab-panel" data-tab="corp">{panel_corp}</div>'
+        f'<div class="tab-panel" data-tab="dest">{panel_dest}</div>'
+        f'<div class="tab-panel" data-tab="pais">{panel_pais}</div>'
     )
     
     hist_dim = render_historico_seccion_rnd(
