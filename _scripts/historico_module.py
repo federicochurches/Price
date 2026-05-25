@@ -1,0 +1,217 @@
+"""
+historico_module.py — Módulo histórico reactivo unificado (W21+).
+Consolida historico_module_v2.py (CR) + historico_module_rnd.py (RND).
+
+Una única función render_historico() genera canvas y JS para todas las métricas:
+  CR:  'eficacia' (%) | 'convrate' (%)
+  RND: 'nodispo' (%, escala invertida) | 'ipm' (USD/M)
+"""
+import json as _json
+from historico_data import get_serie, SEMANAS
+
+METRIC_CONFIGS = {
+    ('cr', 'eficacia'): {'target': 97.0, 'unit': '%', 'invert': False, 'accent': 'var(--accent)', 'accent_rgb': None, 'bar_ceil': 97.0},
+    ('cr', 'convrate'): {'target': 2.5, 'unit': '%', 'invert': False, 'accent': 'var(--accent)', 'accent_rgb': None, 'bar_ceil': 2.5},
+    ('rnd', 'nodispo'): {'target': 0.05, 'unit': '%', 'invert': True, 'accent': '#EA0074', 'accent_rgb': '234,0,116', 'bar_ceil': 0.60},
+    ('rnd', 'ipm'): {'target': 650.0, 'unit': ' USD/M', 'invert': False, 'accent': '#4FC3F4', 'accent_rgb': '79,195,244', 'bar_ceil': 3000.0},
+}
+
+_BANDA_COLORS = {
+    'Exitosa': {'bg': '#E1F5EE', 'fg': '#1A6B4A', 'bd': '#1D9E75', 'footer': '#1A6B4A'},
+    'Aceptable': {'bg': '#FEF9C3', 'fg': '#713F12', 'bd': '#FCD34D', 'footer': '#713F12'},
+    'Revisar': {'bg': '#FED7AA', 'fg': '#C2410C', 'bd': '#F97316', 'footer': '#C2410C'},
+    'Crítica': {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B', 'footer': '#99162B'},
+    'Súper Crítica': {'bg': '#EDECEC', 'fg': '#4A3F3F', 'bd': '#9B2222', 'footer': '#4A3F3F'},
+    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377', 'footer': '#5F5E5A'},
+}
+_BANDA_COLORS_JS = {k: {'bg': v['bg'], 'fg': v['fg'], 'footer': v['footer']} for k, v in _BANDA_COLORS.items()}
+
+def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, global_ceil=None):
+    """Genera módulo histórico unificado para CR y RND (W21+)."""
+    cfg = METRIC_CONFIGS.get((reporte, metrica))
+    if not cfg:
+        raise ValueError(f"Métrica desconocida: ({reporte}, {metrica})")
+    
+    target = cfg['target']
+    bar_ceil = global_ceil if global_ceil is not None else cfg['bar_ceil']
+    accent = cfg['accent']
+    accent_rgb = cfg['accent_rgb']
+    is_inverted = cfg['invert']
+    unit = cfg['unit']
+    
+    semanas = list(SEMANAS)
+    idx_current = len(semanas) - 1
+    
+    scope = 'global'
+    for k in ('op', 'cug', 'b2c'):
+        if k in canvas_id:
+            scope = k
+            break
+    
+    w_current_val = round(val_actual * 100, 2) if metrica in ('eficacia', 'convrate', 'nodispo') else round(val_actual, 1)
+    vals_default = get_serie(reporte, metrica, scope, w_current_val)
+    vals_default = [round(v, 2 if metrica in ('eficacia', 'convrate', 'nodispo') else 1) for v in vals_default]
+    
+    fmt_val = (lambda v: f'{v:.2f}%') if unit == '%' else (lambda v: f'${v:,.0f}')
+    
+    v_min, v_max = min(vals_default), max(vals_default)
+    v_avg = sum(vals_default) / len(vals_default)
+    v_curr = vals_default[-1]
+    
+    bc = _BANDA_COLORS.get(banda_actual, _BANDA_COLORS['Sin Conversión'])
+    
+    def _sparkbars(vals):
+        bars = ''
+        for i, v in enumerate(vals):
+            ratio = min(v / (bar_ceil * 100 if is_inverted else bar_ceil), 1.0) if bar_ceil > 0 else 0.5
+            height = max(int(2 + 16 * ratio), 2)
+            alpha = round(0.20 + 0.75 * ratio, 2)
+            bg = accent if i == idx_current else (f'rgba({accent_rgb},{alpha})' if accent_rgb else f'rgba(92,70,156,{alpha})')
+            bars += f'<div style="flex:1;background:{bg};height:{height}px;border-radius:1px 1px 0 0;" title="{semanas[i]}: {fmt_val(v)}"></div>'
+        return bars
+    
+    spark_html = _sparkbars(vals_default)
+    
+    vals_json = _json.dumps(vals_default)
+    semanas_json = _json.dumps(semanas)
+    banda_colors_js = _json.dumps(_BANDA_COLORS_JS)
+    
+    best_label = "Mín 5W" if is_inverted else "Máx 5W"
+    worst_label = "Máx 5W" if is_inverted else "Mín 5W"
+    best_val = v_min if is_inverted else v_max
+    worst_val = v_max if is_inverted else v_min
+    
+    target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650'}.get(metrica, 'Target')
+    is_inverted_str = 'true' if is_inverted else 'false'
+    
+    return f'''<div id="hist-{canvas_id}" style="margin-top:8px;padding:10px 12px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
+      Evolución Histórica · <span id="hist-{canvas_id}-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
+    </span>
+  </div>
+  <div style="width:100%;height:76px;"><canvas id="{canvas_id}" style="display:block;width:100%;height:76px;"></canvas></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
+      <div id="hist-{canvas_id}-actual" style="font-size:13px;font-weight:700;color:{accent};margin-top:2px;">{fmt_val(v_curr)}</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{best_label}</div>
+      <div id="hist-{canvas_id}-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">{fmt_val(best_val)}</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{worst_label}</div>
+      <div id="hist-{canvas_id}-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">{fmt_val(worst_val)}</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
+      <div id="hist-{canvas_id}-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">{fmt_val(v_avg)}</div>
+    </div>
+    <div id="hist-{canvas_id}-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:{bc['bg']};border:1px solid {bc['bd']};">
+      <div id="hist-{canvas_id}-banda" style="font-size:11px;font-weight:700;color:{bc['fg']};margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;">
+    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">{"Severidad vs universo global (↑ más NoDispo)" if is_inverted else "Posición vs target global"}</div>
+    <div id="hist-{canvas_id}-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:2px;">
+      <span style="font-size:7px;color:var(--ink-muted);">{semanas[0]}</span>
+      <span style="font-size:7px;color:{accent};font-weight:700;">{semanas[-1]}</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
+    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{bc['footer']};text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
+    <span id="hist-{canvas_id}-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: {target_disp}</span>
+  </div>
+</div>
+
+<script>
+(function(){{
+  var CID = '{canvas_id}', IS_INVERTED = {is_inverted_str}, METRIC = '{metrica}', TARGET = {target}, BAR_CEIL = {bar_ceil};
+  var SEMANAS = {semanas_json}, VALS_DEF = {vals_json}, BC = {banda_colors_js};
+  var ACCENT_HEX = '{accent}', ACCENT_RGB = {f"'{accent_rgb}'" if accent_rgb else 'null'};
+  
+  function getBanda(v) {{
+    if (METRIC === 'eficacia') {{ var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }}
+    if (METRIC === 'convrate') {{ var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }}
+    if (METRIC === 'nodispo') {{ var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }}
+    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
+  }}
+  
+  function fmtVal(v) {{ return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') : v.toFixed(2) + '%'; }}
+  
+  function drawCanvas(vals) {{
+    var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
+    if (!ctx) return; el.width = el.offsetWidth; el.height = el.offsetHeight; ctx.clearRect(0, 0, el.width, el.height);
+    var lw = Math.max(1, Math.round(el.width / (vals.length * 3))), h = el.height - 10;
+    var minVal = Math.min.apply(null, vals), maxVal = Math.max.apply(null, vals), dR = maxVal - minVal + 0.0001;
+    var pts = []; for (var i = 0; i < vals.length; i++) {{ var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }}
+    var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
+    for (var i = 0; i < pts.length; i++) {{ var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }}
+  }}
+  
+  function updateMetrics(vals, lbl) {{
+    var vMin = Math.min.apply(null, vals), vMax = Math.max.apply(null, vals), vAvg = vals.reduce(function(a,b){{return a+b;}},0)/vals.length, vCurr = vals[vals.length-1];
+    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
+    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
+    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
+    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
+    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
+    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
+    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
+    if (bbEl) {{ bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }}
+    if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
+    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
+  }}
+  
+  function buildSerie(w_c, w_p) {{ var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }}
+  
+  function attachListeners() {{
+    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
+    if (!card) return;
+    function resetToGlobal() {{ card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background = ''; r.removeAttribute('data-selected'); }}); drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); }}
+    card.addEventListener('click', function(e) {{
+      if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
+      var row = e.target.closest('[data-hist-w21]');
+      if (!row) return;
+      if (row.getAttribute('data-selected') === '1') {{ resetToGlobal(); return; }}
+      var w21 = parseFloat(row.getAttribute('data-hist-w21')), w20 = parseFloat(row.getAttribute('data-hist-w20') || w21), lbl = row.getAttribute('data-hist-label') || '';
+      if (isNaN(w21)) return;
+      card.querySelectorAll('[data-hist-w21]').forEach(function(r) {{ r.style.background = ''; r.removeAttribute('data-selected'); }});
+      row.setAttribute('data-selected','1'); row.style.background = 'var(--accent-soft)';
+      var s = buildSerie(w21, isNaN(w20) ? w21 : w20); drawCanvas(s); updateMetrics(s, lbl);
+    }});
+  }}
+  
+  function init() {{
+    drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); attachListeners();
+    var el = document.getElementById(CID);
+    if (el) {{
+      var det = el.closest('details');
+      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }});
+      if (typeof IntersectionObserver !== 'undefined') {{
+        var drawn = false;
+        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{ if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }} }}); }}, {{threshold: 0.01}}).observe(el);
+      }} else {{
+        [50, 200, 500, 1000].forEach(function(d) {{ setTimeout(function() {{ drawCanvas(VALS_DEF); }}, d); }});
+      }}
+    }}
+    document.addEventListener('change', function(e) {{
+      if (e.target.type !== 'radio') return;
+      var el2 = document.getElementById(CID);
+      if (!el2) return;
+      requestAnimationFrame(function() {{ if ((el2.parentElement || {}).offsetWidth > 10) drawCanvas(VALS_DEF); }});
+    }});
+  }}
+  
+  document.addEventListener('hist-update', function(e) {{ if (e.detail.cid !== CID) return; var s = buildSerie(e.detail.w_curr, e.detail.w_prev); drawCanvas(s); updateMetrics(s, e.detail.label || ''); }});
+  document.addEventListener('hist-reset', function(e) {{ if (e.detail.cid !== CID) return; drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); }});
+  
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else requestAnimationFrame(init);
+}})();
+</script>'''
