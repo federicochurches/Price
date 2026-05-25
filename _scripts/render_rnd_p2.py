@@ -336,11 +336,14 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
                    f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
 
     # Build colgroup from cols_def widths
+    fixed_total = sum(int(col['width'].replace('px','')) for col in cols_def if col.get('width','1fr') not in ('1fr','auto') and 'px' in col.get('width',''))
+    td_padding = len(cols_def) * 8
+    nombre_w = max(150, 1168 - fixed_total - td_padding)
     col_tags = ''
     for col in cols_def:
-        w = col['width']
+        w = col.get('width', '1fr')
         if w == '1fr':
-            col_tags += '<col>'  # flexible
+            col_tags += f'<col style="width:{nombre_w}px;">'
         else:
             col_tags += f'<col style="width:{w};">'
     return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><colgroup>{col_tags}</colgroup>'
