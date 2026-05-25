@@ -162,7 +162,7 @@ Hoteles P80 RND: {kpis.get('rnd_hoteles','—')} · CR: {kpis.get('cr_hoteles','
     print(f"  ✅ CHANGELOG actualizado: {path}")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# README
+# README_QUICK (reemplaza README.md / INVENTARIO.md desde W21)
 # ─────────────────────────────────────────────────────────────────────────────
 def update_readme(path, week_num, vol_num, periodo, mes_anio, kpis, tipo):
     path = Path(path)
@@ -318,7 +318,7 @@ def main():
         week_num, vol_num, periodo, mes_anio, fecha_pub, kpis, args.tipo, args.descripcion, commits
     )
     update_readme(
-        _find_doc('README.md') if not args.docs_dir else docs_dir / 'README.md',
+        _find_doc('README_QUICK.md') if not args.docs_dir else docs_dir / 'README_QUICK.md',
         week_num, vol_num, periodo, mes_anio, kpis, args.tipo
     )
     update_prompt_core(
