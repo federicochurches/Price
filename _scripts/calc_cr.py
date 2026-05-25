@@ -288,6 +288,18 @@ def tab_convrate():
 TAB_EF = tab_eficacia()
 TAB_CV = tab_convrate()
 
+# ── Enriquecer TOP[] con WoW desde TAB_EF/TAB_CV (evita NaN por orden de construcción) ──
+_wow_ef = TAB_EF['hotel'][['Hotel','Eficacia_WoW_pp']].drop_duplicates('Hotel')
+_wow_cv = TAB_CV['hotel'][['Hotel','ConvRate_WoW_pp']].drop_duplicates('Hotel')
+_wow_hotel_lkp = _wow_ef.merge(_wow_cv, on='Hotel', how='outer')
+for _k in ['criticos','criticos_extra','bajo_rend','bajo_rend_extra','sin_conv','sin_conv_extra','menor_cv']:
+    if _k in TOP:
+        _df = TOP[_k]
+        if 'Hotel' in _df.columns:
+            _drop = [c for c in ['Eficacia_WoW_pp','ConvRate_WoW_pp'] if c in _df.columns]
+            _df = _df.drop(columns=_drop).merge(_wow_hotel_lkp, on='Hotel', how='left')
+            TOP[_k] = _df
+
 # ── CANASTAS ─────────────────────────────────────────────────────────────────
 def canasta_data(cat, short, df18=df18, df17=df17):
     sub18 = df18[df18['DistributionCategory']==cat].copy()
