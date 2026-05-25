@@ -294,7 +294,7 @@ def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle=
             if c.get('key') == 'hotel':
                 hotel_name = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 36)
                 sub = r.get('CorpName','')
-                row_cells += (f'<div>'
+                row_cells += (f'<div style="text-align:left;">'
                               f'<div style="font-size:11px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
                               f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;">{sub}</div>'
                               f'</div>')
@@ -473,7 +473,7 @@ def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
         ipm_base = r.get('IPM_W18', 0)
         wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
 
-        cells = (f'<div style="overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">{row_idx+1}. {truncate(raw_label,26)}</span></div>'
+        cells = (f'<div style="overflow:hidden;text-align:left;"><span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">{row_idx+1}. {truncate(raw_label,36)}</span></div>'
                  f'{badge_cell}'
                  f'<span style="text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(r["%NoDispo"])}</span>'
                  f'<span style="text-align:right;">{wow_nd}</span>'
