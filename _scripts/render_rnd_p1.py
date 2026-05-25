@@ -219,7 +219,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 72px 54px 40px' if show_wow else 'minmax(0,1fr) 72px 54px'
+            grid = 'minmax(0,1fr) 90px 58px 40px' if show_wow else 'minmax(0,1fr) 90px 58px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
             _nd_w20_raw = r.get('%NoDispo_W18', r.get('NoDispo_W17', r.get('%NoDispo_W17', None)))
@@ -256,8 +256,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 72px 54px 40px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 90px 58px 40px')
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
@@ -341,7 +341,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 72px 54px 40px' if show_wow else 'minmax(0,1fr) 72px 54px'
+            grid = 'minmax(0,1fr) 90px 58px 40px' if show_wow else 'minmax(0,1fr) 90px 58px'
             import math as _mipm
             _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
@@ -378,8 +378,8 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 72px 54px 40px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 90px 58px 40px')
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
