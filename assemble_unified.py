@@ -302,18 +302,25 @@ TAB_BINDING_JS = '''
                 labels.forEach(function(l) { l.classList.remove('active'); });
                 label.classList.add('active');
                 
-                // Recargar datos de tabla
-                if (typeof CR_CV !== 'undefined' && typeof CR_CV.global === 'object') {
-                    var d = CR_CV.global;
-                    var rows = d[tabMap[idx].dataKey];
+                // Recargar datos de tabla desde CR_HOTELS
+                if (typeof CR_HOTELS !== 'undefined' && typeof CR_HOTELS.global === 'object') {
+                    var h = CR_HOTELS.global;  // Usar global por defecto
+                    var rows = h[tabMap[idx].dataKey];
                     if (rows) {
                         w22_renderTable('w22-th', 'w22-th-more', rows, false);
-                        console.log('↻ Tabla actualizada:', tabMap[idx].label);
+                        console.log('↻ Tabla actualizada:', tabMap[idx].label, '(' + rows.length + ' filas)');
                     }
                 }
             });
         });
-        console.log('✓ Pestañas de hotel vinculadas con datos');
+        
+        // Renderizar tabla inicial con hotels_crit
+        if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS.global && CR_HOTELS.global.hotels_crit) {
+            w22_renderTable('w22-th', 'w22-th-more', CR_HOTELS.global.hotels_crit, false);
+            console.log('✓ Tabla de hoteles inicializada con Críticos');
+        }
+        
+        console.log('✓ Pestañas de hotel vinculadas con CR_HOTELS');
     }, 100);
 })();
 '''
