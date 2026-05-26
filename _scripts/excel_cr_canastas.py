@@ -203,21 +203,46 @@ for canasta_key, canasta_data in CANASTA.items():
         add_title(ws, f'Menor ConvRate · {canasta_name}')
         add_table(ws, menor_cv, start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','Conv Rate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}, banda_col='BandaConvRate')
         
-        # Pestañas por dimensión (si existen)
+        # Pestañas por dimensión — orden Eficacia ASC + Channels únicos
+        NF_DIM = {'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'}
+        _agg_h = canasta_data.get('agg_hotel', pd.DataFrame()).copy()
+        if not _agg_h.empty and 'Hotel' in _agg_h.columns:
+            _agg_h['Hotel'] = _agg_h['Hotel'].apply(clean_hotel_name)
+            if _hcm_clean and 'Channel' not in _agg_h.columns:
+                _agg_h['Channel'] = _agg_h['Hotel'].map(_hcm_clean).fillna('—')
+
         if 'g_corp' in canasta_data:
             ws = wb.create_sheet('Por Corporativo')
-            add_title(ws, f'Top Corporativos · {canasta_name}')
-            add_table(ws, canasta_data['g_corp'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
-        
+            add_title(ws, f'Top Corporativos · {canasta_name}', f'Ordenado por Eficacia ↑')
+            df_co = canasta_data['g_corp'].copy().sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
+            df_co.insert(0,'Rk', range(1, len(df_co)+1))
+            if not _agg_h.empty and 'CorpName' in _agg_h.columns and 'Channel' in _agg_h.columns:
+                _corp_ch = (_agg_h.groupby('CorpName')
+                            .apply(lambda x: ', '.join(sorted(set(x['Channel'].tolist()))))
+                            .reset_index().rename(columns={0:'Channels'}))
+                df_co = df_co.merge(_corp_ch, on='CorpName', how='left')
+            cols_co = [col for col in ['Rk','CorpName','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_co.columns]
+            add_table(ws, df_co[cols_co], start_row=5, num_formats=NF_DIM)
+
         if 'g_dest' in canasta_data:
             ws = wb.create_sheet('Por Destino')
-            add_title(ws, f'Top Destinos · {canasta_name}')
-            add_table(ws, canasta_data['g_dest'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
-        
+            add_title(ws, f'Top Destinos · {canasta_name}', f'Ordenado por Eficacia ↑')
+            df_de = canasta_data['g_dest'].copy().sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
+            df_de.insert(0,'Rk', range(1, len(df_de)+1))
+            if not _agg_h.empty and 'Destino' in _agg_h.columns and 'Channel' in _agg_h.columns:
+                _dest_ch = (_agg_h.groupby('Destino')
+                            .apply(lambda x: ', '.join(sorted(set(x['Channel'].tolist()))))
+                            .reset_index().rename(columns={0:'Channels'}))
+                df_de = df_de.merge(_dest_ch, on='Destino', how='left')
+            cols_de = [col for col in ['Rk','Destino','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
+            add_table(ws, df_de[cols_de], start_row=5, num_formats=NF_DIM)
+
         if 'g_chan' in canasta_data:
             ws = wb.create_sheet('Por Channel')
-            add_title(ws, f'Top Channels · {canasta_name}')
-            add_table(ws, canasta_data['g_chan'], start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'})
+            add_title(ws, f'Top Channels · {canasta_name}', f'Ordenado por Eficacia ↑')
+            df_ch = canasta_data['g_chan'].copy().sort_values('Eficacia', ascending=True, na_position='last').reset_index(drop=True)
+            df_ch.insert(0,'Rk', range(1, len(df_ch)+1))
+            add_table(ws, df_ch, start_row=5, num_formats=NF_DIM)
         
         # Guardar
         filename = f'Analisis_Checkrates_{canasta_name}_7d.xlsx'

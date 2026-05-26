@@ -191,7 +191,17 @@ g_dest['BandaEficacia'] = g_dest['Eficacia'].apply(banda_eficacia)
 g_dest['BandaConvRate'] = g_dest.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
 g_dest = g_dest.sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
 g_dest.insert(0,'Rk', range(1, len(g_dest)+1))
-add_table(ws8, g_dest[['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']],
+# Agregar canales únicos por Destino
+if _hcm_clean:
+    dest_channels = (p80_hotel.groupby('Destino')
+                     .apply(lambda x: ', '.join(sorted(set(x['Hotel'].map(_hcm_clean).fillna('—').tolist()))))
+                     .reset_index().rename(columns={0:'Channels'}))
+    g_dest = g_dest.merge(dest_channels, on='Destino', how='left')
+    cols_dest = ['Rk','Destino','Channels','Hoteles','CR_Unicos','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
+else:
+    cols_dest = ['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
+cols_dest = [col for col in cols_dest if col in g_dest.columns]
+add_table(ws8, g_dest[cols_dest],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
           banda_col='BandaEficacia')
 
@@ -353,7 +363,20 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
               f'{c["name"]} · Top 100 destinos · ordenado por CR únicos ↓')
     df_de = c['agg_destino'].copy().sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_de.insert(0,'Rk', range(1, len(df_de)+1))
-    cols_de = [col for col in ['Rk','Destino','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
+    # Agregar canales únicos por Destino en esta canasta
+    if _hcm_clean:
+        agg_h_de = c['agg_hotel'].copy()
+        if 'Hotel' in agg_h_de.columns:
+            agg_h_de['Hotel'] = agg_h_de['Hotel'].apply(clean_hotel_name)
+        if 'Channel' not in agg_h_de.columns:
+            agg_h_de['Channel'] = agg_h_de['Hotel'].map(_hcm_clean).fillna('—')
+        dest_ch = (agg_h_de.groupby('Destino')
+                   .apply(lambda x: ', '.join(sorted(set(x['Channel'].tolist()))))
+                   .reset_index().rename(columns={0:'Channels'}))
+        df_de = df_de.merge(dest_ch, on='Destino', how='left')
+        cols_de = [col for col in ['Rk','Destino','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
+    else:
+        cols_de = [col for col in ['Rk','Destino','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate'] if col in df_de.columns]
     add_table(ws_de, df_de[cols_de], start_row=5,
               num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
               banda_col='BandaEficacia')
