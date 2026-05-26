@@ -29,9 +29,10 @@ g_corp = D['g_corp']; g_channel = D['g_channel']; g_grupo = D['g_grupo']
 
 # Agregar columna Channel a p80_hotel usando hotel_channel_map
 hotel_channel_map = D.get('hotel_channel_map', {})
-if hotel_channel_map and 'Channel' not in p80_hotel.columns:
+_hcm_clean = {clean_hotel_name(k): v for k, v in hotel_channel_map.items()} if hotel_channel_map else {}
+if _hcm_clean and 'Channel' not in p80_hotel.columns:
     p80_hotel = p80_hotel.copy()
-    p80_hotel['Channel'] = p80_hotel['Hotel'].map(hotel_channel_map).fillna('—')
+    p80_hotel['Channel'] = p80_hotel['Hotel'].map(_hcm_clean).fillna('—')
 
 wb = Workbook()
 wb.remove(wb.active)
@@ -158,12 +159,13 @@ add_table(ws6, df_sc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','S
 # ==================== 7. POR CORPORATIVO Top 100 ====================
 ws7 = wb.create_sheet('Por Corporativo')
 add_title(ws7, 'Top 100 · Por Corporativo', 'Agregado por CorpName · ordenado por Eficacia ↑ (menor a mayor)')
-df_corp = g_corp.sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
+df_corp = g_corp.sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
 df_corp.insert(0,'Rk', range(1, len(df_corp)+1))
 # Agregar columna Channel (canales únicos del corp)
 if hotel_channel_map:
+    # hotel_channel_map tiene nombres con ID → reconstruir con nombre limpio
     corp_channels = (p80_hotel.groupby('CorpName')
-                     .apply(lambda x: ', '.join(sorted(x['Hotel'].map(hotel_channel_map).fillna('—').unique())))
+                     .apply(lambda x: ', '.join(sorted(set(x['Hotel'].map(_hcm_clean).fillna('—').tolist()))))
                      .reset_index().rename(columns={0:'Channels'}))
     df_corp = df_corp.merge(corp_channels, on='CorpName', how='left')
     cols_corp = ['Rk','CorpName','Channels','CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
@@ -187,7 +189,7 @@ g_dest['Eficacia'] = g_dest['Successful']/g_dest['CR_Unicos'].replace(0,1)
 g_dest['ConvRate'] = g_dest['Bookings']/g_dest['CR_Unicos'].replace(0,1)
 g_dest['BandaEficacia'] = g_dest['Eficacia'].apply(banda_eficacia)
 g_dest['BandaConvRate'] = g_dest.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
-g_dest = g_dest.sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
+g_dest = g_dest.sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
 g_dest.insert(0,'Rk', range(1, len(g_dest)+1))
 add_table(ws8, g_dest[['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']],
           start_row=5, num_formats={'Eficacia':'0.00%','ConvRate':'0.00%','CR_Unicos':'#,##0','Bookings':'#,##0'},
@@ -197,7 +199,7 @@ add_table(ws8, g_dest[['Rk','Destino','Hoteles','CR_Unicos','Bookings','Eficacia
 ws9 = wb.create_sheet('Por Channel')
 add_title(ws9, 'Por Channel · todos los providers',
           'Agregado por Channel · Producto Propio vs Third Party')
-df_chan = g_channel.sort_values('Eficacia', ascending=True).reset_index(drop=True)
+df_chan = g_channel.sort_values('Eficacia', ascending=True, na_position='last').reset_index(drop=True)
 df_chan.insert(0,'Rk', range(1, len(df_chan)+1))
 # Agregar columna Grupo PP/TP
 PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
@@ -288,7 +290,7 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     df_c = c['agg_hotel'].copy()
     # Agregar Channel desde hotel_channel_map
     if hotel_channel_map and 'Channel' not in df_c.columns:
-        df_c['Channel'] = df_c['Hotel'].map(hotel_channel_map).fillna('—')
+        df_c['Channel'] = df_c['Hotel'].map(_hcm_clean).fillna('—')
     mask = (df_c['Bookings']>0) & (df_c['BandaEficacia'].isin(['Crítica','Súper Crítica']))
     df_c = df_c[mask].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_c.insert(0,'Rk', range(1, len(df_c)+1))
@@ -302,7 +304,7 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
               f'{c["name"]} · BKGS>0 · ConvRate Crítica/Revisar · ordenado por CR ↓')
     df_b = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_b.columns:
-        df_b['Channel'] = df_b['Hotel'].map(hotel_channel_map).fillna('—')
+        df_b['Channel'] = df_b['Hotel'].map(_hcm_clean).fillna('—')
     mask = (df_b['Bookings']>0) & (df_b['BandaConvRate'].isin(['Crítica','Revisar']))
     df_b = df_b[mask].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_b.insert(0,'Rk', range(1, len(df_b)+1))
@@ -316,7 +318,7 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
               f'{c["name"]} · BKGS=0 · ordenado por CR ↓ · cohorte estructural')
     df_sn = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_sn.columns:
-        df_sn['Channel'] = df_sn['Hotel'].map(hotel_channel_map).fillna('—')
+        df_sn['Channel'] = df_sn['Hotel'].map(_hcm_clean).fillna('—')
     df_sn = df_sn[df_sn['Bookings']==0].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_sn.insert(0,'Rk', range(1, len(df_sn)+1))
     add_table(ws_sn, df_sn[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Successful','Bookings','Eficacia','BandaEficacia']],
@@ -333,7 +335,7 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
     if hotel_channel_map:
         agg_h = c['agg_hotel'].copy()
         if 'Channel' not in agg_h.columns:
-            agg_h['Channel'] = agg_h['Hotel'].map(hotel_channel_map).fillna('—')
+            agg_h['Channel'] = agg_h['Hotel'].map(_hcm_clean).fillna('—')
         corp_channels = (agg_h.groupby('CorpName')
                          .apply(lambda x: ', '.join(sorted(x['Channel'].unique())))
                          .reset_index().rename(columns={0:'Channels'}))
@@ -376,7 +378,7 @@ def add_canasta_sheets(wb_target, c_key, c, prefix=None):
               f'{c["name"]} · BKGS>0 · peor ConvRate · ordenado ↑')
     df_mc = c['agg_hotel'].copy()
     if hotel_channel_map and 'Channel' not in df_mc.columns:
-        df_mc['Channel'] = df_mc['Hotel'].map(hotel_channel_map).fillna('—')
+        df_mc['Channel'] = df_mc['Hotel'].map(_hcm_clean).fillna('—')
     df_mc = df_mc[df_mc['Bookings']>0].sort_values('Eficacia', ascending=True).head(100).reset_index(drop=True)
     df_mc.insert(0,'Rk', range(1, len(df_mc)+1))
     add_table(ws_mc, df_mc[['Rk','Hotel','CorpName','Channel','Destino','CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']],
