@@ -1,0 +1,40 @@
+</div>
+<script>
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.toc a[href="#' + entry.target.id + '"]');
+      if(a) a.classList.add('active');
+    }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+sections.forEach(s => observer.observe(s));
+tocLinks.forEach(l => l.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector(l.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+}));
+</script>
+<script>
+function cr_setTab(cardId, tabName) {
+  var card = document.getElementById('card-' + cardId);
+  if (!card) return;
+  var links = card.querySelectorAll('.cr-tab-link');
+  links.forEach(function(link) {
+    if (link.getAttribute('data-tab-link') === tabName) {
+      link.style.borderBottom = '2px solid #5C469C';
+      link.style.color = 'var(--ink)';
+    } else {
+      link.style.borderBottom = '2px solid transparent';
+      link.style.color = 'inherit';
+    }
+  });
+  var panels = card.querySelectorAll('[data-tab-panel]');
+  panels.forEach(function(panel) {
+    panel.style.display = panel.getAttribute('data-tab-panel') === tabName ? 'block' : 'none';
+  });
+}
+</script>
+</body></html>

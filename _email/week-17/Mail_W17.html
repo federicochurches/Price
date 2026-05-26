@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mail Supply Optimization W17 · Para copiar y pegar</title>
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 24px; color: #161616; line-height: 1.5; background: #F8F4EC; }
+  .instructions { background: #FFF8E1; border-left: 4px solid #F2B90B; padding: 16px 20px; margin-bottom: 32px; font-size: 13px; border-radius: 4px; }
+  .instructions strong { color: #B07A00; }
+  .field-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8A8377; margin-bottom: 6px; margin-top: 16px; }
+  .field-box { background: #fff; border: 1px solid #C9C1B0; padding: 12px 16px; margin-bottom: 8px; font-size: 14px; }
+  .field-box.subject { font-size: 15px; font-weight: 600; }
+  hr.divider { border: none; border-top: 2px dashed #C9C1B0; margin: 32px 0; }
+  .mail-body { background: #fff; border: 1px solid #E5E0D2; padding: 32px; font-size: 14px; line-height: 1.6; }
+  .mail-body h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 16px; color: #161616; }
+  .mail-body h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 6px; margin: 24px 0 12px; }
+  .mail-body h2.cr { color: #5C469C; border-bottom: 1px solid #5C469C; }
+  .mail-body h2.rnd { color: #EA0074; border-bottom: 1px solid #EA0074; }
+  .mail-body h2.shared { color: #161616; border-bottom: 1px solid #C9C1B0; }
+  .mail-body h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #8A8377; margin: 18px 0 8px; }
+  .mail-body ul { padding-left: 20px; margin: 8px 0 16px; }
+  .mail-body li { margin-bottom: 8px; }
+  .mail-body a.cr-link { color: #5C469C; text-decoration: underline; }
+  .mail-body a.rnd-link { color: #EA0074; text-decoration: underline; }
+  .mail-body strong { color: #161616; }
+  .delta-down { color: #C0392B; font-weight: 700; }
+  .delta-up { color: #2E7D32; font-weight: 700; }
+  .delta-flat { color: #8A8377; font-weight: 700; }
+  .badge { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: 700; border-radius: 3px; }
+  .badge-qw { background: #E8F7FD; color: #4FC3F4; }
+  .badge-mp { background: #FCE4F1; color: #EA0074; }
+  .badge-mp-violet { background: #EDE8F7; color: #5C469C; }
+  .badge-es { background: #EAEAEA; color: #161616; }
+  .copy-tip { font-size: 12px; color: #8A8377; margin-top: 8px; font-style: italic; }
+  .cta-row { display: flex; gap: 12px; margin: 20px 0; }
+  .cta { display: inline-block; color: #fff !important; padding: 10px 18px; text-decoration: none !important; font-weight: 600; border-radius: 4px; font-size: 13px; }
+  .cta-cr { background: #5C469C; }
+  .cta-rnd { background: #EA0074; }
+  .kpi-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 12px 0 20px; }
+  .kpi-strip.cr { border: 1px solid #5C469C; }
+  .kpi-strip.rnd { border: 1px solid #EA0074; }
+  .kpi-cell { padding: 10px 12px; }
+  .kpi-cell.cr { border-right: 1px solid #EDE8F7; }
+  .kpi-cell.cr:last-child { border-right: none; }
+  .kpi-cell.rnd { border-right: 1px solid #FCE4F1; }
+  .kpi-cell.rnd:last-child { border-right: none; }
+  .kpi-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; color: #8A8377; margin-bottom: 3px; }
+  .kpi-value { font-size: 16px; font-weight: 700; }
+  .kpi-value.cr { color: #5C469C; }
+  .kpi-value.rnd { color: #EA0074; }
+  .kpi-sub { font-size: 11px; color: #8A8377; margin-top: 2px; }
+  .report-block { background: #FAFAFA; border: 1px solid #EDE8E0; border-radius: 6px; padding: 22px; margin: 18px 0; }
+  .report-block.cr { border-top: 3px solid #5C469C; }
+  .report-block.rnd { border-top: 3px solid #EA0074; }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  <strong>Cómo enviar este mail:</strong><br>
+  1. Copiá el "Asunto" y pegalo en el campo asunto del compose.<br>
+  2. En el cuerpo del mail, hacé click adentro del área blanca, seleccioná todo (Ctrl+A) y copiá (Ctrl+C).<br>
+  3. Pegá (Ctrl+V) en el body del compose de Gmail/Outlook. El formato (bold, links, badges) se mantiene.<br>
+  4. Verificá las URLs de los reportes y agregá destinatarios en CCO.
+</div>
+
+<div class="field-label">De (remitente)</div>
+<div class="field-box">PriceTravel · Supply Optimization</div>
+
+<div class="field-label">Asunto</div>
+<div class="field-box subject">Supply Optimization · Week 17 · CheckRates + Rates No Dispo</div>
+
+<div class="field-label">Preheader</div>
+<div class="field-box">CR Eficacia 94.12% · 36.6% del P80 con CR &lt; 0.5% (Hilton 43% del problema). RND 84.8% sin BKGS · %NoDispo 3.91%.</div>
+
+<hr class="divider">
+
+<div class="field-label">Cuerpo del mail (copiar desde acá ↓)</div>
+<p class="copy-tip">Click adentro del recuadro blanco · Ctrl+A · Ctrl+C · Ctrl+V en el compose.</p>
+
+<div class="mail-body">
+
+<h1>Supply Optimization · Week 17 · 20-26 Abr 2026</h1>
+
+<p>Hola equipo,</p>
+
+<p>Compartimos los reportes de <strong>Supply CheckRates</strong> y <strong>Supply Rates No Dispo</strong> de la Week 17. Esta semana incorporamos varios cambios estructurales que aplican a ambos reportes (más detalle al final del mail): Severity unificada en 5 niveles, canastas colapsables, naming editorial consistente, y nuevas dimensiones de análisis.</p>
+
+<div class="cta-row">
+  <a href="https://federicochurches.github.io/Price/checkrates/week-17/CheckRates_Reporte_Editorial.html" class="cta cta-cr">→ Reporte CheckRates</a>
+  <a href="https://federicochurches.github.io/Price/rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="cta cta-rnd">→ Reporte Rates No Dispo</a>
+</div>
+
+<!-- ====================================================================== -->
+<!-- BLOQUE 1 · CHECKRATES                                                   -->
+<!-- ====================================================================== -->
+
+<div class="report-block cr">
+
+<h2 class="cr">📊 Supply CheckRates</h2>
+
+<p><strong>Eficacia 94.12% saludable</strong> · pero <strong>36.6% del P80 en Súper Crítica de Conv Rate</strong>. Hilton concentra 43% del problema comercial.</p>
+
+<div class="kpi-strip cr">
+  <div class="kpi-cell cr">
+    <div class="kpi-label">Eficacia ponderada</div>
+    <div class="kpi-value cr">94.12%</div>
+    <div class="kpi-sub">78.6% del P80 en Exitosa</div>
+  </div>
+  <div class="kpi-cell cr">
+    <div class="kpi-label">Conv Rate ponderada</div>
+    <div class="kpi-value cr">1.50%</div>
+    <div class="kpi-sub">36.6% en Súper Crítica</div>
+  </div>
+  <div class="kpi-cell cr">
+    <div class="kpi-label">Hoteles P80</div>
+    <div class="kpi-value cr">4.860</div>
+    <div class="kpi-sub">1.93M CK · 29K BKGS</div>
+  </div>
+</div>
+
+<h3>Top hallazgos</h3>
+<ul>
+  <li><strong>Hilton concentra 43% del problema CR.</strong> 34 de 49 hoteles en Crit+ (69.4% del portfolio Hilton). IHG le sigue con 28.2% de share (22 hoteles · 37.3% portfolio).</li>
+  <li><strong>Las Vegas — cluster crítico.</strong> Las Vegas Hilton: <span class="delta-down">6.6% Eficacia · 0% CR · 0 BKGS sobre 5.5K CheckRates</span>. Conrad LV: 11.1% Eficacia · 0.09% CR.</li>
+  <li><strong>B2C: catástrofe comercial.</strong> 87.4% de los 2.336 hoteles B2C en Súper Crítica de CR. La canasta no convierte a pesar de Eficacia 93.98%.</li>
+  <li><strong>Diagnóstico bimodal.</strong> Conrad LV (11.1% / 0.09%) = problema técnico. Novotel Paris (98.2% / 0.14%), Decameron Cartagena (100% / 0.16%) = problemas comerciales puros.</li>
+</ul>
+
+<h3>Plan de acción</h3>
+<ul>
+  <li><span class="badge badge-qw">QW</span> Auditoría end-to-end Top 10 hoteles que no convierten (cluster Connectivity Issue).</li>
+  <li><span class="badge badge-qw">QW</span> Escalar a integración los 5 hoteles con Eficacia &lt;20% en P80.</li>
+  <li><span class="badge badge-qw">QW</span> Validar pricing en hoteles con Eficacia &gt;95% pero CR &lt;0.2%.</li>
+  <li><span class="badge badge-mp">MP</span> QBR específica con Hilton (43% del problema CR).</li>
+  <li><span class="badge badge-mp">MP</span> Revisar conectividad providers HBSI y HotelBeds Apitude.</li>
+  <li><span class="badge badge-es">ES</span> SLA con corporativos top de canasta OP (81% sin BKGS).</li>
+  <li><span class="badge badge-es">ES</span> Programa "B2C activación" (87.4% en Súper Crítica).</li>
+</ul>
+
+<p style="margin-top: 16px;"><a href="https://federicochurches.github.io/Price/checkrates/week-17/CheckRates_Reporte_Editorial.html" class="cr-link"><strong>Acceder al reporte CheckRates →</strong></a></p>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- BLOQUE 2 · RATES NO DISPO                                               -->
+<!-- ====================================================================== -->
+
+<div class="report-block rnd">
+
+<h2 class="rnd">📊 Supply Rates No Dispo</h2>
+
+<p><strong>17.2M tráfico vs 39K Bookings</strong> · <span class="delta-down">84.8% del universo sin Bookings</span>. %NoDispo ponderado 3.91% · GB total $8.9M.</p>
+
+<div class="kpi-strip rnd">
+  <div class="kpi-cell rnd">
+    <div class="kpi-label">%NoDispo ponderado</div>
+    <div class="kpi-value rnd">3.91%</div>
+    <div class="kpi-sub">Tráfico bloqueado: 674M</div>
+  </div>
+  <div class="kpi-cell rnd">
+    <div class="kpi-label">Hoteles sin BKGS</div>
+    <div class="kpi-value rnd">84.8%</div>
+    <div class="kpi-sub">45.813 de 54.004</div>
+  </div>
+  <div class="kpi-cell rnd">
+    <div class="kpi-label">Hoteles P80</div>
+    <div class="kpi-value rnd">19.346</div>
+    <div class="kpi-sub">17.2M tráfico · $8.9M GB</div>
+  </div>
+</div>
+
+<h3>Top hallazgos</h3>
+<ul>
+  <li><strong>Demanda no convertida concentrada.</strong> Top 50 hoteles con &gt;100K tráfico cada uno y 0 Bookings — oportunidad clara de auditoría end-to-end de disponibilidad.</li>
+  <li><strong>⚠ Limitación detectada.</strong> Dataset RND no incluye columna <strong>CorpName</strong> · Concentración por Corporativo no factible · usado Concentración por Destino como proxy. <strong>Acción crítica W18:</strong> sumar columna corporativo al pipeline.</li>
+  <li><strong>%NoDispo ponderado 3.91% global puede esconder picos por destino.</strong> Revisar Top 50 destinos críticos en el reporte.</li>
+  <li><strong>RPM low signal.</strong> Top hoteles activos con RPM &gt; 5 muestran que la conversión existe cuando hay disponibilidad.</li>
+</ul>
+
+<h3>Plan de acción</h3>
+<ul>
+  <li><span class="badge badge-qw">QW</span> Auditoría Top 10 Demanda No Convertida (alto Tráfico · 0 BKGS).</li>
+  <li><span class="badge badge-qw">QW</span> Revisar mapeo de inventario en hoteles con %NoDispo &gt; 60%.</li>
+  <li><span class="badge badge-qw">QW</span> Validar contratos con providers para top 5 con Tráfico &gt; 5M y BKGS = 0.</li>
+  <li><span class="badge badge-mp">MP</span> Auditar destino más crítico (cluster geográfico) y revisar pricing.</li>
+  <li><span class="badge badge-mp">MP</span> <strong>Sumar columna Corporativo al dataset crudo.</strong></li>
+  <li><span class="badge badge-mp-violet">ES</span> SLA con corporativos top con %NoDispo &gt; 5% en Bajo Rendimiento.</li>
+  <li><span class="badge badge-mp-violet">ES</span> Programa "B2C activación" para canasta con altos hoteles sin BKGS.</li>
+</ul>
+
+<p style="margin-top: 16px;"><a href="https://federicochurches.github.io/Price/rates-nodispo/week-17/RatesNoDispo_Reporte_Editorial.html" class="rnd-link"><strong>Acceder al reporte Rates No Dispo →</strong></a></p>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- BLOQUE 3 · CAMBIOS ESTRUCTURALES (compartido)                           -->
+<!-- ====================================================================== -->
+
+<h2 class="shared">🆕 Cambios estructurales aplicados a ambos reportes</h2>
+
+<ul>
+  <li><strong>Severity unificada en 5 niveles.</strong> Reemplazamos los 6/7 niveles anteriores por un set coherente entre Eficacia, Conv Rate y %NoDispo (Exitosa · Aceptable · Revisar · Crítica · Súper Crítica).</li>
+  <li><strong>Canastas colapsables.</strong> Cada canasta (B2C · OP · CUG) se expande/contrae a pedido. Reporte más liviano.</li>
+  <li><strong>Naming editorial unificado.</strong> Mismo arco narrativo: Severidad → Hoteles Críticos → Bajo Rendimiento → Concentración por Corporativo → Hoteles que no convierten → Plan de Acción.</li>
+  <li><strong>Concentración por Corporativo con %Share.</strong> Nueva columna que muestra qué % del problema global concentra cada cadena.</li>
+  <li><strong>Tabs Top 5 por canasta (CheckRates).</strong> Navegación por Destino · Corporativo · Hotel · Provider para diagnóstico rápido.</li>
+  <li><strong>Tablas Top 10 a 2 columnas.</strong> 50% menos scroll vertical.</li>
+  <li><strong>Método con fondo oscuro.</strong> Sección final reformateada con cards categorizadas.</li>
+  <li><strong>Excels regenerados Top 50.</strong> Ahora con 11 pestañas por reporte (antes Top 20).</li>
+</ul>
+
+<h2 class="shared">📅 Próximos pasos</h2>
+<ul>
+  <li>Revisar detalle por hotel y corporativo en los reportes completos + Excels adjuntos.</li>
+  <li>Validar acciones específicas con Supply Tech · Supply · Account Management.</li>
+  <li>Próxima publicación: <strong>lunes 5 de mayo (Week 18)</strong>.</li>
+</ul>
+
+<p style="border-top: 1px solid #C9C1B0; padding-top: 16px; margin-top: 28px; font-size: 12px; color: #8A8377;">
+Recibís este mail porque sos parte del equipo de Supply Optimization. Cada lunes enviamos el deep-dive de la semana anterior. Para feedback o preguntas, respondé este mail.<br><br>
+<strong>PriceTravel · Supply Optimization · Week 17 · 20 – 26 Abril 2026 · Vol. 03</strong>
+</p>
+
+</div>
+
+</body>
+</html>
