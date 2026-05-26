@@ -142,17 +142,14 @@ function w22_setHotelTab(tab, el) {
   var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
              tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
              tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
-             (dd.hotels_crit || dd.hotels_dnc || dd.hotels);
+             (dd.hotels_crit || dd.hotels);
   w22_renderTable('w22-th', 'w22-th-more', rows, false);
-  /* trow sin patch — los atributos hist se agregan en w22_renderTable parcheado */
+}
 
-
-
-/* Exportar al scope global para que onclick en TR pueda llamarla */
-/* Inyectar en render inicial */
+/* Inyectar atributos hist en render inicial */
 setTimeout(function(){
   var dd = data();
-  var hrows = (dd.hotels_crit || dd.hotels_dnc || dd.hotels);
+  var hrows = (dd.hotels_crit || dd.hotels);
   if(typeof window._injectHistAttrs==="function") window._injectHistAttrs('w22-th', hrows);
   if(typeof window._injectHistAttrs==="function") window._injectHistAttrs('w22-td', dd.dims);
 }, 200);

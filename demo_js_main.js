@@ -105,7 +105,8 @@ function w22_update(){
  });
 
  /* Tablas */
- w22_renderTable('w22-th','w22-th-more',d.hotels,false);
+ var hotel_rows = d.hotels_crit || d.hotels || [];
+ w22_renderTable('w22-th','w22-th-more',hotel_rows,false);
  /* Renderizar dimensión activa (por defecto corp) */
  var dim_key = W.dim || 'corp';
  var dim_data = d[dim_key+'s'] || d.dims || [];
