@@ -11,15 +11,15 @@ function trow(r){
  var wb=r[7]===null?'#F2EEE6':(r[7]?'#EAF3DE':'#FCE8E6');
  var wf=r[7]===null?'#8A8377':(r[7]?'#2F6C34':'#C0392B');
  var cr10=r[10]||'—';
- var cr10html=cr10==='—'?'—':'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EBF5F7;color:#0369A1;white-space:nowrap;">'+cr10+'</em>';
+ var cr10html=cr10==='—'?'<span style="color:var(--ink-muted)">—</span>':'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EBF5F7;color:#0369A1;white-space:nowrap;">'+cr10+'</em>';
  return '<tr style="border-bottom:1px solid var(--rule-soft);">'
-  +'<td style="padding:9px 0 9px 12px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>'
-  +'<td style="padding:9px 8px;text-align:center;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 6px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>'
-  +'<td style="padding:9px 8px;text-align:right;font-size:12px;color:var(--ink-soft);">'+r[4]+'</td>'
-  +'<td style="padding:9px 8px;text-align:right;font-size:12px;color:var(--ink-soft);">'+r[5]+'</td>'
-  +'<td style="padding:9px 8px;text-align:right;font-size:12px;color:var(--ink-soft);">'+r[6]+'</td>'
-  +'<td style="padding:9px 8px;text-align:right;"><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+wb+';color:'+wf+';white-space:nowrap;margin-right:4px;">'+(r[8]||'—')+'</em><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F0F0F0;color:#666;white-space:nowrap;">'+(r[9]||'—')+'</em></td>'
-  +'<td style="padding:9px 12px 9px 8px;text-align:right;color:var(--ink-muted);font-size:11px;">'+cr10html+'</td>'
+  +'<td style="padding:8px 0 8px 12px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>'
+  +'<td style="padding:8px 6px;text-align:center;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>'
+  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[4]+'</td>'
+  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[5]+'</td>'
+  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[6]+'</td>'
+  +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;"><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+wb+';color:'+wf+';white-space:nowrap;margin-right:3px;">'+(r[8]||'—')+'</em><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F0F0F0;color:#666;white-space:nowrap;">'+(r[9]||'—')+'</em></td>'
+  +'<td style="padding:8px 8px 8px 6px;text-align:right;white-space:nowrap;">'+cr10html+'</td>'
   +'</tr>';
 }
 

@@ -508,14 +508,21 @@ def render_analisis_rendimiento():
     th_labels_corp  = ['Corporativo', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
 
     def table_html(tbody_id, btn_id, th_labels, dim_header_id=None):
+        # Colgroup: nombre amplio, resto fijos para evitar wrap
+        colwidths = ['', '90px', '72px', '72px', '72px', '120px', '90px']
+        colgroup = ''.join(
+            f'<col style="width:{colwidths[i]}">' if colwidths[i] else '<col>'
+            for i in range(len(th_labels))
+        )
         cols = ''.join(
-            f'<th style="padding:8px 8px 8px {"12px" if i==0 else "8px"};'
+            f'<th style="padding:8px {"6px" if i>0 else "12px"} 8px {"6px" if i>0 else "12px"};'
             f'border-bottom:2px solid #5C469C;font-size:10px;font-weight:700;'
-            f'text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);'
-            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};">'
+            f'text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);'
+            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};white-space:nowrap;">'
             f'{"<span id=\""+dim_header_id+"\">Corporativo</span>" if dim_header_id and i==0 else lbl}</th>'
             for i, lbl in enumerate(th_labels))
         return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+                f'<colgroup>{colgroup}</colgroup>'
                 f'<thead><tr>{cols}</tr></thead>'
                 f'<tbody id="{tbody_id}"></tbody></table>'
                 f'<div style="text-align:center;margin-top:10px;">'

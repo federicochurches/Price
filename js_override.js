@@ -181,24 +181,7 @@ window._injectHistAttrs = function _injectHistAttrs(tbodyId, rows) {
   });
 }
 
-/* Actualizar header de columna nombre según tab activa */
-  var thHotel = document.querySelector('#w22-ph thead th:first-child');
-  if (thHotel) {
-    var lbls = {
-      crit: W.mode==='rnd' ? 'Demanda No Convertida' : 'Hotel · Críticos',
-      br:   'Hotel · Bajo Rendimiento',
-      sc:   'Hotel · Sin Conversión',
-      cv:   'Hotel · Menor ConvRate'
-    };
-    thHotel.textContent = lbls[tab] || 'Hotel';
-  }
-  /* Estilo tab activa */
-  if (el) {
-    var row = el.parentElement;
-    row.querySelectorAll('label').forEach(function(l){ l.classList.remove('tab-label-active'); });
-    el.classList.add('tab-label-active');
-  }
-}
+/* Header de columna y estilo de tab se manejan en TAB_BINDING_JS */
 
 /* Patch w22_renderTable — auto-inject data-hist-* después de cada render */
 var _origRenderTable = w22_renderTable;
