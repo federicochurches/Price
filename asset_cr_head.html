@@ -1,0 +1,57 @@
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supply CheckRates · {{WEEK_NUM}} · {{MES_AÑO}}</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+/* ── Variables de acento · CheckRates (violet) ── */
+:root{
+  --paper:#F8F4EC;--paper-soft:#F2EDE0;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+  --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#5C469C;--accent-soft:#EDE8F7;
+  --amber:#FCD34D;--amber-soft:#FEF9C3;--green:#1A6B4A;--green-soft:#E1F5EE;
+  --navy:#161616;--navy-soft:#F2EEE6;--red:#C0392B;--red-soft:#FCE4F1;
+  --maxw:1280px;
+}
+/* ── Tabs KPI Hero · Eficacia (tab-ef-*) ── */
+#tab-ef-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-ef-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-ef-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-ef-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"],
+#tab-ef-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block !important;}
+#tab-ef-destino:checked ~ .tabs-row label[for="tab-ef-destino"],
+#tab-ef-corp:checked ~ .tabs-row label[for="tab-ef-corp"],
+#tab-ef-hotel:checked ~ .tabs-row label[for="tab-ef-hotel"],
+#tab-ef-channel:checked ~ .tabs-row label[for="tab-ef-channel"],
+#tab-ef-canasta:checked ~ .tabs-row label[for="tab-ef-canasta"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+/* ── Tabs KPI Hero · ConvRate (tab-cv-*) ── */
+#tab-cv-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-cv-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-cv-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-cv-channel:checked ~ .tab-panels .tab-panel[data-tab="channel"],
+#tab-cv-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block !important;}
+#tab-cv-destino:checked ~ .tabs-row label[for="tab-cv-destino"],
+#tab-cv-corp:checked ~ .tabs-row label[for="tab-cv-corp"],
+#tab-cv-hotel:checked ~ .tabs-row label[for="tab-cv-hotel"],
+#tab-cv-channel:checked ~ .tabs-row label[for="tab-cv-channel"],
+#tab-cv-canasta:checked ~ .tabs-row label[for="tab-cv-canasta"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+/* ── Tabs Hotel CR (Críticos · Bajo Rend · Sin Conv · Menor ConvRate) ── */
+.tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
+.tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
+.tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"],
+.tabs-block #tab-h-mcv:checked ~ .tab-panels .tab-panel[data-tab="mcv"]{display:block !important;}
+#tab-h-crit:checked ~ .tabs-row label[for="tab-h-crit"],
+#tab-h-br:checked ~ .tabs-row label[for="tab-h-br"],
+#tab-h-sc:checked ~ .tabs-row label[for="tab-h-sc"],
+#tab-h-mcv:checked ~ .tabs-row label[for="tab-h-mcv"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+/* ── Tabs Dimensión CR (Corp · Destino · Channel) ── */
+.tabs-block #tab-d-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+.tabs-block #tab-d-dest:checked ~ .tab-panels .tab-panel[data-tab="dest"],
+.tabs-block #tab-d-chan:checked ~ .tab-panels .tab-panel[data-tab="chan"]{display:block !important;}
+#tab-d-corp:checked ~ .tabs-row label[for="tab-d-corp"],
+#tab-d-dest:checked ~ .tabs-row label[for="tab-d-dest"],
+#tab-d-chan:checked ~ .tabs-row label[for="tab-d-chan"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+</style>
+{{SHARED_HEAD}}
+</head>

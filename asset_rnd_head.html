@@ -1,0 +1,56 @@
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supply RatesNoDispo · {{WEEK_NUM}} · {{MES_AÑO}}</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+/* ── Variables de acento · RatesNoDispo (magenta) ── */
+:root{
+  --paper:#F8F4EC;--paper-soft:#F2EDE0;--ink:#161616;--ink-soft:#4A4A4A;--ink-muted:#8A8377;
+  --rule:#C9C1B0;--rule-soft:#D9D2C1;--accent:#EA0074;--accent-soft:#FCE4F1;
+  --amber:#EA0074;--amber-soft:#FCE4F1;--green:#1A6B4A;--green-soft:#E1F5EE;
+  --navy:#161616;--navy-soft:#F2EEE6;--red:#EA0074;--red-soft:#FCE4F1;
+  --maxw:1280px;
+}
+/* ── Tabs KPI Hero · NoDispo (tab-nd-*) y IPM (tab-rpm-*) ── */
+#tab-nd-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
+#tab-nd-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-nd-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-nd-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-nd-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"],
+#tab-rpm-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"],
+#tab-rpm-destino:checked ~ .tab-panels .tab-panel[data-tab="destino"],
+#tab-rpm-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+#tab-rpm-hotel:checked ~ .tab-panels .tab-panel[data-tab="hotel"],
+#tab-rpm-canasta:checked ~ .tab-panels .tab-panel[data-tab="canasta"]{display:block;}
+#tab-nd-destino:checked ~ .tabs-row label[for="tab-nd-destino"],
+#tab-nd-corp:checked ~ .tabs-row label[for="tab-nd-corp"],
+#tab-nd-hotel:checked ~ .tabs-row label[for="tab-nd-hotel"],
+#tab-nd-canasta:checked ~ .tabs-row label[for="tab-nd-canasta"],
+#tab-nd-channel:checked ~ .tabs-row label[for="tab-nd-channel"],
+#tab-rpm-destino:checked ~ .tabs-row label[for="tab-rpm-destino"],
+#tab-rpm-corp:checked ~ .tabs-row label[for="tab-rpm-corp"],
+#tab-rpm-hotel:checked ~ .tabs-row label[for="tab-rpm-hotel"],
+#tab-rpm-canasta:checked ~ .tabs-row label[for="tab-rpm-canasta"],
+#tab-rpm-channel:checked ~ .tabs-row label[for="tab-rpm-channel"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+/* ── Tabs Hotel RND (Demanda NC · Bajo Rend · Sin Conv · Críticos) ── */
+.tabs-block #tab-h-crit:checked ~ .tab-panels .tab-panel[data-tab="crit"],
+.tabs-block #tab-h-br:checked ~ .tab-panels .tab-panel[data-tab="br"],
+.tabs-block #tab-h-sc:checked ~ .tab-panels .tab-panel[data-tab="sc"],
+.tabs-block #tab-h-dnc:checked ~ .tab-panels .tab-panel[data-tab="dnc"]{display:block !important;}
+#tab-h-crit:checked ~ .tabs-row label[for="tab-h-crit"],
+#tab-h-br:checked ~ .tabs-row label[for="tab-h-br"],
+#tab-h-sc:checked ~ .tabs-row label[for="tab-h-sc"],
+#tab-h-dnc:checked ~ .tabs-row label[for="tab-h-dnc"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+/* ── Tabs Dimensión RND (Corp · Destino · País) ── */
+.tabs-block #tab-d-corp:checked ~ .tab-panels .tab-panel[data-tab="corp"],
+.tabs-block #tab-d-dest:checked ~ .tab-panels .tab-panel[data-tab="dest"],
+.tabs-block #tab-d-pais:checked ~ .tab-panels .tab-panel[data-tab="pais"]{display:block !important;}
+#tab-d-corp:checked ~ .tabs-row label[for="tab-d-corp"],
+#tab-d-dest:checked ~ .tabs-row label[for="tab-d-dest"],
+#tab-d-pais:checked ~ .tabs-row label[for="tab-d-pais"]{background:var(--paper);color:var(--accent);border:1px solid var(--rule);border-bottom:1px solid var(--paper);}
+</style>
+{{SHARED_HEAD}}
+</head>
