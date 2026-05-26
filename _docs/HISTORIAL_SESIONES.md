@@ -1446,4 +1446,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Cleanup final: sincronización GitHub ↔ Proyecto Claude · rep
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix histórico: eje X muestra las 5 semanas W17-W21 (no solo W17 y W21)
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: eje X muestra las 5 semanas W17-W21 (no solo 
