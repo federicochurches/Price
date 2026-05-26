@@ -270,7 +270,24 @@ def main():
     print(f"  🚀 GITHUB COMMIT · W{week_num} · {periodo}")
     print(f"{'='*60}\n")
 
-    # Construir mapa de blobs
+    # ── Auto-actualizar docs antes del commit ────────────────────────────
+    import subprocess
+    _doc_cmd = [
+        'python3', str(scripts_dir / 'update_docs.py'),
+        '--week', str(week_num),
+        '--periodo', periodo,
+        '--tipo', args.tipo,
+        '--mensaje', args.mensaje,
+        '--scripts-dir', str(scripts_dir),
+    ]
+    if args.tipo == 'fix':
+        _doc_cmd.append('--skip-historico')
+    try:
+        subprocess.run(_doc_cmd, check=True)
+    except Exception as e:
+        print(f"  ⚠️  update_docs: {e} (continuando)")
+
+    # Construir mapa de blobs (DESPUÉS de actualizar docs)
     blobs = build_blobs_map(week_num, outputs_dir, scripts_dir)
     print(f"  Total archivos a commitear: {len(blobs)}")
 

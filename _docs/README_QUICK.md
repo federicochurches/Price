@@ -49,16 +49,8 @@ Price/
 
 ## 📌 Última semana publicada
 
-**Week 20 · 11–17 may 2026**
+**W21 · 18–24 may 2026 · May 2026**
 
-| Métrica | W19 | W20 | WoW |
-|---|---|---|---|
-| %NoDispo | 2,31% | 2,81% | +0,50pp |
-| IPM | $499 | $1.097 | +119,8% |
-| Eficacia CR | 93,30% | 92,75% | −0,55pp |
-| Conv Rate CR | 1,14% | 1,19% | +0,05pp |
-
----
 
 ## 🗂️ Inventario de scripts (`_scripts/`)
 

@@ -480,4 +480,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (post-5) · Mayo 2026 · historico_data W17-W21 · ventana 5 semanas · valores W20 por canasta
+**Última actualización:** W21 (fix) · May 2026 · update_docs.py reescrito + hook en github_commit.py → docs a

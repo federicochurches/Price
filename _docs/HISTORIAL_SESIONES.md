@@ -1384,4 +1384,30 @@ def _enrich(df):
 ### Archivos modificados
 `historico_data.py`
 
-**Última actualización:** W21 (post-5) · Mayo 2026 · historico_data W17-W21 · ventana 5 semanas
+---
+
+## Pipeline W21 · Mayo 2026 · 26 May 2026
+
+**Período:** 18–24 may 2026  
+**Tipo:** Pipeline completo
+
+| Métrica | W20 | W21 | WoW |
+|---|---|---|---|
+| RND %NoDispo | 2,81% | 2,63% | -0,17pp |
+| RND IPM | $1.266 | $834 | -34,1% |
+| CR Eficacia | 93,34% | 93,15% | -0,19pp |
+| CR ConvRate | 1,63% | 1,57% | -0,07pp |
+
+### Archivos generados
+`RatesNoDispo_Reporte_Editorial.html` · `CheckRates_Reporte_Editorial.html` · 8 Excels · `Mail_W21.html` · `index.html` · `Price_W21.zip`
+
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** update_docs.py reescrito + hook en github_commit.py → docs auto-actualizados en cada commit
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · update_docs.py reescrito + hook en github_commit.py → docs a
