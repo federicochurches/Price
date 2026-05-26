@@ -445,56 +445,37 @@ final = (
     + FOOTER_JS
     + '''
 <script>
-// Auto-renderizar gráficas históricas cuando DOM esté listo
-(function() {
-    function renderAllCharts() {
-        if (typeof HIST_DATA === 'undefined') {
-            console.log('⚠ HIST_DATA no disponible');
-            return;
-        }
-        
-        // IDs de canvas CR
-        var cr_canvas_ids = ['h-global-ef', 'h-global-cv', 'h-op-ef', 'h-op-cv', 'h-cug-ef', 'h-cug-cv', 'h-b2c-ef', 'h-b2c-cv'];
-        var rnd_canvas_ids = ['hrnd-global-nd', 'hrnd-global-ipm', 'hrnd-op-nd', 'hrnd-op-ipm', 'hrnd-cug-nd', 'hrnd-cug-ipm', 'hrnd-b2c-nd', 'hrnd-b2c-ipm'];
-        
-        // Dibuja línea simple en cada canvas como placeholder
-        cr_canvas_ids.forEach(function(id) {
-            var canvas = document.getElementById(id);
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#E1F5EE';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#1A6B4A';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(10, 40);
-            ctx.lineTo(canvas.width - 10, 20);
-            ctx.stroke();
-        });
-        
-        rnd_canvas_ids.forEach(function(id) {
-            var canvas = document.getElementById(id);
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FCE4F1';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#EA0074';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(10, 30);
-            ctx.lineTo(canvas.width - 10, 35);
-            ctx.stroke();
-        });
-        
-        console.log('✓ Gráficas históricas renderizadas');
+// Configurar HIST_CR y HIST_RND para tooltip
+if (typeof HIST_DATA !== 'undefined') {
+    window.HIST_CR = {};
+    window.HIST_RND = {};
+    
+    // Mapear datos CR
+    if (HIST_DATA.cr && HIST_DATA.cr.eficacia) {
+        window.HIST_CR['h-global-ef'] = { vals: HIST_DATA.cr.eficacia.global, metric: 'eficacia' };
+        window.HIST_CR['h-global-cv'] = { vals: HIST_DATA.cr.convrate.global, metric: 'convrate' };
+        window.HIST_CR['h-op-ef'] = { vals: HIST_DATA.cr.eficacia.op, metric: 'eficacia' };
+        window.HIST_CR['h-op-cv'] = { vals: HIST_DATA.cr.convrate.op, metric: 'convrate' };
+        window.HIST_CR['h-cug-ef'] = { vals: HIST_DATA.cr.eficacia.cug, metric: 'eficacia' };
+        window.HIST_CR['h-cug-cv'] = { vals: HIST_DATA.cr.convrate.cug, metric: 'convrate' };
+        window.HIST_CR['h-b2c-ef'] = { vals: HIST_DATA.cr.eficacia.b2c, metric: 'eficacia' };
+        window.HIST_CR['h-b2c-cv'] = { vals: HIST_DATA.cr.convrate.b2c, metric: 'convrate' };
     }
     
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderAllCharts);
-    } else {
-        renderAllCharts();
+    // Mapear datos RND
+    if (HIST_DATA.rnd && HIST_DATA.rnd.nodispo) {
+        window.HIST_RND['hrnd-global-nd'] = { vals: HIST_DATA.rnd.nodispo.global, metric: 'nodispo' };
+        window.HIST_RND['hrnd-global-ipm'] = { vals: HIST_DATA.rnd.ipm.global, metric: 'ipm' };
+        window.HIST_RND['hrnd-op-nd'] = { vals: HIST_DATA.rnd.nodispo.op, metric: 'nodispo' };
+        window.HIST_RND['hrnd-op-ipm'] = { vals: HIST_DATA.rnd.ipm.op, metric: 'ipm' };
+        window.HIST_RND['hrnd-cug-nd'] = { vals: HIST_DATA.rnd.nodispo.cug, metric: 'nodispo' };
+        window.HIST_RND['hrnd-cug-ipm'] = { vals: HIST_DATA.rnd.ipm.cug, metric: 'ipm' };
+        window.HIST_RND['hrnd-b2c-nd'] = { vals: HIST_DATA.rnd.nodispo.b2c, metric: 'nodispo' };
+        window.HIST_RND['hrnd-b2c-ipm'] = { vals: HIST_DATA.rnd.ipm.b2c, metric: 'ipm' };
     }
-})();
+    
+    console.log('✓ HIST_CR y HIST_RND configurados para tooltip');
+}
 </script>
 '''
     + GLOBAL_PANEL_SCRIPT
