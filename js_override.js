@@ -102,7 +102,7 @@ function _renderChanSplit(dd) {
   var accent = W.mode === 'cr' ? '#5C469C' : '#EA0074';
   var cyan = '#4FC3F4';
   function headerRow(label, col) {
-    return '<tr><td colspan="6" style="padding:8px 0 4px 12px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:'+col+';border-bottom:2px solid '+col+';border-top:1px solid var(--rule-soft);">'+label+'</td></tr>';
+    return '<tr><td colspan="7" style="padding:8px 0 4px 12px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:'+col+';border-bottom:2px solid '+col+';border-top:1px solid var(--rule-soft);">'+label+'</td></tr>';
   }
   var html = '';
   if (pp.length) {
@@ -118,7 +118,7 @@ function _renderChanSplit(dd) {
 
 w22_setDim = function(d) {
   _currentDim = d;
-  var l = {corp:'Corporativo', dest:'Destino', chan:'Canal'};
+  var l = {corp:'Corporativo', dest:'Destino', chan:'Channel'};
   var thd = document.getElementById('w22-th-dim');
   if (thd) thd.textContent = l[d] || 'Corporativo';
   var dd = data();

@@ -119,6 +119,26 @@ CR_ACCENT = '#5C469C'
 
 from historico_module import render_historico
 
+def _cr_trafico_line():
+    """Mini-fila con CR Únicos globales W21 y WoW vs W17."""
+    cr_w21 = M['global_current'].get('cr_unicos', 0)
+    cr_w17_val = M.get('global_w17', {}).get('cr_unicos')
+    if cr_w17_val and cr_w17_val > 0:
+        cr_delta = cr_w21 - cr_w17_val
+        cr_pct = (cr_delta / cr_w17_val) * 100
+        cr_arrow = '↑' if cr_delta > 0 else '↓'
+        cr_wb = '#EAF3DE' if cr_delta > 0 else '#FCE8E6'
+        cr_wc = '#2F6C34' if cr_delta > 0 else '#C0392B'
+        pct_str = f'{cr_pct:+.1f}%'.replace('.', ',').replace('+-', '-')
+        cr_wow_pill = (f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;'
+                       f'padding:1px 5px;border-radius:3px;background:{cr_wb};color:{cr_wc};white-space:nowrap;">'
+                       f'{cr_arrow} {pct_str}</em>')
+    else:
+        cr_wow_pill = ''
+    return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
+            f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} CR únicos</span>'
+            f'{cr_wow_pill}</div>')
+
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
     bc = BANDA_COLORS.get(bnd, {})
@@ -142,6 +162,25 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     wow_block = wow_box(fmt_pct2(ef_w17), fmt_pct2(ef_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     # Prop V1: pill WoW redondeada (+ = verde, - = rojo)
     _wow_pill_ef = wow_pill_html(ef_wow, unit='pp')
+    cr_trafico_line = _cr_trafico_line()
+    
+    # Tráfico CR Únicos con WoW
+    cr_w21 = M['global_current'].get('cr_unicos', 0)
+    cr_w17_val = M.get('global_w17', {}).get('cr_unicos')
+    if cr_w17_val and cr_w17_val > 0:
+        cr_delta = cr_w21 - cr_w17_val
+        cr_pct = (cr_delta / cr_w17_val) * 100
+        cr_arrow = '↑' if cr_delta > 0 else '↓'
+        cr_wb = '#EAF3DE' if cr_delta > 0 else '#FCE8E6'
+        cr_wc = '#2F6C34' if cr_delta > 0 else '#C0392B'
+        cr_wow_pill = (f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;'
+                       f'padding:1px 5px;border-radius:3px;background:{cr_wb};color:{cr_wc};white-space:nowrap;">'
+                       f'{cr_arrow} {cr_pct:+.1f}%</em>'.replace('+', '+').replace('.', ','))
+    else:
+        cr_wow_pill = ''
+    cr_trafico_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
+                       f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} CR únicos</span>'
+                       f'{cr_wow_pill}</div>')
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
@@ -312,6 +351,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 <div>
 <div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. {VOL_NUM}K · vs sem. ant. {_wow_pill_ef}</div>
+{cr_trafico_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -339,6 +379,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     wow_block = wow_box(fmt_pct2(cv_w17), fmt_pct2(cv_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     # Prop V1: pill WoW redondeada
     _wow_pill_cv = wow_pill_html(cv_wow, unit='pp')
+    cr_trafico_line = _cr_trafico_line()
     
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
@@ -495,6 +536,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 <div>
 <div id="w21-kv-cv" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. {VOL_NUM}K · vs sem. ant. {_wow_pill_cv}</div>
+{cr_trafico_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
