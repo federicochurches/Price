@@ -7,13 +7,55 @@ from engine import banda_nodispo, banda_rpm
 
 # ── Cargar datasets ───────────────────────────────────────────────
 def load_rnd(path, week):
-    df = pd.read_excel(path)
-    if df.columns[0] != 'CorpName':
-        df = df.rename(columns={df.columns[0]: 'CorpName'})
+    # Detectar formato: largo (CorpName en col 0) o pivotado (16 cols, multi-header)
+    raw = pd.read_excel(path, header=None, nrows=2)
+    is_pivoted = (len(raw.columns) >= 16 and
+                  any(str(v) in ['B2B (OP)','B2C','CUG (UOP)'] for v in raw.iloc[0].values))
+
+    if is_pivoted:
+        # Formato pivotado: fila 0 = canastas, fila 1 = métricas
+        canastas = raw.iloc[0].tolist()    # B2B(OP), B2C, CUG...
+        metricas = raw.iloc[1].tolist()    # CorpName, Destino, Hotel, PaisDestino, Trafico...
+        df_raw   = pd.read_excel(path, header=None, skiprows=2)
+        df_raw.columns = metricas
+
+        # Columnas clave de identificación (primeras 4)
+        id_cols = ['CorpName','Destino','Hotel','PaisDestino']
+        rows = []
+        # Canastas en grupos de 4: Trafico, %NoDispo, Bookings, gb_usd
+        cat_groups = {}
+        for i, cat in enumerate(canastas):
+            cat = str(cat).strip()
+            if cat in ['B2B (OP)','B2C','CUG (UOP)']:
+                metric = str(metricas[i]).strip()
+                if cat not in cat_groups:
+                    cat_groups[cat] = {}
+                cat_groups[cat][metric] = i
+
+        for cat, col_map in cat_groups.items():
+            sub = df_raw[id_cols].copy()
+            sub['DistributionCategory'] = cat
+            for metric, col_idx in col_map.items():
+                sub[metric] = df_raw.iloc[:, col_idx].values
+            rows.append(sub)
+        df = pd.concat(rows, ignore_index=True)
+        # Limpiar fila de ceros (fila de separación)
+        df = df[~((df['Trafico'] == 0) & (df['Bookings'] == 0) &
+                  (df['CorpName'].astype(str).str.strip() == '-'))].copy()
+        print(f'  W{week} (pivotado→largo): {len(df):,} filas')
+    else:
+        df = pd.read_excel(path)
+        if df.columns[0] != 'CorpName':
+            df = df.rename(columns={df.columns[0]: 'CorpName'})
+
     df = df[df['DistributionCategory'].isin(['B2C','B2B (OP)','CUG (UOP)'])].copy()
-    df['Hotel']   = df['Hotel'].astype(str).str.strip().str.replace(r'	','',regex=True).str.strip()
+    df['Hotel']   = df['Hotel'].astype(str).str.strip().str.replace(r'\t','',regex=True).str.strip()
     df['CorpName']= df['CorpName'].astype(str).str.strip()
     df['Destino'] = df['Destino'].astype(str).str.strip()
+    df['%NoDispo'] = pd.to_numeric(df['%NoDispo'], errors='coerce').fillna(0)
+    df['Trafico']  = pd.to_numeric(df['Trafico'],  errors='coerce').fillna(0)
+    df['Bookings'] = pd.to_numeric(df['Bookings'], errors='coerce').fillna(0)
+    df['gb_usd']   = pd.to_numeric(df['gb_usd'],   errors='coerce').fillna(0)
     df['TraficoNoDispo'] = df['Trafico'] * df['%NoDispo']
     df['IPM'] = (df['gb_usd'] / df['Trafico'].replace(0,np.nan) * 1_000_000).fillna(0)
     df['ConvRate'] = (df['Bookings'] / df['Trafico'].replace(0,np.nan)).fillna(0)
@@ -237,14 +279,14 @@ for _k in ['demanda_nc','demanda_nc_extra','bajo_rend','bajo_rend_extra','sin_co
         _drop = [c for c in ['NoDispo_WoW_pp','IPM_WoW_pp','%NoDispo_W18','IPM_W18','RPM_W18'] if c in _df.columns]
         _df = _df.drop(columns=_drop).merge(_wow_lkp, on='Hotel', how='left')
         TOP[_k] = _df
-TOP = {
+TOP.update({
     'corps':   g_corp.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'destinos':g_dest.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'paises':  g_pais.sort_values('Trafico',ascending=False).head(10).reset_index(drop=True),
     'corps_10':g_corp.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
     'destinos_10':g_dest.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
     'paises_10':g_pais.sort_values('Trafico',ascending=False).head(100).reset_index(drop=True),
-}
+})
 
 # ── Canastas ─────────────────────────────────────────────────────
 print('Calculando canastas...')

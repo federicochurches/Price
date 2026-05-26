@@ -201,7 +201,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
   </div>
 
   <div class="hub-grid">
-    <div class="rpt-card" onclick="location.href='rates-nodispo/{WEEK_STR}/RatesNoDispo_Reporte_Editorial.html'">
+    <div class="rpt-card" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html#section-rnd'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(234,0,116,.12);color:var(--rnd);">Supply · Rates No Dispo</span>
         <div class="rpt-week" style="color:var(--rnd);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{SEMANA} · {PERIODO}</div>
@@ -210,12 +210,12 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
         <span class="pill active" style="background:var(--rnd);border-color:var(--rnd);">{SEMANA}</span>
-        <a href="rates-nodispo/{WEEK_PREV_STR}/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
-        <a href="rates-nodispo/{WEEK_PREV2_STR}/RatesNoDispo_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
+        <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-rnd" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
+        <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-rnd" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
       </div>
     </div>
 
-    <div class="rpt-card" onclick="location.href='checkrates/{WEEK_STR}/CheckRates_Reporte_Editorial.html'">
+    <div class="rpt-card" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html#section-cr'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(92,70,156,.12);color:var(--cr);">Supply · CheckRates</span>
         <div class="rpt-week" style="color:var(--cr);font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">{SEMANA} · {PERIODO}</div>
@@ -224,8 +224,8 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-pills">
         <span class="rpt-pills-label">Historial</span>
         <span class="pill active" style="background:var(--cr);border-color:var(--cr);">{SEMANA}</span>
-        <a href="checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
-        <a href="checkrates/{WEEK_PREV2_STR}/CheckRates_Reporte_Editorial.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
+        <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-cr" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
+        <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-cr" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
       </div>
     </div>
   </div>
@@ -234,23 +234,23 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="archivo-title">Últimas semanas</div>
     <div class="archivo-grid">
       <div class="archivo-grupo">
-        <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
+        <div class="archivo-grupo-label" style="color:var(--rnd);">Supply · Rates No Dispo</div>
         <div class="archivo-links">
-          <a href="rates-nodispo/{WEEK_PREV_STR}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV}">
+          <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-rnd" class="archivo-link recent-link" data-week="{WEEK_PREV}">
             <span class="aw">{SEMANA_PREV}</span><span class="ap">{PERIODO_PREV}</span>
           </a>
-          <a href="rates-nodispo/{WEEK_PREV2_STR}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
+          <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-rnd" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
             <span class="aw">{SEMANA_PREV2}</span><span class="ap">{PERIODO_PREV2}</span>
           </a>
         </div>
       </div>
       <div class="archivo-grupo">
-        <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
+        <div class="archivo-grupo-label" style="color:var(--cr);">Supply · CheckRates</div>
         <div class="archivo-links">
-          <a href="checkrates/{WEEK_PREV_STR}/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV}">
+          <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-cr" class="archivo-link recent-link" data-week="{WEEK_PREV}">
             <span class="aw">{SEMANA_PREV}</span><span class="ap">{PERIODO_PREV}</span>
           </a>
-          <a href="checkrates/{WEEK_PREV2_STR}/CheckRates_Reporte_Editorial.html" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
+          <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-cr" class="archivo-link recent-link" data-week="{WEEK_PREV2}">
             <span class="aw">{SEMANA_PREV2}</span><span class="ap">{PERIODO_PREV2}</span>
           </a>
         </div>
@@ -267,15 +267,15 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <div class="archivo-grupo">
           <div class="archivo-grupo-label" style="color:var(--rnd);">Supply Rates No Dispo</div>
           <div class="archivo-links">
-            <a href="rates-nodispo/week-{WEEK_PREV2-1}/RatesNoDispo_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+            <a href="reports/week-{WEEK_PREV2-1}/SUPPLY_W{WEEK_PREV2-1}.html#section-rnd" class="archivo-link" style="opacity:0.6;">
               <span class="aw">Semanas anteriores</span><span class="ap">Week {WEEK_PREV2-1} y antes</span>
             </a>
           </div>
         </div>
         <div class="archivo-grupo">
-          <div class="archivo-grupo-label" style="color:var(--cr);">Supply CheckRates</div>
+          <div class="archivo-grupo-label" style="color:var(--cr);">Supply · CheckRates</div>
           <div class="archivo-links">
-            <a href="checkrates/week-{WEEK_PREV2-1}/CheckRates_Reporte_Editorial.html" class="archivo-link" style="opacity:0.6;">
+            <a href="reports/week-{WEEK_PREV2-1}/SUPPLY_W{WEEK_PREV2-1}.html#section-cr" class="archivo-link" style="opacity:0.6;">
               <span class="aw">Semanas anteriores</span><span class="ap">Week {WEEK_PREV2-1} y antes</span>
             </a>
           </div>
@@ -372,33 +372,22 @@ generar_archivo_seguimiento(SEGUIMIENTO_ITEMS, f'W{WEEK}', seguimiento_path)
 print(f'✅ plan_seguimiento_W{WEEK}.md generado · {len(SEGUIMIENTO_ITEMS)} items OPEN')
 
 # ── Armar ZIP con estructura del repo ─────────────────────────────────────────
-# Estructura exacta del repo GitHub:
+# Estructura exacta del repo GitHub (W21+):
 #
 # Price/
 # ├── index.html
 # ├── _email/week-NN/Mail_WNN.html
 # ├── _docs/
 # │   ├── CHANGELOG.md
-# │   ├── COMMIT_GUIDE.md
-# │   ├── README.md
-# │   ├── PROMPT_MAESTRO_v3.md
-# │   ├── BANDAS.md
-# │   ├── INVENTARIO.md
-# │   └── AREAS_ACCOUNTABLE.md
+# │   └── COMMIT_GUIDE.md
 # ├── _seguimiento/plan_seguimiento_WNN.md   ← carryover semanal
-# ├── checkrates/week-NN/
-# │   ├── CheckRates_Reporte_Editorial.html
-# │   ├── Analisis_Checkrates_7d.xlsx
-# │   ├── Analisis_Checkrates_B2C_7d.xlsx
-# │   ├── Analisis_Checkrates_OP_7d.xlsx
-# │   ├── Analisis_Checkrates_CUG_7d.xlsx
+# ├── reports/week-NN/                        ← W21+ HTML unificado
+# │   └── SUPPLY_WNN.html
+# ├── checkrates/week-NN/                     ← solo Excels + Dataset
+# │   ├── Analisis_CheckRates_WNN.xlsx
 # │   └── Dataset_CheckRates_WNN.xlsx
-# └── rates-nodispo/week-NN/
-#     ├── RatesNoDispo_Reporte_Editorial.html
-#     ├── Analisis_Rates_NoDispo_7d.xlsx
-#     ├── Analisis_Rates_NoDispo_B2C_7d.xlsx
-#     ├── Analisis_Rates_NoDispo_OP_7d.xlsx
-#     ├── Analisis_Rates_NoDispo_CUG_7d.xlsx
+# └── rates-nodispo/week-NN/                  ← solo Excels + Dataset
+#     ├── Analisis_RatesNoDispo_WNN.xlsx
 #     └── Dataset_RatesNoDispo_WNN.xlsx
 
 ZIP_ROOT = Path(f'/home/claude/Price_W{WEEK}')
@@ -408,8 +397,9 @@ ZIP_ROOT.mkdir(parents=True)
 
 # Crear todas las carpetas necesarias
 for d in [
-    ZIP_ROOT / 'checkrates'   / WEEK_STR,
-    ZIP_ROOT / 'rates-nodispo' / WEEK_STR,
+    ZIP_ROOT / 'reports'      / WEEK_STR,   # W21+ HTML unificado
+    ZIP_ROOT / 'checkrates'   / WEEK_STR,   # solo Excels + Dataset
+    ZIP_ROOT / 'rates-nodispo' / WEEK_STR,  # solo Excels + Dataset
     ZIP_ROOT / '_email'        / WEEK_STR,
     ZIP_ROOT / '_seguimiento',
     ZIP_ROOT / '_docs',
@@ -441,29 +431,17 @@ files = {
     OUTPUTS / f'plan_seguimiento_W{WEEK}.md':
         ZIP_ROOT / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md',
 
-    # ── checkrates/week-NN ──────────────────────────────────────────────────
-    OUTPUTS / 'CheckRates_Reporte_Editorial.html':
-        ZIP_ROOT / 'checkrates' / WEEK_STR / 'CheckRates_Reporte_Editorial.html',
-    OUTPUTS / 'Analisis_Checkrates_7d.xlsx':
-        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_B2C_7d.xlsx':
-        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_OP_7d.xlsx':
-        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_CUG_7d.xlsx':
-        ZIP_ROOT / 'checkrates' / WEEK_STR / 'Analisis_Checkrates_CUG_7d.xlsx',
+    # ── reports/week-NN · HTML unificado (W21+) ───────────────────────────
+    OUTPUTS / f'SUPPLY_W{WEEK}.html':
+        ZIP_ROOT / 'reports' / WEEK_STR / f'SUPPLY_W{WEEK}.html',
 
-    # ── rates-nodispo/week-NN ───────────────────────────────────────────────
-    OUTPUTS / 'RatesNoDispo_Reporte_Editorial.html':
-        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'RatesNoDispo_Reporte_Editorial.html',
-    OUTPUTS / 'Analisis_Rates_NoDispo_7d.xlsx':
-        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_B2C_7d.xlsx':
-        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_OP_7d.xlsx':
-        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx':
-        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+    # ── checkrates/week-NN · Excel consolidado + Dataset ──────────────────
+    OUTPUTS / f'Analisis_CheckRates_W{WEEK}.xlsx':
+        ZIP_ROOT / 'checkrates' / WEEK_STR / f'Analisis_CheckRates_W{WEEK}.xlsx',
+
+    # ── rates-nodispo/week-NN · Excel consolidado + Dataset ───────────────
+    OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx':
+        ZIP_ROOT / 'rates-nodispo' / WEEK_STR / f'Analisis_RatesNoDispo_W{WEEK}.xlsx',
     # ── _docs (governance + docs canónicas) ─────────────────────────────────
     Path('/mnt/project/CHANGELOG.md'):
         ZIP_ROOT / '_docs' / 'CHANGELOG.md',
@@ -519,20 +497,13 @@ with zipfile.ZipFile(zip_path, 'r') as zf:
         print(f'   {name}  ({info.file_size/1024:.0f} KB)')
 
 print(f'\n✅ build_package.py completado · Week {WEEK}')
-print(f'   Commit: "feat: Week {WEEK} · RatesNoDispo + CheckRates + hub index · {PERIODO}"')
+print(f'   Commit: "feat: Week {WEEK} · Supply unificado + Excels consolidados · {PERIODO}"')
 
 # ── Limpiar outputs intermedios (quedan solo los dos ZIPs) ────────────────────
 CLEANUP = [
-    OUTPUTS / 'CheckRates_Reporte_Editorial.html',
-    OUTPUTS / 'RatesNoDispo_Reporte_Editorial.html',
-    OUTPUTS / 'Analisis_Checkrates_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Checkrates_CUG_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_B2C_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_OP_7d.xlsx',
-    OUTPUTS / 'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+    OUTPUTS / f'SUPPLY_W{WEEK}.html',
+    OUTPUTS / f'Analisis_CheckRates_W{WEEK}.xlsx',
+    OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx',
     OUTPUTS / f'Mail_W{WEEK}.html',
     OUTPUTS / 'index.html',
     OUTPUTS / f'plan_seguimiento_W{WEEK}.md',

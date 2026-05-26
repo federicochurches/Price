@@ -1116,21 +1116,11 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
 
 # ── Build ─────────────────────────────────────────────────────────────────────
-CANASTA_SECTION = f'''<section id="por-canasta">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 12</div>
-<h2 class="section-title">📦 Análisis por canasta</h2>
-<span class="section-subtitle" style="color:{CR_ACCENT}">B2C · B2B-OP · CUG</span>
-<p class="section-kicker">Métricas, severidad y casos críticos por canasta. CUG y B2B-OP tienen weight 0,6 (prioridad estratégica). B2C tiene weight 0,1 pero no se elimina del análisis.</p>
-</div>
-</div>
-'''
-for idx_key, c_key in [('op','B2B-OP'),('cug','CUG'),('b2c','B2C')]:
-    CANASTA_SECTION += render_canasta_block(CANASTA[c_key], idx_str=idx_key)
-CANASTA_SECTION += '</section>\n'
-CANASTA_SECTION += FOOTER
 
-with open('part3_cr.html','w') as f:
-    f.write(CANASTA_SECTION)
-print(f"Part 3 CR escrito: {len(CANASTA_SECTION):,} chars")
+# W21+ — Las canastas ya no se renderizan como sección separada
+# El análisis por canasta es data-driven via JS en part2_cr.html
+PART3 = ''  # sección CR ya cerrada en assemble_unified
+
+with open('part3_cr.html', 'w', encoding='utf-8') as f:
+    f.write(PART3)
+print(f"Part 3 CR escrito: {len(PART3):,} chars (W21+ vacío — canastas en JS)")

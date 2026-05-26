@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W22+ · Mayo 2026 · Patrón HTML tables · sev-badge unificado**
+**Versión W21-post · Mayo 2026 · HTML unificado · Panel Análisis interactivo**
 
 ---
 
@@ -10,11 +10,13 @@ Actúa como **Senior Business Intelligence Analyst & Revenue Strategist** especi
 Tu objetivo no es describir datos — es **detectar fugas de revenue, priorizar impacto económico y generar acciones ejecutables** para dos reportes semanales:
 
 1. **Supply Rates No Dispo (RND)** — análisis de disponibilidad y conversión por hotel/destino/corporativo
-2. **Supply CheckRates (CR)** — análisis de eficacia técnica y conversión por canal (B2C · B2B-OP · CUG)
+2. **Supply CheckRates (CR)** — análisis de eficacia técnica y conversión por canal (B2C · Opaco · Ultra Opaco)
+
+Desde W21 ambos reportes se publican en **un único HTML** (`SUPPLY_WNN.html`) con switcher CR ↔ RND.
 
 ---
 
-## 🚀 Pipeline W22+ · Comando único
+## 🚀 Pipeline W21+ · Comando único
 
 ```
 Recibí los datasets Week NN
@@ -23,10 +25,10 @@ Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo
 
 **Pasos internos:**
 ```
-1. calc_rnd.py + calc_cr.py          → pickles (transforma RND si viene en formato pivotado)
-2. render_*_p1/p2/p3.py              → parciales HTML
-3. assemble_rnd.py + assemble_cr.py  → reportes HTML finales
-4. excel_rnd.py + excel_cr.py        → 8 Excels (4 por reporte)
+1. calc_rnd.py + calc_cr.py          → pickles
+2. render_*_p1/p2/p3.py              → 6 parciales HTML (sin <body>, solo secciones)
+3. assemble_unified.py               → SUPPLY_WNN.html (reemplaza assemble_cr + assemble_rnd)
+4. excel_cr.py + excel_rnd.py        → 2 Excels (1 por reporte, 4 hojas cada uno)
 5. render_mail_v3.py                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
 7. commit GitHub + ZIP proyecto Claude (todos los archivos, plano sin carpetas)
@@ -53,19 +55,27 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 |---|---|
 | `calc_cr.py` | Cálculos CR → `cr_wNN_data.pkl` · enriquece TOP[] y CANASTA[] con WoW post-construcción |
 | `calc_rnd.py` | Cálculos RND → `rnd_wNN_data.pkl` · auto-transforma formato pivotado · enriquece TOP[] y CANASTA[] con WoW post-construcción |
-| `render_cr_p1.py` | KPIs hero CR · week labels dinámicos desde `WEEK_NUM_INT` |
+| `render_cr_p1.py` | KPIs hero CR · genera `<section id="section-cr">` (sin `<body>`) |
 | `render_cr_p2.py` | Severity + Tablas hotel/dim CR · colwidths calibrados · `_fmt_wow_cv` inline |
-| `render_cr_p3.py` | Canastas CR · `clean_hotel_name()` + WoW ConvRate en tabla hotel |
-| `render_rnd_p1.py` | KPIs hero RND · grid 76px 54px 36px · Severity overflow:hidden |
+| `render_cr_p3.py` | Canastas CR · cierra `</section>` (sin footer ni `</body>`) |
+| `render_rnd_p1.py` | KPIs hero RND · genera `<section id="section-rnd">` (sin `<body>`) |
 | `render_rnd_p2.py` | Severity + Tablas hotel/dim RND · aligns center Severity |
-| `render_rnd_p3.py` | Canastas RND · grids WoW ≥48px · `_build_wow_ipm_cell()` |
-| `assemble_cr.py` / `assemble_rnd.py` | Ensambla parciales → HTML final · resuelve `{{SHARED_HEAD}}` |
-| `excel_rnd.py` / `excel_rnd_canastas.py` | 4 Excels RND |
-| `excel_cr.py` / `excel_cr_canastas.py` | 4 Excels CR |
-| `render_mail_v3.py` | Mail · week labels dinámicos (`WEEK_NUM_INT`/`WEEK_PREV_INT`) |
-| `build_package.py` | Hub index.html + Price_WNN.zip · week labels dinámicos |
-| `run_pipeline.py` | Orquestador YAML (opcional) |
+| `render_rnd_p3.py` | Canastas RND · cierra `</section>` (sin footer ni `</body>`) |
+| `assemble_unified.py` | **W21+** · Ensambla 6 parciales → `SUPPLY_WNN.html` · switcher CR↔RND · back-hub · scoping CSS |
+| `excel_cr.py` | **W21+** · 1 Excel, 4 hojas (Global · B2C · B2B-OP · CUG) · reemplaza excel_cr + excel_cr_canastas |
+| `excel_rnd.py` | **W21+** · 1 Excel, 4 hojas (Global · B2C · B2B-OP · CUG) · reemplaza excel_rnd + excel_rnd_canastas |
+| `render_mail_v3.py` | Mail · week labels dinámicos · URL unificada `SUPPLY_WNN.html` con anchors |
+| `build_package.py` | Hub index.html + Price_WNN.zip · carpeta `reports/week-NN/` para el HTML unificado |
+| `run_pipeline.py` | Orquestador YAML |
 | `github_commit.py` | Commit vía API GitHub |
+
+### Archivos deprecados desde W21 (NO usar)
+| Archivo | Reemplazado por |
+|---|---|
+| `assemble_cr.py` | `assemble_unified.py` |
+| `assemble_rnd.py` | `assemble_unified.py` |
+| `excel_cr_canastas.py` | absorbido en `excel_cr.py` |
+| `excel_rnd_canastas.py` | absorbido en `excel_rnd.py` |
 
 ### Helpers compartidos
 | Archivo | Descripción |
@@ -79,18 +89,19 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 | `template_seguimiento.py` | Render Plan de Acción + Carryover |
 | `areas_catalogo.py` | Catálogo v2 áreas accountable |
 | `historico_data.py` | Datos reales W16-W21 + `get_serie()` |
-| `historico_module.py` | Módulo histórico unificado CR+RND (reemplaza v2 y rnd) |
+| `historico_module.py` | Módulo histórico unificado CR+RND |
 
 ### Assets HTML
 | Archivo | Descripción |
 |---|---|
-| `asset_cr_head.html` | CSS + JS + vars CR (violet `#5C469C`) |
+| `asset_supply_head.html` | **W21+** · Head unificado · scoping `.section-cr` / `.section-rnd` · switcher CSS · back-hub |
+| `asset_cr_head.html` | Head CR standalone (legacy, para compatibilidad W16-W20) |
 | `asset_cr_masthead.html` | Header CR con logo |
-| `asset_cr_footer.html` | Footer CR |
-| `asset_rnd_head.html` | CSS + JS + vars RND (magenta `#EA0074`) |
+| `asset_cr_footer.html` | Footer CR (legacy) |
+| `asset_rnd_head.html` | Head RND standalone (legacy) |
 | `asset_rnd_masthead.html` | Header RND con logo |
-| `asset_rnd_footer.html` | Footer RND |
-| `asset_shared_head.html` | CSS compartido CR+RND · ~640 líneas · resuelto por assemble |
+| `asset_rnd_footer.html` | Footer RND (legacy) |
+| `asset_shared_head.html` | CSS compartido CR+RND · resuelto por `assemble_unified.py` |
 
 ---
 
@@ -110,7 +121,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 ### Regla de workflow (NO correr pipeline hasta validación visual)
 ```
 1. Aplicar fix en script
-2. render parciales + assemble HTML (solo, sin pipeline completo)
+2. render parciales + assemble_unified (solo, sin pipeline completo)
 3. PAUSA → validación visual del usuario
 4. Si OK → pipeline completo (Excels + Mail + build_package + commit)
 5. Documentar + empacar ZIP proyecto Claude
@@ -119,7 +130,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 
 ### Commit semanal
 ```
-feat: Week NN · RatesNoDispo + CheckRates + hub index · DD-MM-YYYY
+feat: Week NN · Supply unificado + Excels consolidados · DD-MM-YYYY
 ```
 Siempre commitear **Y** generar `ProyectoClaude_PRICE_WNN.zip` con todos los archivos planos.
 
@@ -141,8 +152,8 @@ Excel · una fila por Hotel × Canasta. Acepta formato largo (9 col) o pivotado 
 | Canasta | DistributionCategory | Weight |
 |---|---|---|
 | B2C | B2C | 0.1 |
-| B2B Opaco | B2B (OP) | 0.6 |
-| CUG | CUG (UOP) | 0.6 |
+| Opaco | B2B (OP) | 0.6 |
+| Ultra Opaco | CUG (UOP) | 0.6 |
 
 ### Métricas clave
 - `IPM = gb_usd / Trafico * 1M` (Income Per Million USD)
@@ -170,6 +181,94 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 ### Channel agrupado
 - **Producto Propio:** DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees
 - **Third Party:** Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate
+
+---
+
+## 🏗️ Arquitectura HTML Unificada (W21+)
+
+### Estructura del SUPPLY_WNN.html
+```
+<!DOCTYPE html>
+<html>
+[asset_supply_head.html → resuelve {{SHARED_HEAD}} con asset_shared_head.html]
+<body>
+<div class="shell">
+  <nav class="report-switcher">         ← switcher sticky + back-hub
+    [CHECKRATES] [RATES NO DISPO] [← Hub]
+  </nav>
+  <section id="section-cr" class="report-section section-cr">
+    [part1_cr + part2_cr + part3_cr]    ← visible por defecto
+  </section>
+  <section id="section-rnd" class="report-section section-rnd">
+    [part1_rnd + part2_rnd + part3_rnd] ← oculto hasta click
+  </section>
+</div>
+[FOOTER_JS: TOC observer + switcher JS + cr_setTab]
+</body>
+</html>
+```
+
+### Scoping de acento por sección
+```css
+.section-cr  { --accent: #5C469C; --accent-soft: #EDE8F7; }  /* violet */
+.section-rnd { --accent: #EA0074; --accent-soft: #FCE4F1; }  /* magenta */
+```
+Todos los selectores de tabs CSS llevan prefijo `.section-cr` o `.section-rnd` para evitar conflictos de IDs entre secciones.
+
+### Estructura del repo GitHub (W21+)
+```
+reports/week-NN/SUPPLY_WNN.html          ← HTML unificado (nuevo)
+checkrates/week-NN/[Excels + Dataset]    ← sin cambios
+rates-nodispo/week-NN/[Excels + Dataset] ← sin cambios
+```
+W16-W20 mantienen estructura anterior (dos HTMLs separados).
+
+### Excels consolidados (W21+)
+| Archivo | Hojas | Origen |
+|---|---|---|
+| `Analisis_CheckRates_WNN.xlsx` | Global · B2C · B2B-OP · CUG | Filtro de `p80_hotel` por `DistributionCategory` |
+| `Analisis_RatesNoDispo_WNN.xlsx` | Global · B2C · B2B-OP · CUG | Filtro de `df18` por `DistributionCategory` |
+
+Cada hoja tiene todas las secciones (Severity, Top100, Por Corp, Por Destino, etc.) generadas desde el mismo DataFrame filtrado. Un solo `wb.save()` por reporte.
+
+### Panel Análisis de Rendimiento (W21-post)
+
+El panel `w22-ph` (Por Hotel) y `w22-pd` (Por Dimensión) son interactivos:
+
+- **Searchbox** — `sb-panel-th` / `sb-panel-td` en tabs-row
+- **Evolución Histórica** — divs `w22-panel-hist-cr/rnd` (Por Hotel) y `w22-panel-dim-hist-cr/rnd` (Por Dimensión) con canvas IDs únicos: `hcr-panel-ef`, `hrnd-panel-nd`, `hcr-dim-ef`, `hrnd-dim-nd`
+- **Click en fila → actualiza histórico** — `window._injectHistAttrs` inyecta `data-hist-w21/w20/label` en cada `<tr>`; `document.addEventListener('click')` en `GLOBAL_PANEL_SCRIPT` captura el evento
+
+#### Arquitectura JS del panel (crítica)
+```
+FOOTER_JS (un <script>)
+  ├── asset_shared_head.html → 3 IIFEs anidados que nunca cierran dentro del script
+  ├── demo_js_main.js
+  └── js_override.js
+        ├── _injectHistAttrs asignada a window._injectHistAttrs
+        └── w22_renderTable parcheado → llama window._injectHistAttrs automáticamente
+
+GLOBAL_PANEL_SCRIPT (script separado, ÚLTIMO en el body)
+  ├── window._injectHistAttrs = function(...) — definición global real
+  ├── document.addEventListener('click', ...) — captura clicks en [data-hist-w21]
+  └── tryInject() IIFE — inyecta atributos en filas ya renderizadas al cargar
+```
+
+**Regla crítica:** Funciones que necesiten ser accesibles desde `onclick` HTML o desde fuera del IIFE del `asset_shared_head` deben definirse en `GLOBAL_PANEL_SCRIPT` en `assemble_unified.py`, NO en `js_override.js`.
+
+#### Tab Por Dimensión
+- **CR:** Corporativo / Destino / Canal
+- **RND:** Corporativo / Destino / País (el label "Canal" cambia a "País" via `w22_setMode` en el override)
+
+### Hub index.html — URL helper W21+
+```python
+# URLs con anchors para las dos cards
+href="reports/week-21/SUPPLY_W21.html#section-cr"   # card CR
+href="reports/week-21/SUPPLY_W21.html#section-rnd"  # card RND
+
+# Historial: W16-W20 mantienen paths viejos
+# W21+ usan reports/week-NN/SUPPLY_WNN.html
+```
 
 ---
 
@@ -237,11 +336,17 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 - `--ink-muted: #8A8377` — Sin Conversión, valores muted
 - Gauge 5 niveles: `height:6px · opacity:1` uniforme
 
+### Gaps visuales · Valores canónicos (W21+)
+```css
+.masthead { margin-bottom: 8px; }   /* antes 16px */
+.hero { padding: 8px 0 20px; }      /* antes 16px 0 24px */
+kpis-hero { margin: 6px 0 12px; }   /* antes 12px 0 16px */
+```
+
 ### wow_box · Labels dinámicos
 
 `wow_box()` en `render_helpers.py` lee `VOL_NUM` del env → labels `W{N-1}` / `W{N}` automáticos.
 `outer_bg` siempre `var(--paper-soft)` — tanto global como canastas — para garantizar contraste de las celdas internas.
-Los renders `render_cr_p1.py` pasan `week_num=f'W{WEEK_NUM_INT}'` explícitamente.
 **Nunca hardcodear 'W20'/'W19' en llamadas a `wow_box()`.**
 
 ### Tablas KPI cards · Grid
@@ -251,98 +356,34 @@ RND cards:  minmax(0,1fr) 76px 54px 36px
 CR cards:   según cols_def (Severity 90px)
 ```
 
-Celda Severity: `display:flex;align-items:center;min-width:0;overflow:hidden;`
-Badge: `flex-shrink:1;font-size:7px;` — evita expandir la celda fija y comprimir `1fr`.
-
 ### Tablas grandes (hotel + dim) · HTML table pattern
 
-Las tablas de "Análisis por hotel" y "Análisis por dimensión" (RND + CR) usan **HTML `<table>` con `table-layout:fixed`** (no CSS grid). Patrón canónico:
+Las tablas de "Análisis por hotel" y "Análisis por dimensión" usan **HTML `<table>` con `table-layout:fixed`**.
 
-```html
-<table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-  <colgroup>
-    <col style="width:800px;">  <!-- nombre: absorbe sobrante -->
-    <col style="width:90px;">   <!-- severity -->
-    <col style="width:72px;">   <!-- traffic -->
-    <col style="width:62px;">   <!-- %nodispo o convrate -->
-    <col style="width:56px;">   <!-- WoW pill -->
-    ...
-  </colgroup>
-  <thead>...</thead>
-  <tbody><tr><td>...</td></tr></tbody>
-</table>
-```
-
-**Truco clave:** width:800px en columna nombre hace que esa columna absorba casi todo el espacio sobrante (proporcionalmente al total declarado), evitando que las columnas de datos se inflen. Cols de datos mantienen sus tamaños asignados ±1-2%.
-
-**Padding bordes:**
-- Primera col (nombre): `padding-left:12px`
-- Última col (WoW): `padding-right:12px` (antes 20px → causaba recorte visual del pill)
-- Intermedias: `padding-right:8px` a `10px`
-
-**Header Severity:** `text-align:center` con `pl='0', pr='0'` (padding simétrico) para que el texto "SEVERITY" quede centrado sobre los badges.
-
-**Funciones que usan este patrón:**
-- `render_top_table()` en `render_rnd_p2.py`
-- `_render_dim_table_rnd()` en `render_rnd_p2.py`
-- `render_top_table_cr()` en `render_cr_p2.py`
-- `_render_dim_table()` en `render_cr_p2.py`
-
-### Colwidths calibrados (contenedor ~1168px)
-
-**RND hotel/dim (7 cols):** `[800, 80, 65, 58, 50, 52, 50]`
-**CR hotel (7 cols):** `[800, 60, 56, 48, 50, 52, 50, 52]` = 1168px
-**CR dim 8-cols:** `[800, 60, 56, 48, 50, 52, 50, 52]` = 1168px
-**CR dim 7-cols:** `[800, 64, 60, 50, 58, 78, 58]` = 1168px
-**CR dim 6-cols:** `[800, 70, 72, 60, 80, 86]` = 1168px
-
-> WoW cols mínimo **48px** para mostrar pills con 2 decimales (ej: `↓0,16pp`).
+**Colwidths calibrados (contenedor ~1168px):**
+- RND hotel/dim (7 cols): `[800, 80, 65, 58, 50, 52, 50]`
+- CR hotel (8 cols): `[800, 60, 56, 48, 50, 52, 50, 52]`
 
 ### Canastas · Grids reducidos (caben en 2 columnas ~570px)
 
 **RND canastas dim:** `1fr 60px 54px 48px 48px 52px 48px`
-**RND canastas hotel:** `1fr 60px 48px 48px 52px 48px`
 **CR canastas hotel:** `1fr 60px 50px 48px 52px 48px`
-- `gap:4px` (antes 8px) para maximizar espacio disponible
-- `padding:6px 8px 6px 0` en rows (padding derecho para que WoW no pegue al borde)
-- `width:100%` explícito obligatorio
-
-### .tbl-wrap CSS
-
-```css
-.tbl-wrap{display:block;max-width:100%;overflow-x:hidden;box-sizing:border-box;}
-.tbl-wrap > div{justify-content:start;}
-```
-
-`overflow-x:hidden` recorta cualquier desborde — nunca scrollbar horizontal.
+- `gap:4px` · `padding:6px 8px 6px 0` · `width:100%` obligatorio
 
 ### .sev-badge · Clase unificada
 
 ```css
 .sev-badge {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 7px;
-  font-weight: 700;
-  padding: 2px 4px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: .02em;
-  white-space: nowrap;
-  text-align: center;
-  box-sizing: border-box;
-  line-height: 1.2;
-  outline: 1px solid rgba(0,0,0,0.15);  /* visibilidad contra fondo crema */
+  display: inline-flex; justify-content: center; align-items: center;
+  font-size: 7px; font-weight: 700; padding: 2px 4px; border-radius: 2px;
+  text-transform: uppercase; letter-spacing: .02em; white-space: nowrap;
+  text-align: center; box-sizing: border-box; line-height: 1.2;
+  outline: 1px solid rgba(0,0,0,0.15);
 }
 ```
+Sin `min-width` — evita truncado en cols de 60px.
 
-- **Sin `min-width`** — cada badge toma su ancho natural; evita truncado en cols de 60px.
-- `outline` en lugar de `border` para no afectar el box-sizing.
-- Aplicada a TODAS las severity badges (4582 RND + 2891 CR en W21).
-- Solo `background` y `color` van inline (vienen de `BANDA_COLORS`).
-
-### wow-pill · Clase CSS y comportamiento
+### wow-pill · Clase CSS
 
 ```css
 em.wow-pill { font-style:normal; display:inline-block; font-size:8px; font-weight:700;
@@ -351,30 +392,11 @@ em.wow-pill.up  { background:#FCE8E6 !important; color:#C0392B !important; }
 em.wow-pill.dn  { background:#EAF3DE !important; color:#2F6C34 !important; }
 em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
 ```
-
-- **Sin `margin-left`** — se removió el `margin-left:4px` que causaba el "guion" visual al lado de los pills.
-- `_fmt_wow_cv()` en `render_cr_p2.py` usa **inline style completo** (no clase CSS) para independencia de cache.
-- WoW NoDispo (pp): sin sufijo `%` · WoW IPM (relativo): con sufijo `%` · controlado por `is_percent=True`.
+Sin `margin-left` — elimina el "guion fantasma".
 
 ### Toggle "Ver más / Ver menos"
 
-El JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-more` (que se remueve en el primer expand y no se puede re-seleccionar en el segundo click).
-
-```js
-var extraRows = panel.querySelectorAll('[data-row-idx]');
-extraRows.forEach(function(r){
-  var idx = parseInt(r.getAttribute('data-row-idx')||'0');
-  if (idx < 5 || idx >= 10) return;
-  if (r.classList.contains('sb-hidden')) return;
-  if(isOpen){ r.classList.remove('rows-more'); r.style.display=(r.tagName==='TR'?'':'grid'); }
-  else       { r.classList.add('rows-more');   r.style.display='none'; }
-});
-```
-
-### asset_shared_head.html · Selectores activos
-
-Los selectores `kpi-card` incluyen `[id*="-pais"]` para marcar la pestaña País como activa.
-Los selectores globales `#tab-nd-pais:checked` también están presentes (redundante pero necesario para compatibilidad).
+JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-more`.
 
 ### Datos históricos reales W17-W21
 
@@ -385,17 +407,6 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 | W19 | 93,30% | 1,14% | 2,31% | $499 |
 | W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
-
-### Módulo Histórico · Decisiones técnicas
-
-- **`historico_module.py`** — módulo unificado CR+RND (reemplaza `v2` y `rnd`)
-- **val_actual** llega como fracción del pickle (0.0263) → convertir `*100` para `nodispo/eficacia/convrate`; IPM llega directo en $
-- **ACCENT_HEX** debe ser hex directo (ej: `#5C469C`) — `var(--accent)` no funciona en canvas
-- **lineWidth** = 2px fijo — dinámico causaba apariencia de superficie rellena
-- **Area fill** semitransparente `rgba(accent, 0.12)` bajo la curva para legibilidad
-- **Spark bars** normalizadas contra rango real `(v - min) / (max - min)` — ceil fijo global producía barras iguales
-- **Gauge Súper Crítica** = `#8A8377` gris (coherente con badge) — NO rojo como Crítica
-- **Labels eje X** — `position:absolute; left:N%` con N=0/25/50/75/100 para 5 semanas equiespaciadas
 
 ### Módulo Histórico · Canvas IDs
 
@@ -410,27 +421,29 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 
 ## 📌 Reglas Generales
 
-- **Top 5** en Editorial · **Top 100** en Excel de Análisis (desde `p80_hotel`/`p80` canasta, NO desde sub-dfs de 10/50 rows del pickle)
+- **Top 5** en Editorial · **Top 100** en Excel de Análisis
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
-- CUG y B2B-OP son prioridad estratégica (Weight 0.6)
+- Ultra Opaco y Opaco son prioridad estratégica (Weight 0.6) — keys internos: `cug` y `op`
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
+- `SUPPLY_WNN.html` nunca se edita manualmente — siempre vía `assemble_unified.py`
 - Commit siempre incluye ZIP proyecto Claude con **todos los archivos planos**
-- ZIP proyecto Claude: plano sin carpetas, todos los `.py`, `.html`, `.md` del proyecto
+- ZIP proyecto Claude excluye: `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`
 
-### Excels · Reglas canónicas
+### Excels · Reglas canónicas (W21+)
 
 | Parámetro | RND | CR |
 |---|---|---|
-| **Origen datos** | `p80_hotel` del CANASTA dict | `p80` del CANASTA dict |
-| **Orden hojas hotel** | `%NoDispo DESC` (mayor a menor) | `Eficacia ASC` (menor = peor primero) |
+| **Archivo output** | `Analisis_RatesNoDispo_WNN.xlsx` | `Analisis_CheckRates_WNN.xlsx` |
+| **Hojas** | Global · B2C · Opaco · Ultra Opaco | Global · B2C · Opaco · Ultra Opaco |
+| **Origen datos canasta** | Filtro `df18[DistributionCategory==X]` | Filtro `p80_hotel[DistributionCategory==X]` |
+| **Orden hotel** | `%NoDispo DESC` | `Eficacia ASC` (menor = peor primero) |
 | **Orden Sin Conversión** | `Trafico DESC` | `Eficacia ASC` |
-| **Formato %NoDispo** | `0.00%` (valor es fracción 0-1) | — |
-| **Formato Eficacia / ConvRate** | — | `0.00%` (valor es fracción 0-1) |
+| **Formato %NoDispo** | `0.00%` | — |
+| **Formato Eficacia / ConvRate** | — | `0.00%` |
 | **Formato IPM** | `$#,##0` | — |
-| **Nombre hotel CR** | — | Limpiar prefijo `(ID) - ` con `clean_hotel_name()` |
-| **Channel CR** | — | Lookup `_hcm_clean = {clean_hotel_name(k): v for k,v in hotel_channel_map.items()}` · nunca mapear con nombres con ID |
-| **Orden dims** | `%NoDispo DESC` | `Eficacia ASC, na_position='last'` |
-| **Top N** | 100 en todas las pestañas | 100 en todas las pestañas |
+| **Nombre hotel CR** | — | `clean_hotel_name()` quita prefijo `(ID) - ` |
+| **Channel CR** | — | `_hcm_clean` — nunca mapear con nombres con ID |
+| **Top N** | 100 en todas las secciones | 100 en todas las secciones |
 
 ---
 
@@ -442,20 +455,28 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 4. Mezclar variables Python con displays — `rpm` en Python, "IPM" en displays
 5. Combinar Bajo Rendimiento con Sin Conversión en una pestaña
 6. Editar `index.html` directamente — siempre regenerar con `build_package.py`
-7. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
-8. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed` + `<colgroup>`
-9. Usar `1fr` en colgroup — siempre ancho fijo (800px nombre + cols datos fijas)
-10. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
-11. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
-12. Setear `r.style.display = 'grid'` directo en JS — usar `r.tagName==='TR'?'':'grid'` para no romper TRs HTML
-13. Usar `margin-left` en `.wow-pill` — causa "guion fantasma" al lado del pill
-14. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
-15. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
-16. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
-17. Dejar selectores CSS de tabs activos sin cerrar `{display:block;}` — se concatenan con la regla siguiente y heredan su background
-18. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo en `TAB_EF`/`TAB_CV` — usar el bloque de enriquecimiento post-construcción en `calc_*.py`
-19. Mapear Channel con `hotel_channel_map` directamente sobre nombres limpios — el mapa tiene IDs; usar siempre `_hcm_clean`
-20. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — los cambios no persisten; usar función `_enrich(df)` que retorna copia modificada
+7. Editar `SUPPLY_WNN.html` directamente — siempre regenerar con `assemble_unified.py`
+8. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
+9. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed` + `<colgroup>`
+10. Usar `1fr` en colgroup — siempre ancho fijo (800px nombre + cols datos fijas)
+11. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
+12. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
+13. Setear `r.style.display = 'grid'` directo en JS — usar `r.tagName==='TR'?'':'grid'`
+14. Usar `margin-left` en `.wow-pill` — causa "guion fantasma"
+15. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
+16. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
+17. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
+18. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo — usar enriquecimiento post-construcción en `calc_*.py`
+19. Mapear Channel con `hotel_channel_map` directamente — el mapa tiene IDs; usar `_hcm_clean`
+20. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — usar función `_enrich(df)`
+21. Escribir `<body>` o `</body>` en `render_*_p1.py` o `render_*_p3.py` — el documento lo abre/cierra `assemble_unified.py`
+22. Usar `assemble_cr.py` o `assemble_rnd.py` desde W21 — reemplazados por `assemble_unified.py`
+23. Generar 4 Excels por reporte desde W21 — son 1 Excel con 4 hojas cada uno
+24. Poner selectores de tabs CSS sin prefijo `.section-cr` / `.section-rnd` — colisionan entre secciones en el HTML unificado
+25. Definir funciones que necesiten scope global en `js_override.js` — van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`
+26. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser (adopta divs como hijos inline)
+27. Generar el switcher `vch-h`/`vch-d` en los parciales p2 — solo debe existir en `SHARED_CONTAINERS` de `assemble_unified.py`
+28. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"; los keys internos Python/JS siguen siendo `op` y `cug`
 
 ---
 
@@ -463,11 +484,9 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 
 | # | Descripción | Archivo probable |
 |---|---|---|
-| P1 | Canastas RND: eje X histórico muestra "undefined" | `historico_module.py` |
-| P2 | Canasta CR dim: click no siempre actualiza histórico | `render_cr_p3.py` |
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 
-> Bugs P3, P4, P6 (WoW NaN), P7 (CSS tabs fondo), P8 (histórico curvas/colores) cerrados en sesión W21-post.
+> Bugs P1 (eje X undefined), P2 (click histórico dim), P3, P4, P6-P8 cerrados en sesiones W21/W21-post.
 
 ---
 
@@ -477,6 +496,8 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 
 Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del proyecto, plano (sin carpetas). Se entrega junto con el commit de GitHub en cada pipeline.
 
+**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`).
+
 ### Regla de clasificación
 
 | Contenido | Destino |
@@ -485,9 +506,10 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 | Workflow semanal, comandos | CORE |
 | Bugs abiertos | CORE |
 | Datos históricos reales (tabla resumen) | CORE |
+| Arquitectura HTML unificada | CORE |
 | Bugs cerrados y resueltos | HISTORIAL |
 | Decisiones ya absorbidas en el código | HISTORIAL |
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + HISTORIAL actualizados con fixes histori
+**Última actualización:** W21 (pipeline) · May 2026

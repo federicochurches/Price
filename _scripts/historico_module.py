@@ -10,8 +10,8 @@ import json as _json
 from historico_data import get_serie, SEMANAS
 
 METRIC_CONFIGS = {
-    ('cr', 'eficacia'): {'target': 97.0, 'unit': '%', 'invert': False, 'accent': 'var(--accent)', 'accent_rgb': None, 'bar_ceil': 97.0},
-    ('cr', 'convrate'): {'target': 2.5, 'unit': '%', 'invert': False, 'accent': 'var(--accent)', 'accent_rgb': None, 'bar_ceil': 2.5},
+    ('cr', 'eficacia'): {'target': 97.0, 'unit': '%', 'invert': False, 'accent': '#5C469C', 'accent_rgb': '92,70,156', 'bar_ceil': 97.0},
+    ('cr', 'convrate'): {'target': 2.5, 'unit': '%', 'invert': False, 'accent': '#5C469C', 'accent_rgb': '92,70,156', 'bar_ceil': 2.5},
     ('rnd', 'nodispo'): {'target': 0.05, 'unit': '%', 'invert': True, 'accent': '#EA0074', 'accent_rgb': '234,0,116', 'bar_ceil': 0.60},
     ('rnd', 'ipm'): {'target': 650.0, 'unit': ' USD/M', 'invert': False, 'accent': '#4FC3F4', 'accent_rgb': '79,195,244', 'bar_ceil': 3000.0},
 }
@@ -48,7 +48,13 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
             scope = k
             break
     
-    w_current_val = round(val_actual * 100, 2) if metrica in ('eficacia', 'convrate', 'nodispo') else round(val_actual, 1)
+    # val_actual viene como fracción (0.0263) del pickle → convertir a % (2.63)
+    # Los valores históricos en HIST_DATA están en % para comparar en misma escala
+    # IPM ya viene en $ directamente (no necesita conversión)
+    if metrica in ('eficacia', 'convrate', 'nodispo'):
+        w_current_val = round(val_actual * 100, 2)
+    else:
+        w_current_val = round(val_actual, 1)
     vals_default = get_serie(reporte, metrica, scope, w_current_val)
     vals_default = [round(v, 2 if metrica in ('eficacia', 'convrate', 'nodispo') else 1) for v in vals_default]
     
@@ -62,10 +68,14 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     
     def _sparkbars(vals):
         bars = ''
+        _spark_max = max(vals) if max(vals) > 0 else 1
+        _spark_min = min(vals)
+        _spark_range = _spark_max - _spark_min if _spark_max != _spark_min else _spark_max
         for i, v in enumerate(vals):
-            ratio = min(v / (bar_ceil * 100 if is_inverted else bar_ceil), 1.0) if bar_ceil > 0 else 0.5
-            height = max(int(2 + 16 * ratio), 2)
-            alpha = round(0.20 + 0.75 * ratio, 2)
+            # Mayor valor → barra más alta (NoDispo: mayor=peor=más visible; IPM: mayor=mejor=más visible)
+            ratio = (v - _spark_min) / _spark_range
+            height = max(int(4 + 14 * ratio), 4)
+            alpha = round(0.25 + 0.70 * ratio, 2)
             bg = accent if i == idx_current else (f'rgba({accent_rgb},{alpha})' if accent_rgb else f'rgba(92,70,156,{alpha})')
             bars += f'<div style="flex:1;background:{bg};height:{height}px;border-radius:1px 1px 0 0;" title="{semanas[i]}: {fmt_val(v)}"></div>'
         return bars
@@ -115,9 +125,11 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   <div style="margin-top:10px;">
     <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">{"Severidad vs universo global (↑ más NoDispo)" if is_inverted else "Posición vs target global"}</div>
     <div id="hist-{canvas_id}-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
-    <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">{semanas[0]}</span>
-      <span style="font-size:7px;color:{accent};font-weight:700;">{semanas[-1]}</span>
+    <div style="position:relative;height:14px;margin-top:2px;">
+      {''.join(
+        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{accent if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
+        for i, s in enumerate(semanas)
+      )}
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
@@ -144,14 +156,24 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   function drawCanvas(vals) {{
     var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
     if (!ctx) return; el.width = el.offsetWidth; el.height = el.offsetHeight; ctx.clearRect(0, 0, el.width, el.height);
-    var lw = Math.max(1, Math.round(el.width / (vals.length * 3))), h = el.height - 10;
+    var lw = 2, h = el.height - 10;
     var minVal = Math.min.apply(null, vals), maxVal = Math.max.apply(null, vals), dR = maxVal - minVal + 0.0001;
-    var pts = []; for (var i = 0; i < vals.length; i++) {{ var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }}
+    var pts = []; for (var i = 0; i < vals.length; i++) {{ var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({{x: x, y: y}}); }}
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {{
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }}
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) {{ var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }}
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) {{ var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }}
   }}
   
   function updateMetrics(vals, lbl) {{
@@ -204,7 +226,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
       if (e.target.type !== 'radio') return;
       var el2 = document.getElementById(CID);
       if (!el2) return;
-      requestAnimationFrame(function() {{ if ((el2.parentElement || {}).offsetWidth > 10) drawCanvas(VALS_DEF); }});
+      requestAnimationFrame(function() {{ if ((el2.parentElement || {{}}).offsetWidth > 10) drawCanvas(VALS_DEF); }});
     }});
   }}
   

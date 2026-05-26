@@ -251,12 +251,12 @@ def get_pipeline_steps(config):
             'critical': True,
         },
         {
-            'name': '4. ASSEMBLE RND + CR',
-            'cmd': 'python3 assemble_rnd.py && python3 assemble_cr.py',
+            'name': '4. ASSEMBLE UNIFICADO',
+            'cmd': 'python3 assemble_unified.py',
             'critical': True,
         },
         {
-            'name': '5. EXCEL RND + CR',
+            'name': '5. EXCEL RND + CR (consolidados)',
             'cmd': 'python3 excel_rnd.py && python3 excel_cr.py',
             'critical': False,  # No-critical: continuar aunque falle
         },

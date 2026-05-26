@@ -1,932 +1,489 @@
 """
-Renderer RND parte 2: Resumen Ejecutivo, Severity, Top 5
+render_rnd_p2.py · W21+ · Modelo demo data-driven
+Genera: part2_rnd.html
+Estructura: secciones HTML vacías + <script> con JSON real W21 RND
 """
-import sys, os
+import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import pickle
-import os, pandas as pd, numpy as np
-from engine import *
-from render_helpers import *
-from historico_module import render_historico
-from template_seguimiento import render_seguimiento_block
+import pickle, pandas as pd, numpy as np
+from engine import banda_nodispo, banda_rpm
+from render_helpers import BANDA_COLORS
 
-with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
-M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
 
-# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
-WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
-WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
-M['global_current'] = M['global_current']
-M['global_w17'] = M['global_prev']
-# ─────────────────────────────────────────────────────────────────────────────
+VOL_NUM   = D.get('VOL_NUM', '21')
+WEEK_NUM  = int(VOL_NUM)
+WEEK_PREV = WEEK_NUM - 1
 
-CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
-g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
+M        = D['M']
+CANASTA  = D['CANASTA']
+p80      = D['p80_hotel'].copy()
+g_corp   = D['g_corp']
+g_dest   = D['g_dest']
+sev_nd   = D['sev_nd']
+sev_rpm  = D['sev_rpm']
+TOP      = D['TOP']
+g_corp_w17 = D.get('g_corp_w17')
+g_dest_w17 = D.get('g_dest_w17')
 
-WEEK_NUM      = D.get('VOL_NUM', '19')
-WEEK_PREV_NUM = str(int(WEEK_NUM) - 1)
-SEGUIMIENTO_FILE = f'_seguimiento/plan_seguimiento_W{WEEK_PREV_NUM}.md'
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def es_pct(v):  return f'{v*100:.2f}%'.replace('.', ',')
+def es_int(v):  return f'{int(v):,}'.replace(',', '.')
+def es_ipm(v):  return f'${int(v):,}'.replace(',', '.')
 
-# ============ RESUMEN EJECUTIVO · 10 findings ============
+def banda_colors(banda):
+    bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
+    return bc['bg'], bc['fg']
 
-# ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
-WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
-WEEK_PREV_INT = WEEK_NUM_INT - 1
-M['global_current'] = M.get(f'global_w{WEEK_NUM_INT}', M.get('global_w18', {}))
-M['global_prev'] = M.get(f'global_w{WEEK_PREV_INT}', M.get('global_w17', {}))
-M['global_current'] = M['global_current']
-M['global_w17'] = M['global_prev']
-# ─────────────────────────────────────────────────────────────────────────────
+def wow_arrow(pp):
+    if pp is None or (isinstance(pp, float) and np.isnan(pp)): return '—'
+    if pp > 0: return f'▲{abs(pp):.1f}pp'.replace('.', ',')
+    if pp < 0: return f'▼{abs(pp):.1f}pp'.replace('.', ',')
+    return '—'
 
-def build_findings():
-    """Genera 10 findings con estructura template: numero + titulo + desc."""
-    pct = M['global_current']['pct_nodispo']; pct17 = M['global_w17']['pct_nodispo']
-    rpm = M['global_current']['rpm']; rpm17 = M['global_w17']['rpm']
-    bk = M['global_current']['bookings']; bk17 = M['global_w17']['bookings']
-    gb = M['global_current']['gb_usd']; gb17 = M['global_w17']['gb_usd']
-    
-    pct_wow = (pct - pct17) * 100
-    rpm_wow = (rpm/rpm17 - 1) * 100
-    bk_wow = (bk/bk17 - 1) * 100
-    
-    n_p80 = len(p80_hotel)
-    n_supcrit = sev_nd['Súper Crítica']
-    n_critmas = sev_nd['Crítica'] + sev_nd['Súper Crítica']
-    n_sin_conv = sev_rpm['Sin Conversión']
-    n_critica_rpm = sev_rpm['Crítica']
-    pct_sin_conv = n_sin_conv/n_p80*100
-    
-    dnc_p80_total = p80_hotel['DemandaNoConvertida'].sum()
-    dnc_global = (g_hotel['Trafico']*g_hotel['%NoDispo']).sum()
-    pct_dnc_p80 = dnc_p80_total/dnc_global*100
-    
-    by_corp = g_hotel.groupby('CorpName').agg(DNC=('DemandaNoConvertida','sum'), TR=('Trafico','sum'), BK=('Bookings','sum')).reset_index()
-    by_corp = by_corp.sort_values('DNC', ascending=False)
-    top1_corp = by_corp.iloc[0]
-    
-    by_dest = g_hotel.groupby('Destino').agg(DNC=('DemandaNoConvertida','sum'), TR=('Trafico','sum')).reset_index()
-    by_dest['pctND'] = by_dest['DNC']/by_dest['TR']
-    by_dest = by_dest.sort_values('DNC', ascending=False).head(3)
-    
-    cb = M[f'B2C_w{WEEK_NUM_INT}']; co = M[f'B2B (OP)_w{WEEK_NUM_INT}']; cu = M[f'CUG (UOP)_w{WEEK_NUM_INT}']
-    cug_rpm_wow = (cu['rpm']/M[f'CUG (UOP)_w{WEEK_PREV_INT}']['rpm']-1)*100
-    
-    h0 = TOP['sin_conv'].iloc[0]
-    
-    def es_pct(v, dec=2):
-        return f'{v:.{dec}f}%'.replace('.',',')
-    def es_pp(v):
-        sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.2f}'.replace('.',',')
-    def es_pct1(v):
-        sign = '+' if v >= 0 else ''
-        return f'{sign}{v:.1f}%'.replace('.',',')
-    def es_num2(v):
-        try: return f'{int(round(float(v))):,}'.replace(',','.')
-        except: return '—'
-    
-    def pill_banda(banda, target=''):
-        bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
-        tgt = f' <span style="font-weight:400;opacity:.8;font-size:8px;">· {target}</span>' if target else ''
-        return (f'<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.04em;'
-                f'text-transform:uppercase;padding:2px 7px;border-radius:3px;'
-                f'background:{bc["bg"]};color:{bc["fg"]};border:1px solid {bc["bd"]};">{banda}{tgt}</span>')
+def sev_badge_html(banda):
+    bbg, bfg = banda_colors(banda)
+    return (f'<b class="sev-badge" style="background:{bbg};color:{bfg};'
+            f'font-size:8px;padding:2px 6px;text-transform:uppercase;'
+            f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
 
-    def pill_wow_nd(v):
-        """Pill WoW para %NoDispo: verde si baja."""
-        if abs(v) < 0.05: return ''
-        mejora = v < 0
-        col = '#2F6C34' if mejora else '#C0392B'
-        bg  = '#EAF3DE' if mejora else '#FCE8E6'
-        txt = f'{"↓" if v<0 else "↑"}{abs(v):.2f}'.replace('.',',')
-        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:{bg};color:{col};">{txt}</span>'
+def build_hotel_row_rnd(row):
+    """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str]"""
+    name   = str(row.get('Hotel', '?'))[:60]
+    banda  = row.get('BandaNoDispo', 'Sin Conversión')
+    bbg, bfg = banda_colors(banda)
+    traf   = es_int(row.get('Trafico', 0))
+    nd     = es_pct(row.get('%NoDispo', 0))
+    ipm    = es_ipm(row.get('IPM', row.get('RPM', 0)))
+    # WoW NoDispo
+    wow_pp = row.get('NoDispo_WoW_pp')
+    if wow_pp is None or (isinstance(wow_pp, float) and np.isnan(wow_pp)):
+        wow_up = None; wow_nd_str = '—'
+    else:
+        wow_up = bool(wow_pp <= 0)   # NoDispo: baja = mejor
+        wow_nd_str = wow_arrow(wow_pp)
+    # WoW IPM
+    wow_ipm_pp = row.get('IPM_WoW_pp')
+    if wow_ipm_pp is None or (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
+        wow_ipm_str = '—'
+    else:
+        wow_ipm_str = wow_arrow(wow_ipm_pp)
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str]
 
-    def pill_wow_ipm(v):
-        """Pill WoW para IPM: verde si sube."""
-        if abs(v) < 0.5: return ''
-        mejora = v > 0
-        col = '#2F6C34' if mejora else '#C0392B'
-        bg  = '#EAF3DE' if mejora else '#FCE8E6'
-        txt = f'{"↑" if v>0 else "↓"}{abs(v):.1f}%'.replace('.',',')
-        return f'<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:{bg};color:{col};">{txt}</span>'
+# ── RND_CV ────────────────────────────────────────────────────────────────────
+def build_rnd_cv():
+    result = {}
+    canasta_col = {'global': '#333132', 'b2c': '#FCB000', 'op': '#4FC3F4', 'cug': '#EA0074'}
+    canasta_m = {'global': f'global_w{WEEK_NUM}',
+                 'b2c':    f'B2C_w{WEEK_NUM}',
+                 'op':     f'B2B (OP)_w{WEEK_NUM}',
+                 'cug':    f'CUG (UOP)_w{WEEK_NUM}'}
+    for key, m_key in canasta_m.items():
+        m = M.get(m_key, {})
+        nd    = m.get('pct_nodispo', m.get('nodispo', 0))
+        ipm   = m.get('ipm', m.get('rpm', 0))
+        banda = banda_nodispo(nd)
+        bbg, bfg = banda_colors(banda)
+        result[key] = {
+            'ef':  es_pct(nd),
+            'cv':  es_ipm(ipm),
+            'band': banda,
+            'bbg': bbg,
+            'bfg': bfg,
+            'col': canasta_col[key],
+        }
+    return result
 
-    findings = [
-        {'numero': es_pct(pct*100,2),
-         'titulo': f'%NoDispo global · {pill_banda(M[f'global_w{WEEK_NUM_INT}']["banda_nd"],"&lt;3%")} {pill_wow_nd(pct_wow)}',
-         'desc': 'Primera vez que se acerca a la zona Exitosa tras semanas en Revisar — mejora estructural sostenida.'},
-        {'numero': '$' + es_num2(rpm),
-         'titulo': f'IPM · {pill_banda(M[f'global_w{WEEK_NUM_INT}']["banda_rpm"],"≥$650")} {pill_wow_ipm(rpm_wow)}',
-         'desc': f'Sigue por debajo del target ≥$650. Bookings {es_pct1(bk_wow)} WoW anticipa presión adicional.'},
-        {'numero': fmt_big(dnc_p80_total),
-         'titulo': 'Demanda no convertida en P80',
-         'desc': f'{f"{pct_dnc_p80:.0f}".replace(".",",")}% del total ({fmt_big(dnc_global)}) en los {fmt_int_es(n_p80)} hoteles del P80 · concentración estructural.'},
-        {'numero': fmt_int_es(n_critmas),
-         'titulo': f'Hoteles P80 Severity Crítica+ · {pill_banda("Crítica")}',
-         'desc': f'{es_pct(n_critmas/n_p80*100,1)} del P80 · {n_supcrit} Súper Críticos requieren escalamiento inmediato a Supply.'},
-        {'numero': fmt_int_es(n_sin_conv),
-         'titulo': f'Hoteles Sin Conversión · {pill_banda("Sin Conversión")}',
-         'desc': f'{es_pct(pct_sin_conv,1)} del P80 · cohorte estructural · diagnóstico técnico/contractual. {fmt_int_es(n_critica_rpm)} adicionales en Crítica IPM.'},
-        {'numero': fmt_big(top1_corp["DNC"]),
-         'titulo': f'{clean_corp_name(top1_corp["CorpName"])} · líder demanda perdida',
-         'desc': 'Búsquedas no convertidas en P80 · escalamiento KAM directo, mayor palanca disponible esta semana.'},
-        {'numero': es_pct(by_dest.iloc[0]["pctND"]*100,2),
-         'titulo': f'{clean_destino_name(by_dest.iloc[0]["Destino"],28)} · destino crítico',
-         'desc': f'{fmt_big(by_dest.iloc[0]["DNC"])} búsquedas no convertidas · concentra fugas de high-traffic markets.'},
-        {'numero': '$' + es_num2(cu['rpm']),
-         'titulo': f'CUG · IPM {pill_banda(cu["banda_rpm"])} {pill_wow_ipm(cug_rpm_wow)}',
-         'desc': f'Canasta weight 0,6 · deterioro IPM pese a mejora en %NoDispo ({es_pct(cu["pct_nodispo"]*100,2)}) · atención prioritaria.'},
-        {'numero': es_pct(co['pct_nodispo']*100,2),
-         'titulo': f'B2B-OP · %NoDispo {pill_banda(co["banda_nodispo"])}',
-         'desc': f'IPM ${es_num2(co["rpm"])} ({pill_banda(co["banda_rpm"])}) · canasta más sólida · refleja calidad del producto opaco premium.'},
-        {'numero': fmt_big(h0["Trafico"]),
-         'titulo': f'{truncate(clean_hotel_name(h0["Hotel"]),28)} · #1 Sin Conv',
-         'desc': f'{h0["CorpName"]} · {fmt_big(h0["Trafico"])} búsquedas sin conversión · primera fila para revisión técnica.'},
+# ── RND_D ─────────────────────────────────────────────────────────────────────
+def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_c, n_p80):
+    nd    = m18.get('pct_nodispo', m18.get('nodispo', 0))
+    ipm   = m18.get('ipm', m18.get('rpm', 0))
+    nd17  = m17.get('pct_nodispo', m17.get('nodispo', 0))
+    ipm17 = m17.get('ipm', m17.get('rpm', 0))
+    nd_wow  = (nd - nd17) * 100
+    ipm_wow = ipm - ipm17
+    banda_nd  = banda_nodispo(nd)
+    banda_ipm = banda_rpm(ipm, m18.get('bookings', 1))
+
+    n_crit = int(sev_nd_c.get('Crítica', 0) + sev_nd_c.get('Súper Crítica', 0))
+    n_sc   = int(sev_rpm_c.get('Sin Conversión', 0))
+
+    # Peores
+    df_sorted = df_hotel.sort_values('%NoDispo', ascending=False)
+    worst_nd  = df_sorted.iloc[0] if len(df_sorted) else None
+    df_ipm    = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) > 0].sort_values(
+        'IPM', ascending=True) if 'Bookings' in df_hotel.columns else df_hotel.sort_values('IPM', ascending=True)
+    worst_ipm = df_ipm.iloc[0] if len(df_ipm) else None
+
+    # Top destino
+    g_dest_h = df_hotel.groupby('Destino').agg(
+        Trafico=('Trafico','sum'), Bookings=('Bookings','sum'), gb_usd=('gb_usd','sum'),
+        TraficoNoDispo=('TraficoNoDispo','sum')).reset_index() if 'Destino' in df_hotel.columns else pd.DataFrame()
+    if len(g_dest_h):
+        g_dest_h['%NoDispo'] = g_dest_h['TraficoNoDispo'] / g_dest_h['Trafico'].replace(0,1)
+        worst_dest = g_dest_h.sort_values('%NoDispo', ascending=False).iloc[0]
+        worst_dest_name = str(worst_dest['Destino'])
+        worst_dest_nd   = es_pct(worst_dest['%NoDispo'])
+    else:
+        worst_dest_name = '—'; worst_dest_nd = '—'
+
+    sfx = f' {key.upper().replace("OP","Opaco")}' if key != 'global' else ' global'
+
+    re_items = [
+        {'n': es_pct(nd),
+         't': f'NoDispo{sfx} · {sev_badge_html(banda_nd)}',
+         'd': f'{"Por debajo" if nd < 0.05 else "Por encima"} del target 5% · {"mejora" if nd_wow<=0 else "empeora"} {wow_arrow(nd_wow)} WoW.'},
+        {'n': es_ipm(ipm),
+         't': f'IPM{sfx} · {sev_badge_html(banda_ipm)}',
+         'd': f'Target ≥ $650 · {"récord" if ipm > ipm17 else "cae"} WoW.'},
+        {'n': str(n_crit),
+         't': f'Hoteles P80 {sev_badge_html("Crítica")}+ NoDispo',
+         'd': f'NoDispo > 20%.'},
+        {'n': str(n_sc),
+         't': f'Hoteles P80 {sev_badge_html("Sin Conversión")}',
+         'd': 'Sin booking · BKGS=0.'},
+        {'n': es_pct(nd),
+         't': f'Canal{sfx} NoDispo más alto',
+         'd': 'Mayor demanda perdida del canal.'},
+        {'n': es_pct(df_hotel.sort_values("%NoDispo",ascending=False).iloc[0]["%NoDispo"]) if len(df_hotel) else "—",
+         't': f'{worst_nd["Hotel"][:35] if worst_nd is not None else "—"} · peor NoDispo',
+         'd': f'{es_int(worst_nd["Trafico"]) if worst_nd is not None else "—"} tráfico.'},
+        {'n': es_ipm(worst_ipm["IPM"]) if worst_ipm is not None else "—",
+         't': f'{worst_ipm["Hotel"][:35] if worst_ipm is not None else "—"} · peor IPM',
+         'd': 'Revenue bajo en canal.'},
+        {'n': worst_dest_nd,
+         't': f'{worst_dest_name} · mayor NoDispo',
+         'd': 'Primera prioridad de apertura de cupos.'},
+        {'n': str(n_sc),
+         't': f'Sin Conversión · cohorte estructural{sfx}',
+         'd': 'Diagnóstico técnico/contractual urgente.'},
+        {'n': str(n_p80),
+         't': 'Hoteles P80 analizados',
+         'd': f'W{VOL_NUM}.'},
     ]
-    return findings
 
-def render_resumen_ej():
-    """Resumen Ejecutivo · estructura template literal."""
-    from template_resumen import render_resumen_ejecutivo
-    findings = build_findings()
-    return render_resumen_ejecutivo(findings, accent_color='#EA0074', scope='global')
+    # Hotel rows — 3 tabs separados
+    def rnd_hotel_rows_from(df):
+        return [build_hotel_row_rnd(r) for _, r in df.iterrows()]
 
-# ============ SECCIÓN SEVERITY %NoDispo ============
-def render_severity_nodispo():
-    levels = [
-        ('Súper Crítica','&gt; 60%','#C0392B'),
-        ('Crítica','20–60%','#C0392B'),
-        ('Revisar','5–20%','#F97316'),
-        ('Aceptable','3–5%','#FCD34D'),
-        ('Exitosa','&lt; 3%','#1A6B4A'),
-    ]
-    total = int(sev_nd.sum())
-    rows = ''
-    for name, rng, bar_color in levels:
-        n = int(sev_nd[name])
-        pct = n/total*100 if total else 0
-        bar_w = max(min(pct, 100), 0.5)
-        # Badge paleta D: BANDA_COLORS es la única fuente de verdad
-        bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
-        badge_bg = bc['bg']; badge_fg = bc['fg']
-        rows += (f'<div style="display:grid;grid-template-columns:110px 70px 1fr 65px 50px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);">'
-                 f'<span style="display:inline-block;padding:3px 8px;background:{badge_bg};color:{badge_fg};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
-                 f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                 f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bar_color};border-radius:2px;"></div></div>'
-                 f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
-                 f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
-                 f'</div>')
-    
-    n_critmas = int(sev_nd['Crítica'] + sev_nd['Súper Crítica'])
-    n_supc = int(sev_nd['Súper Crítica'])
-    n_exito = int(sev_nd['Exitosa'])
-    
-    return f'''<section id="severity-nodispo">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 02</div>
-<h2 class="section-title">🚨 Severity · % NoDispo</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total)} hoteles</span>
-<p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo. El target es &lt;3% (banda Exitosa).</p>
-</div>
-</div>
-<div>{rows}</div>
-</section>
-'''.replace('.','.',2)
+    # Demanda NC: mayor NoDispo (con o sin bookings)
+    df_dnc  = df_hotel.sort_values('%NoDispo', ascending=False).head(10)
+    # Bajo Rendimiento: Bookings > 0, NoDispo Revisar o Crítica/SC
+    df_bkgs = df_hotel[df_hotel.get('Bookings', pd.Series([0]*len(df_hotel))) > 0] if 'Bookings' in df_hotel.columns else df_hotel
+    df_br   = df_bkgs[df_bkgs['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(10)
+    # Sin Conversión: Bookings = 0
+    df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(10) if 'Bookings' in df_hotel.columns else pd.DataFrame()
 
-# ============ SECCIÓN SEVERITY · NoDispo + IPM combinada en 2 cols ============
-def render_severities_combinadas():
-    """Severity %NoDispo + IPM lado a lado · una sola sección."""
-    
-    def render_table(sev_dict, levels_data, accent='#EA0074', fmt_label='pct'):
-        total = int(sev_dict.sum()) if hasattr(sev_dict, "sum") else int(sum(sev_dict.values()))
-        rows = ''
-        for name, rng, _ in levels_data:
-            n = int(sev_dict.get(name, 0))
-            pct = n/total*100 if total else 0
-            bar_w = max(min(pct, 100), 0.5)
-            # Badge paleta D: BANDA_COLORS es la única fuente de verdad (importado de render_helpers)
-            bc = BANDA_COLORS.get(name, BANDA_COLORS['Sin Conversión'])
-            rows += (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                     f'<span style="display:inline-block;padding:3px 8px;background:{bc["bg"]};color:{bc["fg"]};font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{name}</span>'
-                     f'<span style="font-size:10px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{rng}</span>'
-                     f'<div style="height:8px;background:var(--paper-soft);position:relative;border-radius:2px;"><div style="position:absolute;left:0;top:0;height:100%;width:{bar_w}%;background:{bc["bar"]};border-radius:2px;"></div></div>'
-                     f'<span style="font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;">{fmt_int_es(n)}</span>'
-                     f'<span style="font-weight:500;text-align:right;color:var(--ink-muted);font-size:10px;">{pct:.1f}%</span>'
-                     f'</div>')
-        return rows, total
-    
-    levels_nd = [
-        ('Súper Crítica','&gt; 60%','#C0392B'),
-        ('Crítica','20–60%','#C0392B'),
-        ('Revisar','5–20%','#F97316'),
-        ('Aceptable','3–5%','#FCD34D'),
-        ('Exitosa','&lt; 3%','#1A6B4A'),
-    ]
-    levels_ipm = [
-        ('Sin Conversión','BKGS=0','#8A8377'),
-        ('Crítica','< $199','#C0392B'),
-        ('Revisar','$200–$499','#F97316'),
-        ('Aceptable','$500–$649','#FCD34D'),
-        ('Exitosa','≥ $650','#1A6B4A'),
-    ]
-    
-    rows_nd, total_nd = render_table(sev_nd, levels_nd)
-    rows_ipm, total_ipm = render_table(sev_rpm, levels_ipm)
-    
-    n_critmas = int(sev_nd['Crítica'] + sev_nd['Súper Crítica'])
-    n_sc = int(sev_rpm['Sin Conversión'])
-    n_crit_ipm = int(sev_rpm['Crítica'])
-    n_proc = total_ipm - n_sc
-    
-    return f'''<section id="severity-combinada" style="margin-top:48px;">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 02</div>
-<h2 class="section-title">🚨 Severity</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {fmt_int_es(total_nd)} hoteles</span>
-<p class="section-kicker">Distribución de hoteles del Top tráfico (P80) por nivel de %NoDispo (target &lt;3%) e IPM (Income Per Million USD · target ≥ $650). Sin Conversión es cohorte aparte (BKGS=0); Severity IPM se aplica solo a procesables.</p>
-</div>
-</div>
+    hotel_rows       = rnd_hotel_rows_from(df_dnc)
+    hotels_dnc_rows  = rnd_hotel_rows_from(df_dnc)
+    hotels_br_rows   = rnd_hotel_rows_from(df_br)
+    hotels_sc_rows   = rnd_hotel_rows_from(df_sc)
+
+    # Dim rows (por corp, peor NoDispo)
+    dim_rows = []
+    g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(10) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(10)
+    for _, row in g_c_sort.iterrows():
+        name   = str(row.get('CorpName', '?'))[:45]
+        nd_r   = row.get('%NoDispo', 0)
+        ipm_r  = row.get('IPM', row.get('RPM', 0))
+        banda  = banda_nodispo(nd_r)
+        bbg, bfg = banda_colors(banda)
+        traf   = es_int(row.get('Trafico', 0))
+        wow_pp = row.get('NoDispo_WoW_pp')
+        if wow_pp is None or (isinstance(wow_pp, float) and np.isnan(wow_pp)):
+            wow_up = None; wow_str = '—'
+        else:
+            wow_up = bool(wow_pp <= 0); wow_str = wow_arrow(wow_pp)
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—'])
+
+    # Corp rows = dim_rows (alias)
+    corps_rows = dim_rows
+
+    # Dest rows (por Destino, peor NoDispo)
+    dest_rows = []
+    # Agrupar por destino desde df_hotel
+    g_d_avail = None
+    if 'Destino' in df_hotel.columns and len(df_hotel):
+        g_d_avail = df_hotel.groupby('Destino').agg(
+            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
+            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
+        ).reset_index()
+        g_d_avail['%NoDispo'] = g_d_avail['TraficoNoDispo'] / g_d_avail['Trafico'].replace(0,1)
+        g_d_avail['IPM'] = g_d_avail['gb_usd'] / g_d_avail['Trafico'].replace(0,1) * 1_000_000
+    if g_d_avail is not None and '%NoDispo' in g_d_avail.columns:
+        for _, row in g_d_avail.sort_values('%NoDispo', ascending=False).head(10).iterrows():
+            dest_name = str(row.get('Destino','?')).replace(' Area','').replace(' area','')[:55]
+            nd_r  = row.get('%NoDispo', 0)
+            ipm_r = row.get('IPM', row.get('RPM', 0))
+            banda = banda_nodispo(nd_r)
+            bbg, bfg = banda_colors(banda)
+            traf  = es_int(row.get('Trafico', 0))
+            wow_pp = row.get('NoDispo_WoW_pp')
+            wow_up = None; wow_nd = '—'
+            if wow_pp is not None and not (isinstance(wow_pp, float) and np.isnan(wow_pp)):
+                wow_up = bool(wow_pp <= 0); wow_nd = wow_arrow(wow_pp)
+            wow_ipm_pp = row.get('IPM_WoW_pp')
+            wow_ipm = '—'
+            if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
+                wow_ipm = wow_arrow(wow_ipm_pp)
+            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm])
+
+    # Pais rows
+    pais_rows = []
+    if 'PaisDestino' in df_hotel.columns and len(df_hotel):
+        g_pais = df_hotel.groupby('PaisDestino').agg(
+            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
+            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
+        ).reset_index()
+        g_pais['%NoDispo'] = g_pais['TraficoNoDispo'] / g_pais['Trafico'].replace(0,1)
+        g_pais['IPM'] = g_pais['gb_usd'] / g_pais['Trafico'].replace(0,1) * 1_000_000
+        for _, row in g_pais.sort_values('%NoDispo', ascending=False).head(10).iterrows():
+            pais_name = str(row.get('PaisDestino','?'))[:55]
+            nd_r  = row.get('%NoDispo', 0)
+            ipm_r = row.get('IPM', 0)
+            banda = banda_nodispo(nd_r)
+            bbg, bfg = banda_colors(banda)
+            traf  = es_int(row.get('Trafico', 0))
+            pais_rows.append([pais_name, bbg, bfg, banda, traf,
+                              es_pct(nd_r), es_ipm(ipm_r), None, '—', '—'])
+
+    # Plan
+    owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
+    plan = []
+    if worst_nd is not None:
+        plan.append({'c': '', 'o': owners[0],
+                     'a': f'Apertura cupos {str(worst_nd["Hotel"])[:40]} — NoDispo {es_pct(worst_nd["%NoDispo"])}.',
+                     't': 'NoDispo', 'p': f'W{WEEK_NUM}'})
+    if len(g_c_sort):
+        c0 = g_c_sort.iloc[0]
+        plan.append({'c': 'qw', 'o': owners[1],
+                     'a': f'Revisar paridad {str(c0["CorpName"])[:35]} — NoDispo {es_pct(c0["%NoDispo"])}.',
+                     't': 'Paridad', 'p': f'W{WEEK_NUM}'})
+    plan.append({'c': 'mp', 'o': owners[2],
+                 'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
+                 't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
+
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
+
+
+def build_rnd_d():
+    result = {}
+    # GLOBAL
+    m_g   = M.get(f'global_w{WEEK_NUM}', {})
+    m_g17 = M.get(f'global_w{WEEK_PREV}', {})
+    # Agregar WoW a p80
+    p80_w = p80.copy()
+    if 'NoDispo_WoW_pp' not in p80_w.columns:
+        p80_w['NoDispo_WoW_pp'] = None
+
+    # g_corp con NoDispo
+    g_corp_nd = g_corp.copy()
+    if '%NoDispo' not in g_corp_nd.columns:
+        # Calcular desde p80
+        g_corp_nd = p80_w.groupby('CorpName').agg(
+            Trafico=('Trafico','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
+            Bookings=('Bookings','sum'), gb_usd=('gb_usd','sum')).reset_index()
+        g_corp_nd['%NoDispo'] = g_corp_nd['TraficoNoDispo'] / g_corp_nd['Trafico'].replace(0,1)
+        g_corp_nd['IPM'] = g_corp_nd['gb_usd'] / g_corp_nd['Trafico'].replace(0,1) * 1_000_000
+
+    result['global'] = build_canasta_data_rnd(
+        'global', p80_w, m_g, m_g17,
+        dict(sev_nd), dict(sev_rpm), g_corp_nd, len(p80_w))
+
+    # CANASTAS
+    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+        c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
+        if c is None:
+            result[key] = {'re': [], 'hotels': [], 'dims': [], 'plan': [], 'co': []}
+            continue
+        m18 = c.get('m18', {})
+        m17 = c.get('m17', {})
+        df_h = c.get('agg_hotel', pd.DataFrame()).copy()
+        if 'NoDispo_WoW_pp' not in df_h.columns:
+            df_h['NoDispo_WoW_pp'] = None
+        g_corp_c = c.get('agg_corp', pd.DataFrame())
+        if '%NoDispo' not in g_corp_c.columns and 'TraficoNoDispo' in g_corp_c.columns:
+            g_corp_c['%NoDispo'] = g_corp_c['TraficoNoDispo'] / g_corp_c['Trafico'].replace(0,1)
+        n_p80_c = len(c.get('p80_hotel', df_h))
+        sev_nd_c  = dict(c.get('sev_nd', {}))
+        sev_rpm_c = dict(c.get('sev_rpm', {}))
+        result[key] = build_canasta_data_rnd(
+            key, df_h, m18, m17, sev_nd_c, sev_rpm_c, g_corp_c, n_p80_c)
+    return result
+
+
+# ── RND_AL ────────────────────────────────────────────────────────────────────
+def build_rnd_al():
+    result = {}
+    def al_for(df_h, g_corp_c):
+        rows = []
+        if len(df_h):
+            h_nd  = df_h.sort_values('%NoDispo', ascending=False).iloc[0]
+            df_ipm = df_h[df_h['Bookings']>0].sort_values('IPM', ascending=True) if 'Bookings' in df_h.columns else df_h.sort_values('IPM', ascending=True)
+            h_ipm = df_ipm.iloc[0] if len(df_ipm) else h_nd
+            rows.append(['🏨', 'Hoteles',
+                         str(h_nd['Hotel'])[:35], es_pct(h_nd['%NoDispo']),
+                         str(h_ipm['Hotel'])[:35], es_ipm(h_ipm.get('IPM', 0))])
+        if len(df_h) and 'Destino' in df_h.columns:
+            g_d = df_h.groupby('Destino').agg(
+                Trafico=('Trafico','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
+                Bookings=('Bookings','sum'), gb_usd=('gb_usd','sum')).reset_index()
+            g_d['%NoDispo'] = g_d['TraficoNoDispo']/g_d['Trafico'].replace(0,1)
+            g_d['IPM'] = g_d['gb_usd']/g_d['Trafico'].replace(0,1)*1_000_000
+            d_nd  = g_d.sort_values('%NoDispo', ascending=False).iloc[0]
+            d_ipm = g_d[g_d['Bookings']>0].sort_values('IPM', ascending=True).iloc[0] if len(g_d[g_d['Bookings']>0]) else d_nd
+            rows.append(['📍', 'Destinos',
+                         str(d_nd['Destino']).replace(' Area','')[:35], es_pct(d_nd['%NoDispo']),
+                         str(d_ipm['Destino']).replace(' Area','')[:35], es_ipm(d_ipm['IPM'])])
+        if len(g_corp_c) and '%NoDispo' in g_corp_c.columns:
+            c_nd  = g_corp_c.sort_values('%NoDispo', ascending=False).iloc[0]
+            c_ipm = g_corp_c[g_corp_c.get('Bookings',pd.Series([1]*len(g_corp_c)))>0].sort_values(
+                'IPM', ascending=True).iloc[0] if 'IPM' in g_corp_c.columns and len(g_corp_c) else c_nd
+            rows.append(['🏢', 'Corporativo',
+                         str(c_nd['CorpName'])[:35], es_pct(c_nd['%NoDispo']),
+                         str(c_ipm.get('CorpName', c_nd['CorpName']))[:35], es_ipm(c_ipm.get('IPM', 0))])
+        return rows
+
+    g_corp_nd = g_corp.copy()
+    if '%NoDispo' not in g_corp_nd.columns:
+        g_corp_nd = p80.groupby('CorpName').agg(
+            Trafico=('Trafico','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
+            Bookings=('Bookings','sum'), gb_usd=('gb_usd','sum')).reset_index()
+        g_corp_nd['%NoDispo'] = g_corp_nd['TraficoNoDispo'] / g_corp_nd['Trafico'].replace(0,1)
+        g_corp_nd['IPM'] = g_corp_nd['gb_usd'] / g_corp_nd['Trafico'].replace(0,1) * 1_000_000
+
+    result['global'] = al_for(p80, g_corp_nd)
+    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+        c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
+        if c is None: result[key] = []; continue
+        df_h     = c.get('agg_hotel', pd.DataFrame()).copy()
+        g_corp_c = c.get('agg_corp', pd.DataFrame())
+        if '%NoDispo' not in g_corp_c.columns and 'TraficoNoDispo' in g_corp_c.columns:
+            g_corp_c['%NoDispo'] = g_corp_c['TraficoNoDispo']/g_corp_c['Trafico'].replace(0,1)
+        if 'IPM' not in g_corp_c.columns and 'RPM' in g_corp_c.columns:
+            g_corp_c['IPM'] = g_corp_c['RPM']
+        result[key] = al_for(df_h, g_corp_c)
+    return result
+
+
+# ── Severity HTML ─────────────────────────────────────────────────────────────
+def render_severity():
+    def sev_row(banda, rango, count, total):
+        bbg, bfg = banda_colors(banda)
+        pct = count/total if total else 0
+        bc  = BANDA_COLORS.get(banda, {})
+        bar_color = bc.get('bar', bbg)
+        bar_w = min(int(pct*100), 100)
+        return (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
+                f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
+                f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
+                f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{banda}</span>'
+                f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{rango}</span>'
+                f'<div style="background:var(--rule-soft);height:6px;">'
+                f'<div style="width:{bar_w}%;height:100%;background:{bar_color};"></div></div>'
+                f'<span style="font-size:12px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
+                f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{pct:.1%}</span>'
+                f'</div>').replace(',', '.')
+
+    total_nd  = sum(sev_nd.values())
+    total_rpm = sum(sev_rpm.values())
+
+    rows_nd = ''
+    for banda, rng in [('Súper Crítica','>60%'),('Crítica','20–60%'),
+                        ('Revisar','5–20%'),('Aceptable','3–5%'),('Exitosa','<3%')]:
+        rows_nd += sev_row(banda, rng, int(sev_nd.get(banda,0)), total_nd)
+
+    rows_rpm = ''
+    for banda, rng in [('Sin Conversión','BKGS=0'),('Crítica','<$200'),
+                        ('Revisar','$200–$650'),('Aceptable','$650–$1.500'),('Exitosa','≥$1.500')]:
+        rows_rpm += sev_row(banda, rng, int(sev_rpm.get(banda,0)), total_rpm)
+
+    return f'''<section id="severity-combinada" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
+<div class="section-head"><div>
+<h2 class="section-title">Severity</h2>
+<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80)} hoteles · {len(p80.get("DistributionCategory", p80).drop_duplicates() if "DistributionCategory" in p80.columns else p80)} registros</span>
+<p class="section-kicker">Distribución global del P80 por banda de %NoDispo (target < 3%) e IPM (target ≥ $650). Sin Conversión = BKGS=0, cohorte estructural separada.</p>
+</div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">% No Disponibilidad</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">%NoDispo</h3>
 {rows_nd}
 </div>
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">IPM (USD)</h3>
-{rows_ipm}
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#A86A1D;margin:0 0 12px;">IPM (Income Per Million USD)</h3>
+{rows_rpm}
 </div>
 </div>
-</section>
-'''
+</section>'''
 
-# ============ SECCIÓN TOP 5 (Demanda No Convertida, Bajo Rendimiento, Sin Conversión, Por Corp/Dest/Pais) ============
-def render_top_table(title, num, df, cols_def, accent_color='#EA0074', subtitle='', kicker='', show_header=True, sb_id=None):
-    """Top 100 como HTML table — distribuye columnas proporcionalmente sin espacio vacío."""
-    # Header
-    if show_header:
-        th_cells = ''
-        for idx_c, col in enumerate(cols_def):
-            if idx_c == 0 and sb_id:
-                th_cells += (f'<th style="padding:6px 8px 6px 12px;border-bottom:2px solid {accent_color};text-align:left;">'
-                             f'{searchbox_header_html(sb_id, accent_color=accent_color, placeholder="Hotel o corporativo…", th_id=f"th-{sb_id}")}'
-                             f'</th>')
-            else:
-                h_align = col.get('align', 'right')
-                color = accent_color if col.get('key') in ('hotel','label') else 'var(--ink-muted)'
-                pr = "12px" if idx_c == len(cols_def)-1 else "8px"
-                pl = "0"
-                if h_align == 'center':
-                    pl = "0"; pr = "0"
-                th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {accent_color};'
-                             f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
-                             f'color:{color};text-align:{h_align};white-space:nowrap;">{col["label"]}</th>')
-        header = f'<thead><tr>{th_cells}</tr></thead>'
-    else:
-        header = ''
 
-    tbody = ''
-    for i, r in df.iterrows():
-        td_cells = ''
-        for idx_c, col in enumerate(cols_def):
-            align = col.get('align', 'right')
-            val = col['fmt'](r) if callable(col['fmt']) else col['fmt']
-            if col.get('key') == 'hotel':
-                hotel_name = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 36)
-                sub = r.get('CorpName', '')
-                sub_html = (f'<div style="font-size:9px;color:var(--ink-muted);text-transform:uppercase;'
-                            f'letter-spacing:.05em;margin-top:1px;">{sub}</div>') if sub else ''
-                td_cells += (f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">'
-                             f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
-                             f'overflow:hidden;text-overflow:ellipsis;" title="{r.get("Hotel","")}">{i+1}. {hotel_name}</div>'
-                             f'{sub_html}</td>')
-            elif col.get('key') == 'bnd':
-                bnd_val = r.get('BandaNoDispo','') or r.get('BandaRPM','')
-                bc = BANDA_COLORS.get(bnd_val, BANDA_COLORS['Sin Conversión'])
-                td_cells += (f'<td style="padding:7px 8px 7px 0;text-align:center;white-space:nowrap;">'
-                             f'<span class="sev-badge" style="background:{bc["bg"]};color:{bc["fg"]};">{bnd_val}</span>'
-                             f'</td>')
-            else:
-                pr = "12px" if idx_c == len(cols_def)-1 else "8px"
-                td_cells += (f'<td style="padding:7px {pr} 7px 0;text-align:{align};font-size:11px;'
-                             f'font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{val}</td>')
+# ── Análisis de Rendimiento ───────────────────────────────────────────────────
+def render_analisis():
+    def table_html(tbody_id, btn_id, th_labels, dim_id=None):
+        cols = ''.join(
+            f'<th style="padding:8px 8px 8px {"12px" if i==0 else "8px"};'
+            f'border-bottom:2px solid #EA0074;font-size:10px;font-weight:700;'
+            f'text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);'
+            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};">'
+            f'{"<span id=\""+dim_id+"\">Corporativo</span>" if dim_id and i==0 else lbl}</th>'
+            for i, lbl in enumerate(th_labels))
+        return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+                f'<thead><tr>{cols}</tr></thead>'
+                f'<tbody id="{tbody_id}"></tbody></table>'
+                f'<div style="text-align:center;margin-top:10px;">'
+                f'<button id="{btn_id}" style="display:none;font-family:\'Geist\',sans-serif;'
+                f'font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;'
+                f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
+                f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
-        nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
-        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
-        ipm_curr = round(max(float(r.get('IPM', r.get('RPM', 0))), 0), 1)
-        ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
-        lbl = truncate(r.get('Hotel') or r.get('Destino') or r.get('CorpName') or r.get('PaisDestino') or '-', 28)
-        hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
-                      f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
-                      f' data-hist-label="{lbl}"')
-        tbl_attr = f' data-lbl="{lbl} {r.get("CorpName","")}"' if sb_id else ''
-        if i < 5: hidden = ''
-        elif i < 10: hidden = ' rows-more'
-        else: hidden = ' sb-hidden'
-        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{i}"'
-                  f' style="cursor:pointer;transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
-                  f'{td_cells}</tr>')
+    th_h = ['Hotel', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
+    th_d = ['Corporativo', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
 
-    ver_mas = ''
-    if len(df) > 5:
-        ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
-                   f'font-size:10px;font-weight:600;color:{accent_color};letter-spacing:.04em;'
-                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                   f'<span class="toggle-label">Ver 5 más</span> '
-                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-
-    # Build colgroup from cols_def widths
-    fixed_total = sum(int(col['width'].replace('px','')) for col in cols_def if col.get('width','1fr') not in ('1fr','auto') and 'px' in col.get('width',''))
-    td_padding = len(cols_def) * 8
-    nombre_w = max(150, 1168 - fixed_total - td_padding)
-    col_tags = ''
-    for col in cols_def:
-        w = col.get('width', '1fr')
-        if w == '1fr':
-            col_tags += '<col style="width:800px;">'  # nombre fijo
-        else:
-            col_tags += f'<col style="width:{w};">'
-    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><colgroup>{col_tags}</colgroup>'
-            f'{header}<tbody>{tbody}</tbody></table>{ver_mas}')
-
-def render_demanda_nc():
-    df1 = TOP['demanda_nc']
-    df2 = TOP['demanda_nc_extra']
-    cols = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'dnc','label':'Pérdidas','width':'80px','fmt':lambda r:fmt_big(r['DemandaNoConvertida'])},
-    ]
-    col1 = render_top_table('','',df1,cols)
-    # ajustar índices del df2
-    
-    return f'''<section id="demanda-nc" style="margin-bottom:80px;"><div class="section-head">
-<div>
-<div class="section-num">Sección 04</div>
-<h2 class="section-title">🔍 Demanda no convertida</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · ordenado por búsquedas perdidas ↓</span>
-<p class="section-kicker">Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(df1.iloc[0]["Hotel"],38)}</strong> ({fmt_big(df1.iloc[0]["DemandaNoConvertida"])} búsquedas perdidas).</p>
+    return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
+<div class="section-head"><div>
+<h2 class="section-title">Análisis de Rendimiento</h2>
+<span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
+</div></div>
+<div id="w22-ph" style="border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
+  <div class="tabs-row" style="margin-top:0;">
+    <label style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this)">Demanda NC</label>
+    <label class="tab-label" onclick="w22_iTab(this)">Bajo Rendimiento</label>
+    <label class="tab-label" onclick="w22_iTab(this)">Sin Conversión</label>
+  </div>
+  <div style="padding-top:14px;">
+    {table_html('w22-th', 'w22-th-more', th_h)}
+  </div>
 </div>
+<div id="w22-pd" style="display:none;border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
+  {table_html('w22-td', 'w22-td-more', th_d, dim_id='w22-th-dim')}
 </div>
-<div>{col1}</div>
-<div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Demanda No Convertida</strong> está en la pestaña <em>«Demanda No Convertida»</em> del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
-</div>
-</section>
-'''
-
-def render_bajo_rend():
-    df1 = TOP['bajo_rend']
-    df2 = TOP['bajo_rend_extra']
-    cols = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'bk','label':'BKGS','width':'55px','fmt':lambda r:fmt_int_es(r['Bookings'])},
-        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(r['RPM'])},
-    ]
-    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
-    col1 = render_top_table('','',df_all,cols)
-    
-    return f'''<section id="bajo-rendimiento" style="margin-bottom:80px;"><div class="section-head">
-<div>
-<div class="section-num">Sección 05</div>
-<h2 class="section-title">📉 Bajo rendimiento</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · IPM Crítica/Revisar · ordenado por tráfico ↓</span>
-<p class="section-kicker">Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.</p>
-</div>
-</div>
-<div>{col1}</div>
-<div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Bajo Rendimiento</strong> está en la pestaña <em>«Bajo Rendimiento»</em> del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
-</div>
-</section>
-'''
-
-def render_no_convierten():
-    df1 = TOP['sin_conv']
-    df2 = TOP['sin_conv_extra']
-    cols = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'pctnd','label':'%NoDispo','width':'70px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'dest','label':'Destino','width':'120px','fmt':lambda r:truncate(r['Destino'],18)},
-    ]
-    import pandas as _pd; df_all = _pd.concat([df1, df2]).reset_index(drop=True)
-    col1 = render_top_table('','',df_all,cols) if len(df2)>0 else ''
-    n_total_sc = (p80_hotel['Bookings']==0).sum()
-    
-    body = f'<div>{col1}</div>'
-    
-    return f'''<section id="sin-conversion" style="margin-bottom:80px;"><div class="section-head">
-<div>
-<div class="section-num">Sección 06</div>
-<h2 class="section-title">⭕ Sin conversión</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · alto tráfico · 0 BKGS · ordenado por tráfico ↓</span>
-<p class="section-kicker">{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de Conv Rate.</p>
-</div>
-</div>
-{body}
-<div class="detail-callout" style="margin-top:24px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de <strong>Sin Conversión</strong> está en la pestaña <em>«Sin Conversión»</em> del Excel adjunto · separada de Bajo Rendimiento.</div></div>
-<a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
-</div>
-</section>
-'''
-
-def _render_dim_table_rnd(df, dim_col, dim_label, start_idx=0, sb_id=None):
-    """Tabla RND dim como HTML table — table-layout:fixed con colgroup."""
-    import math
-    RND_ACCENT = '#EA0074'
-    # Columnas: nombre, severity, tráfico, %nodispo, wow, ipm, wow
-    col_widths = [800, 80, 65, 58, 50, 52, 50]
-    headers = [dim_label, 'Severity', 'Tráfico', '%NoDispo', 'WoW', 'IPM', 'WoW']
-    aligns = ['left', 'left', 'right', 'right', 'right', 'right', 'right']
-    n_cols = len(headers)
-
-    # Colgroup
-    colgroup = '<colgroup>'
-    for w in col_widths:
-        colgroup += f'<col style="width:{w}px;">'
-    colgroup += '</colgroup>'
-
-    # Header
-    th_cells = ''
-    for idx_h, h in enumerate(headers):
-        pl = '12px' if idx_h == 0 else '0'
-        pr = '12px' if idx_h == n_cols - 1 else '8px'
-        if idx_h == 0 and sb_id:
-            th_cells += (f'<th style="padding:6px {pr} 6px {pl};border-bottom:2px solid {RND_ACCENT};text-align:left;">'
-                         f'{searchbox_header_html(sb_id, accent_color=RND_ACCENT, placeholder=f"{dim_label}…", th_id=f"th-{sb_id}")}'
-                         f'</th>')
-        else:
-            color = RND_ACCENT if idx_h == 0 else 'var(--ink-muted)'
-            pl_th, pr_th = (pl, pr) if aligns[idx_h] != 'center' else ('0', '0')
-            th_cells += (f'<th style="padding:6px {pr_th} 6px {pl_th};border-bottom:2px solid {RND_ACCENT};'
-                         f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;'
-                         f'color:{color};text-align:{aligns[idx_h]};white-space:nowrap;">{h}</th>')
-    header = f'<thead><tr>{th_cells}</tr></thead>'
-
-    tbody = ''
-    for i, r in df.iterrows():
-        row_idx = start_idx + i
-        bnd = r.get('BandaNoDispo', '')
-        bc_bnd = BANDA_COLORS.get(bnd, BANDA_COLORS['Sin Conversión'])
-        badge_html = f'<span class="sev-badge" style="background:{bc_bnd["bg"]};color:{bc_bnd["fg"]};">{bnd}</span>'
-
-        if dim_col == 'PaisDestino': raw_label = clean_pais_name(r[dim_col])
-        elif dim_col == 'Destino': raw_label = clean_destino_name(r[dim_col], 26)
-        elif dim_col == 'CorpName': raw_label = clean_corp_name(r[dim_col])
-        else: raw_label = r[dim_col]
-        ipm_val = max(r.get('IPM', r.get('RPM', 0)), 0)
-
-        def _wow_pill(v, invert=False, pct_base=None, is_pct_val=True):
-            if v is None or (isinstance(v,float) and (math.isnan(v) or math.isinf(v))):
-                return '<em class="wow-pill nd">—</em>'
-            val = (v / pct_base * 100) if (pct_base and pct_base > 0 and not is_pct_val) else v
-            if abs(val) < 0.05: return '<em class="wow-pill nd">—</em>'
-            mejora = (val < 0) if invert else (val > 0)
-            cls = 'dn' if mejora else 'up'
-            arrow = '↓' if val < 0 else '↑'
-            txt = f'{arrow}{abs(val):.1f}%'.replace('.', ',')
-            return f'<em class="wow-pill {cls}">{txt}</em>'
-
-        wow_nd  = _wow_pill(r.get('NoDispo_WoW_pp'), invert=True, is_pct_val=True)
-        ipm_base = r.get('IPM_W18', 0)
-        wow_ipm = _wow_pill(r.get('IPM_WoW_pp'), invert=False, pct_base=ipm_base, is_pct_val=False)
-
-        # Generate cells with proper padding
-        def _td(content, align='right', is_first=False, is_last=False, bold=True):
-            pl = '12px' if is_first else '0'
-            pr = '12px' if is_last else '8px'
-            fw = 'font-weight:700;' if bold else ''
-            return (f'<td style="padding:7px {pr} 7px {pl};text-align:{align};font-size:11px;'
-                    f'{fw}color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{content}</td>')
-
-        name_html = f'<div style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{row_idx+1}. {truncate(raw_label,36)}</div>'
-        td_cells = (
-            f'<td style="padding:7px 8px 7px 12px;text-align:left;overflow:hidden;">{name_html}</td>'
-            f'<td style="padding:7px 8px 7px 0;text-align:center;white-space:nowrap;">{badge_html}</td>'
-            f'{_td(fmt_big(r.get("Trafico",r.get("trafico",0))), "right")}'
-            f'{_td(fmt_pct2(r["%NoDispo"]), "right")}'
-            f'{_td(wow_nd, "right", bold=False)}'
-            f'{_td("$"+fmt_num2(ipm_val), "right")}'
-            f'<td style="padding:7px 20px 7px 0;text-align:right;font-size:11px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{wow_ipm}</td>'
-        )
-
-        nd_curr  = round(float(r.get('%NoDispo', 0)) * 100, 4)
-        nd_prev  = round(float(r.get('NoDispo_W18', nd_curr/100)*100 if '%NoDispo' in r.index else nd_curr), 4)
-        ipm_curr = round(max(ipm_val, 0), 1)
-        ipm_prev = round(max(float(r.get('IPM_W18', ipm_curr)), 0), 1)
-        hist_attrs = (f' data-hist-w21="{nd_curr}" data-hist-w20="{nd_prev}"'
-                      f' data-hist-ipm-w21="{ipm_curr}" data-hist-ipm-w20="{ipm_prev}"'
-                      f' data-hist-label="{truncate(raw_label, 28)}"')
-        tbl_attr = f' data-lbl="{raw_label}"' if sb_id else ''
-        if row_idx < 5: hidden = ''
-        elif row_idx < 10: hidden = ' rows-more'
-        else: hidden = ' sb-hidden'
-        tbody += (f'<tr{hist_attrs}{tbl_attr} class="{hidden.strip()}" data-row-idx="{row_idx}"'
-                  f' style="cursor:pointer;transition:background .12s;border-bottom:1px solid var(--rule-soft);">'
-                  f'{td_cells}</tr>')
-
-    ver_mas = ''
-    if len(df) > 5:
-        ver_mas = (f'<button class="rows-toggle" '
-                   f'style="margin-top:12px;margin-left:12px;background:none;border:none;cursor:pointer;'
-                   f'font-size:10px;font-weight:600;color:#EA0074;letter-spacing:.04em;'
-                   f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                   f'<span class="toggle-label">Ver 5 más</span> '
-                   f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-
-    return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
-            f'{colgroup}{header}<tbody>{tbody}</tbody></table>{ver_mas}')
-
-def render_top_dimension(num, title, df_full, dim_col, dim_label, kicker, key='hotel'):
-    """Top 10 a 1 columna con Ver 5 más por destino/corp/país RND."""
-    df_top10 = df_full.head(10).reset_index(drop=True)
-    
-    col1 = _render_dim_table_rnd(df_top10, dim_col, dim_label, start_idx=0)
-    body = f'<div>{col1}</div>'
-    
-    return f'''<section id="top-{key}" style="margin-bottom:80px;"><div class="section-head">
-<div>
-<div class="section-num">Sección {num}</div>
-<h2 class="section-title">{icon} {title}</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · ordenado por tráfico ↓</span>
-<p class="section-kicker">{kicker}</p>
-</div>
-</div>
-{body}
-</section>
-'''
-
-# ============ SECCIÓN PLAN DE ACCIÓN ============
-def render_plan_accion():
-    # Datos de los top problemas
-    h_sc = TOP['sin_conv'].iloc[0]
-    h_dnc = TOP['demanda_nc'].iloc[0]
-    h_br = TOP['bajo_rend'].iloc[0]
-    
-    n_sc = (p80_hotel['Bookings']==0).sum()
-    n_critmas = sev_nd['Crítica'] + sev_nd['Súper Crítica']
-    
-    # Badge superior = ÁREA OWNER · cluster (QW/MP/ES) va abajo (Fix #8)
-    cug_rpm_wow = (M[f"CUG (UOP)_w{WEEK_NUM_INT}"]["rpm"]/M[f"CUG (UOP)_w{WEEK_PREV_INT}"]["rpm"]-1)*100
-    
-    def action(owner, cluster, code, plazo, accion, metrica):
-        cluster_class = {'Quick Win':'qw','Mid Priority':'mp','Estratégica':'es'}.get(cluster,'qw')
-        return f'''<div class="action-row {cluster_class}">
-<div class="action-owner-badge">{owner}</div>
-<div class="accion">{accion}</div>
-<div class="action-meta-bottom">
-<span class="cluster-tag">{cluster} · {code}</span>
-<span class="meta-item"><strong>Plazo</strong> {plazo}</span>
-<span class="meta-item"><strong>Métrica</strong> {metrica}</span>
-</div>
-</div>'''
-    
-    rows = ''
-    rows += action('Supply Comercial / Supply Optimization', 'Quick Win', 'QW1', '5 días',
-                   f'Escalar los <strong>{int(sev_nd["Súper Crítica"])} hoteles Súper Críticos</strong> del P80 (%NoDispo &gt;60%) · empezar por <strong>{truncate(clean_hotel_name(h_dnc["Hotel"]),38)}</strong> y similares.',
-                   '%NoDispo &lt; 20%')
-    rows += action('Supply Optimization / TPS', 'Quick Win', 'QW2', '1 semana',
-                   f'Diagnóstico técnico Top 10 <strong>Sin Conversión</strong> de alto tráfico · revisar mapping, paridad, tarifas. Empezar por <strong>{truncate(clean_hotel_name(h_sc["Hotel"]),38)}</strong> ({fmt_big(h_sc["Trafico"])} búsquedas).',
-                   'Conv Rate &gt; 0')
-    rows += action('Supply Optimization', 'Mid Priority', 'MP1', '3 semanas',
-                   f'Plan de saneamiento para <strong>{fmt_int_es(n_critmas)} hoteles Crítica/Súper Crítica</strong> de %NoDispo · separar por canasta y trabajar primero CUG y B2B-OP (weight 0,6).',
-                   f'{int(n_critmas*0.5)} migrados a Revisar')
-    rows += action('Supply Comercial / Wholesale', 'Mid Priority', 'MP2', '2 semanas',
-                   f'Revisión de IPM en <strong>CUG</strong> ({fmt_num2(M[f"CUG (UOP)_w{WEEK_NUM_INT}"]["rpm"])}, {cug_rpm_wow:+.1f}% WoW) · canasta de mayor weight con deterioro pronunciado en GB.'.replace('+,','+').replace('.', ',', 1),
-                   'IPM &gt; 600')
-    rows += action('Supply Comercial / Supply Optimization', 'Estratégica', 'ES1', 'Q3',
-                   f'Reducir <strong>cohorte Sin Conversión</strong> en P80 ({fmt_int_es(n_sc)} hoteles, {n_sc/len(p80_hotel)*100:.0f}% del P80) · proyecto trimestral de remediación técnica + comercial.',
-                   '-30% vs baseline')
-    rows += action('Supply Comercial / Wholesale', 'Estratégica', 'ES2', 'Q3',
-                   'Definir <strong>SLAs de %NoDispo por corporativo</strong> para Top 10 corp por tráfico · contratos con cláusulas de severity-based pricing.',
-                   'SLAs firmados')
-    rows += action('Supply Optimization', 'Quick Win', 'QW3', '1 semana',
-                   f'Investigar si el %NoDispo de <strong>RIU ({fmt_pct2(TAB_NoDispo["corp"].iloc[0]["%NoDispo"] if "RIU" in TAB_NoDispo["corp"]["CorpName"].values else 0.191)})</strong> se debe a bloqueos de contrato y si el patrón es transversal en B2C · B2B-OP · CUG o concentrado en una canasta específica.',
-                   '%NoDispo RIU &lt; 10%')
-    rows += action('Supply Comercial / Supply Optimization', 'Mid Priority', 'MP3', '2 semanas',
-                   '<strong>Deep Dive Iberostar</strong> · segundo corporativo con mayor %NoDispo · analizar causas (bloqueos, tarifas, paridad) y definir plan de saneamiento por canasta con Supply Comercial.',
-                   '%NoDispo Iberostar &lt; 5%')
-    rows += action('Wholesale', 'Estratégica', 'ES3', 'Q3',
-                   'Resolver la forma en que <strong>Wholesale sirve hoteles a las agencias</strong> para evitar que consulten hoteles y/o contratos no disponibles para cotizar · reducir tráfico inválido estructural.',
-                   'Tráfico inválido &lt; 15%')
-    rows += action('Wholesale', 'Estratégica', 'ES4', 'Q3',
-                   'Identificar y separar el <strong>tráfico de bots del tráfico orgánico</strong> generado por agencias · con foco en canasta B2C que concentra mayor ruido en métricas de %NoDispo e IPM.',
-                   'Bots identificados y filtrados')
-    
-    seguimiento_html = render_seguimiento_block(SEGUIMIENTO_FILE, accent_color='#EA0074')
-
-    return f'''<section id="plan-accion">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 10</div>
-<h2 class="section-title">📋 Plan de acción</h2>
-<span class="section-subtitle" style="color:#EA0074">Acciones priorizadas · agrupadas por Área Accountable</span>
-<p class="section-kicker">El badge superior identifica al Área Accountable de cada acción. La etiqueta de horizonte (Quick Win · Mid Priority · Estratégica) y el código de seguimiento van debajo.</p>
-</div>
-</div>
-<div class="action-grid">{rows}</div>
-{seguimiento_html}
-</section>
-'''
-
-def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm,
-                                  banda_nd, val_nd,
-                                  banda_ipm, val_ipm,
-                                  current_week='W20'):
-    """
-    Módulo histórico doble (NoDispo + IPM) para secciones de análisis.
-    Un módulo por sección — se actualiza al clickear cualquier fila de la tabla.
-    canvas_id_nd  : ej. 'hrnd-hotel-nd'
-    canvas_id_ipm : ej. 'hrnd-hotel-ipm'
-    """
-    html_nd  = render_historico('rnd', 'nodispo', banda_nd,  val_nd,  canvas_id_nd)
-    html_ipm = render_historico('rnd', 'ipm', banda_ipm, val_ipm, canvas_id_ipm)
-
-    # Wrapper con JS que conecta clicks de filas con data-hist-* al módulo
-    js = f"""
-<script>
-(function() {{
-  var section = document.getElementById('hist-{canvas_id_nd}-container') ||
-                document.getElementById('hist-{canvas_id_ipm}-container');
-  if (!section) return;
-  var parent = section.closest('section') || document.body;
-
-  function resetToGlobal() {{
-    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
-      r.style.background = ''; r.removeAttribute('data-selected-hist');
-    }});
-    // Disparar reset en ambos módulos históricos
-    var evND  = new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_nd}'}}}});
-    var evIPM = new CustomEvent('hist-reset', {{detail: {{cid: '{canvas_id_ipm}'}}}});
-    document.dispatchEvent(evND);
-    document.dispatchEvent(evIPM);
-  }}
-
-  parent.addEventListener('click', function(e) {{
-    // Click en label Global de cualquiera de los dos módulos
-    if (e.target.id === 'hist-{canvas_id_nd}-label' ||
-        e.target.id === 'hist-{canvas_id_ipm}-label') {{
-      resetToGlobal(); return;
-    }}
-    var row = e.target.closest('[data-hist-w21]');
-    if (!row) return;
-    if (row.getAttribute('data-selected-hist') === '1') {{ resetToGlobal(); return; }}
-
-    var nd_curr  = parseFloat(row.getAttribute('data-hist-w21'));
-    var nd_prev  = parseFloat(row.getAttribute('data-hist-w20') || nd_curr);
-    var ipm_curr = parseFloat(row.getAttribute('data-hist-ipm-w21'));
-    var ipm_prev = parseFloat(row.getAttribute('data-hist-ipm-w20') || ipm_curr);
-    var lbl = row.getAttribute('data-hist-label') || '';
-
-    parent.querySelectorAll('[data-hist-w21]').forEach(function(r) {{
-      r.style.background = ''; r.removeAttribute('data-selected-hist');
-    }});
-    row.setAttribute('data-selected-hist', '1');
-    row.style.background = 'var(--accent-soft)';
-
-    // Emitir eventos para que cada módulo actualice su canvas
-    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
-      cid: '{canvas_id_nd}', w_curr: nd_curr, w_prev: nd_prev, label: lbl
-    }}}}));
-    document.dispatchEvent(new CustomEvent('hist-update', {{detail: {{
-      cid: '{canvas_id_ipm}', w_curr: ipm_curr, w_prev: ipm_prev, label: lbl
-    }}}}));
-  }});
-}})();
-</script>"""
-
-    return f'''<div id="hist-{canvas_id_nd}-container"
-     style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;margin-bottom:8px;">
-  <div>{html_nd}</div>
-  <div>{html_ipm}</div>
-</div>{js}'''
+</section>'''
 
 
-# ============ NUEVO · BLOQUES CON TABS (post Week 18 mejora) ============
-def _render_panel_top_table(df, cols, idx_offset=0, sb_id=None):
-    """Panel: top 5 visible, filas 6-10 rows-more, filas 11-100 sb-hidden.
-    Todas las filas llevan data-lbl para que attachTable las encuentre y pueda
-    buscar sobre el pool completo de 100.
-    sb_id: si se pasa, header integra searchbox_header_html (Prop D).
-    """
-    df = df.reset_index(drop=True)
-    # Una sola llamada con todo el df: render_top_table asigna clases sb-hidden/rows-more
-    # y genera data-lbl para TODAS las filas cuando recibe sb_id
-    full_table = render_top_table('', '', df, cols, sb_id=sb_id)
-    return f'<div class="tbl-wrap">{full_table}</div>'
+# ── MAIN ──────────────────────────────────────────────────────────────────────
+print('Calculando RND_CV...')
+RND_CV = build_rnd_cv()
+print('Calculando RND_D...')
+RND_D  = build_rnd_d()
+print('Calculando RND_AL...')
+RND_AL = build_rnd_al()
 
-def render_bloque_hoteles():
-    """Sección 03 · 3 tabs: Demanda No Convertida · Bajo Rend · Sin Conv."""
-    # Demanda No Convertida
-    def _fmt_wow_rnd(v, mejora_si_negativo=False, is_percent=False):
-        """Pill WoW para RND: verde si baja %NoDispo, rojo si sube.
-        is_percent=True: añade '%' al final (para WoW de IPM relativo)
-        is_percent=False: solo número (para WoW de %NoDispo en pp)
-        """
-        import math
-        if v is None or (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
-            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-        if abs(v) < 0.05:
-            return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;">—</em>'
-        if mejora_si_negativo:
-            mejora = v < 0
-        else:
-            mejora = v > 0
-        wc = '#2F6C34' if mejora else '#C0392B'
-        wb = '#EAF3DE' if mejora else '#FCE8E6'
-        arrow = '↓' if v < 0 else '↑'
-        suffix = '%' if is_percent else ''
-        txt = f'{arrow}{abs(v):.1f}{suffix}'.replace('.', ',')
-        return f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};">{txt}</em>'
+def safe_json(obj):
+    if isinstance(obj, (np.integer,)): return int(obj)
+    if isinstance(obj, (np.floating,)): return float(obj)
+    if isinstance(obj, np.ndarray): return obj.tolist()
+    raise TypeError(f'Not serializable: {type(obj)}')
 
-    cols_dnc = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
-        {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
-    ]
-    df_dnc = TOP['demanda_nc'].reset_index(drop=True)
-    panel_dnc = _render_panel_top_table(df_dnc, cols_dnc, sb_id='sb-rh-dnc')
-    top1_dnc = df_dnc.iloc[0]
-    kicker_dnc = f'Hoteles con mayor volumen absoluto de búsquedas que se perdieron por NoDispo. Combina tráfico × %NoDispo. Top 1: <strong>{truncate(top1_dnc["Hotel"],38)}</strong> ({fmt_big(top1_dnc["DemandaNoConvertida"])} búsquedas perdidas).'
-    
-    # Bajo Rendimiento
-    cols_br = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'rpm','label':'IPM','width':'70px','fmt':lambda r:fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wow','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
-    ]
-    df_br = TOP['bajo_rend'].reset_index(drop=True)
-    panel_br = _render_panel_top_table(df_br, cols_br, sb_id='sb-rh-br')
-    kicker_br = 'Hoteles del P80 con bookings &gt; 0 pero IPM en banda Crítica/Revisar — están convirtiendo, pero el income por millón de búsquedas no llega al target ≥ $650.'
-    
-    # Sin Conversión
-    cols_sc = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
-        {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
-    ]
-    df_sc = TOP['sin_conv'].reset_index(drop=True)
-    panel_sc = _render_panel_top_table(df_sc, cols_sc, sb_id='sb-rh-sc')
-    n_total_sc = (p80_hotel['Bookings']==0).sum()
-    kicker_sc = f'{fmt_int_es(n_total_sc)} hoteles del P80 con cero bookings. Cohorte estructural: requiere diagnóstico técnico (errores de carga, mapping) o contractual (paridad, tarifas). No incluye en Severity de IPM.'
-    
-    # Críticos: hoteles con BandaNoDispo en Crítica o Súper Crítica (>20% NoDispo)
-    cols_crit = [
-        {'key':'hotel','label':'Hotel','width':'1fr','fmt':lambda r:'','align':'left'},
-        {'key':'bnd','label':'Severity','width':'80px','fmt':lambda r:'','align':'center'},
-        {'key':'trafico','label':'Tráfico','width':'65px','fmt':lambda r:fmt_big(r['Trafico'])},
-        {'key':'pctnd','label':'%NoDispo','width':'58px','fmt':lambda r:fmt_pct2(r['%NoDispo'])},
-        {'key':'wownd','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd(r.get('NoDispo_WoW_pp'), mejora_si_negativo=True)},
-        {'key':'rpm','label':'IPM','width':'52px','fmt':lambda r:'$'+fmt_num2(max(r.get('RPM',r.get('IPM',0)),0))},
-        {'key':'wowipm','label':'WoW','width':'50px','fmt':lambda r:_fmt_wow_rnd((r['IPM_WoW_pp']/r['IPM_W18']*100) if r.get('IPM_WoW_pp') is not None and r.get('IPM_W18',0)>0 else None, mejora_si_negativo=False, is_percent=True)},
-    ]
-    df_crit_all = p80_hotel[p80_hotel['BandaNoDispo'].isin(['Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
-    df_crit = df_crit_all.head(100).reset_index(drop=True)
-    df_crit.index = range(len(df_crit))
-    panel_crit = _render_panel_top_table(df_crit, cols_crit, sb_id='sb-rh-crit')
-    n_crit_total = len(df_crit_all)
-    n_supcrit = (p80_hotel['BandaNoDispo'] == 'Súper Crítica').sum()
-    kicker_crit = f'{fmt_int_es(n_crit_total)} hoteles del P80 con %NoDispo &gt; 20% (banda Crítica+). De estos, <strong>{n_supcrit} son Súper Críticos</strong> (&gt; 60%) — primer foco de escalamiento inmediato a Supply.'
-    
-    panels = (
-        f'<div class="tab-panel" data-tab="crit">{panel_crit}</div>'
-        f'<div class="tab-panel" data-tab="dnc">{panel_dnc}</div>'
-        f'<div class="tab-panel" data-tab="br">{panel_br}</div>'
-        f'<div class="tab-panel" data-tab="sc">{panel_sc}</div>'
-    )
-    
-    hist_hotel = render_historico_seccion_rnd(
-        canvas_id_nd  = 'hrnd-hotel-nd',
-        canvas_id_ipm = 'hrnd-hotel-ipm',
-        banda_nd  = banda_nodispo(M['global_current']['pct_nodispo']),
-        val_nd    = M['global_current']['pct_nodispo'],
-        banda_ipm = banda_rpm(M['global_current']['rpm'], M['global_current']['bookings']),
-        val_ipm   = M['global_current']['rpm'],
-        current_week = f"W{WEEK_NUM_INT}",
-    )
+RND_CV_JSON = json.dumps(RND_CV, ensure_ascii=False, default=safe_json)
+RND_D_JSON  = json.dumps(RND_D,  ensure_ascii=False, default=safe_json)
+RND_AL_JSON = json.dumps(RND_AL, ensure_ascii=False, default=safe_json)
 
-    return f'''<section id="por-hotel" style="margin-bottom:64px;">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 03</div>
-<h2 class="section-title">🏨 Análisis por hotel</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 · 4 ópticas analíticas</span>
-<p class="section-kicker">Hoteles del P80 vistos desde tres ángulos: demanda no convertida, bajo rendimiento de IPM, y sin conversión. Cada óptica responde a un tipo distinto de fuga de revenue.</p>
-</div>
-</div>
-<div class="tabs-block">
-<input checked id="tab-h-crit" name="tabs-h" style="display:none" type="radio"/>
-<input id="tab-h-dnc" name="tabs-h" style="display:none" type="radio"/>
-<input id="tab-h-br" name="tabs-h" style="display:none" type="radio"/>
-<input id="tab-h-sc" name="tabs-h" style="display:none" type="radio"/>
-<div class="tabs-row" style="align-items:flex-end;">
-<label class="tab-label" for="tab-h-crit">Críticos</label>
-<label class="tab-label" for="tab-h-dnc">Demanda No Convertida</label>
-<label class="tab-label" for="tab-h-br">Bajo Rendimiento</label>
-<label class="tab-label" for="tab-h-sc">Sin Conversión</label>
-</div>
-<div class="tab-panels">{panels}</div>
-</div>
-{hist_hotel}
-<div class="detail-callout" style="margin-top:18px;">
-<div><div class="lbl">Detalle completo</div><div class="msg">El Top 100 de cada óptica (Demanda No Convertida · Bajo Rendimiento · Sin Conversión) está en pestañas separadas del Excel adjunto.</div></div>
-<a class="badge-link" href="Analisis_Rates_NoDispo_7d.xlsx">Excel ↗</a>
-</div>
-</section>
-'''
-
-def render_bloque_dimensiones():
-    """Sección 04 · 3 tabs: Corporativo · Destino · País."""
-    
-    def panel_for_dim(df_full, dim_col, dim_label, sb_id=None):
-        df100 = df_full.head(100).reset_index(drop=True)
-        rows_html = _render_dim_table_rnd(df100, dim_col, dim_label, start_idx=0, sb_id=sb_id)
-        return f'<div class="tbl-wrap">{rows_html}</div>'
-    
-    panel_corp = panel_for_dim(TOP['corps_10'], 'CorpName', 'Corporativo', sb_id='sb-rd-corp')
-    panel_dest = panel_for_dim(TOP['destinos_10'], 'Destino', 'Destino', sb_id='sb-rd-dest')
-    panel_pais = panel_for_dim(TOP['paises_10'], 'PaisDestino', 'País', sb_id='sb-rd-pais')
-    
-    # Kickers
-    top_corp = TOP['corps'].iloc[0]
-    top_dest = TOP['destinos'].iloc[0]
-    top_pais = TOP['paises'].iloc[0]
-    k_corp = f'Distribución por corporativo. <strong>{top_corp["CorpName"]}</strong> lidera tráfico ({fmt_big(top_corp["Trafico"])}) con %NoDispo {fmt_pct2(top_corp["%NoDispo"])} y IPM ${fmt_num2(top_corp["RPM"])}.'
-    k_dest = f'Distribución por destino. <strong>{top_dest["Destino"]}</strong> concentra {fmt_big(top_dest["Trafico"])} en búsquedas con %NoDispo {fmt_pct2(top_dest["%NoDispo"])} (banda {top_dest["BandaNoDispo"]}).'
-    k_pais = f'Distribución por país. <strong>{clean_pais_name(top_pais["PaisDestino"], max_len=50)}</strong> concentra {fmt_big(top_pais["Trafico"])} de búsquedas con %NoDispo {fmt_pct2(top_pais["%NoDispo"])}.'
-    
-    panels = (
-        f'<div class="tab-panel" data-tab="corp">{panel_corp}</div>'
-        f'<div class="tab-panel" data-tab="dest">{panel_dest}</div>'
-        f'<div class="tab-panel" data-tab="pais">{panel_pais}</div>'
-    )
-    
-    hist_dim = render_historico_seccion_rnd(
-        canvas_id_nd  = 'hrnd-dim-nd',
-        canvas_id_ipm = 'hrnd-dim-ipm',
-        banda_nd  = banda_nodispo(M['global_current']['pct_nodispo']),
-        val_nd    = M['global_current']['pct_nodispo'],
-        banda_ipm = banda_rpm(M['global_current']['rpm'], M['global_current']['bookings']),
-        val_ipm   = M['global_current']['rpm'],
-        current_week = f"W{WEEK_NUM_INT}",
-    )
-
-    return f'''<section id="por-dimension" style="margin-bottom:64px;">
-<div class="section-head">
-<div>
-<div class="section-num">Sección 04</div>
-<h2 class="section-title">📊 Análisis por dimensión</h2>
-<span class="section-subtitle" style="color:#EA0074">Top 10 agregados · ordenado por tráfico ↓</span>
-<p class="section-kicker">Distribución del tráfico P80 por corporativo, destino y país. Identifica concentraciones de demanda y patrones por dimensión geográfica.</p>
-</div>
-</div>
-<div class="tabs-block">
-<input checked id="tab-d-corp" name="tabs-d" style="display:none" type="radio"/>
-<input id="tab-d-dest" name="tabs-d" style="display:none" type="radio"/>
-<input id="tab-d-pais" name="tabs-d" style="display:none" type="radio"/>
-<div class="tabs-row" style="align-items:flex-end;">
-<label class="tab-label" for="tab-d-corp">Corporativo</label>
-<label class="tab-label" for="tab-d-dest">Destino</label>
-<label class="tab-label" for="tab-d-pais">País</label>
-</div>
-<div class="tab-panels">{panels}</div>
-</div>
-{hist_dim}
-</section>
-'''
-
-# Render parte 2 completa
-RESUMEN = render_resumen_ej()
-SEV_COMBINADA = render_severities_combinadas()
-
-# === NUEVO · 2 bloques con tabs (reemplazan 6 secciones apiladas) ===
-BLOQUE_HOTELES = render_bloque_hoteles()
-BLOQUE_DIM = render_bloque_dimensiones()
-
-PLAN_ACCION = render_plan_accion()
-
-PART2 = RESUMEN + SEV_COMBINADA + BLOQUE_HOTELES + BLOQUE_DIM + PLAN_ACCION
-
-with open('part2_rnd.html','w') as f:
+# Alertas subtitle dinámico para RND
+PART2 = (
+    '<div id="w22-sev-rnd" style="display:none;">\n' + render_severity() + '\n</div>\n' +
+    f'\n<script>\nvar RND_CV={RND_CV_JSON};\nvar RND_D={RND_D_JSON};\nvar RND_AL={RND_AL_JSON};\n</script>\n'
+)
+with open('part2_rnd.html', 'w', encoding='utf-8') as f:
     f.write(PART2)
-print(f"Part 2 RND escrito: {len(PART2):,} chars")
+print(f'Part 2 RND escrito: {len(PART2):,} chars')

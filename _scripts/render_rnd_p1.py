@@ -86,7 +86,6 @@ def render_masthead():
 <div style="display:table;width:100%;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
-<span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">RatesNoDispo</span>
 <div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">{WEEK_DISPLAY}</div>
 <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{PERIODO_LABEL}</div>
 </div>
@@ -151,11 +150,11 @@ def render_hero():
           f'<span class="accent">{top_corp[1]}</span> y '
           f'<span class="accent">{top_corp[2]}</span> son los corporativos con mayor demanda no convertida.</span>')
     
-    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</span> Tráfico · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</span> hoteles · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</span> Bookings · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</span> GB · '
-               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</span> hoteles P80.')
+    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> Tráfico · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</strong> hoteles · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</strong> Bookings · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '
+               f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</strong> hoteles P80.')
     
     return h1, subhead, pct, rpm, pct17, rpm17, pct_wow, rpm_wow
 
@@ -179,7 +178,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     
     # Tabs panels
     tabs = ''
-    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('canasta','Canasta')]:
+    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
         tabs += f'<label class="tab-label" for="tab-nd-{t_key}">{t_label}</label>'
     
     panels = ''
@@ -188,7 +187,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         ('destino','Destino', TAB_NoDispo['destino']),
         ('corp','Corp', TAB_NoDispo['corp']),
         ('hotel','Hotel', TAB_NoDispo['hotel']),
-        ('canasta','Canasta', TAB_NoDispo['canasta']),
     ]:
         # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
         rows_html = top5 = next5 = rest = ''
@@ -267,12 +265,11 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <input id="tab-nd-destino" name="tabs-nd" style="display:none;" type="radio"/>
 <input id="tab-nd-corp" name="tabs-nd" style="display:none;" type="radio"/>
 <input id="tab-nd-hotel" name="tabs-nd" style="display:none;" type="radio"/>
-<input id="tab-nd-canasta" name="tabs-nd" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+<div id="w21-kv-nd" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -301,7 +298,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     _wow_pill_ipm = wow_pill_html(rpm_wow, unit='%')
     
     tabs = ''
-    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('canasta','Canasta')]:
+    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
         tabs += f'<label class="tab-label" for="tab-rpm-{t_key}">{t_label}</label>'
     
     panels = ''
@@ -310,7 +307,6 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         ('destino','Destino', TAB_RPM['destino']),
         ('corp','Corp', TAB_RPM['corp']),
         ('hotel','Hotel', TAB_RPM['hotel']),
-        ('canasta','Canasta', TAB_RPM['canasta']),
     ]:
         # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
         rows_html = top5 = next5 = rest = ''
@@ -389,12 +385,11 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <input id="tab-rpm-destino" name="tabs-rpm" style="display:none;" type="radio"/>
 <input id="tab-rpm-corp" name="tabs-rpm" style="display:none;" type="radio"/>
 <input id="tab-rpm-hotel" name="tabs-rpm" style="display:none;" type="radio"/>
-<input id="tab-rpm-canasta" name="tabs-rpm" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
+<div id="w21-kv-rpm" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ipm}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -478,15 +473,21 @@ def render_alerts_block():
 # Build hero
 h1, subhead, pct18, rpm18, pct17, rpm17, pct_wow, rpm_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 16px;">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 12px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
 {render_kpi_card_rpm(rpm18, rpm17, rpm_wow)}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
-{render_alerts_block()}
 </section>
 '''
 
-with open('part1_rnd.html','w') as f:
-    f.write(HEAD + '\n<body>\n<div class="shell">\n' + render_masthead() + HERO)
-print(f"Part 1 RND escrito: {len(HEAD + HERO):,} chars")
+PART1 = (
+    '\n<!-- ═══════════════ SECCIÓN RND ═══════════════ -->\n'
+    '<section id="section-rnd" class="section-rnd">\n'
+    + render_masthead()
+    + HERO
+)
+
+with open('part1_rnd.html', 'w') as f:
+    f.write(PART1)
+print(f"Part 1 RND escrito: {len(PART1):,} chars")

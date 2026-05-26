@@ -48,15 +48,16 @@ SCRIPT_FILES = [
     'render_helpers.py',
     'render_cr_p1.py', 'render_cr_p2.py', 'render_cr_p3.py',
     'render_rnd_p1.py', 'render_rnd_p2.py', 'render_rnd_p3.py',
-    'asset_shared_head.html', 'asset_cr_head.html', 'asset_rnd_head.html',
+    'asset_supply_head.html', 'asset_shared_head.html',
+    'asset_cr_head.html', 'asset_rnd_head.html',
     'asset_cr_masthead.html', 'asset_rnd_masthead.html',
     'asset_cr_footer.html', 'asset_rnd_footer.html',
     'calc_cr.py', 'calc_rnd.py',
-    'assemble_cr.py', 'assemble_rnd.py',
-    'excel_cr.py', 'excel_rnd.py', 'excel_cr_canastas.py', 'excel_rnd_canastas.py',
+    'assemble_unified.py',          # W21+ reemplaza assemble_cr + assemble_rnd
+    'excel_cr.py', 'excel_rnd.py',  # W21+ consolidados (4 hojas c/u)
     'render_mail_v3.py', 'build_package.py', 'run_pipeline.py',
     'update_docs.py', 'github_commit.py',
-    'historico_module_v2.py', 'historico_module_rnd.py', 'historico_data.py',
+    'historico_data.py', 'historico_module.py',
     'template_resumen.py', 'template_alertas.py', 'template_severity.py', 'template_seguimiento.py',
     'engine.py', 'areas_catalogo.py',
 ]
@@ -135,8 +136,8 @@ def commit_to_github(token, week_num, periodo, tipo, mensaje_extra, blobs_map):
 
     # Mensaje commit
     if tipo == 'pipeline':
-        msg = (f"feat: Week {week_num} · RatesNoDispo + CheckRates + hub index · {periodo}\n\n"
-               f"Pipeline completo W{week_num}: calc → render → assemble → excel → mail → hub → docs → commit")
+        msg = (f"feat: Week {week_num} · Supply unificado + Excels consolidados · {periodo}\n\n"
+               f"Pipeline completo W{week_num}: calc → render → assemble_unified → excel (4 hojas) → mail → hub → docs → commit")
     else:
         msg = mensaje_extra or f"fix: W{week_num} · {periodo}"
 
@@ -218,6 +219,9 @@ def build_project_zip(week_num, scripts_dir, outputs_dir, docs_dir=None):
     EXCLUDE = {
         'part1_cr.html', 'part2_cr.html', 'part3_cr.html',
         'part1_rnd.html', 'part2_rnd.html', 'part3_rnd.html',
+        # Deprecated W21 — reemplazados por assemble_unified + excel_*.py consolidados
+        'assemble_cr.py', 'assemble_rnd.py',
+        'excel_cr_canastas.py', 'excel_rnd_canastas.py',
         # Módulos obsoletos reemplazados por historico_module.py
         'historico_module_rnd.py', 'historico_module_v2.py',
         # Archivos one-shot / temporales

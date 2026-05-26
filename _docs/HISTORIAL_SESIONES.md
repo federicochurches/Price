@@ -6,6 +6,48 @@
 
 ---
 
+## 📝 Sesión W21 · Mayo 2026 · Migración HTML unificado + Excels consolidados
+
+### Contexto
+Migración arquitectural completa desde dos HTMLs separados (CR + RND) a un único `SUPPLY_WNN.html` con switcher interactivo. Simultáneamente, consolidación de 8 Excels en 2.
+
+### Cambios aplicados
+
+#### HTML unificado
+- **`render_cr_p1.py`**: eliminada apertura `<html><body><div class="shell">`. Ahora genera `<section id="section-cr" class="report-section section-cr">`.
+- **`render_rnd_p1.py`**: idem, genera `<section id="section-rnd" class="report-section section-rnd">`.
+- **`render_cr_p3.py`**: eliminado `FOOTER` y cierre de documento. Solo cierra `</section>`.
+- **`render_rnd_p3.py`**: eliminado `FOOTER`, `</div>` shell, `</body>`, `</html>`. Solo cierra `</section>`.
+- **`asset_supply_head.html`** (nuevo): head unificado con scoping CSS `.section-cr` / `.section-rnd`. Todos los selectores de tabs llevan prefijo de sección para evitar colisiones de IDs. Incluye CSS del switcher y back-hub.
+- **`assemble_unified.py`** (nuevo): reemplaza `assemble_cr.py` + `assemble_rnd.py`. Ensambla 6 parciales en `SUPPLY_WNN.html` con switcher sticky, back-hub, FOOTER_JS unificado (TOC observer + switcher JS + cr_setTab).
+
+#### Excels consolidados (8 → 2)
+- **`excel_cr.py`** (reescrito): función `build_sheet()` genera las 9 secciones por hoja. 4 hojas: Global · B2C · B2B-OP · CUG. Cada canasta = filtro de `p80_hotel` por `DistributionCategory`. Elimina `excel_cr_canastas.py`.
+- **`excel_rnd.py`** (reescrito): función `build_sheet()` + helper `agg_dim()`. 4 hojas: Global · B2C · B2B-OP · CUG. Cada canasta = filtro de `df18`. Elimina `excel_rnd_canastas.py`.
+
+#### Assets visuales (demo pre-W21)
+- **`asset_shared_head.html`**: gaps reducidos — `.masthead margin-bottom: 16px → 8px`, `.hero padding-top: 16px → 8px`, `kpis-hero margin-top: 12px → 6px`.
+
+### Estructura repo GitHub W21+
+```
+reports/week-NN/SUPPLY_WNN.html   ← nuevo
+checkrates/week-NN/               ← solo Excels (sin HTML)
+rates-nodispo/week-NN/            ← solo Excels (sin HTML)
+```
+W16-W20 mantienen estructura anterior.
+
+### Archivos deprecados (excluir del ZIP proyecto)
+`assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`
+
+### Pendiente (pasos 6-10 del plan de migración)
+- `build_package.py`: carpeta `reports/week-NN/`, URL helper histórico, 2 cards hub con anchors
+- `render_mail_v3.py`: URL unificada con anchor
+- `run_pipeline.py`: paso 4 → `assemble_unified.py`, paso 5 → 2 scripts Excel
+- `github_commit.py`: SCRIPT_FILES actualizado, EXCLUDE ampliado
+- `update_docs.py`: URL unificada en README_QUICK
+
+---
+
 ## 📚 Memoria de bugs históricos resueltos
 
 1. **CSS especificidad tabs** · `.tab-panel{display:none}` del CSS hero anulaba `:checked ~`. Fix: prefix `.tabs-block` + `!important`.
@@ -1545,4 +1587,21 @@ El gauge usaba `#C0392B` (rojo) para Súper Crítica igual que Crítica. Fix: `#
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + HISTORIAL actualizados con fixes histori
+---
+
+## Pipeline W21 · May 2026 · 26 May 2026
+
+**Período:** 19-25 mayo 2026  
+**Tipo:** Pipeline completo
+
+| Métrica | W20 | W21 | WoW |
+|---|---|---|---|
+| RND %NoDispo | 2,81% | 2,63% | -0,17pp |
+| RND IPM | $1.266 | $834 | -34,1% |
+| CR Eficacia | 93,34% | 93,15% | -0,19pp |
+| CR ConvRate | 1,63% | 1,57% | -0,07pp |
+
+### Archivos generados
+`SUPPLY_W21.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W21.html` · `index.html` · `Price_W21.zip`
+
+**Última actualización:** W21 (pipeline) · May 2026 · 19-25 mayo 2026

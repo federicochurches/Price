@@ -29,19 +29,13 @@ Price/
 │   └── Mail_WNN.html
 ├── _seguimiento/
 │   └── plan_seguimiento_WNN.md
-├── rates-nodispo/week-NN/
-│   ├── RatesNoDispo_Reporte_Editorial.html
-│   ├── Analisis_Rates_NoDispo_7d.xlsx        (33 pestañas)
-│   ├── Analisis_Rates_NoDispo_B2C_7d.xlsx    (8 pestañas)
-│   ├── Analisis_Rates_NoDispo_OP_7d.xlsx     (8 pestañas)
-│   ├── Analisis_Rates_NoDispo_CUG_7d.xlsx    (8 pestañas)
+├── reports/week-NN/                      ← W21+ HTML unificado
+│   └── SUPPLY_WNN.html
+├── rates-nodispo/week-NN/                ← solo Excels + Dataset
+│   ├── Analisis_RatesNoDispo_WNN.xlsx    (4 hojas: Global · B2C · B2B-OP · CUG)
 │   └── Dataset_RatesNoDispo_WNN.xlsx
-└── checkrates/week-NN/
-    ├── CheckRates_Reporte_Editorial.html
-    ├── Analisis_Checkrates_7d.xlsx            (37 pestañas)
-    ├── Analisis_Checkrates_B2C_7d.xlsx        (9 pestañas)
-    ├── Analisis_Checkrates_OP_7d.xlsx         (9 pestañas)
-    ├── Analisis_Checkrates_CUG_7d.xlsx        (9 pestañas)
+└── checkrates/week-NN/                   ← solo Excels + Dataset
+    ├── Analisis_CheckRates_WNN.xlsx      (4 hojas: Global · B2C · B2B-OP · CUG)
     └── Dataset_CheckRates_WNN.xlsx
 ```
 
@@ -49,7 +43,16 @@ Price/
 
 ## 📌 Última semana publicada
 
-**W21 · 18–24 may 2026 · May 2026**
+**W21 · 19-25 mayo 2026 · May 2026**
+
+| Métrica | Valor | WoW |
+|---|---|---|
+| RND %NoDispo | 2,63% | -0,17pp |
+| RND IPM | $834 | -34,1% |
+| CR Eficacia | 93,15% | -0,19pp |
+| CR ConvRate | 1,57% | -0,07pp |
+
+🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W21](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html) · [CR](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-rnd)
 
 
 ## 🗂️ Inventario de scripts (`_scripts/`)
@@ -62,9 +65,8 @@ Price/
 | `calc_rnd.py` | Cálculos RND → pickle |
 | `render_cr_p1/p2/p3.py` | Render parciales CR |
 | `render_rnd_p1/p2/p3.py` | Render parciales RND |
-| `assemble_cr.py` / `assemble_rnd.py` | Ensambla HTML final |
-| `excel_cr.py` / `excel_rnd.py` | Excels globales |
-| `excel_cr_canastas.py` / `excel_rnd_canastas.py` | Excels por canasta |
+| `assemble_unified.py` | Ensambla HTML unificado SUPPLY_WNN.html (W21+) |
+| `excel_cr.py` / `excel_rnd.py` | 1 Excel por reporte · 4 hojas c/u (W21+) |
 | `render_mail_v3.py` | Draft mail semanal |
 | `build_package.py` | Hub index.html + ZIP |
 | `update_docs.py` | Actualiza CHANGELOG + README + PROMPT_CORE |
@@ -75,9 +77,8 @@ Price/
 |---|---|
 | `engine.py` | Bandas + thresholds |
 | `render_helpers.py` | Formateo, pills, searchbox, wow_box |
-| `historico_module_v2.py` | Módulo histórico CR |
-| `historico_module_rnd.py` | Módulo histórico RND |
-| `historico_data.py` | Serie real W17-W20 · W21 dinámico desde pickle |
+| `historico_module.py` | Módulo histórico unificado CR+RND (W21+) |
+| `historico_data.py` | Serie real W17-W21 · semana actual dinámica desde pickle |
 | `template_resumen.py` | Resumen Ejecutivo |
 | `template_alertas.py` | Alertas críticas |
 | `template_severity.py` | Bloques severity |
@@ -87,12 +88,14 @@ Price/
 ### Assets HTML
 | Archivo | Función |
 |---|---|
-| `asset_cr_head.html` | CSS + JS CR (violet) |
-| `asset_cr_masthead.html` | Header CR |
-| `asset_cr_footer.html` | Footer CR |
-| `asset_rnd_head.html` | CSS + JS RND (magenta) |
-| `asset_rnd_masthead.html` | Header RND |
-| `asset_rnd_footer.html` | Footer RND |
+| `asset_supply_head.html` | Head unificado · scoping CR/RND · switcher (W21+) |
+| `asset_shared_head.html` | CSS compartido CR+RND |
+| `asset_cr_head.html` | Head CR standalone (legacy W16-W20) |
+| `asset_cr_masthead.html` | Header CR con logo |
+| `asset_cr_footer.html` | Footer CR (legacy) |
+| `asset_rnd_head.html` | Head RND standalone (legacy W16-W20) |
+| `asset_rnd_masthead.html` | Header RND con logo |
+| `asset_rnd_footer.html` | Footer RND (legacy) |
 
 ### Documentación en el proyecto
 | Archivo | Función |
@@ -116,15 +119,16 @@ Price/
 ```
 1. IDENTIFICAR el bug (screenshot + análisis HTML)
 2. APLICAR fix en script(s)
-3. RE-RENDER parciales + assemble (sin pipeline completo):
-      python3 render_rnd_p*.py && python3 assemble_rnd.py
-      python3 render_cr_p*.py  && python3 assemble_cr.py
-4. PAUSA → validación visual del usuario (abrir HTML local)
+3. RE-RENDER parciales + assemble_unified (sin pipeline completo):
+      python3 render_rnd_p*.py
+      python3 render_cr_p*.py
+      python3 assemble_unified.py
+4. PAUSA → validación visual del usuario (abrir SUPPLY_WNN.html)
    ↳ Si hay otro fix → volver al paso 2
    ↳ Si OK → continuar
 5. PIPELINE COMPLETO:
-      python3 excel_rnd.py && python3 excel_rnd_canastas.py
-      python3 excel_cr.py  && python3 excel_cr_canastas.py
+      python3 excel_rnd.py
+      python3 excel_cr.py
       python3 render_mail_v3.py
       python3 build_package.py        ← genera Price_WNN.zip
 6. DOCUMENTAR cambios en PROMPT_CORE.md + HISTORIAL_SESIONES.md
@@ -147,7 +151,7 @@ Price/
       WEEK=WNN VOL_NUM=NN PERIODO="DD–DD mes YYYY" ...
       python3 calc_rnd.py
       python3 calc_cr.py
-4. RE-RENDER + assemble → PAUSA validación visual
+4. RE-RENDER + assemble_unified → PAUSA validación visual
 5. Si OK → PIPELINE COMPLETO (paso A.5)
 6. DOCUMENTAR + actualizar `historico_data.py`:
       - Agregar KPIs W{N} a cada scope en HIST_DATA (global, op, cug, b2c)
@@ -155,7 +159,7 @@ Price/
       - Actualizar SEMANAS = [W{N-3}, W{N-2}, W{N-1}, W{N}, W{N+1}]
       - El valor W{N+1} (semana actual) siempre viene dinámico del pickle
 7. COMMIT con mensaje:
-      "feat: Week NN · RatesNoDispo + CheckRates + hub index · DD-MM-YYYY"
+      "feat: Week NN · Supply unificado + Excels consolidados · DD-MM-YYYY"
 8. SUBIR ZIP al Proyecto Claude
 ```
 

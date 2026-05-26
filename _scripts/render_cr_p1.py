@@ -49,7 +49,6 @@ def render_masthead():
 <div style="display:table;width:100%;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
-<span class="report-tag" style="display:block;text-align:left;margin-bottom:6px;">CheckRates</span>
 <div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {WEEK_NUM}</div>
 <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{PERIODO}</div>
 </div>
@@ -145,7 +144,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     _wow_pill_ef = wow_pill_html(ef_wow, unit='pp')
     
     tabs = ''
-    for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
+    for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
         tabs += f'<label class="tab-label" for="tab-ef-{t_key}">{t_label}</label>'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
@@ -307,12 +306,11 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 <input id="tab-ef-corp" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-hotel" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-channel" name="tabs-ef" style="display:none;" type="radio"/>
-<input id="tab-ef-canasta" name="tabs-ef" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
+<div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ef}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -343,7 +341,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     _wow_pill_cv = wow_pill_html(cv_wow, unit='pp')
     
     tabs = ''
-    for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel'),('canasta','Canasta')]:
+    for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
         tabs += f'<label class="tab-label" for="tab-cv-{t_key}">{t_label}</label>'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
@@ -491,12 +489,11 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 <input id="tab-cv-corp" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-hotel" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-channel" name="tabs-cv" style="display:none;" type="radio"/>
-<input id="tab-cv-canasta" name="tabs-cv" style="display:none;" type="radio"/>
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
+<div id="w21-kv-cv" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_cv}</div>
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -587,7 +584,7 @@ def render_alerts_block():
 # Build hero
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0 16px;">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 12px;">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 {render_kpi_card_convrate(cv18, cv17, cv_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 </div>
@@ -595,6 +592,13 @@ HERO = f'''<section class="hero" id="kpis-hero-section">
 </section>
 '''
 
-with open('part1_cr.html','w') as f:
-    f.write(HEAD + '\n<body>\n<div class="shell">\n' + render_masthead() + HERO)
-print(f"Part 1 CR escrito: {len(HEAD + HERO):,} chars")
+PART1 = (
+    '\n<!-- ═══════════════ SECCIÓN CR ═══════════════ -->\n'
+    '<section id="section-cr" class="section-cr">\n'
+    + render_masthead()
+    + HERO
+)
+
+with open('part1_cr.html', 'w') as f:
+    f.write(PART1)
+print(f"Part 1 CR escrito: {len(PART1):,} chars")

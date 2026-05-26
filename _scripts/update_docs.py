@@ -329,7 +329,7 @@ def update_historial(week_num, periodo, mes_anio, kpis, tipo, mensaje, scripts_d
 **Tipo:** Pipeline completo
 {kpi_tabla}
 ### Archivos generados
-`RatesNoDispo_Reporte_Editorial.html` · `CheckRates_Reporte_Editorial.html` · 8 Excels · `Mail_W{week_num}.html` · `index.html` · `Price_W{week_num}.zip`
+`SUPPLY_W{week_num}.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W{week_num}.html` · `index.html` · `Price_W{week_num}.zip`
 
 **Última actualización:** W{week_num} (pipeline) · {mes_anio} · {periodo}
 """
@@ -375,7 +375,7 @@ def update_readme_quick(week_num, periodo, mes_anio, kpis, tipo, scripts_dir):
 | CR Eficacia | {kpis.get('cr_ef','—')} | {kpis.get('cr_ef_wow','—')} |
 | CR ConvRate | {kpis.get('cr_cv','—')} | {kpis.get('cr_cv_wow','—')} |
 
-🔗 [Hub](https://analytics-desk.netlify.app) · [RND W{week_num}](https://federicochurches.github.io/Price/rates-nodispo/week-{week_num}/RatesNoDispo_Reporte_Editorial.html) · [CR W{week_num}](https://federicochurches.github.io/Price/checkrates/week-{week_num}/CheckRates_Reporte_Editorial.html)
+🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W{week_num}](https://federicochurches.github.io/Price/reports/week-{week_num}/SUPPLY_W{week_num}.html) · [CR](https://federicochurches.github.io/Price/reports/week-{week_num}/SUPPLY_W{week_num}.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-{week_num}/SUPPLY_W{week_num}.html#section-rnd)
 
 """
 

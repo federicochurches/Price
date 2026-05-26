@@ -1,97 +1,108 @@
 """
-Excel Análisis RND · Pestañas con TOP 50
-Estructura: Ficha + TOP 50 (Demanda NC, Bajo Rend, Sin Conv) + Por Dim (Corp/Dest/País) + Canastas
+excel_rnd.py · W21+ · Excel único consolidado RatesNoDispo
+Genera: Analisis_RatesNoDispo_W{NN}.xlsx
+Hojas: Global | B2C | B2B-OP | CUG
+Cada hoja = filtro del mismo DataFrame base por DistributionCategory.
+Reemplaza: excel_rnd.py + excel_rnd_canastas.py (4 archivos → 1)
 """
 import pickle
-import os, pandas as pd, numpy as np
+import os
+import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
-
-with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as _f:
-    D = pickle.load(_f)
-M = D['M']; TOP = D['TOP']; CANASTA = D['CANASTA']
-df18 = D['df18']; df17 = D.get('df17', df18)
-sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
-g_hotel = D['g_hotel']; p80_hotel = D['p80_hotel']
-
-# CALCULAR BANDAS para df18
 from engine import banda_nodispo, banda_rpm
 
-df18['BandaNoDispo'] = df18['%NoDispo'].apply(banda_nodispo)
-df18['BandaRPM'] = df18.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
+# ── Config ────────────────────────────────────────────────────────────────────
+VOL_NUM = os.getenv('VOL_NUM', '21')
+PERIODO = os.getenv('PERIODO', '18–24 may 2026')
+OUTPUTS = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
 
-# CREAR TOP 50 para cada categoría
-# 1. DEMANDA NO CONVERTIDA (TraficoNoDispo > 0, ordenado por DemandaNoConvertida DESC)
-df_dnc = df18[df18['TraficoNoDispo'] > 0].copy()
-df_dnc_top50 = df_dnc.sort_values('%NoDispo', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].reset_index(drop=True)
-df_dnc_top50.insert(0, 'Rk', range(1, len(df_dnc_top50)+1))
+with open(os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl'), 'rb') as _f:
+    D = pickle.load(_f)
 
-# 2. BAJO RENDIMIENTO (Bookings > 0, BandaRPM in Crítica/Revisar, ordenado por Trafico DESC)
-df_br = df18[(df18['Bookings'] > 0) & (df18['BandaRPM'].isin(['Crítica','Revisar']))].copy()
-df_br_top50 = df_br.sort_values('%NoDispo', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].reset_index(drop=True)
-df_br_top50.insert(0, 'Rk', range(1, len(df_br_top50)+1))
+M        = D['M']
+CANASTA  = D['CANASTA']
+df18     = D['df18']
+sev_nd   = D['sev_nd']
+sev_rpm  = D['sev_rpm']
+g_hotel  = D['g_hotel']
+p80_hotel = D['p80_hotel'].copy()
 
-# 3. SIN CONVERSIÓN (Bookings = 0, ordenado por Trafico DESC)
-df_sc = df18[df18['Bookings'] == 0].copy()
-df_sc_top50 = df_sc.sort_values('Trafico', ascending=False).head(100)[['Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','BandaNoDispo']].reset_index(drop=True)
-df_sc_top50.insert(0, 'Rk', range(1, len(df_sc_top50)+1))
+# Calcular bandas si no están en df18
+if 'BandaNoDispo' not in df18.columns:
+    df18['BandaNoDispo'] = df18['%NoDispo'].apply(banda_nodispo)
+if 'BandaRPM' not in df18.columns:
+    df18['BandaRPM'] = df18.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
 
-wb = Workbook()
-wb.remove(wb.active)
-
-# Estilos
-HEADER_FILL = PatternFill(start_color='EA0074', end_color='EA0074', fill_type='solid')
+# ── Estilos ───────────────────────────────────────────────────────────────────
+RND_COLOR   = 'EA0074'
+HEADER_FILL = PatternFill(start_color=RND_COLOR, end_color=RND_COLOR, fill_type='solid')
 HEADER_FONT = Font(name='Arial', size=10, bold=True, color='FFFFFF')
-TITLE_FONT  = Font(name='Arial', size=14, bold=True, color='EA0074')
+TITLE_FONT  = Font(name='Arial', size=14, bold=True, color=RND_COLOR)
+SUBTITLE_FONT = Font(name='Arial', size=11, color=RND_COLOR)
 META_FONT   = Font(name='Arial', size=10, color='666666')
 DATA_FONT   = Font(name='Arial', size=10)
-THIN = Side(border_style='thin', color='DDDDDD')
-BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
+THIN        = Side(border_style='thin', color='DDDDDD')
+BORDER      = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
+
 BAND_FILLS = {
-    'Exitosa':       PatternFill(start_color='E8F7FD', end_color='E8F7FD', fill_type='solid'),
-    'Aceptable':     PatternFill(start_color='EDE8F7', end_color='EDE8F7', fill_type='solid'),
-    'Revisar':       PatternFill(start_color='FFF4E0', end_color='FFF4E0', fill_type='solid'),
-    'Crítica':       PatternFill(start_color='FCE4F1', end_color='FCE4F1', fill_type='solid'),
-    'Súper Crítica': PatternFill(start_color='161616', end_color='161616', fill_type='solid'),
-    'Sin Conversión':PatternFill(start_color='F2EEE6', end_color='F2EEE6', fill_type='solid'),
+    'Exitosa':        PatternFill(start_color='E1F5EE', end_color='E1F5EE', fill_type='solid'),
+    'Aceptable':      PatternFill(start_color='FEF9C3', end_color='FEF9C3', fill_type='solid'),
+    'Revisar':        PatternFill(start_color='FED7AA', end_color='FED7AA', fill_type='solid'),
+    'Crítica':        PatternFill(start_color='FCE4F1', end_color='FCE4F1', fill_type='solid'),
+    'Súper Crítica':  PatternFill(start_color='161616', end_color='161616', fill_type='solid'),
+    'Sin Conversión': PatternFill(start_color='F2EEE6', end_color='F2EEE6', fill_type='solid'),
 }
 BAND_FONTS = {
-    'Súper Crítica': Font(name='Arial', size=10, bold=True, color='FFFFFF'),
+    'Súper Crítica':  Font(name='Arial', size=10, bold=True, color='FFFFFF'),
     'Sin Conversión': Font(name='Arial', size=10, color='8A8377'),
 }
 
-def add_title(ws, title, subtitle=''):
+TAB_COLORS = {
+    'Global': 'EA0074',
+    'B2C':    'C2185B',
+    'B2B-OP': 'AD1457',
+    'CUG':    '880E4F',
+}
+
+RANGOS_ND  = {'Súper Crítica':'>60%','Crítica':'20–60%','Revisar':'5–20%',
+               'Aceptable':'3–5%','Exitosa':'<3%'}
+RANGOS_IPM = {'Sin Conversión':'BKGS=0','Crítica':'<$200','Revisar':'$200–$650',
+               'Aceptable':'$650–$1.500','Exitosa':'≥$1.500'}
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def add_header(ws, title, subtitle='', canasta_label=''):
     ws['A1'] = title
     ws['A1'].font = TITLE_FONT
+    if canasta_label:
+        ws['A2'] = canasta_label
+        ws['A2'].font = SUBTITLE_FONT
     if subtitle:
-        ws['A2'] = subtitle
-        ws['A2'].font = META_FONT
-    ws['A3'] = f'Generado: {datetime.now().strftime("%d/%m/%Y %H:%M")} · W18 · 27 abr – 3 may 2026'
-    ws['A3'].font = META_FONT
+        ws['A3'] = subtitle
+        ws['A3'].font = META_FONT
+    ws['A4'] = f'W{VOL_NUM} · {PERIODO} · Generado {datetime.now().strftime("%d/%m/%Y %H:%M")}'
+    ws['A4'].font = META_FONT
 
-def add_table(ws, df, start_row=5, num_formats=None, banda_col=None, banda_col2=None):
-    """Escribe DF con headers y formatos. banda_col y banda_col2 aplican color fill por banda."""
-    if num_formats is None: num_formats = {}
+def add_table(ws, df, start_row=6, num_formats=None, banda_col=None, banda_col2=None):
+    if num_formats is None:
+        num_formats = {}
     cols = list(df.columns)
-    # Header
     for j, c in enumerate(cols, 1):
         cell = ws.cell(row=start_row, column=j, value=c)
         cell.font = HEADER_FONT
         cell.fill = HEADER_FILL
         cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
         cell.border = BORDER
-    # Data
-    for i, (_, r) in enumerate(df.iterrows(), 1):
+    for i, (_, row) in enumerate(df.iterrows(), 1):
         for j, c in enumerate(cols, 1):
-            val = r[c]
-            cell = ws.cell(row=start_row+i, column=j, value=val if not pd.isna(val) else '')
+            val = row[c]
+            cell = ws.cell(row=start_row + i, column=j, value=(val if not pd.isna(val) else ''))
             cell.font = DATA_FONT
             cell.border = BORDER
             if c in num_formats:
                 cell.number_format = num_formats[c]
-            # Aplicar color fill/font a columnas de banda
             band_val = None
             if banda_col and c == banda_col and val in BAND_FILLS:
                 band_val = val
@@ -101,290 +112,238 @@ def add_table(ws, df, start_row=5, num_formats=None, banda_col=None, banda_col2=
                 cell.fill = BAND_FILLS[band_val]
                 if band_val in BAND_FONTS:
                     cell.font = BAND_FONTS[band_val]
-    # Auto width
     for j, c in enumerate(cols, 1):
-        max_len = max([len(str(c))] + [len(str(r[c])) if not pd.isna(r[c]) else 0 for _, r in df.iterrows()])
-        ws.column_dimensions[get_column_letter(j)].width = min(max_len + 3, 50)
-    # Freeze
-    ws.freeze_panes = ws.cell(row=start_row+1, column=1)
+        vals = [str(c)] + [str(row[c]) for _, row in df.iterrows() if not pd.isna(row[c])]
+        max_len = max((len(v) for v in vals), default=8)
+        ws.column_dimensions[get_column_letter(j)].width = min(max_len + 3, 52)
+    ws.freeze_panes = ws.cell(row=start_row + 1, column=1)
 
-# ==================== HOJA 1: SEVERITY %NoDispo ====================
-ws2 = wb.create_sheet('Severity %NoDispo')
-add_title(ws2, 'Severity · %NoDispo', f'P80 · {len(p80_hotel)} hoteles · target <3%')
-total = int(sum(sev_nd.values()))
-data = []
-for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']:
-    rng = {'Súper Crítica':'>60%','Crítica':'20-60%','Revisar':'5-20%','Aceptable':'3-5%','Exitosa':'<3%'}[n]
-    cnt = int(sev_nd[n])
-    data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total})
-df_sev = pd.DataFrame(data)
-add_table(ws2, df_sev, start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
+def set_tab_color(ws, canasta):
+    ws.sheet_properties.tabColor = TAB_COLORS.get(canasta, RND_COLOR)
 
-# ==================== HOJA 2: SEVERITY IPM (Income Per Million USD) ====================
-ws3 = wb.create_sheet('Severity IPM')
-add_title(ws3, 'Severity · IPM (Income Per Million USD)', f'P80 · {len(p80_hotel)} hoteles · target ≥ $650')
-total_rpm = int(sum(sev_rpm.values()))
-data = []
-for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
-    rng = {'Sin Conversión':'BKGS=0','Crítica':'<$199','Revisar':'$200-$499','Aceptable':'$500-$649','Exitosa':'≥$650'}[n]
-    cnt = int(sev_rpm[n])
-    data.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_rpm})
-df_rpm = pd.DataFrame(data)
-add_table(ws3, df_rpm, start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
+def agg_dim(df_base, group_col):
+    """Agrega un DataFrame RND por columna de dimensión."""
+    g = (df_base.groupby(group_col)
+         .agg(Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
+              gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum'),
+              Hoteles=('Hotel','nunique'))
+         .reset_index())
+    g['%NoDispo']    = g['TraficoNoDispo'] / g['Trafico'].replace(0, 1)
+    g['IPM']         = g['gb_usd'] / g['Trafico'].replace(0, 1) * 1_000_000
+    g['BandaNoDispo']= g['%NoDispo'].apply(banda_nodispo)
+    g['BandaIPM']    = g.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
+    return g
 
-# ==================== HOJA 4: DEMANDA NO CONVERTIDA Top 50 ====================
-ws4 = wb.create_sheet('Demanda No Convertida')
-add_title(ws4, 'Top 100 · Demanda No Convertida',
-          f'Top 100 hoteles · ordenado por %NoDispo ↓ (mayor a menor) · Total: {len(df_dnc)} hoteles con demanda NC')
-df_dnc_out = df_dnc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM','DemandaNoConvertida']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-add_table(ws4, df_dnc_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0','DemandaNoConvertida':'#,##0'},
-          banda_col='BandaNoDispo', banda_col2='Banda IPM')
-
-# ==================== HOJA 5: BAJO RENDIMIENTO Top 50 ====================
-ws5 = wb.create_sheet('Bajo Rendimiento')
-add_title(ws5, 'Top 100 · Bajo Rendimiento',
-          f'Hoteles con BKGS>0 pero IPM en banda Crítica/Revisar (<$650) · Total: {len(df_br)} hoteles')
-df_br_out = df_br_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-add_table(ws5, df_br_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
-          banda_col='BandaNoDispo', banda_col2='Banda IPM')
-
-# ==================== HOJA 6: SIN CONVERSIÓN Top 50 ====================
-ws6 = wb.create_sheet('Sin Conversión')
-add_title(ws6, 'Top 100 · Sin Conversión',
-          f'Hoteles con Bookings=0 · Total: {len(df_sc)} hoteles sin conversión · cohorte estructural')
-df_sc_out = df_sc_top50[['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','BandaNoDispo']].rename(columns={'Trafico':'Tráfico'})
-add_table(ws6, df_sc_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','Tráfico':'#,##0'},
-          banda_col='BandaNoDispo')
-
-# ==================== HOJA 7: POR CORPORATIVO Top 100 ====================
-ws7 = wb.create_sheet('Por Corporativo')
-add_title(ws7, 'Top 100 · Por Corporativo', 'Agregado por CorpName · ordenado por tráfico ↓')
-g_corp = g_hotel.groupby('CorpName').agg(
-    Trafico=('Trafico','sum'),
-    Bookings=('Bookings','sum'),
-    gb_usd=('gb_usd','sum'),
-    TraficoNoDispo=('TraficoNoDispo','sum'),
-    Hoteles=('Hotel','nunique')
-).reset_index()
-g_corp['%NoDispo'] = g_corp['TraficoNoDispo'] / g_corp['Trafico']
-g_corp['RPM'] = g_corp['gb_usd'] / g_corp['Trafico'] * 1_000_000
-g_corp['ConvRate'] = g_corp['Bookings'] / g_corp['Trafico']
-g_corp['BandaNoDispo'] = g_corp['%NoDispo'].apply(banda_nodispo)
-g_corp['BandaRPM'] = g_corp.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
-g_corp = g_corp.sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-g_corp.insert(0,'Rk', range(1, len(g_corp)+1))
-g_corp_out = g_corp[['Rk','CorpName','Hoteles','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM']].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-add_table(ws7, g_corp_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
-          banda_col='BandaNoDispo', banda_col2='Banda IPM')
-
-# ==================== HOJA 8: POR DESTINO Top 100 ====================
-ws8 = wb.create_sheet('Por Destino')
-add_title(ws8, 'Top 100 · Por Destino', 'Agregado por Destino · ordenado por tráfico ↓')
-g_dest = g_hotel.groupby('Destino').agg(
-    Trafico=('Trafico','sum'),
-    Bookings=('Bookings','sum'),
-    gb_usd=('gb_usd','sum'),
-    TraficoNoDispo=('TraficoNoDispo','sum'),
-    Hoteles=('Hotel','nunique')
-).reset_index()
-g_dest['%NoDispo'] = g_dest['TraficoNoDispo']/g_dest['Trafico']
-g_dest['RPM'] = g_dest['gb_usd']/g_dest['Trafico']*1_000_000
-g_dest['BandaNoDispo'] = g_dest['%NoDispo'].apply(banda_nodispo)
-g_dest['BandaRPM'] = g_dest.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
-g_dest = g_dest.sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-g_dest.insert(0,'Rk', range(1, len(g_dest)+1))
-g_dest_out = g_dest[['Rk','Destino','Hoteles','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM']].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-add_table(ws8, g_dest_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
-          banda_col='BandaNoDispo', banda_col2='Banda IPM')
-
-# ==================== HOJA 9: POR PAÍS Top 100 ====================
-ws9 = wb.create_sheet('Por País')
-add_title(ws9, 'Top 100 · Por País', 'Agregado por PaisDestino · ordenado por tráfico ↓')
-g_pais = g_hotel.groupby('PaisDestino').agg(
-    Trafico=('Trafico','sum'),
-    Bookings=('Bookings','sum'),
-    gb_usd=('gb_usd','sum'),
-    TraficoNoDispo=('TraficoNoDispo','sum'),
-    Hoteles=('Hotel','nunique')
-).reset_index()
-g_pais['%NoDispo'] = g_pais['TraficoNoDispo']/g_pais['Trafico']
-g_pais['RPM'] = g_pais['gb_usd']/g_pais['Trafico']*1_000_000
-g_pais['BandaNoDispo'] = g_pais['%NoDispo'].apply(banda_nodispo)
-g_pais['BandaRPM'] = g_pais.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
-g_pais = g_pais.sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-g_pais.insert(0,'Rk', range(1, len(g_pais)+1))
-g_pais_out = g_pais[['Rk','PaisDestino','Hoteles','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM']].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-add_table(ws9, g_pais_out,
-          start_row=5, num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
-          banda_col='BandaNoDispo', banda_col2='Banda IPM')
-
-# ==================== HOJA 10: PLAN DE ACCIÓN ====================
-ws10 = wb.create_sheet('Plan de Acción')
-add_title(ws10, 'Plan de Acción · W18',
-          'Acciones priorizadas por área owner · 6 acciones (2 Quick Wins + 2 Mid + 2 Estratégicas)')
-plan_data = [
-    {'#':'QW1','Owner':'Supply · KAM','Cluster':'Quick Win','Plazo':'5 días',
-     'Acción':f'Escalar {int(sev_nd["Súper Crítica"])} hoteles Súper Críticos del P80 (%NoDispo >60%)',
-     'Métrica':'%NoDispo < 20%','Detalle':'Empezar por casos de mayor tráfico en TOP demanda no convertida'},
-    {'#':'QW2','Owner':'Tech · Account','Cluster':'Quick Win','Plazo':'1 semana',
-     'Acción':'Diagnóstico técnico Top 10 Sin Conversión de alto tráfico',
-     'Métrica':'Conv Rate > 0','Detalle':'Revisar mapping, paridad, tarifas. 11.954 hoteles P80 con BKGS=0.'},
-    {'#':'MP1','Owner':'Supply · BI','Cluster':'Mid Priority','Plazo':'3 semanas',
-     'Acción':f'Plan saneamiento {int(sev_nd["Crítica"]+sev_nd["Súper Crítica"])} hoteles Crítica/Súper Crítica',
-     'Métrica':f'{int((sev_nd["Crítica"]+sev_nd["Súper Crítica"])*0.5)} migrados a Revisar',
-     'Detalle':'Separar por canasta · trabajar primero CUG y B2B-OP (weight 0,6)'},
-    {'#':'MP2','Owner':'Pricing · Supply','Cluster':'Mid Priority','Plazo':'2 semanas',
-     'Acción':'Revisión IPM en CUG (deterioro WoW)',
-     'Métrica':'IPM > $650','Detalle':'Canasta de mayor weight con caída pronunciada en revenue'},
-    {'#':'ES1','Owner':'Supply · Tech · KAM','Cluster':'Estratégica','Plazo':'Q3',
-     'Acción':'Reducir cohorte Sin Conversión P80 (11.954 hoteles)',
-     'Métrica':'-30% vs baseline','Detalle':'Proyecto trimestral remediación técnica + comercial'},
-    {'#':'ES2','Owner':'Comercial · Legal','Cluster':'Estratégica','Plazo':'Q3',
-     'Acción':'Definir SLAs %NoDispo por corporativo',
-     'Métrica':'SLAs firmados','Detalle':'Top 10 corp por tráfico · cláusulas severity-based pricing'},
-]
-df_plan = pd.DataFrame(plan_data)
-add_table(ws10, df_plan, start_row=5)
-
-# ==================== CANASTAS · 8 pestañas por canasta ====================
-def add_canasta_sheets_rnd(wb_target, key, c, prefix=None):
-    """Agrega las 8 pestañas de una canasta al workbook target.
-    Si prefix=None, usa 'Canasta {short}' (para Excel global).
-    Si prefix='', usa nombres cortos sin prefix (para Excel solo-canasta).
+# ── Función principal por hoja ─────────────────────────────────────────────────
+def build_sheet(wb, canasta_label, df_base):
     """
-    short = c['short']
-    p = prefix if prefix is not None else f'Canasta {short} · '
-    full_name = lambda base: f'{p}{base}' if prefix is not None else f'Canasta {short} · {base}'
-    
-    # 1. Severity NoDispo
-    ws_se = wb_target.create_sheet(full_name('Sev ND'))
-    add_title(ws_se, f'Canasta {short} · Severity %NoDispo',
-              f'{c["name"]} · P80 · target <3%')
-    sev_dict = c.get('sev_nd', {})
-    total_se = sum(sev_dict.values()) or 1
-    data_se = []
-    for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']:
-        rng = {'Súper Crítica':'>60%','Crítica':'20-60%','Revisar':'5-20%','Aceptable':'3-5%','Exitosa':'<3%'}[n]
-        cnt = int(sev_dict.get(n,0))
-        data_se.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_se})
-    add_table(ws_se, pd.DataFrame(data_se), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
-    
-    # 2. Severity IPM
-    ws_si = wb_target.create_sheet(full_name('Sev IPM'))
-    add_title(ws_si, f'Canasta {short} · Severity IPM (USD/M)',
-              f'{c["name"]} · P80 · target ≥ $650')
-    sev_dict2 = c.get('sev_rpm', {})
-    total_si = sum(sev_dict2.values()) or 1
-    data_si = []
-    for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']:
-        rng = {'Sin Conversión':'BKGS=0','Crítica':'<$199','Revisar':'$200-$499','Aceptable':'$500-$649','Exitosa':'≥$650'}[n]
-        cnt = int(sev_dict2.get(n,0))
-        data_si.append({'Banda':n,'Rango':rng,'Hoteles':cnt,'%':cnt/total_si})
-    add_table(ws_si, pd.DataFrame(data_si), start_row=5, num_formats={'%':'0.0%'}, banda_col='Banda')
-    
-    # 3. Bajo Rendimiento
-    ws = wb_target.create_sheet(full_name('BajoRend'))
-    add_title(ws, f'Canasta {short} · Top 100 Bajo Rendimiento',
-              f'{c["name"]} · BKGS>0 · ordenado por tráfico ↓')
-    df_c = c['agg_hotel'].copy()
-    df_c['ConvRate'] = df_c['Bookings'] / df_c['Trafico'].replace(0, 1)
-    df_c['BandaRPM'] = df_c.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
-    mask = (df_c['Bookings']>0) & (df_c['BandaRPM'].isin(['Crítica','Revisar']))
-    df_c = df_c[mask].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-    df_c.insert(0,'Rk', range(1, len(df_c)+1))
-    cols_show = ['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM']
-    cols_show = [c2 for c2 in cols_show if c2 in df_c.columns]
-    df_c_out = df_c[cols_show].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-    add_table(ws, df_c_out, start_row=5,
+    Construye todas las secciones de una hoja.
+    df_base: df18 filtrado por DistributionCategory (o completo para Global).
+    """
+    is_global = (canasta_label == 'Global')
+    ws = wb.create_sheet(canasta_label)
+    set_tab_color(ws, canasta_label)
+
+    add_header(ws,
+               title=f'Supply Rates No Dispo · W{VOL_NUM} · {canasta_label}',
+               subtitle=f'{len(df_base)} registros hotel×canasta · {PERIODO}',
+               canasta_label='' if is_global else f'Canasta {canasta_label}')
+
+    current_row = 6
+
+    def section_sep(ws, row, title):
+        cell = ws.cell(row=row, column=1, value=f'▌ {title}')
+        cell.font = Font(name='Arial', size=11, bold=True, color=RND_COLOR)
+        ws.row_dimensions[row].height = 20
+        return row + 1
+
+    # ── Calcular severities desde df_base ──
+    sev_nd_c  = df_base.groupby('BandaNoDispo').size().to_dict() if not is_global else sev_nd
+    sev_ipm_c = df_base.groupby('BandaRPM').size().to_dict()    if not is_global and 'BandaRPM' in df_base.columns else sev_rpm
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 1 · SEVERITY %NoDispo
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Severity · %NoDispo  (target < 3%)')
+    total_nd = sum(sev_nd_c.values()) or 1
+    data_nd = [{'Banda': n, 'Rango': RANGOS_ND[n],
+                'Hoteles': int(sev_nd_c.get(n, 0)),
+                '%': int(sev_nd_c.get(n, 0)) / total_nd}
+               for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']]
+    add_table(ws, pd.DataFrame(data_nd), start_row=current_row,
+              num_formats={'%': '0.0%'}, banda_col='Banda')
+    current_row += len(data_nd) + 3
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 2 · SEVERITY IPM
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Severity · IPM (Income Per Million USD)  (target ≥ $650)')
+    total_ipm = sum(sev_ipm_c.values()) or 1
+    data_ipm = [{'Banda': n, 'Rango': RANGOS_IPM[n],
+                 'Hoteles': int(sev_ipm_c.get(n, 0)),
+                 '%': int(sev_ipm_c.get(n, 0)) / total_ipm}
+                for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']]
+    add_table(ws, pd.DataFrame(data_ipm), start_row=current_row,
+              num_formats={'%': '0.0%'}, banda_col='Banda')
+    current_row += len(data_ipm) + 3
+
+    # Agregar IPM y bandas si no están
+    df_w = df_base.copy()
+    if 'IPM' not in df_w.columns:
+        df_w['IPM'] = df_w['gb_usd'] / df_w['Trafico'].replace(0, 1) * 1_000_000
+    if 'BandaRPM' not in df_w.columns:
+        df_w['BandaRPM'] = df_w.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
+    if 'DemandaNoConvertida' not in df_w.columns:
+        df_w['DemandaNoConvertida'] = (df_w['Trafico'] * df_w['%NoDispo']).round(0).astype(int)
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 3 · DEMANDA NO CONVERTIDA Top 100
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Top 100 · Demanda No Convertida  (%NoDispo > 0 · mayor demanda perdida)')
+    df_dnc = (df_w[df_w['TraficoNoDispo'] > 0]
+              .sort_values('%NoDispo', ascending=False)
+              .head(100).reset_index(drop=True))
+    df_dnc.insert(0, 'Rk', range(1, len(df_dnc)+1))
+    cols_dnc = [col for col in ['Rk','Hotel','CorpName','PaisDestino','Destino',
+                                  'Trafico','%NoDispo','Bookings','gb_usd','IPM',
+                                  'BandaNoDispo','BandaRPM','DemandaNoConvertida']
+                if col in df_dnc.columns]
+    df_dnc_out = df_dnc[cols_dnc].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
+    add_table(ws, df_dnc_out, start_row=current_row,
+              num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0',
+                           'Trafico':'#,##0','DemandaNoConvertida':'#,##0'},
+              banda_col='BandaNoDispo', banda_col2='Banda IPM')
+    current_row += len(df_dnc) + 3
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 4 · BAJO RENDIMIENTO Top 100
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Top 100 · Bajo Rendimiento  (BKGS>0 · IPM Crítica/Revisar)')
+    mask_br = (df_w['Bookings'] > 0) & (df_w['BandaRPM'].isin(['Crítica','Revisar']))
+    df_br = (df_w[mask_br]
+             .sort_values('%NoDispo', ascending=False)
+             .head(100).reset_index(drop=True))
+    df_br.insert(0, 'Rk', range(1, len(df_br)+1))
+    cols_br = [col for col in ['Rk','Hotel','CorpName','PaisDestino','Destino',
+                                 'Trafico','%NoDispo','Bookings','gb_usd','IPM','BandaNoDispo','BandaRPM']
+               if col in df_br.columns]
+    df_br_out = df_br[cols_br].rename(columns={'IPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
+    add_table(ws, df_br_out, start_row=current_row,
               num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
               banda_col='BandaNoDispo', banda_col2='Banda IPM')
-    
-    # 4. Sin Conversión
-    ws_sn = wb_target.create_sheet(full_name('Sin Conv'))
-    add_title(ws_sn, f'Canasta {short} · Top 100 Sin Conversión',
-              f'{c["name"]} · BKGS=0 · ordenado por tráfico ↓ · cohorte estructural')
-    df_sn = c['agg_hotel'].copy()
-    df_sn = df_sn[df_sn['Bookings']==0].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-    df_sn.insert(0,'Rk', range(1, len(df_sn)+1))
-    cols_sn = ['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','Bookings','%NoDispo','BandaNoDispo']
-    cols_sn = [c2 for c2 in cols_sn if c2 in df_sn.columns]
-    add_table(ws_sn, df_sn[cols_sn], start_row=5,
+    current_row += len(df_br) + 3
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 5 · SIN CONVERSIÓN Top 100
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Top 100 · Sin Conversión  (BKGS=0 · cohorte estructural)')
+    df_sc = (df_w[df_w['Bookings'] == 0]
+             .sort_values('Trafico', ascending=False)
+             .head(100).reset_index(drop=True))
+    df_sc.insert(0, 'Rk', range(1, len(df_sc)+1))
+    cols_sc = [col for col in ['Rk','Hotel','CorpName','PaisDestino','Destino',
+                                 'Trafico','%NoDispo','Bookings','BandaNoDispo']
+               if col in df_sc.columns]
+    add_table(ws, df_sc[cols_sc], start_row=current_row,
               num_formats={'%NoDispo':'0.00%','Trafico':'#,##0'},
               banda_col='BandaNoDispo')
-    
-    # 5. Demanda No Convertida
-    ws_dn = wb_target.create_sheet(full_name('Demanda No Convertida'))
-    add_title(ws_dn, f'Canasta {short} · Top 100 Demanda No Convertida',
-              f'{c["name"]} · tráfico × %NoDispo · ordenado por demanda perdida ↓')
-    df_dn = c['agg_hotel'].copy()
-    df_dn['DemandaNC'] = df_dn['Trafico'] * df_dn['%NoDispo']
-    df_dn = df_dn.sort_values('DemandaNC', ascending=False).head(100).reset_index(drop=True)
-    df_dn.insert(0,'Rk', range(1, len(df_dn)+1))
-    cols_dn = [col for col in ['Rk','Hotel','CorpName','PaisDestino','Destino','Trafico','%NoDispo','DemandaNC','Bookings','RPM','BandaNoDispo'] if col in df_dn.columns]
-    df_dn_out = df_dn[cols_dn].rename(columns={'RPM':'IPM (USD/M)'})
-    add_table(ws_dn, df_dn_out, start_row=5,
-              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','DemandaNC':'#,##0','IPM (USD/M)':'$#,##0'},
-              banda_col='BandaNoDispo')
-    
-    # 6. Por Corporativo
-    ws_co = wb_target.create_sheet(full_name('Por Corp'))
-    add_title(ws_co, f'Canasta {short} · Por Corporativo',
-              f'{c["name"]} · Top 100 corp · ordenado por tráfico ↓')
-    df_co = c['agg_corp'].copy().sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-    df_co.insert(0,'Rk', range(1, len(df_co)+1))
-    cols_co = [col for col in ['Rk','CorpName','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_co.columns]
-    df_co_out = df_co[cols_co].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-    add_table(ws_co, df_co_out, start_row=5,
-              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0'},
-              banda_col='BandaNoDispo', banda_col2='Banda IPM')
-    
-    # 7. Por Destino
-    ws_de = wb_target.create_sheet(full_name('Por Destino'))
-    add_title(ws_de, f'Canasta {short} · Por Destino',
-              f'{c["name"]} · Top 100 destinos · ordenado por tráfico ↓')
-    df_de = c['agg_dest'].copy().sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-    df_de.insert(0,'Rk', range(1, len(df_de)+1))
-    cols_de = [col for col in ['Rk','Destino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_de.columns]
-    df_de_out = df_de[cols_de].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-    add_table(ws_de, df_de_out, start_row=5,
-              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0'},
-              banda_col='BandaNoDispo', banda_col2='Banda IPM')
-    
-    # 8. Por País
-    ws_pa = wb_target.create_sheet(full_name('Por País'))
-    add_title(ws_pa, f'Canasta {short} · Por País',
-              f'{c["name"]} · todos los países · ordenado por tráfico ↓')
-    df_pa = c['agg_pais'].copy().sort_values('Trafico', ascending=False).reset_index(drop=True)
-    df_pa.insert(0,'Rk', range(1, len(df_pa)+1))
-    cols_pa = [col for col in ['Rk','PaisDestino','Trafico','Bookings','gb_usd','%NoDispo','RPM','BandaNoDispo','BandaRPM'] if col in df_pa.columns]
-    df_pa_out = df_pa[cols_pa].rename(columns={'RPM':'IPM (USD/M)','BandaRPM':'Banda IPM'})
-    add_table(ws_pa, df_pa_out, start_row=5,
-              num_formats={'%NoDispo':'0.00%','Trafico':'#,##0','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0'},
-              banda_col='BandaNoDispo', banda_col2='Banda IPM')
+    current_row += len(df_sc) + 3
 
-# Agregar pestañas al Excel global
-for key in ['b2c','op','cug']:
-    add_canasta_sheets_rnd(wb, key, CANASTA[key])
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 6 · POR CORPORATIVO Top 100
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Por Corporativo  (Top 100 · ordenado por tráfico ↓)')
+    g_co = agg_dim(df_w, 'CorpName').sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
+    g_co.insert(0, 'Rk', range(1, len(g_co)+1))
+    cols_co = [col for col in ['Rk','CorpName','Hoteles','Trafico','Bookings',
+                                 'gb_usd','%NoDispo','IPM','BandaNoDispo','BandaIPM']
+               if col in g_co.columns]
+    df_co_out = g_co[cols_co].rename(columns={'IPM':'IPM (USD/M)','BandaIPM':'Banda IPM'})
+    add_table(ws, df_co_out, start_row=current_row,
+              num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
+              banda_col='BandaNoDispo', banda_col2='Banda IPM')
+    current_row += len(g_co) + 3
 
-# Save Excel global
-out = '/mnt/user-data/outputs/Analisis_Rates_NoDispo_7d.xlsx'
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 7 · POR DESTINO Top 100
+    # ─────────────────────────────────────────────────────────────────
+    current_row = section_sep(ws, current_row, 'Por Destino  (Top 100 · ordenado por tráfico ↓)')
+    g_de = agg_dim(df_w, 'Destino').sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
+    g_de.insert(0, 'Rk', range(1, len(g_de)+1))
+    cols_de = [col for col in ['Rk','Destino','Hoteles','Trafico','Bookings',
+                                 'gb_usd','%NoDispo','IPM','BandaNoDispo','BandaIPM']
+               if col in g_de.columns]
+    df_de_out = g_de[cols_de].rename(columns={'IPM':'IPM (USD/M)','BandaIPM':'Banda IPM'})
+    add_table(ws, df_de_out, start_row=current_row,
+              num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
+              banda_col='BandaNoDispo', banda_col2='Banda IPM')
+    current_row += len(g_de) + 3
+
+    # ─────────────────────────────────────────────────────────────────
+    # SECCIÓN 8 · POR PAÍS Top 100 (solo Global)
+    # ─────────────────────────────────────────────────────────────────
+    if is_global:
+        current_row = section_sep(ws, current_row, 'Por País  (todos los países · ordenado por tráfico ↓)')
+        g_pa = agg_dim(df_w, 'PaisDestino').sort_values('Trafico', ascending=False).reset_index(drop=True)
+        g_pa.insert(0, 'Rk', range(1, len(g_pa)+1))
+        cols_pa = [col for col in ['Rk','PaisDestino','Hoteles','Trafico','Bookings',
+                                     'gb_usd','%NoDispo','IPM','BandaNoDispo','BandaIPM']
+                   if col in g_pa.columns]
+        df_pa_out = g_pa[cols_pa].rename(columns={'IPM':'IPM (USD/M)','BandaIPM':'Banda IPM'})
+        add_table(ws, df_pa_out, start_row=current_row,
+                  num_formats={'%NoDispo':'0.00%','gb_usd':'$#,##0','IPM (USD/M)':'$#,##0','Trafico':'#,##0'},
+                  banda_col='BandaNoDispo', banda_col2='Banda IPM')
+
+    return ws
+
+
+# ── Construir el workbook ─────────────────────────────────────────────────────
+wb = Workbook()
+wb.remove(wb.active)
+
+# HOJA 1: GLOBAL — usa df18 completo
+build_sheet(wb, 'Global', df18)
+print('  ✓ Hoja Global')
+
+# HOJAS 2-4: CANASTAS — filtro por DistributionCategory
+CANASTA_FILTER = {
+    'B2C':    'B2C',
+    'B2B-OP': 'B2B (OP)',
+    'CUG':    'CUG (UOP)',
+}
+
+for sheet_name, dist_cat in CANASTA_FILTER.items():
+    if 'DistributionCategory' in df18.columns:
+        df_c = df18[df18['DistributionCategory'] == dist_cat].copy()
+    else:
+        # Fallback: usar agg_hotel del CANASTA dict
+        c_key = sheet_name.lower().replace('-', '')  # b2c, op, cug
+        c = CANASTA.get(c_key) or CANASTA.get(sheet_name)
+        if c and 'agg_hotel' in c:
+            df_c = c['agg_hotel'].copy()
+            # Asegurar columnas mínimas
+            if 'BandaNoDispo' not in df_c.columns:
+                df_c['BandaNoDispo'] = df_c['%NoDispo'].apply(banda_nodispo)
+            if 'BandaRPM' not in df_c.columns and 'RPM' in df_c.columns:
+                df_c['BandaRPM'] = df_c.apply(lambda r: banda_rpm(r['RPM'], r['Bookings']), axis=1)
+            if 'IPM' not in df_c.columns and 'RPM' in df_c.columns:
+                df_c = df_c.rename(columns={'RPM': 'IPM'})
+            if 'TraficoNoDispo' not in df_c.columns:
+                df_c['TraficoNoDispo'] = df_c['Trafico'] * df_c['%NoDispo']
+        else:
+            print(f'  ⚠ Sin datos para canasta {sheet_name}, omitiendo')
+            continue
+
+    if len(df_c) == 0:
+        print(f'  ⚠ Canasta {sheet_name} vacía tras filtro, omitiendo')
+        continue
+
+    build_sheet(wb, sheet_name, df_c)
+    print(f'  ✓ Hoja {sheet_name}  ({len(df_c)} registros)')
+
+# ── Guardar ───────────────────────────────────────────────────────────────────
+out = f'{OUTPUTS}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx'
 wb.save(out)
-print(f'Excel RND escrito: {out}')
-print(f'Pestañas: {len(wb.sheetnames)}')
-
-# === Generar 3 Excels solo-canasta ===
-from openpyxl import Workbook as WB2
-canasta_filename = {'b2c':'B2C','op':'OP','cug':'CUG'}
-for key in ['b2c','op','cug']:
-    wb_c = WB2()
-    wb_c.remove(wb_c.active)
-    add_canasta_sheets_rnd(wb_c, key, CANASTA[key], prefix='')
-    out_c = f'/mnt/user-data/outputs/Analisis_Rates_NoDispo_{canasta_filename[key]}_7d.xlsx'
-    wb_c.save(out_c)
-    print(f'  ✓ Excel canasta {canasta_filename[key]}: {len(wb_c.sheetnames)} pestañas')
-for s in wb.sheetnames: print(f'  - {s}')
+n_sheets = len(wb.sheetnames)
+print(f'\n✅ Excel RND escrito: {out}')
+print(f'   {n_sheets} hojas: {" | ".join(wb.sheetnames)}')

@@ -25,10 +25,11 @@ WEEK_PREV_INT = WEEK_NUM_INT - 1
 OUTPUTS_DIR = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
 OUT_FILE   = f'{OUTPUTS_DIR}/Mail_{WEEK}.html'
 
-URL_BASE  = 'https://federicochurches.github.io/Price'
-URL_CR    = f'{URL_BASE}/checkrates/week-{WEEK_NUM}/CheckRates_Reporte_Editorial.html'
-URL_RND   = f'{URL_BASE}/rates-nodispo/week-{WEEK_NUM}/RatesNoDispo_Reporte_Editorial.html'
-URL_HUB   = URL_BASE + '/'
+URL_BASE   = 'https://federicochurches.github.io/Price'
+URL_SUPPLY = f'{URL_BASE}/reports/week-{WEEK_NUM}/SUPPLY_W{WEEK_NUM}.html'
+URL_CR     = f'{URL_SUPPLY}#section-cr'
+URL_RND    = f'{URL_SUPPLY}#section-rnd'
+URL_HUB    = URL_BASE + '/'
 # ─────────────────────────────────────────────────────────────────────────────
 
 with open(PICKLE_RND, 'rb') as f:
@@ -238,14 +239,14 @@ mail_html = f'''<!DOCTYPE html>
   <div class="action-item">
     <span class="action-tag tag-mp">MP</span>
     <div>
-      <div class="action-text">Plan de saneamiento <strong>{es(cr_n_critmas)} hoteles Crítica/Súper Crítica</strong> de Eficacia · priorizar CUG y B2B-OP (weight 0,6).<span class="src src-cr">CR</span></div>
+      <div class="action-text">Plan de saneamiento <strong>{es(cr_n_critmas)} hoteles Crítica/Súper Crítica</strong> de Eficacia · priorizar Ultra Opaco y Opaco (weight 0,6).<span class="src src-cr">CR</span></div>
       <div class="action-meta">Plazo: 3 semanas · Métrica: 50% migrado a Revisar</div>
     </div>
   </div>
   <div class="action-item">
     <span class="action-tag tag-mp">MP</span>
     <div>
-      <div class="action-text">Plan de saneamiento <strong>{es(rnd_n_critmas)} hoteles Crítica/Súper Crítica</strong> de % NoDispo · CUG y B2B-OP primero.<span class="src src-rnd">RND</span></div>
+      <div class="action-text">Plan de saneamiento <strong>{es(rnd_n_critmas)} hoteles Crítica/Súper Crítica</strong> de % NoDispo · Ultra Opaco y Opaco primero.<span class="src src-rnd">RND</span></div>
       <div class="action-meta">Plazo: 3 semanas · Métrica: 50% migrado a Revisar</div>
     </div>
   </div>
@@ -301,7 +302,7 @@ mail_html = f'''<!DOCTYPE html>
   <div class="action-item">
     <span class="action-tag tag-mp">MP</span>
     <div>
-      <div class="action-text">Revisión de <strong>IPM en CUG</strong> (mayor weight · IPM ${es(cug_ipm_w18,0)} vs ${es(cug_ipm_w17,0)} semana anterior · {es(cug_ipm_wow,1)}% WoW).<span class="src src-rnd">RND</span></div>
+      <div class="action-text">Revisión de <strong>IPM en Ultra Opaco</strong> (mayor weight · IPM ${es(cug_ipm_w18,0)} vs ${es(cug_ipm_w17,0)} semana anterior · {es(cug_ipm_wow,1)}% WoW).<span class="src src-rnd">RND</span></div>
       <div class="action-meta">Plazo: 2 semanas · Métrica: IPM ≥ $650 (banda Aceptable)</div>
     </div>
   </div>
@@ -327,8 +328,8 @@ mail_html = f'''<!DOCTYPE html>
 <p>Findings completos, Hoteles, Corporativos, Destinos, Análisis por Canasta, KPIs por dimensión, Severity y Channel en el Hub. Excels Top 50 disponibles para descarga en cada reporte.</p>
 <div class="cta-row">
   <a href="{URL_HUB}" class="cta cta-hub">→ Hub Supply Optimization</a>
-  <a href="{URL_CR}" class="cta cta-cr">→ Reporte CheckRates</a>
-  <a href="{URL_RND}" class="cta cta-rnd">→ Reporte Rates No Dispo</a>
+  <a href="{URL_CR}" class="cta cta-cr">→ CheckRates</a>
+  <a href="{URL_RND}" class="cta cta-rnd">→ Rates No Dispo</a>
 </div>
 <p style="margin-top: 12px; font-size: 12px;">Hub con login: analytics-desk.netlify.app · usuario: pricetravel · clave: supply2026</p>
 </div>
