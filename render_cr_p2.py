@@ -78,6 +78,17 @@ def wow_arrow(pp):
     if pp < 0: return f'▼{abs(pp):.1f}pp'.replace('.', ',')
     return '—'
 
+def wow_arrow_abs(delta):
+    """WoW para tráfico (número absoluto, sin unidad pp). delta = diferencia real."""
+    if delta is None or (isinstance(delta, float) and np.isnan(delta)):
+        return '—'
+    val = abs(delta)
+    # Formatear como entero con puntos de miles
+    formatted = f'{int(val):,}'.replace(',', '.')
+    if delta > 0: return f'▲{formatted}'
+    if delta < 0: return f'▼{formatted}'
+    return '—'
+
 def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
                     cr_col='CR_Unicos', band_col='BandaEficacia', wow_col='Eficacia_WoW_pp',
                     wow_cv_col='ConvRate_WoW_pp', wow_cr_col='CR_Unicos_WoW_pp'):
@@ -105,8 +116,8 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
     if wow_cr_pp is None or (isinstance(wow_cr_pp, float) and np.isnan(wow_cr_pp)):
         wow_cr_str = '—'
     else:
-        # Dividir por 100 porque CR_Unicos_WoW_pp se calcula como (cr - cr_w17)*100
-        wow_cr_str = wow_arrow(wow_cr_pp / 100)
+        # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
+        wow_cr_str = wow_arrow_abs(wow_cr_pp / 100)
     return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
 
 def sev_badge_html(banda):
@@ -263,7 +274,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
                 wow_pp = (row['Eficacia'] - match.iloc[0]['Eficacia_W17']) * 100
         wow_up  = None if wow_pp is None else bool(wow_pp >= 0)
         wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, '—'])
+        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, '—', '—'])
 
     # Dims rows por Destino (top 10 Eficacia ASC) — con WoW de tráfico
     dest_rows = []
@@ -281,10 +292,11 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
             wow_cr = row.get('CR_Unicos_WoW_pp')
-            wow_cr_str = wow_arrow(wow_cr) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
+            # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
+            wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
                               es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
-                              es_pct(row['ConvRate']), None, '—', wow_cr_str])
+                              es_pct(row['ConvRate']), None, '—', '—', wow_cr_str])
 
     # Dims rows por Canal — split Producto Propio / Third Party — con WoW de tráfico
     PROPIO_SET = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
@@ -305,10 +317,11 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
             bbg, bfg = banda_colors(banda)
             wow_cr = row.get('CR_Unicos_WoW_pp')
-            wow_cr_str = wow_arrow(wow_cr) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
+            # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
+            wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             r = [str(row['ExternalProviderName'])[:45], bbg, bfg, banda,
                  es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
-                 es_pct(row['ConvRate']), None, '—', wow_cr_str]
+                 es_pct(row['ConvRate']), None, '—', '—', wow_cr_str]
             chan_rows.append(r)
             if row['ExternalProviderName'] in THIRD_SET:
                 chans_tp.append(r)
