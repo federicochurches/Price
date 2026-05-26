@@ -1473,4 +1473,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: spark bars normalizadas relativas al rango de
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix histórico: lineWidth=2px (curva no superficie), val_actual fracción→% correcto
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: lineWidth=2px (curva no superficie), val_actu
