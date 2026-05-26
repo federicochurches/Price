@@ -1410,4 +1410,13 @@ def _enrich(df):
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · update_docs.py reescrito + hook en github_commit.py → docs a
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Cleanup: renders migrados a historico_module unificado, eliminar módulos obsoletos
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Cleanup: renders migrados a historico_module unificado, elim

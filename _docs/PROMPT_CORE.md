@@ -480,4 +480,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · update_docs.py reescrito + hook en github_commit.py → docs a
+**Última actualización:** W21 (fix) · May 2026 · Cleanup: renders migrados a historico_module unificado, elim

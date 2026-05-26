@@ -118,7 +118,7 @@ def render_hero():
 # Color de acento CR (cyan/teal)
 CR_ACCENT = '#5C469C'
 
-from historico_module_v2 import render_historico_cr
+from historico_module import render_historico
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -322,7 +322,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
-{render_historico_cr('eficacia', banda, ef_w18, 'hcr-global-ef')}
+{render_historico('cr', 'eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
 
 def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}'):
@@ -506,7 +506,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
-{render_historico_cr('convrate', banda, cv_w18, 'hcr-global-cv')}
+{render_historico('cr', 'convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''
 
 def render_alerts_block():

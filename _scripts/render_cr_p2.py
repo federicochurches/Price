@@ -10,7 +10,7 @@ from engine import *
 from render_helpers import *
 from template_seguimiento import render_seguimiento_block
 from render_cr_p1 import render_alerts_block
-from historico_module_v2 import render_historico_cr
+from historico_module import render_historico
 
 with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
     D = pickle.load(f)
@@ -939,8 +939,8 @@ def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv,
     canvas_id_ef : ej. 'hcr-hotel-ef'
     canvas_id_cv : ej. 'hcr-hotel-cv'
     """
-    html_ef = render_historico_cr('eficacia', banda_ef, val_ef, canvas_id_ef)
-    html_cv = render_historico_cr('convrate', banda_cv, val_cv, canvas_id_cv)
+    html_ef = render_historico('cr', 'eficacia', banda_ef, val_ef, canvas_id_ef)
+    html_cv = render_historico('cr', 'convrate', banda_cv, val_cv, canvas_id_cv)
 
     js = f"""
 <script>

@@ -9,7 +9,7 @@ import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
-from historico_module_rnd import render_historico_rnd
+from historico_module import render_historico
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -282,7 +282,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
-{render_historico_rnd('nodispo', banda, pct_w18, 'hrnd-global-nd')}
+{render_historico('rnd', 'nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
 
 def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
@@ -404,7 +404,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 {wow_block}
 <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
 <div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
-{render_historico_rnd('ipm', banda, rpm_w18, 'hrnd-global-ipm')}
+{render_historico('rnd', 'ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''
 
 def render_alerts_block():

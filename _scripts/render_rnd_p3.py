@@ -9,7 +9,7 @@ import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
 
-from historico_module_rnd import render_historico_rnd
+from historico_module import render_historico
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -20,8 +20,8 @@ def _mini_badge(bnd):
 
 def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm, banda_nd, val_nd, banda_ipm, val_ipm):
     """Módulo histórico doble (NoDispo + IPM) para secciones de análisis en canastas."""
-    html_nd  = render_historico_rnd('nodispo', banda_nd, val_nd, canvas_id_nd)
-    html_ipm = render_historico_rnd('ipm', banda_ipm, val_ipm, canvas_id_ipm)
+    html_nd  = render_historico('rnd', 'nodispo', banda_nd, val_nd, canvas_id_nd)
+    html_ipm = render_historico('rnd', 'ipm', banda_ipm, val_ipm, canvas_id_ipm)
     js = f"""<script>
 (function() {{
   var section = document.getElementById('hist-{canvas_id_nd}-container');
@@ -416,7 +416,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
 
         metric_type_hist = 'ipm' if prefix != '' else 'nodispo'
-        hist_mod = render_historico_rnd(metric_type_hist, banda, val18, f'hrnd-{card_id}')
+        hist_mod = render_historico('rnd', metric_type_hist, banda, val18, f'hrnd-{card_id}')
         sb_id = f'sb-kpi-{card_id}'
         panels_id = f'kpi-{card_id}-panels'
         # Pill WoW: NoDispo invertida (bajar = verde), IPM directa (subir = verde)

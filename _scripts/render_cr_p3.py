@@ -48,7 +48,7 @@ df17 = D.get('df17', None)
 hotel_channel_map_global = D.get('hotel_channel_map', {})
 g_channel_w17 = D.get('g_channel_w17', None)
 
-from historico_module_v2 import render_historico_cr
+from historico_module import render_historico
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -59,8 +59,8 @@ def _mini_badge(bnd):
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv):
     """Módulo histórico doble (Ef + CV) para secciones de análisis en canastas."""
-    html_ef = render_historico_cr('eficacia', banda_ef, val_ef, canvas_id_ef)
-    html_cv = render_historico_cr('convrate', banda_cv, val_cv, canvas_id_cv)
+    html_ef = render_historico('cr', 'eficacia', banda_ef, val_ef, canvas_id_ef)
+    html_cv = render_historico('cr', 'convrate', banda_cv, val_cv, canvas_id_cv)
     js = f"""<script>
 (function() {{
   var section = document.getElementById('hist-{canvas_id_ef}-container');
@@ -471,7 +471,7 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
                 panel_html = tab_rows_canasta(df_t, dim_col, parse_hotel, wow_col=wm, val_col=val_col, tab_key=tk)
             panels += f'<div class="tp-{card_id}" data-tab="{tk}" style="display:none;margin-top:10px;">{panel_html}</div>'
         metric_type_hist = 'convrate' if 'cv' in card_id else 'eficacia'
-        hist_mod = render_historico_cr(metric_type_hist, banda, val18, f'hcr-{card_id}')
+        hist_mod = render_historico('cr', metric_type_hist, banda, val18, f'hcr-{card_id}')
         sb_id = f'sb-kpi-{card_id}'
         panels_id = f'kpi-{card_id}-panels'
         _wow_pp = wow_pill_html(wow_delta, unit='pp') if wow_delta is not None else wow_pill_html(None)
