@@ -479,4 +479,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + CHANGELOG_NIVEL3 actualizados con cleanu
+**Última actualización:** W21 (fix) · May 2026 · Cleanup final: sincronización GitHub ↔ Proyecto Claude · rep

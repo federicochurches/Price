@@ -1437,4 +1437,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + CHANGELOG_NIVEL3 actualizados con cleanu
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Cleanup final: sincronización GitHub ↔ Proyecto Claude · repo limpio
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Cleanup final: sincronización GitHub ↔ Proyecto Claude · rep
