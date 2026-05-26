@@ -137,6 +137,51 @@ window._injectHistAttrs = function(tbodyId, rows) {
   });
 };
 
+/* Patch w22_bindCanvasTip — recalcular pts con ancho real en cada mousemove */
+/* Esto debe estar en script global para acceder a W22_CANVAS_CFG y w22_getTooltip */
+(function patchBindCanvasTip(){
+  if (typeof w22_bindCanvasTip !== 'function') {
+    setTimeout(patchBindCanvasTip, 50); return;
+  }
+  var _orig = w22_bindCanvasTip;
+  w22_bindCanvasTip = function(el, cid, cfg, pts) {
+    /* Guardar cfg en el elemento para acceso en hover */
+    el._tipCfg = cfg;
+    /* Llamar original para registrar en W22_CANVAS_CFG/PTS */
+    _orig(el, cid, cfg, pts);
+    /* Sobreescribir onmousemove para recalcular pts con ancho real */
+    el.onmousemove = function(e) {
+      var rect = el.getBoundingClientRect();
+      if (!rect || rect.width === 0) return;
+      var mx = e.clientX - rect.left;
+      var tip = (typeof w22_getTooltip === 'function') ? w22_getTooltip() : null;
+      if (!tip) return;
+      var tipCfg = el._tipCfg || cfg;
+      var vals = tipCfg.vals;
+      var w = rect.width;
+      var livePts = vals.map(function(v,i){
+        return {x: (i/(vals.length-1)) * w};
+      });
+      var best = -1, bestDx = 9999;
+      livePts.forEach(function(p,i){ var dx=Math.abs(p.x-mx); if(dx<bestDx){bestDx=dx;best=i;} });
+      if (best < 0 || bestDx > 60) { tip.style.display='none'; return; }
+      var sem = tipCfg.semanas ? tipCfg.semanas[best] : ('W'+(17+best));
+      var val = vals[best];
+      var fmtVal = tipCfg.metric === 'ipm'
+        ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
+        : val.toFixed(2) + '%';
+      tip.textContent = sem + ': ' + fmtVal;
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 10) + 'px';
+      tip.style.top  = (e.clientY - 28) + 'px';
+    };
+    el.onmouseleave = function(){
+      var tip = (typeof w22_getTooltip === 'function') ? w22_getTooltip() : null;
+      if (tip) tip.style.display = 'none';
+    };
+  };
+})();
+
 /* Listener del panel — registrado en document para capturar clicks en w22-th/w22-td */
 document.addEventListener('click', function(e) {
   var row = e.target.closest ? e.target.closest('[data-hist-w21]') : null;
@@ -144,69 +189,84 @@ document.addEventListener('click', function(e) {
   var tbody = row.closest('tbody');
   if (!tbody || (tbody.id !== 'w22-th' && tbody.id !== 'w22-td')) return;
 
-  var label  = row.getAttribute('data-hist-label') || '';
-  var w21    = parseFloat(row.getAttribute('data-hist-w21'));
-  var w20    = parseFloat(row.getAttribute('data-hist-w20'));
+  var label = row.getAttribute('data-hist-label') || '';
+  var w21   = parseFloat(row.getAttribute('data-hist-w21'));
+  var w20   = parseFloat(row.getAttribute('data-hist-w20'));
   if (isNaN(w21)) return;
   if (isNaN(w20)) w20 = w21;
 
-  /* Highlight */
+  /* Highlight fila */
   tbody.querySelectorAll('[data-hist-w21]').forEach(function(r){
     r.style.background = ''; r.removeAttribute('data-selected');
   });
-  row.setAttribute('data-selected','1');
+  row.setAttribute('data-selected', '1');
   row.style.background = 'var(--accent-soft)';
 
   /* Canvas activo según modo y panel */
-  var isCR  = (typeof W !== 'undefined') && W.mode === 'cr';
-  var isPh  = tbody.id === 'w22-th';
-  var cid   = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
-                   : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
-  var histO = isCR ? (typeof HIST_CR !== 'undefined' ? HIST_CR : null)
-                   : (typeof HIST_RND !== 'undefined' ? HIST_RND : null);
-  var cfg   = histO ? histO[cid] : null;
-  if (!cfg) return;
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var isPh = tbody.id === 'w22-th';
+  var cid  = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
+                  : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
 
-  /* Label */
-  var labelEl = document.getElementById('hist-' + cid + '-label');
-  if (labelEl) labelEl.textContent = label;
+  /* Disparar hist-update para el canvas del panel */
+  document.dispatchEvent(new CustomEvent('hist-update', {
+    detail: {cid: cid, w_curr: w21, w_prev: w20, label: label}
+  }));
+  /* También actualizar el canvas global de la card para sincronizar el tooltip */
+  var globalCid = isCR ? 'hcr-global-ef' : 'hrnd-global-nd';
+  document.dispatchEvent(new CustomEvent('hist-update', {
+    detail: {cid: globalCid, w_curr: w21, w_prev: w20, label: label}
+  }));
 
-  /* Redibujar */
-  var el = document.getElementById(cid);
-  if (!el || !el.getContext) return;
-  var accent = (typeof cv === 'function') ? cv().col : '#5C469C';
-  var rgb    = (typeof RGB !== 'undefined' && RGB[accent]) ? RGB[accent] : '92,70,156';
-  var vals   = cfg.vals.slice(0,-2).concat([w20, w21]);
-  el.width   = el.offsetWidth > 0 ? el.offsetWidth : 858;
-  el.height  = 76;
-  var ctx = el.getContext('2d'), hh = el.height - 10;
-  var mn = Math.min.apply(null,vals), mx = Math.max.apply(null,vals), dR = mx-mn+0.0001;
-  var pts = vals.map(function(v,i){ return {x:(i/(vals.length-1))*el.width, y:el.height-((v-mn)/dR*hh+5)}; });
-  var tY  = el.height - ((cfg.target-mn)/dR*hh+5);
-  ctx.clearRect(0,0,el.width,el.height);
-  ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1; ctx.setLineDash([3,2]);
-  ctx.beginPath(); ctx.moveTo(0,tY); ctx.lineTo(el.width,tY); ctx.stroke(); ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(pts[0].x,el.height); ctx.lineTo(pts[0].x,pts[0].y);
-  for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
-  ctx.lineTo(pts[pts.length-1].x,el.height); ctx.closePath();
-  ctx.fillStyle='rgba('+rgb+',0.12)'; ctx.fill();
-  ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.lineCap='round'; ctx.lineJoin='round';
-  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
-  for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
-  for(var i=0;i<pts.length;i++){
-    var last = i===pts.length-1;
-    ctx.fillStyle = last?accent:'rgba('+rgb+',0.5)'; ctx.globalAlpha = last?1:0.5;
-    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill();
-    ctx.globalAlpha = 1;
+  /* Actualizar W22_CANVAS_CFG para ambos canvas (panel + global) */
+  function _updateCfg(id) {
+    if (typeof W22_CANVAS_CFG === 'undefined' || !W22_CANVAS_CFG[id]) return;
+    var oc = W22_CANVAS_CFG[id];
+    var nv = oc.vals.slice();
+    nv[nv.length-1] = w21;
+    nv[nv.length-2] = w20;
+    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W17','W18','W19','W20','W21'], metric: oc.metric};
   }
-  /* Bind tooltip */
-  if (typeof w22_bindCanvasTip === 'function') {
-    var metric = (cid.indexOf('cv') > -1) ? 'convrate'
-               : (cid.indexOf('ipm') > -1 || cid.indexOf('rpm') > -1) ? 'ipm'
-               : (cid.indexOf('nd') > -1) ? 'nodispo' : 'eficacia';
-    var semanas = ['W17','W18','W19','W20','W21'];
-    w22_bindCanvasTip(el, cid, {vals: vals, semanas: semanas, metric: metric}, pts);
-  }
+  _updateCfg(cid);
+  _updateCfg(globalCid);
+
+  /* Forzar onmousemove en ambos canvas con closure sobre los vals correctos */
+  [cid, globalCid].forEach(function(id) {
+    var canvasEl = document.getElementById(id);
+    if (!canvasEl) return;
+    (function(capturedId, capturedW21, capturedW20){
+      var sems = ['W17','W18','W19','W20','W21'];
+      canvasEl.onmousemove = function(e) {
+        var cfg = W22_CANVAS_CFG[capturedId];
+        if (!cfg) return;
+        var rect = canvasEl.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var tip = w22_getTooltip ? w22_getTooltip() : null;
+        if (!tip) return;
+        var w = rect.width || 400;
+        var vals = cfg.vals;
+        var best = -1, bestDx = 9999;
+        vals.forEach(function(v,i){
+          var px = (i/(vals.length-1))*w;
+          var dx = Math.abs(px-mx);
+          if(dx<bestDx){bestDx=dx;best=i;}
+        });
+        if(best<0||bestDx>40){tip.style.display='none';return;}
+        var val = vals[best];
+        var fmtVal = cfg.metric==='ipm'
+          ? ('$'+Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','))
+          : val.toFixed(2)+'%';
+        tip.textContent = (sems[best]||('W'+(17+best)))+': '+fmtVal;
+        tip.style.display='block';
+        tip.style.left=(e.clientX+10)+'px';
+        tip.style.top=(e.clientY-28)+'px';
+      };
+      canvasEl.onmouseleave = function(){
+        var tip = w22_getTooltip ? w22_getTooltip() : null;
+        if(tip) tip.style.display='none';
+      };
+    })(id, w21, w20);
+  });
 });
 
 /* Inyectar inmediatamente en las filas ya renderizadas */

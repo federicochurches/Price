@@ -154,6 +154,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   function fmtVal(v) {{ return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') : v.toFixed(2) + '%'; }}
   
   function drawCanvas(vals) {{
+    currentVals = vals;  /* recordar último estado para re-draws automáticos */
     var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
     if (!ctx) return; el.width = el.offsetWidth; el.height = el.offsetHeight; ctx.clearRect(0, 0, el.width, el.height);
     var lw = 2, h = el.height - 10;
@@ -174,6 +175,9 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
     ctx.restore();
     for (var i = 0; i < pts.length; i++) {{ var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }}
+    /* Actualizar W22_CANVAS_CFG y W22_CANVAS_PTS para que el tooltip use vals correctos */
+    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {{vals: vals, semanas: SEMANAS, metric: METRIC}};
+    if (typeof W22_CANVAS_PTS !== 'undefined') W22_CANVAS_PTS[CID] = pts;
   }}
   
   function updateMetrics(vals, lbl) {{
@@ -188,8 +192,19 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (bbEl) {{ bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }}
     if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
     el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
+    /* Actualizar el valor grande de la card si existe (solo cuando hay label — no en reset global) */
+    if (lbl && lbl !== 'Global') {{
+      var kvMap = {{'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
+                   'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'}};
+      var kvId = kvMap[CID];
+      if (kvId) {{
+        var kvEl = document.getElementById(kvId);
+        if (kvEl) {{ kvEl.textContent = fmtVal(vCurr); }}
+      }}
+    }}
   }}
   
+  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p) {{ var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }}
   
   function attachListeners() {{
@@ -214,19 +229,19 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var el = document.getElementById(CID);
     if (el) {{
       var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }});
+      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }});
       if (typeof IntersectionObserver !== 'undefined') {{
         var drawn = false;
-        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{ if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); }}); }} }}); }}, {{threshold: 0.01}}).observe(el);
+        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{ if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }} }}); }}, {{threshold: 0.01}}).observe(el);
       }} else {{
-        [50, 200, 500, 1000].forEach(function(d) {{ setTimeout(function() {{ drawCanvas(VALS_DEF); }}, d); }});
+        [50, 200, 500, 1000].forEach(function(d) {{ setTimeout(function() {{ drawCanvas(currentVals); }}, d); }});
       }}
     }}
     document.addEventListener('change', function(e) {{
       if (e.target.type !== 'radio') return;
       var el2 = document.getElementById(CID);
       if (!el2) return;
-      requestAnimationFrame(function() {{ if ((el2.parentElement || {{}}).offsetWidth > 10) drawCanvas(VALS_DEF); }});
+      requestAnimationFrame(function() {{ if ((el2.parentElement || {{}}).offsetWidth > 10) drawCanvas(currentVals); }});
     }});
   }}
   

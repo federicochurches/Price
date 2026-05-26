@@ -1604,4 +1604,21 @@ _(ver commit en GitHub)_
 ### Archivos generados
 `SUPPLY_W21.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W21.html` · `index.html` · `Price_W21.zip`
 
+---
+
+## Pipeline W21 · May 2026 · 26 May 2026
+
+**Período:** 19-25 mayo 2026  
+**Tipo:** Pipeline completo
+
+| Métrica | W20 | W21 | WoW |
+|---|---|---|---|
+| RND %NoDispo | 2,81% | 2,63% | -0,17pp |
+| RND IPM | $1.266 | $834 | -34,1% |
+| CR Eficacia | 93,34% | 93,15% | -0,19pp |
+| CR ConvRate | 1,63% | 1,57% | -0,07pp |
+
+### Archivos generados
+`SUPPLY_W21.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W21.html` · `index.html` · `Price_W21.zip`
+
 **Última actualización:** W21 (pipeline) · May 2026 · 19-25 mayo 2026

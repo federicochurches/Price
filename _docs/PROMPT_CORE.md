@@ -477,6 +477,8 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 26. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser (adopta divs como hijos inline)
 27. Generar el switcher `vch-h`/`vch-d` en los parciales p2 — solo debe existir en `SHARED_CONTAINERS` de `assemble_unified.py`
 28. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"; los keys internos Python/JS siguen siendo `op` y `cug`
+29. Usar `VALS_DEF` en re-draws automáticos del histórico (IntersectionObserver, toggle, radio, setTimeout) — usar `currentVals` para mantener el estado seleccionado; solo `resetToGlobal()` y `hist-reset` deben usar `VALS_DEF`
+30. Confiar en `el.onmousemove` cuando hay listeners registrados con `addEventListener` — para ganar a múltiples listeners en un canvas, hookear el setter `textContent` del tooltip target
 
 ---
 
