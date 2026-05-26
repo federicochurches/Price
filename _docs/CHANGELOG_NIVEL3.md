@@ -146,3 +146,36 @@ Si algo falla en W21:
 
 ### Regla W22+
 Cada semana: agregar nuevo array + descartar más antiguo + actualizar SEMANAS.
+
+---
+
+## Cleanup W21 · Eliminación de módulos obsoletos
+
+**Fecha:** Mayo 2026  
+**Commits:** `271438c4` · `1f8de2ea`
+
+### Completado
+
+Los renders **sí fueron migrados** en esta sesión (lo que el CHANGELOG_NIVEL3 dejaba como pendiente):
+
+- `render_cr_p1/2/3.py`: `from historico_module_v2 import render_historico_cr` → `from historico_module import render_historico`
+- `render_rnd_p1/2/3.py`: `from historico_module_rnd import render_historico_rnd` → `from historico_module import render_historico`
+- Firma nueva: `render_historico(reporte, metrica, banda, val, canvas_id)` — sin `current_week`
+
+### Eliminados del repo y del ZIP del proyecto
+
+- `historico_module_v2.py` ✅ eliminado
+- `historico_module_rnd.py` ✅ eliminado
+- `__init__.py` ✅ eliminado (vacío)
+- `test_table.html` ✅ eliminado (test one-shot)
+- `run_cr_w21_patch.py` ✅ eliminado (patch W21 absorbido en calc_cr.py)
+- `run_rnd_w21.py` ✅ eliminado (script W21 absorbido en calc_rnd.py)
+- `PROMPT_CORE_updated.md` ✅ eliminado (duplicado)
+
+### Resultado
+
+ZIP del proyecto: 44 → **39 archivos** · 276 → **252 KB** · ~8k tokens ahorrados del contexto Claude.
+
+### Rollback (si necesario)
+
+Los módulos eliminados están disponibles en commits anteriores de GitHub. Los renders actualizados son compatibles solo con `historico_module.py`.
