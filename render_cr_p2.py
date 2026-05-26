@@ -105,7 +105,8 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
     if wow_cr_pp is None or (isinstance(wow_cr_pp, float) and np.isnan(wow_cr_pp)):
         wow_cr_str = '—'
     else:
-        wow_cr_str = wow_arrow(wow_cr_pp)
+        # Dividir por 100 porque CR_Unicos_WoW_pp se calcula como (cr - cr_w17)*100
+        wow_cr_str = wow_arrow(wow_cr_pp / 100)
     return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
 
 def sev_badge_html(banda):
