@@ -479,4 +479,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: labels W17-W21 equiespaciados con position:ab
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: spark bars normalizadas relativas al rango de

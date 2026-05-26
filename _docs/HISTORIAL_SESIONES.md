@@ -1464,4 +1464,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: labels W17-W21 equiespaciados con position:ab
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix histórico: spark bars normalizadas relativas al rango de la serie, fix val_actual*100
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: spark bars normalizadas relativas al rango de
