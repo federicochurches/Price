@@ -480,4 +480,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Cleanup: renders migrados a historico_module unificado, elim
+**Última actualización:** W21 (fix) · May 2026 · Cleanup: EXCLUDE list en ZIP del proyecto, historico_module 

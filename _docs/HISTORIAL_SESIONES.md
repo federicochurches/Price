@@ -1419,4 +1419,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Cleanup: renders migrados a historico_module unificado, elim
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Cleanup: EXCLUDE list en ZIP del proyecto, historico_module unificado
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Cleanup: EXCLUDE list en ZIP del proyecto, historico_module 

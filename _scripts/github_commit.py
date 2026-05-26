@@ -218,6 +218,12 @@ def build_project_zip(week_num, scripts_dir, outputs_dir, docs_dir=None):
     EXCLUDE = {
         'part1_cr.html', 'part2_cr.html', 'part3_cr.html',
         'part1_rnd.html', 'part2_rnd.html', 'part3_rnd.html',
+        # Módulos obsoletos reemplazados por historico_module.py
+        'historico_module_rnd.py', 'historico_module_v2.py',
+        # Archivos one-shot / temporales
+        '__init__.py', 'test_table.html',
+        'run_cr_w21_patch.py', 'run_rnd_w21.py',
+        'PROMPT_CORE_updated.md',
     }
 
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as zf:
