@@ -789,11 +789,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-global-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.69%</div>
+      <div id="hist-hrnd-global-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.63%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-global-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.02%</div>
+      <div id="hist-hrnd-global-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.80%</div>
     </div>
     <div id="hist-hrnd-global-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -807,10 +807,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-global-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.69%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.63%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.59%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.63%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -829,9 +829,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.63];
-  var BASE_RATIOS= [1.402988, 1.380176, 1.079807, 0.878294];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.63, 2.84, 2.31, 2.59, 2.63];
+  var BASE_RATIOS= [1.380176, 1.079807, 0.878294, 0.984753];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -1225,7 +1225,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-global-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$618</div>
+      <div id="hist-hrnd-global-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$622</div>
     </div>
     <div id="hist-hrnd-global-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -1239,10 +1239,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-global-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W16: $661"></div><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $834"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $677"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $834"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -1261,9 +1261,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 834.0];
-  var BASE_RATIOS= [0.792566, 0.688249, 0.628297, 0.598321];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [574.0, 524.0, 499.0, 677.0, 834.0];
+  var BASE_RATIOS= [0.688249, 0.628297, 0.598321, 0.811751];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -1740,11 +1740,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-hotel-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.69%</div>
+      <div id="hist-hrnd-hotel-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.63%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.02%</div>
+      <div id="hist-hrnd-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.80%</div>
     </div>
     <div id="hist-hrnd-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -1758,10 +1758,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-hotel-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.69%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.63%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.59%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.63%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -1780,9 +1780,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.63];
-  var BASE_RATIOS= [1.402988, 1.380176, 1.079807, 0.878294];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.63, 2.84, 2.31, 2.59, 2.63];
+  var BASE_RATIOS= [1.380176, 1.079807, 0.878294, 0.984753];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -2155,7 +2155,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$618</div>
+      <div id="hist-hrnd-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$622</div>
     </div>
     <div id="hist-hrnd-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -2169,10 +2169,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-hotel-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W16: $661"></div><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $834"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $677"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $834"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -2191,9 +2191,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 834.0];
-  var BASE_RATIOS= [0.792566, 0.688249, 0.628297, 0.598321];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [574.0, 524.0, 499.0, 677.0, 834.0];
+  var BASE_RATIOS= [0.688249, 0.628297, 0.598321, 0.811751];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -2640,11 +2640,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-dim-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.69%</div>
+      <div id="hist-hrnd-dim-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.63%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.02%</div>
+      <div id="hist-hrnd-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.80%</div>
     </div>
     <div id="hist-hrnd-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -2658,10 +2658,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-dim-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.69%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.63%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.63%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.59%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.63%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -2680,9 +2680,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.69, 3.63, 2.84, 2.31, 2.63];
-  var BASE_RATIOS= [1.402988, 1.380176, 1.079807, 0.878294];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.63, 2.84, 2.31, 2.59, 2.63];
+  var BASE_RATIOS= [1.380176, 1.079807, 0.878294, 0.984753];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -3055,7 +3055,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$618</div>
+      <div id="hist-hrnd-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$622</div>
     </div>
     <div id="hist-hrnd-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -3069,10 +3069,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-dim-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W16: $661"></div><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $834"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.34);height:5px;border-radius:1px 1px 0 0;" title="W17: $574"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $677"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $834"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -3091,9 +3091,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [661.0, 574.0, 524.0, 499.0, 834.0];
-  var BASE_RATIOS= [0.792566, 0.688249, 0.628297, 0.598321];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [574.0, 524.0, 499.0, 677.0, 834.0];
+  var BASE_RATIOS= [0.688249, 0.628297, 0.598321, 0.811751];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -3681,7 +3681,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.61%</div>
+      <div id="hist-hrnd-op-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.43%</div>
     </div>
     <div id="hist-hrnd-op-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -3695,10 +3695,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-op-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.12%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.20%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.24%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.20%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -3717,9 +3717,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.2];
-  var BASE_RATIOS= [1.418117, 1.445389, 1.190855, 0.877233];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.18, 2.62, 1.93, 2.24, 2.2];
+  var BASE_RATIOS= [1.445389, 1.190855, 0.877233, 1.018136];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -4128,7 +4128,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$600</div>
+      <div id="hist-hrnd-op-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$621</div>
     </div>
     <div id="hist-hrnd-op-rpm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -4142,10 +4142,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-op-rpm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.35);height:5px;border-radius:1px 1px 0 0;" title="W16: $585"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $880"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $688"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $880"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -4164,9 +4164,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 880.2];
-  var BASE_RATIOS= [0.664622, 0.594183, 0.60668, 0.544194];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [523.0, 534.0, 479.0, 688.0, 880.2];
+  var BASE_RATIOS= [0.594183, 0.60668, 0.544194, 0.78164];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -4693,7 +4693,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.61%</div>
+      <div id="hist-hrnd-op-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.43%</div>
     </div>
     <div id="hist-hrnd-op-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -4707,10 +4707,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-op-hotel-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.12%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.20%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.24%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.20%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -4729,9 +4729,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.2];
-  var BASE_RATIOS= [1.418117, 1.445389, 1.190855, 0.877233];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.18, 2.62, 1.93, 2.24, 2.2];
+  var BASE_RATIOS= [1.445389, 1.190855, 0.877233, 1.018136];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -5103,7 +5103,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$600</div>
+      <div id="hist-hrnd-op-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$621</div>
     </div>
     <div id="hist-hrnd-op-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -5117,10 +5117,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-op-hotel-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.35);height:5px;border-radius:1px 1px 0 0;" title="W16: $585"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $880"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $688"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $880"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -5139,9 +5139,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 880.2];
-  var BASE_RATIOS= [0.664622, 0.594183, 0.60668, 0.544194];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [523.0, 534.0, 479.0, 688.0, 880.2];
+  var BASE_RATIOS= [0.594183, 0.60668, 0.544194, 0.78164];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -5569,7 +5569,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.61%</div>
+      <div id="hist-hrnd-op-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.43%</div>
     </div>
     <div id="hist-hrnd-op-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -5583,10 +5583,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-op-dim-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: 3.12%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.20%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W17: 3.18%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W18: 2.62%"></div><div style="flex:1;background:rgba(234,0,116,0.22);height:2px;border-radius:1px 1px 0 0;" title="W19: 1.93%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.24%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.20%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -5605,9 +5605,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [3.12, 3.18, 2.62, 1.93, 2.2];
-  var BASE_RATIOS= [1.418117, 1.445389, 1.190855, 0.877233];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [3.18, 2.62, 1.93, 2.24, 2.2];
+  var BASE_RATIOS= [1.445389, 1.190855, 0.877233, 1.018136];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -5979,7 +5979,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-op-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$600</div>
+      <div id="hist-hrnd-op-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$621</div>
     </div>
     <div id="hist-hrnd-op-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -5993,10 +5993,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-op-dim-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.35);height:5px;border-radius:1px 1px 0 0;" title="W16: $585"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W20: $880"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W17: $523"></div><div style="flex:1;background:rgba(79,195,244,0.33);height:4px;border-radius:1px 1px 0 0;" title="W18: $534"></div><div style="flex:1;background:rgba(79,195,244,0.32);height:4px;border-radius:1px 1px 0 0;" title="W19: $479"></div><div style="flex:1;background:rgba(79,195,244,0.37);height:5px;border-radius:1px 1px 0 0;" title="W20: $688"></div><div style="flex:1;background:#4FC3F4;height:6px;border-radius:1px 1px 0 0;" title="W21: $880"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -6015,9 +6015,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [585.0, 523.0, 534.0, 479.0, 880.2];
-  var BASE_RATIOS= [0.664622, 0.594183, 0.60668, 0.544194];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [523.0, 534.0, 479.0, 688.0, 880.2];
+  var BASE_RATIOS= [0.594183, 0.60668, 0.544194, 0.78164];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -6494,11 +6494,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.76%</div>
+      <div id="hist-hrnd-cug-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.34%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.56%</div>
+      <div id="hist-hrnd-cug-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.18%</div>
     </div>
     <div id="hist-hrnd-cug-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -6512,10 +6512,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-cug-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.76%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.92%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.82%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.92%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -6534,9 +6534,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 2.92];
-  var BASE_RATIOS= [1.630081, 1.48625, 1.051334, 0.934899];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.34, 3.07, 2.73, 2.82, 2.92];
+  var BASE_RATIOS= [1.48625, 1.051334, 0.934899, 0.96572];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -6937,7 +6937,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-rpm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,101</div>
+      <div id="hist-hrnd-cug-rpm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,015</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
@@ -6945,7 +6945,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$859</div>
+      <div id="hist-hrnd-cug-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$797</div>
     </div>
     <div id="hist-hrnd-cug-rpm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -6959,10 +6959,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-cug-rpm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.48);height:7px;border-radius:1px 1px 0 0;" title="W16: $1,101"></div><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W20: $1,015"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:rgba(79,195,244,0.4);height:6px;border-radius:1px 1px 0 0;" title="W20: $787"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W21: $1,015"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -6981,9 +6981,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1015.1];
-  var BASE_RATIOS= [1.084622, 0.853118, 0.649197, 0.646242];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [866.0, 659.0, 656.0, 787.0, 1015.1];
+  var BASE_RATIOS= [0.853118, 0.649197, 0.646242, 0.775293];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -7506,11 +7506,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-hotel-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.76%</div>
+      <div id="hist-hrnd-cug-hotel-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.34%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.56%</div>
+      <div id="hist-hrnd-cug-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.18%</div>
     </div>
     <div id="hist-hrnd-cug-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -7524,10 +7524,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-cug-hotel-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.76%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.92%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.82%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.92%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -7546,9 +7546,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 2.92];
-  var BASE_RATIOS= [1.630081, 1.48625, 1.051334, 0.934899];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.34, 3.07, 2.73, 2.82, 2.92];
+  var BASE_RATIOS= [1.48625, 1.051334, 0.934899, 0.96572];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -7912,7 +7912,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-hotel-ipm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,101</div>
+      <div id="hist-hrnd-cug-hotel-ipm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,015</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
@@ -7920,7 +7920,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$859</div>
+      <div id="hist-hrnd-cug-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$797</div>
     </div>
     <div id="hist-hrnd-cug-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -7934,10 +7934,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-cug-hotel-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.48);height:7px;border-radius:1px 1px 0 0;" title="W16: $1,101"></div><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W20: $1,015"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:rgba(79,195,244,0.4);height:6px;border-radius:1px 1px 0 0;" title="W20: $787"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W21: $1,015"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -7956,9 +7956,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1015.1];
-  var BASE_RATIOS= [1.084622, 0.853118, 0.649197, 0.646242];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [866.0, 659.0, 656.0, 787.0, 1015.1];
+  var BASE_RATIOS= [0.853118, 0.649197, 0.646242, 0.775293];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -8382,11 +8382,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-dim-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.76%</div>
+      <div id="hist-hrnd-cug-dim-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">4.34%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.56%</div>
+      <div id="hist-hrnd-cug-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.18%</div>
     </div>
     <div id="hist-hrnd-cug-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -8400,10 +8400,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-cug-dim-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.76%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 2.92%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.34%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.07%"></div><div style="flex:1;background:rgba(234,0,116,0.23);height:2px;border-radius:1px 1px 0 0;" title="W19: 2.73%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 2.82%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 2.92%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -8422,9 +8422,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.76, 4.34, 3.07, 2.73, 2.92];
-  var BASE_RATIOS= [1.630081, 1.48625, 1.051334, 0.934899];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.34, 3.07, 2.73, 2.82, 2.92];
+  var BASE_RATIOS= [1.48625, 1.051334, 0.934899, 0.96572];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -8788,7 +8788,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-cug-dim-ipm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,101</div>
+      <div id="hist-hrnd-cug-dim-ipm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$1,015</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
@@ -8796,7 +8796,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-cug-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$859</div>
+      <div id="hist-hrnd-cug-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$797</div>
     </div>
     <div id="hist-hrnd-cug-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
@@ -8810,10 +8810,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-cug-dim-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.48);height:7px;border-radius:1px 1px 0 0;" title="W16: $1,101"></div><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W20: $1,015"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.42);height:6px;border-radius:1px 1px 0 0;" title="W17: $866"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W18: $659"></div><div style="flex:1;background:rgba(79,195,244,0.36);height:5px;border-radius:1px 1px 0 0;" title="W19: $656"></div><div style="flex:1;background:rgba(79,195,244,0.4);height:6px;border-radius:1px 1px 0 0;" title="W20: $787"></div><div style="flex:1;background:#4FC3F4;height:7px;border-radius:1px 1px 0 0;" title="W21: $1,015"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -8832,9 +8832,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [1101.0, 866.0, 659.0, 656.0, 1015.1];
-  var BASE_RATIOS= [1.084622, 0.853118, 0.649197, 0.646242];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [866.0, 659.0, 656.0, 787.0, 1015.1];
+  var BASE_RATIOS= [0.853118, 0.649197, 0.646242, 0.775293];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -9307,7 +9307,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.36%</div>
+      <div id="hist-hrnd-b2c-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.31%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
@@ -9315,7 +9315,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.80%</div>
+      <div id="hist-hrnd-b2c-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.64%</div>
     </div>
     <div id="hist-hrnd-b2c-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FEF9C3;border:1px solid #FCD34D;">
@@ -9329,10 +9329,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-b2c-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.12%"></div><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 3.36%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 3.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 3.36%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -9351,9 +9351,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.36];
-  var BASE_RATIOS= [1.226154, 1.333294, 1.095205, 0.99997];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.48, 3.68, 3.36, 3.31, 3.36];
+  var BASE_RATIOS= [1.333294, 1.095205, 0.99997, 0.98509];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -9758,11 +9758,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-rpm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$170</div>
+      <div id="hist-hrnd-b2c-rpm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$183</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$210</div>
+      <div id="hist-hrnd-b2c-rpm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$226</div>
     </div>
     <div id="hist-hrnd-b2c-rpm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FED7AA;border:1px solid #F97316;">
@@ -9776,10 +9776,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-b2c-rpm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: $170"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W20: $303"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:rgba(79,195,244,0.26);height:3px;border-radius:1px 1px 0 0;" title="W20: $248"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W21: $303"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -9798,9 +9798,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 303.3];
-  var BASE_RATIOS= [0.560501, 0.603363, 0.679195, 0.619848];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [183.0, 206.0, 188.0, 248.0, 303.3];
+  var BASE_RATIOS= [0.603363, 0.679195, 0.619848, 0.817672];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -10319,7 +10319,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-hotel-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.36%</div>
+      <div id="hist-hrnd-b2c-hotel-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.31%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
@@ -10327,7 +10327,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.80%</div>
+      <div id="hist-hrnd-b2c-hotel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.64%</div>
     </div>
     <div id="hist-hrnd-b2c-hotel-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FEF9C3;border:1px solid #FCD34D;">
@@ -10341,10 +10341,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-b2c-hotel-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.12%"></div><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 3.36%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 3.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 3.36%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -10363,9 +10363,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.36];
-  var BASE_RATIOS= [1.226154, 1.333294, 1.095205, 0.99997];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.48, 3.68, 3.36, 3.31, 3.36];
+  var BASE_RATIOS= [1.333294, 1.095205, 0.99997, 0.98509];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -10733,11 +10733,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-hotel-ipm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$170</div>
+      <div id="hist-hrnd-b2c-hotel-ipm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$183</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$210</div>
+      <div id="hist-hrnd-b2c-hotel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$226</div>
     </div>
     <div id="hist-hrnd-b2c-hotel-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FED7AA;border:1px solid #F97316;">
@@ -10751,10 +10751,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-b2c-hotel-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: $170"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W20: $303"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:rgba(79,195,244,0.26);height:3px;border-radius:1px 1px 0 0;" title="W20: $248"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W21: $303"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -10773,9 +10773,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 303.3];
-  var BASE_RATIOS= [0.560501, 0.603363, 0.679195, 0.619848];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [183.0, 206.0, 188.0, 248.0, 303.3];
+  var BASE_RATIOS= [0.603363, 0.679195, 0.619848, 0.817672];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -11195,7 +11195,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-dim-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.36%</div>
+      <div id="hist-hrnd-b2c-dim-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">3.31%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
@@ -11203,7 +11203,7 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.80%</div>
+      <div id="hist-hrnd-b2c-dim-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">3.64%</div>
     </div>
     <div id="hist-hrnd-b2c-dim-nd-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FEF9C3;border:1px solid #FCD34D;">
@@ -11217,10 +11217,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Severidad vs universo global (↑ más NoDispo)
     </div>
     <div id="hist-hrnd-b2c-dim-nd-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.25);height:3px;border-radius:1px 1px 0 0;" title="W16: 4.12%"></div><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W20: 3.36%"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.26);height:3px;border-radius:1px 1px 0 0;" title="W17: 4.48%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:2px;border-radius:1px 1px 0 0;" title="W18: 3.68%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W19: 3.36%"></div><div style="flex:1;background:rgba(234,0,116,0.24);height:2px;border-radius:1px 1px 0 0;" title="W20: 3.31%"></div><div style="flex:1;background:#EA0074;height:2px;border-radius:1px 1px 0 0;" title="W21: 3.36%"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#EA0074;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#EA0074;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -11239,9 +11239,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 5.0;
   var BAR_CEIL   = 60.0;
   var ACCENT_HEX = '#EA0074';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [4.12, 4.48, 3.68, 3.36, 3.36];
-  var BASE_RATIOS= [1.226154, 1.333294, 1.095205, 0.99997];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [4.48, 3.68, 3.36, 3.31, 3.36];
+  var BASE_RATIOS= [1.333294, 1.095205, 0.99997, 0.98509];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
@@ -11609,11 +11609,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-b2c-dim-ipm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$170</div>
+      <div id="hist-hrnd-b2c-dim-ipm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$183</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-b2c-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$210</div>
+      <div id="hist-hrnd-b2c-dim-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$226</div>
     </div>
     <div id="hist-hrnd-b2c-dim-ipm-banda-box"
          style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FED7AA;border:1px solid #F97316;">
@@ -11627,10 +11627,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       Posición vs target global
     </div>
     <div id="hist-hrnd-b2c-dim-ipm-spark"
-         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.24);height:2px;border-radius:1px 1px 0 0;" title="W16: $170"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W20: $303"></div></div>
+         style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.25);height:2px;border-radius:1px 1px 0 0;" title="W17: $183"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W18: $206"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:3px;border-radius:1px 1px 0 0;" title="W19: $188"></div><div style="flex:1;background:rgba(79,195,244,0.26);height:3px;border-radius:1px 1px 0 0;" title="W20: $248"></div><div style="flex:1;background:#4FC3F4;height:3px;border-radius:1px 1px 0 0;" title="W21: $303"></div></div>
     <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:7px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W20</span>
+      <span style="font-size:7px;color:var(--ink-muted);">W17</span>
+      <span style="font-size:7px;color:#4FC3F4;font-weight:700;">W21</span>
     </div>
   </div>
 
@@ -11649,9 +11649,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   var TARGET     = 650.0;
   var BAR_CEIL   = 3000.0;
   var ACCENT_HEX = '#4FC3F4';
-  var SEMANAS    = ["W16", "W17", "W18", "W19", "W20"];
-  var VALS_DEF   = [170.0, 183.0, 206.0, 188.0, 303.3];
-  var BASE_RATIOS= [0.560501, 0.603363, 0.679195, 0.619848];
+  var SEMANAS    = ["W17", "W18", "W19", "W20", "W21"];
+  var VALS_DEF   = [183.0, 206.0, 188.0, 248.0, 303.3];
+  var BASE_RATIOS= [0.603363, 0.679195, 0.619848, 0.817672];
   var BC         = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
 
   // ── Banda según valor ──────────────────────────────────────────────────
