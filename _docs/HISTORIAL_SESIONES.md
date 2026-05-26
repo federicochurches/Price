@@ -1455,4 +1455,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: eje X muestra las 5 semanas W17-W21 (no solo 
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix histórico: labels W17-W21 equiespaciados con position:absolute left:N%
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: labels W17-W21 equiespaciados con position:ab
