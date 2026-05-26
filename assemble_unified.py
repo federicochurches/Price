@@ -281,7 +281,44 @@ document.addEventListener('click', function(e) {
   window._injectHistAttrs('w22-td', drows);
 })();
 '''
-GLOBAL_PANEL_SCRIPT = '<script>' + PANEL_LISTENER_JS + '</script>\n'
+
+# Script para vincular pestañas de hotel con datos
+TAB_BINDING_JS = '''
+(function() {
+    var tabMap = {
+        0: { label: 'Críticos', dataKey: 'hotels_crit' },
+        1: { label: 'Bajo Rendimiento', dataKey: 'hotels_br' },
+        2: { label: 'Sin Conversión', dataKey: 'hotels_sc' },
+        3: { label: 'Menor ConvRate', dataKey: 'hotels_cv' }
+    };
+    
+    setTimeout(function() {
+        var ph = document.getElementById('w22-ph');
+        if (!ph) return;
+        var labels = ph.querySelectorAll('label');
+        labels.forEach(function(label, idx) {
+            label.addEventListener('click', function() {
+                // Cambiar clase active
+                labels.forEach(function(l) { l.classList.remove('active'); });
+                label.classList.add('active');
+                
+                // Recargar datos de tabla
+                if (typeof CR_CV !== 'undefined' && typeof CR_CV.global === 'object') {
+                    var d = CR_CV.global;
+                    var rows = d[tabMap[idx].dataKey];
+                    if (rows) {
+                        w22_renderTable('w22-th', 'w22-th-more', rows, false);
+                        console.log('↻ Tabla actualizada:', tabMap[idx].label);
+                    }
+                }
+            });
+        });
+        console.log('✓ Pestañas de hotel vinculadas con datos');
+    }, 100);
+})();
+'''
+
+GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 

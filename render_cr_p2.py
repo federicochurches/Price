@@ -514,7 +514,7 @@ def render_analisis_rendimiento():
 </div></div>
 <div id="w22-ph" style="border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
   <div class="tabs-row" style="margin-top:0;">
-    <label style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this)">Críticos</label>
+    <label class="active" style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this)">Críticos</label>
     <label class="tab-label" onclick="w22_iTab(this)">Bajo Rendimiento</label>
     <label class="tab-label" onclick="w22_iTab(this)">Sin Conversión</label>
     <label class="tab-label" onclick="w22_iTab(this)">Menor ConvRate</label>
