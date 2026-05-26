@@ -153,31 +153,129 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   function fmtVal(v) {{ return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') : v.toFixed(2) + '%'; }}
   
+  /* Thresholds por métrica */
+  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
+            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
+            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
+  var THS_SORTED = THS.slice().sort(function(a, b) {{ return a - b; }});
+  
+  /* Distancia ordinal: cuántas bandas de distancia al target */
+  function ordinalDist(mid, target, thresholds, invert) {{
+    if (!invert) {{
+      if (mid >= target) return 0;
+      return thresholds.filter(function(t) {{ return t > mid && t <= target; }}).length;
+    }} else {{
+      if (mid <= target) return 0;
+      return thresholds.filter(function(t) {{ return t < mid && t >= target; }}).length;
+    }}
+  }}
+  
+  /* Color de semáforo por distancia ordinal */
+  var SEMAFORO_PALETTE = [
+    {{line: '#1A6B4A', fg: '#0F5132', label: '≥ target'}},
+    {{line: '#D97706', fg: '#92400E', label: '–1 banda'}},
+    {{line: '#C2410C', fg: '#9A3412', label: '–2 bandas'}},
+    {{line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}}
+  ];
+  function getSemaforoColor(dist) {{
+    return SEMAFORO_PALETTE[Math.min(dist, 3)];
+  }}
+  
+  /* Formato de label de threshold */
+  function fmtThLabel(t) {{
+    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') :
+           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
+  }}
+  
+  /* Formato de label de target */
+  function fmtTarget() {{
+    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') :
+           METRIC === 'eficacia' ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
+  }}
+  
   function drawCanvas(vals) {{
     currentVals = vals;  /* recordar último estado para re-draws automáticos */
     var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
     if (!ctx) return; el.width = el.offsetWidth; el.height = el.offsetHeight; ctx.clearRect(0, 0, el.width, el.height);
-    var lw = 2, h = el.height - 10;
-    var minVal = Math.min.apply(null, vals), maxVal = Math.max.apply(null, vals), dR = maxVal - minVal + 0.0001;
-    var pts = []; for (var i = 0; i < vals.length; i++) {{ var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({{x: x, y: y}}); }}
-    var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
-    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    var W = el.width, H = el.height, n = vals.length;
+    var pL=10, pR=40, pT=8, pB=18;  /* padding izq/der/arr/aba */
+    var cw = W-pL-pR, ch = H-pT-pB;
+    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_max = Math.max(Math.max.apply(null, vals), TARGET);
+    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
+    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
+    var below = ths_s.filter(function(t) {{ return t < i_min; }});
+    var above = ths_s.filter(function(t) {{ return t > i_max; }});
+    var adj_below = below.length ? below[below.length-1] : null;
+    var adj_above = above.length ? above[0] : null;
+    var anchor_min = i_min, anchor_max = i_max;
+    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
+    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
+    var pad = i_range * 0.25;
+    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
+    var dR = canvas_max - canvas_min + 0.0001;
+    var xOf = function(i) {{ return pL + (i/(n-1))*cw; }};
+    var yOf = function(v) {{ return pT + ch - (v-canvas_min)/dR*ch; }};
+    /* Líneas de umbral visibles (sin fondos de banda) */
+    var visible_ths = THS.filter(function(t) {{ return t > canvas_min && t < canvas_max && t !== TARGET; }}).sort(function(a,b){{return b-a;}});
+    visible_ths.forEach(function(t) {{
+      var ty = yOf(t);
+      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
+      var sc = getSemaforoColor(dist);
+      ctx.save();
+      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '6.5px Geist,system-ui,sans-serif';
+      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(fmtThLabel(t), pL+cw+4, ty);
+      ctx.restore();
+    }});
+    /* Línea target verde */
+    var tY = yOf(TARGET);
     ctx.save();
-    // Area fill suave bajo la curva
-    if (ACCENT_RGB) {{
-      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
-      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
-      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
-    }}
-    // Línea
-    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
-    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
+    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
+    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(fmtTarget(), pL+cw+4, tY);
     ctx.restore();
-    for (var i = 0; i < pts.length; i++) {{ var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }}
-    /* Actualizar W22_CANVAS_CFG y W22_CANVAS_PTS para que el tooltip use vals correctos */
+    /* Area fill gradiente en color de la serie */
+    ctx.save();
+    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
+    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
+    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.lineTo(xOf(n-1), pT+ch); ctx.lineTo(xOf(0), pT+ch);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    /* Línea de datos */
+    ctx.save();
+    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.stroke(); ctx.restore();
+    /* Puntos en la serie */
+    for (var i = 0; i < n; i++) {{ 
+      var isLast = (i === n - 1); 
+      ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.50)' : ACCENT_HEX); 
+      ctx.globalAlpha = isLast ? 1.0 : 0.6; 
+      ctx.beginPath(); 
+      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2, 0, 2 * Math.PI); 
+      ctx.fill(); 
+      if (isLast) {{ ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }}
+      ctx.globalAlpha = 1.0; 
+    }}
+    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {{vals: vals, semanas: SEMANAS, metric: METRIC}};
-    if (typeof W22_CANVAS_PTS !== 'undefined') W22_CANVAS_PTS[CID] = pts;
   }}
   
   function updateMetrics(vals, lbl) {{

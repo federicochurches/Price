@@ -515,3 +515,28 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 ---
 
 **Última actualización:** W21 (pipeline) · May 2026
+
+---
+
+## Mantenimiento del PROMPT_CORE
+
+**Objetivo:** Mantener el documento acotado y accionable. El PROMPT_CORE es una referencia viva, no un archivo histórico.
+
+**Reglas de crecimiento:**
+
+1. **Máximo 35 reglas en "Cosas que NUNCA hay que hacer"** — cuando se alcance ese número, hacer una pasada de limpieza.
+
+2. **No duplicar reglas** — si una regla está implícita en otra o en el código, consolidarlas.
+
+3. **Mover lecciones aprendidas al HISTORIAL_SESIONES** — las "por qué pasó X" y los casos de estudio van al HISTORIAL. El CORE solo tiene "qué hacer".
+
+4. **Mantener solo lo accionable** — si una regla no puedo aplicarla al escribir código o documentación, posiblemente pertenece al HISTORIAL o está resuelta en el código y se puede eliminar.
+
+5. **Revisión periódica** — cada 3-4 semanas (cada ~4 commits importantes), revisar el CORE y hacer limpieza.
+
+**Ejemplo de limpieza:**
+- **ANTES:** "Regla 15: No usar `VALS_DEF` directamente en re-draws automáticos — usarlos con `currentVals`" (aprendizaje de W21-post2)
+- **DURANTE:** Si `historico_module.py` ya codifica esto en todos lados, la regla es redundante.
+- **DESPUÉS:** Mover la razón ("Para mantener estado tras scroll") al HISTORIAL_SESIONES con contexto. Eliminar de CORE.
+
+**Última limpieza:** 2026-05-26 · W21 (post-fixes) — N/A, aún en fase de consolidación.
