@@ -79,8 +79,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 | `template_seguimiento.py` | Render Plan de Acción + Carryover |
 | `areas_catalogo.py` | Catálogo v2 áreas accountable |
 | `historico_data.py` | Datos reales W16-W21 + `get_serie()` |
-| `historico_module_v2.py` | Módulo histórico CR |
-| `historico_module_rnd.py` | Módulo histórico RND |
+| `historico_module.py` | Módulo histórico unificado CR+RND (reemplaza v2 y rnd) |
 
 ### Assets HTML
 | Archivo | Descripción |
@@ -453,7 +452,7 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 
 | # | Descripción | Archivo probable |
 |---|---|---|
-| P1 | Canastas RND: eje X histórico muestra "undefined" | `historico_module_rnd.py` |
+| P1 | Canastas RND: eje X histórico muestra "undefined" | `historico_module.py` |
 | P2 | Canasta CR dim: click no siempre actualiza histórico | `render_cr_p3.py` |
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 
@@ -480,4 +479,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Cleanup: EXCLUDE list en ZIP del proyecto, historico_module 
+**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + CHANGELOG_NIVEL3 actualizados con cleanu

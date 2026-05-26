@@ -1428,4 +1428,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Cleanup: EXCLUDE list en ZIP del proyecto, historico_module 
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Docs: PROMPT_CORE + CHANGELOG_NIVEL3 actualizados con cleanup historico_module
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + CHANGELOG_NIVEL3 actualizados con cleanu
