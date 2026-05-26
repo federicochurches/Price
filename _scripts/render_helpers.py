@@ -35,7 +35,7 @@ BANDA_COLORS = {
     'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D', 'bar':'#FCD34D'},
     'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316', 'bar':'#F97316'},
     'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B', 'bar':'#C0392B'},
-    'Súper Crítica': {'bg':'#E8E6E3',  'fg':'#2D2828', 'bd':'#9B2222', 'bar':'#DC2626'},
+    'Súper Crítica': {'bg':'#E8E6E3',  'fg':'#2D2828', 'bd':'#9B2222', 'bar':'#8A8377'},
     'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377', 'bar':'#8A8377'},
 }
 
@@ -82,7 +82,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
     """
     if niveles_rnd_or_cr == 'nodispo':
         levels = [
-            ('Súper Crítica', '#C0392B'),
+            ('Súper Crítica', '#8A8377'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),
@@ -98,7 +98,7 @@ def gauge_5levels(banda_actual, niveles_rnd_or_cr='nodispo'):
         ]
     elif niveles_rnd_or_cr == 'eficacia':
         levels = [
-            ('Súper Crítica', '#C0392B'),
+            ('Súper Crítica', '#8A8377'),
             ('Crítica',       '#C0392B'),
             ('Revisar',       '#F97316'),
             ('Aceptable',     '#FCD34D'),

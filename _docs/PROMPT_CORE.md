@@ -479,4 +479,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: CR accent #5C469C, area fill suave, puntos en
+**Última actualización:** W21 (fix) · May 2026 · Fix gauge: Súper Crítica usa gris #8A8377 coherente con badg

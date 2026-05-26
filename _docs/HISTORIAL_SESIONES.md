@@ -1491,4 +1491,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: CR accent #5C469C, area fill suave, puntos en
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix gauge: Súper Crítica usa gris #8A8377 coherente con badge (como IPM Sin Conv)
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix gauge: Súper Crítica usa gris #8A8377 coherente con badg
