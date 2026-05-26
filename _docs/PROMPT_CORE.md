@@ -419,6 +419,8 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 | **Formato Eficacia / ConvRate** | — | `0.00%` (valor es fracción 0-1) |
 | **Formato IPM** | `$#,##0` | — |
 | **Nombre hotel CR** | — | Limpiar prefijo `(ID) - ` con `clean_hotel_name()` |
+| **Channel CR** | — | Lookup `_hcm_clean = {clean_hotel_name(k): v for k,v in hotel_channel_map.items()}` · nunca mapear con nombres con ID |
+| **Orden dims** | `%NoDispo DESC` | `Eficacia ASC, na_position='last'` |
 | **Top N** | 100 en todas las pestañas | 100 en todas las pestañas |
 
 ---
@@ -443,6 +445,8 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 16. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
 17. Dejar selectores CSS de tabs activos sin cerrar `{display:block;}` — se concatenan con la regla siguiente y heredan su background
 18. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo en `TAB_EF`/`TAB_CV` — usar el bloque de enriquecimiento post-construcción en `calc_*.py`
+19. Mapear Channel con `hotel_channel_map` directamente sobre nombres limpios — el mapa tiene IDs; usar siempre `_hcm_clean`
+20. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — los cambios no persisten; usar función `_enrich(df)` que retorna copia modificada
 
 ---
 
@@ -477,4 +481,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (post-3) · Mayo 2026 · Excel canastas top100 · orden · formato · limpieza ID hotel
+**Última actualización:** W21 (post-4) · Mayo 2026 · Channel _hcm_clean · na_position=last · _enrich() copy pattern

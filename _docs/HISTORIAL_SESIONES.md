@@ -1324,4 +1324,37 @@ Los hoteles en el pickle CR tienen prefijo `(100091) - Hotel Name`. La función 
 ### Archivos modificados
 `excel_rnd.py` · `excel_rnd_canastas.py` · `excel_cr.py` · `excel_cr_canastas.py`
 
-**Última actualización:** W21 (post-3) · Mayo 2026 · Excel canastas top100 · orden · formato · limpieza ID hotel
+---
+
+## Sesión Post-W21 (cuarta parte) · Mayo 2026 · Channel y orden dims en Excels CR
+
+### Bug: Channel = '—' en todas las pestañas de hotel
+
+**Causa raíz (doble):**
+1. `hotel_channel_map` tiene claves con ID `"(100091) - Hotel Name"` pero `p80_hotel['Hotel']` ya fue limpiado a `"Hotel Name"`. El `.map(hotel_channel_map)` nunca matcheaba → `'—'` siempre.
+2. En `excel_cr_canastas.py`, la limpieza se hacía dentro de un loop `for _df_name in [critic, bajo, ...]` sin `.copy()` → las asignaciones no persistían en el DataFrame original.
+
+**Fix:**
+- Construir `_hcm_clean = {clean_hotel_name(k): v for k, v in hotel_channel_map.items()}` como lookup global antes de cualquier uso.
+- Reemplazar el loop por función `_enrich(df)` que hace `.copy()` explícito, limpia el nombre, inserta Channel en posición 3 y agrega Rk.
+
+```python
+def _enrich(df):
+    if df.empty or 'Hotel' not in df.columns: return df
+    df = df.copy()
+    df['Hotel'] = df['Hotel'].apply(clean_hotel_name)
+    if _hcm_clean and 'Channel' not in df.columns:
+        df.insert(min(3, len(df.columns)), 'Channel', df['Hotel'].map(_hcm_clean).fillna('—'))
+    if 'Rk' not in df.columns:
+        df.insert(0, 'Rk', range(1, len(df)+1))
+    return df
+```
+
+### Bug: orden dims con None primero en vez de último
+
+`sort_values('Eficacia', ascending=True)` sin `na_position` pone los `None/NaN` primero. Fix: agregar `na_position='last'` en todos los sort de dims (Corp, Destino, Channel) en `excel_cr.py` y `excel_cr_canastas.py`.
+
+### Archivos modificados
+`excel_cr.py` · `excel_cr_canastas.py`
+
+**Última actualización:** W21 (post-4) · Mayo 2026 · Channel _hcm_clean · na_position=last · _enrich() copy pattern
