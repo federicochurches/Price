@@ -60,6 +60,8 @@ SCRIPT_FILES = [
     'historico_data.py', 'historico_module.py',
     'template_resumen.py', 'template_alertas.py', 'template_severity.py', 'template_seguimiento.py',
     'engine.py', 'areas_catalogo.py',
+    # JS/CSS críticos del frontend (W21+)
+    'demo_js_main.js', 'js_override.js', 'demo_css_w22.css',
 ]
 
 DOC_FILES = ['CHANGELOG.md', 'README_QUICK.md', 'PROMPT_CORE.md',
@@ -213,7 +215,7 @@ def build_project_zip(week_num, scripts_dir, outputs_dir, docs_dir=None):
                 import shutil
                 shutil.copy2(str(src), str(scripts / doc))
 
-    all_script_files = list(scripts.glob('*.py')) + list(scripts.glob('*.html')) + list(scripts.glob('*.md'))
+    all_script_files = list(scripts.glob('*.py')) + list(scripts.glob('*.html')) + list(scripts.glob('*.md')) + list(scripts.glob('*.js')) + list(scripts.glob('*.css'))
     
     # Patrones a excluir del proyecto Claude
     EXCLUDE = {
