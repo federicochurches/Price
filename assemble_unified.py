@@ -285,6 +285,10 @@ document.addEventListener('click', function(e) {
 # Script para vincular pestañas de hotel con datos
 TAB_BINDING_JS = '''
 (function() {
+    console.log('🔧 Iniciando TAB_BINDING...');
+    console.log('CR_HOTELS disponible?', typeof CR_HOTELS !== 'undefined' ? 'SÍ' : 'NO');
+    console.log('w22_renderTable disponible?', typeof w22_renderTable !== 'undefined' ? 'SÍ' : 'NO');
+    
     var tabMap = {
         0: { label: 'Críticos', dataKey: 'hotels_crit' },
         1: { label: 'Bajo Rendimiento', dataKey: 'hotels_br' },
@@ -292,35 +296,64 @@ TAB_BINDING_JS = '''
         3: { label: 'Menor ConvRate', dataKey: 'hotels_cv' }
     };
     
-    setTimeout(function() {
+    function initTabs() {
+        console.log('📋 Buscando w22-ph...');
         var ph = document.getElementById('w22-ph');
-        if (!ph) return;
+        if (!ph) {
+            console.warn('⚠ No encontrado w22-ph, reintentando...');
+            return false;
+        }
+        console.log('✓ w22-ph encontrado');
+        
         var labels = ph.querySelectorAll('label');
+        console.log('📌 Encontradas', labels.length, 'pestañas');
+        
+        // Primero pestaña activa
+        labels[0].classList.add('active');
+        
+        // Vincular eventos click
         labels.forEach(function(label, idx) {
             label.addEventListener('click', function() {
+                console.log('🔄 Click en pestaña', idx, ':', tabMap[idx].label);
                 // Cambiar clase active
                 labels.forEach(function(l) { l.classList.remove('active'); });
                 label.classList.add('active');
                 
                 // Recargar datos de tabla desde CR_HOTELS
-                if (typeof CR_HOTELS !== 'undefined' && typeof CR_HOTELS.global === 'object') {
-                    var h = CR_HOTELS.global;  // Usar global por defecto
+                if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS.global) {
+                    var h = CR_HOTELS.global;
                     var rows = h[tabMap[idx].dataKey];
-                    if (rows) {
+                    if (rows && rows.length > 0) {
+                        console.log('📊 Renderizando', rows.length, 'filas para', tabMap[idx].label);
                         w22_renderTable('w22-th', 'w22-th-more', rows, false);
-                        console.log('↻ Tabla actualizada:', tabMap[idx].label, '(' + rows.length + ' filas)');
+                    } else {
+                        console.warn('⚠ No hay datos para', tabMap[idx].dataKey);
                     }
+                } else {
+                    console.warn('⚠ CR_HOTELS no disponible');
                 }
             });
         });
         
         // Renderizar tabla inicial con hotels_crit
         if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS.global && CR_HOTELS.global.hotels_crit) {
+            console.log('📊 Inicializando tabla con', CR_HOTELS.global.hotels_crit.length, 'Críticos');
             w22_renderTable('w22-th', 'w22-th-more', CR_HOTELS.global.hotels_crit, false);
-            console.log('✓ Tabla de hoteles inicializada con Críticos');
+        } else {
+            console.warn('⚠ No se pudo inicializar tabla: CR_HOTELS.global.hotels_crit no existe');
         }
         
-        console.log('✓ Pestañas de hotel vinculadas con CR_HOTELS');
+        return true;
+    }
+    
+    // Intentar múltiples veces
+    var attempts = 0;
+    var interval = setInterval(function() {
+        attempts++;
+        if (initTabs() || attempts > 20) {
+            clearInterval(interval);
+            if (attempts > 20) console.error('❌ Timeout esperando DOM');
+        }
     }, 100);
 })();
 '''
