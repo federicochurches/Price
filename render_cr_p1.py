@@ -597,6 +597,28 @@ PART1 = (
     '<section id="section-cr" class="section-cr">\n'
     + render_masthead()
     + HERO
+    + '''
+<script>
+// HIST_DATA: datos históricos CR W17-W21
+const HIST_DATA = {
+    'cr': {
+        'eficacia': {
+            'global': [93.58, 93.71, 93.3,  93.34, 93.15],
+            'op':     [94.03, 94.25, 93.87, 93.96, 93.12],
+            'cug':    [92.69, 92.65, 92.54, 92.28, 92.67],
+            'b2c':    [92.12, 92.18, 91.49, 92.01, 91.89],
+        },
+        'convrate': {
+            'global': [1.15, 1.02, 1.14, 1.63, 1.57],
+            'op':     [1.0,  0.94, 1.06, 1.59, 1.51],
+            'cug':    [2.38, 1.82, 2.07, 2.90, 2.84],
+            'b2c':    [0.3,  0.27, 0.25, 0.39, 0.36],
+        },
+    },
+};
+window.HIST_DATA = HIST_DATA;
+</script>
+'''
 )
 
 with open('part1_cr.html', 'w') as f:

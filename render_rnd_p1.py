@@ -486,6 +486,28 @@ PART1 = (
     '<section id="section-rnd" class="section-rnd">\n'
     + render_masthead()
     + HERO
+    + '''
+<script>
+// HIST_DATA: datos históricos RND W17-W21
+if (!window.HIST_DATA) {
+    window.HIST_DATA = {};
+}
+window.HIST_DATA['rnd'] = {
+    'nodispo': {
+        'global': [3.63, 2.84, 2.31, 2.59, 2.59],
+        'op':     [3.18, 2.62, 1.93, 2.24, 2.19],
+        'cug':    [4.34, 3.07, 2.73, 2.82, 2.78],
+        'b2c':    [4.48, 3.68, 3.36, 3.31, 3.29],
+    },
+    'ipm': {
+        'global': [574.0, 524.0, 499.0, 677.0, 834.0],
+        'op':     [523.0, 534.0, 479.0, 688.0, 845.0],
+        'cug':    [866.0, 659.0, 656.0, 787.0, 944.0],
+        'b2c':    [183.0, 206.0, 188.0, 248.0, 304.0],
+    },
+};
+</script>
+'''
 )
 
 with open('part1_rnd.html', 'w') as f:

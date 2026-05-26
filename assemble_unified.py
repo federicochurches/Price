@@ -443,6 +443,17 @@ final = (
     + SHARED_CONTAINERS
     + '\n</div>\n'   # cierra shell
     + FOOTER_JS
+    + '''
+<script>
+// Inicializador de gráficas históricas
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof HIST_DATA !== 'undefined' && window.demo_js_main) {
+        // Las gráficas se inicializan cuando hay datos históricos
+        console.log('✓ HIST_DATA presente, canvas listos para gráficas');
+    }
+});
+</script>
+'''
     + GLOBAL_PANEL_SCRIPT
     + '\n</body>\n</html>\n'
 )
