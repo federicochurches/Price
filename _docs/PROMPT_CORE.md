@@ -386,6 +386,17 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 | W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
 
+### Módulo Histórico · Decisiones técnicas
+
+- **`historico_module.py`** — módulo unificado CR+RND (reemplaza `v2` y `rnd`)
+- **val_actual** llega como fracción del pickle (0.0263) → convertir `*100` para `nodispo/eficacia/convrate`; IPM llega directo en $
+- **ACCENT_HEX** debe ser hex directo (ej: `#5C469C`) — `var(--accent)` no funciona en canvas
+- **lineWidth** = 2px fijo — dinámico causaba apariencia de superficie rellena
+- **Area fill** semitransparente `rgba(accent, 0.12)` bajo la curva para legibilidad
+- **Spark bars** normalizadas contra rango real `(v - min) / (max - min)` — ceil fijo global producía barras iguales
+- **Gauge Súper Crítica** = `#8A8377` gris (coherente con badge) — NO rojo como Crítica
+- **Labels eje X** — `position:absolute; left:N%` con N=0/25/50/75/100 para 5 semanas equiespaciadas
+
 ### Módulo Histórico · Canvas IDs
 
 | Scope | CR Eficacia | CR ConvRate | RND NoDispo | RND IPM |
@@ -456,7 +467,7 @@ Los selectores globales `#tab-nd-pais:checked` también están presentes (redund
 | P2 | Canasta CR dim: click no siempre actualiza histórico | `render_cr_p3.py` |
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 
-> Bugs P3, P4, P6 (WoW NaN), P7 (CSS tabs fondo) cerrados en sesión W21-post.
+> Bugs P3, P4, P6 (WoW NaN), P7 (CSS tabs fondo), P8 (histórico curvas/colores) cerrados en sesión W21-post.
 
 ---
 
@@ -479,4 +490,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (fix) · May 2026 · Fix gauge: Súper Crítica usa gris #8A8377 coherente con badg
+**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + HISTORIAL actualizados con fixes histori

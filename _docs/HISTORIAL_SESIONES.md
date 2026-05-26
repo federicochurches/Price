@@ -1500,4 +1500,49 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix gauge: Súper Crítica usa gris #8A8377 coherente con badg
+---
+
+## Sesión Post-W21 (sexta parte) · Mayo 2026 · Fixes historico_module
+
+### Contexto
+Al migrar de `historico_module_v2.py` + `historico_module_rnd.py` → `historico_module.py` unificado, varios parámetros quedaron rotos porque las convenciones de escala diferían entre los módulos viejos.
+
+### Bugs corregidos (7 commits)
+
+**1. Eje X — solo 2 labels (W17 y W21)**
+El footer usaba `justify-content:space-between` con 2 `<span>`. Fix: `position:absolute; left:N%` para N=0/25/50/75/100 → 5 labels equiespaciados.
+
+**2. Curva parece superficie rellena**
+`lineWidth = Math.round(el.width / (vals.length * 3))` producía ~25px para canvas de 380px → apariencia de área sólida. Fix: `lineWidth = 2` fijo.
+
+**3. Color CR gris en vez de violeta**
+`accent: 'var(--accent)'` no funciona en canvas 2D. Fix: `'#5C469C'` hex directo con `accent_rgb: '92,70,156'`.
+
+**4. Valores incorrectos — "ACTUAL: 0.03%"**
+`val_actual` viene como fracción del pickle (`0.0263`) pero `HIST_DATA` tiene valores en % (`2.63`). Se removió el `*100` en una sesión anterior rompiendo esto. Fix: restaurar `val_actual * 100` para `nodispo/eficacia/convrate`; IPM directo.
+
+**5. Spark bars todas iguales**
+`bar_ceil` fijo global (ej: 60% para NoDispo, $3000 para IPM) → ratio ≈0.05 → height=2px para todos. Fix: normalizar contra rango real: `ratio = (v - min) / (max - min)`.
+
+**6. Area fill suave**
+Agregado `rgba(accent, 0.12)` bajo la curva para legibilidad visual.
+
+**7. Gauge Súper Crítica rojo en vez de gris**
+El gauge usaba `#C0392B` (rojo) para Súper Crítica igual que Crítica. Fix: `#8A8377` gris coherente con el badge. Aplicado en `render_helpers.py` en `gauge_5levels()` y `BANDA_COLORS['bar']`.
+
+### Archivos modificados
+`historico_module.py` · `render_helpers.py`
+
+### Commits
+`9392e5c0` · `411805956` · `9b5fa36f` · `879d6bf9` · `f6a6b5f4` · `a4cf3d29`
+
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Docs: PROMPT_CORE + HISTORIAL actualizados con fixes historico_module
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Docs: PROMPT_CORE + HISTORIAL actualizados con fixes histori
