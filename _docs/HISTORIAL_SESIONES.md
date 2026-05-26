@@ -1482,4 +1482,13 @@ _(ver commit en GitHub)_
 ### Archivos modificados
 _(ver commit en GitHub)_
 
-**Última actualización:** W21 (fix) · May 2026 · Fix histórico: lineWidth=2px (curva no superficie), val_actu
+---
+
+## Fix · W21 · 26 May 2026
+
+**Descripción:** Fix histórico: CR accent #5C469C, area fill suave, puntos en color accent
+
+### Archivos modificados
+_(ver commit en GitHub)_
+
+**Última actualización:** W21 (fix) · May 2026 · Fix histórico: CR accent #5C469C, area fill suave, puntos en

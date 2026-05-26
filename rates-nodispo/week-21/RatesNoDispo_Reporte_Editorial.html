@@ -825,9 +825,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -976,9 +986,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1214,9 +1234,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1344,9 +1374,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1552,9 +1592,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1682,9 +1732,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2027,9 +2087,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2193,9 +2263,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2477,9 +2557,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2606,9 +2696,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2791,9 +2891,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2920,9 +3030,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3158,9 +3278,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3324,9 +3454,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3608,9 +3748,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3737,9 +3887,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3922,9 +4082,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -4051,9 +4221,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -4289,9 +4469,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -4455,9 +4645,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -4739,9 +4939,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -4868,9 +5078,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -5053,9 +5273,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
@@ -5182,9 +5412,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var pts = []; for (var i = 0; i < vals.length; i++) { var yN = (vals[i] - minVal) / dR, x = (i / (vals.length - 1)) * el.width, y = el.height - (yN * h + 5); pts.push({x: x, y: y}); }
     var tN = (TARGET - minVal) / dR, tY = el.height - (tN * h + 5);
     ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(0, tY); ctx.lineTo(el.width, tY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save();
+    // Area fill suave bajo la curva
+    if (ACCENT_RGB) {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, el.height); ctx.lineTo(pts[0].x, pts[0].y);
+      for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.lineTo(pts[pts.length-1].x, el.height); ctx.closePath();
+      ctx.fillStyle = 'rgba('+ACCENT_RGB+',0.12)'; ctx.fill();
+    }
+    // Línea
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
     for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : 'rgba(200,200,200,0.5)'; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); }
+    ctx.restore();
+    for (var i = 0; i < pts.length; i++) { var isLast = (i === pts.length - 1); ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.5)' : ACCENT_HEX); ctx.globalAlpha = isLast ? 1.0 : 0.5; ctx.beginPath(); ctx.arc(pts[i].x, pts[i].y, isLast ? 3 : 2, 0, 2 * Math.PI); ctx.fill(); ctx.globalAlpha = 1.0; }
   }
   
   function updateMetrics(vals, lbl) {
