@@ -125,9 +125,9 @@ feat: Week NN · RatesNoDispo + CheckRates + hub index · DD-MM-YYYY
 Siempre commitear **Y** generar `ProyectoClaude_PRICE_WNN.zip` con todos los archivos planos.
 
 ### Actualización histórico semanal (`historico_data.py`)
-- W22: agregar W21 → ventana 6 semanas
-- W23: agregar W22 → ventana 7 semanas
-- W24+: ventana móvil de 8 semanas (descartar la más antigua)
+- Ventana móvil de **5 semanas** — agregar la semana nueva y descartar la más antigua
+- W22: agregar W21 (global+canastas) → descartar W17 → SEMANAS = [W18,W19,W20,W21,W22]
+- Los arrays en `HIST_DATA` siempre tienen 4 valores (W22+ los render agrega el 5° dinámicamente)
 
 ---
 
@@ -377,15 +377,14 @@ extraRows.forEach(function(r){
 Los selectores `kpi-card` incluyen `[id*="-pais"]` para marcar la pestaña País como activa.
 Los selectores globales `#tab-nd-pais:checked` también están presentes (redundante pero necesario para compatibilidad).
 
-### Datos históricos reales W16-W21
+### Datos históricos reales W17-W21
 
 | Semana | CR Eficacia | CR ConvRate | RND %NoDispo | RND IPM |
 |---|---|---|---|---|
-| W16 | 93,27% | 1,29% | 3,69% | $661 |
 | W17 | 93,58% | 1,15% | 3,63% | $574 |
 | W18 | 93,71% | 1,02% | 2,84% | $524 |
 | W19 | 93,30% | 1,14% | 2,31% | $499 |
-| W20 | 92,75% | 1,19% | 2,81% | $1.097 |
+| W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
 
 ### Módulo Histórico · Canvas IDs
@@ -481,4 +480,4 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (post-4) · Mayo 2026 · Channel _hcm_clean · na_position=last · _enrich() copy pattern
+**Última actualización:** W21 (post-5) · Mayo 2026 · historico_data W17-W21 · ventana 5 semanas · valores W20 por canasta

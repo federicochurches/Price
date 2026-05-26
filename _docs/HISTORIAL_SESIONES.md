@@ -1357,4 +1357,31 @@ def _enrich(df):
 ### Archivos modificados
 `excel_cr.py` · `excel_cr_canastas.py`
 
-**Última actualización:** W21 (post-4) · Mayo 2026 · Channel _hcm_clean · na_position=last · _enrich() copy pattern
+---
+
+## Sesión Post-W21 (quinta parte) · Mayo 2026 · Histórico W17-W21
+
+### Bug: eje X del histórico mostraba W20 en vez de W21
+
+**Causa raíz:** `historico_data.py` tenía `SEMANAS = ['W16','W17','W18','W19','W20']` con arrays de 4 valores (W16-W19). El render agrega `val_actual` como 5° valor, que ahora es W21, pero el eje X seguía etiquetando el último como "W20".
+
+**Fix:** actualizar `historico_data.py`:
+- `SEMANAS`: `['W16','W17','W18','W19','W20']` → `['W17','W18','W19','W20','W21']`
+- Arrays: descartar W16, agregar W20 (extraído de `df18` del pickle W21)
+- W21 sigue siendo dinámico — se agrega en runtime desde el pickle vigente
+
+**Valores W20 incorporados (extraídos de df18 del pickle W21):**
+
+| Scope | RND %NoDispo | RND IPM | CR Eficacia | CR ConvRate |
+|---|---|---|---|---|
+| global | 2.59% | $677 | 93.34% | 1.63% |
+| op | 2.24% | $688 | 93.96% | 1.59% |
+| cug | 2.82% | $787 | 92.28% | 2.90% |
+| b2c | 3.31% | $248 | 92.01% | 0.39% |
+
+**Regla para W22+:** agregar el valor W21 a cada scope en `HIST_DATA`, descartar W17, actualizar `SEMANAS` al nuevo rango. El 5° valor siempre viene del pickle vigente (dinámico).
+
+### Archivos modificados
+`historico_data.py`
+
+**Última actualización:** W21 (post-5) · Mayo 2026 · historico_data W17-W21 · ventana 5 semanas

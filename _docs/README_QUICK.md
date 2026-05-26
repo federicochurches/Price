@@ -85,7 +85,7 @@ Price/
 | `render_helpers.py` | Formateo, pills, searchbox, wow_box |
 | `historico_module_v2.py` | Módulo histórico CR |
 | `historico_module_rnd.py` | Módulo histórico RND |
-| `historico_data.py` | Serie real W16-W20 |
+| `historico_data.py` | Serie real W17-W20 · W21 dinámico desde pickle |
 | `template_resumen.py` | Resumen Ejecutivo |
 | `template_alertas.py` | Alertas críticas |
 | `template_severity.py` | Bloques severity |
@@ -157,7 +157,11 @@ Price/
       python3 calc_cr.py
 4. RE-RENDER + assemble → PAUSA validación visual
 5. Si OK → PIPELINE COMPLETO (paso A.5)
-6. DOCUMENTAR + actualizar historico_data.py con KPIs de la semana
+6. DOCUMENTAR + actualizar `historico_data.py`:
+      - Agregar KPIs W{N} a cada scope en HIST_DATA (global, op, cug, b2c)
+      - Descartar la semana más antigua del array
+      - Actualizar SEMANAS = [W{N-3}, W{N-2}, W{N-1}, W{N}, W{N+1}]
+      - El valor W{N+1} (semana actual) siempre viene dinámico del pickle
 7. COMMIT con mensaje:
       "feat: Week NN · RatesNoDispo + CheckRates + hub index · DD-MM-YYYY"
 8. SUBIR ZIP al Proyecto Claude
