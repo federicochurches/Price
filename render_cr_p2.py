@@ -55,6 +55,13 @@ if _tab_cv_h is not None and 'ConvRate_WoW_pp' in _tab_cv_h.columns:
     _cv_wow = _cv_wow.drop_duplicates('Hotel')
     p80 = p80.merge(_cv_wow, on='Hotel', how='left')
 
+# Agregar CR_Unicos_WoW_pp si no existe (desde p80_hotel enriquecido)
+if 'CR_Unicos_WoW_pp' not in p80.columns and 'CR_Unicos_WoW_pp' in D['p80_hotel'].columns:
+    _cr_wow = D['p80_hotel'][['Hotel','CR_Unicos_WoW_pp']].copy()
+    _cr_wow['Hotel'] = _cr_wow['Hotel'].apply(clean_hotel_name)
+    _cr_wow = _cr_wow.drop_duplicates('Hotel')
+    p80 = p80.merge(_cr_wow, on='Hotel', how='left')
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def es_pct(v): return f'{v*100:.2f}%'.replace('.', ',')
 def es_int(v): return f'{int(v):,}'.replace(',', '.')
