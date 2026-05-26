@@ -192,15 +192,13 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (bbEl) {{ bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }}
     if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
     el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
-    /* Actualizar el valor grande de la card si existe (solo cuando hay label — no en reset global) */
-    if (lbl && lbl !== 'Global') {{
-      var kvMap = {{'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                   'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'}};
-      var kvId = kvMap[CID];
-      if (kvId) {{
-        var kvEl = document.getElementById(kvId);
-        if (kvEl) {{ kvEl.textContent = fmtVal(vCurr); }}
-      }}
+    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
+    var kvMap = {{'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
+                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'}};
+    var kvId = kvMap[CID];
+    if (kvId) {{
+      var kvEl = document.getElementById(kvId);
+      if (kvEl) {{ kvEl.textContent = fmtVal(vCurr); }}
     }}
   }}
   
