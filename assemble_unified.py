@@ -533,34 +533,39 @@ SHARED_CONTAINERS = f'''
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
 </div></div>
 
-<!-- Barra de controles local: CR/RND + Canastas -->
-<div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--paper);border:1px solid var(--rule);border-radius:4px;margin-bottom:16px;flex-wrap:wrap;">
-  <!-- Switch CR / RND -->
-  <div style="display:flex;align-items:center;gap:8px;border-right:1px solid var(--rule);padding-right:16px;">
-    <span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);">Reporte</span>
-    <button onclick="w22_setMode('cr',document.getElementById('mode-cr'))"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;transition:all .15s;"
-      id="ar-btn-cr" class="ar-mode-btn ar-mode-active">CR</button>
-    <button onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;transition:all .15s;"
-      id="ar-btn-rnd" class="ar-mode-btn">RND</button>
+<!-- Barra de controles local: mismo formato .cfb que la barra de cards -->
+<div style="margin-bottom:16px;">
+<div class="cfb">
+  <div class="cfb-lbl">Reporte</div>
+  <div class="cfb-chips">
+    <div class="c-chip active" id="ar-btn-cr"  onclick="w22_setMode('cr',document.getElementById('mode-cr'))">CheckRates</div>
+    <div class="c-chip"        id="ar-btn-rnd" onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">No Dispo</div>
   </div>
-  <!-- Chips de canasta -->
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-    <span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);">Canasta</span>
-    <div onclick="w22_setC('global',document.getElementById('chip-global'))"
-      id="ar-chip-global" class="ar-canasta-chip ar-chip-active"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Global</div>
-    <div onclick="w22_setC('b2c',document.getElementById('chip-b2c'))"
-      id="ar-chip-b2c" class="ar-canasta-chip"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">B2C</div>
-    <div onclick="w22_setC('op',document.getElementById('chip-op'))"
-      id="ar-chip-op" class="ar-canasta-chip"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Opaco</div>
-    <div onclick="w22_setC('cug',document.getElementById('chip-cug'))"
-      id="ar-chip-cug" class="ar-canasta-chip"
-      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Ultra Opaco</div>
+  <div class="cfb-sep"></div>
+  <div class="cfb-lbl" style="padding-left:0;">Canasta</div>
+  <div class="cfb-chips">
+    <div class="c-chip active" id="ar-chip-global" onclick="w22_setC('global',document.getElementById('chip-global'))">Global</div>
+    <div class="c-chip"        id="ar-chip-b2c"    onclick="w22_setC('b2c',document.getElementById('chip-b2c'))">B2C</div>
+    <div class="c-chip"        id="ar-chip-op"     onclick="w22_setC('op',document.getElementById('chip-op'))">Opaco</div>
+    <div class="c-chip"        id="ar-chip-cug"    onclick="w22_setC('cug',document.getElementById('chip-cug'))">Ultra Opaco</div>
   </div>
+  <div class="cfb-kpi">
+    <div class="cfb-kpi-item">
+      <div class="cfb-kpi-lbl" id="ar-strip-lbl1">Eficacia</div>
+      <div class="cfb-kpi-val" id="ar-strip-ef" style="color:#5C469C;">—</div>
+    </div>
+    <div class="cfb-sep"></div>
+    <div class="cfb-kpi-item">
+      <div class="cfb-kpi-lbl" id="ar-strip-lbl2">Conv Rate</div>
+      <div class="cfb-kpi-val" id="ar-strip-cv" style="color:#5C469C;">—</div>
+    </div>
+    <div class="cfb-sep"></div>
+    <div class="cfb-kpi-item">
+      <div class="cfb-kpi-lbl">Severity</div>
+      <span class="sev-badge" id="ar-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
+    </div>
+  </div>
+</div>
 </div>
 
 <div class="vsw" style="display:flex;align-items:stretch;border:1px solid var(--rule);border-bottom:none;background:var(--paper-soft);">

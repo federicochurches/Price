@@ -183,28 +183,35 @@ function w22_update(){
  var dim_data = d[dim_key+'s'] || d.dims || [];
  w22_renderTable('w22-td','w22-td-more',dim_data,false);
  
- /* Sincronizar controles locales de Análisis de Rendimiento */
+ /* Sincronizar barra local de Análisis de Rendimiento */
  (function(){
   var accent_col = col;
   /* Botones CR/RND */
   ['ar-btn-cr','ar-btn-rnd'].forEach(function(id){
-   var btn = g(id);
-   if(!btn) return;
+   var btn = g(id); if(!btn) return;
    var isCurrent = (id === 'ar-btn-'+W.mode);
-   btn.style.background = isCurrent ? accent_col : '';
-   btn.style.color = isCurrent ? '#fff' : '';
-   btn.style.borderColor = isCurrent ? accent_col : '';
+   btn.classList.toggle('active', isCurrent);
   });
   /* Chips de canasta */
   ['global','b2c','op','cug'].forEach(function(c){
-   var chip = g('ar-chip-'+c);
-   if(!chip) return;
-   var isCurrent = (c === (W.canasta||'global'));
-   chip.style.background = isCurrent ? accent_col : '';
-   chip.style.color = isCurrent ? '#fff' : '';
-   chip.style.borderColor = isCurrent ? accent_col : '';
-   chip.style.fontWeight = isCurrent ? '700' : '';
+   var chip = g('ar-chip-'+c); if(!chip) return;
+   chip.classList.toggle('active', c === (W.canasta||'global'));
   });
+  /* KPIs inline de la barra AR — mismos valores que la barra principal */
+  var lbl1 = g('ar-strip-lbl1'), lbl2 = g('ar-strip-lbl2');
+  var ef   = g('ar-strip-ef'),   cv   = g('ar-strip-cv');
+  var band = g('ar-strip-band');
+  var mainEf   = g('w22-strip-ef'),   mainCv  = g('w22-strip-cv');
+  var mainBand = g('w22-strip-band'), mainL1  = g('w22-strip-lbl1'), mainL2 = g('w22-strip-lbl2');
+  if(lbl1 && mainL1) lbl1.textContent = mainL1.textContent;
+  if(lbl2 && mainL2) lbl2.textContent = mainL2.textContent;
+  if(ef && mainEf){ ef.textContent = mainEf.textContent; ef.style.color = accent_col; }
+  if(cv && mainCv){ cv.textContent = mainCv.textContent; cv.style.color = accent_col; }
+  if(band && mainBand){
+   band.textContent = mainBand.textContent;
+   band.style.background = mainBand.style.background;
+   band.style.color = mainBand.style.color;
+  }
  })();
 
  /* Re-mostrar panels de Análisis según modo */
