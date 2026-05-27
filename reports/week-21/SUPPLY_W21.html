@@ -4868,7 +4868,7 @@ function _cardRow(r, idx, isEf, grid){
   var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 52px 54px 48px'
                                 : 'minmax(0,1fr) 80px 56px 52px 68px 40px');
   var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-  var cr_str = (typeof cr_u === 'string' && isNaN(parseFloat(cr_u.replace(',','.')))) ? cr_u : _fmtInt(cr_u);
+  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtInt(cr_u);
   /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
   var tw, tw_bg, tw_fg, tw_pill;
   if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
@@ -5667,8 +5667,10 @@ function _arSortAttach(n, tbodyId, btnId) {
   var table = tbody.closest('table'); if (!table) return;
   var thead = table.querySelector('thead'); if (!thead) return;
 
-  /* Evitar doble registro */
-  if (thead._sortKey === tbodyId) return;
+  /* Remover listener anterior si existe */
+  if (thead._sortAbort) { thead._sortAbort.abort(); }
+  var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  thead._sortAbort = ac;
   thead._sortKey = tbodyId;
 
   var key = tbodyId;
@@ -5686,7 +5688,8 @@ function _arSortAttach(n, tbodyId, btnId) {
   });
   _markSortable(ths, _SS[key].col, _SS[key].dir);
 
-  /* Event delegation en thead — UN solo listener */
+  /* Event delegation en thead */
+  var listenerOpts = ac ? {signal: ac.signal} : {};
   thead.addEventListener('click', function(e) {
     var th = e.target.closest('[data-sort-col]');
     if (!th) return;
@@ -5698,6 +5701,7 @@ function _arSortAttach(n, tbodyId, btnId) {
     var dir = (st.col === colIdx) ? _nd(st.dir) : 'asc';
     _SS[key] = {col:colIdx, dir:dir};
 
+    /* Leer rows actuales dinámicamente */
     var allRows = isHotelTbody ? _arRows(n, _arHTab[n]) : _arDimRows(n, _arDim[n]);
     var sorted = allRows.slice().map(function(r, origIdx){
       return {r:r, origPos: origIdx+1};
@@ -5717,7 +5721,7 @@ function _arSortAttach(n, tbodyId, btnId) {
       }).join('');
     }
     _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);
-  });
+  }, listenerOpts);
 }
 
 /* Enganchar sort en las cards AR — llamado tras cada render */
