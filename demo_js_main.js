@@ -100,7 +100,7 @@ function w22_renderTable(tbodyId, btnId, rows, open){
   tbody.innerHTML=rows.map(function(r,i){
    var html = trow(r);
    if(i>=5 && i<10){
-    html = html.replace(/^<tr/, '<tr style="display:none;"');
+    html = html.replace(/^<tr/, '<tr style="display:none;" data-row-idx="'+i+'"');
    }
    return html;
   }).join('');
@@ -109,10 +109,13 @@ function w22_renderTable(tbodyId, btnId, rows, open){
   if(btn && rows.length>5){
    btn.style.display='';
    btn.textContent='Ver más ▾';
-   btn.onclick=function(){
+   btn.setAttribute('data-exp', '0');
+   btn.onclick=function(e){
+    e.preventDefault();
     var expanded = this.getAttribute('data-exp')==='1';
     this.setAttribute('data-exp', expanded?'0':'1');
-    tbody.querySelectorAll('tr').forEach(function(tr,i){
+    var allTrs = tbody.querySelectorAll('tr');
+    allTrs.forEach(function(tr,i){
      if(i>=5 && i<10){
       tr.style.display = expanded?'none':'';
      }
