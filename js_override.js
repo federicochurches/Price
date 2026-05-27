@@ -749,10 +749,15 @@ function w22_renderRNDCardTabs(canasta) {
       var isEf = (metric === 'nd');
       var rowsHtml = allRows.map(function(r,idx){
         var html = _cardRow(r, idx, isEf, grid);
-        if(idx >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        if(idx >= _KPI_EXPAND_N) {
+          html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        } else if(idx >= _KPI_TOP_N) {
+          html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
+        }
         return html;
       }).join('');
       kpiRows.innerHTML = hdrHtml + rowsHtml;
+      _moreBtn(kpiRows);
     });
   });
 }
@@ -826,7 +831,11 @@ function w22_renderCardTabs(canasta){
       if(!panel) return;
       var rowsHtml = rows.map(function(r,i){
         var html = _cardRow(r,i,isEf,grid);
-        if(i >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        if(i >= _KPI_EXPAND_N) {
+          html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        } else if(i >= _KPI_TOP_N) {
+          html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
+        }
         return html;
       }).join('');
       var kpiRows = panel.querySelector('.kpi-tab-rows');
@@ -1222,7 +1231,11 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  if (!tbody) return;
  tbody.innerHTML = rows.map(function(r,i){
     var html = trow_ar(r, n, i+1);
-    if(i >= _KPI_TOP_N) html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    if(i >= _KPI_EXPAND_N) {
+      html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    } else if(i >= _KPI_TOP_N) {
+      html = html.replace(/^(<tr)/, '$1 class="rows-more" style="display:none;"');
+    }
     return html;
   }).join('');
  /* Ocultar siempre el botón Ver más */
@@ -1450,7 +1463,30 @@ function _markSortable(els, activeIdx, dir) {
 /* ── renderTopN — renderiza todos los rows, top N visibles, resto sb-hidden ──
    El searchbox ya tiene lógica para mostrar todos cuando hay query (ri<TOP_N check).
    Aquí ponemos TODO en el DOM para que el search opere sobre los 500. */
-var _KPI_TOP_N = 10;
+var _KPI_TOP_N = 5;   /* filas visibles por defecto */
+var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
+
+/* ── Ver más / menos botón para cards KPI ── */
+function _moreBtn(panelEl) {
+  /* Si ya existe, no duplicar */
+  if (panelEl.querySelector('.kpi-more-btn')) return;
+  var hasMore = panelEl.querySelector('.rows-more');
+  if (!hasMore) return;
+  var btn = document.createElement('button');
+  btn.className = 'kpi-more-btn';
+  btn.textContent = 'Ver más ▾';
+  btn.style.cssText = 'margin:6px 0 2px;background:none;border:none;color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:0;display:block;width:100%;text-align:center;';
+  var expanded = false;
+  btn.addEventListener('click', function() {
+    expanded = !expanded;
+    panelEl.querySelectorAll('.rows-more').forEach(function(r) {
+      r.style.display = expanded ? (r.tagName==='TR' ? '' : 'grid') : 'none';
+    });
+    btn.textContent = expanded ? 'Ver menos ▴' : 'Ver más ▾';
+  });
+  panelEl.appendChild(btn);
+}
+
 function _renderAllRows(rows, renderFn) {
   return rows.map(function(item, i) {
     var html = renderFn(item, i);
@@ -1513,7 +1549,12 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
       return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
     }).join('');
     var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
-    var rowsHtml = sorted10.map(function(item,i){      var html = _cardRow(item.r, item.origPos-1, isEf, grid);      if(i >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');      return html;    }).join('');    rc.innerHTML = hdrHtml + rowsHtml;
+    var rowsHtml = sorted10.map(function(item,i){      var html = _cardRow(item.r, item.origPos-1, isEf, grid);      if(i >= _KPI_EXPAND_N) {
+        html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+      } else if(i >= _KPI_TOP_N) {
+        html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
+      }      return html;    }).join('');    rc.innerHTML = hdrHtml + rowsHtml;
+    _moreBtn(rc);
   }
 
   /* Render inicial */
@@ -1660,7 +1701,11 @@ function _arSortAttach(n, tbodyId, btnId) {
     if (tbEl) {
       tbEl.innerHTML = sorted.map(function(item,i){
         var html = trow_ar(item.r, n, item.origPos);
-        if(i >= _KPI_TOP_N) html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+        if(i >= _KPI_EXPAND_N) {
+      html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    } else if(i >= _KPI_TOP_N) {
+      html = html.replace(/^(<tr)/, '$1 class="rows-more" style="display:none;"');
+    }
         return html;
       }).join('');
     }
