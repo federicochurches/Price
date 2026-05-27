@@ -1015,43 +1015,141 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  }
 }
 
-/* KPI header de cada card: valor W21 de la canasta activa */
+/* KPI headers completos de las cards AR */
 function ar_updateKPIs() {
  var isCR = W.mode === 'cr';
  var canasta = W.canasta || 'global';
  var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
+ var cdata = (typeof cv === 'function') ? cv() : {};
 
- /* Mapeo canasta → clave en HIST_CR / HIST_RND */
- var cmap = {global:'global', b2c:'b2c', op:'op', cug:'cug'};
- var ck = cmap[canasta] || 'global';
-
- var val1 = '—', val2 = '—';
- if (isCR && typeof HIST_CR !== 'undefined') {
-  var ef_entry  = HIST_CR['hcr-panel-ef']  || HIST_CR['h-'+ck+'-ef']  || HIST_CR['hcr-global-ef'];
-  var cv_entry  = HIST_CR['hcr-panel-cv']  || HIST_CR['h-'+ck+'-cv']  || HIST_CR['hcr-global-cv'];
-  if (ef_entry && ef_entry.vals) {
-   var v = ef_entry.vals[ef_entry.vals.length-1];
-   val1 = v != null ? v.toFixed(2).replace('.',',') + '%' : '—';
-  }
-  if (cv_entry && cv_entry.vals) {
-   var v2 = cv_entry.vals[cv_entry.vals.length-1];
-   val2 = v2 != null ? v2.toFixed(2).replace('.',',') + '%' : '—';
-  }
- } else if (!isCR && typeof HIST_RND !== 'undefined') {
-  var nd_entry  = HIST_RND['hrnd-panel-nd']  || HIST_RND['hrnd-'+ck+'-nd']  || HIST_RND['hrnd-global-nd'];
-  var ipm_entry = HIST_RND['hrnd-panel-ipm'] || HIST_RND['hrnd-'+ck+'-ipm'] || HIST_RND['hrnd-global-ipm'];
-  if (nd_entry && nd_entry.vals) {
-   var v3 = nd_entry.vals[nd_entry.vals.length-1];
-   val1 = v3 != null ? v3.toFixed(2).replace('.',',') + '%' : '—';
-  }
-  if (ipm_entry && ipm_entry.vals) {
-   var v4 = ipm_entry.vals[ipm_entry.vals.length-1];
-   val2 = v4 != null ? '$' + Math.round(v4).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '—';
-  }
+ /* Función helper: pill WoW */
+ function wPill(val, isMejoraSiPositivo) {
+  if (val == null || isNaN(val)) return '';
+  var up = val > 0;
+  var good = isMejoraSiPositivo ? up : !up;
+  var bg = good ? '#EAF3DE' : '#FCE8E6';
+  var fg = good ? '#2F6C34' : '#C0392B';
+  var arrow = up ? '↑' : '↓';
+  var txt = arrow + ' ' + Math.abs(val).toFixed(2).replace('.',',');
+  return '<span style="display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+bg+';color:'+fg+';">'+txt+'</span>';
  }
 
- var kpi1 = document.getElementById('ar-kpi-1');
- var kpi2 = document.getElementById('ar-kpi-2');
- if (kpi1) { kpi1.textContent = val1; kpi1.style.color = acc; }
- if (kpi2) { kpi2.textContent = val2; kpi2.style.color = acc; }
+ /* Función helper: pill % WoW pequeño */
+ function wPillSm(val, isMejoraSiPositivo) {
+  if (val == null || isNaN(val)) return '';
+  var up = val > 0;
+  var good = isMejoraSiPositivo ? up : !up;
+  var bg = good ? '#EAF3DE' : '#FCE8E6';
+  var fg = good ? '#2F6C34' : '#C0392B';
+  var arrow = up ? '↑' : '↓';
+  var txt = arrow + ' ' + Math.abs(val).toFixed(1).replace('.',',') + '%';
+  return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+txt+'</em>';
+ }
+
+ /* Función helper: gauge 5 barras */
+ function gauge(colors) {
+  return colors.map(function(c){ return '<div style="flex:1;background:'+c+';height:6px;opacity:1;"></div>'; }).join('');
+ }
+
+ /* Función helper: wow box W20/W21/WoW */
+ function wowBox(w20, w21, wow, wowIsGood, acc) {
+  var wowGood = wowIsGood ? (parseFloat(wow) > 0) : (parseFloat(wow) < 0);
+  var wBg = wowGood ? '#E0F0E2' : '#FCE8E6';
+  var wFg = wowGood ? '#2F6C34' : '#C0392B';
+  var wPrev = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'21':'21')-1) : 'W20';
+  var wCurr = 'W21';
+  var wowTxt = (parseFloat(wow) > 0 ? '↑ +' : '↓ ') + parseFloat(wow).toFixed(2).replace('.',',');
+  return '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wPrev+'</div>'
+   +'<div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+w20+'</div></div>'
+   +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wCurr+'</div>'
+   +'<div style="font-size:14px;font-weight:700;margin-top:2px;" style="color:'+acc+'">'+w21+'</div></div>'
+   +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div>'
+   +'<div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
+ }
+
+ var GAUGE_COLORS = ['#8A8377','#C0392B','#F97316','#FCD34D','#1A6B4A'];
+
+ /* Leer datos de HIST_CR / HIST_RND */
+ var ef21='—', ef20='—', efWow=null, efBanda='—', efBandaBg='#F2EEE6', efBandaFg='#5F5E5A', efTarget='';
+ var cv21='—', cv20='—', cvWow=null, cvBanda='—', cvBandaBg='#F2EEE6', cvBandaFg='#5F5E5A', cvTarget='';
+ var vol='—', trafico='—', trafWow=null;
+
+ if (isCR && typeof HIST_CR !== 'undefined') {
+  var ef_e = HIST_CR['hcr-panel-ef'] || HIST_CR['hcr-global-ef'] || {};
+  var cv_e = HIST_CR['hcr-panel-cv'] || HIST_CR['hcr-global-cv'] || {};
+  if (ef_e.vals && ef_e.vals.length >= 2) {
+   var ev = ef_e.vals; ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %'; ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
+   efWow = ev[ev.length-1] - ev[ev.length-2];
+  }
+  if (cv_e.vals && cv_e.vals.length >= 2) {
+   var cv_v = cv_e.vals; cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %'; cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
+   cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
+  }
+  /* Banda y datos del cv() actual */
+  if (cdata.ef) { ef21 = cdata.ef+'%'; }
+  if (cdata.cv) { cv21 = cdata.cv+'%'; }
+  if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
+  if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.vol)      { vol = cdata.vol; }
+  if (cdata.trafico)  { trafico = cdata.trafico; }
+  if (cdata.traf_wow) { trafWow = cdata.traf_wow; }
+  efTarget = '· Target ≥ 97%'; cvTarget = '· Target ≥ 2,5%';
+  /* Colores banda Eficacia */
+  var BANDA_C = {
+   'Exitosa':      {bg:'#E1F5EE',fg:'#1A6B4A'},
+   'Aceptable':    {bg:'#FEF9C3',fg:'#713F12'},
+   'Revisar':      {bg:'#FED7AA',fg:'#C2410C'},
+   'Crítica':      {bg:'#FCE4F1',fg:'#99162B'},
+   'Súper Crítica':{bg:'#E8E6E3',fg:'#2D2828'},
+   'Sin Conversión':{bg:'#F2EEE6',fg:'#5F5E5A'}
+  };
+  var bc1 = BANDA_C[efBanda] || BANDA_C['Sin Conversión'];
+  efBandaBg = bc1.bg; efBandaFg = bc1.fg;
+  var bc2 = BANDA_C[cvBanda] || BANDA_C['Sin Conversión'];
+  cvBandaBg = bc2.bg; cvBandaFg = bc2.fg;
+ } else if (!isCR && typeof HIST_RND !== 'undefined') {
+  var nd_e  = HIST_RND['hrnd-panel-nd']  || HIST_RND['hrnd-global-nd']  || {};
+  var ipm_e = HIST_RND['hrnd-panel-ipm'] || HIST_RND['hrnd-global-ipm'] || {};
+  if (nd_e.vals && nd_e.vals.length >= 2) {
+   var nv = nd_e.vals; ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %'; ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
+   efWow = nv[nv.length-1] - nv[nv.length-2];
+  }
+  if (ipm_e.vals && ipm_e.vals.length >= 2) {
+   var iv = ipm_e.vals;
+   cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+   cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+   cvWow = iv[iv.length-1] - iv[iv.length-2];
+  }
+  if (cdata.ef) { ef21 = cdata.ef; } if (cdata.cv) { cv21 = cdata.cv; }
+  if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
+  efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
+ }
+
+ /* Aplicar a card 1 */
+ var k1 = document.getElementById('ar-kpi-1');
+ if (k1) { k1.textContent = ef21.replace(' %','%'); k1.style.color = acc; }
+ var v1 = document.getElementById('ar1-vol'); if (v1) v1.textContent = vol;
+ var wp1 = document.getElementById('ar1-wow-pill'); if (wp1) wp1.innerHTML = wPill(efWow, !isCR ? false : true);
+ var tr1 = document.getElementById('ar1-trafico'); if (tr1) tr1.textContent = trafico + ' Tráfico';
+ var tw1 = document.getElementById('ar1-trafico-wow'); if (tw1) tw1.innerHTML = trafWow != null ? wPillSm(trafWow, true) : '';
+ var b1 = document.getElementById('ar1-badge');
+ if (b1) { b1.textContent = efBanda + ' ' + efTarget; b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
+ var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
+ var wb1 = document.getElementById('ar1-wowbox'); if (wb1) wb1.innerHTML = wowBox(ef20, ef21.replace(' %','%'), efWow, !isCR ? false : true, acc);
+
+ /* Aplicar a card 2 */
+ var k2 = document.getElementById('ar-kpi-2');
+ if (k2) { k2.textContent = cv21.replace(' %','%'); k2.style.color = acc; }
+ var v2 = document.getElementById('ar2-vol'); if (v2) v2.textContent = vol;
+ var wp2 = document.getElementById('ar2-wow-pill'); if (wp2) wp2.innerHTML = wPill(cvWow, true);
+ var tr2 = document.getElementById('ar2-trafico'); if (tr2) tr2.textContent = trafico + ' Tráfico';
+ var tw2 = document.getElementById('ar2-trafico-wow'); if (tw2) tw2.innerHTML = trafWow != null ? wPillSm(trafWow, true) : '';
+ var b2 = document.getElementById('ar2-badge');
+ if (b2) { b2.textContent = cvBanda + ' ' + cvTarget; b2.style.background = cvBandaBg; b2.style.color = cvBandaFg; b2.style.border = '1px solid '+cvBandaFg+'44'; }
+ var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
+ var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 }

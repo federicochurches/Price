@@ -589,7 +589,16 @@ SHARED_CONTAINERS = f'''
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
-      <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-1">—</div>
+      <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+        <div>
+          <div id="ar-kpi-1" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
+          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar1-vol">—</span> · vs sem. ant. <span id="ar1-wow-pill"></span></div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span id="ar1-trafico" style="font-weight:600;color:var(--ink-soft);">—</span><span id="ar1-trafico-wow"></span></div>
+        </div>
+        <div style="padding-top:4px;"><span id="ar1-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
+      </div>
+      <div id="ar1-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
+      <div id="ar1-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
     <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
     <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">
@@ -657,7 +666,16 @@ SHARED_CONTAINERS = f'''
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
-      <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-2">—</div>
+      <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+        <div>
+          <div id="ar-kpi-2" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
+          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar2-vol">—</span> · vs sem. ant. <span id="ar2-wow-pill"></span></div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span id="ar2-trafico" style="font-weight:600;color:var(--ink-soft);">—</span><span id="ar2-trafico-wow"></span></div>
+        </div>
+        <div style="padding-top:4px;"><span id="ar2-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
+      </div>
+      <div id="ar2-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
+      <div id="ar2-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
     <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
     <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">

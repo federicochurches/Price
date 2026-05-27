@@ -107,7 +107,7 @@ def render_hero():
           f'<span class="accent">{top_corp[1]}</span> y '
           f'<span class="accent">{top_corp[2]}</span> son los corporativos con más check-rates de la semana.</span>')
     
-    subhead = (f'<strong style="color:#5C469C;font-weight:700;">{fmt_int_es(cr18)}</strong> CR únicos · '
+    subhead = (f'<strong style="color:#5C469C;font-weight:700;">{fmt_int_es(cr18)}</strong> Tráfico · '
                f'<strong style="color:#5C469C;font-weight:700;">{fmt_int_es(n_hot)}</strong> hoteles · '
                f'<strong style="color:#5C469C;font-weight:700;">{fmt_int_es(bk18)}</strong> Bookings · '
                f'<strong style="color:#5C469C;font-weight:700;">{fmt_int_es(n_p80)}</strong> hoteles P80.')
@@ -136,7 +136,7 @@ def _cr_trafico_line():
     else:
         cr_wow_pill = ''
     return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-            f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} CR únicos</span>'
+            f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} Tráfico</span>'
             f'{cr_wow_pill}</div>')
 
 def _mini_badge(bnd):
@@ -179,7 +179,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     else:
         cr_wow_pill = ''
     cr_trafico_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-                       f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} CR únicos</span>'
+                       f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} Tráfico</span>'
                        f'{cr_wow_pill}</div>')
     
     tabs = ''
