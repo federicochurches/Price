@@ -1457,6 +1457,7 @@ ar_renderTable = function(n, tbodyId, btnId, rows) {
   setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 50);
 };
 
+/* ── Render inicial — DESPUÉS de que _cardRow y w22_renderCardTabs están definidas ── */
 setTimeout(function(){ _initAllSort(); _arSortInit(); }, 1500);
 var _origSC_s = w22_setC;
 w22_setC = function(c,el){
@@ -1470,3 +1471,6 @@ w22_setMode = function(m,el){
   _SS = {};
   setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
 };
+
+/* Render inicial aquí para garantizar que _cardRow ya existe */
+w22_update();

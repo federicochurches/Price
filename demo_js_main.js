@@ -500,8 +500,8 @@ function w22_redrawCanvas(accent){
  });
 }
 
-w22_update();
-[100,400,900,1500].forEach(function(d){setTimeout(function(){var col=cv().col;w22_redrawCanvas(col);w22_recolorSparks(col);},d);});
+/* w22_update() movido al final de js_override.js para que _cardRow esté definida */
+/* w22_update(); */(function(d){setTimeout(function(){var col=cv().col;w22_redrawCanvas(col);w22_recolorSparks(col);},d);});
 window.addEventListener('resize',function(){setTimeout(function(){w22_redrawCanvas(cv().col);},100);});
 /* Tooltip en canvas del IIFE W21 */
 setTimeout(function(){
