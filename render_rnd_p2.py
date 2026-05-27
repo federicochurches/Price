@@ -74,7 +74,7 @@ def build_hotel_row_rnd(row):
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
     result = {}
-    canasta_col = {'global': '#EA0074', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
+    canasta_col = {'global': '#333132', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
     canasta_m = {'global': f'global_w{WEEK_NUM}',
                  'b2c':    f'B2C_w{WEEK_NUM}',
                  'op':     f'B2B (OP)_w{WEEK_NUM}',
