@@ -304,6 +304,84 @@ def tab_convrate():
 TAB_EF = tab_eficacia()
 TAB_CV = tab_convrate()
 
+# ── TABS POR CANASTA (para cards KPI reactivas) ────────────────────────────────
+DIST_MAP = {'b2c': 'B2C', 'op': 'B2B (OP)', 'cug': 'CUG (UOP)'}
+
+def tab_eficacia_for(dist_cat):
+    """Igual que tab_eficacia() pero filtrando por DistributionCategory."""
+    sub = df18_p80[df18_p80['DistributionCategory'] == dist_cat].copy()
+    if len(sub) == 0:
+        return {k: pd.DataFrame() for k in ['destino','corp','hotel','channel','canasta']}
+    g_d = sub.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_d['Eficacia'] = g_d['Successful'] / g_d['CR_Unicos']
+    g_c = sub.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_c['Eficacia'] = g_c['Successful'] / g_c['CR_Unicos']
+    g_h = sub.groupby('Hotel', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_h['Eficacia'] = g_h['Successful'] / g_h['CR_Unicos']
+    sub_full = df18[df18['DistributionCategory'] == dist_cat]
+    g_ch = sub_full.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_ch['Eficacia'] = g_ch['Successful'] / g_ch['CR_Unicos']
+    for g in [g_d, g_c, g_h, g_ch]:
+        if 'ConvRate' not in g.columns: g['ConvRate'] = g['Bookings'] / g['CR_Unicos']
+    p50_d = g_d['CR_Unicos'].quantile(0.50) if len(g_d) else 0
+    p50_h = g_h['CR_Unicos'].quantile(0.50) if len(g_h) else 0
+    df_d = g_d[g_d['CR_Unicos'] >= p50_d].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos'] >= p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','CR_Unicos_W17']], on='Destino', how='left')
+    df_d['Eficacia_WoW_pp'] = (df_d['Eficacia'] - df_d['Eficacia_W17']) * 100
+    df_d['CR_Unicos_WoW_pp'] = (df_d['CR_Unicos'] - df_d['CR_Unicos_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17','CR_Unicos_W17']], on='CorpName', how='left')
+    df_c['Eficacia_WoW_pp'] = (df_c['Eficacia'] - df_c['Eficacia_W17']) * 100
+    df_c['CR_Unicos_WoW_pp'] = (df_c['CR_Unicos'] - df_c['CR_Unicos_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17','CR_Unicos_W17']], on='Hotel', how='left')
+    df_h['Eficacia_WoW_pp'] = (df_h['Eficacia'] - df_h['Eficacia_W17']) * 100
+    df_h['CR_Unicos_WoW_pp'] = (df_h['CR_Unicos'] - df_h['CR_Unicos_W17']) * 100
+    return {'destino': df_d, 'corp': df_c, 'hotel': df_h,
+            'channel': _add_wow_channel(g_ch, 'Eficacia'), 'canasta': pd.DataFrame()}
+
+def tab_convrate_for(dist_cat):
+    """Igual que tab_convrate() pero filtrando por DistributionCategory."""
+    sub = df18_p80[df18_p80['DistributionCategory'] == dist_cat].copy()
+    if len(sub) == 0:
+        return {k: pd.DataFrame() for k in ['destino','corp','hotel','channel','canasta']}
+    g_d = sub.groupby('Destino', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_d['ConvRate'] = g_d['Bookings'] / g_d['CR_Unicos']
+    g_d['Eficacia'] = g_d['Successful'] / g_d['CR_Unicos']
+    g_c = sub.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_c['ConvRate'] = g_c['Bookings'] / g_c['CR_Unicos']
+    g_c['Eficacia'] = g_c['Successful'] / g_c['CR_Unicos']
+    g_h = sub.groupby('Hotel', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_h['ConvRate'] = g_h['Bookings'] / g_h['CR_Unicos']
+    g_h['Eficacia'] = g_h['Successful'] / g_h['CR_Unicos']
+    sub_full = df18[df18['DistributionCategory'] == dist_cat]
+    g_ch = sub_full.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
+    g_ch['ConvRate'] = g_ch['Bookings'] / g_ch['CR_Unicos']
+    g_ch['Eficacia'] = g_ch['Successful'] / g_ch['CR_Unicos']
+    p50_d = g_d['CR_Unicos'].quantile(0.50) if len(g_d) else 0
+    p50_h = g_h['CR_Unicos'].quantile(0.50) if len(g_h) else 0
+    df_d = g_d[(g_d['CR_Unicos'] >= p50_d) & (g_d['Bookings'] > 0)].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_c = g_c.sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_h = g_h[g_h['CR_Unicos'] >= p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
+    df_d['ConvRate_WoW_pp'] = (df_d['ConvRate'] - df_d['ConvRate_W17']) * 100
+    df_d['CR_Unicos_WoW_pp'] = (df_d['CR_Unicos'] - df_d['CR_Unicos_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','ConvRate_W17','CR_Unicos_W17']], on='CorpName', how='left')
+    df_c['ConvRate_WoW_pp'] = (df_c['ConvRate'] - df_c['ConvRate_W17']) * 100
+    df_c['CR_Unicos_WoW_pp'] = (df_c['CR_Unicos'] - df_c['CR_Unicos_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','ConvRate_W17','CR_Unicos_W17']], on='Hotel', how='left')
+    df_h['ConvRate_WoW_pp'] = (df_h['ConvRate'] - df_h['ConvRate_W17']) * 100
+    df_h['CR_Unicos_WoW_pp'] = (df_h['CR_Unicos'] - df_h['CR_Unicos_W17']) * 100
+    return {'destino': df_d, 'corp': df_c, 'hotel': df_h,
+            'channel': _add_wow_channel(g_ch, 'ConvRate'), 'canasta': pd.DataFrame()}
+
+# Calcular para las 3 sub-canastas + global (ya en TAB_EF/TAB_CV)
+TAB_EF_BY_CANASTA = {'global': TAB_EF}
+TAB_CV_BY_CANASTA = {'global': TAB_CV}
+for _key, _dist in DIST_MAP.items():
+    TAB_EF_BY_CANASTA[_key] = tab_eficacia_for(_dist)
+    TAB_CV_BY_CANASTA[_key] = tab_convrate_for(_dist)
+
 # ── Enriquecer TOP[] con WoW desde TAB_EF/TAB_CV (evita NaN por orden de construcción) ──
 _wow_ef = TAB_EF['hotel'][['Hotel','Eficacia_WoW_pp']].drop_duplicates('Hotel')
 _wow_cv = TAB_CV['hotel'][['Hotel','ConvRate_WoW_pp']].drop_duplicates('Hotel')
@@ -421,6 +499,8 @@ D = {
     'TOP': TOP,
     'TAB_EF': TAB_EF,
     'TAB_CV': TAB_CV,
+    'TAB_EF_BY_CANASTA': TAB_EF_BY_CANASTA,
+    'TAB_CV_BY_CANASTA': TAB_CV_BY_CANASTA,
     'CANASTA': CANASTA,
     'sev_ef': sev_ef_p80,
     'sev_cv': sev_cv_p80,

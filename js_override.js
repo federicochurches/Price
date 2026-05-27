@@ -715,3 +715,80 @@ document.addEventListener('click', function(e) {
     ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
   }
 });
+/* ── w22_renderCardTabs — re-renderiza los tabs de las cards KPI CR por canasta ── */
+function _fmtInt(n){ if(n==null) return '—'; return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function _fmtPct(n){ if(n==null) return '—'; return n.toFixed(2).replace('.',',')+'%'; }
+function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);font-size:10px;">—</span>':'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+v+'</em>'; }
+function _wowInt(delta){ if(delta==null) return null; var abs=Math.round(Math.abs(delta)); return (delta>0?'▲':'▼')+_fmtInt(abs); }
+function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp>0?'▲':'▼')+abs.toFixed(2).replace('.',',')+'pp'; }
+
+function _cardRow(r, idx, isEf){
+  /* r: [lab,sub,bbg,bfg,banda, cr_u,cr_wow_delta, val_pct, wow_pp, hist_w21, hist_w20] */
+  var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
+  var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
+  var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
+  var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+  var cr_str = _fmtInt(cr_u);
+  /* WoW tráfico */
+  var tw = _wowInt(cr_wow_delta);
+  var tw_bg = cr_wow_delta!=null&&cr_wow_delta>0?'#EAF3DE':'#FCE8E6';
+  var tw_fg = cr_wow_delta!=null&&cr_wow_delta>0?'#2F6C34':'#C0392B';
+  var tw_pill = _pill(tw, tw_bg, tw_fg);
+  /* WoW métrica */
+  var mw = _wowPct(wow_pp);
+  var mw_up = wow_pp!=null && (isEf ? wow_pp>0 : wow_pp>0);
+  var mw_bg = wow_pp!=null&&mw_up?'#EAF3DE':'#FCE8E6';
+  var mw_fg = wow_pp!=null&&mw_up?'#2F6C34':'#C0392B';
+  var mw_pill = _pill(mw, mw_bg, mw_fg);
+  var nameSpan='<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+(idx+1)+'. '+lab+'</span>'
+    +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
+  return '<div data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
+    +' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 54px 48px;align-items:center;gap:6px;'
+    +'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+    +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
+    +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
+    +'<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>'
+    +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+_fmtPct(val_pct)+'</span>'
+    +'<div style="text-align:right;white-space:nowrap;">'+mw_pill+'</div>'
+    +'</div>';
+}
+
+function w22_renderCardTabs(canasta){
+  if(typeof CR_CARD_TABS === 'undefined') return;
+  var tabs = CR_CARD_TABS[canasta] || CR_CARD_TABS['global'];
+  if(!tabs) return;
+  /* Para cada tipo de tab (destino, corp, hotel) y cada card (ef, cv) */
+  ['ef','cv'].forEach(function(metric){
+    var isEf = metric==='ef';
+    /* Buscar todos los tab-panel de la card correspondiente */
+    /* Las cards usan data-tab="destino/corp/hotel" dentro de .kpi-card */
+    var suffix = isEf ? '-ef-' : '-cv-';
+    ['destino','corp','hotel'].forEach(function(tkey){
+      var rows = (tabs[metric]||{})[tkey]||[];
+      /* Buscar el panel correspondiente: input con id tab{suffix}{tkey} */
+      var panelSel = '[data-tab="'+tkey+'"]';
+      /* Necesitamos la card correcta — ef o cv — buscar por el input radio */
+      var radioId = 'tab'+suffix+tkey;
+      var radioEl = document.getElementById(radioId);
+      if(!radioEl) return;
+      var card = radioEl.closest('.kpi-card');
+      if(!card) return;
+      var panel = card.querySelector('[data-tab="'+tkey+'"]');
+      if(!panel) return;
+      /* Re-renderizar filas en el panel */
+      var rowsHtml = rows.slice(0,10).map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
+      /* Preservar el header (primer div.kpi-tab-rows no tiene rows) */
+      var kpiRows = panel.querySelector('.kpi-tab-rows');
+      if(kpiRows){
+        /* Reemplazar todo excepto el header */
+        var header = kpiRows.querySelector('div:first-child');
+        kpiRows.innerHTML = (header?header.outerHTML:'') + rowsHtml;
+      } else {
+        panel.innerHTML = rowsHtml;
+      }
+      /* Re-inyectar atributos para el histórico */
+      if(typeof window._injectHistAttrs === 'function') window._injectHistAttrs(card);
+    });
+  });
+}
