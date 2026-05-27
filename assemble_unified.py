@@ -582,7 +582,7 @@ SHARED_CONTAINERS = f'''
     <label class="tab-label" onclick="w22_setHotelTab('br',this)" id="w22-tab-lbl-2">Bajo Rendimiento</label>
     <label class="tab-label" onclick="w22_setHotelTab('sc',this)" id="w22-tab-lbl-3">Sin Conversión</label>
     <label class="tab-label" onclick="w22_setHotelTab('cv',this)" id="w22-tab-lbl-4">Menor ConvRate</label>
-    {{SB_PANEL_TH}}
+    {SB_PANEL_TH}
   </div>
   <div style="padding-top:14px;">
     <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
@@ -608,10 +608,10 @@ SHARED_CONTAINERS = f'''
   </div>
   <!-- Dos canvas: Eficacia/NoDispo + ConvRate/IPM -->
   <div id="w22-panel-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    {{HIST_CR_PANEL}}{{HIST_CR_PANEL_CV}}
+    {HIST_CR_PANEL}{HIST_CR_PANEL_CV}
   </div>
   <div id="w22-panel-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
-    {{HIST_RND_PANEL}}{{HIST_RND_PANEL_IPM}}
+    {HIST_RND_PANEL}{HIST_RND_PANEL_IPM}
   </div>
 </div>
 <div id="w22-pd" style="display:none;border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
@@ -619,7 +619,7 @@ SHARED_CONTAINERS = f'''
     <label class="tab-label tab-label-active" onclick="w22_setDim('corp');w22_iTab(this);" id="w22-dim-lbl-corp">Corporativo</label>
     <label class="tab-label" onclick="w22_setDim('dest');w22_iTab(this);" id="w22-dim-lbl-dest">Destino</label>
     <label class="tab-label" onclick="w22_setDim('chan');w22_iTab(this);" id="w22-dim-lbl-chan">Canal</label>
-    {{SB_PANEL_TD}}
+    {SB_PANEL_TD}
   </div>
   <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
     <colgroup>
@@ -642,10 +642,10 @@ SHARED_CONTAINERS = f'''
     <button id="w22-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:7px 20px;cursor:pointer;border-radius:3px;"></button>
   </div>
   <div id="w22-panel-dim-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    {{HIST_CR_DIM}}{{HIST_CR_DIM_CV}}
+    {HIST_CR_DIM}{HIST_CR_DIM_CV}
   </div>
   <div id="w22-panel-dim-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
-    {{HIST_RND_DIM}}{{HIST_RND_DIM_IPM}}
+    {HIST_RND_DIM}{HIST_RND_DIM_IPM}
   </div>
 </div>
 </section>
