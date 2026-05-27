@@ -539,6 +539,10 @@ Sin `margin-left` — elimina el "guion fantasma".
 38. Usar `ri < 5` en el searchbox filter de `asset_shared_head.html` — siempre `ri < 10` para mostrar el top 10 al resetear la búsqueda
 39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (100 rows) y renderizar el top 10 del resultado
 40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
+41. Llamar `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estén definidas — siempre va al final de `js_override.js`. En `demo_js_main.js` debe estar comentado.
+42. Leer `ef_prev`/`cv_prev`/`ef_wow`/`cv_wow` de `HIST_CR` en `ar_updateKPIs` — estos valores deben venir de `CR_CV`/`RND_CV` (calculados en Python). HIST_CR tiene problemas de timing al cargar.
+43. Agregar `%` a `cdata.ef` o `cdata.cv` que ya lo traen — `cdata.ef = '93,15%'` ya incluye el signo.
+44. Usar `row.closest('tbody')` como único selector en el listener de click del histórico — los divs del Channel no tienen `<tbody>` padre. Usar `closest('tbody') || closest('[id$="-chan-div"]')`.
 
 ---
 
@@ -547,9 +551,9 @@ Sin `margin-left` — elimina el "guion fantasma".
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P9 | Refactor centralización CR/RND en `render_helpers.py` | ver `NOTA_REFACTOR_PENDIENTE.md` |
+| P9 | Refactor centralización CR/RND en `render_helpers.py` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta post-W21-post4** |
 
-> Bugs P1 (eje X undefined), P2 (click histórico dim), P3, P4, P6-P8 cerrados en sesiones W21/W21-post.
+> Bugs P1-P4, P6-P8 cerrados en sesiones W21/W21-post.
 
 ---
 
@@ -560,6 +564,29 @@ Sin `margin-left` — elimina el "guion fantasma".
 Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del proyecto, plano (sin carpetas). Se entrega junto con el commit de GitHub en cada pipeline.
 
 **Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`), `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
+
+### Canal · Catálogo canónico (W21-post4)
+
+```
+Producto Propio: DerbySoft · Internal · HBSI · SynXis · Siteminder · Travelclick · Omnibees
+Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
+```
+- Channels sin datos de la semana → "sin actividad" con `opacity:0.45`
+- Orden: peor eficacia primero → inactivos al final
+- Mismo catálogo en KPI cards y AR cards — definido en Python
+
+### CR_CV / RND_CV · Keys disponibles (W21-post4)
+
+```python
+# CR_CV[canasta]
+'ef', 'cv',           # valores actuales con %
+'ef_prev', 'cv_prev', # semana anterior con %
+'ef_wow', 'cv_wow',   # delta pp (float)
+'band', 'bbg', 'bfg', 'band_cv', 'bbg_cv', 'bfg_cv',
+'col',                # color canasta
+'vol', 'trafico',     # "746K", "746.111"
+'traf_wow',           # delta % tráfico (float)
+```
 
 ### Regla de clasificación
 
@@ -575,7 +602,7 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21-post3 (sort + top 10 + tráfico bold + cards AR) · Mayo 2026
+**Última actualización:** W21-post4 (Channel + bugs post-publicación + ef_prev en CR_CV) · Mayo 2026
 
 ---
 

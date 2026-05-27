@@ -6,6 +6,59 @@
 
 ---
 
+## 📝 Sesión W21-post4 · Mayo 2026 · Channel + Bugs post-publicación
+
+### Contexto
+Sesión de fixes sobre el reporte W21 ya publicado en Netlify. No se recibieron nuevos datasets. El pipeline **no se re-corrió** al cierre — HTML publicado refleja todos los cambios (commit 7d8e12e).
+
+### Cambios aplicados
+
+#### Channel — Cards KPI globales y Cards AR
+- **Catálogo canónico completo**: PP = [DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees] · TP = [Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate]. Channels sin datos de la semana muestran "sin actividad" con `opacity:0.45`.
+- **Orden**: peor eficacia primero → inactivos al final. Sort en Python (`render_cr_p1.py` `_build_card_rows_chan`, `render_cr_p2.py` `chans_pp/tp`).
+- **Nombres visibles**: fix `width:100%` + `min-width:0` + `display:block` en span del nombre. Grid `72px 52px 36px` + `gap:10px` entre PP/TP.
+- **Filas clickeables**: `cursor:pointer` + `data-hist-label` + `data-hist-w21/w20` en todas las filas (activas e inactivas).
+- **Listener de click extendido** (`assemble_unified.py PANEL_LISTENER_JS`): acepta tanto `<tbody>` (tablas AR) como `<div id="ar{n}-chan-div">`. Segundo click resetea a global. Sombra de canasta activa al seleccionar.
+- **Cards KPI y AR unificadas**: `_chanRow` en `w22_renderCardTabs` y `chanRowAR` en `_arRenderChan` usan la misma lógica — catálogo, orden, estilo, inactivos.
+
+#### Orden de ejecución JS — Bug crítico
+- **`w22_update()` movido al final de `js_override.js`**: en `demo_js_main.js` el render inicial llamaba `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estuvieran definidas (JS hoisting no aplica a `var` assignments). Resultado: todos los nombres de elementos aparecían vacíos. Fix: comentar `w22_update()` en `demo_js_main.js`, moverlo al final de `js_override.js` después de todas las definiciones.
+
+#### W20 = `—` y WoW = `NaN` en cards AR
+- **Root cause**: `ar_updateKPIs` leía `HIST_CR['hcr-panel-ef'].vals` que está vacío al cargar (el canvas del panel no se inicializa hasta después). El `||` de JS no descartaba el objeto vacío.
+- **Fix definitivo**: agregar `ef_prev`, `cv_prev`, `ef_wow`, `cv_wow` directamente en `CR_CV` y `RND_CV` desde Python (`render_cr_p2.py`, `render_rnd_p2.py`). El JS lee de `cdata` que siempre está disponible sin depender del timing de HIST_CR.
+- **Fix adicional**: `cdata.ef = '93,15%'` → se le agregaba `+'%'` → `'93,15%%'` → `parseFloat = NaN`. Removido el `+` extra.
+
+#### Header "Week W21" → "Week 21"
+- `render_cr_p1.py`: `{WEEK_NUM}` tomaba el env var `WEEK=W21`. Cambiado a `{VOL_NUM}` = `21`.
+
+#### Espaciado visual
+- `masthead` margin-bottom: 16px → 8px (`asset_shared_head.html`)
+- Switcher padding-top: 20px → 10px (`assemble_unified.py`)
+- Filter-wrap margin-top: 16px → 8px
+- `kpis-hero` margin-bottom: 12px → 6px (`render_cr_p1.py`, `render_rnd_p1.py`)
+- `.hero` padding: 16px/24px → 8px/12px (`asset_shared_head.html`)
+
+#### Numeración cards AR
+- Color `var(--ink-muted)` → `var(--ink)` negro (`js_override.js trow_ar`)
+
+### Root causes documentados
+
+| Bug | Causa | Fix |
+|---|---|---|
+| Nombres vacíos al cargar | `w22_update()` corría antes de que `_cardRow` estuviera definida | Mover al final de `js_override.js` |
+| WoW = NaN en carga inicial | `HIST_CR['hcr-panel-ef'].vals` vacío en timing inicial | `ef_prev/ef_wow` calculados en Python y expuestos en `CR_CV` |
+| Doble `%` en ef21 | `cdata.ef+'%'` cuando `cdata.ef` ya tenía `%` | Remover el `+` |
+| Channel click no funciona | `row.closest('tbody')` = null para divs del channel | Extender listener a `closest('[id$="-chan-div"]')` |
+
+### Archivos modificados esta sesión
+`render_cr_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `js_override.js` · `assemble_unified.py` · `asset_shared_head.html` · `HISTORIAL_SESIONES.md` · `PROMPT_CORE.md`
+
+### Pendiente para W22
+- **Refactor centralización CR/RND**: ver `NOTA_REFACTOR_PENDIENTE.md` — ejecutar antes de recibir datasets W22. Urgencia alta: esta sesión evidenció que `_chanRow` y `chanRowAR` son prácticamente idénticas y se mantienen por separado.
+
+---
+
 ## 📝 Sesión W21-post3 · Mayo 2026 · Sort + Top 10 + UX cards
 
 ### Contexto
