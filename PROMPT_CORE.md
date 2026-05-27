@@ -440,13 +440,17 @@ em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
 ```
 Sin `margin-left` — elimina el "guion fantasma".
 
-### Top N fijo · Sin colapso
+### Top N · 5 visibles + 5 expandibles + 490 buscables
 
-- Cards KPI globales (Eficacia, ConvRate, NoDispo, IPM): **10 rows siempre visibles**, sin botón "Ver más/menos"
-- Cards AR (Análisis de Rendimiento): **10 rows visibles** del resultado del sort
-- El sort opera sobre los **100 rows del JSON** (no sobre el DOM), preservando numeración original
-- `ri < 10` en el searchbox filter de `asset_shared_head.html` — NO `ri < 5`
-- El `w22_renderTable` en `demo_js_main.js` hace `rows.slice(0,10)` sin toggle
+- Cards KPI globales: **5 rows visibles** por defecto, **5 más expandibles** (filas 6-10, clase `rows-more`, `display:none`), filas 11-500 clase `sb-hidden`
+- El botón **"Ver más ▾ / Ver menos ▴"** se genera en **Python estático** (`render_helpers.py`) dentro del `kpi-tab-rows` div con `onclick` inline
+- Cards AR (Análisis de Rendimiento): **5 rows visibles**, **5 expandibles** vía `_moreBtn()` JS
+- El searchbox opera sobre **todos los rows en el DOM** (hasta 500) — los `sb-hidden` se muestran al buscar
+- `KPI_TOP_N = 5` en `render_helpers.py` — único lugar a cambiar el top visible
+- `_KPI_TOP_N = 5` y `_KPI_EXPAND_N = 10` en `js_override.js` — controlan el comportamiento JS
+- `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` en `asset_shared_head.html` — resetea al top N al limpiar búsqueda
+- **NUNCA** crear el botón Ver más con `addEventListener` — el evento es interceptado por listeners del parent. Usar `onclick` inline o HTML estático de Python
+- **NUNCA** usar `slice(0,10)` en los renders JS de cards — poner todos los rows en DOM con los extras ocultos
 
 ### Datos históricos reales W17-W21
 
@@ -471,7 +475,10 @@ Sin `margin-left` — elimina el "guion fantasma".
 
 ## 📌 Reglas Generales
 
-- **Top 10** en Editorial · **Top 100** en Excel de Análisis y JSON de cards AR
+- **Top 5 visible + 5 expandible** en Editorial · **Top 500** en JSON de cards y Excel de Análisis
+- Searchbox busca sobre **todos los rows en DOM** (hasta 500) — no solo los visibles
+- **Todo el pipeline es P80** — `g_dest`, `g_pais`, `g_corp` vienen de `df18_p80`; `TAB_NoDispo/RPM` usan esos aggregados
+- `MIN_TRAFICO_DIM = 50K` (antes 500K) — evita excluir destinos de alto tráfico como Cancún (#264 NoDispo), New York (#217), Las Vegas (#249)
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
 - Ultra Opaco y Opaco son prioridad estratégica (Weight 0.6) — keys internos: `cug` y `op`
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
@@ -536,14 +543,19 @@ Sin `margin-left` — elimina el "guion fantasma".
 35. Renderizar trow() con 9 elementos (array sin wow_cr_str) — ahora es 11: [..., wow_ef_str, wow_cv_str, wow_cr_str]. r[10] accede a tráfico WoW
 36. No validar que labels de tabla coincidan con índices de trow() — colisión de columnas. th_labels_hotel debe ser 7: ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
 37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py`. Usar `build_kpi_tab_panel()` para los loops de tab panels y `render_traf_line_cr/rnd()` para las líneas de tráfico. Cambiar top N visible → solo `KPI_TOP_N` en `render_helpers.py`
-38. Usar `ri < 5` en el searchbox filter de `asset_shared_head.html` — siempre `ri < 10` para mostrar el top 10 al resetear la búsqueda
-39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (100 rows) y renderizar el top 10 del resultado
+38. Usar `ri < 10` fijo en el searchbox de `asset_shared_head.html` — siempre `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` para que sea configurable
+39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (500 rows) y renderizar el resultado completo con extras ocultos
 40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
 41. Llamar `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estén definidas — siempre va al final de `js_override.js`. En `demo_js_main.js` debe estar comentado.
 42. Leer `ef_prev`/`cv_prev`/`ef_wow`/`cv_wow` de `HIST_CR` en `ar_updateKPIs` — estos valores deben venir de `CR_CV`/`RND_CV` (calculados en Python). HIST_CR tiene problemas de timing al cargar.
 43. Agregar `%` a `cdata.ef` o `cdata.cv` que ya lo traen — `cdata.ef = '93,15%'` ya incluye el signo.
 44. Usar `row.closest('tbody')` como único selector en el listener de click del histórico — los divs del Channel no tienen `<tbody>` padre. Usar `closest('tbody') || closest('[id$="-chan-div"]')`.
 45. Omitir `RND_CARD_TABS` en `render_rnd_p1.py` — es obligatorio igual que `CR_CARD_TABS` en `render_cr_p1.py`. Sin él el sort de las cards KPI RND no funciona. Usar `_KPI_RCOLS_RND = {2:4, 4:5}` (tráfico=r[4], métrica=r[5]) vs `_KPI_RCOLS_CR = {2:5, 4:7}`.
+46. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner **todos** los rows en el DOM, con extras marcados `rows-more` (display:none, filas 6-10) o `sb-hidden` (filas 11+). El searchbox los muestra al buscar.
+47. Crear el botón "Ver más" con `addEventListener('click')` en JS — el evento es interceptado por listeners del parent. Usar `onclick` inline en HTML estático generado por Python (`render_helpers.py`).
+48. Recalcular `g_dest`/`g_pais` desde `df_hotel` (df de canasta) en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle que ya tienen WoW calculado sobre P80.
+49. Usar `MIN_TRAFICO_DIM = 500K` en `calc_rnd.py` — con ese umbral se excluyen destinos como Cancún (417M tráfico), New York (477M), Las Vegas (236M). El umbral correcto es **50K**.
+50. Poner el badge de banda en el footer histórico sin background — `bc['bg']` es necesario además de `bc['footer']` (el color de texto). Sin background el badge es invisible sobre el fondo crema.
 
 ---
 
@@ -554,7 +566,7 @@ Sin `margin-left` — elimina el "guion fantasma".
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 | P10 | Refactor centralización CR/RND — `_chanRow`/`chanRowAR` duplicadas, `_build_rnd_card_tabs_json` duplica lógica de `_build_cr_card_tabs_json` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta** |
 
-> Bugs P1–P4, P6–P9 cerrados.
+> Bugs P1–P4, P6–P9 cerrados. Bugs P11 (WoW en dim País/Dest), P12 (Ver más), P13 (badge Aceptable) cerrados en sesión W21-post6.
 
 ---
 
@@ -609,7 +621,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ---
 
-**Última actualización:** W21-post5 (RND_CARD_TABS + sort RND + pipeline W21 con datasets reales) · Mayo 2026
+**Última actualización:** W21-post6 (Top 500 destinos · Ver más/menos · WoW País/Dest · Badge Aceptable · Loading overlay · P80 verificado) · Mayo 2026
 
 ---
 

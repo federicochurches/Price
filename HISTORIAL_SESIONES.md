@@ -1847,3 +1847,50 @@ _(ver commit en GitHub)_
 `SUPPLY_W21.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W21.html` · `index.html` · `Price_W21.zip`
 
 **Última actualización:** W21 (pipeline) · May 2026 · 19-25 mayo 2026
+
+---
+
+## Sesión W21-post6 · 27 Mayo 2026 · Fixes UX + Top 500 + P80
+
+**Tipo:** Fixes post-pipeline  
+**Commits:** 85c4841 → 689a961
+
+### Fixes aplicados
+
+#### 1. WoW en dimensiones País y Destino (P11)
+`render_rnd_p2.py` recalculaba `g_pais` y `g_dest` desde `df_hotel` (df de canasta) sin WoW. Fix: usar `g_pais_global` y `g_dest` del pickle que ya tienen `NoDispo_WoW_pp`, `IPM_WoW_pp`, `Trafico_WoW_pct`. Agregado `g_pais_global = D['g_pais']` como alias global en el módulo.
+
+#### 2. Top 500 destinos — Cancún, New York, Las Vegas visibles
+`MIN_TRAFICO_DIM = 500K` en `calc_rnd.py` excluía destinos de alto tráfico que tienen NoDispo baja (rank >100): Cancún #264 (417M tráfico), New York #217 (477M), Las Vegas #249 (236M). Fix: `MIN_TRAFICO_DIM = 50K`. `make_tab()` ahora acepta `top_n` (default 500). `render_rnd_p1.py` también actualizado a `head(500)`.
+
+#### 3. P80 verificado en toda la cadena
+Confirmado que `g_dest`, `g_pais`, `g_corp` se calculan sobre `df18_p80` (hoteles que acumulan 80% tráfico). Los TAB_NoDispo/RPM usan esos aggregados. Excels CR y RND usan `p80_hotel` y `TAB_EF_BY_CANASTA` respectivamente.
+
+#### 4. Ver más / Ver menos 5+5 (P12) — root cause y fix definitivo
+Múltiples intentos fallidos:
+- `addEventListener('click')` interceptado por listener del parent (cards KPI usan event delegation para el histórico)
+- `onclick` attribute con `window[]` referencias — el container era reemplazado por re-renders
+- `appendChild` con `insertAdjacentElement` — botón fuera del contenedor visible
+- `data-exp` + `parentNode.querySelectorAll` — el onclick no disparaba (div creado con `createElement`)
+
+**Fix definitivo:** Botón generado en **Python estático** (`render_helpers.py`) con `onclick` inline HTML. Las filas 6-10 marcadas como `rows-more` con `display:none` directamente en el `_row` f-string. `KPI_TOP_N = 5`, `_EXPAND_N = 10`. El botón está en el HTML antes de que el browser ejecute cualquier JS.
+
+#### 5. Badge Aceptable amarillo en footer histórico (P13)
+`historico_module.py` usaba solo `color:{bc['footer']}` sin `background`. Fix: agregar `background:{bc['bg']}` + `padding:2px 6px` + `border-radius:2px` tanto en el HTML estático como en el update JS dinámico (`el.style.background = bc.bg`).
+
+#### 6. Loading overlay con logo PriceTravel
+`assemble_unified.py` agrega overlay al inicio del `<body>`: logo base64 en negro (filter saturate/brightness), barra de progreso animada (0→90% con `setInterval`, salta a 100% en `window.load`), texto "LOADING". Se desvanece con `opacity:0` + `transition:.3s`.
+
+#### 7. netlify.toml
+Creado para forzar headers correctos. Con gzip el HTML de 6.6 MB se comprime a 782 KB (11.5%). Hosting en proceso de migración desde Netlify.
+
+### Lección clave sobre Ver más
+El patrón `addEventListener` en elementos creados con JS no funciona cuando hay event delegation en el árbol del DOM. La única solución confiable es HTML estático con `onclick` inline — el browser lo ejecuta directamente sin pasar por el sistema de eventos.
+
+### Estado final
+- `SUPPLY_W21.html`: 6.6 MB sin comprimir / ~782 KB gzip
+- 19 botones "Ver más" estáticos en el HTML
+- 72 filas `rows-more` (filas 6-10 de cada tab panel)
+- 2429+ filas `sb-hidden` (buscables, no visibles)
+- Searchbox opera sobre todos los rows en DOM
+- Último commit: 689a961
