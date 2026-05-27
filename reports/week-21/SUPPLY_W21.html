@@ -5611,41 +5611,34 @@ var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
 /* ── Ver más / menos botón para cards KPI ── */
 function _moreBtn(containerEl) {
-  /* Eliminar botón previo si existe dentro del container */
+  /* Limpiar botón previo */
   var prev = containerEl.querySelector('.kpi-more-btn');
   if (prev) prev.remove();
-  /* Verificar si hay filas expandibles */
-  var hasMore = containerEl.querySelector('.rows-more');
-  if (!hasMore) return;
-  var btn = document.createElement('button');
+  var moreRows = containerEl.querySelectorAll('.rows-more');
+  if (!moreRows.length) return;
+
+  /* Usar onclick inline — evita problemas con listeners del parent */
+  var uid = 'mb' + Math.random().toString(36).slice(2,7);
+  window['_mbExpanded_'+uid] = false;
+  window['_mbContainer_'+uid] = containerEl;
+
+  var btn = document.createElement('div');
   btn.className = 'kpi-more-btn';
+  btn.setAttribute('data-mbid', uid);
+  btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0 2px;text-align:center;user-select:none;';
   btn.textContent = 'Ver más ▾';
-  btn.style.cssText = [
-    'margin:8px 0 2px',
-    'background:none',
-    'border:none',
-    'border-top:1px solid var(--rule-soft)',
-    'color:var(--ink-muted)',
-    'font-size:9px',
-    'font-weight:700',
-    'letter-spacing:.08em',
-    'text-transform:uppercase',
-    'cursor:pointer',
-    'padding:6px 0 2px',
-    'display:block',
-    'width:100%',
-    'text-align:center',
-  ].join(';') + ';';
-  var expanded = false;
-  btn.addEventListener('click', function() {
-    expanded = !expanded;
-    /* Buscar rows-more en el mismo container */
-    containerEl.querySelectorAll('.rows-more').forEach(function(r) {
-      r.style.display = expanded ? (r.tagName==='TR' ? '' : 'grid') : 'none';
-    });
-    btn.textContent = expanded ? 'Ver menos ▴' : 'Ver más ▾';
-  });
-  /* Insertar como último hijo del container — queda dentro de la card */
+  btn.setAttribute('onclick',
+    '(function(el){' +
+    '  var uid=el.getAttribute("data-mbid");' +
+    '  var exp=!window["_mbExpanded_"+uid];' +
+    '  window["_mbExpanded_"+uid]=exp;' +
+    '  var c=window["_mbContainer_"+uid];' +
+    '  c.querySelectorAll(".rows-more").forEach(function(r){' +
+    '    r.style.display=exp?(r.tagName==="TR"?"":"grid"):"none";' +
+    '  });' +
+    '  el.textContent=exp?"Ver menos ▴":"Ver más ▾";' +
+    '})(this)'
+  );
   containerEl.appendChild(btn);
 }
 
