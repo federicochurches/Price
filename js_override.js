@@ -1492,28 +1492,23 @@ function _moreBtn(containerEl) {
   var moreRows = containerEl.querySelectorAll('.rows-more');
   if (!moreRows.length) return;
 
-  /* Usar onclick inline — evita problemas con listeners del parent */
-  var uid = 'mb' + Math.random().toString(36).slice(2,7);
-  window['_mbExpanded_'+uid] = false;
-  window['_mbContainer_'+uid] = containerEl;
-
   var btn = document.createElement('div');
   btn.className = 'kpi-more-btn';
-  btn.setAttribute('data-mbid', uid);
-  btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0 2px;text-align:center;user-select:none;';
+  btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;user-select:none;';
   btn.textContent = 'Ver más ▾';
-  btn.setAttribute('onclick',
-    '(function(el){' +
-    '  var uid=el.getAttribute("data-mbid");' +
-    '  var exp=!window["_mbExpanded_"+uid];' +
-    '  window["_mbExpanded_"+uid]=exp;' +
-    '  var c=window["_mbContainer_"+uid];' +
-    '  c.querySelectorAll(".rows-more").forEach(function(r){' +
-    '    r.style.display=exp?(r.tagName==="TR"?"":"grid"):"none";' +
-    '  });' +
-    '  el.textContent=exp?"Ver menos ▴":"Ver más ▾";' +
+  /* onclick inline — busca rows-more en el parentNode del botón */
+  btn.setAttribute('onclick', [
+    '(function(el){',
+    '  var exp = el.getAttribute("data-exp") !== "1";',
+    '  el.setAttribute("data-exp", exp ? "1" : "0");',
+    '  var p = el.parentNode;',
+    '  if(!p) return;',
+    '  p.querySelectorAll(".rows-more").forEach(function(r){',
+    '    r.style.display = exp ? (r.tagName==="TR" ? "" : "grid") : "none";',
+    '  });',
+    '  el.textContent = exp ? "Ver menos ▴" : "Ver más ▾";',
     '})(this)'
-  );
+  ].join(''));
   containerEl.appendChild(btn);
 }
 
