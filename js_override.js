@@ -747,7 +747,11 @@ function w22_renderRNDCardTabs(canasta) {
       }).join('');
       var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'+hdrSpans+'</div>';
       var isEf = (metric === 'nd');
-      var rowsHtml = allRows.slice(0,10).map(function(r,idx){ return _cardRow(r, idx, isEf, grid); }).join('');
+      var rowsHtml = allRows.map(function(r,idx){
+        var html = _cardRow(r, idx, isEf, grid);
+        if(idx >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        return html;
+      }).join('');
       kpiRows.innerHTML = hdrHtml + rowsHtml;
     });
   });
@@ -820,7 +824,11 @@ function w22_renderCardTabs(canasta){
       if(!card) return;
       var panel = card.querySelector('[data-tab="'+tkey+'"]');
       if(!panel) return;
-      var rowsHtml = rows.slice(0,10).map(function(r,i){ return _cardRow(r,i,isEf,grid); }).join('');
+      var rowsHtml = rows.map(function(r,i){
+        var html = _cardRow(r,i,isEf,grid);
+        if(i >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
+        return html;
+      }).join('');
       var kpiRows = panel.querySelector('.kpi-tab-rows');
       if(kpiRows){
         var header = kpiRows.querySelector('div:first-child');
@@ -1212,7 +1220,11 @@ function trow_ar(r, card, idx) {
 function ar_renderTable(n, tbodyId, btnId, rows) {
  var tbody = document.getElementById(tbodyId);
  if (!tbody) return;
- tbody.innerHTML = rows.slice(0, 10).map(function(r,i){ return trow_ar(r, n, i+1); }).join('');
+ tbody.innerHTML = rows.map(function(r,i){
+    var html = trow_ar(r, n, i+1);
+    if(i >= _KPI_TOP_N) html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    return html;
+  }).join('');
  /* Ocultar siempre el botón Ver más */
  var btn = document.getElementById(btnId);
  if (btn) btn.style.display = 'none';
@@ -1435,6 +1447,25 @@ function _markSortable(els, activeIdx, dir) {
   });
 }
 
+/* ── renderTopN — renderiza todos los rows, top N visibles, resto sb-hidden ──
+   El searchbox ya tiene lógica para mostrar todos cuando hay query (ri<TOP_N check).
+   Aquí ponemos TODO en el DOM para que el search opere sobre los 500. */
+var _KPI_TOP_N = 10;
+function _renderAllRows(rows, renderFn) {
+  return rows.map(function(item, i) {
+    var html = renderFn(item, i);
+    /* Marcar los que van más allá del top visible como sb-hidden */
+    if (i >= _KPI_TOP_N) {
+      html = html.replace(/^(<div|<tr)/, '$1 class="sb-hidden" style="display:none;"');
+      /* Si ya tiene class, agregamos sb-hidden */
+      if (html.indexOf('sb-hidden') === -1) {
+        html = html.replace(/^(<div[^>]*?)>/, '$1 class="sb-hidden" style="display:none;">');
+      }
+    }
+    return html;
+  }).join('');
+}
+
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
 /* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
 var _KPI_RCOLS_CR  = {2:5, 4:7};
@@ -1482,14 +1513,11 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
       return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
     }).join('');
     var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
-    var rowsHtml = sorted10.map(function(item){
-      return _cardRow(item.r, item.origPos-1, isEf, grid);
-    }).join('');
-    rc.innerHTML = hdrHtml + rowsHtml;
+    var rowsHtml = sorted10.map(function(item,i){      var html = _cardRow(item.r, item.origPos-1, isEf, grid);      if(i >= _KPI_TOP_N) html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');      return html;    }).join('');    rc.innerHTML = hdrHtml + rowsHtml;
   }
 
   /* Render inicial */
-  var initSorted = allRows100.slice(0,10).map(function(r,i){ return {r:r, origPos:i+1}; });
+  var initSorted = allRows100.map(function(r,i){ return {r:r, origPos:i+1}; });
   _render(initSorted, _SS[key].col, _SS[key].dir);
 
   /* Event delegation en el panel — UN solo listener */
@@ -1513,7 +1541,7 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
         return dir==='asc' ? va-vb : vb-va;
       });
     }
-    _render(sorted.slice(0,10), i, dir);
+    _render(sorted, i, dir);
   });
 }
 
@@ -1630,8 +1658,10 @@ function _arSortAttach(n, tbodyId, btnId) {
     }
     var tbEl = document.getElementById(tbodyId);
     if (tbEl) {
-      tbEl.innerHTML = sorted.slice(0,10).map(function(item){
-        return trow_ar(item.r, n, item.origPos);
+      tbEl.innerHTML = sorted.map(function(item,i){
+        var html = trow_ar(item.r, n, item.origPos);
+        if(i >= _KPI_TOP_N) html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+        return html;
       }).join('');
     }
     _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);
