@@ -229,41 +229,41 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 
             def chan_row(i, nombre, r, val_col):
                 import math
-                # r=None → canal sin datos esta semana: fila atenuada con guiones
                 if r is None:
-                    return (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;opacity:.45;">'
-                            f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;color:var(--ink-muted);">{i+1}. {nombre}</span>'
-                            f'<span style="text-align:right;color:var(--ink-muted);">—</span>'
-                            f'{_WOW_MUTED_EF}</div>')
+                    return ''  # no mostrar canales sin datos
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
                     val_str = '—'
                 else:
                     val_str = fmt_pct2(raw_val)
+                bnd = banda_eficacia(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 'Sin Conversión'
+                bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
+                badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
+                         f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
                 wow_col = val_col + '_WoW_pp'
                 try:
                     wow_v = r[wow_col]
                     if wow_v != wow_v: raise ValueError
-                    if raw_val is not None and not math.isnan(float(raw_val)) and abs(raw_val - 1.0) < 0.0001:
-                        wow_pill = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EAF3DE;color:#2F6C34;margin-left:4px;white-space:nowrap;">= 0,0</em>'
-                    elif abs(wow_v) >= 0.005:
+                    if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        arrow = '↑' if wow_v > 0 else '↓'
-                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;white-space:nowrap;">{wow_txt}</em>'
+                        arrow = '▲' if wow_v > 0 else '▼'
+                        wow_txt = f'{arrow}{abs(wow_v):.2f}'.replace('.', ',')
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{wow_txt}</em>'
                     else:
-                        wow_pill = _WOW_MUTED_EF
+                        wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
-                    wow_pill = _WOW_MUTED_EF
+                    wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
-                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
-                        f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
-                        f'{wow_pill}</div>')
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
+                        f'<div style="display:flex;align-items:center;justify-content:flex-start;">{badge}</div>'
+                        f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
+                        f'<div style="text-align:right;">{wow_pill}</div>'
+                        f'</div>')
 
             rows_pp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_pp_sorted))
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
@@ -434,15 +434,16 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
             def chan_row_cv(i, nombre, r, val_col):
                 import math
                 if r is None:
-                    return (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;opacity:.45;">'
-                            f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;color:var(--ink-muted);">{i+1}. {nombre}</span>'
-                            f'<span style="text-align:right;color:var(--ink-muted);">—</span>'
-                            f'{_WOW_MUTED_CV}</div>')
+                    return ''  # no mostrar canales sin datos
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
                     val_str = '—'
                 else:
                     val_str = fmt_pct2(raw_val)
+                bnd = banda_convrate(raw_val, int(r.get('Bookings',0))) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 'Sin Conversión'
+                bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
+                badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
+                         f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
                 wow_col = val_col + '_WoW_pp'
                 try:
                     wow_v = r[wow_col]
@@ -451,20 +452,22 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'
                         wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        arrow = '↑' if wow_v > 0 else '↓'
-                        wow_txt = f'{arrow}{abs(wow_v):.1f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:{wb};color:{wc};margin-left:4px;white-space:nowrap;">{wow_txt}</em>'
+                        arrow = '▲' if wow_v > 0 else '▼'
+                        wow_txt = f'{arrow}{abs(wow_v):.2f}'.replace('.', ',')
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{wow_txt}</em>'
                     else:
-                        wow_pill = _WOW_MUTED_CV
+                        wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
-                    wow_pill = _WOW_MUTED_CV
+                    wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 32px;align-items:center;gap:4px;padding:4px 0;cursor:pointer;transition:background .12s;">'
-                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;">{i+1}. {_lbl}</span>'
-                        f'<span style="text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
-                        f'{wow_pill}</div>')
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
+                        f'<div style="display:flex;align-items:center;justify-content:flex-start;">{badge}</div>'
+                        f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
+                        f'<div style="text-align:right;">{wow_pill}</div>'
+                        f'</div>')
 
             rows_pp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_pp_sorted_cv))
             rows_tp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_tp_sorted_cv))

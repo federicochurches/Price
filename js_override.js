@@ -138,12 +138,21 @@ var _currentHotelTab = 'crit';
 
 function w22_setHotelTab(tab, el) {
   _currentHotelTab = tab;
+  /* Actualizar clases activo */
+  var ph = document.getElementById('w22-ph');
+  if (ph) {
+    ph.querySelectorAll('.tabs-row label').forEach(function(l) {
+      l.classList.remove('active', 'tab-label-active');
+    });
+  }
+  if (el) { el.classList.add('active', 'tab-label-active'); }
   var dd = data();
   var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
              tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
              tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
              (dd.hotels_crit || dd.hotels);
   w22_renderTable('w22-th', 'w22-th-more', rows, false);
+  if (typeof window._injectHistAttrs === 'function') window._injectHistAttrs('w22-th', rows);
 }
 
 /* Inyectar atributos hist en render inicial */

@@ -330,6 +330,11 @@ function w22_recolorSparks(accent){
   var fnCv = window['histRedraw_hcr-global-cv'];
   if(typeof fnEf === 'function') setTimeout(function(){fnEf(accent, efVals);}, 20);
   if(typeof fnCv === 'function') setTimeout(function(){fnCv(accent, cvVals);}, 20);
+  /* También canvas del panel y dimensión */
+  var fnPanel = window['histRedraw_hcr-panel-ef'];
+  var fnDim   = window['histRedraw_hcr-dim-ef'];
+  if(typeof fnPanel === 'function') setTimeout(function(){fnPanel(accent, efVals);}, 30);
+  if(typeof fnDim   === 'function') setTimeout(function(){fnDim(accent, efVals);}, 30);
  } else if(W.mode==='rnd' && typeof HIST_RND_BY_CANASTA !== 'undefined') {
   var ndVals  = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].nd  ? HIST_RND_BY_CANASTA[canasta].nd.vals  : null;
   var ipmVals = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].ipm ? HIST_RND_BY_CANASTA[canasta].ipm.vals : null;
@@ -337,6 +342,11 @@ function w22_recolorSparks(accent){
   var fnIpm = window['histRedraw_hrnd-global-ipm'];
   if(typeof fnNd  === 'function') setTimeout(function(){fnNd(accent, ndVals);},  20);
   if(typeof fnIpm === 'function') setTimeout(function(){fnIpm(accent, ipmVals);}, 20);
+  /* También canvas del panel y dimensión */
+  var fnPanelR = window['histRedraw_hrnd-panel-nd'];
+  var fnDimR   = window['histRedraw_hrnd-dim-nd'];
+  if(typeof fnPanelR === 'function') setTimeout(function(){fnPanelR(accent, ndVals);}, 30);
+  if(typeof fnDimR   === 'function') setTimeout(function(){fnDimR(accent, ndVals);}, 30);
  }
 }
 /* Canvas */

@@ -293,30 +293,42 @@ document.addEventListener('click', function(e) {
   if (isNaN(w21)) return;
   if (isNaN(w20)) w20 = w21;
 
-  /* Highlight fila */
-  tbody.querySelectorAll('[data-hist-w21]').forEach(function(r){
-    r.style.background = ''; r.removeAttribute('data-selected');
-  });
-  row.setAttribute('data-selected', '1');
-  row.style.background = 'var(--accent-soft)';
-
-  /* Canvas activo según modo y panel */
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
   var isPh = tbody.id === 'w22-th';
   var cid  = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
                   : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
 
+  /* Segundo click → deseleccionar y volver a Global */
+  var isAlreadySelected = row.getAttribute('data-selected') === '1';
+  tbody.querySelectorAll('[data-hist-w21]').forEach(function(r){
+    r.style.background = ''; r.removeAttribute('data-selected');
+  });
+
+  if (isAlreadySelected) {
+    /* Restaurar datos globales */
+    document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}}));
+    return;
+  }
+
+  /* Highlight fila seleccionada */
+  row.setAttribute('data-selected', '1');
+  row.style.background = 'var(--accent-soft)';
+
+  /* Obtener color de la canasta activa */
+  var accent = (typeof cv === 'function') ? cv().col : '#5C469C';
+
   /* Disparar hist-update para el canvas del panel */
   document.dispatchEvent(new CustomEvent('hist-update', {
     detail: {cid: cid, w_curr: w21, w_prev: w20, label: label}
   }));
-  /* También actualizar el canvas global de la card para sincronizar el tooltip */
-  var globalCid = isCR ? 'hcr-global-ef' : 'hrnd-global-nd';
-  document.dispatchEvent(new CustomEvent('hist-update', {
-    detail: {cid: globalCid, w_curr: w21, w_prev: w20, label: label}
-  }));
 
-  /* Actualizar W22_CANVAS_CFG para ambos canvas (panel + global) */
+  /* Redibujar canvas del panel con color de canasta activa */
+  var fnPanel = window['histRedraw_' + cid];
+  if (typeof fnPanel === 'function') {
+    setTimeout(function(){ fnPanel(accent, null); }, 30);
+  }
+
+  /* Actualizar W22_CANVAS_CFG */
   function _updateCfg(id) {
     if (typeof W22_CANVAS_CFG === 'undefined' || !W22_CANVAS_CFG[id]) return;
     var oc = W22_CANVAS_CFG[id];
@@ -326,7 +338,6 @@ document.addEventListener('click', function(e) {
     W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W17','W18','W19','W20','W21'], metric: oc.metric};
   }
   _updateCfg(cid);
-  _updateCfg(globalCid);
 
   /* Forzar onmousemove en ambos canvas con closure sobre los vals correctos */
   [cid, globalCid].forEach(function(id) {
