@@ -292,7 +292,7 @@ def build_rnd_d():
         dict(sev_nd), dict(sev_rpm), g_corp_nd, len(p80_w))
 
     # CANASTAS
-    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+    for key, c_key in [('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
         if c is None:
             result[key] = {'re': [], 'hotels': [], 'dims': [], 'plan': [], 'co': []}
@@ -354,7 +354,7 @@ def build_rnd_al():
         g_corp_nd['IPM'] = g_corp_nd['gb_usd'] / g_corp_nd['Trafico'].replace(0,1) * 1_000_000
 
     result['global'] = al_for(p80, g_corp_nd)
-    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+    for key, c_key in [('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
         if c is None: result[key] = []; continue
         df_h     = c.get('agg_hotel', pd.DataFrame()).copy()

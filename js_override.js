@@ -805,11 +805,11 @@ function w22_renderCardTabs(canasta){
       var mw_bg = mw_up?'#EAF3DE':'#FCE8E6';
       var mw_fg = mw_up?'#2F6C34':'#C0392B';
       var mw = wow_pp!=null?_pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_bg, mw_fg):'<span style="color:var(--ink-muted)">—</span>';
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule-soft);gap:6px;">'
-        +'<span style="font-size:11px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
-        +'<span>'+badge+'</span>'
-        +'<span style="font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+_fmtPct(val_pct)+'</span>'
-        +'<span>'+mw+'</span>'
+      return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
+        +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
+        +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
+        +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+_fmtPct(val_pct)+'</span>'
+        +'<div style="text-align:right;">'+mw+'</div>'
         +'</div>';
     }
     var pp_html = pp.map(_chanRow).join('');

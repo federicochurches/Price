@@ -213,16 +213,14 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 
             # Ordenar los que tienen datos por Eficacia (peor primero), luego los sin datos al final
             def _sorted_canonical(lista, df_src, val_col):
+                """Solo incluye canales que tienen datos en el dataset de la semana."""
                 with_data = []
-                without_data = []
                 for nombre in lista:
                     r = _lookup_chan(nombre, df_src)
                     if r is not None:
                         with_data.append((nombre, r))
-                    else:
-                        without_data.append((nombre, None))
                 with_data.sort(key=lambda x: x[1][val_col] if not (x[1][val_col] != x[1][val_col]) else 999)
-                return with_data + without_data
+                return with_data
 
             _pp_sorted = _sorted_canonical(PRODUCTO_PROPIO, df_t, 'Eficacia')
             _tp_sorted = _sorted_canonical(THIRD_PARTY, df_t, 'Eficacia')
@@ -419,16 +417,14 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                 return hits.iloc[0] if len(hits) > 0 else None
 
             def _sorted_canonical_cv(lista, df_src, val_col):
+                """Solo incluye canales que tienen datos en el dataset de la semana."""
                 with_data = []
-                without_data = []
                 for nombre in lista:
                     r = _lookup_chan_cv(nombre, df_src)
                     if r is not None:
                         with_data.append((nombre, r))
-                    else:
-                        without_data.append((nombre, None))
                 with_data.sort(key=lambda x: x[1][val_col] if not (x[1][val_col] != x[1][val_col]) else 999)
-                return with_data + without_data
+                return with_data
 
             _pp_sorted_cv = _sorted_canonical_cv(PRODUCTO_PROPIO, df_t, 'ConvRate')
             _tp_sorted_cv = _sorted_canonical_cv(THIRD_PARTY, df_t, 'ConvRate')
