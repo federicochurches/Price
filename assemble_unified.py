@@ -581,12 +581,12 @@ SHARED_CONTAINERS = f'''
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
       <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-1">—</div>
     </div>
-    <!-- Nivel 1: Por Hotel / Por Dimensión -->
-    <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
+    <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
+    <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">
       <div id="ar1-vch-h" onclick="ar_setView(1,'hotel')"
-        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--accent);gap:5px;">🏨 Por Hotel</div>
+        class="tab-label tab-label-active" style="border-radius:6px 6px 0 0;cursor:pointer;">🏨 Por Hotel</div>
       <div id="ar1-vch-d" onclick="ar_setView(1,'dim')"
-        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink-muted);gap:5px;">📊 Por Dimensión</div>
+        class="tab-label" style="border-radius:6px 6px 0 0;cursor:pointer;">📊 Por Dimensión</div>
     </div>
     <!-- Panel Por Hotel card 1 -->
     <div id="ar1-ph" style="padding:12px 16px 0;">
@@ -649,12 +649,12 @@ SHARED_CONTAINERS = f'''
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
       <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-2">—</div>
     </div>
-    <!-- Nivel 1: Por Hotel / Por Dimensión -->
-    <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
+    <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
+    <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">
       <div id="ar2-vch-h" onclick="ar_setView(2,'hotel')"
-        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--accent);gap:5px;">🏨 Por Hotel</div>
+        class="tab-label tab-label-active" style="border-radius:6px 6px 0 0;cursor:pointer;">🏨 Por Hotel</div>
       <div id="ar2-vch-d" onclick="ar_setView(2,'dim')"
-        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink-muted);gap:5px;">📊 Por Dimensión</div>
+        class="tab-label" style="border-radius:6px 6px 0 0;cursor:pointer;">📊 Por Dimensión</div>
     </div>
     <!-- Panel Por Hotel card 2 -->
     <div id="ar2-ph" style="padding:12px 16px 0;">

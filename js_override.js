@@ -884,11 +884,10 @@ function ar_setView(n, v) {
   var pd  = document.getElementById('ar'+n+'-pd');
   var vch = document.getElementById('ar'+n+'-vch-h');
   var vcd = document.getElementById('ar'+n+'-vch-d');
-  var acc = (typeof cv === 'function') ? cv().col : 'var(--accent)';
   if (ph) ph.style.display = v === 'hotel' ? '' : 'none';
   if (pd) pd.style.display = v === 'dim'   ? '' : 'none';
-  if (vch) { vch.style.borderBottomColor = v==='hotel' ? acc : 'transparent'; vch.style.color = v==='hotel' ? acc : 'var(--ink-muted)'; }
-  if (vcd) { vcd.style.borderBottomColor = v==='dim'   ? acc : 'transparent'; vcd.style.color = v==='dim'   ? acc : 'var(--ink-muted)'; }
+  if (vch) { vch.classList.toggle('tab-label-active', v==='hotel'); }
+  if (vcd) { vcd.classList.toggle('tab-label-active', v==='dim');   }
   _arRenderTable(n, v);
 }
 
