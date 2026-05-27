@@ -102,9 +102,18 @@ def build_rnd_cv():
             return str(int(v))
         trafico_str = _fmt_big(trafico_v)
         vol_str = _fmt_big(trafico_v)
+        # Valores semana anterior para WoW en cards AR
+        nd_prev  = m_prev.get('pct_nodispo', m_prev.get('nodispo', None))
+        ipm_prev = m_prev.get('ipm', m_prev.get('rpm', None))
+        nd_wow   = round((nd  - nd_prev)  * 100, 2) if nd_prev  is not None else None
+        ipm_wow  = round((ipm - ipm_prev), 2)        if ipm_prev is not None else None
         result[key] = {
             'ef':      es_pct(nd),
             'cv':      es_ipm(ipm),
+            'ef_prev': es_pct(nd_prev)   if nd_prev  is not None else None,
+            'cv_prev': es_ipm(ipm_prev)  if ipm_prev is not None else None,
+            'ef_wow':  nd_wow,
+            'cv_wow':  ipm_wow,
             'band':    banda,
             'bbg':     bbg,
             'bfg':     bfg,

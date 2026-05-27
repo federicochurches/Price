@@ -153,9 +153,19 @@ def build_cr_cv():
         banda_cv_v = banda_convrate(cv, int(m.get('bookings', 1)))
         bbg_cv, bfg_cv = banda_colors(banda_cv_v)
 
+        # Valores semana anterior para WoW en cards AR
+        wn_prev = int(wn) - 1
+        m_prev = M.get(f'global_w{wn_prev}', {}) if key == 'global' else M.get(f'{m_key}_w{wn_prev}', {})
+        ef_prev = m_prev.get('eficacia', None)
+        cv_prev = m_prev.get('conv_rate', None)
+
         result[key] = {
             'ef':      es_pct(ef),
             'cv':      es_pct(cv),
+            'ef_prev': es_pct(ef_prev) if ef_prev is not None else None,
+            'cv_prev': es_pct(cv_prev) if cv_prev is not None else None,
+            'ef_wow':  round((ef - ef_prev) * 100, 2) if ef_prev is not None else None,
+            'cv_wow':  round((cv - cv_prev) * 100, 2) if cv_prev is not None else None,
             'band':    banda,
             'bbg':     bbg,
             'bfg':     bfg,

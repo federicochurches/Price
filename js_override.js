@@ -1224,29 +1224,36 @@ function ar_updateKPIs() {
  var vol='—', trafico='—', trafWow=null;
 
  if (isCR && typeof HIST_CR !== 'undefined') {
-  /* Usar global como fuente primaria — siempre tiene vals al cargar */
-  var ef_g = HIST_CR['hcr-global-ef'] || {};
-  var cv_g = HIST_CR['hcr-global-cv'] || {};
-  /* Panel solo si ya fue inicializado con datos */
-  var ef_p = HIST_CR['hcr-panel-ef'] || {};
-  var cv_p = HIST_CR['hcr-panel-cv'] || {};
-  var ef_e = (ef_p.vals && ef_p.vals.length >= 2) ? ef_p : ef_g;
-  var cv_e = (cv_p.vals && cv_p.vals.length >= 2) ? cv_p : cv_g;
-  if (ef_e.vals && ef_e.vals.length >= 2) {
-   var ev = ef_e.vals;
-   ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
-   ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
-   efWow = ev[ev.length-1] - ev[ev.length-2];
+  /* Fuente primaria: ef_prev/ef_wow desde CR_CV (calculado en Python) */
+  if (cdata.ef_prev != null) {
+   ef20  = cdata.ef_prev;
+   ef21  = cdata.ef;
+   efWow = cdata.ef_wow;
+  } else {
+   /* Fallback: HIST_CR global */
+   var ef_g = HIST_CR['hcr-global-ef'] || {};
+   if (ef_g.vals && ef_g.vals.length >= 2) {
+    var ev = ef_g.vals;
+    ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
+    ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
+    efWow = ev[ev.length-1] - ev[ev.length-2];
+   }
+   if (cdata.ef) { ef21 = cdata.ef; }
   }
-  if (cv_e.vals && cv_e.vals.length >= 2) {
-   var cv_v = cv_e.vals;
-   cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %';
-   cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
-   cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
+  if (cdata.cv_prev != null) {
+   cv20  = cdata.cv_prev;
+   cv21  = cdata.cv;
+   cvWow = cdata.cv_wow;
+  } else {
+   var cv_g = HIST_CR['hcr-global-cv'] || {};
+   if (cv_g.vals && cv_g.vals.length >= 2) {
+    var cv_v = cv_g.vals;
+    cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %';
+    cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
+    cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
+   }
+   if (cdata.cv) { cv21 = cdata.cv; }
   }
-  /* Sobreescribir ef21/cv21 con el valor exacto de la canasta activa */
-  if (cdata.ef) { ef21 = cdata.ef; }
-  if (cdata.cv) { cv21 = cdata.cv; }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
   if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; }
@@ -1267,26 +1274,34 @@ function ar_updateKPIs() {
   var bc2 = BANDA_C[cvBanda] || BANDA_C['Sin Conversión'];
   cvBandaBg = bc2.bg; cvBandaFg = bc2.fg;
  } else if (!isCR && typeof HIST_RND !== 'undefined') {
-  var nd_g  = HIST_RND['hrnd-global-nd']  || {};
-  var ipm_g = HIST_RND['hrnd-global-ipm'] || {};
-  var nd_p  = HIST_RND['hrnd-panel-nd']   || {};
-  var ipm_p = HIST_RND['hrnd-panel-ipm']  || {};
-  var nd_e  = (nd_p.vals  && nd_p.vals.length  >= 2) ? nd_p  : nd_g;
-  var ipm_e = (ipm_p.vals && ipm_p.vals.length >= 2) ? ipm_p : ipm_g;
-  if (nd_e.vals && nd_e.vals.length >= 2) {
-   var nv = nd_e.vals;
-   ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %';
-   ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
-   efWow = nv[nv.length-1] - nv[nv.length-2];
+  if (cdata.ef_prev != null) {
+   ef20  = cdata.ef_prev;
+   ef21  = cdata.ef;
+   efWow = cdata.ef_wow;
+  } else {
+   var nd_g = HIST_RND['hrnd-global-nd'] || {};
+   if (nd_g.vals && nd_g.vals.length >= 2) {
+    var nv = nd_g.vals;
+    ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %';
+    ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
+    efWow = nv[nv.length-1] - nv[nv.length-2];
+   }
+   if (cdata.ef) { ef21 = cdata.ef; }
   }
-  if (ipm_e.vals && ipm_e.vals.length >= 2) {
-   var iv = ipm_e.vals;
-   cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-   cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-   cvWow = iv[iv.length-1] - iv[iv.length-2];
+  if (cdata.cv_prev != null) {
+   cv20  = cdata.cv_prev;
+   cv21  = cdata.cv;
+   cvWow = cdata.cv_wow;
+  } else {
+   var ipm_g = HIST_RND['hrnd-global-ipm'] || {};
+   if (ipm_g.vals && ipm_g.vals.length >= 2) {
+    var iv = ipm_g.vals;
+    cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    cvWow = iv[iv.length-1] - iv[iv.length-2];
+   }
+   if (cdata.cv) { cv21 = cdata.cv; }
   }
-  if (cdata.ef) { ef21 = cdata.ef; }
-  if (cdata.cv) { cv21 = cdata.cv; }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
   efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
