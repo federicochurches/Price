@@ -1278,33 +1278,150 @@ function ar_updateKPIs() {
 }
 
 /* ══════════════════════════════════════════════════
-   ORDENAMIENTO POR COLUMNA — sort client-side
+   ORDENAMIENTO POR COLUMNA — sobre arrays JS completos
    ══════════════════════════════════════════════════ */
 
+/* Parser de string → número */
 function _sv(s) {
-  if (s==null||s===false||s===true) return null;
-  s=String(s).trim();
+  if(s==null||s===false||s===true) return null;
+  s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
   if(!s||s==='—'||s==='-') return null;
-  s=s.replace(/\$/g,'').replace(/%/g,'').trim();
   if(s.indexOf(',')!==-1){ s=s.replace(/\./g,'').replace(',','.'); }
-  else if(s.indexOf('.')!==-1){ s=s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
+  else { s=s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
   var n=parseFloat(s); return isNaN(n)?null:n;
 }
-function _nd(d){ return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
+function _nd2(d){ return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
 var _SS={};
 
-/* Indicador visual como elemento separado — no afecta el ancho del texto */
-function _makeSortBtn(label, isActive, dir) {
-  var arrow = isActive ? (dir==='asc' ? ' ↑' : ' ↓') : '';
-  return '<span style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;'
-    +(isActive?'color:var(--accent);':'')
-    +'white-space:nowrap;">'
-    +label
-    +'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;opacity:'
-    +(isActive?'1':'0.3')+';">'+arrow+'</span></span>';
+/* Guardar copia original de CR_CARD_TABS / RND_CARD_TABS al primer uso */
+var _TABS_ORIG_CR = null;
+var _TABS_ORIG_RND = null;
+function _getTabsOrig(mode) {
+  if(mode==='cr'){
+    if(!_TABS_ORIG_CR && typeof CR_CARD_TABS!=='undefined'){
+      _TABS_ORIG_CR = JSON.parse(JSON.stringify(CR_CARD_TABS));
+    }
+    return _TABS_ORIG_CR;
+  } else {
+    if(!_TABS_ORIG_RND && typeof RND_CARD_TABS!=='undefined'){
+      _TABS_ORIG_RND = JSON.parse(JSON.stringify(RND_CARD_TABS));
+    }
+    return _TABS_ORIG_RND;
+  }
 }
 
-/* ── SORT cards AR (table/tbody) ── */
+/* ── Columnas ordenables en las cards KPI ──
+   Estructura row CR_CARD_TABS: [nombre, '', bbg, bfg, banda, trafico, wow_traf, metrica, wow_m, w21, w20]
+   índices: trafico=5, metrica=7  */
+var _KPI_SORT_COLS = {
+  /* span-idx en el header → row-array-idx */
+  2: 5,  /* Tráfico */
+  4: 7   /* Eficacia / Conv Rate / NoDispo / IPM */
+};
+
+/* Re-renderizar una tab con datos ordenados (aumentar a 100, con "Ver más") */
+function _reRenderKPITab(card, tkey, rows, isEf) {
+  var panel = card.querySelector('[data-tab="'+tkey+'"]');
+  if(!panel) return;
+  var kpiRows = panel.querySelector('.kpi-tab-rows');
+  if(!kpiRows) return;
+  var header = kpiRows.querySelector('div:first-child');
+  var CHUNK = 10;
+  var visible = rows.slice(0, CHUNK);
+  var rest    = rows.slice(CHUNK);
+  var rowsHtml = visible.map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
+  kpiRows.innerHTML = (header ? header.outerHTML : '') + rowsHtml;
+  /* "Ver más" */
+  var moreId = 'sort-more-'+card.id+'-'+tkey+'-'+(isEf?'ef':'cv');
+  var existing = document.getElementById(moreId);
+  if(existing) existing.remove();
+  if(rest.length) {
+    var btn = document.createElement('div');
+    btn.id = moreId;
+    btn.style.cssText = 'text-align:center;margin-top:6px;';
+    btn.innerHTML = '<button style="font-family:\'Geist\',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:5px 16px;cursor:pointer;border-radius:3px;">Ver '+rest.length+' más ↓</button>';
+    btn.querySelector('button').onclick = function(){
+      kpiRows.innerHTML += rest.map(function(r,i){ return _cardRow(r,CHUNK+i,isEf); }).join('');
+      btn.remove();
+      if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
+    };
+    panel.appendChild(btn);
+  }
+  if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
+  /* Re-enganchar sort en el header */
+  setTimeout(function(){ _attachKPISortHeader(card, tkey, isEf, rows); }, 10);
+}
+
+/* Enganchar sort en el header de una tab KPI */
+function _attachKPISortHeader(card, tkey, isEf, currentRows) {
+  var panel = card.querySelector('[data-tab="'+tkey+'"]');
+  if(!panel) return;
+  var kpiRows = panel.querySelector('.kpi-tab-rows');
+  if(!kpiRows) return;
+  var hdr = kpiRows.querySelector('div:first-child');
+  if(!hdr) return;
+  var hspans = hdr.querySelectorAll('span');
+  var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
+  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+
+  hspans.forEach(function(sp, i){
+    if(_KPI_SORT_COLS[i]==null) return;
+    var base = sp.getAttribute('data-sl') || sp.textContent.replace(/[↑↓ ]/g,'').trim();
+    sp.setAttribute('data-sl', base);
+    /* Indicador fijo 12px para no desalinear */
+    var st=_SS[key];
+    var isActive = st.col===i && st.dir!=='orig';
+    var arrow = isActive?(st.dir==='asc'?'↑':'↓'):'';
+    sp.innerHTML = base+'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;color:var(--accent);opacity:'+(isActive?'1':'0.3')+';">'+arrow+'</span>';
+    /* Clonar para limpiar listeners */
+    var newSp = sp.cloneNode(true);
+    newSp.setAttribute('data-sl', base);
+    newSp.style.cursor = 'pointer';
+    sp.parentNode.replaceChild(newSp, sp);
+    newSp.addEventListener('click', function(){
+      var st2=_SS[key];
+      var dir = (st2.col===i)?_nd2(st2.dir):'asc';
+      _SS[key]={col:i,dir:dir};
+      var ri = _KPI_SORT_COLS[i];
+      /* Ordenar sobre currentRows (puede ser 100) */
+      var sorted = currentRows.slice();
+      if(dir!=='orig'){
+        sorted.sort(function(a,b){
+          var va=_sv(a[ri]),vb=_sv(b[ri]);
+          if(va==null&&vb==null) return 0;
+          if(va==null) return 1; if(vb==null) return -1;
+          return dir==='asc'?va-vb:vb-va;
+        });
+      }
+      _reRenderKPITab(card, tkey, sorted, isEf);
+    });
+  });
+}
+
+/* Inicializar sort en todas las cards KPI */
+function _initAllSort(){
+  var mode = (typeof W!=='undefined')?W.mode:'cr';
+  var canasta = (typeof W!=='undefined')?(W.canasta||'global'):'global';
+  var orig = _getTabsOrig(mode);
+  if(!orig) return;
+  var tabs = orig[canasta] || orig['global'] || {};
+
+  ['ef','cv'].forEach(function(metric){
+    var isEf = metric==='ef';
+    var suffix = isEf?'-ef-':'-cv-';
+    ['destino','corp','hotel'].forEach(function(tkey){
+      var rows = (tabs[metric]||{})[tkey]||[];
+      if(!rows.length) return;
+      var radioEl = document.getElementById('tab'+suffix+tkey);
+      if(!radioEl) return;
+      var card = radioEl.closest('.kpi-card');
+      if(!card) return;
+      _attachKPISortHeader(card, tkey, isEf, rows);
+    });
+  });
+}
+
+/* ── SORT cards AR (table/tbody con arrays JS) ── */
 function _arSort(n, tbodyId, btnId, origRows) {
   var tbody = document.getElementById(tbodyId);
   if(!tbody) return;
@@ -1313,26 +1430,24 @@ function _arSort(n, tbodyId, btnId, origRows) {
   var ths = table.querySelectorAll('thead th');
   var key = tbodyId;
   if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
-  /* Mapeo th-index → row-array-index */
+  /* th-index → row-array-index: trafico=2→r[4], metrica=4→r[5 o 6] */
   var rmap={2:4, 4:(n===1?5:6)};
 
   ths.forEach(function(th,i){
     if(rmap[i]==null) return;
-    /* Extraer label limpio */
-    var base = (th.getAttribute('data-sl') || th.textContent.replace(/[↑↓]/g,'').trim());
-    th.setAttribute('data-sl', base);
-    /* Render indicador inline sin cambiar ancho */
+    var base = th.getAttribute('data-sl') || th.textContent.replace(/[↑↓ ]/g,'').trim();
+    th.setAttribute('data-sl',base);
     var st=_SS[key];
-    var isActive = st.col===i && st.dir!=='orig';
-    th.innerHTML = _makeSortBtn(base, isActive, st.dir);
-    /* Clonar para remover listeners anteriores */
-    var newTh = th.cloneNode(true);
-    newTh.setAttribute('data-sl', base);
-    th.parentNode.replaceChild(newTh, th);
+    var isActive=st.col===i&&st.dir!=='orig';
+    var arrow=isActive?(st.dir==='asc'?'↑':'↓'):'';
+    th.innerHTML=base+'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;color:var(--accent);opacity:'+(isActive?'1':'0.3')+';">'+arrow+'</span>';
+    var newTh=th.cloneNode(true);
+    newTh.setAttribute('data-sl',base);
     newTh.style.cursor='pointer';
+    th.parentNode.replaceChild(newTh,th);
     newTh.addEventListener('click',function(){
       var st2=_SS[key];
-      var dir=(st2.col===i)?_nd(st2.dir):'asc';
+      var dir=(st2.col===i)?_nd2(st2.dir):'asc';
       _SS[key]={col:i,dir:dir};
       var rows=origRows.slice();
       if(dir!=='orig'){
@@ -1345,81 +1460,8 @@ function _arSort(n, tbodyId, btnId, origRows) {
         });
       }
       ar_renderTable(n,tbodyId,btnId,rows);
-      setTimeout(function(){ _arSort(n,tbodyId,btnId,origRows); },20);
+      setTimeout(function(){_arSort(n,tbodyId,btnId,origRows);},20);
     });
-  });
-}
-
-/* ── SORT cards KPI (divs con .kpi-tab-rows) ── */
-function _kpiSort(panel) {
-  var rc=panel.querySelector('.kpi-tab-rows');
-  if(!rc) return;
-  var hdr=rc.firstElementChild;
-  if(!hdr) return;
-  var hspans=hdr.querySelectorAll('span');
-  if(!hspans.length) return;
-  /* Guardar rows originales la primera vez */
-  if(!panel._kpiOrig){
-    var rows=Array.from(rc.children).slice(1);
-    if(!rows.length) return;
-    panel._kpiOrig=rows.map(function(r){return r.cloneNode(true);});
-  }
-  var orig=panel._kpiOrig;
-  var key='kpi_'+(panel.getAttribute('data-tab')||panel.id||Math.random());
-  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
-  /* span índices ordenables → child-índice de cada fila */
-  var smap={2:2, 4:4};
-
-  hspans.forEach(function(sp,i){
-    if(smap[i]==null) return;
-    var base=(sp.getAttribute('data-sl')||sp.textContent.replace(/[↑↓]/g,'').trim());
-    sp.setAttribute('data-sl',base);
-    var st=_SS[key];
-    var isActive=st.col===i&&st.dir!=='orig';
-    sp.innerHTML=_makeSortBtn(base,isActive,st.dir);
-    var newSp=sp.cloneNode(true);
-    newSp.setAttribute('data-sl',base);
-    sp.parentNode.replaceChild(newSp,sp);
-    newSp.style.cursor='pointer';
-    newSp.addEventListener('click',function(){
-      var st2=_SS[key];
-      var dir=(st2.col===i)?_nd(st2.dir):'asc';
-      _SS[key]={col:i,dir:dir};
-      var ci=smap[i];
-      var rows=orig.map(function(r){return r.cloneNode(true);});
-      if(dir!=='orig'){
-        rows.sort(function(a,b){
-          var ca=a.children[ci],cb=b.children[ci];
-          function getVal(el){
-            if(!el) return null;
-            /* Buscar el valor numérico en los hijos: puede ser un span con font-variant-numeric */
-            var spans=el.querySelectorAll('span,div');
-            for(var j=0;j<spans.length;j++){
-              var v=_sv(spans[j].textContent.trim());
-              if(v!==null) return v;
-            }
-            return _sv(el.textContent.trim());
-          }
-          var va=getVal(ca),vb=getVal(cb);
-          if(va==null&&vb==null) return 0;
-          if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc'?va-vb:vb-va;
-        });
-      }
-      /* Re-render */
-      Array.from(rc.children).slice(1).forEach(function(r){rc.removeChild(r);});
-      rows.forEach(function(r){rc.appendChild(r);});
-      /* Re-enganchar */
-      _kpiSort(panel);
-    });
-  });
-}
-
-/* Inicializar sort en todas las cards KPI */
-function _initAllSort(){
-  document.querySelectorAll('.tab-panel,.tab-panel-c').forEach(function(p){
-    p._kpiOrig=null; /* reset para recapturar rows actuales */
-    _kpiSort(p);
   });
 }
 
@@ -1431,7 +1473,9 @@ ar_renderTable=function(n,tbodyId,btnId,rows){
 };
 
 /* Init */
-setTimeout(_initAllSort,1000);
-/* Re-init al cambiar canasta */
+setTimeout(_initAllSort,1200);
+/* Re-init al cambiar canasta o modo */
 var _origSC3=w22_setC;
-w22_setC=function(c,el){_origSC3(c,el);setTimeout(_initAllSort,300);};
+w22_setC=function(c,el){_origSC3(c,el);setTimeout(_initAllSort,400);};
+var _origSM2=w22_setMode;
+w22_setMode=function(m,el){_origSM2(m,el);setTimeout(_initAllSort,400);};
