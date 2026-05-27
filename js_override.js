@@ -1013,7 +1013,8 @@ function _arRenderTable(n, view) {
     var rows = _arRows(n, _arHTab[n]);
     ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
   } else {
-    if (_arDim[n] === 'chan') {
+    var isCR_upd = (typeof W !== 'undefined') && W.mode === 'cr';
+    if (_arDim[n] === 'chan' && isCR_upd) {
       _arRenderChan(n);
     } else {
       /* Restaurar tabla, ocultar chanDiv */
@@ -1067,8 +1068,17 @@ function ar_setDim(n, dim) {
     var btn     = document.getElementById('ar'+n+'-td-more');
     var chanDiv = document.getElementById('ar'+n+'-chan-div');
     if (dim === 'chan') {
-      if (table) table.style.display = 'none';
-      _arRenderChan(n);
+      if (isCR) {
+        /* CR: Channel con layout PP/TP */
+        if (table) table.style.display = 'none';
+        _arRenderChan(n);
+      } else {
+        /* RND: País — tabla simple con datos de dd.chans (países) */
+        if (chanDiv) chanDiv.style.display = 'none';
+        if (table) table.style.display = '';
+        var drows = _arDimRows(n, 'chan');
+        ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+      }
     } else {
       if (table)   table.style.display   = '';
       if (chanDiv) chanDiv.style.display  = 'none';
