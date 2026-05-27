@@ -1415,7 +1415,7 @@ function _arSortAttach(n, tbodyId, btnId) {
         var allRows = isHotelTbody
           ? _arRows(n, _arHTab[n])
           : _arDimRows(n, _arDim[n]);
-        console.log('[sort] n='+n+' col='+colIdx+' ri='+rowIdx+' dir='+dir+' allRows='+allRows.length);
+        /* sort: n=n col=colIdx ri=rowIdx dir=dir allRows=allRows.length */
         /* Ordenar */
         var sorted = allRows.slice().map(function(r, origIdx){
           return {r:r, origPos: origIdx+1}; /* guardar posición original 1-based */
