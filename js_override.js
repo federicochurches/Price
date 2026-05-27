@@ -1404,9 +1404,19 @@ function _sv(s){
   if(s==null||s===false||s===true) return null;
   s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
   if(!s||s==='—'||s==='-') return null;
+  /* Detectar sufijos K/M/B antes de parsear */
+  var mult=1;
+  var su=s.toUpperCase();
+  if(/[KMB]$/.test(su)){
+    var last=su[su.length-1];
+    if(last==='K') mult=1e3;
+    else if(last==='M') mult=1e6;
+    else if(last==='B') mult=1e9;
+    s=s.slice(0,-1); /* quitar sufijo */
+  }
   if(s.indexOf(',')!==-1){s=s.replace(/\./g,'').replace(',','.');}
   else{s=s.replace(/\.(?=\d{3}(?:\.|$))/g,'');}
-  var n=parseFloat(s); return isNaN(n)?null:n;
+  var n=parseFloat(s); return isNaN(n)?null:n*mult;
 }
 function _nd(d){return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig';}
 var _SS={};
