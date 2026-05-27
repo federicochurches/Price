@@ -268,9 +268,37 @@ function w22_bindCanvasTip(el,cid,cfg,pts){
   var tip=w22_getTooltip();tip.style.display='none';
  };
 }
+/* Datos históricos por canasta para las cards KPI CR */
+var HIST_CR_BY_CANASTA = (typeof HIST_CR !== 'undefined') ? {
+  global: {
+    ef: HIST_CR['hcr-global-ef'] || HIST_CR['h-global-ef'],
+    cv: HIST_CR['hcr-global-cv'] || HIST_CR['h-global-cv']
+  },
+  b2c: {
+    ef: HIST_CR['h-b2c-ef'] || HIST_CR['hcr-global-ef'],
+    cv: HIST_CR['h-b2c-cv'] || HIST_CR['hcr-global-cv']
+  },
+  op: {
+    ef: HIST_CR['h-op-ef'] || HIST_CR['hcr-global-ef'],
+    cv: HIST_CR['h-op-cv'] || HIST_CR['hcr-global-cv']
+  },
+  cug: {
+    ef: HIST_CR['h-cug-ef'] || HIST_CR['hcr-global-ef'],
+    cv: HIST_CR['h-cug-cv'] || HIST_CR['hcr-global-cv']
+  }
+} : {};
+
 function w22_redrawCanvas(accent){
  var rgb=RGB[accent]||'92,70,156';
  var hist=W.mode==='cr'?(typeof HIST_CR!=='undefined'?HIST_CR:{}):(typeof HIST_RND!=='undefined'?HIST_RND:{});
+ 
+ /* Sobrescribir datos de canvas KPI global con los de la canasta activa */
+ if(W.mode==='cr' && HIST_CR_BY_CANASTA[W.canasta]) {
+   var cdata = HIST_CR_BY_CANASTA[W.canasta];
+   if(cdata.ef) hist['hcr-global-ef'] = cdata.ef;
+   if(cdata.cv) hist['hcr-global-cv'] = cdata.cv;
+ }
+ 
  Object.keys(hist).forEach(function(cid){
   var cfg=hist[cid],el=g(cid);if(!el||!el.getContext)return;
   el.width=el.offsetWidth||400;el.height=76;
