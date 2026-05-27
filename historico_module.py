@@ -133,7 +133,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{bc['footer']};text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
+    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{bc['footer']};background:{bc['bg']};padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
     <span id="hist-{canvas_id}-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: {target_disp}</span>
   </div>
 </div>
@@ -289,7 +289,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
     if (bbEl) {{ bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }}
     if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
+    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }}
     /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
     var kvMap = {{'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
                  'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'}};
