@@ -238,6 +238,17 @@ function w22_recolorSparks(accent){
  actualIds.forEach(function(aid){
   var el=g(aid);if(el)el.style.color=accent;
  });
+ 
+ /* Redibujar canvas del módulo histórico con el nuevo color de canasta */
+ var canasta = W.canasta || 'global';
+ if(W.mode==='cr' && typeof HIST_CR_BY_CANASTA !== 'undefined') {
+  var efVals = HIST_CR_BY_CANASTA[canasta] && HIST_CR_BY_CANASTA[canasta].ef ? HIST_CR_BY_CANASTA[canasta].ef.vals : null;
+  var cvVals = HIST_CR_BY_CANASTA[canasta] && HIST_CR_BY_CANASTA[canasta].cv ? HIST_CR_BY_CANASTA[canasta].cv.vals : null;
+  var fnEf = window['histRedraw_hcr-global-ef'];
+  var fnCv = window['histRedraw_hcr-global-cv'];
+  if(typeof fnEf === 'function') setTimeout(function(){fnEf(accent, efVals);}, 20);
+  if(typeof fnCv === 'function') setTimeout(function(){fnCv(accent, cvVals);}, 20);
+ }
 }
 /* Canvas */
 var RGB={'#333132':'51,49,50','#EA0074':'234,0,116','#FCB000':'252,176,0','#4FC3F4':'79,195,244','#1A6B4A':'26,107,74'};
@@ -283,6 +294,12 @@ function w22_bindCanvasTip(el,cid,cfg,pts){
   var tip=w22_getTooltip();tip.style.display='none';
  };
 }
+/* Canvas manejados por el IIFE del módulo histórico — NO redibujar desde aquí */
+var HIST_MODULE_CANVAS = {
+  'hcr-global-ef': true, 'hcr-global-cv': true,
+  'hrnd-global-nd': true, 'hrnd-global-ipm': true
+};
+
 /* Datos históricos por canasta para las cards KPI CR */
 var HIST_CR_BY_CANASTA = (typeof HIST_CR !== 'undefined') ? {
   global: {
@@ -315,6 +332,8 @@ function w22_redrawCanvas(accent){
  }
  
  Object.keys(hist).forEach(function(cid){
+  /* Saltear canvas manejados por el IIFE del módulo histórico */
+  if(HIST_MODULE_CANVAS[cid]) return;
   var cfg=hist[cid],el=g(cid);if(!el||!el.getContext)return;
   el.width=el.offsetWidth||400;el.height=76;
   var ctx=el.getContext('2d'),vals=cfg.vals,h=el.height-10;

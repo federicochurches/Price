@@ -346,5 +346,15 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else requestAnimationFrame(init);
+  
+  /* Exponer función de redraw con nuevo accent para cambio de canasta */
+  window['histRedraw_'+CID] = function(newAccent, newVals) {{
+    if (newAccent) {{ ACCENT_HEX = newAccent; ACCENT_RGB = ({{
+      '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
+      '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#EA0074':'234,0,116'
+    }})[newAccent] || '92,70,156'; }}
+    var vals = newVals || currentVals;
+    drawCanvas(vals); updateMetrics(vals, 'Global');
+  }};
 }})();
 </script>'''
