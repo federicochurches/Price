@@ -183,6 +183,41 @@ function w22_update(){
  var dim_data = d[dim_key+'s'] || d.dims || [];
  w22_renderTable('w22-td','w22-td-more',dim_data,false);
  
+ /* Sincronizar controles locales de Análisis de Rendimiento */
+ (function(){
+  var accent_col = col;
+  /* Botones CR/RND */
+  ['ar-btn-cr','ar-btn-rnd'].forEach(function(id){
+   var btn = g(id);
+   if(!btn) return;
+   var isCurrent = (id === 'ar-btn-'+W.mode);
+   btn.style.background = isCurrent ? accent_col : '';
+   btn.style.color = isCurrent ? '#fff' : '';
+   btn.style.borderColor = isCurrent ? accent_col : '';
+  });
+  /* Chips de canasta */
+  ['global','b2c','op','cug'].forEach(function(c){
+   var chip = g('ar-chip-'+c);
+   if(!chip) return;
+   var isCurrent = (c === (W.canasta||'global'));
+   chip.style.background = isCurrent ? accent_col : '';
+   chip.style.color = isCurrent ? '#fff' : '';
+   chip.style.borderColor = isCurrent ? accent_col : '';
+   chip.style.fontWeight = isCurrent ? '700' : '';
+  });
+ })();
+
+ /* Re-mostrar panels de Análisis según modo */
+ var phCR  = g('w22-panel-hist-cr');
+ var phRND = g('w22-panel-hist-rnd');
+ var pdCR  = g('w22-panel-dim-hist-cr');
+ var pdRND = g('w22-panel-dim-hist-rnd');
+ var isCR  = W.mode === 'cr';
+ if(phCR)  { phCR.style.display  = isCR ? 'grid' : 'none'; }
+ if(phRND) { phRND.style.display = isCR ? 'none' : 'grid'; }
+ if(pdCR)  { pdCR.style.display  = isCR ? 'grid' : 'none'; }
+ if(pdRND) { pdRND.style.display = isCR ? 'none' : 'grid'; }
+
  /* Actualizar headers de tabla según modo */
  w22_updateTableHeaders();
  
@@ -295,9 +330,11 @@ function w22_recolorSparks(accent){
  /* IDs de spark containers para las cards KPI + panel análisis */
  var sparkIds = W.mode==='cr'
    ? ['hist-hcr-global-ef-spark','hist-hcr-global-cv-spark',
-      'hist-hcr-panel-ef-spark','hist-hcr-dim-ef-spark']
+      'hist-hcr-panel-ef-spark','hist-hcr-panel-cv-spark',
+      'hist-hcr-dim-ef-spark','hist-hcr-dim-cv-spark']
    : ['hist-hrnd-global-nd-spark','hist-hrnd-global-ipm-spark',
-      'hist-hrnd-panel-nd-spark','hist-hrnd-dim-nd-spark'];
+      'hist-hrnd-panel-nd-spark','hist-hrnd-panel-ipm-spark',
+      'hist-hrnd-dim-nd-spark','hist-hrnd-dim-ipm-spark'];
  
  sparkIds.forEach(function(sid){
   var el=g(sid);if(!el)return;
@@ -320,9 +357,11 @@ function w22_recolorSparks(accent){
  /* Recolorear el valor "Actual" en los módulos históricos CR activos */
  var actualIds = W.mode==='cr'
    ? ['hist-hcr-global-ef-actual','hist-hcr-global-cv-actual',
-      'hist-hcr-panel-ef-actual','hist-hcr-dim-ef-actual']
+      'hist-hcr-panel-ef-actual','hist-hcr-panel-cv-actual',
+      'hist-hcr-dim-ef-actual','hist-hcr-dim-cv-actual']
    : ['hist-hrnd-global-nd-actual','hist-hrnd-global-ipm-actual',
-      'hist-hrnd-panel-nd-actual','hist-hrnd-dim-nd-actual'];
+      'hist-hrnd-panel-nd-actual','hist-hrnd-panel-ipm-actual',
+      'hist-hrnd-dim-nd-actual','hist-hrnd-dim-ipm-actual'];
  actualIds.forEach(function(aid){
   var el=g(aid);if(el)el.style.color=accent;
  });
@@ -338,9 +377,13 @@ function w22_recolorSparks(accent){
   if(typeof fnCv === 'function') setTimeout(function(){fnCv(accent, cvVals);}, 20);
   /* También canvas del panel y dimensión */
   var fnPanel = window['histRedraw_hcr-panel-ef'];
+  var fnPanelCv = window['histRedraw_hcr-panel-cv'];
   var fnDim   = window['histRedraw_hcr-dim-ef'];
-  if(typeof fnPanel === 'function') setTimeout(function(){fnPanel(accent, efVals);}, 30);
-  if(typeof fnDim   === 'function') setTimeout(function(){fnDim(accent, efVals);}, 30);
+  var fnDimCv = window['histRedraw_hcr-dim-cv'];
+  if(typeof fnPanel   === 'function') setTimeout(function(){fnPanel(accent, efVals);}, 30);
+  if(typeof fnPanelCv === 'function') setTimeout(function(){fnPanelCv(accent, cvVals);}, 30);
+  if(typeof fnDim     === 'function') setTimeout(function(){fnDim(accent, efVals);}, 30);
+  if(typeof fnDimCv   === 'function') setTimeout(function(){fnDimCv(accent, cvVals);}, 30);
  } else if(W.mode==='rnd' && typeof HIST_RND_BY_CANASTA !== 'undefined') {
   var ndVals  = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].nd  ? HIST_RND_BY_CANASTA[canasta].nd.vals  : null;
   var ipmVals = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].ipm ? HIST_RND_BY_CANASTA[canasta].ipm.vals : null;
@@ -349,10 +392,14 @@ function w22_recolorSparks(accent){
   if(typeof fnNd  === 'function') setTimeout(function(){fnNd(accent, ndVals);},  20);
   if(typeof fnIpm === 'function') setTimeout(function(){fnIpm(accent, ipmVals);}, 20);
   /* También canvas del panel y dimensión */
-  var fnPanelR = window['histRedraw_hrnd-panel-nd'];
-  var fnDimR   = window['histRedraw_hrnd-dim-nd'];
-  if(typeof fnPanelR === 'function') setTimeout(function(){fnPanelR(accent, ndVals);}, 30);
-  if(typeof fnDimR   === 'function') setTimeout(function(){fnDimR(accent, ndVals);}, 30);
+  var fnPanelR   = window['histRedraw_hrnd-panel-nd'];
+  var fnPanelIpm = window['histRedraw_hrnd-panel-ipm'];
+  var fnDimR     = window['histRedraw_hrnd-dim-nd'];
+  var fnDimIpm   = window['histRedraw_hrnd-dim-ipm'];
+  if(typeof fnPanelR   === 'function') setTimeout(function(){fnPanelR(accent, ndVals);}, 30);
+  if(typeof fnPanelIpm === 'function') setTimeout(function(){fnPanelIpm(accent, ipmVals);}, 30);
+  if(typeof fnDimR     === 'function') setTimeout(function(){fnDimR(accent, ndVals);}, 30);
+  if(typeof fnDimIpm   === 'function') setTimeout(function(){fnDimIpm(accent, ipmVals);}, 30);
  }
 }
 /* Canvas */

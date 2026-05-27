@@ -31,12 +31,20 @@ from engine import banda_eficacia as _bef, banda_nodispo as _bnd
 from render_helpers import searchbox_pill_html as _sbph
 
 _ef_val  = DC.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('eficacia', 0.9315)
+_cv_val  = DC.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('conv_rate', 0.0157)
 _nd_val  = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('nodispo', 0.0263)
+_ipm_val = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('rpm', 834.0)
 
-HIST_CR_PANEL  = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-panel-ef')
-HIST_RND_PANEL = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-panel-nd')
-HIST_CR_DIM    = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
-HIST_RND_DIM   = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
+from engine import banda_convrate as _bcv, banda_rpm as _brpm
+
+HIST_CR_PANEL     = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-panel-ef')
+HIST_CR_PANEL_CV  = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-panel-cv')
+HIST_RND_PANEL    = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-panel-nd')
+HIST_RND_PANEL_IPM= _rh('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-panel-ipm')
+HIST_CR_DIM       = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
+HIST_CR_DIM_CV    = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-dim-cv')
+HIST_RND_DIM      = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
+HIST_RND_DIM_IPM  = _rh('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-dim-ipm')
 
 SB_PANEL_TH = _sbph('sb-panel-th', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-panel-th')
 SB_PANEL_TD = _sbph('sb-panel-td', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-panel-td')
@@ -123,14 +131,12 @@ _M_cr  = _D_cr.get('M', {})
 _M_rnd = _D_rnd.get('M', {})
 
 _HIST_CR_PY = {
-    # Canvas de las cards KPI (global) — IDs fijos en el DOM
     'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
     'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    # Canvas del panel de análisis (por canasta)
     'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    # Canvas de dimensiones
+    'hcr-panel-cv':  {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
     'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    # Canvas por canasta (para w22_setMode cuando cambia canasta)
+    'hcr-dim-cv':    {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
     'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
     'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
     'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
@@ -142,14 +148,18 @@ _HIST_CR_PY = {
 }
 
 _HIST_RND_PY = {
-    'hrnd-global-nd':  {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-global-ipm': {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-op-nd':      {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-op-ipm':     {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-cug-nd':     {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-cug-ipm':    {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-b2c-nd':     {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-b2c-ipm':    {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w21',{}).get('rpm',0),0)), 'target': 650.0},
 }
 
 _HIST_CR_BY_CANASTA_PY = {
@@ -518,10 +528,41 @@ SHARED_CONTAINERS = f'''
 </section>
 
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
-<div class="section-head"><div>
+<div class="section-head" style="margin-bottom:16px;"><div>
 <h2 class="section-title">Análisis de Rendimiento</h2>
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
 </div></div>
+
+<!-- Barra de controles local: CR/RND + Canastas -->
+<div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:var(--paper);border:1px solid var(--rule);border-radius:4px;margin-bottom:16px;flex-wrap:wrap;">
+  <!-- Switch CR / RND -->
+  <div style="display:flex;align-items:center;gap:8px;border-right:1px solid var(--rule);padding-right:16px;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);">Reporte</span>
+    <button onclick="w22_setMode('cr',document.getElementById('mode-cr'))"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;transition:all .15s;"
+      id="ar-btn-cr" class="ar-mode-btn ar-mode-active">CR</button>
+    <button onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;transition:all .15s;"
+      id="ar-btn-rnd" class="ar-mode-btn">RND</button>
+  </div>
+  <!-- Chips de canasta -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);">Canasta</span>
+    <div onclick="w22_setC('global',document.getElementById('chip-global'))"
+      id="ar-chip-global" class="ar-canasta-chip ar-chip-active"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Global</div>
+    <div onclick="w22_setC('b2c',document.getElementById('chip-b2c'))"
+      id="ar-chip-b2c" class="ar-canasta-chip"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">B2C</div>
+    <div onclick="w22_setC('op',document.getElementById('chip-op'))"
+      id="ar-chip-op" class="ar-canasta-chip"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Opaco</div>
+    <div onclick="w22_setC('cug',document.getElementById('chip-cug'))"
+      id="ar-chip-cug" class="ar-canasta-chip"
+      style="font-size:10px;font-weight:700;padding:5px 12px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);transition:all .15s;">Ultra Opaco</div>
+  </div>
+</div>
+
 <div class="vsw" style="display:flex;align-items:stretch;border:1px solid var(--rule);border-bottom:none;background:var(--paper-soft);">
   <div style="display:flex;align-items:center;padding:0 16px;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-muted);border-right:1px solid var(--rule);white-space:nowrap;min-width:72px;">Vista</div>
   <div class="v-chip on" id="vch-h" style="display:flex;align-items:center;gap:6px;padding:0 22px;height:38px;font-size:10px;font-weight:700;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);background:var(--paper);color:var(--ink);" onclick="w22_setView('hotel')">🏨&nbsp;&nbsp;Por Hotel</div>
@@ -533,7 +574,7 @@ SHARED_CONTAINERS = f'''
     <label class="tab-label" onclick="w22_setHotelTab('br',this)" id="w22-tab-lbl-2">Bajo Rendimiento</label>
     <label class="tab-label" onclick="w22_setHotelTab('sc',this)" id="w22-tab-lbl-3">Sin Conversión</label>
     <label class="tab-label" onclick="w22_setHotelTab('cv',this)" id="w22-tab-lbl-4">Menor ConvRate</label>
-    {SB_PANEL_TH}
+    {{SB_PANEL_TH}}
   </div>
   <div style="padding-top:14px;">
     <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
@@ -557,15 +598,20 @@ SHARED_CONTAINERS = f'''
       <button id="w22-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:7px 20px;cursor:pointer;border-radius:3px;"></button>
     </div>
   </div>
-  <div id="w22-panel-hist-cr"  style="margin-top:16px;display:block;">{HIST_CR_PANEL}</div>
-  <div id="w22-panel-hist-rnd" style="margin-top:16px;display:none;">{HIST_RND_PANEL}</div>
+  <!-- Dos canvas: Eficacia/NoDispo + ConvRate/IPM -->
+  <div id="w22-panel-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    {{HIST_CR_PANEL}}{{HIST_CR_PANEL_CV}}
+  </div>
+  <div id="w22-panel-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
+    {{HIST_RND_PANEL}}{{HIST_RND_PANEL_IPM}}
+  </div>
 </div>
 <div id="w22-pd" style="display:none;border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
   <div class="tabs-row" style="margin-top:0;margin-bottom:14px;">
     <label class="tab-label tab-label-active" onclick="w22_setDim('corp');w22_iTab(this);" id="w22-dim-lbl-corp">Corporativo</label>
     <label class="tab-label" onclick="w22_setDim('dest');w22_iTab(this);" id="w22-dim-lbl-dest">Destino</label>
     <label class="tab-label" onclick="w22_setDim('chan');w22_iTab(this);" id="w22-dim-lbl-chan">Canal</label>
-    {SB_PANEL_TD}
+    {{SB_PANEL_TD}}
   </div>
   <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
     <colgroup>
@@ -587,8 +633,12 @@ SHARED_CONTAINERS = f'''
   <div style="text-align:center;margin-top:10px;">
     <button id="w22-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:7px 20px;cursor:pointer;border-radius:3px;"></button>
   </div>
-  <div id="w22-panel-dim-hist-cr"  style="margin-top:16px;display:block;">{HIST_CR_DIM}</div>
-  <div id="w22-panel-dim-hist-rnd" style="margin-top:16px;display:none;">{HIST_RND_DIM}</div>
+  <div id="w22-panel-dim-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    {{HIST_CR_DIM}}{{HIST_CR_DIM_CV}}
+  </div>
+  <div id="w22-panel-dim-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
+    {{HIST_RND_DIM}}{{HIST_RND_DIM_IPM}}
+  </div>
 </div>
 </section>
 
