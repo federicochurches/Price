@@ -743,6 +743,29 @@ def _build_card_rows_cv(tab_cv, t_key):
         ])
     return rows
 
+def _build_card_rows_chan(tab, metric_col, wow_col):
+    """Convierte tab channel en array de filas para JS."""
+    PRODUCTO_PROPIO = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
+    df = tab.get('channel', pd.DataFrame())
+    pp_rows, tp_rows = [], []
+    for _, r in df.iterrows():
+        nombre = str(r.get('ExternalProviderName','?'))
+        val = r.get(metric_col, None)
+        val_pct = round(float(val)*100, 2) if val and not _math_glob.isnan(float(val)) else None
+        bnd = banda_eficacia(val) if metric_col=='Eficacia' and val is not None else (banda_convrate(val, int(r.get('Bookings',0))) if val is not None else '')
+        bc = BANDA_COLORS.get(bnd, {})
+        cr_u = r.get('CR_Unicos', None)
+        wow = r.get(wow_col, None)
+        entry = [nombre, bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+                 int(cr_u) if cr_u and not _math_glob.isnan(float(cr_u)) else None,
+                 val_pct,
+                 round(float(wow), 2) if wow and not _math_glob.isnan(float(wow)) else None]
+        if nombre in PRODUCTO_PROPIO:
+            pp_rows.append(entry)
+        else:
+            tp_rows.append(entry)
+    return {'pp': pp_rows, 'tp': tp_rows}
+
 def _build_cr_card_tabs_json():
     """Genera JSON con los datos de las cards KPI por canasta."""
     TAB_EF_BY = D.get('TAB_EF_BY_CANASTA', {'global': TAB_EF})
@@ -754,6 +777,8 @@ def _build_cr_card_tabs_json():
         tabs[canasta] = {
             'ef': {t: _build_card_rows_ef(tab_ef, t) for t in ['destino','corp','hotel']},
             'cv': {t: _build_card_rows_cv(tab_cv, t) for t in ['destino','corp','hotel']},
+            'ef_chan': _build_card_rows_chan(tab_ef, 'Eficacia', 'Eficacia_WoW_pp'),
+            'cv_chan': _build_card_rows_chan(tab_cv, 'ConvRate', 'ConvRate_WoW_pp'),
         }
     return f'\n<script>\nvar CR_CARD_TABS={_json.dumps(tabs, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 

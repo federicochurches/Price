@@ -758,37 +758,65 @@ function w22_renderCardTabs(canasta){
   if(typeof CR_CARD_TABS === 'undefined') return;
   var tabs = CR_CARD_TABS[canasta] || CR_CARD_TABS['global'];
   if(!tabs) return;
-  /* Para cada tipo de tab (destino, corp, hotel) y cada card (ef, cv) */
+  
+  /* destino / corp / hotel */
   ['ef','cv'].forEach(function(metric){
     var isEf = metric==='ef';
-    /* Buscar todos los tab-panel de la card correspondiente */
-    /* Las cards usan data-tab="destino/corp/hotel" dentro de .kpi-card */
     var suffix = isEf ? '-ef-' : '-cv-';
     ['destino','corp','hotel'].forEach(function(tkey){
       var rows = (tabs[metric]||{})[tkey]||[];
-      /* Buscar el panel correspondiente: input con id tab{suffix}{tkey} */
-      var panelSel = '[data-tab="'+tkey+'"]';
-      /* Necesitamos la card correcta — ef o cv — buscar por el input radio */
-      var radioId = 'tab'+suffix+tkey;
-      var radioEl = document.getElementById(radioId);
+      var radioEl = document.getElementById('tab'+suffix+tkey);
       if(!radioEl) return;
       var card = radioEl.closest('.kpi-card');
       if(!card) return;
       var panel = card.querySelector('[data-tab="'+tkey+'"]');
       if(!panel) return;
-      /* Re-renderizar filas en el panel */
       var rowsHtml = rows.slice(0,10).map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
-      /* Preservar el header (primer div.kpi-tab-rows no tiene rows) */
       var kpiRows = panel.querySelector('.kpi-tab-rows');
       if(kpiRows){
-        /* Reemplazar todo excepto el header */
         var header = kpiRows.querySelector('div:first-child');
         kpiRows.innerHTML = (header?header.outerHTML:'') + rowsHtml;
       } else {
         panel.innerHTML = rowsHtml;
       }
-      /* Re-inyectar atributos para el histórico */
       if(typeof window._injectHistAttrs === 'function') window._injectHistAttrs(card);
     });
+  });
+  
+  /* channel — layout especial: PP / TP en dos columnas */
+  ['ef','cv'].forEach(function(metric){
+    var isEf = metric==='ef';
+    var suffix = isEf ? '-ef-' : '-cv-';
+    var chanKey = metric+'_chan';
+    var chanData = tabs[chanKey] || {};
+    var pp = chanData.pp || [], tp = chanData.tp || [];
+    var radioEl = document.getElementById('tab'+suffix+'channel');
+    if(!radioEl) return;
+    var card = radioEl.closest('.kpi-card');
+    if(!card) return;
+    var panel = card.querySelector('[data-tab="channel"]');
+    if(!panel) return;
+    
+    /* [nombre, bbg, bfg, banda, cr_u, val_pct, wow_pp] */
+    function _chanRow(r, i){
+      var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp=r[6];
+      var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+      var mw_up = wow_pp!=null&&wow_pp>0;
+      var mw_bg = mw_up?'#EAF3DE':'#FCE8E6';
+      var mw_fg = mw_up?'#2F6C34':'#C0392B';
+      var mw = wow_pp!=null?_pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'pp', mw_bg, mw_fg):'<span style="color:var(--ink-muted)">—</span>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule-soft);gap:6px;">'
+        +'<span style="font-size:11px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
+        +'<span>'+badge+'</span>'
+        +'<span style="font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+_fmtPct(val_pct)+'</span>'
+        +'<span>'+mw+'</span>'
+        +'</div>';
+    }
+    var pp_html = pp.map(_chanRow).join('');
+    var tp_html = tp.map(_chanRow).join('');
+    panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+      +'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
+      +'</div>';
   });
 }
