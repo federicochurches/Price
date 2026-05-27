@@ -217,7 +217,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
             import math as _mnd
             _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
             _nd_w20_raw = r.get('%NoDispo_W18', r.get('NoDispo_W17', r.get('%NoDispo_W17', None)))
@@ -227,20 +226,36 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             if not _bnd_nd and val is not None:
                 from engine import banda_nodispo as _bn; _bnd_nd = _bn(val)
             _badge_nd = _mini_badge(_bnd_nd)
+            # Tráfico
+            _traf_val = r.get('Trafico', None)
+            _traf_str = fmt_int_es(int(_traf_val)) if _traf_val and not _mnd.isnan(float(_traf_val)) else '—'
+            # WoW tráfico
+            _traf_wow_pct = r.get('Trafico_WoW_pct', None)
+            if _traf_wow_pct is not None and not (isinstance(_traf_wow_pct, float) and _mnd.isnan(_traf_wow_pct)):
+                _tw_delta = _traf_wow_pct
+                _tw_str = f'▲{abs(_tw_delta):.1f}%' if _tw_delta > 0 else f'▼{abs(_tw_delta):.1f}%'
+                _tw_bg  = '#EAF3DE' if _tw_delta > 0 else '#FCE8E6'
+                _tw_fg  = '#2F6C34' if _tw_delta > 0 else '#C0392B'
+                _traf_wow_pill = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_tw_bg};color:{_tw_fg};white-space:nowrap;">{_tw_str}</em>'
+            else:
+                _traf_wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
             if i < 5: _cls = ''
             elif i < 10: _cls = 'rows-more'
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 76px 52px 44px 54px 36px;align-items:center;gap:6px;'
                     f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_nd}</div>'
+                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_traf_str}</span>'
+                    f'<div style="text-align:right;white-space:nowrap;">{_traf_wow_pill}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
+                    f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
+                    f'</div>')
             if i < 5: top5 += _row
             elif i < 10: next5 += _row
             else: rest += _row
@@ -254,7 +269,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 76px 54px 36px')
+            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','%NoDispo','WoW'], 'minmax(0,1fr) 76px 52px 44px 54px 36px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest
@@ -337,7 +352,6 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
                 else:
                     wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
             import math as _mipm
             _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
             _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
@@ -347,20 +361,34 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             if not _bnd_ipm and val is not None:
                 from engine import banda_rpm as _brpm; _bnd_ipm = _brpm(val, 1)
             _badge_ipm = _mini_badge(_bnd_ipm)
+            # Tráfico + WoW tráfico (reutilizar del mismo row)
+            _traf_val2 = r.get('Trafico', None)
+            _traf_str2 = fmt_int_es(int(_traf_val2)) if _traf_val2 and not _mipm.isnan(float(_traf_val2)) else '—'
+            _traf_wow_pct2 = r.get('Trafico_WoW_pct', None)
+            if _traf_wow_pct2 is not None and not (isinstance(_traf_wow_pct2, float) and _mipm.isnan(_traf_wow_pct2)):
+                _tw2_str = f'▲{abs(_traf_wow_pct2):.1f}%' if _traf_wow_pct2 > 0 else f'▼{abs(_traf_wow_pct2):.1f}%'
+                _tw2_bg  = '#EAF3DE' if _traf_wow_pct2 > 0 else '#FCE8E6'
+                _tw2_fg  = '#2F6C34' if _traf_wow_pct2 > 0 else '#C0392B'
+                _traf_wow_pill2 = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_tw2_bg};color:{_tw2_fg};white-space:nowrap;">{_tw2_str}</em>'
+            else:
+                _traf_wow_pill2 = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
             if i < 5: _cls2 = ''
             elif i < 10: _cls2 = 'rows-more'
             else: _cls2 = 'sb-hidden'
             _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
                     f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 76px 52px 44px 54px 36px;align-items:center;gap:6px;'
                     f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
+                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_traf_str2}</span>'
+                    f'<div style="text-align:right;white-space:nowrap;">{_traf_wow_pill2}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
+                    f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
+                    f'</div>')
             if i < 5: top5 += _row2
             elif i < 10: next5 += _row2
             else: rest += _row2
@@ -374,7 +402,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 76px 54px 36px')
+            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','IPM','WoW'], 'minmax(0,1fr) 76px 52px 44px 54px 36px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
         else:
             panel_html = top5 + next5 + rest

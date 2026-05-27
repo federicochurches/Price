@@ -159,7 +159,8 @@ _gh17 = df17.groupby('Hotel').agg(
 _gh17['%NoDispo_W18'] = (_gh17['_TND'] / _gh17['_Trafico'].replace(0, np.nan)).fillna(0)
 _gh17['IPM_W18']      = (_gh17['_gb'].clip(lower=0) / _gh17['_Trafico'].replace(0, np.nan) * 1_000_000).fillna(0)
 _gh17['RPM_W18']      = _gh17['IPM_W18']
-g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18']]
+_gh17['Trafico_W18']  = _gh17['_Trafico']
+g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18','Trafico_W18']]
 g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
     [['CorpName','%NoDispo_W18','IPM_W18']]
 g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
@@ -169,8 +170,9 @@ g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W
 
 # Enriquecer p80 con WoW
 p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
-p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W18']) * 100
-p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W18']
+p80_hotel['NoDispo_WoW_pp']   = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W18']) * 100
+p80_hotel['IPM_WoW_pp']       = p80_hotel['IPM'] - p80_hotel['IPM_W18']
+p80_hotel['Trafico_WoW_pct']  = ((p80_hotel['Trafico'] - p80_hotel['Trafico_W18']) / p80_hotel['Trafico_W18'].replace(0, float('nan')) * 100).fillna(float('nan'))
 
 # ── Métricas globales · basadas en P80 (metodología) ─────────────
 # Las cards globales muestran métricas del P80, no del dataset completo

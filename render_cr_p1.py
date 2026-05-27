@@ -324,7 +324,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                 _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 64px 54px 48px;align-items:center;gap:8px;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 54px 48px;align-items:center;gap:6px;'
                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
@@ -332,6 +332,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_cr_unicos_str}</span>'
+                    f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
             if i < 5: top5 += _row
@@ -348,7 +349,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','Tráfico','Eficacia','WoW'], 'minmax(0,1fr) 80px 64px 54px 48px')
+            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Eficacia','WoW'], 'minmax(0,1fr) 80px 56px 52px 54px 48px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
@@ -508,12 +509,22 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
             # Tráfico
             _cr_u = r.get('CR_Unicos', None)
             _cr_u_str = fmt_int_es(int(_cr_u)) if _cr_u and not _math.isnan(float(_cr_u)) else '—'
+            # WoW de tráfico
+            _cr_wow_pp2 = r.get('CR_Unicos_WoW_pp', None)
+            if _cr_wow_pp2 is not None and not (isinstance(_cr_wow_pp2, float) and _math.isnan(_cr_wow_pp2)):
+                _cr_delta2 = _cr_wow_pp2 / 100
+                _cr_wow_str2 = f'▲{fmt_int_es(int(abs(_cr_delta2)))}' if _cr_delta2 > 0 else f'▼{fmt_int_es(int(abs(_cr_delta2)))}'
+                _cr_wow_bg2 = '#EAF3DE' if _cr_delta2 > 0 else '#FCE8E6'
+                _cr_wow_color2 = '#2F6C34' if _cr_delta2 > 0 else '#C0392B'
+                _cr_wow_pill2 = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_cr_wow_bg2};color:{_cr_wow_color2};white-space:nowrap;">{_cr_wow_str2}</em>'
+            else:
+                _cr_wow_pill2 = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
             if i < 5: _cls = ''
             elif i < 10: _cls = 'rows-more'
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 64px 68px 40px;align-items:center;gap:8px;'
+                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 68px 40px;align-items:center;gap:6px;'
                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                     f'<div style="min-width:0;overflow:hidden;">'
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
@@ -521,6 +532,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                     + f'</div>'
                     f'<div style="display:flex;align-items:center;">{_badge_cv}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_cr_u_str}</span>'
+                    f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill2}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
             if i < 5: top5 += _row
@@ -537,7 +549,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                                f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
                                f'<span class="toggle-label">Ver 5 más</span> '
                                f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','Tráfico','Conv Rate','WoW'], 'minmax(0,1fr) 80px 64px 68px 40px')
+            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Conv Rate','WoW'], 'minmax(0,1fr) 80px 56px 52px 68px 40px')
             panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
         else:
             panel_html = top5 + next5 + rest
