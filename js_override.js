@@ -959,6 +959,18 @@ setTimeout(ar_update, 100);
 
 /* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
 function trow_ar(r, card) {
+ /* data-hist para canvas histórico */
+ var isCR = W.mode === 'cr';
+ var metVal = card === 1
+  ? (isCR ? r[5] : r[5])
+  : (isCR ? r[6] : r[6]);
+ var metNum = parseFloat(String(metVal).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+ var wowStr = card === 1 ? (r[8]||'—') : (r[9]||'—');
+ var isUp = wowStr.charAt(0)==='▲';
+ var delta = parseFloat(wowStr.replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+ var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
+ var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
+
  var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>';
  var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
  var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
@@ -969,20 +981,17 @@ function trow_ar(r, card) {
   var label = str.replace(/pp$/,'').replace(/,00$/,'').trim();
   return '<td style="padding:7px 2px;text-align:right;"><em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+label+'</em></td>';
  }
- if (W.mode === 'rnd') {
-  /* RND card1=NoDispo, card2=IPM */
-  if (card === 1) {
-   return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)+'</tr>';
-  } else {
-   return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true)+'</tr>';
-  }
- }
- /* CR card1=Eficacia, card2=ConvRate */
- if (card === 1) {
-  return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)+'</tr>';
+ var cells;
+ if (isCR) {
+  cells = card===1
+   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)
+   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
  } else {
-  return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true)+'</tr>';
+  cells = card===1
+   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)
+   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
  }
+ return '<tr '+histAttr+' style="border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'+cells+'</tr>';
 }
 
 /* Render tabla AR con trow_ar */
@@ -1006,31 +1015,43 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  }
 }
 
-/* KPI header de cada card: valor de la canasta activa */
+/* KPI header de cada card: valor W21 de la canasta activa */
 function ar_updateKPIs() {
  var isCR = W.mode === 'cr';
  var canasta = W.canasta || 'global';
  var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
 
- /* Leer valores desde los datos del modo activo */
+ /* Mapeo canasta → clave en HIST_CR / HIST_RND */
+ var cmap = {global:'global', b2c:'b2c', op:'op', cug:'cug'};
+ var ck = cmap[canasta] || 'global';
+
  var val1 = '—', val2 = '—';
- if (isCR && typeof CR_D !== 'undefined') {
-  var d = CR_D[canasta] || CR_D.global || {};
-  var m = d.m18 || {};
-  val1 = m.eficacia   != null ? (m.eficacia   * 100).toFixed(2).replace('.',',') + '%' : '—';
-  val2 = m.conv_rate  != null ? (m.conv_rate  * 100).toFixed(2).replace('.',',') + '%' : '—';
- } else if (!isCR && typeof RND_D !== 'undefined') {
-  var dr = RND_D[canasta] || RND_D.global || {};
-  var mr = dr.m18 || {};
-  val1 = mr.pct_nodispo != null ? (mr.pct_nodispo * 100).toFixed(2).replace('.',',') + '%' : '—';
-  val2 = mr.ipm         != null ? '$' + Math.round(mr.ipm).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '—';
+ if (isCR && typeof HIST_CR !== 'undefined') {
+  var ef_entry  = HIST_CR['hcr-panel-ef']  || HIST_CR['h-'+ck+'-ef']  || HIST_CR['hcr-global-ef'];
+  var cv_entry  = HIST_CR['hcr-panel-cv']  || HIST_CR['h-'+ck+'-cv']  || HIST_CR['hcr-global-cv'];
+  if (ef_entry && ef_entry.vals) {
+   var v = ef_entry.vals[ef_entry.vals.length-1];
+   val1 = v != null ? v.toFixed(2).replace('.',',') + '%' : '—';
+  }
+  if (cv_entry && cv_entry.vals) {
+   var v2 = cv_entry.vals[cv_entry.vals.length-1];
+   val2 = v2 != null ? v2.toFixed(2).replace('.',',') + '%' : '—';
+  }
+ } else if (!isCR && typeof HIST_RND !== 'undefined') {
+  var nd_entry  = HIST_RND['hrnd-panel-nd']  || HIST_RND['hrnd-'+ck+'-nd']  || HIST_RND['hrnd-global-nd'];
+  var ipm_entry = HIST_RND['hrnd-panel-ipm'] || HIST_RND['hrnd-'+ck+'-ipm'] || HIST_RND['hrnd-global-ipm'];
+  if (nd_entry && nd_entry.vals) {
+   var v3 = nd_entry.vals[nd_entry.vals.length-1];
+   val1 = v3 != null ? v3.toFixed(2).replace('.',',') + '%' : '—';
+  }
+  if (ipm_entry && ipm_entry.vals) {
+   var v4 = ipm_entry.vals[ipm_entry.vals.length-1];
+   val2 = v4 != null ? '$' + Math.round(v4).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '—';
+  }
  }
 
- /* Insertar KPI en header de cada card */
- ['ar-kpi-1','ar-kpi-2'].forEach(function(id, i){
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = i === 0 ? val1 : val2;
-  el.style.color = acc;
- });
+ var kpi1 = document.getElementById('ar-kpi-1');
+ var kpi2 = document.getElementById('ar-kpi-2');
+ if (kpi1) { kpi1.textContent = val1; kpi1.style.color = acc; }
+ if (kpi2) { kpi2.textContent = val2; kpi2.style.color = acc; }
 }

@@ -290,12 +290,14 @@ window._injectHistAttrs = function(tbodyId, rows) {
   };
 })();
 
-/* Listener del panel — registrado en document para capturar clicks en w22-th/w22-td */
+/* Listener del panel — captura clicks en w22-th/w22-td y cards AR (ar1-th, ar2-th, etc.) */
 document.addEventListener('click', function(e) {
   var row = e.target.closest ? e.target.closest('[data-hist-w21]') : null;
   if (!row) return;
   var tbody = row.closest('tbody');
-  if (!tbody || (tbody.id !== 'w22-th' && tbody.id !== 'w22-td')) return;
+  if (!tbody) return;
+  var validIds = ['w22-th','w22-td','ar1-th','ar1-td','ar2-th','ar2-td'];
+  if (validIds.indexOf(tbody.id) === -1) return;
 
   var label = row.getAttribute('data-hist-label') || '';
   var w21   = parseFloat(row.getAttribute('data-hist-w21'));
@@ -304,9 +306,17 @@ document.addEventListener('click', function(e) {
   if (isNaN(w20)) w20 = w21;
 
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
-  var isPh = tbody.id === 'w22-th';
-  var cid  = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
-                  : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
+  var card = row.getAttribute('data-hist-card'); /* '1' o '2' para cards AR, null para tablas antiguas */
+  var cid;
+  if (card === '1') {
+    cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
+  } else if (card === '2') {
+    cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
+  } else {
+    var isPh = tbody.id === 'w22-th';
+    cid = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
+               : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
+  }
 
   /* Segundo click → deseleccionar y volver a Global */
   var isAlreadySelected = row.getAttribute('data-selected') === '1';
@@ -597,7 +607,7 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" onclick="ar_setHotelTab(1,'cv',this)"   id="ar1-tab-4" id="ar1-tab-cv">Menor CV</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-th-lbl">Hotel</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
@@ -620,7 +630,7 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" onclick="ar_setDim(1,'chan');w22_iTab(this);" id="ar1-dim-chan">Canal</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-td-lbl">Corporativo</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
@@ -665,7 +675,7 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" onclick="ar_setHotelTab(2,'cv',this)"   id="ar2-tab-4">Menor CV</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-th-lbl">Hotel</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
@@ -688,7 +698,7 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" onclick="ar_setDim(2,'chan');w22_iTab(this);" id="ar2-dim-chan">Canal</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-td-lbl">Corporativo</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
