@@ -826,6 +826,18 @@ if (typeof HIST_DATA !== 'undefined') {
 </script>
 '''
     + GLOBAL_PANEL_SCRIPT
+    + f'''
+<div style="max-width:900px;margin:32px auto 24px;padding:16px 24px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);align-self:center;">Descargas W{VOL_NUM}</span>
+    <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:#5C469C;text-decoration:none;padding:4px 10px;border:1px solid #5C469C;border-radius:3px;">⬇ Excel CheckRates</a>
+    <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:#EA0074;text-decoration:none;padding:4px 10px;border:1px solid #EA0074;border-radius:3px;">⬇ Excel Rates No Dispo</a>
+    <a href="../../checkrates/week-{VOL_NUM}/Dataset_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:4px 10px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset CR</a>
+    <a href="../../rates-nodispo/week-{VOL_NUM}/Dataset_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:4px 10px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset RND</a>
+  </div>
+  <a href="../../index.html" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:4px 10px;border:1px solid var(--rule);border-radius:3px;">← Hub</a>
+</div>
+'''
     + '\n</body>\n</html>\n'
 )
 
