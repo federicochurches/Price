@@ -8,7 +8,9 @@ import sys, os, json, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_eficacia, banda_convrate
-from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big
+from render_helpers import (clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big,
+                            es_pct, es_int, es_pct2, banda_colors, wow_arrow, wow_arrow_abs,
+                            sev_badge_html_p2)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'), 'rb') as f:
@@ -62,32 +64,9 @@ if 'CR_Unicos_WoW_pp' not in p80.columns and 'CR_Unicos_WoW_pp' in D['p80_hotel'
     _cr_wow = _cr_wow.drop_duplicates('Hotel')
     p80 = p80.merge(_cr_wow, on='Hotel', how='left')
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def es_pct(v): return f'{v*100:.2f}%'.replace('.', ',')
-def es_int(v): return f'{int(v):,}'.replace(',', '.')
-def es_pct2(v): return f'{v:.2f}%'.replace('.', ',') if isinstance(v, float) else str(v)
-
-def banda_colors(banda):
-    bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
-    return bc['bg'], bc['fg']
-
-def wow_arrow(pp):
-    if pp is None or (isinstance(pp, float) and np.isnan(pp)):
-        return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
-    return '—'
-
-def wow_arrow_abs(delta):
-    """WoW para tráfico (número absoluto, sin unidad pp). delta = diferencia real."""
-    if delta is None or (isinstance(delta, float) and np.isnan(delta)):
-        return '—'
-    val = abs(delta)
-    # Formatear como entero con puntos de miles
-    formatted = f'{int(val):,}'.replace(',', '.')
-    if delta > 0: return f'▲{formatted}'
-    if delta < 0: return f'▼{formatted}'
-    return '—'
+# ── Helpers locales eliminados en P10 — vienen de render_helpers.py ──────────
+# es_pct, es_int, es_pct2, banda_colors, wow_arrow, wow_arrow_abs, sev_badge_html → render_helpers
+def sev_badge_html(banda): return sev_badge_html_p2(banda)  # alias de compatibilidad
 
 def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
                     cr_col='CR_Unicos', band_col='BandaEficacia', wow_col='Eficacia_WoW_pp',
@@ -121,11 +100,6 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
         wow_cr_str = wow_arrow_abs(wow_cr_pp / 100)
     return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
 
-def sev_badge_html(banda):
-    bbg, bfg = banda_colors(banda)
-    return (f'<b class="sev-badge" style="background:{bbg};color:{bfg};'
-            f'font-size:8px;padding:2px 6px;text-transform:uppercase;'
-            f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
 
 # ── Construir CR_CV[canasta] ──────────────────────────────────────────────────
 def build_cr_cv():

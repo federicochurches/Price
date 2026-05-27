@@ -50,11 +50,7 @@ g_channel_w17 = D.get('g_channel_w17', None)
 
 from historico_module import render_historico
 
-def _mini_badge(bnd):
-    if not bnd or not isinstance(bnd, str): return ''
-    bc = BANDA_COLORS.get(bnd, {})
-    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span class="sev-badge" style="background:{bg};color:{fg};">{bnd}</span>'
+# _mini_badge disponible via: from render_helpers import *
 
 
 def render_historico_seccion_cr(canvas_id_ef, canvas_id_cv, banda_ef, val_ef, banda_cv, val_cv):
@@ -310,86 +306,28 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     wow_str_cv = (f'↑ +{cv_wow:.2f}pp' if cv_wow > 0 else f'↓ {cv_wow:.2f}pp').replace('.', ',')
 
     # ── WoW box ──────────────────────────────────────────────────────────────
-    # ── Tab rows con pills WoW ────────────────────────────────────────────────
+    # ── tab_rows_canasta → centralizado en render_helpers.canasta_tab_rows ──────
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_col=None, val_col='Eficacia', is_cv=False, tab_key=''):
-        top5 = next5 = rest = ''
-        for i, r in df.iterrows():
-            raw = r[dim_col]
-            raw_lab = str(raw)
-            if parse_hotel:
-                lab = truncate(truncate(str(raw_lab)), 28)
-            elif dim_col == 'CorpName':
-                lab = truncate(clean_corp_name(raw_lab), 28)
-            elif dim_col == 'Destino':
-                lab = clean_destino_name(raw_lab, 28)
-            elif dim_col == 'Hotel':
-                lab = truncate(clean_hotel_name(raw_lab), 28)
-            else:
-                lab = truncate(raw_lab, 28)
-            val = r[val_col] if val_col in r.index else 0
-            import math as _math_cell
-            _val_is_nan = (val != val) or (isinstance(val, float) and _math_cell.isnan(float(val)))
-            val_str = fmt_pct2(val)
-            import math
-            wow_pill = make_wow_pill_row(r[wow_col] if (wow_col and wow_col in r.index) else None)
-            _w21 = round(float(val) * 100, 4) if (val and not _val_is_nan) else 0
-            _w20_col = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
-            _w20_raw = r.get(_w20_col, None) if hasattr(r, 'get') else None
-            try:
-                _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw is not None and not _math_cell.isnan(float(_w20_raw)) else _w21
-            except: _w20 = _w21
-            _bnd3 = '' if parse_hotel else (
-                r.get('BandaConvRate' if is_cv else 'BandaEficacia', '') if ('BandaConvRate' in r.index or 'BandaEficacia' in r.index) else '')
-            if not _bnd3 and val and not parse_hotel:
-                _bnd3 = banda_convrate(val, int(r.get('Bookings',0))) if is_cv else banda_eficacia(val)
-            _badge3 = _mini_badge(_bnd3)
-            if i < 5: _cls3 = ''
-            elif i < 10: _cls3 = 'rows-more'
-            else: _cls3 = 'sb-hidden'
-            _corp_sub3 = truncate(clean_corp_name(str(r.get('CorpName', '')))) if parse_hotel and 'CorpName' in r.index else ''
-            _hotel_cell = (f'<div style="min-width:0;overflow:hidden;">'
-                           f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
-                           + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub3}</span>' if _corp_sub3 else '')
-                           + f'</div>') if parse_hotel else f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
-            # Filas dummy (canal sin datos): atenuar + sin cursor + sin badge
-            _no_data_style = 'opacity:.45;pointer-events:none;' if _val_is_nan else ''
-            _row3 = (f'<div class="{_cls3}" data-row-idx="{i}" data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                     f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;align-items:center;gap:4px;'
-                     f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;{_no_data_style}">'
-                     f'{_hotel_cell}'
-                     f'<div style="display:flex;align-items:center;">{_badge3 if not _val_is_nan else ""}</div>'
-                     f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;font-variant-numeric:tabular-nums;">{val_str}</span>'
-                     f'{wow_pill}</div>')
-            if i < 5: top5 += _row3
-            elif i < 10: next5 += _row3
-            else: rest += _row3
-        has_more = len(df) > 5 and not parse_hotel  # hotel también tiene ver más
-        # Canasta y channel no tienen ver más (pocos elementos)
-        is_simple = tab_key in ('canasta', 'channel', 'provider')
-        ver_mas_btn = ''
-        if has_more and not is_simple:
-            ver_mas_btn = (f'<button class="rows-toggle" data-panel="{tab_key}" '
-                           f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                           f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                           f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                           f'<span class="toggle-label">Ver 5 más</span> '
-                           f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-        # Header de columnas (no en canasta/channel que tienen pocas filas sin ambigüedad)
-        if is_simple:
-            _hdr = ''
-        else:
-            _metric_lbl = 'Conv Rate' if is_cv else 'Eficacia'
-            _hdr = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 46px 36px;'
-                    f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
-                    f'<span></span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                    f'color:var(--ink-muted);text-align:left;padding:2px 0;">Severity</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl}</span>'
-                    f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                    f'color:var(--ink-muted);text-align:right;padding:2px 0;">WoW</span>'
-                    f'</div>')
-        return f'<div class="kpi-tab-rows">{_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+        import math as _mc
+        banda_fn_c = (lambda v: banda_convrate(v, 0)) if is_cv else banda_eficacia
+        banda_col_c = 'BandaConvRate' if is_cv else 'BandaEficacia'
+        hist_prev_c = val_col.replace('Eficacia','Eficacia_W17').replace('ConvRate','ConvRate_W17')
+        _metric_lbl = 'Conv Rate' if is_cv else 'Eficacia'
+        return canasta_tab_rows(df, dim_col, {
+            'val_col':      val_col,
+            'val_fmt':      fmt_pct2,
+            'hist_scale':   lambda v: round(float(v)*100, 4),
+            'hist_prev_col': hist_prev_c,
+            'banda_fn':     banda_fn_c,
+            'banda_col':    banda_col_c,
+            'wow_col':      wow_col or '',
+            'wow_is_pos':   True,
+            'traf_col':     '',
+            'grid_cols':    'minmax(0,1fr) 72px 46px 36px',
+            'col_headers':  ['Severity', _metric_lbl, 'WoW'],
+            'tab_key':      tab_key,
+            'parse_hotel':  parse_hotel,
+        })
 
     # ── KPI card con gauge + wow + tabs ──────────────────────────────────────
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,

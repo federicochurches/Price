@@ -11,11 +11,7 @@ from render_helpers import *
 
 from historico_module import render_historico
 
-def _mini_badge(bnd):
-    if not bnd or not isinstance(bnd, str): return ''
-    bc = BANDA_COLORS.get(bnd, {})
-    bg = bc.get('bg', '#F2EEE6'); fg = bc.get('fg', '#5F5E5A')
-    return f'<span class="sev-badge" style="background:{bg};color:{fg};">{bnd}</span>'
+# _mini_badge disponible via: from render_helpers import *
 
 
 def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm, banda_nd, val_nd, banda_ipm, val_ipm):
@@ -260,110 +256,71 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     def gauge_canasta(banda, tipo):
         return gauge_5levels(banda, tipo)
 
+    # ── tab_rows_canasta → centralizado en render_helpers.canasta_tab_rows ──────
     def tab_rows_canasta(df, dim_col, parse_hotel=False, wow_map=None, val_col='%NoDispo', val_prefix='', is_rpm=False, tab_key=''):
-        """Genera filas de tab con top 100, 5 visibles + 5 rows-more + resto sb-hidden."""
-        import math
-        top5 = next5 = rest = ''
-        for i, r in df.iterrows():
-            raw = r[dim_col]
-            raw_lab = str(raw)
-            if parse_hotel:
-                lab = truncate(truncate(str(raw_lab)), 28)
-            elif dim_col == 'PaisDestino':
-                lab = clean_pais_name(raw_lab, max_len=24)
-            elif dim_col == 'Destino':
-                lab = clean_destino_name(raw_lab, 24)
-            elif dim_col == 'CorpName':
-                lab = clean_corp_name(raw_lab, 28)
-            else:
-                lab = truncate(raw_lab, 28)
-            val = r.get(val_col, 0)
-            if is_rpm:
-                val = max(val, 0)
-                val_str = f'${fmt_num2(val)}'
-            else:
-                val_str = fmt_pct2(val)
-            wow_col = 'IPM_WoW_pp' if is_rpm else 'NoDispo_WoW_pp'
-            wow_v = r.get(wow_col, None)
-            if wow_v is None or (isinstance(wow_v,float) and (math.isnan(wow_v) or math.isinf(wow_v))):
-                wow_html = '<em class="wow-pill nd">—</em>'
-            elif is_rpm:
-                ipm_base = r.get('IPM_W18', 0)
-                if abs(wow_v) < 1 or ipm_base <= 0:
-                    wow_html = '<em class="wow-pill nd">—</em>'
-                else:
-                    wow_pct = (wow_v / ipm_base) * 100
-                    mejora = wow_pct > 0
-                    cls = 'dn' if mejora else 'up'
-                    wow_html = f'<em class="wow-pill {cls}">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
-            else:
-                if abs(wow_v) < 0.05:
-                    wow_html = '<em class="wow-pill nd">—</em>'
-                else:
-                    mejora = wow_v < 0
-                    cls = 'dn' if mejora else 'up'
-                    wow_html = f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
-            import math as _mrnd
-            if is_rpm:
-                _w21h = round(float(max(val,0)), 2)
-                _w20h_raw = r.get('IPM_W18', r.get('IPM_W17', None))
-                try: _w20h = round(float(_w20h_raw),2) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
-                except: _w20h = _w21h
-            else:
-                _w21h = round(float(val)*100, 4) if val and not _mrnd.isnan(float(val)) else 0
-                _w20h_raw = r.get('NoDispo_W17', None)
-                try: _w20h = round(float(_w20h_raw)*100,4) if _w20h_raw is not None and not _mrnd.isnan(float(_w20h_raw)) else _w21h
-                except: _w20h = _w21h
-            _bnd_r3 = '' if parse_hotel else (
-                r.get('BandaNoDispo', '') if 'BandaNoDispo' in r.index else '')
-            if not _bnd_r3 and not is_rpm and val and not parse_hotel:
-                from engine import banda_nodispo as _bnd_fn; _bnd_r3 = _bnd_fn(val)
-            if is_rpm and not _bnd_r3 and not parse_hotel:
-                _bnd_r3 = r.get('BandaRPM', '')
-            _badge_r3 = _mini_badge(_bnd_r3)
-            if i < 5: _cls_r3 = ''
-            elif i < 10: _cls_r3 = 'rows-more'
-            else: _cls_r3 = 'sb-hidden'
-            _traf_r3 = fmt_big(r.get('Trafico', 0)) if not is_rpm else ''
-            _row_r3 = (f'<div class="{_cls_r3}" data-row-idx="{i}" data-hist-w21="{_w21h}" data-hist-w20="{_w20h}" data-hist-label="{raw_lab}"'
-                       f' style="display:grid;grid-template-columns:minmax(0,1fr) 72px 60px 52px 44px;align-items:center;gap:4px;'
-                       f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                       f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{i+1}. {lab}</span>'
-                       f'<div style="display:flex;align-items:center;">{_badge_r3}</div>'
-                       f'<span style="text-align:right;font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;">{_traf_r3}</span>'
-                       f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
-                       f'{wow_html}</div>')
-            if i < 5: top5 += _row_r3
-            elif i < 10: next5 += _row_r3
-            else: rest += _row_r3
-        is_simple = tab_key in ('canasta',)
-        ver_mas_btn = ''
-        if len(df) > 5 and not is_simple:
-            ver_mas_btn = (f'<button class="rows-toggle" data-panel="{tab_key}" '
-                           f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                           f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                           f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                           f'<span class="toggle-label">Ver 5 más</span> '
-                           f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-        # Header de columnas (no en canasta que tiene pocos items sin ambigüedad)
-        if is_simple:
-            _hdr_rnd = ''
+        import math as _mc
+
+        def _wow_fn_nd(r):
+            wow_v = r.get('NoDispo_WoW_pp', None)
+            if wow_v is None or (isinstance(wow_v,float) and (_mc.isnan(wow_v) or _mc.isinf(wow_v))):
+                return '<em class="wow-pill nd">—</em>'
+            if abs(wow_v) < 0.05:
+                return '<em class="wow-pill nd">—</em>'
+            mejora = wow_v < 0
+            cls = 'dn' if mejora else 'up'
+            return f'<em class="wow-pill {cls}">{"↓" if wow_v<0 else "↑"}{abs(wow_v):.2f}</em>'.replace('.',',')
+
+        def _wow_fn_ipm(r):
+            wow_v = r.get('IPM_WoW_pp', None)
+            if wow_v is None or (isinstance(wow_v,float) and (_mc.isnan(wow_v) or _mc.isinf(wow_v))):
+                return '<em class="wow-pill nd">—</em>'
+            ipm_base = r.get('IPM_W18', 0)
+            if abs(wow_v) < 1 or ipm_base <= 0:
+                return '<em class="wow-pill nd">—</em>'
+            wow_pct = (wow_v / ipm_base) * 100
+            mejora = wow_pct > 0
+            cls = 'dn' if mejora else 'up'
+            return f'<em class="wow-pill {cls}">{"↑" if wow_pct>0 else "↓"}{abs(wow_pct):.1f}%</em>'.replace('.',',')
+
+        if is_rpm:
+            _hist_scale = lambda v: round(float(max(v,0)), 2)
+            _hist_prev  = 'IPM_W18'
+            _banda_fn   = lambda v: banda_rpm(v, 1)
+            _banda_col  = 'BandaRPM'
+            _val_fmt    = lambda v: f'${fmt_num2(v)}'
+            _val_prefix = ''
+            _wow_fn     = _wow_fn_ipm
+            _traf_col   = ''
+            _grid       = 'minmax(0,1fr) 72px 60px 52px 44px'
+            _col_hdrs   = ['Severity', 'Tráfico', 'IPM', 'WoW']
         else:
-            _metric_lbl_rnd = 'IPM' if is_rpm else '%NoDispo'
-            _traf_hdr = '' if is_rpm else 'Tráfico'
-            _hdr_rnd = (f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 60px 52px 44px;'
-                        f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
-                        f'<span></span>'
-                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                        f'color:var(--ink-muted);text-align:left;padding:2px 0;">Severity</span>'
-                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_traf_hdr}</span>'
-                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">{_metric_lbl_rnd}</span>'
-                        f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
-                        f'color:var(--ink-muted);text-align:right;padding:2px 0;">WoW</span>'
-                        f'</div>')
-        return f'<div class="kpi-tab-rows">{_hdr_rnd}{top5}{next5}</div>{rest}{ver_mas_btn}'
+            _hist_scale = lambda v: round(float(v)*100, 4)
+            _hist_prev  = 'NoDispo_W17'
+            _banda_fn   = banda_nodispo
+            _banda_col  = 'BandaNoDispo'
+            _val_fmt    = fmt_pct2
+            _val_prefix = ''
+            _wow_fn     = _wow_fn_nd
+            _traf_col   = 'Trafico'
+            _grid       = 'minmax(0,1fr) 72px 60px 52px 44px'
+            _col_hdrs   = ['Severity', 'Tráfico', '%NoDispo', 'WoW']
+
+        return canasta_tab_rows(df, dim_col, {
+            'val_col':      val_col,
+            'val_fmt':      _val_fmt,
+            'val_prefix':   _val_prefix,
+            'hist_scale':   _hist_scale,
+            'hist_prev_col': _hist_prev,
+            'banda_fn':     _banda_fn,
+            'banda_col':    _banda_col,
+            'wow_fn':       _wow_fn,
+            'traf_col':     _traf_col,
+            'traf_fmt':     fmt_big,
+            'grid_cols':    _grid,
+            'col_headers':  _col_hdrs,
+            'tab_key':      tab_key,
+            'parse_hotel':  parse_hotel,
+        })
 
     def kpi_card_canasta(metric, val18, val17, banda, pill_target, wow_str, wow_color,
                           gauge_tipo, df_tabs, tab_configs, prefix='', card_id='', wow_delta=None):

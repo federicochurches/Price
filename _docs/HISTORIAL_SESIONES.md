@@ -11,6 +11,68 @@
 ### Contexto
 Sesión de pre-pipeline antes de recibir los datasets W22. No se corrió pipeline. Dos tareas ejecutadas: (1) refactor de centralización CR/RND documentado en `NOTA_REFACTOR_PENDIENTE.md`, (2) fix del sort en las cards KPI principales.
 
+---
+
+## 📝 Sesión W22-pre (cont.) · Mayo 2026 · Refactor P10 + Pipeline W21
+
+### Contexto
+Continuación de la sesión W22-pre. Se completó el refactor P10 (Bloque A + Bloque B) y se corrió el pipeline W21 completo con los archivos refactorizados.
+
+### Cambios aplicados
+
+#### Bloque A — Helpers de formato centralizados (sin impacto visual)
+
+Funciones idénticas en `render_cr_p2.py` y `render_rnd_p2.py` movidas a `render_helpers.py`:
+
+| Función | Descripción |
+|---|---|
+| `es_pct(v)` | Fracción → `'93,15%'` |
+| `es_int(v)` | Entero con punto de miles `'746.111'` |
+| `es_pct2(v)` | Ya viene en % `'1,57%'` |
+| `es_ipm(v)` | IPM formateado `'$834'` |
+| `banda_colors(banda)` | Lookup `(bg, fg)` desde `BANDA_COLORS` |
+| `wow_arrow(pp)` | `▲1,2` / `▼0,5` / `—` para WoW en pp |
+| `wow_arrow_abs(delta)` | `▲746.111` para WoW de tráfico |
+| `sev_badge_html_p2(banda)` | Badge `<b>` para tablas AR |
+
+`render_cr_p2.py`: 704 → 678 líneas (−26). `render_rnd_p2.py`: 553 → 538 líneas (−15).
+
+#### Bloque B — Unificación JS + _mini_badge (con validación visual)
+
+**`_mini_badge`** — ya existía en `render_helpers.py` (línea 42). Eliminada la definición local duplicada de `render_cr_p3.py` y `render_rnd_p3.py`.
+
+**`_chanRow` + `chanRowAR` → `_buildChanRow`** en `js_override.js`:
+- Unificadas en `_buildChanRow(r, i, opts)` donde `opts = {cardN, w20}`
+- KPI card: `_buildChanRow(r, i, {})` · AR card: `_buildChanRow(r, i, {cardN:n, w20:true})`
+- `js_override.js`: 1789 → 1779 líneas
+
+#### Pipeline W21
+Output idéntico en los 6 parciales. Validación visual confirmada: sort RND funciona + channels PP/TP correctos.
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py` · `js_override.js` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+`render_cr_p1.py` (parte 2 del refactor)
+
+#### Parte 2 — canasta_tab_rows + build_card_rows
+
+**`canasta_tab_rows(df, dim_col, cfg)`** en `render_helpers.py`:
+- Reemplaza `tab_rows_canasta()` duplicada en `render_cr_p3.py` y `render_rnd_p3.py`
+- La diferencia CR/RND (columnas, WoW logic, bandas) se expresa como cfg dict
+- `render_cr_p3.py`: 1122 → 1064 líneas (−58). `render_rnd_p3.py`: 984 → 945 líneas (−39)
+
+**`build_card_rows(df, t_key, cfg)`** en `render_helpers.py`:
+- Reemplaza `_build_card_rows_ef` y `_build_card_rows_cv` en `render_cr_p1.py`
+- `render_cr_p1.py`: 653 → 607 líneas (−46)
+
+**P11 detectado (no regresión):** `ConvRate_WoW_pp` solo existe en `TAB_CV` (100 hoteles con Bookings > 0), no en `p80_hotel` (1342). Los hoteles Sin Conversión muestran `—` en WoW ConvRate en cards AR. Preexistía antes del refactor.
+
+
+
+---
+
+
+
 ### Cambios aplicados
 
 #### Refactor P9 — Centralización CR/RND en `render_helpers.py`

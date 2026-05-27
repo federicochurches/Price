@@ -7,7 +7,9 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm
-from render_helpers import BANDA_COLORS, fmt_int_es, fmt_big
+from render_helpers import (BANDA_COLORS, fmt_int_es, fmt_big,
+                            es_pct, es_int, es_ipm, banda_colors, wow_arrow,
+                            sev_badge_html_p2)
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -28,26 +30,9 @@ TOP      = D['TOP']
 g_corp_w17 = D.get('g_corp_w17')
 g_dest_w17 = D.get('g_dest_w17')
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def es_pct(v):  return f'{v*100:.2f}%'.replace('.', ',')
-def es_int(v):  return f'{int(v):,}'.replace(',', '.')
-def es_ipm(v):  return f'${int(v):,}'.replace(',', '.')
-
-def banda_colors(banda):
-    bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
-    return bc['bg'], bc['fg']
-
-def wow_arrow(pp):
-    if pp is None or (isinstance(pp, float) and np.isnan(pp)): return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
-    return '—'
-
-def sev_badge_html(banda):
-    bbg, bfg = banda_colors(banda)
-    return (f'<b class="sev-badge" style="background:{bbg};color:{bfg};'
-            f'font-size:8px;padding:2px 6px;text-transform:uppercase;'
-            f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
+# ── Helpers locales eliminados en P10 — vienen de render_helpers.py ──────────
+# es_pct, es_int, es_ipm, banda_colors, wow_arrow, sev_badge_html → render_helpers
+def sev_badge_html(banda): return sev_badge_html_p2(banda)  # alias de compatibilidad
 
 def build_hotel_row_rnd(row):
     """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]"""

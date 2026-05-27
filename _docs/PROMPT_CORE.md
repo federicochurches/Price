@@ -564,9 +564,9 @@ Sin `margin-left` — elimina el "guion fantasma".
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P10 | Refactor centralización CR/RND — `_chanRow`/`chanRowAR` duplicadas, `_build_rnd_card_tabs_json` duplica lógica de `_build_cr_card_tabs_json` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta** |
+| P11 | WoW ConvRate vacío en cards AR — `ConvRate_WoW_pp` solo existe en `TAB_CV` (100 hoteles con Bookings > 0), no en `p80_hotel` (1342 hoteles) | `calc_cr.py` |
 
-> Bugs P1–P4, P6–P9 cerrados. P9 (refactor centralización CR/RND) completado W22-pre: `build_kpi_tab_panel()`, `render_traf_line_cr/rnd()`, `KPI_TOP_N` agregados a `render_helpers.py`. Bugs P11, P12, P13 cerrados en W21-post6.
+> Bugs P1–P4, P6–P10 cerrados. P11 (WoW ConvRate en cards AR — ConvRate_WoW_pp solo existe para hoteles con Bookings > 0, resto queda —) pendiente.
 
 ---
 
@@ -621,7 +621,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ---
 
-**Última actualización:** W21-post6 + W22-pre (Refactor P9 centralización CR/RND · Fix sort KPI RND) · Mayo 2026
+**Última actualización:** W21-post6 + W22-pre (Refactor P9+P10 completo: centralización CR/RND, canasta_tab_rows, build_card_rows, _buildChanRow) · Mayo 2026
 
 ---
 
