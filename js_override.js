@@ -1234,7 +1234,7 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
   }).join('');
  /* Botón Ver más — insertar después de la tabla */
  var table = tbody.closest('table');
- if (table) _moreBtn(table);
+ if (table && table.parentNode) _moreBtn(table.parentNode);
 }
 
 /* KPI headers completos de las cards AR */
@@ -1462,26 +1462,42 @@ var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
 /* ── Ver más / menos botón para cards KPI ── */
 function _moreBtn(containerEl) {
-  /* Eliminar botón previo si existe como siguiente sibling */
-  var existing = containerEl.nextElementSibling;
-  if (existing && existing.classList && existing.classList.contains('kpi-more-btn')) existing.remove();
+  /* Eliminar botón previo si existe dentro del container */
+  var prev = containerEl.querySelector('.kpi-more-btn');
+  if (prev) prev.remove();
   /* Verificar si hay filas expandibles */
   var hasMore = containerEl.querySelector('.rows-more');
   if (!hasMore) return;
   var btn = document.createElement('button');
   btn.className = 'kpi-more-btn';
   btn.textContent = 'Ver más ▾';
-  btn.style.cssText = 'margin:10px 0 4px;background:none;border:none;color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:4px 0;display:block;width:100%;text-align:center;border-top:1px solid var(--rule-soft);';
+  btn.style.cssText = [
+    'margin:8px 0 2px',
+    'background:none',
+    'border:none',
+    'border-top:1px solid var(--rule-soft)',
+    'color:var(--ink-muted)',
+    'font-size:9px',
+    'font-weight:700',
+    'letter-spacing:.08em',
+    'text-transform:uppercase',
+    'cursor:pointer',
+    'padding:6px 0 2px',
+    'display:block',
+    'width:100%',
+    'text-align:center',
+  ].join(';') + ';';
   var expanded = false;
   btn.addEventListener('click', function() {
     expanded = !expanded;
+    /* Buscar rows-more en el mismo container */
     containerEl.querySelectorAll('.rows-more').forEach(function(r) {
       r.style.display = expanded ? (r.tagName==='TR' ? '' : 'grid') : 'none';
     });
     btn.textContent = expanded ? 'Ver menos ▴' : 'Ver más ▾';
   });
-  /* Insertar inmediatamente después del container */
-  containerEl.insertAdjacentElement('afterend', btn);
+  /* Insertar como último hijo del container — queda dentro de la card */
+  containerEl.appendChild(btn);
 }
 
 function _renderAllRows(rows, renderFn) {
@@ -1707,10 +1723,10 @@ function _arSortAttach(n, tbodyId, btnId) {
       }).join('');
       /* Actualizar botón Ver más tras re-render */
       var tbl = tbEl.closest('table');
-      if (tbl) {
-        var existing = tbl.nextElementSibling;
-        if (existing && existing.classList.contains('kpi-more-btn')) existing.remove();
-        _moreBtn(tbl);
+      if (tbl && tbl.parentNode) {
+        var existing = tbl.parentNode.querySelector('.kpi-more-btn');
+        if (existing) existing.remove();
+        _moreBtn(tbl.parentNode);
       }
     }
     _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);
