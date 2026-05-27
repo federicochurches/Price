@@ -176,6 +176,14 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     # Prop V1: NoDispo baja = buena → invertir signo para que verde = mejora
     _wow_pill_nd = wow_pill_html(-pct_wow, unit='', prefix_pos='↓', prefix_neg='↑')
     
+    # Línea de tráfico
+    _tr18 = M['global_current'].get('trafico', 0)
+    _tr17 = M.get('global_w17', {}).get('trafico', 0)
+    _tr_wow = wow_pill_html((_tr18 - _tr17) / _tr17 * 100 if _tr17 else 0, unit='') if _tr17 else ''
+    _traf_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
+                  f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_big(_tr18)}'
+                  f'{_tr_wow}</div>')
+    
     # Tabs panels
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
@@ -275,6 +283,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div>
 <div id="w21-kv-nd" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
+{_traf_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -300,6 +309,14 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
     # Prop V1: IPM sube = buena → pasar directo, unidad %
     _wow_pill_ipm = wow_pill_html(rpm_wow, unit='')
+    
+    # Línea de tráfico (misma que NoDispo)
+    _tr18 = M['global_current'].get('trafico', 0)
+    _tr17 = M.get('global_w17', {}).get('trafico', 0)
+    _tr_wow = wow_pill_html((_tr18 - _tr17) / _tr17 * 100 if _tr17 else 0, unit='') if _tr17 else ''
+    _traf_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
+                  f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_big(_tr18)}'
+                  f'{_tr_wow}</div>')
     
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
@@ -397,6 +414,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <div>
 <div id="w21-kv-rpm" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ipm}</div>
+{_traf_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
