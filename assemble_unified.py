@@ -530,14 +530,6 @@ SWITCHER = f'''<div style="padding-top:20px;">
 # El JS los reescribe según modo (CR/RND) y canasta activa
 SHARED_CONTAINERS = f'''
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
-<div class="section-head"><div>
-<h2 class="section-title">Alertas Críticas</h2>
-<span class="section-subtitle" id="w22-alertas-sub" style="color:var(--accent)">Peor Eficacia + Peor ConvRate · canasta activa</span>
-</div></div>
-<div id="w22-alertas" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"></div>
-</section>
-
-<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head" style="margin-bottom:16px;"><div>
 <h2 class="section-title">Análisis de Rendimiento</h2>
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
