@@ -1110,25 +1110,14 @@ function trow_ar(r, card, idx) {
  return '<tr '+histAttr+' style="border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'+cells+'</tr>';
 }
 
-/* Render tabla AR con trow_ar */
+/* Render tabla AR con trow_ar — top 10 fijo */
 function ar_renderTable(n, tbodyId, btnId, rows) {
  var tbody = document.getElementById(tbodyId);
  if (!tbody) return;
- var visible = rows.slice(0, 5);
- var more    = rows.slice(5);
- tbody.innerHTML = visible.map(function(r,i){ return trow_ar(r, n, i+1); }).join('');
+ tbody.innerHTML = rows.slice(0, 10).map(function(r,i){ return trow_ar(r, n, i+1); }).join('');
+ /* Ocultar siempre el botón Ver más */
  var btn = document.getElementById(btnId);
- if (!btn) return;
- if (more.length) {
-  btn.style.display = '';
-  btn.textContent = 'Ver ' + more.length + ' más ↓';
-  btn.onclick = function(){
-   tbody.innerHTML += more.map(function(r,i){ return trow_ar(r, n, visible.length+i+1); }).join('');
-   btn.style.display = 'none';
-  };
- } else {
-  btn.style.display = 'none';
- }
+ if (btn) btn.style.display = 'none';
 }
 
 /* KPI headers completos de las cards AR */
@@ -1319,36 +1308,20 @@ var _KPI_SORT_COLS = {
   4: 7   /* Eficacia / Conv Rate / NoDispo / IPM */
 };
 
-/* Re-renderizar una tab con datos ordenados (aumentar a 100, con "Ver más") */
+/* Re-renderizar una tab con datos ordenados — top 10 fijo */
 function _reRenderKPITab(card, tkey, rows, isEf) {
   var panel = card.querySelector('[data-tab="'+tkey+'"]');
   if(!panel) return;
   var kpiRows = panel.querySelector('.kpi-tab-rows');
   if(!kpiRows) return;
   var header = kpiRows.querySelector('div:first-child');
-  var CHUNK = 10;
-  var visible = rows.slice(0, CHUNK);
-  var rest    = rows.slice(CHUNK);
-  var rowsHtml = visible.map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
+  var rowsHtml = rows.slice(0, 10).map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
   kpiRows.innerHTML = (header ? header.outerHTML : '') + rowsHtml;
-  /* "Ver más" */
+  /* Eliminar cualquier botón Ver más anterior */
   var moreId = 'sort-more-'+card.id+'-'+tkey+'-'+(isEf?'ef':'cv');
   var existing = document.getElementById(moreId);
   if(existing) existing.remove();
-  if(rest.length) {
-    var btn = document.createElement('div');
-    btn.id = moreId;
-    btn.style.cssText = 'text-align:center;margin-top:6px;';
-    btn.innerHTML = '<button style="font-family:\'Geist\',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:5px 16px;cursor:pointer;border-radius:3px;">Ver '+rest.length+' más ↓</button>';
-    btn.querySelector('button').onclick = function(){
-      kpiRows.innerHTML += rest.map(function(r,i){ return _cardRow(r,CHUNK+i,isEf); }).join('');
-      btn.remove();
-      if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-    };
-    panel.appendChild(btn);
-  }
   if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-  /* Re-enganchar sort en el header */
   setTimeout(function(){ _attachKPISortHeader(card, tkey, isEf, rows); }, 10);
 }
 

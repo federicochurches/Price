@@ -313,11 +313,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                 _cr_wow_pill = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_cr_wow_bg};color:{_cr_wow_color};white-space:nowrap;">{_cr_wow_str}</em>'
             else:
                 _cr_wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
-            # Clases de visibilidad: top5 visible, next5 oculta (rows-more), rest sb-hidden
-            if i < 5:
+            # Top 10 siempre visibles, sin botón Ver más
+            if i < 10:
                 _cls = ''
-            elif i < 10:
-                _cls = 'rows-more'  # oculto por CSS, mostrado con botón
             else:
                 _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
@@ -333,24 +331,13 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
-            if i < 5: top5 += _row
-            elif i < 10: next5 += _row
+            if i < 10: top5 += _row
             else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            total_rows = len(df_t)
-            has_more = total_rows > 5
-            ver_mas_btn = ''
-            if has_more:
-                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
-                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                               f'<span class="toggle-label">Ver 5 más</span> '
-                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
             _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Eficacia','WoW'], 'minmax(0,1fr) 80px 56px 52px 54px 48px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}</div>{rest}'
         else:
-            panel_html = top5 + next5 + rest
+            panel_html = top5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
@@ -518,8 +505,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                 _cr_wow_pill2 = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_cr_wow_bg2};color:{_cr_wow_color2};white-space:nowrap;">{_cr_wow_str2}</em>'
             else:
                 _cr_wow_pill2 = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
-            if i < 5: _cls = ''
-            elif i < 10: _cls = 'rows-more'
+            if i < 10: _cls = ''
             else: _cls = 'sb-hidden'
             _row = (f'<div class="{_cls}" data-row-idx="{i}"'
                     f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
@@ -534,24 +520,13 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                     f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill2}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
-            if i < 5: top5 += _row
-            elif i < 10: next5 += _row
+            if i < 10: top5 += _row
             else: rest += _row
         if t_key not in ('channel', 'canasta'):
-            total_rows = len(df_t)
-            has_more = total_rows > 5
-            ver_mas_btn = ''
-            if has_more:
-                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
-                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                               f'<span class="toggle-label">Ver 5 más</span> '
-                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
             _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Conv Rate','WoW'], 'minmax(0,1fr) 80px 56px 52px 68px 40px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}</div>{rest}'
         else:
-            panel_html = top5 + next5 + rest
+            panel_html = top5 + rest
         panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
