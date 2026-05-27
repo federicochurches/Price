@@ -1279,160 +1279,138 @@ function ar_updateKPIs() {
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 }
 
-/* ════════════════════════════════════════════════════════════
-   ORDENAMIENTO POR COLUMNA
-   ════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   ORDENAMIENTO POR COLUMNA — sort client-side
+   ══════════════════════════════════════════════════ */
 
-/* Parsear string de valor → número para comparar */
-function _sv(str) {
-  if (str == null || str === false || str === true) return null;
-  var s = String(str).trim();
-  if (!s || s === '—' || s === '-') return null;
-  s = s.replace(/\$/g,'').replace(/%/g,'').trim();
-  /* Formato europeo: 1.733 (punto=miles) o 93,15 (coma=decimal) */
-  if (s.indexOf(',') !== -1) {
-    s = s.replace(/\./g,'').replace(',','.');
-  } else if (s.indexOf('.') !== -1) {
-    /* Punto como separador de miles si hay 3 dígitos después */
-    s = s.replace(/\.(?=\d{3}(?:\.|$))/g,'');
-  }
-  var n = parseFloat(s);
-  return isNaN(n) ? null : n;
+function _sv(s) {
+  if (s==null||s===false||s===true) return null;
+  s=String(s).trim();
+  if(!s||s==='—'||s==='-') return null;
+  s=s.replace(/\$/g,'').replace(/%/g,'').trim();
+  if(s.indexOf(',')!==-1){ s=s.replace(/\./g,'').replace(',','.'); }
+  else if(s.indexOf('.')!==-1){ s=s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
+  var n=parseFloat(s); return isNaN(n)?null:n;
+}
+function _nd(d){ return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
+var _SS={};
+
+/* Indicador visual como elemento separado — no afecta el ancho del texto */
+function _makeSortBtn(label, isActive, dir) {
+  var arrow = isActive ? (dir==='asc' ? ' ↑' : ' ↓') : '';
+  return '<span style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;'
+    +(isActive?'color:var(--accent);':'')
+    +'white-space:nowrap;">'
+    +label
+    +'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;opacity:'
+    +(isActive?'1':'0.3')+';">'+arrow+'</span></span>';
 }
 
-/* Ciclo de dirección */
-function _nd(d) { return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
-
-/* Estado de sort por ID */
-var _SS = {};
-
-/* Indicador en un span header */
-function _si(span, dir) {
-  var base = span.getAttribute('data-sl') || span.textContent.replace(/[↑↓]/g,'').trim();
-  span.setAttribute('data-sl', base);
-  span.textContent = base + (dir==='asc'?' ↑':dir==='desc'?' ↓':'');
-  span.style.color = (dir && dir!=='orig') ? 'var(--accent)' : '';
-}
-
-/* ── SORT para cards AR (usan <table><tbody>) ── */
+/* ── SORT cards AR (table/tbody) ── */
 function _arSort(n, tbodyId, btnId, origRows) {
   var tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
+  if(!tbody) return;
   var table = tbody.closest('table');
-  if (!table) return;
+  if(!table) return;
   var ths = table.querySelectorAll('thead th');
   var key = tbodyId;
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+  /* Mapeo th-index → row-array-index */
+  var rmap={2:4, 4:(n===1?5:6)};
 
-  /* Mapeo: col-index th → row-array-index
-     [0]=nombre(skip), [1]=severity(skip), [2]=trafico→r[4], [3]=WoW(skip),
-     [4]=metrica→r[5 o 6], [5]=WoW(skip) */
-  var rmap = {2:4, 4:(n===1?5:6)};
-
-  ths.forEach(function(th, i) {
-    if (rmap[i] == null) return;
+  ths.forEach(function(th,i){
+    if(rmap[i]==null) return;
+    /* Extraer label limpio */
+    var base = (th.getAttribute('data-sl') || th.textContent.replace(/[↑↓]/g,'').trim());
+    th.setAttribute('data-sl', base);
+    /* Render indicador inline sin cambiar ancho */
+    var st=_SS[key];
+    var isActive = st.col===i && st.dir!=='orig';
+    th.innerHTML = _makeSortBtn(base, isActive, st.dir);
+    /* Clonar para remover listeners anteriores */
     var newTh = th.cloneNode(true);
-    th.parentNode.replaceChild(newTh, th);
-    /* Guardar label base */
-    var base = newTh.textContent.replace(/[↑↓]/g,'').trim();
     newTh.setAttribute('data-sl', base);
-    newTh.style.cursor = 'pointer';
-    newTh.title = 'Click para ordenar';
-    newTh.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      var rows = origRows.slice();
-      if (dir !== 'orig') {
-        var ri = rmap[i];
+    th.parentNode.replaceChild(newTh, th);
+    newTh.style.cursor='pointer';
+    newTh.addEventListener('click',function(){
+      var st2=_SS[key];
+      var dir=(st2.col===i)?_nd(st2.dir):'asc';
+      _SS[key]={col:i,dir:dir};
+      var rows=origRows.slice();
+      if(dir!=='orig'){
+        var ri=rmap[i];
         rows.sort(function(a,b){
-          var va=_sv(a[ri]), vb=_sv(b[ri]);
+          var va=_sv(a[ri]),vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
           return dir==='asc'?va-vb:vb-va;
         });
       }
-      ar_renderTable(n, tbodyId, btnId, rows);
-      /* Re-enganchar con rows originales (no sorted) para poder resetear */
-      setTimeout(function(){ _arSort(n, tbodyId, btnId, origRows); }, 10);
-      /* Indicadores */
-      setTimeout(function(){
-        var tbl = document.getElementById(tbodyId);
-        if (!tbl) return;
-        var tbl2 = tbl.closest('table'); if (!tbl2) return;
-        tbl2.querySelectorAll('thead th').forEach(function(t,j){
-          var b2 = t.getAttribute('data-sl') || t.textContent.replace(/[↑↓]/g,'').trim();
-          t.setAttribute('data-sl',b2);
-          t.textContent = b2 + (j===i&&dir!=='orig'?(dir==='asc'?' ↑':' ↓'):'');
-          t.style.color = (j===i&&dir!=='orig') ? 'var(--accent)' : '';
-        });
-      }, 15);
+      ar_renderTable(n,tbodyId,btnId,rows);
+      setTimeout(function(){ _arSort(n,tbodyId,btnId,origRows); },20);
     });
   });
 }
 
-/* ── SORT para cards KPI (usan divs con data-row-idx) ── */
+/* ── SORT cards KPI (divs con .kpi-tab-rows) ── */
 function _kpiSort(panel) {
-  /* panel = .tab-panel div */
-  var rowsContainer = panel.querySelector('.kpi-tab-rows');
-  if (!rowsContainer) return;
-  var headerRow = rowsContainer.firstElementChild; /* primer div = headers */
-  if (!headerRow) return;
-  var headerSpans = headerRow.querySelectorAll('span');
-  if (!headerSpans.length) return;
-
-  /* Guardar rows de datos originales (todos menos el header) */
-  if (!panel._kpiOrig) {
-    var allRows = Array.from(rowsContainer.children).slice(1); /* skip header */
-    if (!allRows.length) return;
-    panel._kpiOrig = allRows.map(function(r){ return r.cloneNode(true); });
+  var rc=panel.querySelector('.kpi-tab-rows');
+  if(!rc) return;
+  var hdr=rc.firstElementChild;
+  if(!hdr) return;
+  var hspans=hdr.querySelectorAll('span');
+  if(!hspans.length) return;
+  /* Guardar rows originales la primera vez */
+  if(!panel._kpiOrig){
+    var rows=Array.from(rc.children).slice(1);
+    if(!rows.length) return;
+    panel._kpiOrig=rows.map(function(r){return r.cloneNode(true);});
   }
-  var origRows = panel._kpiOrig;
-  var key = panel.id || panel.getAttribute('data-tab') || Math.random();
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  var orig=panel._kpiOrig;
+  var key='kpi_'+(panel.getAttribute('data-tab')||panel.id||Math.random());
+  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+  /* span índices ordenables → child-índice de cada fila */
+  var smap={2:2, 4:4};
 
-  /* Columnas ordenables: índice del span → índice del child div/span en cada row
-     Header spans: [0]=nombre(skip), [1]=severity(skip), [2]=tráfico, [3]=WoW(skip), [4]=métrica, [5]=WoW(skip) */
-  var sortable = {2:2, 4:4}; /* span-idx → child-idx en la fila */
-
-  headerSpans.forEach(function(span, i) {
-    if (sortable[i] == null) return;
-    var newSpan = span.cloneNode(true);
-    span.parentNode.replaceChild(newSpan, span);
-    var base = newSpan.textContent.replace(/[↑↓]/g,'').trim();
-    newSpan.setAttribute('data-sl', base);
-    newSpan.style.cursor = 'pointer';
-    newSpan.title = 'Click para ordenar';
-    newSpan.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      var ci = sortable[i];
-      var rows = origRows.map(function(r){ return r.cloneNode(true); });
-      if (dir !== 'orig') {
-        rows.sort(function(a, b) {
-          var ca = a.children[ci], cb = b.children[ci];
-          /* El valor puede estar en un span/div hijo */
-          var ta = ca ? (ca.querySelector('span,div') || ca).textContent.trim() : '';
-          var tb = cb ? (cb.querySelector('span,div') || cb).textContent.trim() : '';
-          var va=_sv(ta), vb=_sv(tb);
+  hspans.forEach(function(sp,i){
+    if(smap[i]==null) return;
+    var base=(sp.getAttribute('data-sl')||sp.textContent.replace(/[↑↓]/g,'').trim());
+    sp.setAttribute('data-sl',base);
+    var st=_SS[key];
+    var isActive=st.col===i&&st.dir!=='orig';
+    sp.innerHTML=_makeSortBtn(base,isActive,st.dir);
+    var newSp=sp.cloneNode(true);
+    newSp.setAttribute('data-sl',base);
+    sp.parentNode.replaceChild(newSp,sp);
+    newSp.style.cursor='pointer';
+    newSp.addEventListener('click',function(){
+      var st2=_SS[key];
+      var dir=(st2.col===i)?_nd(st2.dir):'asc';
+      _SS[key]={col:i,dir:dir};
+      var ci=smap[i];
+      var rows=orig.map(function(r){return r.cloneNode(true);});
+      if(dir!=='orig'){
+        rows.sort(function(a,b){
+          var ca=a.children[ci],cb=b.children[ci];
+          function getVal(el){
+            if(!el) return null;
+            /* Buscar el valor numérico en los hijos: puede ser un span con font-variant-numeric */
+            var spans=el.querySelectorAll('span,div');
+            for(var j=0;j<spans.length;j++){
+              var v=_sv(spans[j].textContent.trim());
+              if(v!==null) return v;
+            }
+            return _sv(el.textContent.trim());
+          }
+          var va=getVal(ca),vb=getVal(cb);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
           return dir==='asc'?va-vb:vb-va;
         });
       }
-      /* Re-render: eliminar filas de datos, insertar ordenadas */
-      var existing = Array.from(rowsContainer.children).slice(1);
-      existing.forEach(function(r){ rowsContainer.removeChild(r); });
-      rows.forEach(function(r){ rowsContainer.appendChild(r); });
-      /* Actualizar indicadores */
-      var hRow = rowsContainer.firstElementChild;
-      hRow.querySelectorAll('span').forEach(function(sp, j){
-        var b2 = sp.getAttribute('data-sl') || sp.textContent.replace(/[↑↓]/g,'').trim();
-        sp.setAttribute('data-sl', b2);
-        sp.textContent = b2 + (j===i&&dir!=='orig'?(dir==='asc'?' ↑':' ↓'):'');
-        sp.style.color = (j===i&&dir!=='orig') ? 'var(--accent)' : '';
-      });
+      /* Re-render */
+      Array.from(rc.children).slice(1).forEach(function(r){rc.removeChild(r);});
+      rows.forEach(function(r){rc.appendChild(r);});
       /* Re-enganchar */
       _kpiSort(panel);
     });
@@ -1440,24 +1418,22 @@ function _kpiSort(panel) {
 }
 
 /* Inicializar sort en todas las cards KPI */
-function _initAllSort() {
-  document.querySelectorAll('.tab-panel, .tab-panel-c').forEach(function(panel) {
-    /* Resetear para que recapture rows actuales */
-    panel._kpiOrig = null;
-    _kpiSort(panel);
+function _initAllSort(){
+  document.querySelectorAll('.tab-panel,.tab-panel-c').forEach(function(p){
+    p._kpiOrig=null; /* reset para recapturar rows actuales */
+    _kpiSort(p);
   });
 }
 
-/* Patch ar_renderTable para auto-enganchar sort */
-var _origARTbl = ar_renderTable;
-ar_renderTable = function(n, tbodyId, btnId, rows) {
-  _origARTbl(n, tbodyId, btnId, rows);
-  setTimeout(function(){ _arSort(n, tbodyId, btnId, rows); }, 20);
+/* Patch ar_renderTable */
+var _origART=ar_renderTable;
+ar_renderTable=function(n,tbodyId,btnId,rows){
+  _origART(n,tbodyId,btnId,rows);
+  setTimeout(function(){_arSort(n,tbodyId,btnId,rows);},20);
 };
 
-/* Inicializar al cargar */
-setTimeout(_initAllSort, 1000);
-
-/* Re-init al cambiar canasta o modo */
-var _origSC2 = w22_setC;
-w22_setC = function(c,el){ _origSC2(c,el); setTimeout(function(){ _initAllSort(); }, 300); };
+/* Init */
+setTimeout(_initAllSort,1000);
+/* Re-init al cambiar canasta */
+var _origSC3=w22_setC;
+w22_setC=function(c,el){_origSC3(c,el);setTimeout(_initAllSort,300);};
