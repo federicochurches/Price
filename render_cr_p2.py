@@ -164,7 +164,7 @@ def build_cr_cv():
 
 # ── Construir CR_D[canasta] ───────────────────────────────────────────────────
 def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
-                       g_corp_c, g_dest_c, n_p80):
+                       g_corp_c, g_dest_c, n_p80, g_channel_c=None, g_dest_local=None):
     """Construye {re, hotels, dims, plan, co} para una canasta CR."""
 
     ef   = m18.get('eficacia', 0)
@@ -278,21 +278,28 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
 
     # Dims rows por Destino (top 10 Eficacia ASC) — con WoW de tráfico
     dest_rows = []
-    if 'Destino' in df_hotel.columns:
+    g_dest = None
+    # Usar destinos por canasta si disponible, sino calcular desde df_hotel
+    if g_dest_local is not None and len(g_dest_local) > 0:
+        g_dest = g_dest_local.copy()
+        if 'Eficacia' not in g_dest.columns and 'Successful' in g_dest.columns:
+            g_dest['Eficacia'] = g_dest['Successful'] / g_dest['CR_Unicos'].replace(0,1)
+        if 'ConvRate' not in g_dest.columns and 'Bookings' in g_dest.columns:
+            g_dest['ConvRate'] = g_dest['Bookings'] / g_dest['CR_Unicos'].replace(0,1)
+    elif 'Destino' in df_hotel.columns:
         g_dest = df_hotel.groupby('Destino').agg(
             CR_Unicos=('CR_Unicos','sum'), Successful=('Successful','sum'),
             Bookings=('Bookings','sum')).reset_index()
         g_dest['Eficacia'] = g_dest['Successful'] / g_dest['CR_Unicos'].replace(0,1)
         g_dest['ConvRate'] = g_dest['Bookings'] / g_dest['CR_Unicos'].replace(0,1)
-        # Merge WoW si disponible
         if g_dest_w17 is not None:
             g_dest = g_dest.merge(g_dest_w17[['Destino','CR_Unicos_W17']], on='Destino', how='left')
             g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17']) * 100
+    if g_dest is not None and len(g_dest) > 0:
         for _, row in g_dest.sort_values('Eficacia', ascending=True).head(10).iterrows():
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
             wow_cr = row.get('CR_Unicos_WoW_pp')
-            # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
             wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
                               es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
@@ -305,8 +312,9 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     chans_pp  = []
     chans_tp  = []
     
-    # Usar g_channel global si está disponible
-    g_chan_local = g_channel.copy() if g_channel is not None and len(g_channel) else None
+    # Usar canal por canasta si disponible, sino el global
+    g_chan_local = (g_channel_c.copy() if g_channel_c is not None and len(g_channel_c) > 0
+                   else (g_channel.copy() if g_channel is not None and len(g_channel) else None))
     
     if g_chan_local is not None and len(g_chan_local):
         # Merge WoW si disponible
@@ -395,7 +403,9 @@ def build_cr_d():
         sev_cv_c = dict(c.get('sev_cv', {}))
         result[key] = build_canasta_data(
             key, df_h, m18, m17, sev_ef_c, sev_cv_c,
-            g_corp_c, g_corp_c, n_p80_c)
+            g_corp_c, g_corp_c, n_p80_c,
+            g_channel_c=c.get('agg_channel'),
+            g_dest_local=c.get('agg_destino'))
     return result
 
 
@@ -504,12 +514,12 @@ def render_severity():
 
 # ── HTML tabla de análisis de rendimiento ─────────────────────────────────────
 def render_analisis_rendimiento():
-    th_labels_hotel = ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
-    th_labels_corp  = ['Corporativo', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
+    th_labels_hotel = ['Hotel', 'Banda', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
+    th_labels_corp  = ['Corporativo', 'Banda', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
 
     def table_html(tbody_id, btn_id, th_labels, dim_header_id=None):
         # Colgroup: nombre amplio, resto fijos para evitar wrap
-        colwidths = ['', '90px', '72px', '72px', '72px', '120px', '90px']
+        colwidths = ['', '90px', '68px', '46px', '68px', '46px', '72px', '46px']
         colgroup = ''.join(
             f'<col style="width:{colwidths[i]}">' if colwidths[i] else '<col>'
             for i in range(len(th_labels))

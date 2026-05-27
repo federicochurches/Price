@@ -7,43 +7,50 @@ function cv(){return W.mode==='cr'?CR_CV[W.canasta]:RND_CV[W.canasta];}
 function data(){return W.mode==='cr'?CR_D[W.canasta]:RND_D[W.canasta];}
 function al(){return W.mode==='cr'?CR_AL[W.canasta]:RND_AL[W.canasta];}
 
-/* trow — genera HTML de fila según W.mode (cr: 11 elem, rnd: 10 elem) */
+/* trow — genera HTML de fila para Análisis de Rendimiento
+   CR  (11 elem): [nombre, bbg, bfg, banda, CR, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
+   RND (11 elem): [nombre, bbg, bfg, banda, tráfico, %nd, ipm, wow_up, wow_nd_str, wow_ipm_str, '—']
+   Layout 8 cols: Nombre | Banda | Tráfico | WoW↕ | Métrica1 | WoW↕ | Métrica2 | WoW↕
+*/
 function trow(r){
- var wb=r[7]===null?'#F2EEE6':(r[7]?'#EAF3DE':'#FCE8E6');
- var wf=r[7]===null?'#8A8377':(r[7]?'#2F6C34':'#C0392B');
  var nameCell='<td style="padding:8px 0 8px 12px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>';
- var badgeCell='<td style="padding:8px 6px;text-align:center;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
- var td=function(v,extra){return '<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;'+(extra||'')+'">'+v+'</td>';};
- var pill=function(v,bg,fg){return v&&v!=='—'?'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(bg||'#F0F0F0')+';color:'+(fg||'#666')+';white-space:nowrap;">'+v+'</em>':'<span style="color:var(--ink-muted);font-size:10px;">—</span>';};
+ var badgeCell='<td style="padding:8px 6px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
+ var tdR=function(v){return '<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>';};
+ 
+ /* Genera pill WoW con color verde/rojo según dirección y si mejora = positivo o negativo */
+ function wowPill(str, isGood){
+  if(!str||str==='—') return '<td style="padding:8px 6px;text-align:right;"><span style="color:var(--ink-muted);font-size:10px;">—</span></td>';
+  var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
+  var good = isGood ? up : !up;  /* isGood=true: ▲ = bueno; isGood=false: ▲ = malo (NoDispo) */
+  var bg = good?'#EAF3DE':'#FCE8E6';
+  var fg = good?'#2F6C34':'#C0392B';
+  /* Limpiar label: quitar 'pp' de WoW Eficacia/ConvRate/NoDispo */
+  var label = str.replace(/pp$/,'').replace(/,00$/,'').trim();
+  return '<td style="padding:8px 6px;text-align:right;"><em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+label+'</em></td>';
+ }
  
  if(W.mode==='rnd'){
-  /* RND: [0]nombre [1]bbg [2]bfg [3]banda [4]tráfico [5]%nodispo [6]ipm [7]wow_up [8]wow_nd_str [9]wow_ipm_str [10]'—' */
-  var wowNd  = r[8]||'—';
-  var wowIpm = r[9]||'—';
+  /* RND: [0]nombre [1]bbg [2]bfg [3]banda [4]tráfico [5]%nd [6]ipm [7]wow_up [8]wow_nd [9]wow_ipm [10]'—' */
   return '<tr style="border-bottom:1px solid var(--rule-soft);">'
    +nameCell+badgeCell
-   +td(r[4])+td(r[5])+td(r[6])
-   +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;">'
-   +pill(wowNd, wb, wf)
-   +'<span style="display:inline-block;width:4px;"></span>'
-   +pill(wowIpm, '#EBF5F7', '#0369A1')
-   +'</td>'
-   +'<td style="padding:8px 8px 8px 6px;text-align:right;"></td>'
+   +tdR(r[4])
+   +wowPill(r[10]||'—', true)   /* WoW Tráfico — ▲ = bueno */
+   +tdR(r[5])
+   +wowPill(r[8]||'—', false)   /* WoW NoDispo — ▲ = malo */
+   +tdR(r[6])
+   +wowPill(r[9]||'—', true)    /* WoW IPM — ▲ = bueno */
    +'</tr>';
  }
  
- /* CR: [0]nombre [1]bbg [2]bfg [3]banda [4]CR [5]eficacia [6]convrate [7]wow_up [8]wow_ef [9]wow_cv [10]wow_trafico */
- var cr10=r[10]||'—';
- var cr10html=cr10==='—'?'<span style="color:var(--ink-muted)">—</span>':'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EBF5F7;color:#0369A1;white-space:nowrap;">'+cr10+'</em>';
+ /* CR: [0]nombre [1]bbg [2]bfg [3]banda [4]CR [5]ef [6]cv [7]wow_up [8]wow_ef [9]wow_cv [10]wow_cr */
  return '<tr style="border-bottom:1px solid var(--rule-soft);">'
   +nameCell+badgeCell
-  +td(r[4])+td(r[5])+td(r[6])
-  +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;">'
-  +pill(r[8]||'—', wb, wf)
-  +'<span style="display:inline-block;width:3px;"></span>'
-  +pill(r[9]||'—', '#F0F0F0', '#666')
-  +'</td>'
-  +'<td style="padding:8px 8px 8px 6px;text-align:right;white-space:nowrap;">'+cr10html+'</td>'
+  +tdR(r[4])
+  +wowPill(r[10]||'—', true)   /* WoW Tráfico — ▲ = bueno */
+  +tdR(r[5])
+  +wowPill(r[8]||'—', true)    /* WoW Eficacia — ▲ = bueno */
+  +tdR(r[6])
+  +wowPill(r[9]||'—', true)    /* WoW Conv Rate — ▲ = bueno */
   +'</tr>';
 }
 
@@ -51,11 +58,11 @@ function trow(r){
 function w22_updateTableHeaders(){
  var modeCR = W.mode === 'cr';
  var hh = modeCR
-  ? ['Hotel','Banda','Tráfico','Eficacia','Conv Rate','WoW Ef/CV','Tráfico WoW']
-  : ['Hotel','Banda','Tráfico','%NoDispo','IPM','WoW ND/IPM',''];
+  ? ['Hotel','Banda','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  : ['Hotel','Banda','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
  var dh = modeCR
-  ? ['Dimensión','Banda','Tráfico','Eficacia','Conv Rate','WoW Ef/CV','Tráfico WoW']
-  : ['Dimensión','Banda','Tráfico','%NoDispo','IPM','WoW ND/IPM',''];
+  ? ['Dimensión','Banda','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  : ['Dimensión','Banda','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
 
  [['#w22-ph thead tr', hh], ['#w22-pd thead tr', dh]].forEach(function(pair){
   var tr = document.querySelector(pair[0]);
@@ -63,20 +70,25 @@ function w22_updateTableHeaders(){
   var cells = tr.querySelectorAll('th');
   pair[1].forEach(function(lbl,i){
    if(!cells[i]) return;
-   /* Última columna: ocultar en RND, mostrar en CR */
-   if(i === 6){
-    cells[i].style.display = modeCR ? '' : 'none';
-    cells[i].textContent = lbl;
-   } else {
-    cells[i].style.display = '';
-    cells[i].textContent = lbl;
+   cells[i].style.display='';
+   cells[i].textContent = lbl;
+   /* WoW cols: right-align, smaller */
+   if(lbl==='WoW↕'){
+    cells[i].style.textAlign='right';
+    cells[i].style.fontSize='9px';
+    cells[i].style.color='var(--ink-muted)';
    }
   });
  });
  
- /* Ocultar/mostrar la 7ma <col> del colgroup */
+ /* Actualizar label "Canal" → "Channel" en tab de dimensiones */
+ var chanLabel = document.querySelector('#w22-pd .tabs-row label:last-child, #w22-pd label[onclick*="chan"]');
+ if(chanLabel && chanLabel.textContent.trim()==='Por Canal'){
+  chanLabel.textContent = 'Por Channel';
+ }
+ /* Colgroup: todas las cols visibles */
  document.querySelectorAll('#w22-ph colgroup col:last-child, #w22-pd colgroup col:last-child').forEach(function(col){
-  col.style.display = modeCR ? '' : 'none';
+  col.style.display='';
  });
 }
 

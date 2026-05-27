@@ -421,7 +421,7 @@ def render_severity():
 # ── Análisis de Rendimiento ───────────────────────────────────────────────────
 def render_analisis():
     def table_html(tbody_id, btn_id, th_labels, dim_id=None):
-        colwidths = ['', '90px', '72px', '72px', '72px', '120px']
+        colwidths = ['', '90px', '68px', '46px', '68px', '46px', '72px', '46px']
         colgroup = ''.join(
             f'<col style="width:{colwidths[i]}">' if i < len(colwidths) and colwidths[i] else '<col>'
             for i in range(len(th_labels))
@@ -443,8 +443,8 @@ def render_analisis():
                 f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
                 f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
-    th_h = ['Hotel', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW ND/IPM']
-    th_d = ['Dimensión', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW ND/IPM']
+    th_h = ['Hotel', 'Banda', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
+    th_d = ['Dimensión', 'Banda', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
 
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>

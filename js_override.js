@@ -319,9 +319,9 @@ w22_setMode = function(m, el) {
     var el=document.getElementById(id); if(el) el.style.display=m==='rnd'?'block':'none';
   });
 
-  /* Tab dim Canal ↔ País según modo */
+  /* Tab dim Channel ↔ País según modo */
   var dimChan = document.getElementById('w22-dim-lbl-chan');
-  if(dimChan) dimChan.textContent = m==='cr' ? 'Canal' : 'País';
+  if(dimChan) dimChan.textContent = m==='cr' ? 'Channel' : 'País';
 
   /* Plan subtitle */
   var psub = document.getElementById('w22-plan-sub');
