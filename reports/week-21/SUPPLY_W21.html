@@ -5416,7 +5416,10 @@ function _kpiSortAttach(card, tkey, isEf, allRows100) {
   var rc = panel.querySelector('.kpi-tab-rows');
   if (!rc) return;
   var hdr = rc.firstElementChild; if (!hdr) return;
+  /* Guard: verificar que hdr es el header row, no un row de datos */
+  if (hdr.hasAttribute('data-row-idx') || hdr.hasAttribute('data-hist-label')) return;
   var hspans = Array.from(hdr.querySelectorAll('span'));
+  if (hspans.length < 5) return; /* header tiene al menos 6 spans */
   var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
   _markSortable(hspans, _SS[key].col, _SS[key].dir);
