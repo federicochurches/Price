@@ -1051,6 +1051,8 @@ function ar_setHotelTab(n, tab, el) {
   if (el) { el.classList.add('tab-label-active'); }
   var rows = _arRows(n, tab);
   ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+  /* Re-enganchar sort después de cambiar pestaña hotel */
+  setTimeout(function(){ _arSortAttach(n, 'ar'+n+'-th', 'ar'+n+'-th-more'); }, 50);
 }
 
 /* Cambiar dimensión de una card */
@@ -1085,6 +1087,8 @@ function ar_setDim(n, dim) {
       var drows = _arDimRows(n, dim);
       ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
     }
+    /* Re-enganchar sort después de cambiar dimensión */
+    setTimeout(function(){ _arSortAttach(n, 'ar'+n+'-td', 'ar'+n+'-td-more'); }, 50);
   }
 }
 

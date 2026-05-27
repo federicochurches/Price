@@ -49,7 +49,7 @@ def render_masthead():
 <div style="display:table;width:100%;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
-<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {WEEK_NUM}</div>
+<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {WEEK_NUM_INT}</div>
 <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{PERIODO}</div>
 </div>
 </div>

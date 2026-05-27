@@ -229,13 +229,21 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
         ipm_r  = row.get('IPM', row.get('RPM', 0))
         banda  = banda_nodispo(nd_r)
         bbg, bfg = banda_colors(banda)
-        traf   = es_int(row.get('Trafico', 0))
+        traf_v = row.get('Trafico', 0)
+        traf   = fmt_big(float(traf_v)) if traf_v and not np.isnan(float(traf_v)) else '0'
         wow_pp = row.get('NoDispo_WoW_pp')
         if wow_pp is None or (isinstance(wow_pp, float) and np.isnan(wow_pp)):
             wow_up = None; wow_str = '—'
         else:
             wow_up = bool(wow_pp <= 0); wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', '—'])
+        # WoW tráfico
+        wow_traf = row.get('Trafico_WoW_pct')
+        if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+            wow_traf_str = '—'
+        else:
+            sign = '▲' if wow_traf >= 0 else '▼'
+            wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', wow_traf_str])
 
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows
@@ -258,7 +266,8 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             ipm_r = row.get('IPM', row.get('RPM', 0))
             banda = banda_nodispo(nd_r)
             bbg, bfg = banda_colors(banda)
-            traf  = es_int(row.get('Trafico', 0))
+            traf_dv = row.get('Trafico', 0)
+            traf  = fmt_big(float(traf_dv)) if traf_dv and not np.isnan(float(traf_dv)) else '0'
             wow_pp = row.get('NoDispo_WoW_pp')
             wow_up = None; wow_nd = '—'
             if wow_pp is not None and not (isinstance(wow_pp, float) and np.isnan(wow_pp)):
@@ -284,7 +293,8 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             ipm_r = row.get('IPM', 0)
             banda = banda_nodispo(nd_r)
             bbg, bfg = banda_colors(banda)
-            traf  = es_int(row.get('Trafico', 0))
+            traf_pv = row.get('Trafico', 0)
+            traf  = fmt_big(float(traf_pv)) if traf_pv and not np.isnan(float(traf_pv)) else '0'
             pais_rows.append([pais_name, bbg, bfg, banda, traf,
                               es_pct(nd_r), es_ipm(ipm_r), None, '—', '—', '—'])
 

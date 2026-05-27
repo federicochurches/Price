@@ -287,7 +287,8 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         name  = str(row['CorpName'])[:60]
         banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
         bbg, bfg = banda_colors(banda)
-        cr    = es_int(row['CR_Unicos'])
+        cr_v  = row.get('CR_Unicos',0)
+        cr    = fmt_big(float(cr_v)) if cr_v and not (isinstance(cr_v,float) and np.isnan(cr_v)) else '0'
         ef    = es_pct(row['Eficacia'])
         cv    = es_pct(row['ConvRate'])
         wow_pp = None
@@ -325,7 +326,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             wow_cr = row.get('CR_Unicos_WoW_pp')
             wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
-                              es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
+                              fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
                               es_pct(row['ConvRate']), None, '—', '—', wow_cr_str])
 
     # Dims rows por Canal — split Producto Propio / Third Party — con WoW de tráfico
@@ -351,7 +352,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
             wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             r = [str(row['ExternalProviderName'])[:45], bbg, bfg, banda,
-                 es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
+                 fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
                  es_pct(row['ConvRate']), None, '—', '—', wow_cr_str]
             chan_rows.append(r)
             if row['ExternalProviderName'] in THIRD_SET:
