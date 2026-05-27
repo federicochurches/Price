@@ -748,13 +748,9 @@ function w22_renderRNDCardTabs(canasta) {
       var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'+hdrSpans+'</div>';
       var isEf = (metric === 'nd');
       var rowsHtml = allRows.map(function(r,idx){
-        var html = _cardRow(r, idx, isEf, grid);
-        if(idx >= _KPI_EXPAND_N) {
-          html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
-        } else if(idx >= _KPI_TOP_N) {
-          html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
-        }
-        return html;
+        var disp = idx>=_KPI_EXPAND_N ? 'none' : idx>=_KPI_TOP_N ? 'none' : 'grid';
+        var cls  = idx>=_KPI_EXPAND_N ? 'sb-hidden' : idx>=_KPI_TOP_N ? 'rows-more' : '';
+        return _cardRow(r, idx, isEf, grid, disp, cls);
       }).join('');
       kpiRows.innerHTML = hdrHtml + rowsHtml;
       _moreBtn(kpiRows);
@@ -799,8 +795,10 @@ function _cardRow(r, idx, isEf, grid){
   var mw_pill = _pill(mw, mw_bg, mw_fg);
   var nameSpan='<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+(idx+1)+'. '+lab+'</span>'
     +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
-  return '<div data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
-    +' style="display:grid;grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
+  var _display = (typeof arguments[4]==='string') ? arguments[4] : 'grid';
+  var _cls = (typeof arguments[5]==='string') ? ' class="'+arguments[5]+'"' : '';
+  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
+    +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
     +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
@@ -830,13 +828,9 @@ function w22_renderCardTabs(canasta){
       var panel = card.querySelector('[data-tab="'+tkey+'"]');
       if(!panel) return;
       var rowsHtml = rows.map(function(r,i){
-        var html = _cardRow(r,i,isEf,grid);
-        if(i >= _KPI_EXPAND_N) {
-          html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
-        } else if(i >= _KPI_TOP_N) {
-          html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
-        }
-        return html;
+        var disp = i>=_KPI_EXPAND_N ? 'none' : i>=_KPI_TOP_N ? 'none' : 'grid';
+        var cls  = i>=_KPI_EXPAND_N ? 'sb-hidden' : i>=_KPI_TOP_N ? 'rows-more' : '';
+        return _cardRow(r,i,isEf,grid,disp,cls);
       }).join('');
       var kpiRows = panel.querySelector('.kpi-tab-rows');
       if(kpiRows){
@@ -1549,11 +1543,11 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
       return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
     }).join('');
     var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
-    var rowsHtml = sorted10.map(function(item,i){      var html = _cardRow(item.r, item.origPos-1, isEf, grid);      if(i >= _KPI_EXPAND_N) {
-        html = html.replace(/data-row-idx="/, 'class="sb-hidden" style="display:none;" data-row-idx="');
-      } else if(i >= _KPI_TOP_N) {
-        html = html.replace(/data-row-idx="/, 'class="rows-more" style="display:none;" data-row-idx="');
-      }      return html;    }).join('');    rc.innerHTML = hdrHtml + rowsHtml;
+        var rowsHtml = sorted10.map(function(item,i){
+      var disp = i>=_KPI_EXPAND_N ? 'none' : i>=_KPI_TOP_N ? 'none' : 'grid';
+      var cls  = i>=_KPI_EXPAND_N ? 'sb-hidden' : i>=_KPI_TOP_N ? 'rows-more' : '';
+      return _cardRow(item.r, item.origPos-1, isEf, grid, disp, cls);
+    }).join('');;    rc.innerHTML = hdrHtml + rowsHtml;
     _moreBtn(rc);
   }
 
