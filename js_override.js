@@ -1117,11 +1117,10 @@ function ar_update() {
 var _origW22Update = w22_update;
 w22_update = function() {
   _origW22Update.apply(this, arguments);
-  setTimeout(ar_update, 50); /* 50ms — suficiente para que el DOM procese el render */
+  ar_update(); /* sincrónicamente — el DOM ya está actualizado */
 };
 
-/* Inicializar al cargar — esperar a que w22_update haya corrido primero */
-setTimeout(function(){ ar_update(); }, 300);
+/* Inicializar al cargar — después de w22_update() final */
 
 /* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
 function trow_ar(r, card, idx) {
@@ -1565,7 +1564,6 @@ ar_renderTable = function(n, tbodyId, btnId, rows) {
 };
 
 /* ── Render inicial — DESPUÉS de que _cardRow y w22_renderCardTabs están definidas ── */
-setTimeout(function(){ _initAllSort(); _arSortInit(); }, 1500);
 var _origSC_s = w22_setC;
 w22_setC = function(c,el){
   _origSC_s(c,el);
@@ -1581,3 +1579,6 @@ w22_setMode = function(m,el){
 
 /* Render inicial aquí para garantizar que _cardRow ya existe */
 w22_update();
+
+/* Sort inicial — después de w22_update() para que el DOM esté listo */
+setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
