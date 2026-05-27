@@ -720,6 +720,10 @@ def _build_card_rows_cv(tab_cv, t_key):
 def _build_card_rows_chan(tab, metric_col, wow_col):
     """Convierte tab channel en array de filas para JS."""
     PRODUCTO_PROPIO = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
+    CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+    CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    def _inactive(name):
+        return [name, '#F2EEE6', '#8A8377', 'Sin Actividad', None, None, None]
     df = tab.get('channel', pd.DataFrame())
     pp_rows, tp_rows = [], []
     for _, r in df.iterrows():
@@ -738,6 +742,15 @@ def _build_card_rows_chan(tab, metric_col, wow_col):
             pp_rows.append(entry)
         else:
             tp_rows.append(entry)
+    # Completar con catálogo canónico
+    pp_names = [r[0] for r in pp_rows]
+    tp_names = [r[0] for r in tp_rows]
+    for name in CATALOG_PP:
+        if not any(name.lower() in n.lower() for n in pp_names):
+            pp_rows.append(_inactive(name))
+    for name in CATALOG_TP:
+        if not any(name.lower() in n.lower() for n in tp_names):
+            tp_rows.append(_inactive(name))
     return {'pp': pp_rows, 'tp': tp_rows}
 
 def _build_cr_card_tabs_json():

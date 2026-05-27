@@ -804,28 +804,51 @@ function w22_renderCardTabs(canasta){
     if(!card) return;
     var panel = card.querySelector('[data-tab="channel"]');
     if(!panel) return;
-    
-    /* [nombre, bbg, bfg, banda, cr_u, val_pct, wow_pp] */
+
+    /* Completar con catálogo canónico — channels sin datos = Sin Actividad */
+    var CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'];
+    var CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate'];
+    function _inactive(name){ return [name,'#F2EEE6','#8A8377','Sin Actividad','—','—',null]; }
+    var pp_names = pp.map(function(r){ return r[0]; });
+    var tp_names = tp.map(function(r){ return r[0]; });
+    CATALOG_PP.forEach(function(n){ if(!pp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) pp.push(_inactive(n)); });
+    CATALOG_TP.forEach(function(n){ if(!tp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) tp.push(_inactive(n)); });
+
+    /* Row con cursor, data-hist, estilo inactivo */
     function _chanRow(r, i){
-      var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp=r[6];
-      var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-      var mw_up = wow_pp!=null&&wow_pp>0;
-      var mw_bg = mw_up?'#EAF3DE':'#FCE8E6';
-      var mw_fg = mw_up?'#2F6C34':'#C0392B';
-      var mw = wow_pp!=null?_pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_bg, mw_fg):'<span style="color:var(--ink-muted)">—</span>';
-      return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
-        +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
+      var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
+      var isInactive = banda === 'Sin Actividad';
+      var wow_pp = (wow_pp_raw!=null && wow_pp_raw!=='—' && wow_pp_raw!=='')
+        ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
+      var badge = isInactive
+        ? '<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>'
+        : '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+      var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
+      var mw = (wow_pp!=null&&!isNaN(wow_pp))
+        ? _pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
+        : '<span style="color:var(--ink-muted)">—</span>';
+      var displayVal = val_pct || '—';
+      var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+      var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
+      var num = (i<10?'0'+(i+1):(i+1))+'. ';
+      var rowStyle = isInactive
+        ? 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+        : 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+      return '<div '+histAttrs+' style="'+rowStyle+'">'
+        +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+num+nombre+'</span>'
         +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
-        +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+_fmtPct(val_pct)+'</span>'
+        +'<span style="text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
         +'<div style="text-align:right;">'+mw+'</div>'
         +'</div>';
     }
+    var acc = (typeof cv==='function') ? cv().col : '#5C469C';
     var pp_html = pp.map(_chanRow).join('');
     var tp_html = tp.map(_chanRow).join('');
     panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-      +'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
       +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
       +'</div>';
+    if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
   });
 }
 
