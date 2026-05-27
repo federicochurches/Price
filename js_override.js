@@ -1486,9 +1486,8 @@ var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
 /* ── Ver más / menos botón para cards KPI ── */
 function _moreBtn(containerEl) {
-  /* Limpiar botón previo */
-  var prev = containerEl.querySelector('.kpi-more-btn');
-  if (prev) prev.remove();
+  /* Si ya tiene botón estático (cards KPI desde Python), no duplicar */
+  if (containerEl.querySelector('.kpi-more-btn')) return;
   var moreRows = containerEl.querySelectorAll('.rows-more');
   if (!moreRows.length) return;
 
@@ -1502,9 +1501,14 @@ function _moreBtn(containerEl) {
     '  var exp = el.getAttribute("data-exp") !== "1";',
     '  el.setAttribute("data-exp", exp ? "1" : "0");',
     '  var p = el.parentNode;',
+    '  console.log("CLICK parentNode:", p ? p.className || p.tagName : "NULL");',
     '  if(!p) return;',
-    '  p.querySelectorAll(".rows-more").forEach(function(r){',
-    '    r.style.display = exp ? (r.tagName==="TR" ? "" : "grid") : "none";',
+    '  var found = p.querySelectorAll(".rows-more");',
+    '  console.log("rows-more en parentNode:", found.length);',
+    '  found.forEach(function(r){',
+    '    var d = exp ? (r.tagName==="TR" ? "" : "grid") : "none";',
+    '    console.log("row", r.getAttribute("data-row-idx"), "display->", d);',
+    '    r.style.setProperty("display", d, "important");',
     '  });',
     '  el.textContent = exp ? "Ver menos ▴" : "Ver más ▾";',
     '})(this)'

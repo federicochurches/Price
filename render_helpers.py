@@ -487,7 +487,7 @@ def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscar�
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ── Constante única de top N visible ────────────────────────────────────────────
-KPI_TOP_N = 10   # ← único lugar donde cambiar el top visible
+KPI_TOP_N = 5    # ← filas visibles por defecto; 5 más expandibles hasta 10
 
 
 def render_traf_wow_pill_pct(pct_delta, font_size='8px'):
@@ -712,12 +712,21 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
                 wow_pill = '<em class="wow-pill nd">—</em>'
 
         # Visibilidad
-        _cls = '' if i < top_n else 'sb-hidden'
+        _EXPAND_N = 10  # filas visibles al expandir
+        if i < top_n:
+            _cls = ''
+            _display = 'grid'
+        elif i < _EXPAND_N:
+            _cls = 'rows-more'
+            _display = 'none'
+        else:
+            _cls = 'sb-hidden'
+            _display = 'grid'  # display controlado por sb-hidden CSS
 
         _row = (
             f'<div class="{_cls}" data-row-idx="{i}"'
             f' data-hist-w21="{_hist_w21}" data-hist-w20="{_hist_w20}" data-hist-label="{raw_lab}"'
-            f' style="display:grid;grid-template-columns:{grid_cols};align-items:center;gap:6px;'
+            f' style="display:{_display};grid-template-columns:{grid_cols};align-items:center;gap:6px;'
             f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);'
             f'cursor:pointer;transition:background .12s;">'
             f'<div style="min-width:0;overflow:hidden;">'
@@ -768,7 +777,24 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
         headers = panel_tabs_spec.get('headers', [])
         widths  = panel_tabs_spec.get('widths', cfg['grid_cols'])
         _hdr = tab_column_header(headers, widths) if headers else ''
-        panel_html = f'<div class="kpi-tab-rows">{_hdr}{top_html}</div>{rest_html}'
+        _more_btn = (
+            '<div class="kpi-more-btn" '
+            'style="margin:8px 0 2px;border-top:1px solid var(--rule-soft);'
+            'color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;'
+            'text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;'
+            'user-select:none;" '
+            'onclick="(function(el){'
+            'var exp=el.getAttribute(\'data-exp\')!==\'1\';'
+            'el.setAttribute(\'data-exp\',exp?\'1\':\'0\');'
+            'var p=el.parentNode;'
+            'p.querySelectorAll(\'.rows-more\').forEach(function(r){'
+            'r.style.display=exp?\'grid\':\'none\';'
+            '});'
+            'el.textContent=exp?\'Ver menos ▴\':\'Ver más ▾\';'
+            '})(this)">'
+            'Ver más ▾</div>'
+        ) if rest_html else ''
+        panel_html = f'<div class="kpi-tab-rows">{_hdr}{top_html}{rest_html}{_more_btn}</div>'
     else:
         panel_html = top_html + rest_html
 
