@@ -453,11 +453,14 @@ def _build_rnd_card_tabs_json():
                 bnd  = banda_nodispo(nd)
                 bc   = BANDA_COLORS.get(bnd, {})
                 nd_tab.append([
-                    lab, bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+                    lab,
+                    '',              # r[1] sub — vacío para alinear con CR_CARD_TABS
+                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
                     int(traf) if traf and not _math_rnd.isnan(float(traf)) else 0,
-                    round(nd * 100, 2),
+                    None,            # r[6] wow tráfico
+                    round(nd * 100, 2),   # r[7] val_pct — métrica en misma posición que CR
                     round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
-                    None, '—', '—', '—',
+                    None, '—', '—',
                     w21, round((nd - r.get('%NoDispo_W18', nd)) * 100, 4)
                 ])
             # IPM rows: ordenar peor primero (menor IPM)
@@ -471,11 +474,14 @@ def _build_rnd_card_tabs_json():
                 bnd  = banda_rpm(ipm, int(r.get('Bookings', 1)))
                 bc   = BANDA_COLORS.get(bnd, {})
                 ipm_tab.append([
-                    lab, bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+                    lab,
+                    '',              # r[1] sub — vacío para alinear con CR_CARD_TABS
+                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
                     int(traf) if traf and not _math_rnd.isnan(float(traf)) else 0,
-                    round(ipm, 2),
+                    None,            # r[6] wow tráfico
+                    round(ipm, 2),   # r[7] val_pct
                     round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
-                    None, '—', '—', '—',
+                    None, '—', '—',
                     round(ipm, 4), 0
                 ])
             nd_rows_map  = nd_rows if t_key == 'hotel' else None

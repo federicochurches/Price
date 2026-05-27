@@ -1113,14 +1113,15 @@ function ar_update() {
 }
 
 /* Hook en w22_update para re-renderizar AR */
+/* Patch w22_update — disparar ar_update después de que el DOM esté actualizado */
 var _origW22Update = w22_update;
 w22_update = function() {
   _origW22Update.apply(this, arguments);
-  setTimeout(ar_update, 10);
+  setTimeout(ar_update, 50); /* 50ms — suficiente para que el DOM procese el render */
 };
 
-/* Inicializar al cargar */
-setTimeout(ar_update, 100);
+/* Inicializar al cargar — esperar a que w22_update haya corrido primero */
+setTimeout(function(){ ar_update(); }, 300);
 
 /* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
 function trow_ar(r, card, idx) {
@@ -1375,12 +1376,10 @@ function _markSortable(els, activeIdx, dir) {
 }
 
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
-/* CR row: [lab,sub,bbg,bfg,banda, traf(5), cr_wow(6), val(7), wow_pp(8), ...] → Tráfico=r[4 o 5], Métrica=r[7] */
-/* RND row: [lab,bbg,bfg,banda, traf(4), val(5), wow_pp(6), ...] → Tráfico=r[4], Métrica=r[5] */
-/* Usar metricKey para distinguir */
-var _KPI_RCOLS_CR  = {2:5, 4:7}; /* CR: span[2]=Tráfico→r[5], span[4]=Métrica→r[7] */
-var _KPI_RCOLS_RND = {2:4, 4:5}; /* RND: span[2]=Tráfico→r[4], span[4]=Métrica→r[5] */
-var _KPI_RCOLS = _KPI_RCOLS_CR;  /* default CR, se ajusta en _kpiSortAttach */
+/* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
+var _KPI_RCOLS_CR  = {2:5, 4:7};
+var _KPI_RCOLS_RND = {2:5, 4:7}; /* misma estructura desde W21-post5 */
+var _KPI_RCOLS = _KPI_RCOLS_CR;
 
 /* Grid CSS por métrica — para que _cardRow use el correcto según la card */
 var _KPI_GRID = {
@@ -1404,10 +1403,9 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
   _markSortable(hspans, _SS[key].col, _SS[key].dir);
 
-  var isEf = (metricKey === 'ef');
+  var isEf = (metricKey === 'ef' || metricKey === 'nd');
   var grid = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
-  /* Usar mapeo de columnas según tipo de card */
-  var rcols = (metricKey === 'nd' || metricKey === 'ipm') ? _KPI_RCOLS_RND : _KPI_RCOLS_CR;
+  var rcols = _KPI_RCOLS_CR; /* mismo para CR y RND desde W21-post5 */
 
   hspans.forEach(function(sp, i) {
     if (rcols[i] == null) return;
