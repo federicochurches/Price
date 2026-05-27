@@ -770,6 +770,31 @@ final = (
     '<!DOCTYPE html>\n<html lang="es">\n'
     + HEAD + '\n'
     + '<body>\n'
+    + '''<div id="supply-loading" style="position:fixed;inset:0;background:var(--paper,#F8F4EC);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">
+  <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-muted,#8A8377);">Supply Analytics · Cargando</div>
+  <div style="width:120px;height:2px;background:var(--rule,#C9C1B0);border-radius:2px;overflow:hidden;">
+    <div id="supply-loading-bar" style="width:0%;height:100%;background:var(--ink,#161616);border-radius:2px;transition:width .4s ease;"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var bar = document.getElementById('supply-loading-bar');
+  var pct = 0;
+  var iv = setInterval(function(){
+    pct = Math.min(pct + (90-pct)*0.08 + 0.5, 90);
+    if(bar) bar.style.width = pct.toFixed(1)+'%';
+  }, 80);
+  window.addEventListener('load', function(){
+    clearInterval(iv);
+    if(bar) bar.style.width = '100%';
+    setTimeout(function(){
+      var el = document.getElementById('supply-loading');
+      if(el){ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(function(){ el.style.display='none'; },300); }
+    }, 150);
+  });
+})();
+</script>
+'''
     + '<div class="shell">\n'
     + MASTHEAD + '\n'
     + SWITCHER + '\n'
