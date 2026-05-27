@@ -636,7 +636,7 @@ SHARED_CONTAINERS = f'''
       <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
         <label class="tab-label tab-label-active" onclick="ar_setDim(1,'corp');w22_iTab(this);" id="ar1-dim-corp">Corporativo</label>
         <label class="tab-label" onclick="ar_setDim(1,'dest');w22_iTab(this);" id="ar1-dim-dest">Destino</label>
-        <label class="tab-label" onclick="ar_setDim(1,'chan');w22_iTab(this);" id="ar1-dim-chan">Canal</label>
+        <label class="tab-label" onclick="ar_setDim(1,'chan');w22_iTab(this);" id="ar1-dim-chan">Channel</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
@@ -713,7 +713,7 @@ SHARED_CONTAINERS = f'''
       <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
         <label class="tab-label tab-label-active" onclick="ar_setDim(2,'corp');w22_iTab(this);" id="ar2-dim-corp">Corporativo</label>
         <label class="tab-label" onclick="ar_setDim(2,'dest');w22_iTab(this);" id="ar2-dim-dest">Destino</label>
-        <label class="tab-label" onclick="ar_setDim(2,'chan');w22_iTab(this);" id="ar2-dim-chan">Canal</label>
+        <label class="tab-label" onclick="ar_setDim(2,'chan');w22_iTab(this);" id="ar2-dim-chan">Channel</label>
       </div>
       <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>

@@ -903,7 +903,8 @@ function ar_setHotelTab(n, tab, el) {
 /* Cambiar dimensión de una card */
 function ar_setDim(n, dim) {
   _arDim[n] = dim;
-  var dimLabelMap = {corp:'Corporativo', dest:'Destino', chan:'Channel'};
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var dimLabelMap = {corp:'Corporativo', dest:'Destino', chan: isCR ? 'Channel' : 'País'};
   var lbl = document.getElementById('ar'+n+'-td-lbl');
   if (lbl) lbl.textContent = dimLabelMap[dim] || 'Corporativo';
   var drows = _arDimRows(n, dim);
@@ -919,15 +920,18 @@ function ar_updateLabels() {
   var col2 = document.getElementById('ar2-col-m');
   var tdc1 = document.getElementById('ar1-td-col-m');
   var tdc2 = document.getElementById('ar2-td-col-m');
-  var th1  = document.getElementById('ar1-th-lbl');
-  var th2  = document.getElementById('ar2-th-lbl');
-  var td1  = document.getElementById('ar1-td-lbl');
   if (lbl1) lbl1.textContent = isCR ? 'Eficacia' : '%NoDispo';
   if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : 'IPM';
   if (col1) col1.textContent = isCR ? 'Eficacia' : '%NoDispo';
   if (col2) col2.textContent = isCR ? 'Conv Rate' : 'IPM';
   if (tdc1) tdc1.textContent = isCR ? 'Eficacia' : '%NoDispo';
   if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  /* Pestaña Canal → Channel (CR) o País (RND) */
+  var chanLabel = isCR ? 'Channel' : 'País';
+  [1,2].forEach(function(n){
+    var el = document.getElementById('ar'+n+'-dim-chan');
+    if (el) el.textContent = chanLabel;
+  });
   /* Canvas hist: mostrar CR o RND según modo */
   ['ar1-hist-cr','ar2-hist-cr'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.style.display = isCR ? 'block' : 'none';
