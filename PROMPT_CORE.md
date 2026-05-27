@@ -559,7 +559,7 @@ Sin `margin-left` — elimina el "guion fantasma".
 
 Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del proyecto, plano (sin carpetas). Se entrega junto con el commit de GitHub en cada pipeline.
 
-**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`).
+**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`), `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
 
 ### Regla de clasificación
 
