@@ -870,10 +870,10 @@ function _arRenderTable(n, view) {
   var v = view || _arView[n];
   if (v === 'hotel') {
     var rows = _arRows(n, _arHTab[n]);
-    w22_renderTable('ar'+n+'-th', 'ar'+n+'-th-more', rows, false);
+    ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
   } else {
     var drows = _arDimRows(n, _arDim[n]);
-    w22_renderTable('ar'+n+'-td', 'ar'+n+'-td-more', drows, false);
+    ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
   }
 }
 
@@ -942,6 +942,7 @@ function ar_updateLabels() {
 /* Inicializar y re-renderizar las dos cards */
 function ar_update() {
   ar_updateLabels();
+  ar_updateKPIs();
   _arRenderTable(1);
   _arRenderTable(2);
   /* Restaurar estilos de vista activa */
@@ -957,3 +958,81 @@ w22_update = function() {
 
 /* Inicializar al cargar */
 setTimeout(ar_update, 100);
+
+/* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
+function trow_ar(r, card) {
+ var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>';
+ var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
+ var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
+ function pill(str, isGood){
+  if(!str||str==='—') return '<td style="padding:7px 2px;text-align:right;"><span style="color:var(--ink-muted);font-size:10px;">—</span></td>';
+  var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
+  var good = isGood ? up : !up;
+  var label = str.replace(/pp$/,'').replace(/,00$/,'').trim();
+  return '<td style="padding:7px 2px;text-align:right;"><em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+label+'</em></td>';
+ }
+ if (W.mode === 'rnd') {
+  /* RND card1=NoDispo, card2=IPM */
+  if (card === 1) {
+   return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)+'</tr>';
+  } else {
+   return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true)+'</tr>';
+  }
+ }
+ /* CR card1=Eficacia, card2=ConvRate */
+ if (card === 1) {
+  return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)+'</tr>';
+ } else {
+  return '<tr style="border-bottom:1px solid var(--rule-soft);">'+nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true)+'</tr>';
+ }
+}
+
+/* Render tabla AR con trow_ar */
+function ar_renderTable(n, tbodyId, btnId, rows) {
+ var tbody = document.getElementById(tbodyId);
+ if (!tbody) return;
+ var visible = rows.slice(0, 5);
+ var more    = rows.slice(5);
+ tbody.innerHTML = visible.map(function(r){ return trow_ar(r, n); }).join('');
+ var btn = document.getElementById(btnId);
+ if (!btn) return;
+ if (more.length) {
+  btn.style.display = '';
+  btn.textContent = 'Ver ' + more.length + ' más ↓';
+  btn.onclick = function(){
+   tbody.innerHTML += more.map(function(r){ return trow_ar(r, n); }).join('');
+   btn.style.display = 'none';
+  };
+ } else {
+  btn.style.display = 'none';
+ }
+}
+
+/* KPI header de cada card: valor de la canasta activa */
+function ar_updateKPIs() {
+ var isCR = W.mode === 'cr';
+ var canasta = W.canasta || 'global';
+ var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
+
+ /* Leer valores desde los datos del modo activo */
+ var val1 = '—', val2 = '—';
+ if (isCR && typeof CR_D !== 'undefined') {
+  var d = CR_D[canasta] || CR_D.global || {};
+  var m = d.m18 || {};
+  val1 = m.eficacia   != null ? (m.eficacia   * 100).toFixed(2).replace('.',',') + '%' : '—';
+  val2 = m.conv_rate  != null ? (m.conv_rate  * 100).toFixed(2).replace('.',',') + '%' : '—';
+ } else if (!isCR && typeof RND_D !== 'undefined') {
+  var dr = RND_D[canasta] || RND_D.global || {};
+  var mr = dr.m18 || {};
+  val1 = mr.pct_nodispo != null ? (mr.pct_nodispo * 100).toFixed(2).replace('.',',') + '%' : '—';
+  val2 = mr.ipm         != null ? '$' + Math.round(mr.ipm).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '—';
+ }
+
+ /* Insertar KPI en header de cada card */
+ ['ar-kpi-1','ar-kpi-2'].forEach(function(id, i){
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = i === 0 ? val1 : val2;
+  el.style.color = acc;
+ });
+}

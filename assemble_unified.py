@@ -579,6 +579,7 @@ SHARED_CONTAINERS = f'''
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-1">—</div>
     </div>
     <!-- Nivel 1: Por Hotel / Por Dimensión -->
     <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
@@ -646,6 +647,7 @@ SHARED_CONTAINERS = f'''
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-top:4px;color:#5C469C;" id="ar-kpi-2">—</div>
     </div>
     <!-- Nivel 1: Por Hotel / Por Dimensión -->
     <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
