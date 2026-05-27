@@ -5520,53 +5520,70 @@ var _KPI_GRID = {
 };
 
 function _kpiSortAttach(card, tkey, metricKey, allRows100) {
+  /* Evitar doble registro — usar flag en el panel */
   var panel = card.querySelector('[data-tab="'+tkey+'"]');
   if (!panel) return;
-  var rc = panel.querySelector('.kpi-tab-rows');
-  if (!rc) return;
-  var hdr = rc.firstElementChild; if (!hdr) return;
-  /* Guard: verificar que hdr es el header row, no un row de datos */
-  if (hdr.hasAttribute('data-row-idx') || hdr.hasAttribute('data-hist-label')) return;
-  var hspans = Array.from(hdr.querySelectorAll('span'));
-  if (hspans.length < 5) return; /* header tiene al menos 6 spans */
-  var key = (card.id||tkey)+'_'+metricKey+'_'+tkey;
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
-  _markSortable(hspans, _SS[key].col, _SS[key].dir);
+  if (panel._sortKey === (metricKey+'_'+tkey)) return; /* ya enganchado */
+  panel._sortKey = metricKey+'_'+tkey;
 
   var isEf = (metricKey === 'ef' || metricKey === 'nd');
-  var grid = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
-  var rcols = _KPI_RCOLS_CR; /* mismo para CR y RND desde W21-post5 */
+  var grid  = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
+  var rcols = _KPI_RCOLS_CR; /* {2:5, 4:7} */
+  var key   = (card.id||tkey)+'_'+metricKey+'_'+tkey;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
 
-  hspans.forEach(function(sp, i) {
+  /* Re-renderizar el panel completo desde allRows100 */
+  function _render(sorted10, activeCol, dir) {
+    var rc = panel.querySelector('.kpi-tab-rows');
+    if (!rc) return;
+    var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
+    var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+    var hdrLabels = {
+      ef:  ['Severity','Tráfico','WoW','Eficacia','WoW'],
+      cv:  ['Severity','Tráfico','WoW','Conv Rate','WoW'],
+      nd:  ['Severity','Tráfico','WoW','%NoDispo','WoW'],
+      ipm: ['Severity','Tráfico','WoW','IPM','WoW'],
+    };
+    var labels = hdrLabels[metricKey] || hdrLabels.ef;
+    var hdrSpans = '<span></span>' + labels.map(function(h, i){
+      var isActive = (i+1 === activeCol) && dir && dir !== 'orig';
+      var baseStyle = h === 'Severity' ? _ll : _lr;
+      var extra = isActive ? 'color:var(--accent);text-decoration:underline;' : '';
+      return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
+    }).join('');
+    var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
+    var rowsHtml = sorted10.map(function(item){
+      return _cardRow(item.r, item.origPos-1, isEf, grid);
+    }).join('');
+    rc.innerHTML = hdrHtml + rowsHtml;
+  }
+
+  /* Render inicial */
+  var initSorted = allRows100.slice(0,10).map(function(r,i){ return {r:r, origPos:i+1}; });
+  _render(initSorted, _SS[key].col, _SS[key].dir);
+
+  /* Event delegation en el panel — UN solo listener */
+  panel.addEventListener('click', function(e) {
+    var sp = e.target.closest('[data-sort-col]');
+    if (!sp) return;
+    var i = parseInt(sp.getAttribute('data-sort-col'));
     if (rcols[i] == null) return;
-    var newSp = sp.cloneNode(true);
-    sp.parentNode.replaceChild(newSp, sp);
-    newSp.style.cursor = 'pointer';
-    newSp.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      var ri = rcols[i];
-      var sorted = allRows100.slice().map(function(r, origIdx){
-        return {r:r, origPos: origIdx+1};
-      });
-      if (dir !== 'orig') {
-        sorted.sort(function(a,b){
-          var va=_sv(a.r[ri]),vb=_sv(b.r[ri]);
-          if(va==null&&vb==null) return 0;
-          if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc'?va-vb:vb-va;
-        });
-      }
-      /* Capturar outerHTML del header ANTES de reescribir innerHTML */
-      var hdrHtml = hdr.outerHTML;
-      var rowsHtml = sorted.slice(0,10).map(function(item){
-        return _cardRow(item.r, item.origPos-1, isEf, grid);
-      }).join('');
-      rc.innerHTML = hdrHtml + rowsHtml;
-      _markSortable(Array.from(rc.firstElementChild.querySelectorAll('span')), i, dir);
-      setTimeout(function(){_kpiSortAttach(card, tkey, metricKey, allRows100);}, 15);
+    var ri = rcols[i];
+    var st = _SS[key];
+    var dir = (st.col === i) ? _nd(st.dir) : 'asc';
+    _SS[key] = {col:i, dir:dir};
+    var sorted = allRows100.slice().map(function(r, origIdx){
+      return {r:r, origPos: origIdx+1};
     });
+    if (dir !== 'orig') {
+      sorted.sort(function(a,b){
+        var va=_sv(a.r[ri]), vb=_sv(b.r[ri]);
+        if(va==null&&vb==null) return 0;
+        if(va==null) return 1; if(vb==null) return -1;
+        return dir==='asc' ? va-vb : vb-va;
+      });
+    }
+    _render(sorted.slice(0,10), i, dir);
   });
 }
 
@@ -5581,6 +5598,10 @@ var _METRIC_DEFS = {
 function _initAllSort() {
   var mode    = (typeof W!=='undefined') ? W.mode    : 'cr';
   var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
+
+  /* Resetear flags para forzar re-enganche */
+  document.querySelectorAll('[data-tab]').forEach(function(p){ p._sortKey = null; });
+  document.querySelectorAll('thead').forEach(function(t){ t._sortKey = null; });
 
   if (mode === 'cr') {
     /* CR: cards Eficacia + ConvRate */
@@ -5628,54 +5649,58 @@ var _AR_SORT_MAP = {2:4}; /* tráfico: th[2] → r[4] */
 function _arSortAttach(n, tbodyId, btnId) {
   var tbody = document.getElementById(tbodyId); if (!tbody) return;
   var table = tbody.closest('table'); if (!table) return;
-  var ths = Array.from(table.querySelectorAll('thead th'));
+  var thead = table.querySelector('thead'); if (!thead) return;
+
+  /* Evitar doble registro */
+  if (thead._sortKey === tbodyId) return;
+  thead._sortKey = tbodyId;
+
   var key = tbodyId;
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
   var rmap = {2:4, 4:(n===1?5:6)};
-  _markSortable(ths, _SS[key].col, _SS[key].dir);
   var isHotelTbody = tbodyId === 'ar'+n+'-th';
 
+  /* Marcar columnas ordenables */
+  var ths = Array.from(thead.querySelectorAll('th'));
   ths.forEach(function(th, i) {
-    if (rmap[i] == null) return;
-    var newTh = th.cloneNode(true);
-    th.parentNode.replaceChild(newTh, th);
-    newTh.style.cursor = 'pointer';
-    /* IIFE para capturar i correctamente */
-    (function(colIdx){
-      var rowIdx = rmap[colIdx];
-      newTh.addEventListener('click', function() {
-        /* Leer estado actual */
-        var st = _SS[key];
-        var dir = (st.col===colIdx) ? _nd(st.dir) : 'asc';
-        _SS[key] = {col:colIdx, dir:dir};
-        /* Obtener todos los rows del source */
-        var allRows = isHotelTbody
-          ? _arRows(n, _arHTab[n])
-          : _arDimRows(n, _arDim[n]);
-        /* sort: n=n col=colIdx ri=rowIdx dir=dir allRows=allRows.length */
-        /* Ordenar */
-        var sorted = allRows.slice().map(function(r, origIdx){
-          return {r:r, origPos: origIdx+1}; /* guardar posición original 1-based */
-        });
-        if (dir !== 'orig') {
-          sorted.sort(function(a,b){
-            var va=_sv(a.r[rowIdx]), vb=_sv(b.r[rowIdx]);
-            if(va==null&&vb==null) return 0;
-            if(va==null) return 1; if(vb==null) return -1;
-            return dir==='asc' ? va-vb : vb-va;
-          });
-        }
-        /* Escribir top 10 con numeración original */
-        var tbEl = document.getElementById(tbodyId);
-        if (tbEl) {
-          tbEl.innerHTML = sorted.slice(0,10).map(function(item){
-            return trow_ar(item.r, n, item.origPos);
-          }).join('');
-        }
-        /* Re-enganchar */
-        setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 20);
+    if (rmap[i] != null) {
+      th.style.cursor = 'pointer';
+      th.setAttribute('data-sort-col', i);
+    }
+  });
+  _markSortable(ths, _SS[key].col, _SS[key].dir);
+
+  /* Event delegation en thead — UN solo listener */
+  thead.addEventListener('click', function(e) {
+    var th = e.target.closest('[data-sort-col]');
+    if (!th) return;
+    var colIdx = parseInt(th.getAttribute('data-sort-col'));
+    var rowIdx = rmap[colIdx];
+    if (rowIdx == null) return;
+
+    var st = _SS[key];
+    var dir = (st.col === colIdx) ? _nd(st.dir) : 'asc';
+    _SS[key] = {col:colIdx, dir:dir};
+
+    var allRows = isHotelTbody ? _arRows(n, _arHTab[n]) : _arDimRows(n, _arDim[n]);
+    var sorted = allRows.slice().map(function(r, origIdx){
+      return {r:r, origPos: origIdx+1};
+    });
+    if (dir !== 'orig') {
+      sorted.sort(function(a,b){
+        var va=_sv(a.r[rowIdx]), vb=_sv(b.r[rowIdx]);
+        if(va==null&&vb==null) return 0;
+        if(va==null) return 1; if(vb==null) return -1;
+        return dir==='asc' ? va-vb : vb-va;
       });
-    })(i);
+    }
+    var tbEl = document.getElementById(tbodyId);
+    if (tbEl) {
+      tbEl.innerHTML = sorted.slice(0,10).map(function(item){
+        return trow_ar(item.r, n, item.origPos);
+      }).join('');
+    }
+    _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);
   });
 }
 
@@ -5687,11 +5712,14 @@ function _arSortInit() {
   });
 }
 
-/* Patch ar_renderTable */
+/* Patch ar_renderTable — re-enganchar sort después de render */
 var _origART = ar_renderTable;
 ar_renderTable = function(n, tbodyId, btnId, rows) {
   _origART(n, tbodyId, btnId, rows);
-  setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 50);
+  /* Limpiar flag para que _arSortAttach re-enganche en el nuevo thead */
+  var tbody = document.getElementById(tbodyId);
+  if (tbody) { var t = tbody.closest('table'); if (t && t.querySelector('thead')) t.querySelector('thead')._sortKey = null; }
+  setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 10);
 };
 
 /* ── Render inicial — DESPUÉS de que _cardRow y w22_renderCardTabs están definidas ── */
