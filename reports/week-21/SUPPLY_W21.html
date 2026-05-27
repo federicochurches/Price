@@ -4472,8 +4472,7 @@ w22_iTab = function(el) {
 };
 
 
-/* Disparar render inicial */
-w22_update();
+/* w22_update() se llama al final del archivo cuando _cardRow ya está definida */
 /* Reemplazar w22_setView completamente — usar !important vía style */
 w22_setView = function(v) {
   W.view = v;
