@@ -571,83 +571,144 @@ SHARED_CONTAINERS = f'''
 </div>
 </div>
 
-<div class="vsw" style="display:flex;align-items:stretch;border:1px solid var(--rule);border-bottom:none;background:var(--paper-soft);">
-  <div style="display:flex;align-items:center;padding:0 16px;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-muted);border-right:1px solid var(--rule);white-space:nowrap;min-width:72px;">Vista</div>
-  <div class="v-chip on" id="vch-h" style="display:flex;align-items:center;gap:6px;padding:0 22px;height:38px;font-size:10px;font-weight:700;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);background:var(--paper);color:var(--ink);" onclick="w22_setView('hotel')">🏨&nbsp;&nbsp;Por Hotel</div>
-  <div class="v-chip" id="vch-d" style="display:flex;align-items:center;gap:6px;padding:0 22px;height:38px;font-size:10px;font-weight:700;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);color:var(--ink-muted);" onclick="w22_setView('dim')">📊&nbsp;&nbsp;Por Dimensión</div>
-</div>
-<div id="w22-ph" style="border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
-  <div class="tabs-row" style="margin-top:0;">
-    <label class="tab-label tab-label-active" onclick="w22_setHotelTab('crit',this)" id="w22-tab-lbl-1">Críticos</label>
-    <label class="tab-label" onclick="w22_setHotelTab('br',this)" id="w22-tab-lbl-2">Bajo Rendimiento</label>
-    <label class="tab-label" onclick="w22_setHotelTab('sc',this)" id="w22-tab-lbl-3">Sin Conversión</label>
-    <label class="tab-label" onclick="w22_setHotelTab('cv',this)" id="w22-tab-lbl-4">Menor ConvRate</label>
-    {SB_PANEL_TH}
-  </div>
-  <div style="padding-top:14px;">
-    <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-      <colgroup>
-        <col/><col style="width:100px"/><col style="width:64px"/><col style="width:44px"/>
-        <col style="width:68px"/><col style="width:44px"/><col style="width:84px"/><col style="width:44px"/>
-      </colgroup>
-      <thead><tr style="border-bottom:2px solid var(--accent);">
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:6px 0 6px 12px;" id="w22-th-lbl-hotel">Hotel</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:6px 4px;">Severity</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col3">Tráfico</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col4">Eficacia</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col5">Conv Rate</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px 6px 2px;">WoW↕</th>
-      </tr></thead>
-      <tbody id="w22-th"></tbody>
-    </table>
-    <div style="text-align:center;margin-top:10px;">
-      <button id="w22-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:7px 20px;cursor:pointer;border-radius:3px;"></button>
+<!-- Grid 2 cards: Métrica 1 (Ef/ND) + Métrica 2 (CV/IPM) -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <!-- ── CARD 1: Eficacia / NoDispo ── -->
+  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+    <!-- Header título -->
+    <div style="padding:12px 16px 0;">
+      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
+    </div>
+    <!-- Nivel 1: Por Hotel / Por Dimensión -->
+    <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
+      <div id="ar1-vch-h" onclick="ar_setView(1,'hotel')"
+        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--accent);gap:5px;">🏨 Por Hotel</div>
+      <div id="ar1-vch-d" onclick="ar_setView(1,'dim')"
+        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink-muted);gap:5px;">📊 Por Dimensión</div>
+    </div>
+    <!-- Panel Por Hotel card 1 -->
+    <div id="ar1-ph" style="padding:12px 16px 0;">
+      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
+        <label class="tab-label tab-label-active" onclick="ar_setHotelTab(1,'crit',this)" id="ar1-tab-1">Críticos</label>
+        <label class="tab-label" onclick="ar_setHotelTab(1,'br',this)"   id="ar1-tab-2">Bajo Rend.</label>
+        <label class="tab-label" onclick="ar_setHotelTab(1,'sc',this)"   id="ar1-tab-3">Sin Conv.</label>
+        <label class="tab-label" onclick="ar_setHotelTab(1,'cv',this)"   id="ar1-tab-4" id="ar1-tab-cv">Menor CV</label>
+      </div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <thead><tr style="border-bottom:2px solid var(--accent);">
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-th-lbl">Hotel</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar1-col-m">Eficacia</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
+        </tr></thead>
+        <tbody id="ar1-th"></tbody>
+      </table>
+      <div style="text-align:center;margin-top:8px;">
+        <button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
+      </div>
+    </div>
+    <!-- Panel Por Dimensión card 1 -->
+    <div id="ar1-pd" style="display:none;padding:12px 16px 0;">
+      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
+        <label class="tab-label tab-label-active" onclick="ar_setDim(1,'corp');w22_iTab(this);" id="ar1-dim-corp">Corporativo</label>
+        <label class="tab-label" onclick="ar_setDim(1,'dest');w22_iTab(this);" id="ar1-dim-dest">Destino</label>
+        <label class="tab-label" onclick="ar_setDim(1,'chan');w22_iTab(this);" id="ar1-dim-chan">Canal</label>
+      </div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <thead><tr style="border-bottom:2px solid var(--accent);">
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-td-lbl">Corporativo</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar1-td-col-m">Eficacia</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
+        </tr></thead>
+        <tbody id="ar1-td"></tbody>
+      </table>
+      <div style="text-align:center;margin-top:8px;">
+        <button id="ar1-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
+      </div>
+    </div>
+    <!-- Canvas histórico card 1 -->
+    <div style="padding:0 16px 16px;">
+      <div id="ar1-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL}</div>
+      <div id="ar1-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL}</div>
     </div>
   </div>
-  <!-- Dos canvas: Eficacia/NoDispo + ConvRate/IPM -->
-  <div id="w22-panel-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    {HIST_CR_PANEL}{HIST_CR_PANEL_CV}
+
+  <!-- ── CARD 2: Conv Rate / IPM ── -->
+  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+    <!-- Header título -->
+    <div style="padding:12px 16px 0;">
+      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
+    </div>
+    <!-- Nivel 1: Por Hotel / Por Dimensión -->
+    <div style="display:flex;border-bottom:1px solid var(--rule);margin-top:8px;">
+      <div id="ar2-vch-h" onclick="ar_setView(2,'hotel')"
+        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--accent);gap:5px;">🏨 Por Hotel</div>
+      <div id="ar2-vch-d" onclick="ar_setView(2,'dim')"
+        style="display:flex;align-items:center;padding:0 16px;height:34px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink-muted);gap:5px;">📊 Por Dimensión</div>
+    </div>
+    <!-- Panel Por Hotel card 2 -->
+    <div id="ar2-ph" style="padding:12px 16px 0;">
+      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
+        <label class="tab-label tab-label-active" onclick="ar_setHotelTab(2,'crit',this)" id="ar2-tab-1">Críticos</label>
+        <label class="tab-label" onclick="ar_setHotelTab(2,'br',this)"   id="ar2-tab-2">Bajo Rend.</label>
+        <label class="tab-label" onclick="ar_setHotelTab(2,'sc',this)"   id="ar2-tab-3">Sin Conv.</label>
+        <label class="tab-label" onclick="ar_setHotelTab(2,'cv',this)"   id="ar2-tab-4">Menor CV</label>
+      </div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <thead><tr style="border-bottom:2px solid var(--accent);">
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-th-lbl">Hotel</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar2-col-m">Conv Rate</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
+        </tr></thead>
+        <tbody id="ar2-th"></tbody>
+      </table>
+      <div style="text-align:center;margin-top:8px;">
+        <button id="ar2-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
+      </div>
+    </div>
+    <!-- Panel Por Dimensión card 2 -->
+    <div id="ar2-pd" style="display:none;padding:12px 16px 0;">
+      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
+        <label class="tab-label tab-label-active" onclick="ar_setDim(2,'corp');w22_iTab(this);" id="ar2-dim-corp">Corporativo</label>
+        <label class="tab-label" onclick="ar_setDim(2,'dest');w22_iTab(this);" id="ar2-dim-dest">Destino</label>
+        <label class="tab-label" onclick="ar_setDim(2,'chan');w22_iTab(this);" id="ar2-dim-chan">Canal</label>
+      </div>
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:62px"/><col style="width:42px"/></colgroup>
+        <thead><tr style="border-bottom:2px solid var(--accent);">
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-td-lbl">Corporativo</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar2-td-col-m">Conv Rate</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
+        </tr></thead>
+        <tbody id="ar2-td"></tbody>
+      </table>
+      <div style="text-align:center;margin-top:8px;">
+        <button id="ar2-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
+      </div>
+    </div>
+    <!-- Canvas histórico card 2 -->
+    <div style="padding:0 16px 16px;">
+      <div id="ar2-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL_CV}</div>
+      <div id="ar2-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL_IPM}</div>
+    </div>
   </div>
-  <div id="w22-panel-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
-    {HIST_RND_PANEL}{HIST_RND_PANEL_IPM}
-  </div>
-</div>
-<div id="w22-pd" style="display:none;border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
-  <div class="tabs-row" style="margin-top:0;margin-bottom:14px;">
-    <label class="tab-label tab-label-active" onclick="w22_setDim('corp');w22_iTab(this);" id="w22-dim-lbl-corp">Corporativo</label>
-    <label class="tab-label" onclick="w22_setDim('dest');w22_iTab(this);" id="w22-dim-lbl-dest">Destino</label>
-    <label class="tab-label" onclick="w22_setDim('chan');w22_iTab(this);" id="w22-dim-lbl-chan">Canal</label>
-    {SB_PANEL_TD}
-  </div>
-  <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-    <colgroup>
-      <col/><col style="width:100px"/><col style="width:64px"/><col style="width:44px"/>
-      <col style="width:68px"/><col style="width:44px"/><col style="width:84px"/><col style="width:44px"/>
-    </colgroup>
-    <thead><tr style="border-bottom:2px solid var(--accent);">
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:6px 0 6px 12px;" id="w22-th-dim">Corporativo</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:6px 4px;">Severity</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col3">Tráfico</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col4">Eficacia</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col5">ConvRate</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px 6px 2px;">WoW↕</th>
-      </tr></thead>
-    <tbody id="w22-td"></tbody>
-  </table>
-  <div style="text-align:center;margin-top:10px;">
-    <button id="w22-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:7px 20px;cursor:pointer;border-radius:3px;"></button>
-  </div>
-  <div id="w22-panel-dim-hist-cr" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    {HIST_CR_DIM}{HIST_CR_DIM_CV}
-  </div>
-  <div id="w22-panel-dim-hist-rnd" style="margin-top:16px;display:none;grid-template-columns:1fr 1fr;gap:16px;">
-    {HIST_RND_DIM}{HIST_RND_DIM_IPM}
-  </div>
-</div>
+
+</div><!-- /grid 2 cards -->
 </section>
 
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">

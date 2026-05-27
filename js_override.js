@@ -829,3 +829,131 @@ function w22_renderCardTabs(canasta){
       +'</div>';
   });
 }
+
+/* ═══ Funciones de las dos cards de Análisis de Rendimiento ═══ */
+
+/* Estado por card */
+var _arView  = {1:'hotel', 2:'hotel'};
+var _arHTab  = {1:'crit',  2:'crit'};
+var _arDim   = {1:'corp',  2:'corp'};
+
+/* Obtener filas para card n según modo, canasta y tab */
+function _arRows(n, tab) {
+  var dd = data();
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  if (n === 1) {
+    /* Card 1: Eficacia (CR) / NoDispo (RND) — usa hotels_crit/br/sc/cv */
+    var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
+               tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
+               tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
+               (dd.hotels_crit || dd.hotels);
+    return rows || [];
+  } else {
+    /* Card 2: Conv Rate (CR) / IPM (RND) — mismos tabs pero ordenados por cv/ipm */
+    var rows2 = tab === 'br' ? (dd.hotels_br || dd.hotels) :
+                tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
+                tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
+                (dd.hotels_crit || dd.hotels);
+    return rows2 || [];
+  }
+}
+
+function _arDimRows(n, dim) {
+  var dd = data();
+  if (dim === 'chan') return dd.chans || dd.dims || [];
+  if (dim === 'dest') return dd.dests || dd.dims || [];
+  return dd.corps || dd.dims || [];
+}
+
+/* Render tabla de una card */
+function _arRenderTable(n, view) {
+  var v = view || _arView[n];
+  if (v === 'hotel') {
+    var rows = _arRows(n, _arHTab[n]);
+    w22_renderTable('ar'+n+'-th', 'ar'+n+'-th-more', rows, false);
+  } else {
+    var drows = _arDimRows(n, _arDim[n]);
+    w22_renderTable('ar'+n+'-td', 'ar'+n+'-td-more', drows, false);
+  }
+}
+
+/* Cambiar vista hotel/dim de una card */
+function ar_setView(n, v) {
+  _arView[n] = v;
+  var ph  = document.getElementById('ar'+n+'-ph');
+  var pd  = document.getElementById('ar'+n+'-pd');
+  var vch = document.getElementById('ar'+n+'-vch-h');
+  var vcd = document.getElementById('ar'+n+'-vch-d');
+  var acc = (typeof cv === 'function') ? cv().col : 'var(--accent)';
+  if (ph) ph.style.display = v === 'hotel' ? '' : 'none';
+  if (pd) pd.style.display = v === 'dim'   ? '' : 'none';
+  if (vch) { vch.style.borderBottomColor = v==='hotel' ? acc : 'transparent'; vch.style.color = v==='hotel' ? acc : 'var(--ink-muted)'; }
+  if (vcd) { vcd.style.borderBottomColor = v==='dim'   ? acc : 'transparent'; vcd.style.color = v==='dim'   ? acc : 'var(--ink-muted)'; }
+  _arRenderTable(n, v);
+}
+
+/* Cambiar sub-pestaña hotel de una card */
+function ar_setHotelTab(n, tab, el) {
+  _arHTab[n] = tab;
+  var ph = document.getElementById('ar'+n+'-ph');
+  if (ph) ph.querySelectorAll('.tab-label').forEach(function(l){ l.classList.remove('active','tab-label-active'); });
+  if (el) { el.classList.add('active','tab-label-active'); }
+  var rows = _arRows(n, tab);
+  w22_renderTable('ar'+n+'-th', 'ar'+n+'-th-more', rows, false);
+}
+
+/* Cambiar dimensión de una card */
+function ar_setDim(n, dim) {
+  _arDim[n] = dim;
+  var dimLabelMap = {corp:'Corporativo', dest:'Destino', chan:'Channel'};
+  var lbl = document.getElementById('ar'+n+'-td-lbl');
+  if (lbl) lbl.textContent = dimLabelMap[dim] || 'Corporativo';
+  var drows = _arDimRows(n, dim);
+  w22_renderTable('ar'+n+'-td', 'ar'+n+'-td-more', drows, false);
+}
+
+/* Actualizar etiquetas de las cards según modo CR/RND */
+function ar_updateLabels() {
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var lbl1 = document.getElementById('ar-card1-lbl');
+  var lbl2 = document.getElementById('ar-card2-lbl');
+  var col1 = document.getElementById('ar1-col-m');
+  var col2 = document.getElementById('ar2-col-m');
+  var tdc1 = document.getElementById('ar1-td-col-m');
+  var tdc2 = document.getElementById('ar2-td-col-m');
+  var th1  = document.getElementById('ar1-th-lbl');
+  var th2  = document.getElementById('ar2-th-lbl');
+  var td1  = document.getElementById('ar1-td-lbl');
+  if (lbl1) lbl1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (col1) col1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (col2) col2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (tdc1) tdc1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  /* Canvas hist: mostrar CR o RND según modo */
+  ['ar1-hist-cr','ar2-hist-cr'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.style.display = isCR ? 'block' : 'none';
+  });
+  ['ar1-hist-rnd','ar2-hist-rnd'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.style.display = isCR ? 'none' : 'block';
+  });
+}
+
+/* Inicializar y re-renderizar las dos cards */
+function ar_update() {
+  ar_updateLabels();
+  _arRenderTable(1);
+  _arRenderTable(2);
+  /* Restaurar estilos de vista activa */
+  [1,2].forEach(function(n){ ar_setView(n, _arView[n]); });
+}
+
+/* Hook en w22_update para re-renderizar AR */
+var _origW22Update = w22_update;
+w22_update = function() {
+  _origW22Update.apply(this, arguments);
+  setTimeout(ar_update, 10);
+};
+
+/* Inicializar al cargar */
+setTimeout(ar_update, 100);
