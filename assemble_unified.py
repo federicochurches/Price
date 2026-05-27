@@ -290,14 +290,26 @@ window._injectHistAttrs = function(tbodyId, rows) {
   };
 })();
 
-/* Listener del panel — captura clicks en w22-th/w22-td y cards AR (ar1-th, ar2-th, etc.) */
+/* Listener del panel — captura clicks en w22-th/w22-td, cards AR y channel divs */
 document.addEventListener('click', function(e) {
   var row = e.target.closest ? e.target.closest('[data-hist-w21]') : null;
   if (!row) return;
+
+  /* Determinar contenedor: tbody (tablas) o div canal (ar{n}-chan-div) */
   var tbody = row.closest('tbody');
-  if (!tbody) return;
-  var validIds = ['w22-th','w22-td','ar1-th','ar1-td','ar2-th','ar2-td'];
-  if (validIds.indexOf(tbody.id) === -1) return;
+  var chanDiv = row.closest('[id$="-chan-div"]');
+  var container = tbody || chanDiv;
+  if (!container) return;
+
+  var validIds = ['w22-th','w22-td','ar1-th','ar1-td','ar2-th','ar2-td',
+                  'ar1-chan-div','ar2-chan-div'];
+  if (validIds.indexOf(container.id) === -1) return;
+
+  /* Inferir card y cid desde el id del contenedor */
+  var containerId = container.id;
+  var cardNum = containerId.indexOf('ar1') === 0 ? '1' :
+                containerId.indexOf('ar2') === 0 ? '2' : null;
+  var card = row.getAttribute('data-hist-card') || cardNum;
 
   var label = row.getAttribute('data-hist-label') || '';
   var w21   = parseFloat(row.getAttribute('data-hist-w21'));
@@ -306,21 +318,20 @@ document.addEventListener('click', function(e) {
   if (isNaN(w20)) w20 = w21;
 
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
-  var card = row.getAttribute('data-hist-card'); /* '1' o '2' para cards AR, null para tablas antiguas */
   var cid;
   if (card === '1') {
     cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
   } else if (card === '2') {
     cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
   } else {
-    var isPh = tbody.id === 'w22-th';
+    var isPh = containerId === 'w22-th';
     cid = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
                : (isCR ? 'hcr-dim-ef'   : 'hrnd-dim-nd');
   }
 
   /* Segundo click → deseleccionar y volver a Global */
   var isAlreadySelected = row.getAttribute('data-selected') === '1';
-  tbody.querySelectorAll('[data-hist-w21]').forEach(function(r){
+  container.querySelectorAll('[data-hist-w21]').forEach(function(r){
     r.style.background = ''; r.removeAttribute('data-selected');
   });
 
