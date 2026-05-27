@@ -5328,9 +5328,20 @@ function ar_updateKPIs() {
    var cv_v = cv_e.vals; cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %'; cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
    cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
   }
-  /* Banda y datos del cv() actual */
-  if (cdata.ef) { ef21 = cdata.ef+'%'; }
-  if (cdata.cv) { cv21 = cdata.cv+'%'; }
+  /* Banda y datos del cv() actual — no sobreescribir ef21/ef20/efWow ya calculados */
+  if (cdata.ef) { ef21 = cdata.ef; }  /* cdata.ef ya viene con % */
+  if (cdata.cv) { cv21 = cdata.cv; }  /* cdata.cv ya viene con % o $ */
+  /* Calcular ef20 y WoW desde el historial si ef20 sigue vacío */
+  if (ef20 === '—' && ef_e.vals && ef_e.vals.length >= 2) {
+   var ev2 = ef_e.vals;
+   ef20 = ev2[ev2.length-2].toFixed(2).replace('.',',')+' %';
+   efWow = ev2[ev2.length-1] - ev2[ev2.length-2];
+  }
+  if (cv20 === '—' && cv_e.vals && cv_e.vals.length >= 2) {
+   var cv_v2 = cv_e.vals;
+   cv20 = cv_v2[cv_v2.length-2].toFixed(2).replace('.',',')+' %';
+   cvWow = cv_v2[cv_v2.length-1] - cv_v2[cv_v2.length-2];
+  }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
   if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; }
@@ -5364,6 +5375,16 @@ function ar_updateKPIs() {
    cvWow = iv[iv.length-1] - iv[iv.length-2];
   }
   if (cdata.ef) { ef21 = cdata.ef; } if (cdata.cv) { cv21 = cdata.cv; }
+  /* Calcular ef20/cv20 desde historial si vacíos */
+  if (ef20 === '—' && nd_e.vals && nd_e.vals.length >= 2) {
+   var nv2 = nd_e.vals; ef20 = nv2[nv2.length-2].toFixed(2).replace('.',',')+' %';
+   efWow = nv2[nv2.length-1] - nv2[nv2.length-2];
+  }
+  if (cv20 === '—' && ipm_e.vals && ipm_e.vals.length >= 2) {
+   var iv2 = ipm_e.vals;
+   cv20 = '$'+Math.round(iv2[iv2.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+   cvWow = iv2[iv2.length-1] - iv2[iv2.length-2];
+  }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
   efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
