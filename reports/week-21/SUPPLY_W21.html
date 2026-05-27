@@ -5305,6 +5305,7 @@ var _origW22Update = w22_update;
 w22_update = function() {
   _origW22Update.apply(this, arguments);
   ar_update(); /* sincrónicamente — el DOM ya está actualizado */
+  setTimeout(_moreBtnAll, 50);
 };
 
 /* Inicializar al cargar — después de w22_update() final */
@@ -5583,6 +5584,29 @@ function _markSortable(els, activeIdx, dir) {
    El searchbox ya tiene lógica para mostrar todos cuando hay query (ri<TOP_N check).
    Aquí ponemos TODO en el DOM para que el search opere sobre los 500. */
 var _KPI_TOP_N = 5;   /* filas visibles por defecto */
+
+/* Aplicar _moreBtn a todos los paneles activos después del render inicial */
+function _moreBtnAll() {
+  document.querySelectorAll('.kpi-tab-rows').forEach(function(el) {
+    /* Solo si tiene rows-more y no tiene ya el botón */
+    if (el.querySelector('.rows-more') && !el.querySelector('.kpi-more-btn')) {
+      _moreBtn(el);
+    }
+  });
+  /* También para las tablas AR */
+  [1,2].forEach(function(n) {
+    ['th','td'].forEach(function(t) {
+      var tbody = document.getElementById('ar'+n+'-'+t);
+      if (!tbody) return;
+      var wrap = tbody.closest('table');
+      if (wrap && wrap.parentNode) {
+        if (wrap.querySelector('.rows-more') && !wrap.parentNode.querySelector('.kpi-more-btn')) {
+          _moreBtn(wrap.parentNode);
+        }
+      }
+    });
+  });
+}
 var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
 /* ── Ver más / menos botón para cards KPI ── */
@@ -5892,6 +5916,7 @@ w22_setMode = function(m,el){
 
 /* Render inicial aquí para garantizar que _cardRow ya existe */
 w22_update();
+setTimeout(_moreBtnAll, 300); /* Botones Ver más después del render inicial */
 
 /* Sort inicial — después de w22_update() para que el DOM esté listo */
 setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
