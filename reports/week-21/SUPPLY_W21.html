@@ -4926,8 +4926,8 @@ function w22_renderCardTabs(canasta){
       var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
       var num = (i<10?'0'+(i+1):(i+1))+'. ';
       var rowStyle = isInactive
-        ? 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-        : 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+        ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+        : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
       return '<div '+histAttrs+' style="'+rowStyle+'">'
         +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+num+nombre+'</span>'
         +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
@@ -4938,7 +4938,7 @@ function w22_renderCardTabs(canasta){
     var acc = (typeof cv==='function') ? cv().col : '#5C469C';
     var pp_html = pp.map(_chanRow).join('');
     var tp_html = tp.map(_chanRow).join('');
-    panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
+    panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
       +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
       +'</div>';
@@ -5002,8 +5002,8 @@ function _arRenderChan(n) {
     var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+nombre+'" data-hist-card="'+n+'"';
     var isInactive = banda === 'Sin Actividad';
     var rowStyle = isInactive
-      ? 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-      : 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+      ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+      : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
     return '<div '+histAttrs+' style="'+rowStyle+'">'
       +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
       +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
@@ -5014,7 +5014,7 @@ function _arRenderChan(n) {
 
   var pp_html = pp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
   var tp_html = tp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:8px 0;">'
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0;">'
     +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+pp_html+'</div>'
     +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+tp_html+'</div>'
     +'</div>';
