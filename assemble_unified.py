@@ -533,17 +533,16 @@ SHARED_CONTAINERS = f'''
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
 </div></div>
 
-<!-- Barra de controles local: mismo formato .cfb que la barra de cards -->
-<div style="margin-bottom:16px;">
+<!-- Barra de controles local: copia exacta del formato de la barra de cards -->
+<div id="ar-filter-wrap" style="margin-bottom:16px;">
 <div class="cfb">
   <div class="cfb-lbl">Reporte</div>
-  <div class="cfb-chips">
+  <div class="cfb-chips" style="flex:none;">
     <div class="c-chip active" id="ar-btn-cr"  onclick="w22_setMode('cr',document.getElementById('mode-cr'))">CheckRates</div>
     <div class="c-chip"        id="ar-btn-rnd" onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">No Dispo</div>
   </div>
-  <div class="cfb-sep"></div>
-  <div class="cfb-lbl" style="padding-left:0;">Canasta</div>
-  <div class="cfb-chips">
+  <div class="cfb-lbl">Canasta</div>
+  <div class="cfb-chips" style="flex:none;">
     <div class="c-chip active" id="ar-chip-global" onclick="w22_setC('global',document.getElementById('chip-global'))">Global</div>
     <div class="c-chip"        id="ar-chip-b2c"    onclick="w22_setC('b2c',document.getElementById('chip-b2c'))">B2C</div>
     <div class="c-chip"        id="ar-chip-op"     onclick="w22_setC('op',document.getElementById('chip-op'))">Opaco</div>
