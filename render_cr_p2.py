@@ -8,7 +8,7 @@ import sys, os, json, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_eficacia, banda_convrate
-from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es
+from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big
 
 # ── Config ────────────────────────────────────────────────────────────────────
 with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'), 'rb') as f:
@@ -96,7 +96,8 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
     name  = clean_hotel_name(str(row.get('Hotel', row.get('CorpName', '?'))))[:60]
     banda = row.get(band_col, 'Sin Conversión')
     bbg, bfg = banda_colors(banda)
-    cr    = es_int(row.get(cr_col, 0))
+    cr_val = row.get(cr_col, 0)
+    cr    = fmt_big(float(cr_val)) if cr_val and not (isinstance(cr_val, float) and np.isnan(cr_val)) else '0'
     ef    = es_pct(row.get(ef_col, 0))
     cv    = es_pct(row.get(cv_col, 0))
     # WoW Eficacia

@@ -7,7 +7,7 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm
-from render_helpers import BANDA_COLORS, fmt_int_es
+from render_helpers import BANDA_COLORS, fmt_int_es, fmt_big
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -49,11 +49,12 @@ def sev_badge_html(banda):
             f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
 
 def build_hotel_row_rnd(row):
-    """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str]"""
+    """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]"""
     name   = str(row.get('Hotel', '?'))[:60]
     banda  = row.get('BandaNoDispo', 'Sin Conversión')
     bbg, bfg = banda_colors(banda)
-    traf   = es_int(row.get('Trafico', 0))
+    traf_v = row.get('Trafico', 0)
+    traf   = fmt_big(float(traf_v)) if traf_v and not np.isnan(float(traf_v)) else '0'
     nd     = es_pct(row.get('%NoDispo', 0))
     ipm    = es_ipm(row.get('IPM', row.get('RPM', 0)))
     # WoW NoDispo
@@ -69,7 +70,14 @@ def build_hotel_row_rnd(row):
         wow_ipm_str = '—'
     else:
         wow_ipm_str = wow_arrow(wow_ipm_pp)
-    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, '—']
+    # WoW Tráfico
+    wow_traf = row.get('Trafico_WoW_pct')
+    if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+        wow_traf_str = '—'
+    else:
+        sign = '▲' if wow_traf >= 0 else '▼'
+        wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.', ',') + '%'
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]
 
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
