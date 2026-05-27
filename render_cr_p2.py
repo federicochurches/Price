@@ -376,9 +376,9 @@ def build_cr_d():
 
     # CANASTAS
     canasta_map = {
-        'b2c': ('B2C', 'B2C', 'B2B (OP)', False),
-        'op':  ('Opaco', 'B2B (OP)', 'B2B (OP)', False),
-        'cug': ('Ultra Opaco', 'CUG (UOP)', 'CUG (UOP)', False),
+        'b2c': ('B2C',    'B2C',       'B2B (OP)', False),
+        'op':  ('B2B-OP', 'B2B (OP)',  'B2B (OP)', False),
+        'cug': ('CUG',    'CUG (UOP)', 'CUG (UOP)', False),
     }
     for key, (c_key, m_key, _dist, _) in canasta_map.items():
         c = CANASTA.get(c_key)
@@ -514,12 +514,12 @@ def render_severity():
 
 # ── HTML tabla de análisis de rendimiento ─────────────────────────────────────
 def render_analisis_rendimiento():
-    th_labels_hotel = ['Hotel', 'Banda', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
-    th_labels_corp  = ['Corporativo', 'Banda', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
+    th_labels_hotel = ['Hotel', 'Severity', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
+    th_labels_corp  = ['Corporativo', 'Severity', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
 
     def table_html(tbody_id, btn_id, th_labels, dim_header_id=None):
         # Colgroup: nombre amplio, resto fijos para evitar wrap
-        colwidths = ['', '90px', '68px', '46px', '68px', '46px', '72px', '46px']
+        colwidths = ['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']
         colgroup = ''.join(
             f'<col style="width:{colwidths[i]}">' if colwidths[i] else '<col>'
             for i in range(len(th_labels))

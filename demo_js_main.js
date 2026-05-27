@@ -58,11 +58,11 @@ function trow(r){
 function w22_updateTableHeaders(){
  var modeCR = W.mode === 'cr';
  var hh = modeCR
-  ? ['Hotel','Banda','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
-  : ['Hotel','Banda','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
+  ? ['Hotel','Severity','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  : ['Hotel','Severity','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
  var dh = modeCR
-  ? ['Dimensión','Banda','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
-  : ['Dimensión','Banda','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
+  ? ['Dimensión','Severity','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  : ['Dimensión','Severity','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
 
  [['#w22-ph thead tr', hh], ['#w22-pd thead tr', dh]].forEach(function(pair){
   var tr = document.querySelector(pair[0]);
