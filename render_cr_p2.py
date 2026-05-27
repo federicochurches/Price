@@ -135,7 +135,7 @@ def build_cr_cv():
                    'op':     ('B2B (OP)', WEEK_NUM),
                    'cug':    ('CUG (UOP)', WEEK_NUM)}
     # Colores por canasta
-    canasta_col = {'global': '#333132', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
+    canasta_col = {'global': '#5C469C', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
 
     for key, (m_key, wn) in canasta_map.items():
         if key == 'global':

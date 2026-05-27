@@ -203,25 +203,40 @@ function w22_iTab(el){
  el.style.marginBottom='-1px';
 }
 
-/* Recolorear spark bars del histórico W21 */
+/* Recolorear spark bars del histórico y todos los elementos de acento */
 function w22_recolorSparks(accent){
  var rgb={'#333132':'51,49,50','#EA0074':'234,0,116','#FCB000':'252,176,0','#4FC3F4':'79,195,244','#1A6B4A':'26,107,74'};
  var accentRgb=rgb[accent]||'92,70,156';
- ['hist-hcr-global-ef-spark','hist-hcr-global-cv-spark'].forEach(function(sid){
+ 
+ /* IDs de spark containers para las cards KPI activas */
+ var sparkIds = W.mode==='cr'
+   ? ['hist-hcr-global-ef-spark','hist-hcr-global-cv-spark']
+   : ['hist-hrnd-global-nd-spark','hist-hrnd-global-ipm-spark'];
+ 
+ sparkIds.forEach(function(sid){
   var el=g(sid);if(!el)return;
   var bars=el.querySelectorAll('div');
   var n=bars.length;
   bars.forEach(function(bar,i){
    var isLast=(i===n-1);
-   /* Recalcular alpha proporcional — last=accent sólido, resto proporcional */
    if(isLast){bar.style.background=accent;}
    else{
-    /* Mantener el alpha relativo original — lo extraemos del title para calcular la altura */
     var h=parseInt(bar.style.height)||8;
     var alpha=Math.round((0.25+0.70*(h-4)/14)*100)/100;
     bar.style.background='rgba('+accentRgb+','+alpha+')';
    }
   });
+ });
+ 
+ /* Actualizar etiqueta "W21" (último label de semana) en módulo histórico */
+ var semanaSpans = document.querySelectorAll('[id^="hist-hcr-global-"] + * span:last-child, [id^="hist-hrnd-global-"] + * span:last-child');
+ 
+ /* Recolorear el valor "Actual" en los módulos históricos CR activos */
+ var actualIds = W.mode==='cr'
+   ? ['hist-hcr-global-ef-actual','hist-hcr-global-cv-actual']
+   : ['hist-hrnd-global-nd-actual','hist-hrnd-global-ipm-actual'];
+ actualIds.forEach(function(aid){
+  var el=g(aid);if(el)el.style.color=accent;
  });
 }
 /* Canvas */
