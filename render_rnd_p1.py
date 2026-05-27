@@ -150,7 +150,7 @@ def render_hero():
           f'<span class="accent">{top_corp[1]}</span> y '
           f'<span class="accent">{top_corp[2]}</span> son los corporativos con mayor demanda no convertida.</span>')
     
-    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> Tráfico · '
+    subhead = (f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> <strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</strong> hoteles · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</strong> Bookings · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '

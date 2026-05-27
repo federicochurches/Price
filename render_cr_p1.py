@@ -136,7 +136,7 @@ def _cr_trafico_line():
     else:
         cr_wow_pill = ''
     return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-            f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} Tráfico</span>'
+            f'<span style="color:var(--ink-soft);"><strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_int_es(cr_w21)}</span>'
             f'{cr_wow_pill}</div>')
 
 def _mini_badge(bnd):
@@ -179,7 +179,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     else:
         cr_wow_pill = ''
     cr_trafico_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-                       f'<span style="font-weight:600;color:var(--ink-soft);">{fmt_int_es(cr_w21)} Tráfico</span>'
+                       f'<span style="color:var(--ink-soft);"><strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_int_es(cr_w21)}</span>'
                        f'{cr_wow_pill}</div>')
     
     tabs = ''
