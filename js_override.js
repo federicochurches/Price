@@ -730,11 +730,14 @@ function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);f
 function _wowInt(delta){ if(delta==null) return null; var abs=Math.round(Math.abs(delta)); return (delta>0?'▲':'▼')+_fmtInt(abs); }
 function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp>0?'▲':'▼')+abs.toFixed(2).replace('.',','); }
 
-function _cardRow(r, idx, isEf){
+function _cardRow(r, idx, isEf, grid){
   /* r: [lab,sub,bbg,bfg,banda, cr_u,cr_wow_delta, val_pct, wow_pp, hist_w21, hist_w20] */
   var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
   var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
   var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
+  /* Grid por métrica: Eficacia usa 54px+48px, ConvRate usa 68px+40px */
+  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 52px 54px 48px'
+                                : 'minmax(0,1fr) 80px 56px 52px 68px 40px');
   var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
   var cr_str = _fmtInt(cr_u);
   /* WoW tráfico */
@@ -751,8 +754,8 @@ function _cardRow(r, idx, isEf){
   var nameSpan='<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+(idx+1)+'. '+lab+'</span>'
     +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
   return '<div data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
-    +' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 54px 48px;align-items:center;gap:6px;'
-    +'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+    +' style="display:grid;grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
+    +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
     +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
@@ -771,6 +774,7 @@ function w22_renderCardTabs(canasta){
   ['ef','cv'].forEach(function(metric){
     var isEf = metric==='ef';
     var suffix = isEf ? '-ef-' : '-cv-';
+    var grid = _KPI_GRID[metric] || _KPI_GRID['ef'];
     ['destino','corp','hotel'].forEach(function(tkey){
       var rows = (tabs[metric]||{})[tkey]||[];
       var radioEl = document.getElementById('tab'+suffix+tkey);
@@ -779,15 +783,17 @@ function w22_renderCardTabs(canasta){
       if(!card) return;
       var panel = card.querySelector('[data-tab="'+tkey+'"]');
       if(!panel) return;
-      var rowsHtml = rows.slice(0,10).map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
+      var rowsHtml = rows.slice(0,10).map(function(r,i){ return _cardRow(r,i,isEf,grid); }).join('');
       var kpiRows = panel.querySelector('.kpi-tab-rows');
       if(kpiRows){
         var header = kpiRows.querySelector('div:first-child');
-        kpiRows.innerHTML = (header?header.outerHTML:'') + rowsHtml;
+        /* Solo preservar el header si NO es un row de datos */
+        var hdrHtml = (header && !header.hasAttribute('data-row-idx') && !header.hasAttribute('data-hist-label'))
+          ? header.outerHTML : '';
+        kpiRows.innerHTML = hdrHtml + rowsHtml;
       } else {
         panel.innerHTML = rowsHtml;
       }
-      if(typeof window._injectHistAttrs === 'function') window._injectHistAttrs(card);
     });
   });
   
@@ -1369,9 +1375,22 @@ function _markSortable(els, activeIdx, dir) {
 }
 
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
-var _KPI_RCOLS = {2:5, 4:7}; /* span-header-idx → row-array-idx */
+/* CR row: [lab,sub,bbg,bfg,banda, traf(5), cr_wow(6), val(7), wow_pp(8), ...] → Tráfico=r[4 o 5], Métrica=r[7] */
+/* RND row: [lab,bbg,bfg,banda, traf(4), val(5), wow_pp(6), ...] → Tráfico=r[4], Métrica=r[5] */
+/* Usar metricKey para distinguir */
+var _KPI_RCOLS_CR  = {2:5, 4:7}; /* CR: span[2]=Tráfico→r[5], span[4]=Métrica→r[7] */
+var _KPI_RCOLS_RND = {2:4, 4:5}; /* RND: span[2]=Tráfico→r[4], span[4]=Métrica→r[5] */
+var _KPI_RCOLS = _KPI_RCOLS_CR;  /* default CR, se ajusta en _kpiSortAttach */
 
-function _kpiSortAttach(card, tkey, isEf, allRows100) {
+/* Grid CSS por métrica — para que _cardRow use el correcto según la card */
+var _KPI_GRID = {
+  ef:  'minmax(0,1fr) 80px 56px 52px 54px 48px',
+  cv:  'minmax(0,1fr) 80px 56px 52px 68px 40px',
+  nd:  'minmax(0,1fr) 76px 52px 44px 54px 36px',
+  ipm: 'minmax(0,1fr) 76px 52px 44px 54px 36px',
+};
+
+function _kpiSortAttach(card, tkey, metricKey, allRows100) {
   var panel = card.querySelector('[data-tab="'+tkey+'"]');
   if (!panel) return;
   var rc = panel.querySelector('.kpi-tab-rows');
@@ -1381,12 +1400,17 @@ function _kpiSortAttach(card, tkey, isEf, allRows100) {
   if (hdr.hasAttribute('data-row-idx') || hdr.hasAttribute('data-hist-label')) return;
   var hspans = Array.from(hdr.querySelectorAll('span'));
   if (hspans.length < 5) return; /* header tiene al menos 6 spans */
-  var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
+  var key = (card.id||tkey)+'_'+metricKey+'_'+tkey;
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
   _markSortable(hspans, _SS[key].col, _SS[key].dir);
 
+  var isEf = (metricKey === 'ef');
+  var grid = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
+  /* Usar mapeo de columnas según tipo de card */
+  var rcols = (metricKey === 'nd' || metricKey === 'ipm') ? _KPI_RCOLS_RND : _KPI_RCOLS_CR;
+
   hspans.forEach(function(sp, i) {
-    if (_KPI_RCOLS[i] == null) return;
+    if (rcols[i] == null) return;
     var newSp = sp.cloneNode(true);
     sp.parentNode.replaceChild(newSp, sp);
     newSp.style.cursor = 'pointer';
@@ -1394,7 +1418,7 @@ function _kpiSortAttach(card, tkey, isEf, allRows100) {
       var st = _SS[key];
       var dir = (st.col===i) ? _nd(st.dir) : 'asc';
       _SS[key] = {col:i, dir:dir};
-      var ri = _KPI_RCOLS[i];
+      var ri = rcols[i];
       var sorted = allRows100.slice().map(function(r, origIdx){
         return {r:r, origPos: origIdx+1};
       });
@@ -1406,36 +1430,66 @@ function _kpiSortAttach(card, tkey, isEf, allRows100) {
           return dir==='asc'?va-vb:vb-va;
         });
       }
+      /* Capturar outerHTML del header ANTES de reescribir innerHTML */
+      var hdrHtml = hdr.outerHTML;
       var rowsHtml = sorted.slice(0,10).map(function(item){
-        return _cardRow(item.r, item.origPos-1, isEf); /* idx-1 porque _cardRow hace idx+1 */
+        return _cardRow(item.r, item.origPos-1, isEf, grid);
       }).join('');
-      rc.innerHTML = (hdr ? hdr.outerHTML : '') + rowsHtml;
-      if (typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-      setTimeout(function(){_kpiSortAttach(card,tkey,isEf,allRows100);},15);
+      rc.innerHTML = hdrHtml + rowsHtml;
+      _markSortable(Array.from(rc.firstElementChild.querySelectorAll('span')), i, dir);
+      setTimeout(function(){_kpiSortAttach(card, tkey, metricKey, allRows100);}, 15);
     });
   });
 }
 
+/* Mapeo de metricKey → sufijo de tab ID y clave en TABS */
+var _METRIC_DEFS = {
+  'ef':  {suffix:'-ef-',  tabKeys:['nd','ef'], tabs_key:'ef'},
+  'cv':  {suffix:'-cv-',  tabKeys:['nd','cv'], tabs_key:'cv'},
+  'nd':  {suffix:'-nd-',  tabKeys:['pais','destino','corp','hotel'], tabs_key:'nd'},
+  'ipm': {suffix:'-rpm-', tabKeys:['pais','destino','corp','hotel'], tabs_key:'ipm'},
+};
+
 function _initAllSort() {
-  var mode = (typeof W!=='undefined') ? W.mode : 'cr';
+  var mode    = (typeof W!=='undefined') ? W.mode    : 'cr';
   var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
-  var TABS = mode==='cr' ? (typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
-                         : (typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
-  if (!TABS) return;
-  var tabs = TABS[canasta] || TABS['global'] || {};
-  ['ef','cv'].forEach(function(metric){
-    var isEf = metric==='ef';
-    var suffix = isEf?'-ef-':'-cv-';
-    ['destino','corp','hotel'].forEach(function(tkey){
-      var allRows = (tabs[metric]||{})[tkey]||[];
-      if (!allRows.length) return;
-      var radioEl = document.getElementById('tab'+suffix+tkey);
-      if (!radioEl) return;
-      var card = radioEl.closest('.kpi-card');
-      if (!card) return;
-      _kpiSortAttach(card, tkey, isEf, allRows);
+
+  if (mode === 'cr') {
+    /* CR: cards Eficacia + ConvRate */
+    var CR_TABS = (typeof CR_CARD_TABS!=='undefined') ? CR_CARD_TABS : null;
+    if (!CR_TABS) return;
+    var tabs = CR_TABS[canasta] || CR_TABS['global'] || {};
+    ['ef','cv'].forEach(function(metric){
+      var suffix = metric==='ef' ? '-ef-' : '-cv-';
+      ['destino','corp','hotel'].forEach(function(tkey){
+        var allRows = (tabs[metric]||{})[tkey]||[];
+        if (!allRows.length) return;
+        var radioEl = document.getElementById('tab'+suffix+tkey);
+        if (!radioEl) return;
+        var card = radioEl.closest('.kpi-card');
+        if (!card) return;
+        _kpiSortAttach(card, tkey, metric, allRows);
+      });
     });
-  });
+  } else {
+    /* RND: cards NoDispo + IPM — buscar tabs en los panels RND */
+    /* Los tabs RND usan IDs tab-nd-* y tab-rpm-* */
+    var RND_TABS = (typeof RND_CARD_TABS!=='undefined') ? RND_CARD_TABS : null;
+    /* Si RND_CARD_TABS no existe, intentar enganchar directamente del DOM */
+    ['nd','rpm'].forEach(function(tabPrefix){
+      var metricKey = tabPrefix === 'nd' ? 'nd' : 'ipm';
+      ['pais','destino','corp','hotel'].forEach(function(tkey){
+        var radioEl = document.getElementById('tab-'+tabPrefix+'-'+tkey);
+        if (!radioEl) return;
+        var card = radioEl.closest('.kpi-card');
+        if (!card) return;
+        /* allRows: leer de RND_CARD_TABS si existe, sino tabla vacía */
+        var allRows = RND_TABS ? ((RND_TABS[canasta]||RND_TABS['global']||{})[metricKey]||{})[tkey]||[] : [];
+        /* Con allRows vacío el sort opera sobre el DOM pero sin re-render JS */
+        _kpiSortAttach(card, tkey, metricKey, allRows);
+      });
+    });
+  }
 }
 
 /* ══ SORT CARDS AR — lee 100 rows directamente de data() en cada click ══ */
