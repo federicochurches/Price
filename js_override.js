@@ -138,14 +138,13 @@ var _currentHotelTab = 'crit';
 
 function w22_setHotelTab(tab, el) {
   _currentHotelTab = tab;
-  /* Actualizar clases activo */
   var ph = document.getElementById('w22-ph');
   if (ph) {
     ph.querySelectorAll('.tabs-row label').forEach(function(l) {
-      l.classList.remove('active', 'tab-label-active');
+      l.classList.remove('tab-label-active');
     });
   }
-  if (el) { el.classList.add('active', 'tab-label-active'); }
+  if (el) { el.classList.add('tab-label-active'); }
   var dd = data();
   var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
              tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
@@ -895,8 +894,8 @@ function ar_setView(n, v) {
 function ar_setHotelTab(n, tab, el) {
   _arHTab[n] = tab;
   var ph = document.getElementById('ar'+n+'-ph');
-  if (ph) ph.querySelectorAll('.tab-label').forEach(function(l){ l.classList.remove('active','tab-label-active'); });
-  if (el) { el.classList.add('active','tab-label-active'); }
+  if (ph) ph.querySelectorAll('.tab-label').forEach(function(l){ l.classList.remove('tab-label-active'); });
+  if (el) { el.classList.add('tab-label-active'); }
   var rows = _arRows(n, tab);
   w22_renderTable('ar'+n+'-th', 'ar'+n+'-th-more', rows, false);
 }
