@@ -40,6 +40,22 @@ BFONT = {
     'Revisar':       fnt('C2410C',bold=True), 'Crítica':        fnt('99162B',bold=True),
     'Súper Crítica': fnt('2D2828',bold=True), 'Sin Conversión': fnt('5F5E5A',bold=True),
 }
+WOW_UP  = fill('EAF3DE');  WOW_UP_F  = fnt('2F6C34', bold=True)
+WOW_DN  = fill('FCE8E6');  WOW_DN_F  = fnt('C0392B', bold=True)
+WOW_NEU = fill('F2EEE6');  WOW_NEU_F = fnt('8A8377', bold=True)
+
+def apply_wow(ws, row, col, val_pp, invert=False):
+    cell = ws.cell(row, col)
+    if val_pp is None or (isinstance(val_pp, float) and pd.isna(val_pp)):
+        cell.value='—'; cell.font=WOW_NEU_F; cell.fill=WOW_NEU; cell.border=BD
+        cell.alignment=Alignment(horizontal='center'); return
+    is_up = float(val_pp) >= 0
+    is_good = (is_up and not invert) or (not is_up and invert)
+    s = '▲' if is_up else '▼'
+    cell.value = f'{s}{abs(round(float(val_pp),2))}'.replace('.', ',')
+    cell.fill  = WOW_UP if is_good else WOW_DN
+    cell.font  = WOW_UP_F if is_good else WOW_DN_F
+    cell.border = BD; cell.alignment = Alignment(horizontal='center')
 
 def sf(v):
     try: f=float(v); return None if pd.isna(f) else f
@@ -74,9 +90,25 @@ def fmt_wow(v):
     s='▲' if float(v)>=0 else '▼'; return f'{s}{abs(round(float(v),2))}'.replace('.',',')
 
 # ── Severity ──────────────────────────────────────────────────────────────────
-def write_severity(ws, df, can_label):
+def write_severity(ws, df, can_label, m_curr=None, m_prev=None):
     title(ws, f'{can_label} · Severity Rates No Dispo W{VOL_NUM}', f'W{VOL_NUM} · {PERIODO}')
     r = 4
+    # WoW KPIs globales
+    if m_curr and m_prev:
+        nd_curr=m_curr.get('pct_nodispo',0); nd_prev=m_prev.get('pct_nodispo',0)
+        ipm_curr=m_curr.get('ipm',m_curr.get('rpm',0)); ipm_prev=m_prev.get('ipm',m_prev.get('rpm',0))
+        nd_wow=(nd_curr-nd_prev)*100 if nd_prev else None
+        ipm_wow=ipm_curr-ipm_prev if ipm_prev else None
+        ws.cell(r,1,'KPI Global').font=fnt(RND,11,True); r+=1
+        r=mk_hdr(ws,r,['Métrica',f'W{int(VOL_NUM)-1}',f'W{VOL_NUM}','WoW'])
+        ws.cell(r,1,'%NoDispo').font=Font(name='Arial',size=10,bold=True); ws.cell(r,1).border=BD
+        ws.cell(r,2,round(nd_prev,4) if nd_prev else None).border=BD; ws.cell(r,2).number_format='0.00%'; ws.cell(r,2).alignment=Alignment(horizontal='center')
+        ws.cell(r,3,round(nd_curr,4) if nd_curr else None).border=BD; ws.cell(r,3).number_format='0.00%'; ws.cell(r,3).alignment=Alignment(horizontal='center')
+        apply_wow(ws,r,4,nd_wow,invert=True); r+=1
+        ws.cell(r,1,'IPM').font=Font(name='Arial',size=10,bold=True); ws.cell(r,1).border=BD
+        ws.cell(r,2,round(ipm_prev,2) if ipm_prev else None).border=BD; ws.cell(r,2).number_format='$#,##0'; ws.cell(r,2).alignment=Alignment(horizontal='center')
+        ws.cell(r,3,round(ipm_curr,2) if ipm_curr else None).border=BD; ws.cell(r,3).number_format='$#,##0'; ws.cell(r,3).alignment=Alignment(horizontal='center')
+        apply_wow(ws,r,4,ipm_wow,invert=False); r+=2
     # NoDispo severity
     ws.cell(r,1,'Severity %NoDispo').font=fnt(RND,11,True); r+=1
     r=mk_hdr(ws, r, ['Severity','Hoteles','% del Total'])
@@ -130,8 +162,16 @@ def write_nd(ws, df, t, name_col):
               fmt_wow(wow_nd), round(ipm,2) if ipm else None, fmt_wow(wow_ipm),
               round(gb,2) if gb else None]
         mk_row(ws, r, vals, 2, bnd)
+        # Colorear Severity IPM también
+        bipm_cell = ws.cell(r,3)
+        if bipm in BFILL: bipm_cell.fill=BFILL[bipm]; bipm_cell.font=BFONT[bipm]
         if nd: ws.cell(r,6).number_format='0.00%'
+        # WoW coloreados
+        nd_wow_v = sf(row.get('NoDispo_WoW_pp'))
+        apply_wow(ws,r,7,nd_wow_v,invert=True)
         if ipm: ws.cell(r,8).number_format='$#,##0'
+        ipm_wow_v = sf(row.get('IPM_WoW_pp'))
+        apply_wow(ws,r,9,ipm_wow_v,invert=False)
         r+=1
     autofit(ws,[35,18,14,12,10,10,10,10,10,10])
 
@@ -156,8 +196,15 @@ def write_ipm(ws, df, t, name_col):
               fmt_wow(wow_ipm), round(nd,4) if nd else None, fmt_wow(wow_nd),
               round(gb,2) if gb else None]
         mk_row(ws, r, vals, 2, bipm)
+        # Colorear Severity NoDispo también
+        bnd_cell = ws.cell(r,3)
+        if bnd in BFILL: bnd_cell.fill=BFILL[bnd]; bnd_cell.font=BFONT[bnd]
         if ipm: ws.cell(r,6).number_format='$#,##0'
+        ipm_wow_v = sf(row.get('IPM_WoW_pp'))
+        apply_wow(ws,r,7,ipm_wow_v,invert=False)
         if nd: ws.cell(r,8).number_format='0.00%'
+        nd_wow_v = sf(row.get('NoDispo_WoW_pp'))
+        apply_wow(ws,r,9,nd_wow_v,invert=True)
         r+=1
     autofit(ws,[35,14,18,12,10,10,10,10,10,10])
 
@@ -171,8 +218,17 @@ CANASTAS = [
 
 wb = Workbook(); wb.remove(wb.active)
 
+CANASTAS_M = {
+    'global': ('global_w21','global_w20'),
+    'b2c':    ('B2C_w21','B2C_w20'),
+    'op':     ('B2B (OP)_w21','B2B (OP)_w20'),
+    'cug':    ('CUG (UOP)_w21','CUG (UOP)_w20'),
+}
 for can_key, can_label, can_id in CANASTAS:
     can = CANASTA.get(can_id, CANASTA.get(can_key, {}))
+    m_keys = CANASTAS_M.get(can_key, ('global_w21','global_w20'))
+    m_curr = D['M'].get(m_keys[0], D['M'].get('global_w21',{}))
+    m_prev = D['M'].get(m_keys[1], D['M'].get('global_w20',{}))
     px  = can_label[:3]
 
     # p80_hotel para severity
@@ -181,7 +237,7 @@ for can_key, can_label, can_id in CANASTAS:
 
     # ── 1. Severity
     ws=wb.create_sheet(f'{px}-Severity'); ws.sheet_properties.tabColor=RND
-    write_severity(ws, p80_can, can_label)
+    write_severity(ws, p80_can, can_label, m_curr, m_prev)
 
     # ── 2-3. País ND / IPM
     df_pais = TAB_ND.get('pais', pd.DataFrame())
