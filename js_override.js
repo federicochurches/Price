@@ -1278,3 +1278,209 @@ function ar_updateKPIs() {
  var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   ORDENAMIENTO POR COLUMNA — aplicable a todas las cards y pestañas
+   ════════════════════════════════════════════════════════════════ */
+
+/* Parsear string de valor de fila → número para comparar */
+function _sortVal(str) {
+  if (str == null || str === '—' || str === '' || str === false || str === true) return -Infinity;
+  var s = String(str);
+  /* Moneda: $1.234 → 1234 */
+  s = s.replace(/\$/g,'');
+  /* Porcentaje: 93,15% → 93.15 */
+  s = s.replace(/%/g,'');
+  /* Miles europeos: 1.733 → 1733 (punto como miles) */
+  /* Distinguir: si hay coma decimal → reemplazar coma por punto, quitar puntos de miles */
+  if (s.indexOf(',') !== -1) {
+    s = s.replace(/\./g,'').replace(',','.');
+  } else {
+    /* Sin coma: puede tener punto como miles (1.733) o como decimal (1.73) */
+    /* Si tiene exactamente 1 punto y más de 3 dígitos después → miles */
+    var dotIdx = s.lastIndexOf('.');
+    if (dotIdx !== -1 && s.length - dotIdx - 1 === 3 && s.indexOf('.') === dotIdx) {
+      s = s.replace(/\./g,'');
+    }
+  }
+  var n = parseFloat(s);
+  return isNaN(n) ? -Infinity : n;
+}
+
+/* Estado de ordenamiento global: { tbodyId: {col, dir} } */
+var _sortState = {};
+
+/* Ordenar rows de un tbody y re-renderizar */
+/* tbodyId, colIdx (índice de columna de datos en el array row),
+   dir: 'asc'|'desc'|'orig', origRows: array original,
+   renderFn: function(rows) que escribe en el tbody */
+function _sortAndRender(tbodyId, colIdx, dir, origRows, renderFn) {
+  var rows = origRows.slice();
+  if (dir === 'orig') {
+    renderFn(rows);
+    return;
+  }
+  rows.sort(function(a, b) {
+    var va = _sortVal(a[colIdx]);
+    var vb = _sortVal(b[colIdx]);
+    if (va === -Infinity && vb === -Infinity) return 0;
+    if (va === -Infinity) return 1;
+    if (vb === -Infinity) return -1;
+    return dir === 'asc' ? va - vb : vb - va;
+  });
+  renderFn(rows);
+}
+
+/* Actualizar indicador visual en headers */
+function _sortUpdateHeaders(container, activeIdx, dir) {
+  var ths = container.querySelectorAll('thead th, .sort-th');
+  ths.forEach(function(th, i) {
+    var base = th.getAttribute('data-sort-label') || th.textContent.replace(/[↑↓▲▼ ]/g,'').trim();
+    if (!th.getAttribute('data-sort-label')) th.setAttribute('data-sort-label', base);
+    if (i === activeIdx) {
+      th.textContent = base + (dir === 'asc' ? ' ↑' : dir === 'desc' ? ' ↓' : '');
+      th.style.color = 'var(--accent)';
+      th.style.cursor = 'pointer';
+    } else {
+      th.textContent = base;
+      th.style.color = '';
+      th.style.cursor = 'pointer';
+    }
+  });
+}
+
+/* Ciclo: ninguno → asc → desc → orig */
+function _nextDir(current) {
+  if (current === null || current === 'orig') return 'asc';
+  if (current === 'asc')  return 'desc';
+  return 'orig';
+}
+
+/* ── Enganchar ordenamiento en las cards AR ── */
+function ar_attachSort(n, tbodyId, btnId, origRows, isHotel) {
+  var tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  var table = tbody.closest('table');
+  if (!table) return;
+  var thead = table.querySelector('thead tr');
+  if (!thead) return;
+  var ths = thead.querySelectorAll('th');
+  var key = tbodyId;
+  if (!_sortState[key]) _sortState[key] = {col: null, dir: 'orig'};
+
+  ths.forEach(function(th, i) {
+    /* Solo columnas numéricas: Tráfico(4), WoW↕(5→skip), Métrica1(5→real 5 o 6), WoW↕(skip) */
+    /* Columnas numéricas: índice 2=Tráfico(r[4]), 3=WoW(skip), 4=Métrica(r[5] o r[6]), 5=WoW(skip) */
+    /* Mapeo col th → índice en row */
+    var rowColMap = [null, null, 4, null, (n===1?5:6), null]; /* nombre,severity,trafico,wow,metrica,wow */
+    var rowCol = rowColMap[i];
+    if (rowCol == null) return; /* no ordenable */
+    th.style.cursor = 'pointer';
+    th.title = 'Ordenar';
+    /* Remover listener anterior clonando */
+    var newTh = th.cloneNode(true);
+    th.parentNode.replaceChild(newTh, th);
+    newTh.addEventListener('click', function() {
+      var st = _sortState[key];
+      var newDir = (st.col === i) ? _nextDir(st.dir) : 'asc';
+      _sortState[key] = {col: i, dir: newDir};
+      _sortAndRender(tbodyId, rowCol, newDir, origRows, function(sorted) {
+        ar_renderTable(n, tbodyId, btnId, sorted);
+        ar_attachSort(n, tbodyId, btnId, origRows, isHotel);
+      });
+      /* Actualizar headers después del re-attach */
+      setTimeout(function(){
+        var t2 = document.getElementById(tbodyId);
+        if (!t2) return;
+        var tbl2 = t2.closest('table');
+        if (!tbl2) return;
+        _sortUpdateHeaders(tbl2, i, newDir === 'orig' ? null : (newDir==='asc'?'asc':'desc'));
+      }, 10);
+    });
+  });
+}
+
+/* Enganchar sort en las cards KPI (radio+CSS, HTML estático) */
+function _attachSortKPI(panelEl, colDefs) {
+  /* panelEl: el div data-tab con la tabla */
+  var table = panelEl.querySelector('table');
+  if (!table) return;
+  var thead = table.querySelector('thead tr');
+  if (!thead) return;
+  var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  var ths = thead.querySelectorAll('th');
+  /* Guardar rows originales la primera vez */
+  if (!panelEl._origRows) {
+    panelEl._origRows = Array.from(tbody.querySelectorAll('tr'));
+  }
+  var origTrs = panelEl._origRows;
+  var key = panelEl.id || Math.random().toString();
+  if (!_sortState[key]) _sortState[key] = {col: null, dir: 'orig'};
+
+  ths.forEach(function(th, i) {
+    var colIdx = colDefs[i]; /* índice de td a leer */
+    if (colIdx == null) return;
+    th.style.cursor = 'pointer';
+    th.title = 'Ordenar';
+    var newTh = th.cloneNode(true);
+    th.parentNode.replaceChild(newTh, th);
+    newTh.addEventListener('click', function() {
+      var st = _sortState[key];
+      var newDir = (st.col === i) ? _nextDir(st.dir) : 'asc';
+      _sortState[key] = {col: i, dir: newDir};
+      var trs = origTrs.slice();
+      if (newDir !== 'orig') {
+        trs.sort(function(a, b) {
+          var tdA = a.querySelectorAll('td')[colIdx];
+          var tdB = b.querySelectorAll('td')[colIdx];
+          var va = _sortVal(tdA ? tdA.textContent.trim() : '');
+          var vb = _sortVal(tdB ? tdB.textContent.trim() : '');
+          if (va === -Infinity && vb === -Infinity) return 0;
+          if (va === -Infinity) return 1;
+          if (vb === -Infinity) return -1;
+          return newDir === 'asc' ? va - vb : vb - va;
+        });
+      }
+      tbody.innerHTML = '';
+      trs.forEach(function(tr){ tbody.appendChild(tr); });
+      /* Actualizar indicadores */
+      var tbl2 = tbody.closest('table');
+      _sortUpdateHeaders(tbl2, i, newDir === 'orig' ? null : newDir);
+      /* Re-enganchar */
+      _attachSortKPI(panelEl, colDefs);
+    });
+  });
+}
+
+/* Inicializar sort en todas las cards KPI (arriba) */
+function _initKPISort() {
+  /* Cards CR: tablas con cols [nombre, severity, trafico, wow, metrica, wow] */
+  /* th índices → td índices para sort: trafico=td[2], metrica=td[4] */
+  var colDefsKPI = [null, null, 2, null, 4, null];
+  document.querySelectorAll('.tab-panels .tab-panel').forEach(function(panel) {
+    _attachSortKPI(panel, colDefsKPI);
+  });
+}
+
+/* Hook en ar_renderTable para enganchar sort automáticamente */
+var _origArRenderTable = ar_renderTable;
+ar_renderTable = function(n, tbodyId, btnId, rows) {
+  _origArRenderTable(n, tbodyId, btnId, rows);
+  /* Guardar rows originales en el tbody para poder resetear */
+  var tbody = document.getElementById(tbodyId);
+  if (tbody) tbody._origRows = rows;
+  ar_attachSort(n, tbodyId, btnId, rows, tbodyId.indexOf('-th') !== -1);
+};
+
+/* Inicializar todo al cargar */
+setTimeout(function(){
+  _initKPISort();
+}, 800);
+
+/* Re-inicializar al cambiar modo o canasta */
+var _origW22SetC = w22_setC;
+w22_setC = function(c, el) {
+  _origW22SetC(c, el);
+  setTimeout(_initKPISort, 200);
+};
