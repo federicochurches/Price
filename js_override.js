@@ -1267,188 +1267,164 @@ function ar_updateKPIs() {
 }
 
 /* ══════════════════════════════════════════════════
-   ORDENAMIENTO POR COLUMNA — sobre arrays JS completos
+   ORDENAMIENTO POR COLUMNA
    ══════════════════════════════════════════════════ */
 
-/* Parser de string → número */
+/* Parser numérico robusto para strings europeos */
 function _sv(s) {
-  if(s==null||s===false||s===true) return null;
-  s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
-  if(!s||s==='—'||s==='-') return null;
-  if(s.indexOf(',')!==-1){ s=s.replace(/\./g,'').replace(',','.'); }
-  else { s=s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
-  var n=parseFloat(s); return isNaN(n)?null:n;
+  if (s == null || s === false || s === true) return null;
+  s = String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
+  if (!s || s === '—' || s === '-') return null;
+  /* Europeo: 1.733,25 → coma=decimal, punto=miles */
+  if (s.indexOf(',') !== -1) { s = s.replace(/\./g,'').replace(',','.'); }
+  else { s = s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
+  var n = parseFloat(s); return isNaN(n) ? null : n;
 }
-function _nd2(d){ return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
-var _SS={};
+function _nd(d) { return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
+var _SS = {};
 
-/* Guardar copia original de CR_CARD_TABS / RND_CARD_TABS al primer uso */
-var _TABS_ORIG_CR = null;
-var _TABS_ORIG_RND = null;
-function _getTabsOrig(mode) {
-  if(mode==='cr'){
-    if(!_TABS_ORIG_CR && typeof CR_CARD_TABS!=='undefined'){
-      _TABS_ORIG_CR = JSON.parse(JSON.stringify(CR_CARD_TABS));
-    }
-    return _TABS_ORIG_CR;
-  } else {
-    if(!_TABS_ORIG_RND && typeof RND_CARD_TABS!=='undefined'){
-      _TABS_ORIG_RND = JSON.parse(JSON.stringify(RND_CARD_TABS));
-    }
-    return _TABS_ORIG_RND;
-  }
+/* Indicador visual en un th/span — span fijo 12px, no desalinea */
+function _setArrow(el, dir) {
+  var base = el.getAttribute('data-sl') || el.textContent.replace(/[↑↓ ]/g,'').trim();
+  el.setAttribute('data-sl', base);
+  el.innerHTML = base + '<span style="display:inline-block;width:12px;text-align:center;'
+    +'font-size:9px;color:var(--accent);opacity:'+(dir&&dir!=='orig'?'1':'0.25')+';margin-left:1px;">'
+    +(dir==='asc'?'↑':dir==='desc'?'↓':'')+'</span>';
 }
 
-/* ── Columnas ordenables en las cards KPI ──
-   Estructura row CR_CARD_TABS: [nombre, '', bbg, bfg, banda, trafico, wow_traf, metrica, wow_m, w21, w20]
-   índices: trafico=5, metrica=7  */
-var _KPI_SORT_COLS = {
-  /* span-idx en el header → row-array-idx */
-  2: 5,  /* Tráfico */
-  4: 7   /* Eficacia / Conv Rate / NoDispo / IPM */
-};
+/* ══ SORT CARDS KPI (destino/corp/hotel) — opera sobre CR_CARD_TABS completo ══ */
+/* Estructura row: [lab, sub, bbg, bfg, banda, cr_u, cr_wow, val_pct, wow_pp, hist21, hist20] */
+/* col_idx para sort: Tráfico=5, Métrica=7 */
+var _KPI_RCOLS = { 2:5, 4:7 }; /* span-header-idx → row-array-idx */
 
-/* Re-renderizar una tab con datos ordenados — top 10 fijo */
-function _reRenderKPITab(card, tkey, rows, isEf) {
+function _kpiSortAttach(card, tkey, isEf, allRows100) {
+  /* allRows100: array completo (100 rows) de CR_CARD_TABS para este tkey+metric */
   var panel = card.querySelector('[data-tab="'+tkey+'"]');
-  if(!panel) return;
-  var kpiRows = panel.querySelector('.kpi-tab-rows');
-  if(!kpiRows) return;
-  var header = kpiRows.querySelector('div:first-child');
-  var rowsHtml = rows.slice(0, 10).map(function(r,i){ return _cardRow(r,i,isEf); }).join('');
-  kpiRows.innerHTML = (header ? header.outerHTML : '') + rowsHtml;
-  /* Eliminar cualquier botón Ver más anterior */
-  var moreId = 'sort-more-'+card.id+'-'+tkey+'-'+(isEf?'ef':'cv');
-  var existing = document.getElementById(moreId);
-  if(existing) existing.remove();
-  if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-  setTimeout(function(){ _attachKPISortHeader(card, tkey, isEf, rows); }, 10);
-}
-
-/* Enganchar sort en el header de una tab KPI */
-function _attachKPISortHeader(card, tkey, isEf, currentRows) {
-  var panel = card.querySelector('[data-tab="'+tkey+'"]');
-  if(!panel) return;
-  var kpiRows = panel.querySelector('.kpi-tab-rows');
-  if(!kpiRows) return;
-  var hdr = kpiRows.querySelector('div:first-child');
-  if(!hdr) return;
+  if (!panel) return;
+  var rc = panel.querySelector('.kpi-tab-rows');
+  if (!rc) return;
+  var hdr = rc.firstElementChild;
+  if (!hdr) return;
   var hspans = hdr.querySelectorAll('span');
   var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
-  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
 
-  hspans.forEach(function(sp, i){
-    if(_KPI_SORT_COLS[i]==null) return;
-    var base = sp.getAttribute('data-sl') || sp.textContent.replace(/[↑↓ ]/g,'').trim();
-    sp.setAttribute('data-sl', base);
-    /* Indicador fijo 12px para no desalinear */
-    var st=_SS[key];
-    var isActive = st.col===i && st.dir!=='orig';
-    var arrow = isActive?(st.dir==='asc'?'↑':'↓'):'';
-    sp.innerHTML = base+'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;color:var(--accent);opacity:'+(isActive?'1':'0.3')+';">'+arrow+'</span>';
-    /* Clonar para limpiar listeners */
+  hspans.forEach(function(sp, i) {
+    if (_KPI_RCOLS[i] == null) return;
+    sp.style.cursor = 'pointer';
+    sp.title = 'Ordenar';
+    _setArrow(sp, _SS[key].col===i ? _SS[key].dir : null);
     var newSp = sp.cloneNode(true);
-    newSp.setAttribute('data-sl', base);
-    newSp.style.cursor = 'pointer';
+    newSp.setAttribute('data-sl', sp.getAttribute('data-sl')||'');
     sp.parentNode.replaceChild(newSp, sp);
-    newSp.addEventListener('click', function(){
-      var st2=_SS[key];
-      var dir = (st2.col===i)?_nd2(st2.dir):'asc';
-      _SS[key]={col:i,dir:dir};
-      var ri = _KPI_SORT_COLS[i];
-      /* Ordenar sobre currentRows (puede ser 100) */
-      var sorted = currentRows.slice();
-      if(dir!=='orig'){
-        sorted.sort(function(a,b){
-          var va=_sv(a[ri]),vb=_sv(b[ri]);
+    newSp.style.cursor = 'pointer';
+    newSp.addEventListener('click', function() {
+      var st = _SS[key];
+      var dir = (st.col === i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      /* Ordenar sobre los 100 rows completos */
+      var ri = _KPI_RCOLS[i];
+      var sorted = allRows100.slice();
+      if (dir !== 'orig') {
+        sorted.sort(function(a,b) {
+          var va=_sv(a[ri]), vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc'?va-vb:vb-va;
+          return dir==='asc' ? va-vb : vb-va;
         });
       }
-      _reRenderKPITab(card, tkey, sorted, isEf);
+      /* Re-renderizar top 10 */
+      var rowsHtml = sorted.slice(0,10).map(function(r,idx){ return _cardRow(r,idx,isEf); }).join('');
+      rc.innerHTML = (hdr ? hdr.outerHTML : '') + rowsHtml;
+      if (typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
+      /* Re-enganchar con los mismos 100 rows originales */
+      setTimeout(function(){ _kpiSortAttach(card, tkey, isEf, allRows100); }, 15);
     });
   });
 }
 
-/* Inicializar sort en todas las cards KPI */
-function _initAllSort(){
-  var mode = (typeof W!=='undefined')?W.mode:'cr';
-  var canasta = (typeof W!=='undefined')?(W.canasta||'global'):'global';
-  var orig = _getTabsOrig(mode);
-  if(!orig) return;
-  var tabs = orig[canasta] || orig['global'] || {};
+function _initAllSort() {
+  var mode = (typeof W!=='undefined') ? W.mode : 'cr';
+  var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
+  /* Obtener tabs del modo activo */
+  var TABS = (mode==='cr') ? (typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
+                           : (typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
+  if (!TABS) return;
+  var tabs = TABS[canasta] || TABS['global'] || {};
 
-  ['ef','cv'].forEach(function(metric){
+  ['ef','cv'].forEach(function(metric) {
     var isEf = metric==='ef';
-    var suffix = isEf?'-ef-':'-cv-';
-    ['destino','corp','hotel'].forEach(function(tkey){
-      var rows = (tabs[metric]||{})[tkey]||[];
-      if(!rows.length) return;
+    var suffix = isEf ? '-ef-' : '-cv-';
+    ['destino','corp','hotel'].forEach(function(tkey) {
+      var allRows = (tabs[metric]||{})[tkey] || [];
+      if (!allRows.length) return;
       var radioEl = document.getElementById('tab'+suffix+tkey);
-      if(!radioEl) return;
+      if (!radioEl) return;
       var card = radioEl.closest('.kpi-card');
-      if(!card) return;
-      _attachKPISortHeader(card, tkey, isEf, rows);
+      if (!card) return;
+      _kpiSortAttach(card, tkey, isEf, allRows);
     });
   });
 }
 
-/* ── SORT cards AR (table/tbody con arrays JS) ── */
-function _arSort(n, tbodyId, btnId, origRows) {
+/* ══ SORT CARDS AR (table/tbody) — opera sobre el array JS original (100 rows) ══ */
+/* Mapeo th-index → row-array-index: tráfico=2→r[4], métrica=4→r[5 o 6] */
+function _arSort(n, tbodyId, btnId, origRows100) {
   var tbody = document.getElementById(tbodyId);
-  if(!tbody) return;
+  if (!tbody) return;
   var table = tbody.closest('table');
-  if(!table) return;
+  if (!table) return;
   var ths = table.querySelectorAll('thead th');
   var key = tbodyId;
-  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
-  /* th-index → row-array-index: trafico=2→r[4], metrica=4→r[5 o 6] */
-  var rmap={2:4, 4:(n===1?5:6)};
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  var rmap = {2:4, 4:(n===1?5:6)};
 
-  ths.forEach(function(th,i){
-    if(rmap[i]==null) return;
-    var base = th.getAttribute('data-sl') || th.textContent.replace(/[↑↓ ]/g,'').trim();
-    th.setAttribute('data-sl',base);
-    var st=_SS[key];
-    var isActive=st.col===i&&st.dir!=='orig';
-    var arrow=isActive?(st.dir==='asc'?'↑':'↓'):'';
-    th.innerHTML=base+'<span style="display:inline-block;width:12px;text-align:center;font-size:8px;color:var(--accent);opacity:'+(isActive?'1':'0.3')+';">'+arrow+'</span>';
-    var newTh=th.cloneNode(true);
-    newTh.setAttribute('data-sl',base);
-    newTh.style.cursor='pointer';
-    th.parentNode.replaceChild(newTh,th);
-    newTh.addEventListener('click',function(){
-      var st2=_SS[key];
-      var dir=(st2.col===i)?_nd2(st2.dir):'asc';
-      _SS[key]={col:i,dir:dir};
-      var rows=origRows.slice();
-      if(dir!=='orig'){
-        var ri=rmap[i];
-        rows.sort(function(a,b){
-          var va=_sv(a[ri]),vb=_sv(b[ri]);
+  ths.forEach(function(th, i) {
+    if (rmap[i] == null) return;
+    th.style.cursor = 'pointer';
+    th.title = 'Ordenar';
+    _setArrow(th, _SS[key].col===i ? _SS[key].dir : null);
+    var newTh = th.cloneNode(true);
+    newTh.setAttribute('data-sl', th.getAttribute('data-sl')||'');
+    th.parentNode.replaceChild(newTh, th);
+    newTh.style.cursor = 'pointer';
+    newTh.addEventListener('click', function() {
+      var st = _SS[key];
+      var dir = (st.col === i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      /* Ordenar sobre los 100 rows originales */
+      var ri = rmap[i];
+      var sorted = origRows100.slice();
+      if (dir !== 'orig') {
+        sorted.sort(function(a,b) {
+          var va=_sv(a[ri]), vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc'?va-vb:vb-va;
+          return dir==='asc' ? va-vb : vb-va;
         });
       }
-      ar_renderTable(n,tbodyId,btnId,rows);
-      setTimeout(function(){_arSort(n,tbodyId,btnId,origRows);},20);
+      /* Mostrar top 10 del resultado */
+      ar_renderTable(n, tbodyId, btnId, sorted);
+      /* Re-enganchar con origRows100 sin modificar */
+      setTimeout(function(){ _arSort(n, tbodyId, btnId, origRows100); }, 20);
     });
   });
 }
 
-/* Patch ar_renderTable */
-var _origART=ar_renderTable;
-ar_renderTable=function(n,tbodyId,btnId,rows){
-  _origART(n,tbodyId,btnId,rows);
-  setTimeout(function(){_arSort(n,tbodyId,btnId,rows);},20);
+/* Patch ar_renderTable — guardar origRows y enganchar sort */
+var _origART = ar_renderTable;
+ar_renderTable = function(n, tbodyId, btnId, rows) {
+  _origART(n, tbodyId, btnId, rows);
+  /* rows aquí es el array completo que viene de _arRows() o de _arSort() */
+  /* Siempre re-enganchamos con los rows recibidos como origen */
+  setTimeout(function(){ _arSort(n, tbodyId, btnId, rows); }, 20);
 };
 
-/* Init */
-setTimeout(_initAllSort,1200);
+/* Init al cargar — después de que w22_update haya renderizado */
+setTimeout(_initAllSort, 1500);
+
 /* Re-init al cambiar canasta o modo */
-var _origSC3=w22_setC;
-w22_setC=function(c,el){_origSC3(c,el);setTimeout(_initAllSort,400);};
-var _origSM2=w22_setMode;
-w22_setMode=function(m,el){_origSM2(m,el);setTimeout(_initAllSort,400);};
+var _origSC_s = w22_setC;
+w22_setC = function(c,el) { _origSC_s(c,el); setTimeout(_initAllSort, 400); };
+var _origSM_s = w22_setMode;
+w22_setMode = function(m,el) { _origSM_s(m,el); setTimeout(_initAllSort, 400); };
