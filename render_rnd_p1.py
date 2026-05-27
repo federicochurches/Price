@@ -444,7 +444,7 @@ def _build_rnd_card_tabs_json():
         ]:
             _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
-            df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(100)
+            df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(500)
             nd_tab = []
             for _, r in df_nd_s.iterrows():
                 lab      = str(r.get(_name_col, '?'))[:60]
@@ -468,7 +468,7 @@ def _build_rnd_card_tabs_json():
                     w21, round((nd - r.get('%NoDispo_W18', nd)) * 100, 4)
                 ])
             # IPM rows: ordenar peor primero (menor IPM)
-            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(100)
+            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(500)
             ipm_tab = []
             for _, r in df_ipm_s.iterrows():
                 lab      = str(r.get(_name_col, '?'))[:60]

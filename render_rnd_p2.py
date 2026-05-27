@@ -19,8 +19,9 @@ WEEK_PREV = WEEK_NUM - 1
 M        = D['M']
 CANASTA  = D['CANASTA']
 p80      = D['p80_hotel'].copy()
-g_corp   = D['g_corp']
-g_dest   = D['g_dest']
+g_corp        = D['g_corp']
+g_dest        = D['g_dest']
+g_pais_global = D['g_pais']   # alias para evitar colisión con variable local g_pais
 sev_nd   = D['sev_nd']
 sev_rpm  = D['sev_rpm']
 TOP      = D['TOP']
@@ -248,19 +249,11 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows
 
-    # Dest rows (por Destino, peor NoDispo)
+    # Dest rows — usar g_dest global que ya tiene NoDispo_WoW_pp, IPM_WoW_pp, Trafico_WoW_pct
     dest_rows = []
-    # Agrupar por destino desde df_hotel
-    g_d_avail = None
-    if 'Destino' in df_hotel.columns and len(df_hotel):
-        g_d_avail = df_hotel.groupby('Destino').agg(
-            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
-            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
-        ).reset_index()
-        g_d_avail['%NoDispo'] = g_d_avail['TraficoNoDispo'] / g_d_avail['Trafico'].replace(0,1)
-        g_d_avail['IPM'] = g_d_avail['gb_usd'] / g_d_avail['Trafico'].replace(0,1) * 1_000_000
-    if g_d_avail is not None and '%NoDispo' in g_d_avail.columns:
-        for _, row in g_d_avail.sort_values('%NoDispo', ascending=False).head(100).iterrows():
+    g_d_src = g_dest.copy() if g_dest is not None and len(g_dest) > 0 else None
+    if g_d_src is not None and '%NoDispo' in g_d_src.columns:
+        for _, row in g_d_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
             dest_name = str(row.get('Destino','?')).replace(' Area','').replace(' area','')[:55]
             nd_r  = row.get('%NoDispo', 0)
             ipm_r = row.get('IPM', row.get('RPM', 0))
@@ -276,27 +269,42 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             wow_ipm = '—'
             if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
                 wow_ipm = wow_arrow(wow_ipm_pp)
-            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, '—'])
+            wow_traf = row.get('Trafico_WoW_pct')
+            if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+                wow_traf_str = '—'
+            else:
+                sign = '▲' if wow_traf >= 0 else '▼'
+                wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
+            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
-    # Pais rows
+    # Pais rows — usar g_pais global que ya tiene NoDispo_WoW_pp, IPM_WoW_pp, Trafico_WoW_pct
     pais_rows = []
-    if 'PaisDestino' in df_hotel.columns and len(df_hotel):
-        g_pais = df_hotel.groupby('PaisDestino').agg(
-            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
-            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
-        ).reset_index()
-        g_pais['%NoDispo'] = g_pais['TraficoNoDispo'] / g_pais['Trafico'].replace(0,1)
-        g_pais['IPM'] = g_pais['gb_usd'] / g_pais['Trafico'].replace(0,1) * 1_000_000
-        for _, row in g_pais.sort_values('%NoDispo', ascending=False).head(100).iterrows():
+    g_p_src = g_pais_global.copy() if g_pais_global is not None and len(g_pais_global) > 0 else None
+    if g_p_src is not None and '%NoDispo' in g_p_src.columns:
+        for _, row in g_p_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
             pais_name = str(row.get('PaisDestino','?'))[:55]
             nd_r  = row.get('%NoDispo', 0)
-            ipm_r = row.get('IPM', 0)
+            ipm_r = row.get('IPM', row.get('RPM', 0))
             banda = banda_nodispo(nd_r)
             bbg, bfg = banda_colors(banda)
             traf_pv = row.get('Trafico', 0)
             traf  = fmt_big(float(traf_pv)) if traf_pv and not np.isnan(float(traf_pv)) else '0'
+            wow_pp = row.get('NoDispo_WoW_pp')
+            wow_up = None; wow_nd = '—'
+            if wow_pp is not None and not (isinstance(wow_pp, float) and np.isnan(wow_pp)):
+                wow_up = bool(wow_pp <= 0); wow_nd = wow_arrow(wow_pp)
+            wow_ipm_pp = row.get('IPM_WoW_pp')
+            wow_ipm = '—'
+            if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
+                wow_ipm = wow_arrow(wow_ipm_pp)
+            wow_traf = row.get('Trafico_WoW_pct')
+            if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+                wow_traf_str = '—'
+            else:
+                sign = '▲' if wow_traf >= 0 else '▼'
+                wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
             pais_rows.append([pais_name, bbg, bfg, banda, traf,
-                              es_pct(nd_r), es_ipm(ipm_r), None, '—', '—', '—'])
+                              es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
     # Plan
     owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']

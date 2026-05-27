@@ -240,7 +240,7 @@ def tab_eficacia():
     # Sin filtro P50 para corp: mismo universo que pestaña "Por Corporativo" del Excel
     p50_d = g_d['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
-    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
     # Merge WoW — Eficacia + CR_Unicos (tráfico)
@@ -280,7 +280,7 @@ def tab_convrate():
     # Sin filtro P50 para corp: mismo universo que Excel
     p50_d = g_d['CR_Unicos'].quantile(0.50)
     p50_h = g_h['CR_Unicos'].quantile(0.50)
-    df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(100).reset_index(drop=True)
+    df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('ConvRate').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
     # Merge WoW — ConvRate + CR_Unicos (tráfico)
@@ -325,7 +325,7 @@ def tab_eficacia_for(dist_cat):
         if 'ConvRate' not in g.columns: g['ConvRate'] = g['Bookings'] / g['CR_Unicos']
     p50_d = g_d['CR_Unicos'].quantile(0.50) if len(g_d) else 0
     p50_h = g_h['CR_Unicos'].quantile(0.50) if len(g_h) else 0
-    df_d = g_d[g_d['CR_Unicos'] >= p50_d].sort_values('Eficacia').head(100).reset_index(drop=True)
+    df_d = g_d[g_d['CR_Unicos'] >= p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos'] >= p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
     df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','CR_Unicos_W17']], on='Destino', how='left')

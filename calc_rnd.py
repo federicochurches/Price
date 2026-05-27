@@ -231,17 +231,17 @@ for g in [g_corp, g_dest, g_pais]:
         g['Trafico_WoW_pct'] = ((g['Trafico'] - g['Trafico_W18']) / g['Trafico_W18'].replace(0, float('nan')) * 100)
 
 # ── TABs para KPI hero ────────────────────────────────────────────
-def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
+def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None, top_n=500):
     sub = df.copy()
     if min_ipm:
         sub = sub[sub['IPM'] > 0]
     if min_trafico:
         sub = sub[sub['Trafico'] >= min_trafico]
-    return sub.sort_values(sort_col, ascending=asc).head(100).reset_index(drop=True)
+    return sub.sort_values(sort_col, ascending=asc).head(top_n).reset_index(drop=True)
 
-# Umbral mínimo de tráfico para destino y país (evita outliers de bajo volumen)
-# Corp: sin filtro de tráfico — mismo universo que pestaña "Por Corporativo" del Excel
-MIN_TRAFICO_DIM = 500_000
+# Umbral mínimo de tráfico para destino/país — 50K (mismo que hoteles, sin cortar destinos relevantes)
+# Cancún (417M tráfico), New York (477M), Las Vegas (236M) estaban excluidos con 500K
+MIN_TRAFICO_DIM = 50_000
 
 TAB_NoDispo = {
     'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
@@ -258,8 +258,8 @@ TAB_NoDispo = {
 TAB_RPM = {
     'pais':    make_tab(g_pais,'PaisDestino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
     'destino': make_tab(g_dest,'Destino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
-    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True),
-    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True),
+    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True, top_n=100),
+    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True, top_n=100),
     'canasta': TAB_NoDispo['canasta'],
 }
 # Alias RPM en TABs
