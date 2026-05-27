@@ -1279,208 +1279,185 @@ function ar_updateKPIs() {
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   ORDENAMIENTO POR COLUMNA — aplicable a todas las cards y pestañas
-   ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   ORDENAMIENTO POR COLUMNA
+   ════════════════════════════════════════════════════════════ */
 
-/* Parsear string de valor de fila → número para comparar */
-function _sortVal(str) {
-  if (str == null || str === '—' || str === '' || str === false || str === true) return -Infinity;
-  var s = String(str);
-  /* Moneda: $1.234 → 1234 */
-  s = s.replace(/\$/g,'');
-  /* Porcentaje: 93,15% → 93.15 */
-  s = s.replace(/%/g,'');
-  /* Miles europeos: 1.733 → 1733 (punto como miles) */
-  /* Distinguir: si hay coma decimal → reemplazar coma por punto, quitar puntos de miles */
+/* Parsear string de valor → número para comparar */
+function _sv(str) {
+  if (str == null || str === false || str === true) return null;
+  var s = String(str).trim();
+  if (!s || s === '—' || s === '-') return null;
+  s = s.replace(/\$/g,'').replace(/%/g,'').trim();
+  /* Formato europeo: 1.733 (punto=miles) o 93,15 (coma=decimal) */
   if (s.indexOf(',') !== -1) {
     s = s.replace(/\./g,'').replace(',','.');
-  } else {
-    /* Sin coma: puede tener punto como miles (1.733) o como decimal (1.73) */
-    /* Si tiene exactamente 1 punto y más de 3 dígitos después → miles */
-    var dotIdx = s.lastIndexOf('.');
-    if (dotIdx !== -1 && s.length - dotIdx - 1 === 3 && s.indexOf('.') === dotIdx) {
-      s = s.replace(/\./g,'');
-    }
+  } else if (s.indexOf('.') !== -1) {
+    /* Punto como separador de miles si hay 3 dígitos después */
+    s = s.replace(/\.(?=\d{3}(?:\.|$))/g,'');
   }
   var n = parseFloat(s);
-  return isNaN(n) ? -Infinity : n;
+  return isNaN(n) ? null : n;
 }
 
-/* Estado de ordenamiento global: { tbodyId: {col, dir} } */
-var _sortState = {};
+/* Ciclo de dirección */
+function _nd(d) { return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
 
-/* Ordenar rows de un tbody y re-renderizar */
-/* tbodyId, colIdx (índice de columna de datos en el array row),
-   dir: 'asc'|'desc'|'orig', origRows: array original,
-   renderFn: function(rows) que escribe en el tbody */
-function _sortAndRender(tbodyId, colIdx, dir, origRows, renderFn) {
-  var rows = origRows.slice();
-  if (dir === 'orig') {
-    renderFn(rows);
-    return;
-  }
-  rows.sort(function(a, b) {
-    var va = _sortVal(a[colIdx]);
-    var vb = _sortVal(b[colIdx]);
-    if (va === -Infinity && vb === -Infinity) return 0;
-    if (va === -Infinity) return 1;
-    if (vb === -Infinity) return -1;
-    return dir === 'asc' ? va - vb : vb - va;
-  });
-  renderFn(rows);
+/* Estado de sort por ID */
+var _SS = {};
+
+/* Indicador en un span header */
+function _si(span, dir) {
+  var base = span.getAttribute('data-sl') || span.textContent.replace(/[↑↓]/g,'').trim();
+  span.setAttribute('data-sl', base);
+  span.textContent = base + (dir==='asc'?' ↑':dir==='desc'?' ↓':'');
+  span.style.color = (dir && dir!=='orig') ? 'var(--accent)' : '';
 }
 
-/* Actualizar indicador visual en headers */
-function _sortUpdateHeaders(container, activeIdx, dir) {
-  var ths = container.querySelectorAll('thead th, .sort-th');
-  ths.forEach(function(th, i) {
-    var base = th.getAttribute('data-sort-label') || th.textContent.replace(/[↑↓▲▼ ]/g,'').trim();
-    if (!th.getAttribute('data-sort-label')) th.setAttribute('data-sort-label', base);
-    if (i === activeIdx) {
-      th.textContent = base + (dir === 'asc' ? ' ↑' : dir === 'desc' ? ' ↓' : '');
-      th.style.color = 'var(--accent)';
-      th.style.cursor = 'pointer';
-    } else {
-      th.textContent = base;
-      th.style.color = '';
-      th.style.cursor = 'pointer';
-    }
-  });
-}
-
-/* Ciclo: ninguno → asc → desc → orig */
-function _nextDir(current) {
-  if (current === null || current === 'orig') return 'asc';
-  if (current === 'asc')  return 'desc';
-  return 'orig';
-}
-
-/* ── Enganchar ordenamiento en las cards AR ── */
-function ar_attachSort(n, tbodyId, btnId, origRows, isHotel) {
+/* ── SORT para cards AR (usan <table><tbody>) ── */
+function _arSort(n, tbodyId, btnId, origRows) {
   var tbody = document.getElementById(tbodyId);
   if (!tbody) return;
   var table = tbody.closest('table');
   if (!table) return;
-  var thead = table.querySelector('thead tr');
-  if (!thead) return;
-  var ths = thead.querySelectorAll('th');
+  var ths = table.querySelectorAll('thead th');
   var key = tbodyId;
-  if (!_sortState[key]) _sortState[key] = {col: null, dir: 'orig'};
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+
+  /* Mapeo: col-index th → row-array-index
+     [0]=nombre(skip), [1]=severity(skip), [2]=trafico→r[4], [3]=WoW(skip),
+     [4]=metrica→r[5 o 6], [5]=WoW(skip) */
+  var rmap = {2:4, 4:(n===1?5:6)};
 
   ths.forEach(function(th, i) {
-    /* Solo columnas numéricas: Tráfico(4), WoW↕(5→skip), Métrica1(5→real 5 o 6), WoW↕(skip) */
-    /* Columnas numéricas: índice 2=Tráfico(r[4]), 3=WoW(skip), 4=Métrica(r[5] o r[6]), 5=WoW(skip) */
-    /* Mapeo col th → índice en row */
-    var rowColMap = [null, null, 4, null, (n===1?5:6), null]; /* nombre,severity,trafico,wow,metrica,wow */
-    var rowCol = rowColMap[i];
-    if (rowCol == null) return; /* no ordenable */
-    th.style.cursor = 'pointer';
-    th.title = 'Ordenar';
-    /* Remover listener anterior clonando */
+    if (rmap[i] == null) return;
     var newTh = th.cloneNode(true);
     th.parentNode.replaceChild(newTh, th);
+    /* Guardar label base */
+    var base = newTh.textContent.replace(/[↑↓]/g,'').trim();
+    newTh.setAttribute('data-sl', base);
+    newTh.style.cursor = 'pointer';
+    newTh.title = 'Click para ordenar';
     newTh.addEventListener('click', function() {
-      var st = _sortState[key];
-      var newDir = (st.col === i) ? _nextDir(st.dir) : 'asc';
-      _sortState[key] = {col: i, dir: newDir};
-      _sortAndRender(tbodyId, rowCol, newDir, origRows, function(sorted) {
-        ar_renderTable(n, tbodyId, btnId, sorted);
-        ar_attachSort(n, tbodyId, btnId, origRows, isHotel);
-      });
-      /* Actualizar headers después del re-attach */
-      setTimeout(function(){
-        var t2 = document.getElementById(tbodyId);
-        if (!t2) return;
-        var tbl2 = t2.closest('table');
-        if (!tbl2) return;
-        _sortUpdateHeaders(tbl2, i, newDir === 'orig' ? null : (newDir==='asc'?'asc':'desc'));
-      }, 10);
-    });
-  });
-}
-
-/* Enganchar sort en las cards KPI (radio+CSS, HTML estático) */
-function _attachSortKPI(panelEl, colDefs) {
-  /* panelEl: el div data-tab con la tabla */
-  var table = panelEl.querySelector('table');
-  if (!table) return;
-  var thead = table.querySelector('thead tr');
-  if (!thead) return;
-  var tbody = table.querySelector('tbody');
-  if (!tbody) return;
-  var ths = thead.querySelectorAll('th');
-  /* Guardar rows originales la primera vez */
-  if (!panelEl._origRows) {
-    panelEl._origRows = Array.from(tbody.querySelectorAll('tr'));
-  }
-  var origTrs = panelEl._origRows;
-  var key = panelEl.id || Math.random().toString();
-  if (!_sortState[key]) _sortState[key] = {col: null, dir: 'orig'};
-
-  ths.forEach(function(th, i) {
-    var colIdx = colDefs[i]; /* índice de td a leer */
-    if (colIdx == null) return;
-    th.style.cursor = 'pointer';
-    th.title = 'Ordenar';
-    var newTh = th.cloneNode(true);
-    th.parentNode.replaceChild(newTh, th);
-    newTh.addEventListener('click', function() {
-      var st = _sortState[key];
-      var newDir = (st.col === i) ? _nextDir(st.dir) : 'asc';
-      _sortState[key] = {col: i, dir: newDir};
-      var trs = origTrs.slice();
-      if (newDir !== 'orig') {
-        trs.sort(function(a, b) {
-          var tdA = a.querySelectorAll('td')[colIdx];
-          var tdB = b.querySelectorAll('td')[colIdx];
-          var va = _sortVal(tdA ? tdA.textContent.trim() : '');
-          var vb = _sortVal(tdB ? tdB.textContent.trim() : '');
-          if (va === -Infinity && vb === -Infinity) return 0;
-          if (va === -Infinity) return 1;
-          if (vb === -Infinity) return -1;
-          return newDir === 'asc' ? va - vb : vb - va;
+      var st = _SS[key];
+      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      var rows = origRows.slice();
+      if (dir !== 'orig') {
+        var ri = rmap[i];
+        rows.sort(function(a,b){
+          var va=_sv(a[ri]), vb=_sv(b[ri]);
+          if(va==null&&vb==null) return 0;
+          if(va==null) return 1; if(vb==null) return -1;
+          return dir==='asc'?va-vb:vb-va;
         });
       }
-      tbody.innerHTML = '';
-      trs.forEach(function(tr){ tbody.appendChild(tr); });
-      /* Actualizar indicadores */
-      var tbl2 = tbody.closest('table');
-      _sortUpdateHeaders(tbl2, i, newDir === 'orig' ? null : newDir);
-      /* Re-enganchar */
-      _attachSortKPI(panelEl, colDefs);
+      ar_renderTable(n, tbodyId, btnId, rows);
+      /* Re-enganchar con rows originales (no sorted) para poder resetear */
+      setTimeout(function(){ _arSort(n, tbodyId, btnId, origRows); }, 10);
+      /* Indicadores */
+      setTimeout(function(){
+        var tbl = document.getElementById(tbodyId);
+        if (!tbl) return;
+        var tbl2 = tbl.closest('table'); if (!tbl2) return;
+        tbl2.querySelectorAll('thead th').forEach(function(t,j){
+          var b2 = t.getAttribute('data-sl') || t.textContent.replace(/[↑↓]/g,'').trim();
+          t.setAttribute('data-sl',b2);
+          t.textContent = b2 + (j===i&&dir!=='orig'?(dir==='asc'?' ↑':' ↓'):'');
+          t.style.color = (j===i&&dir!=='orig') ? 'var(--accent)' : '';
+        });
+      }, 15);
     });
   });
 }
 
-/* Inicializar sort en todas las cards KPI (arriba) */
-function _initKPISort() {
-  /* Cards CR: tablas con cols [nombre, severity, trafico, wow, metrica, wow] */
-  /* th índices → td índices para sort: trafico=td[2], metrica=td[4] */
-  var colDefsKPI = [null, null, 2, null, 4, null];
-  document.querySelectorAll('.tab-panels .tab-panel').forEach(function(panel) {
-    _attachSortKPI(panel, colDefsKPI);
+/* ── SORT para cards KPI (usan divs con data-row-idx) ── */
+function _kpiSort(panel) {
+  /* panel = .tab-panel div */
+  var rowsContainer = panel.querySelector('.kpi-tab-rows');
+  if (!rowsContainer) return;
+  var headerRow = rowsContainer.firstElementChild; /* primer div = headers */
+  if (!headerRow) return;
+  var headerSpans = headerRow.querySelectorAll('span');
+  if (!headerSpans.length) return;
+
+  /* Guardar rows de datos originales (todos menos el header) */
+  if (!panel._kpiOrig) {
+    var allRows = Array.from(rowsContainer.children).slice(1); /* skip header */
+    if (!allRows.length) return;
+    panel._kpiOrig = allRows.map(function(r){ return r.cloneNode(true); });
+  }
+  var origRows = panel._kpiOrig;
+  var key = panel.id || panel.getAttribute('data-tab') || Math.random();
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+
+  /* Columnas ordenables: índice del span → índice del child div/span en cada row
+     Header spans: [0]=nombre(skip), [1]=severity(skip), [2]=tráfico, [3]=WoW(skip), [4]=métrica, [5]=WoW(skip) */
+  var sortable = {2:2, 4:4}; /* span-idx → child-idx en la fila */
+
+  headerSpans.forEach(function(span, i) {
+    if (sortable[i] == null) return;
+    var newSpan = span.cloneNode(true);
+    span.parentNode.replaceChild(newSpan, span);
+    var base = newSpan.textContent.replace(/[↑↓]/g,'').trim();
+    newSpan.setAttribute('data-sl', base);
+    newSpan.style.cursor = 'pointer';
+    newSpan.title = 'Click para ordenar';
+    newSpan.addEventListener('click', function() {
+      var st = _SS[key];
+      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      var ci = sortable[i];
+      var rows = origRows.map(function(r){ return r.cloneNode(true); });
+      if (dir !== 'orig') {
+        rows.sort(function(a, b) {
+          var ca = a.children[ci], cb = b.children[ci];
+          /* El valor puede estar en un span/div hijo */
+          var ta = ca ? (ca.querySelector('span,div') || ca).textContent.trim() : '';
+          var tb = cb ? (cb.querySelector('span,div') || cb).textContent.trim() : '';
+          var va=_sv(ta), vb=_sv(tb);
+          if(va==null&&vb==null) return 0;
+          if(va==null) return 1; if(vb==null) return -1;
+          return dir==='asc'?va-vb:vb-va;
+        });
+      }
+      /* Re-render: eliminar filas de datos, insertar ordenadas */
+      var existing = Array.from(rowsContainer.children).slice(1);
+      existing.forEach(function(r){ rowsContainer.removeChild(r); });
+      rows.forEach(function(r){ rowsContainer.appendChild(r); });
+      /* Actualizar indicadores */
+      var hRow = rowsContainer.firstElementChild;
+      hRow.querySelectorAll('span').forEach(function(sp, j){
+        var b2 = sp.getAttribute('data-sl') || sp.textContent.replace(/[↑↓]/g,'').trim();
+        sp.setAttribute('data-sl', b2);
+        sp.textContent = b2 + (j===i&&dir!=='orig'?(dir==='asc'?' ↑':' ↓'):'');
+        sp.style.color = (j===i&&dir!=='orig') ? 'var(--accent)' : '';
+      });
+      /* Re-enganchar */
+      _kpiSort(panel);
+    });
   });
 }
 
-/* Hook en ar_renderTable para enganchar sort automáticamente */
-var _origArRenderTable = ar_renderTable;
+/* Inicializar sort en todas las cards KPI */
+function _initAllSort() {
+  document.querySelectorAll('.tab-panel, .tab-panel-c').forEach(function(panel) {
+    /* Resetear para que recapture rows actuales */
+    panel._kpiOrig = null;
+    _kpiSort(panel);
+  });
+}
+
+/* Patch ar_renderTable para auto-enganchar sort */
+var _origARTbl = ar_renderTable;
 ar_renderTable = function(n, tbodyId, btnId, rows) {
-  _origArRenderTable(n, tbodyId, btnId, rows);
-  /* Guardar rows originales en el tbody para poder resetear */
-  var tbody = document.getElementById(tbodyId);
-  if (tbody) tbody._origRows = rows;
-  ar_attachSort(n, tbodyId, btnId, rows, tbodyId.indexOf('-th') !== -1);
+  _origARTbl(n, tbodyId, btnId, rows);
+  setTimeout(function(){ _arSort(n, tbodyId, btnId, rows); }, 20);
 };
 
-/* Inicializar todo al cargar */
-setTimeout(function(){
-  _initKPISort();
-}, 800);
+/* Inicializar al cargar */
+setTimeout(_initAllSort, 1000);
 
-/* Re-inicializar al cambiar modo o canasta */
-var _origW22SetC = w22_setC;
-w22_setC = function(c, el) {
-  _origW22SetC(c, el);
-  setTimeout(_initKPISort, 200);
-};
+/* Re-init al cambiar canasta o modo */
+var _origSC2 = w22_setC;
+w22_setC = function(c,el){ _origSC2(c,el); setTimeout(function(){ _initAllSort(); }, 300); };
