@@ -5221,7 +5221,7 @@ function trow_ar(r, card, idx) {
  var delta = parseFloat(wowStr.replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
  var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
- var num = idx != null ? '<span style="font-size:10px;font-weight:700;color:var(--ink-muted);min-width:18px;margin-right:4px;">'+(idx<10?'0'+idx:idx)+'.</span>' : '';
+ var num = idx != null ? '<span style="font-size:10px;font-weight:700;color:var(--ink);min-width:18px;margin-right:4px;">'+(idx<10?'0'+idx:idx)+'.</span>' : '';
  var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+num+r[0]+'</td>';
  var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
  var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
