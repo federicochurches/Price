@@ -1076,20 +1076,18 @@ w22_update = function() {
 setTimeout(ar_update, 100);
 
 /* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
-function trow_ar(r, card) {
+function trow_ar(r, card, idx) {
  /* data-hist para canvas histórico */
  var isCR = W.mode === 'cr';
- var metVal = card === 1
-  ? (isCR ? r[5] : r[5])
-  : (isCR ? r[6] : r[6]);
+ var metVal = card === 1 ? r[5] : r[6];
  var metNum = parseFloat(String(metVal).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var wowStr = card === 1 ? (r[8]||'—') : (r[9]||'—');
  var isUp = wowStr.charAt(0)==='▲';
  var delta = parseFloat(wowStr.replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
  var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
-
- var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>';
+ var num = idx != null ? '<span style="font-size:10px;font-weight:700;color:var(--ink-muted);min-width:18px;margin-right:4px;">'+(idx<10?'0'+idx:idx)+'.</span>' : '';
+ var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+num+r[0]+'</td>';
  var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
  var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
  function pill(str, isGood){
@@ -1118,14 +1116,14 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  if (!tbody) return;
  var visible = rows.slice(0, 5);
  var more    = rows.slice(5);
- tbody.innerHTML = visible.map(function(r){ return trow_ar(r, n); }).join('');
+ tbody.innerHTML = visible.map(function(r,i){ return trow_ar(r, n, i+1); }).join('');
  var btn = document.getElementById(btnId);
  if (!btn) return;
  if (more.length) {
   btn.style.display = '';
   btn.textContent = 'Ver ' + more.length + ' más ↓';
   btn.onclick = function(){
-   tbody.innerHTML += more.map(function(r){ return trow_ar(r, n); }).join('');
+   tbody.innerHTML += more.map(function(r,i){ return trow_ar(r, n, visible.length+i+1); }).join('');
    btn.style.display = 'none';
   };
  } else {

@@ -253,13 +253,13 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         return [build_hotel_row(r, wow_col='Eficacia_WoW_pp') for _, r in df.iterrows()]
 
     # Críticos: Eficacia < 93% (Crítica + Súper Crítica), con bookings, top 10 Eficacia ASC
-    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(10)
+    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(100)
     # Bajo Rendimiento: Eficacia Revisar o Aceptable, con bookings
-    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(10)
+    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(100)
     # Sin Conversión: bookings = 0
-    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10)
+    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100)
     # Menor ConvRate: con bookings, orden ConvRate ASC
-    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(10)
+    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(100)
 
     hotel_rows      = hotel_rows_from(df_crit)  # default = Críticos
     hotels_crit_rows = hotel_rows_from(df_crit)
@@ -271,7 +271,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
 
     # Dims rows (por Corp, top 10 Eficacia ASC)
     dim_rows = []
-    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(10)
+    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(100)
     for _, row in g_sort.iterrows():
         name  = str(row['CorpName'])[:60]
         banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
@@ -308,7 +308,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             g_dest = g_dest.merge(g_dest_w17[['Destino','CR_Unicos_W17']], on='Destino', how='left')
             g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17']) * 100
     if g_dest is not None and len(g_dest) > 0:
-        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(10).iterrows():
+        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(100).iterrows():
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
             wow_cr = row.get('CR_Unicos_WoW_pp')
