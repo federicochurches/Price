@@ -1270,8 +1270,8 @@ function ar_updateKPIs() {
    ORDENAMIENTO POR COLUMNA
    ══════════════════════════════════════════════════ */
 
-function _sv(s) {
-  if (s==null||s===false||s===true) return null;
+function _sv(s){
+  if(s==null||s===false||s===true) return null;
   s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
   if(!s||s==='—'||s==='-') return null;
   if(s.indexOf(',')!==-1){s=s.replace(/\./g,'').replace(',','.');}
@@ -1281,45 +1281,46 @@ function _sv(s) {
 function _nd(d){return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig';}
 var _SS={};
 
-/* Indicador ↑↓ en span fijo — no desalinea */
-function _setArrow(el,dir){
-  var base=el.getAttribute('data-sl')||el.textContent.replace(/[↑↓ ]/g,'').trim();
-  el.setAttribute('data-sl',base);
-  el.innerHTML=base+'<span style="display:inline-block;width:12px;text-align:center;font-size:9px;'
-    +'color:var(--accent);opacity:'+(dir&&dir!=='orig'?'1':'0.25')+';margin-left:1px;">'
-    +(dir==='asc'?'↑':dir==='desc'?'↓':'')+'</span>';
+/* ── Indicador en cursor, no en texto ──────────────────────────
+   Usamos cursor para mostrar el estado: pointer siempre,
+   color del acento para la col activa. Sin tocar el textContent. */
+function _markSortable(els, activeIdx, dir) {
+  els.forEach(function(el, i) {
+    el.style.cursor = 'pointer';
+    el.style.textDecoration = (i===activeIdx && dir && dir!=='orig') ? 'underline' : '';
+    el.style.color = (i===activeIdx && dir && dir!=='orig') ? 'var(--accent)' : '';
+    el.title = i===activeIdx && dir==='asc' ? '↑ Ascendente (click para Descendente)'
+             : i===activeIdx && dir==='desc'? '↓ Descendente (click para Original)'
+             : 'Ordenar';
+  });
 }
 
-/* ══ SORT CARDS KPI — sobre CR_CARD_TABS[100] completo ══ */
-/* row: [lab,sub,bbg,bfg,banda, cr_u,cr_wow, val_pct,wow_pp, hist21,hist20] */
-/* span-idx → row-idx: Tráfico=2→5, Métrica=4→7 */
-var _KPI_RCOLS={2:5,4:7};
+/* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
+var _KPI_RCOLS = {2:5, 4:7}; /* span-header-idx → row-array-idx */
 
-function _kpiSortAttach(card,tkey,isEf,allRows100){
-  var panel=card.querySelector('[data-tab="'+tkey+'"]');
-  if(!panel) return;
-  var rc=panel.querySelector('.kpi-tab-rows');
-  if(!rc) return;
-  var hdr=rc.firstElementChild; if(!hdr) return;
-  var hspans=hdr.querySelectorAll('span');
-  var key=(card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
-  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+function _kpiSortAttach(card, tkey, isEf, allRows100) {
+  var panel = card.querySelector('[data-tab="'+tkey+'"]');
+  if (!panel) return;
+  var rc = panel.querySelector('.kpi-tab-rows');
+  if (!rc) return;
+  var hdr = rc.firstElementChild; if (!hdr) return;
+  var hspans = Array.from(hdr.querySelectorAll('span'));
+  var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  _markSortable(hspans, _SS[key].col, _SS[key].dir);
 
-  hspans.forEach(function(sp,i){
-    if(_KPI_RCOLS[i]==null) return;
-    sp.style.cursor='pointer'; sp.title='Ordenar';
-    _setArrow(sp, _SS[key].col===i?_SS[key].dir:null);
-    var newSp=sp.cloneNode(true);
-    newSp.setAttribute('data-sl',sp.getAttribute('data-sl')||'');
-    sp.parentNode.replaceChild(newSp,sp);
-    newSp.style.cursor='pointer';
-    newSp.addEventListener('click',function(){
-      var st=_SS[key];
-      var dir=(st.col===i)?_nd(st.dir):'asc';
-      _SS[key]={col:i,dir:dir};
-      var ri=_KPI_RCOLS[i];
-      var sorted=allRows100.slice(); /* copia de los 100 originales */
-      if(dir!=='orig'){
+  hspans.forEach(function(sp, i) {
+    if (_KPI_RCOLS[i] == null) return;
+    var newSp = sp.cloneNode(true);
+    sp.parentNode.replaceChild(newSp, sp);
+    newSp.style.cursor = 'pointer';
+    newSp.addEventListener('click', function() {
+      var st = _SS[key];
+      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      var ri = _KPI_RCOLS[i];
+      var sorted = allRows100.slice();
+      if (dir !== 'orig') {
         sorted.sort(function(a,b){
           var va=_sv(a[ri]),vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
@@ -1327,71 +1328,64 @@ function _kpiSortAttach(card,tkey,isEf,allRows100){
           return dir==='asc'?va-vb:vb-va;
         });
       }
-      var rowsHtml=sorted.slice(0,10).map(function(r,idx){return _cardRow(r,idx,isEf);}).join('');
-      rc.innerHTML=(hdr?hdr.outerHTML:'')+rowsHtml;
-      if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-      /* Re-enganchar con los 100 ORIGINALES siempre */
+      var rowsHtml = sorted.slice(0,10).map(function(r,idx){return _cardRow(r,idx,isEf);}).join('');
+      rc.innerHTML = (hdr ? hdr.outerHTML : '') + rowsHtml;
+      if (typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
       setTimeout(function(){_kpiSortAttach(card,tkey,isEf,allRows100);},15);
     });
   });
 }
 
-function _initAllSort(){
-  var mode=(typeof W!=='undefined')?W.mode:'cr';
-  var canasta=(typeof W!=='undefined')?(W.canasta||'global'):'global';
-  var TABS=(mode==='cr')?(typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
-                        :(typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
-  if(!TABS) return;
-  var tabs=TABS[canasta]||TABS['global']||{};
+function _initAllSort() {
+  var mode = (typeof W!=='undefined') ? W.mode : 'cr';
+  var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
+  var TABS = mode==='cr' ? (typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
+                         : (typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
+  if (!TABS) return;
+  var tabs = TABS[canasta] || TABS['global'] || {};
   ['ef','cv'].forEach(function(metric){
-    var isEf=metric==='ef';
-    var suffix=isEf?'-ef-':'-cv-';
+    var isEf = metric==='ef';
+    var suffix = isEf?'-ef-':'-cv-';
     ['destino','corp','hotel'].forEach(function(tkey){
-      var allRows=(tabs[metric]||{})[tkey]||[];
-      if(!allRows.length) return;
-      var radioEl=document.getElementById('tab'+suffix+tkey);
-      if(!radioEl) return;
-      var card=radioEl.closest('.kpi-card');
-      if(!card) return;
-      _kpiSortAttach(card,tkey,isEf,allRows);
+      var allRows = (tabs[metric]||{})[tkey]||[];
+      if (!allRows.length) return;
+      var radioEl = document.getElementById('tab'+suffix+tkey);
+      if (!radioEl) return;
+      var card = radioEl.closest('.kpi-card');
+      if (!card) return;
+      _kpiSortAttach(card, tkey, isEf, allRows);
     });
   });
 }
 
-/* ══ SORT CARDS AR — sobre origRows100 guardados por tbodyId ══ */
-/* origRows100: siempre los 100 del data source, NUNCA los ya ordenados */
-var _AR_ORIG={};  /* tbodyId → array 100 rows originales */
+/* ══ SORT CARDS AR — lee 100 rows directamente de data() en cada click ══ */
+/* th-idx → row-array-idx */
+var _AR_SORT_MAP = {2:4}; /* tráfico: th[2] → r[4] */
+/* métrica: th[4] → r[5] (card1) o r[6] (card2) — se calcula al enganchar */
 
-/* th-idx → row-array-idx: trafico=2→r[4], metrica=4→r[5 o 6] */
-function _arSort(n,tbodyId,btnId,rows100){
-  /* Guardar originales solo la primera vez o si vienen más rows */
-  if(!_AR_ORIG[tbodyId]||rows100.length>(_AR_ORIG[tbodyId]||[]).length){
-    _AR_ORIG[tbodyId]=rows100.slice();
-  }
-  var origRows=_AR_ORIG[tbodyId];
+function _arSortAttach(n, tbodyId, btnId) {
+  var tbody = document.getElementById(tbodyId); if (!tbody) return;
+  var table = tbody.closest('table'); if (!table) return;
+  var ths = Array.from(table.querySelectorAll('thead th'));
+  var key = tbodyId;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  var rmap = {2:4, 4:(n===1?5:6)};
+  _markSortable(ths, _SS[key].col, _SS[key].dir);
 
-  var tbody=document.getElementById(tbodyId); if(!tbody) return;
-  var table=tbody.closest('table'); if(!table) return;
-  var ths=table.querySelectorAll('thead th');
-  var key=tbodyId;
-  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
-  var rmap={2:4,4:(n===1?5:6)};
-
-  ths.forEach(function(th,i){
-    if(rmap[i]==null) return;
-    th.style.cursor='pointer'; th.title='Ordenar';
-    _setArrow(th,_SS[key].col===i?_SS[key].dir:null);
-    var newTh=th.cloneNode(true);
-    newTh.setAttribute('data-sl',th.getAttribute('data-sl')||'');
-    th.parentNode.replaceChild(newTh,th);
-    newTh.style.cursor='pointer';
-    newTh.addEventListener('click',function(){
-      var st=_SS[key];
-      var dir=(st.col===i)?_nd(st.dir):'asc';
-      _SS[key]={col:i,dir:dir};
-      var ri=rmap[i];
-      var sorted=origRows.slice(); /* siempre desde los 100 originales */
-      if(dir!=='orig'){
+  ths.forEach(function(th, i) {
+    if (rmap[i] == null) return;
+    var newTh = th.cloneNode(true);
+    th.parentNode.replaceChild(newTh, th);
+    newTh.style.cursor = 'pointer';
+    newTh.addEventListener('click', function() {
+      var st = _SS[key];
+      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
+      _SS[key] = {col:i, dir:dir};
+      /* Leer los 100 rows directamente del data source en el momento del click */
+      var allRows = _arRows(n, _arHTab[n]);
+      var ri = rmap[i];
+      var sorted = allRows.slice();
+      if (dir !== 'orig') {
         sorted.sort(function(a,b){
           var va=_sv(a[ri]),vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
@@ -1399,36 +1393,29 @@ function _arSort(n,tbodyId,btnId,rows100){
           return dir==='asc'?va-vb:vb-va;
         });
       }
-      /* Renderizar top 10 del sort */
-      ar_renderTable(n,tbodyId,btnId,sorted);
-      /* Re-enganchar CON LOS ORIGINALES — no con sorted */
-      setTimeout(function(){_arSort(n,tbodyId,btnId,origRows);},20);
+      ar_renderTable(n, tbodyId, btnId, sorted);
+      setTimeout(function(){_arSortAttach(n,tbodyId,btnId);},20);
     });
   });
 }
 
-/* Patch ar_renderTable — guardar origRows y enganchar sort */
-var _origART=ar_renderTable;
-ar_renderTable=function(n,tbodyId,btnId,rows){
-  _origART(n,tbodyId,btnId,rows);
-  /* Guardar como originales solo si vienen más rows que lo guardado */
-  if(!_AR_ORIG[tbodyId]||rows.length>(_AR_ORIG[tbodyId]||[]).length){
-    _AR_ORIG[tbodyId]=rows.slice();
-  }
-  setTimeout(function(){_arSort(n,tbodyId,btnId,_AR_ORIG[tbodyId]);},20);
+/* Patch ar_renderTable — enganchar sort después de cada render */
+var _origART = ar_renderTable;
+ar_renderTable = function(n, tbodyId, btnId, rows) {
+  _origART(n, tbodyId, btnId, rows);
+  setTimeout(function(){_arSortAttach(n, tbodyId, btnId);}, 20);
 };
 
-setTimeout(_initAllSort,1500);
-var _origSC_s=w22_setC;
-w22_setC=function(c,el){
+setTimeout(_initAllSort, 1500);
+var _origSC_s = w22_setC;
+w22_setC = function(c,el){
   _origSC_s(c,el);
-  /* Reset origenes al cambiar canasta — los datos cambian */
-  _AR_ORIG={};
-  setTimeout(_initAllSort,400);
+  _SS = {}; /* reset sort state al cambiar canasta */
+  setTimeout(_initAllSort, 400);
 };
-var _origSM_s=w22_setMode;
-w22_setMode=function(m,el){
+var _origSM_s = w22_setMode;
+w22_setMode = function(m,el){
   _origSM_s(m,el);
-  _AR_ORIG={};
-  setTimeout(_initAllSort,400);
+  _SS = {};
+  setTimeout(_initAllSort, 400);
 };
