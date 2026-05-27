@@ -270,7 +270,7 @@ function w22_bindCanvasTip(el,cid,cfg,pts){
 }
 function w22_redrawCanvas(accent){
  var rgb=RGB[accent]||'92,70,156';
- var hist=W.mode==='cr'?HIST_CR:{};
+ var hist=W.mode==='cr'?(typeof HIST_CR!=='undefined'?HIST_CR:{}):(typeof HIST_RND!=='undefined'?HIST_RND:{});
  Object.keys(hist).forEach(function(cid){
   var cfg=hist[cid],el=g(cid);if(!el||!el.getContext)return;
   el.width=el.offsetWidth||400;el.height=76;

@@ -100,11 +100,61 @@ def _extract_last_script(html):
 _cr_data_js  = _extract_last_script(p2_cr)
 _rnd_data_js = _extract_last_script(p2_rnd)
 
+# ── Pre-definir HIST_CR y HIST_RND con datos históricos ──────────────────────
+# Se inyectan ANTES de demo_js_main.js para que w22_redrawCanvas los encuentre
+from historico_data import HIST_DATA as _HD
+import json as _json
+
+def _hist_vals(mode, metric, canasta, actual_val=None):
+    """Retorna array de 5 valores [W17,W18,W19,W20,W21] para canvas."""
+    base = _HD.get(mode, {}).get(metric, {}).get(canasta, [])
+    if actual_val is not None and len(base) == 4:
+        return base + [actual_val]
+    return base
+
+# Cargar valores actuales del pickle para el 5° punto
+import pickle as _pkl
+with open(f'cr_w21_data.pkl', 'rb') as _f:
+    _D_cr = _pkl.load(_f)
+with open(f'rnd_w21_data.pkl', 'rb') as _f:
+    _D_rnd = _pkl.load(_f)
+
+_M_cr  = _D_cr.get('M', {})
+_M_rnd = _D_rnd.get('M', {})
+
+_HIST_CR_PY = {
+    'h-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-op-ef':     {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-op-cv':     {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-cug-ef':    {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-cug-cv':    {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-b2c-ef':    {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-b2c-cv':    {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+}
+
+_HIST_RND_PY = {
+    'hrnd-global-nd':  {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-global-ipm': {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-op-nd':      {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-op-ipm':     {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-cug-nd':     {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-cug-ipm':    {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-b2c-nd':     {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-b2c-ipm':    {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w21',{}).get('rpm',0),0)), 'target': 650.0},
+}
+
+_HIST_INIT_JS = (
+    f'var HIST_CR={_json.dumps(_HIST_CR_PY)};\n'
+    f'var HIST_RND={_json.dumps(_HIST_RND_PY)};\n'
+)
+
 FOOTER_JS = (
     '<style>\n' + open('/mnt/project/demo_css_w22.css', encoding='utf-8').read() + '\n</style>\n'
     + '<script>\n'
     + _cr_data_js + '\n'
     + _rnd_data_js + '\n'
+    + _HIST_INIT_JS + '\n'      # ← HIST_CR y HIST_RND definidos ANTES de demo_js_main.js
     + open('/mnt/project/demo_js_main.js', encoding='utf-8').read() + '\n'
     + open('/mnt/project/js_override.js', encoding='utf-8').read()
     + '\n</script>'
