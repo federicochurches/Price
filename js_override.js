@@ -1319,16 +1319,20 @@ function _kpiSortAttach(card, tkey, isEf, allRows100) {
       var dir = (st.col===i) ? _nd(st.dir) : 'asc';
       _SS[key] = {col:i, dir:dir};
       var ri = _KPI_RCOLS[i];
-      var sorted = allRows100.slice();
+      var sorted = allRows100.slice().map(function(r, origIdx){
+        return {r:r, origPos: origIdx+1};
+      });
       if (dir !== 'orig') {
         sorted.sort(function(a,b){
-          var va=_sv(a[ri]),vb=_sv(b[ri]);
+          var va=_sv(a.r[ri]),vb=_sv(b.r[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
           return dir==='asc'?va-vb:vb-va;
         });
       }
-      var rowsHtml = sorted.slice(0,10).map(function(r,idx){return _cardRow(r,idx,isEf);}).join('');
+      var rowsHtml = sorted.slice(0,10).map(function(item){
+        return _cardRow(item.r, item.origPos-1, isEf); /* idx-1 porque _cardRow hace idx+1 */
+      }).join('');
       rc.innerHTML = (hdr ? hdr.outerHTML : '') + rowsHtml;
       if (typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
       setTimeout(function(){_kpiSortAttach(card,tkey,isEf,allRows100);},15);
@@ -1392,20 +1396,22 @@ function _arSortAttach(n, tbodyId, btnId) {
           : _arDimRows(n, _arDim[n]);
         console.log('[sort] n='+n+' col='+colIdx+' ri='+rowIdx+' dir='+dir+' allRows='+allRows.length);
         /* Ordenar */
-        var sorted = allRows.slice();
+        var sorted = allRows.slice().map(function(r, origIdx){
+          return {r:r, origPos: origIdx+1}; /* guardar posición original 1-based */
+        });
         if (dir !== 'orig') {
           sorted.sort(function(a,b){
-            var va=_sv(a[rowIdx]), vb=_sv(b[rowIdx]);
+            var va=_sv(a.r[rowIdx]), vb=_sv(b.r[rowIdx]);
             if(va==null&&vb==null) return 0;
             if(va==null) return 1; if(vb==null) return -1;
             return dir==='asc' ? va-vb : vb-va;
           });
         }
-        /* Escribir top 10 directamente en tbody — sin pasar por patch */
+        /* Escribir top 10 con numeración original */
         var tbEl = document.getElementById(tbodyId);
         if (tbEl) {
-          tbEl.innerHTML = sorted.slice(0,10).map(function(r,idx){
-            return trow_ar(r, n, idx+1);
+          tbEl.innerHTML = sorted.slice(0,10).map(function(item){
+            return trow_ar(item.r, n, item.origPos);
           }).join('');
         }
         /* Re-enganchar */
