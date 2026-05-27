@@ -535,7 +535,7 @@ Sin `margin-left` — elimina el "guion fantasma".
 34. Olvidar cargar g_dest_w17 y g_channel_w17 de D — necesarios para WoW en dest_rows y chan_rows. Ver render_cr_p2.py líneas 33–36
 35. Renderizar trow() con 9 elementos (array sin wow_cr_str) — ahora es 11: [..., wow_ef_str, wow_cv_str, wow_cr_str]. r[10] accede a tráfico WoW
 36. No validar que labels de tabla coincidan con índices de trow() — colisión de columnas. th_labels_hotel debe ser 7: ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
-37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py` (ver `NOTA_REFACTOR_PENDIENTE.md`)
+37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py`. Usar `build_kpi_tab_panel()` para los loops de tab panels y `render_traf_line_cr/rnd()` para las líneas de tráfico. Cambiar top N visible → solo `KPI_TOP_N` en `render_helpers.py`
 38. Usar `ri < 5` en el searchbox filter de `asset_shared_head.html` — siempre `ri < 10` para mostrar el top 10 al resetear la búsqueda
 39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (100 rows) y renderizar el top 10 del resultado
 40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
@@ -543,6 +543,7 @@ Sin `margin-left` — elimina el "guion fantasma".
 42. Leer `ef_prev`/`cv_prev`/`ef_wow`/`cv_wow` de `HIST_CR` en `ar_updateKPIs` — estos valores deben venir de `CR_CV`/`RND_CV` (calculados en Python). HIST_CR tiene problemas de timing al cargar.
 43. Agregar `%` a `cdata.ef` o `cdata.cv` que ya lo traen — `cdata.ef = '93,15%'` ya incluye el signo.
 44. Usar `row.closest('tbody')` como único selector en el listener de click del histórico — los divs del Channel no tienen `<tbody>` padre. Usar `closest('tbody') || closest('[id$="-chan-div"]')`.
+45. Omitir `RND_CARD_TABS` en `render_rnd_p1.py` — es obligatorio igual que `CR_CARD_TABS` en `render_cr_p1.py`. Sin él el sort de las cards KPI RND no funciona. Usar `_KPI_RCOLS_RND = {2:4, 4:5}` (tráfico=r[4], métrica=r[5]) vs `_KPI_RCOLS_CR = {2:5, 4:7}`.
 
 ---
 
@@ -551,9 +552,9 @@ Sin `margin-left` — elimina el "guion fantasma".
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P9 | Refactor centralización CR/RND en `render_helpers.py` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta post-W21-post4** |
+| P10 | Refactor centralización CR/RND — `_chanRow`/`chanRowAR` duplicadas, `_build_rnd_card_tabs_json` duplica lógica de `_build_cr_card_tabs_json` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta** |
 
-> Bugs P1-P4, P6-P8 cerrados en sesiones W21/W21-post.
+> Bugs P1–P4, P6–P9 cerrados.
 
 ---
 
@@ -571,21 +572,27 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 Producto Propio: DerbySoft · Internal · HBSI · SynXis · Siteminder · Travelclick · Omnibees
 Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ```
-- Channels sin datos de la semana → "sin actividad" con `opacity:0.45`
-- Orden: peor eficacia primero → inactivos al final
-- Mismo catálogo en KPI cards y AR cards — definido en Python
+- Channels sin datos → "sin actividad" `opacity:0.45` · Orden: peor eficacia primero → inactivos al final
+- Mismo catálogo en KPI cards y AR cards
+
+### RND_CARD_TABS · Estructura (W21-post5)
+
+```
+RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
+  canasta: global / b2c / op / cug
+  metric:  nd / ipm
+  tkey:    destino / corp / hotel
+  row:     [lab, bbg, bfg, banda, traf(r[4]), val(r[5]), wow_pp(r[6]), None, '—','—','—', hist21, hist20]
+```
 
 ### CR_CV / RND_CV · Keys disponibles (W21-post4)
 
 ```python
-# CR_CV[canasta]
 'ef', 'cv',           # valores actuales con %
 'ef_prev', 'cv_prev', # semana anterior con %
 'ef_wow', 'cv_wow',   # delta pp (float)
 'band', 'bbg', 'bfg', 'band_cv', 'bbg_cv', 'bfg_cv',
-'col',                # color canasta
-'vol', 'trafico',     # "746K", "746.111"
-'traf_wow',           # delta % tráfico (float)
+'col', 'vol', 'trafico', 'traf_wow'
 ```
 
 ### Regla de clasificación
@@ -602,7 +609,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W21-post4 (Channel + bugs post-publicación + ef_prev en CR_CV) · Mayo 2026
+**Última actualización:** W21-post5 (RND_CARD_TABS + sort RND + pipeline W21 con datasets reales) · Mayo 2026
 
 ---
 
