@@ -6,3 +6,17 @@ desktop.ini
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Pickles (datos intermedios)
+*.pkl
+
+# Excels legacy (formato _7d) — solo se admiten Analisis_*_WNN.xlsx y Dataset_*_WNN.xlsx
+Analisis_*_7d*.xlsx
+Analisis_Rates_NoDispo_*_7d*.xlsx
+Analisis_Checkrates_*_7d*.xlsx
+
+# Datasets sueltos en raíz (deben estar en checkrates/ o rates-nodispo/)
+/Dataset_*.xlsx
+/data_set_*.xlsx
+/Week*.xlsx
+/Week-*.xlsx

@@ -479,3 +479,297 @@ def searchbox_header_html(input_id, accent_color='#5C469C', placeholder='Buscar�
         f'</div>'
         f'</div>'
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# REFACTOR P9 · Helpers centralizados CR+RND · W22
+# Objetivo: un cambio en top_n o en la estructura de fila → 1 sola línea aquí
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Constante única de top N visible ────────────────────────────────────────────
+KPI_TOP_N = 10   # ← único lugar donde cambiar el top visible
+
+
+def render_traf_wow_pill_pct(pct_delta, font_size='8px'):
+    """Pill WoW de tráfico expresado como % de cambio.
+
+    pct_delta : float — variación porcentual (ej. +12.3 o -5.8)
+    Usado para tráfico CR (CR_Unicos_WoW_pp ya viene escalado ×100 en pp,
+    pero como % de cambio sobre el volumen anterior).
+    """
+    import math
+    if pct_delta is None or (isinstance(pct_delta, float) and (math.isnan(pct_delta) or math.isinf(pct_delta))):
+        return f'<span style="color:var(--ink-muted);font-size:10px;">—</span>'
+    delta = float(pct_delta)
+    if abs(delta) < 0.01:
+        return f'<span style="color:var(--ink-muted);font-size:10px;">—</span>'
+    arrow = '▲' if delta > 0 else '▼'
+    bg    = '#EAF3DE' if delta > 0 else '#FCE8E6'
+    fg    = '#2F6C34' if delta > 0 else '#C0392B'
+    txt   = f'{arrow}{abs(delta):.1f}%'.replace('.', ',')
+    return (f'<em style="font-style:normal;font-size:{font_size};font-weight:700;'
+            f'padding:1px 4px;border-radius:3px;background:{bg};color:{fg};white-space:nowrap;">{txt}</em>')
+
+
+def render_traf_wow_pill_abs(abs_delta, font_size='8px'):
+    """Pill WoW de tráfico expresado como delta absoluto (para CR_Unicos_WoW_pp / 100)."""
+    import math
+    if abs_delta is None or (isinstance(abs_delta, float) and (math.isnan(abs_delta) or math.isinf(abs_delta))):
+        return f'<span style="color:var(--ink-muted);font-size:10px;">—</span>'
+    delta = float(abs_delta)
+    if abs(delta) < 0.5:
+        return f'<span style="color:var(--ink-muted);font-size:10px;">—</span>'
+    arrow = '▲' if delta > 0 else '▼'
+    bg    = '#EAF3DE' if delta > 0 else '#FCE8E6'
+    fg    = '#2F6C34' if delta > 0 else '#C0392B'
+    txt   = f'{arrow}{fmt_int_es(int(abs(delta)))}'
+    return (f'<em style="font-style:normal;font-size:{font_size};font-weight:700;'
+            f'padding:1px 4px;border-radius:3px;background:{bg};color:{fg};white-space:nowrap;">{txt}</em>')
+
+
+def render_traf_line_cr(cr_current, cr_prev=None):
+    """Línea 'Tráfico: 746.111 ↑pill' para cards CR.
+
+    cr_current : int/float — CR Únicos semana actual
+    cr_prev    : int/float o None — CR Únicos semana anterior (para WoW %)
+    """
+    pill = ''
+    if cr_prev and float(cr_prev) > 0:
+        pct = (float(cr_current) - float(cr_prev)) / float(cr_prev) * 100
+        pill = render_traf_wow_pill_pct(pct)
+    return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;'
+            f'font-size:10px;color:var(--ink-muted);">'
+            f'<span style="color:var(--ink-soft);">'
+            f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> '
+            f'{fmt_int_es(int(cr_current))}</span>'
+            f'{pill}</div>')
+
+
+def render_traf_line_rnd(trafico_current, trafico_prev=None):
+    """Línea 'Tráfico: 12,2B ↑pill' para cards RND."""
+    pill = ''
+    if trafico_prev and float(trafico_prev) > 0:
+        pct = (float(trafico_current) - float(trafico_prev)) / float(trafico_prev) * 100
+        pill = render_traf_wow_pill_pct(pct)
+    return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;'
+            f'font-size:10px;color:var(--ink-muted);">'
+            f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> '
+            f'{fmt_big(trafico_current)}'
+            f'{pill}</div>')
+
+
+def _resolve_label(r, t_key, index_cols=None):
+    """Extrae (raw_lab, lab, corp_sub) de un row según t_key.
+
+    t_key: 'hotel' | 'corp' | 'destino' | 'pais' | 'canasta' | str
+    Centraliza la lógica de etiquetado que estaba duplicada 4× en los p1.
+    """
+    _corp_sub = ''
+    cols = index_cols or (r.index if hasattr(r, 'index') else [])
+    if t_key == 'hotel':
+        raw_lab = str(r['Hotel'])
+        lab     = truncate(clean_hotel_name(raw_lab), 38)
+        _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in cols else ''
+    elif t_key == 'corp':
+        raw_lab = str(r['CorpName'])
+        lab     = truncate(clean_corp_name(raw_lab), 36)
+    elif t_key == 'destino':
+        raw_lab = str(r['Destino'])
+        lab     = clean_destino_name(raw_lab, 36)
+    elif t_key == 'pais':
+        raw_lab = str(r['PaisDestino'])
+        lab     = clean_pais_name(raw_lab, max_len=30)
+    elif t_key == 'canasta':
+        raw_lab = str(r['Canasta'])
+        lab     = raw_lab
+    else:
+        # fallback genérico
+        raw_lab = str(r.get(t_key, t_key))
+        lab     = truncate(raw_lab, 32)
+    return raw_lab, lab, _corp_sub
+
+
+def build_kpi_tab_rows(df_t, t_key, cfg):
+    """Genera el HTML de filas para un panel de tab de KPI card.
+
+    Parámetros
+    ----------
+    df_t    : DataFrame ya filtrado y ordenado para este tab
+    t_key   : str — 'hotel', 'corp', 'destino', 'pais', 'canasta'
+    cfg     : dict con claves:
+        val_col       str  — nombre de la columna de la métrica principal
+        val_fmt       fn   — función de formato del valor (ej. fmt_pct2)
+        hist_scale    fn   — transforma val → float para data-hist-w21
+                             ej. lambda v: round(v*100, 4)   (para %)
+                             ej. lambda v: round(v, 2)        (para IPM $)
+        hist_prev_col str  — columna del valor anterior (para data-hist-w20)
+        banda_fn      fn   — función de banda (ej. banda_eficacia)
+        banda_col     str  — columna pre-calculada de banda (o '' para calcular)
+        traf_col      str  — columna de tráfico (ej. 'CR_Unicos', 'Trafico')
+        traf_fmt      fn   — función de formato del tráfico
+        traf_wow_col  str  — columna de WoW del tráfico
+        traf_wow_type str  — 'abs' | 'pct'  (cómo interpretar traf_wow_col)
+        wow_col       str  — columna de WoW de la métrica (ej. 'Eficacia_WoW_pp')
+        wow_is_pos    bool — True si subir = mejorar (Eficacia, ConvRate, IPM)
+                             False si bajar = mejorar (NoDispo)
+        grid_cols     str  — grid-template-columns (ej. 'minmax(0,1fr) 80px 56px 52px 54px 48px')
+        top_n         int  — filas visibles (default: KPI_TOP_N)
+        val_prefix    str  — prefijo del valor formateado (ej. '$' para IPM)
+
+    Devuelve (top_html, rest_html) — filas visibles y ocultas separadas,
+    para que el caller decida si agrega header y cómo.
+    """
+    import math as _math
+    top_n      = cfg.get('top_n', KPI_TOP_N)
+    val_col    = cfg['val_col']
+    val_fmt    = cfg['val_fmt']
+    hist_scale = cfg.get('hist_scale', lambda v: round(float(v) * 100, 4))
+    hist_prev  = cfg.get('hist_prev_col', '')
+    banda_fn   = cfg.get('banda_fn', None)
+    banda_col  = cfg.get('banda_col', '')
+    traf_col   = cfg.get('traf_col', '')
+    traf_fmt   = cfg.get('traf_fmt', fmt_int_es)
+    traf_wow_c = cfg.get('traf_wow_col', '')
+    traf_wow_t = cfg.get('traf_wow_type', 'pct')   # 'abs' | 'pct'
+    wow_col    = cfg.get('wow_col', '')
+    wow_is_pos = cfg.get('wow_is_pos', True)
+    grid_cols  = cfg['grid_cols']
+    val_prefix = cfg.get('val_prefix', '')
+
+    top_html = rest_html = ''
+
+    for i, r in df_t.iterrows():
+        raw_lab, lab, corp_sub = _resolve_label(r, t_key)
+
+        # Valor principal
+        val = r.get(val_col)
+        try:
+            _val_f = float(val)
+            if _math.isnan(_val_f) or _math.isinf(_val_f):
+                val = None
+        except (TypeError, ValueError):
+            val = None
+        val_str = (val_prefix + val_fmt(val)) if val is not None else '—'
+
+        # Banda + badge
+        _bnd = ''
+        if banda_col and banda_col in r.index:
+            _bnd = r[banda_col]
+        if not _bnd and val is not None and banda_fn:
+            _bnd = banda_fn(val)
+        bc   = BANDA_COLORS.get(_bnd, BANDA_COLORS['Sin Conversión'])
+        badge = (f'<span class="sev-badge" style="background:{bc["bg"]};color:{bc["fg"]};">'
+                 f'{_bnd}</span>')
+
+        # Datos históricos
+        _hist_w21 = hist_scale(val) if val is not None else 0
+        _hist_w20 = _hist_w21
+        if hist_prev:
+            _prev_raw = r.get(hist_prev)
+            try:
+                _pf = float(_prev_raw)
+                if not _math.isnan(_pf) and not _math.isinf(_pf):
+                    _hist_w20 = hist_scale(_pf)
+            except (TypeError, ValueError):
+                pass
+
+        # Tráfico
+        traf_str = '—'
+        if traf_col:
+            _tv = r.get(traf_col)
+            try:
+                _tvf = float(_tv)
+                if not _math.isnan(_tvf):
+                    traf_str = traf_fmt(int(_tvf))
+            except (TypeError, ValueError):
+                pass
+
+        # WoW tráfico
+        traf_wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
+        if traf_wow_c:
+            _tw = r.get(traf_wow_c)
+            try:
+                _twf = float(_tw)
+                if not _math.isnan(_twf) and not _math.isinf(_twf):
+                    if traf_wow_t == 'abs':
+                        traf_wow_pill = render_traf_wow_pill_abs(_twf / 100)
+                    else:
+                        traf_wow_pill = render_traf_wow_pill_pct(_twf)
+            except (TypeError, ValueError):
+                pass
+
+        # WoW métrica
+        wow_pill = ''
+        if wow_col and t_key not in ('canasta',):
+            _wv = r.get(wow_col)
+            try:
+                _wvf = float(_wv)
+                if not _math.isnan(_wvf) and not _math.isinf(_wvf):
+                    wow_pill = make_wow_pill_row(_wvf, is_mejora_si_positivo=wow_is_pos)
+                else:
+                    wow_pill = '<em class="wow-pill nd">—</em>'
+            except (TypeError, ValueError):
+                wow_pill = '<em class="wow-pill nd">—</em>'
+
+        # Visibilidad
+        _cls = '' if i < top_n else 'sb-hidden'
+
+        _row = (
+            f'<div class="{_cls}" data-row-idx="{i}"'
+            f' data-hist-w21="{_hist_w21}" data-hist-w20="{_hist_w20}" data-hist-label="{raw_lab}"'
+            f' style="display:grid;grid-template-columns:{grid_cols};align-items:center;gap:6px;'
+            f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);'
+            f'cursor:pointer;transition:background .12s;">'
+            f'<div style="min-width:0;overflow:hidden;">'
+            f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
+            f'overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+            + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;'
+               f'overflow:hidden;text-overflow:ellipsis;display:block;">{corp_sub}</span>'
+               if corp_sub else '')
+            + f'</div>'
+            f'<div style="display:flex;align-items:center;justify-content:flex-start;'
+            f'min-width:0;overflow:hidden;">{badge}</div>'
+            f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
+            f'font-variant-numeric:tabular-nums;white-space:nowrap;">{traf_str}</span>'
+            f'<div style="text-align:right;white-space:nowrap;">{traf_wow_pill}</div>'
+            f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
+            f'font-variant-numeric:tabular-nums;white-space:nowrap;">{val_str}</span>'
+            f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
+            f'</div>'
+        )
+
+        if i < top_n:
+            top_html += _row
+        else:
+            rest_html += _row
+
+    return top_html, rest_html
+
+
+def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
+    """Construye el <div class="tab-panel"> completo para un tab de KPI card.
+
+    Si t_key no es 'channel' ni 'canasta', agrega el tab_column_header.
+    Devuelve el string HTML del panel.
+
+    panel_tabs_spec : dict con claves opcionales:
+        'headers' : list[str] — encabezados de columna
+        'widths'  : str       — grid-template-columns para el header
+    Por defecto se infieren de cfg['grid_cols'] + cfg['col_labels'].
+    """
+    if t_key == 'channel':
+        # El canal se maneja externamente (split PP/TP) — devolver vacío
+        # El caller es responsable de construir el panel de canal
+        return ''
+
+    top_html, rest_html = build_kpi_tab_rows(df_t, t_key, cfg)
+
+    if t_key != 'canasta' and panel_tabs_spec:
+        headers = panel_tabs_spec.get('headers', [])
+        widths  = panel_tabs_spec.get('widths', cfg['grid_cols'])
+        _hdr = tab_column_header(headers, widths) if headers else ''
+        panel_html = f'<div class="kpi-tab-rows">{_hdr}{top_html}</div>{rest_html}'
+    else:
+        panel_html = top_html + rest_html
+
+    return f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'

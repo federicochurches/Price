@@ -355,6 +355,37 @@ index_path = OUTPUTS / 'index.html'
 index_path.write_text(index_html, encoding='utf-8')
 print(f'✅ index.html generado · {len(index_html):,} chars')
 
+# ── Copiar Excels canónicos al repo (para que Netlify los sirva vía links del HTML) ─
+_cr_excel_src  = OUTPUTS / f'Analisis_CheckRates_W{WEEK}.xlsx'
+_rnd_excel_src = OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx'
+_cr_excel_dst  = PROJECT / 'checkrates'   / WEEK_STR / f'Analisis_CheckRates_W{WEEK}.xlsx'
+_rnd_excel_dst = PROJECT / 'rates-nodispo' / WEEK_STR / f'Analisis_RatesNoDispo_W{WEEK}.xlsx'
+_cr_excel_dst.parent.mkdir(parents=True, exist_ok=True)
+_rnd_excel_dst.parent.mkdir(parents=True, exist_ok=True)
+for _src, _dst, _label in [
+    (_cr_excel_src,  _cr_excel_dst,  'Analisis_CheckRates'),
+    (_rnd_excel_src, _rnd_excel_dst, 'Analisis_RatesNoDispo'),
+]:
+    if _src.exists():
+        shutil.copy2(_src, _dst)
+        print(f'✅ {_label}_W{WEEK}.xlsx → repo/{_dst.relative_to(PROJECT)}')
+    else:
+        print(f'⚠️  FALTA: {_src.name} (generar con excel_cr.py / excel_rnd.py primero)')
+
+# Limpiar excels legacy en las carpetas de la semana actual (solo dejar los canónicos)
+_legacy_patterns = [
+    f'Analisis_Checkrates_7d.xlsx', f'Analisis_Checkrates_OP_7d.xlsx',
+    f'Analisis_Checkrates_B2C_7d.xlsx', f'Analisis_Checkrates_CUG_7d.xlsx',
+    f'Analisis_Rates_NoDispo_7d.xlsx', f'Analisis_Rates_NoDispo_OP_7d.xlsx',
+    f'Analisis_Rates_NoDispo_B2C_7d.xlsx', f'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+]
+for _folder in [PROJECT / 'checkrates' / WEEK_STR, PROJECT / 'rates-nodispo' / WEEK_STR]:
+    for _pattern in _legacy_patterns:
+        _f = _folder / _pattern
+        if _f.exists():
+            _f.unlink()
+            print(f'🗑️  Eliminado legacy: {_f.name}')
+
 
 # ── Generar archivo de seguimiento para la próxima semana ────────────────────
 SEGUIMIENTO_ITEMS_RND = [

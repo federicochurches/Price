@@ -6,7 +6,71 @@
 
 ---
 
-## 📝 Sesión W21-post4 · Mayo 2026 · Channel + Bugs post-publicación
+## 📝 Sesión W22-pre · Mayo 2026 · Refactor P9 + Fix Sort KPI
+
+### Contexto
+Sesión de pre-pipeline antes de recibir los datasets W22. No se corrió pipeline. Dos tareas ejecutadas: (1) refactor de centralización CR/RND documentado en `NOTA_REFACTOR_PENDIENTE.md`, (2) fix del sort en las cards KPI principales.
+
+### Cambios aplicados
+
+#### Refactor P9 — Centralización CR/RND en `render_helpers.py`
+
+**Problema raíz:** el bloque `for i, r in df_t.iterrows()` con toda la lógica de rows KPI se repetía 4 veces (Eficacia, ConvRate en CR · NoDispo, IPM en RND). Cualquier cambio visual requería tocar 4 archivos.
+
+**Solución:** extraer a `render_helpers.py`:
+
+| Función/Constante | Descripción |
+|---|---|
+| `KPI_TOP_N = 10` | Único punto de control del top N visible |
+| `render_traf_wow_pill_pct(delta)` | Pill WoW de tráfico como % |
+| `render_traf_wow_pill_abs(delta)` | Pill WoW de tráfico como delta absoluto |
+| `render_traf_line_cr(curr, prev)` | Línea "Tráfico: 746.111 ↑pill" CR |
+| `render_traf_line_rnd(curr, prev)` | Línea "Tráfico: 12,2B ↑pill" RND |
+| `_resolve_label(r, t_key)` | Extrae `(raw_lab, lab, corp_sub)` según t_key |
+| `build_kpi_tab_rows(df_t, t_key, cfg)` | Genera HTML de filas — corazón del refactor |
+| `build_kpi_tab_panel(df_t, t_key, cfg, spec)` | Construye `<div class="tab-panel">` completo |
+
+**Reducción de código:**
+- `render_cr_p1.py`: 791 → 653 líneas (−138)
+- `render_rnd_p1.py`: 538 → 458 líneas (−80)
+- `render_helpers.py`: 481 → 775 líneas (+294 de funciones nuevas)
+
+**Nota de diseño:** tabs `channel` y `canasta` conservan lógica ad-hoc (channel tiene split PP/TP con grid diferente; canasta no tiene WoW por fila). `build_kpi_tab_panel` devuelve `''` para `t_key='channel'`, delegando al caller.
+
+#### Fix Sort KPI — 3 bugs corregidos en `js_override.js`
+
+**Bug 1 — Sort RND nunca se enganchaba (crítico):**
+`_initAllSort` solo iteraba `['ef','cv']` buscando IDs `tab-ef-*` y `tab-cv-*`. Las cards KPI de RND usan `tab-nd-*` y `tab-rpm-*`. `RND_CARD_TABS` no existe como variable JS. Resultado: el sort nunca se enganchaba en las cards NoDispo e IPM.
+Fix: `_initAllSort` ahora bifurca por `W.mode`. Para RND itera `['nd','rpm']` y busca los IDs correctos. Si `RND_CARD_TABS` no existe, el sort opera sobre el DOM estático de Python (sin re-render JS).
+
+**Bug 2 — Grid incorrecto en ConvRate post-sort:**
+`_cardRow` hardcodeaba `minmax(0,1fr) 80px 56px 52px 54px 48px` (grid de Eficacia) para todas las cards. ConvRate usa `68px 40px` en la última columna.
+Fix: `_cardRow` acepta parámetro `grid` opcional. Se agrega `_KPI_GRID = {ef, cv, nd, ipm}`. `_kpiSortAttach` y `w22_renderCardTabs` pasan el grid correcto por métrica.
+
+**Bug 3 — `_injectHistAttrs` con args incorrectos:**
+Post-sort llamaba `window._injectHistAttrs(card)` — elemento DOM en lugar de `(tbodyId, rows)`. Fix: eliminada la llamada incorrecta; los `data-hist-*` los inyecta directamente `_cardRow` en cada `<div>`.
+
+**Fix adicional en `w22_renderCardTabs`:**
+El guard al preservar el header: ahora verifica `!header.hasAttribute('data-row-idx')` antes de usar `header.outerHTML`, evitando que un row de datos sea tratado como header.
+
+### Root causes documentados
+
+| Bug | Causa | Fix |
+|---|---|---|
+| Sort RND sin efecto | `_initAllSort` no conocía IDs `tab-nd-*`/`tab-rpm-*` + `RND_CARD_TABS` undefined | Bifurcar por modo + buscar IDs RND correctos |
+| ConvRate desalineada post-sort | `_cardRow` hardcodeaba grid de Eficacia | Pasar `grid` como parámetro desde `_KPI_GRID` |
+| `_injectHistAttrs` silencioso | Se llamaba con `(card)` en lugar de `(tbodyId, rows)` | Eliminar llamada; `_cardRow` inyecta attrs directamente |
+
+### Archivos modificados esta sesión
+`render_helpers.py` · `render_cr_p1.py` · `render_rnd_p1.py` · `js_override.js` · `PROMPT_CORE.md` · `NOTA_REFACTOR_PENDIENTE.md` · `HISTORIAL_SESIONES.md`
+
+### Pendiente para W22
+- Pipeline W21 con los archivos actualizados (commit pendiente)
+- `RND_CARD_TABS`: evaluar si conviene generarlo desde `render_rnd_p1.py` (análogo a `CR_CARD_TABS`) para que el sort RND tenga re-render JS completo, no solo DOM estático
+
+---
+
+
 
 ### Contexto
 Sesión de fixes sobre el reporte W21 ya publicado en Netlify. No se recibieron nuevos datasets. El pipeline **no se re-corrió** al cierre — HTML publicado refleja todos los cambios (commit 7d8e12e).
