@@ -343,12 +343,37 @@ document.addEventListener('click', function(e) {
 # Script para vincular pestañas de hotel con datos
 TAB_BINDING_JS = '''
 (function() {
-    var tabMap = {
-        0: { dataKey: 'hotels_crit' },
-        1: { dataKey: 'hotels_br' },
-        2: { dataKey: 'hotels_sc' },
-        3: { dataKey: 'hotels_cv' }
-    };
+    /* Mapa de pestañas por modo */
+    var tabMapCR  = [
+        { dataKey: 'hotels_crit' },
+        { dataKey: 'hotels_br'   },
+        { dataKey: 'hotels_sc'   },
+        { dataKey: 'hotels_cv'   }
+    ];
+    var tabMapRND = [
+        { dataKey: 'hotels_dnc' },
+        { dataKey: 'hotels_br'  },
+        { dataKey: 'hotels_sc'  }
+    ];
+    
+    function getRows(idx) {
+        var mode = (typeof W !== 'undefined') ? W.mode : 'cr';
+        var canasta = (typeof W !== 'undefined') ? (W.canasta || 'global') : 'global';
+        if (mode === 'rnd') {
+            var d = (typeof RND_D !== 'undefined') ? (RND_D[canasta] || RND_D.global || {}) : {};
+            var key = (tabMapRND[idx] || tabMapRND[0]).dataKey;
+            return d[key] || d.hotels || [];
+        } else {
+            /* CR: usar CR_HOTELS para tabs filtrados */
+            if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS[canasta]) {
+                var key = (tabMapCR[idx] || tabMapCR[0]).dataKey;
+                return CR_HOTELS[canasta][key] || CR_HOTELS.global[key] || [];
+            }
+            var d2 = (typeof CR_D !== 'undefined') ? (CR_D[canasta] || CR_D.global || {}) : {};
+            var key2 = (tabMapCR[idx] || tabMapCR[0]).dataKey;
+            return d2[key2] || d2.hotels || [];
+        }
+    }
     
     function initTabs() {
         var ph = document.getElementById('w22-ph');
@@ -356,30 +381,34 @@ TAB_BINDING_JS = '''
         var labels = ph.querySelectorAll('label');
         if (!labels.length) return;
         
-        // Inicializar tabla con Críticos
-        if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS.global && CR_HOTELS.global.hotels_crit) {
-            w22_renderTable('w22-th', 'w22-th-more', CR_HOTELS.global.hotels_crit, false);
-        }
+        /* Cargar tab inicial */
+        var rows0 = getRows(0);
+        if (rows0.length) w22_renderTable('w22-th', 'w22-th-more', rows0, false);
         
-        // Vincular clicks
+        /* Vincular clicks */
         labels.forEach(function(label, idx) {
             label.addEventListener('click', function() {
                 labels.forEach(function(l) { l.classList.remove('active'); });
                 label.classList.add('active');
-                if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS.global) {
-                    var rows = CR_HOTELS.global[tabMap[idx].dataKey] || [];
-                    if (rows.length) w22_renderTable('w22-th', 'w22-th-more', rows, false);
-                }
+                var rows = getRows(idx);
+                if (rows.length) w22_renderTable('w22-th', 'w22-th-more', rows, false);
             });
         });
     }
     
-    // Ejecutar una vez después de que todo el DOM esté listo
+    /* Re-inicializar cuando cambia el modo CR ↔ RND */
+    document.addEventListener('mode-changed', function() {
+        setTimeout(initTabs, 50);
+    });
+    
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function(){ setTimeout(initTabs, 50); });
     } else {
         setTimeout(initTabs, 50);
     }
+    
+    /* Exponer para que w22_setMode pueda reinicializar */
+    window._reinitTabs = initTabs;
 })();
 '''
 

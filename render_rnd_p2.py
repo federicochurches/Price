@@ -69,7 +69,7 @@ def build_hotel_row_rnd(row):
         wow_ipm_str = '—'
     else:
         wow_ipm_str = wow_arrow(wow_ipm_pp)
-    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str]
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, '—']
 
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
@@ -195,7 +195,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             wow_up = None; wow_str = '—'
         else:
             wow_up = bool(wow_pp <= 0); wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—'])
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', '—'])
 
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows
@@ -227,7 +227,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             wow_ipm = '—'
             if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
                 wow_ipm = wow_arrow(wow_ipm_pp)
-            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm])
+            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, '—'])
 
     # Pais rows
     pais_rows = []
@@ -246,7 +246,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             bbg, bfg = banda_colors(banda)
             traf  = es_int(row.get('Trafico', 0))
             pais_rows.append([pais_name, bbg, bfg, banda, traf,
-                              es_pct(nd_r), es_ipm(ipm_r), None, '—', '—'])
+                              es_pct(nd_r), es_ipm(ipm_r), None, '—', '—', '—'])
 
     # Plan
     owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
@@ -421,14 +421,20 @@ def render_severity():
 # ── Análisis de Rendimiento ───────────────────────────────────────────────────
 def render_analisis():
     def table_html(tbody_id, btn_id, th_labels, dim_id=None):
+        colwidths = ['', '90px', '72px', '72px', '72px', '120px']
+        colgroup = ''.join(
+            f'<col style="width:{colwidths[i]}">' if i < len(colwidths) and colwidths[i] else '<col>'
+            for i in range(len(th_labels))
+        )
         cols = ''.join(
-            f'<th style="padding:8px 8px 8px {"12px" if i==0 else "8px"};'
+            f'<th style="padding:8px {"6px" if i>0 else "12px"} 8px {"6px" if i>0 else "12px"};'
             f'border-bottom:2px solid #EA0074;font-size:10px;font-weight:700;'
-            f'text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);'
-            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};">'
+            f'text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);'
+            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};white-space:nowrap;">'
             f'{"<span id=\""+dim_id+"\">Corporativo</span>" if dim_id and i==0 else lbl}</th>'
             for i, lbl in enumerate(th_labels))
         return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+                f'<colgroup>{colgroup}</colgroup>'
                 f'<thead><tr>{cols}</tr></thead>'
                 f'<tbody id="{tbody_id}"></tbody></table>'
                 f'<div style="text-align:center;margin-top:10px;">'
@@ -437,8 +443,8 @@ def render_analisis():
                 f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
                 f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
-    th_h = ['Hotel', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
-    th_d = ['Corporativo', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
+    th_h = ['Hotel', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW ND/IPM']
+    th_d = ['Dimensión', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW ND/IPM']
 
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>

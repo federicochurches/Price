@@ -7,20 +7,77 @@ function cv(){return W.mode==='cr'?CR_CV[W.canasta]:RND_CV[W.canasta];}
 function data(){return W.mode==='cr'?CR_D[W.canasta]:RND_D[W.canasta];}
 function al(){return W.mode==='cr'?CR_AL[W.canasta]:RND_AL[W.canasta];}
 
+/* trow — genera HTML de fila según W.mode (cr: 11 elem, rnd: 10 elem) */
 function trow(r){
  var wb=r[7]===null?'#F2EEE6':(r[7]?'#EAF3DE':'#FCE8E6');
  var wf=r[7]===null?'#8A8377':(r[7]?'#2F6C34':'#C0392B');
+ var nameCell='<td style="padding:8px 0 8px 12px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>';
+ var badgeCell='<td style="padding:8px 6px;text-align:center;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
+ var td=function(v,extra){return '<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;'+(extra||'')+'">'+v+'</td>';};
+ var pill=function(v,bg,fg){return v&&v!=='—'?'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(bg||'#F0F0F0')+';color:'+(fg||'#666')+';white-space:nowrap;">'+v+'</em>':'<span style="color:var(--ink-muted);font-size:10px;">—</span>';};
+ 
+ if(W.mode==='rnd'){
+  /* RND: [0]nombre [1]bbg [2]bfg [3]banda [4]tráfico [5]%nodispo [6]ipm [7]wow_up [8]wow_nd_str [9]wow_ipm_str [10]'—' */
+  var wowNd  = r[8]||'—';
+  var wowIpm = r[9]||'—';
+  return '<tr style="border-bottom:1px solid var(--rule-soft);">'
+   +nameCell+badgeCell
+   +td(r[4])+td(r[5])+td(r[6])
+   +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;">'
+   +pill(wowNd, wb, wf)
+   +'<span style="display:inline-block;width:4px;"></span>'
+   +pill(wowIpm, '#EBF5F7', '#0369A1')
+   +'</td>'
+   +'<td style="padding:8px 8px 8px 6px;text-align:right;"></td>'
+   +'</tr>';
+ }
+ 
+ /* CR: [0]nombre [1]bbg [2]bfg [3]banda [4]CR [5]eficacia [6]convrate [7]wow_up [8]wow_ef [9]wow_cv [10]wow_trafico */
  var cr10=r[10]||'—';
  var cr10html=cr10==='—'?'<span style="color:var(--ink-muted)">—</span>':'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:#EBF5F7;color:#0369A1;white-space:nowrap;">'+cr10+'</em>';
  return '<tr style="border-bottom:1px solid var(--rule-soft);">'
-  +'<td style="padding:8px 0 8px 12px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+r[0]+'</td>'
-  +'<td style="padding:8px 6px;text-align:center;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>'
-  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[4]+'</td>'
-  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[5]+'</td>'
-  +'<td style="padding:8px 6px;text-align:right;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;">'+r[6]+'</td>'
-  +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;"><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+wb+';color:'+wf+';white-space:nowrap;margin-right:3px;">'+(r[8]||'—')+'</em><em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#F0F0F0;color:#666;white-space:nowrap;">'+(r[9]||'—')+'</em></td>'
+  +nameCell+badgeCell
+  +td(r[4])+td(r[5])+td(r[6])
+  +'<td style="padding:8px 6px;text-align:right;white-space:nowrap;">'
+  +pill(r[8]||'—', wb, wf)
+  +'<span style="display:inline-block;width:3px;"></span>'
+  +pill(r[9]||'—', '#F0F0F0', '#666')
+  +'</td>'
   +'<td style="padding:8px 8px 8px 6px;text-align:right;white-space:nowrap;">'+cr10html+'</td>'
   +'</tr>';
+}
+
+/* Actualizar headers de tabla según modo */
+function w22_updateTableHeaders(){
+ var modeCR = W.mode === 'cr';
+ var hh = modeCR
+  ? ['Hotel','Banda','Tráfico','Eficacia','Conv Rate','WoW Ef/CV','Tráfico WoW']
+  : ['Hotel','Banda','Tráfico','%NoDispo','IPM','WoW ND/IPM',''];
+ var dh = modeCR
+  ? ['Dimensión','Banda','Tráfico','Eficacia','Conv Rate','WoW Ef/CV','Tráfico WoW']
+  : ['Dimensión','Banda','Tráfico','%NoDispo','IPM','WoW ND/IPM',''];
+
+ [['#w22-ph thead tr', hh], ['#w22-pd thead tr', dh]].forEach(function(pair){
+  var tr = document.querySelector(pair[0]);
+  if(!tr) return;
+  var cells = tr.querySelectorAll('th');
+  pair[1].forEach(function(lbl,i){
+   if(!cells[i]) return;
+   /* Última columna: ocultar en RND, mostrar en CR */
+   if(i === 6){
+    cells[i].style.display = modeCR ? '' : 'none';
+    cells[i].textContent = lbl;
+   } else {
+    cells[i].style.display = '';
+    cells[i].textContent = lbl;
+   }
+  });
+ });
+ 
+ /* Ocultar/mostrar la 7ma <col> del colgroup */
+ document.querySelectorAll('#w22-ph colgroup col:last-child, #w22-pd colgroup col:last-child').forEach(function(col){
+  col.style.display = modeCR ? '' : 'none';
+ });
 }
 
 function w22_renderTable(tbodyId, btnId, rows, open){
@@ -104,13 +161,18 @@ function w22_update(){
   el.style.color=a?col:'';el.style.background=a?'var(--paper)':'';
  });
 
- /* Tablas */
- var hotel_rows = d.hotels_crit || d.hotels || [];
+ /* Tablas — usar hotels_crit (CR) o hotels_dnc (RND) como tab inicial */
+ var hotel_rows = W.mode==='rnd'
+   ? (d.hotels_dnc || d.hotels || [])
+   : (d.hotels_crit || d.hotels || []);
  w22_renderTable('w22-th','w22-th-more',hotel_rows,false);
  /* Renderizar dimensión activa (por defecto corp) */
  var dim_key = W.dim || 'corp';
  var dim_data = d[dim_key+'s'] || d.dims || [];
  w22_renderTable('w22-td','w22-td-more',dim_data,false);
+ 
+ /* Actualizar headers de tabla según modo */
+ w22_updateTableHeaders();
 
  /* RE + Alertas + Plan */
  w22_renderRE(false);
@@ -167,6 +229,9 @@ function w22_setMode(m, el){
  });
  var gc=g('chip-global');if(gc)gc.classList.add('active');
  w22_update();
+ /* Reiniciar tabs y disparar evento para TAB_BINDING */
+ if(typeof window._reinitTabs==='function') setTimeout(window._reinitTabs, 80);
+ document.dispatchEvent(new CustomEvent('mode-changed', {detail:{mode:m}}));
 }
 
 function w22_setC(c,el){
@@ -176,6 +241,7 @@ function w22_setC(c,el){
  });
  el.classList.add('active');
  w22_update();
+ if(typeof window._reinitTabs==='function') setTimeout(window._reinitTabs, 80);
 }
 function w22_setView(v){
  W.view=v;
