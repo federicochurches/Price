@@ -271,8 +271,7 @@ function w22_iTab(el){
 
 /* Recolorear spark bars del histórico y todos los elementos de acento */
 function w22_recolorSparks(accent){
- var rgb={'#333132':'51,49,50','#EA0074':'234,0,116','#FCB000':'252,176,0','#4FC3F4':'79,195,244','#1A6B4A':'26,107,74'};
- var accentRgb=rgb[accent]||'92,70,156';
+ var accentRgb=RGB[accent]||'92,70,156';
  
  /* IDs de spark containers para las cards KPI activas */
  var sparkIds = W.mode==='cr'
@@ -314,10 +313,17 @@ function w22_recolorSparks(accent){
   var fnCv = window['histRedraw_hcr-global-cv'];
   if(typeof fnEf === 'function') setTimeout(function(){fnEf(accent, efVals);}, 20);
   if(typeof fnCv === 'function') setTimeout(function(){fnCv(accent, cvVals);}, 20);
+ } else if(W.mode==='rnd' && typeof HIST_RND_BY_CANASTA !== 'undefined') {
+  var ndVals  = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].nd  ? HIST_RND_BY_CANASTA[canasta].nd.vals  : null;
+  var ipmVals = HIST_RND_BY_CANASTA[canasta] && HIST_RND_BY_CANASTA[canasta].ipm ? HIST_RND_BY_CANASTA[canasta].ipm.vals : null;
+  var fnNd  = window['histRedraw_hrnd-global-nd'];
+  var fnIpm = window['histRedraw_hrnd-global-ipm'];
+  if(typeof fnNd  === 'function') setTimeout(function(){fnNd(accent, ndVals);},  20);
+  if(typeof fnIpm === 'function') setTimeout(function(){fnIpm(accent, ipmVals);}, 20);
  }
 }
 /* Canvas */
-var RGB={'#333132':'51,49,50','#EA0074':'234,0,116','#FCB000':'252,176,0','#4FC3F4':'79,195,244','#1A6B4A':'26,107,74'};
+var RGB={'#333132':'51,49,50','#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0','#4FC3F4':'79,195,244','#1A6B4A':'26,107,74'};
 /* Tooltip state */
 var W22_CANVAS_PTS={};
 var W22_CANVAS_CFG={};
@@ -366,25 +372,7 @@ var HIST_MODULE_CANVAS = {
   'hrnd-global-nd': true, 'hrnd-global-ipm': true
 };
 
-/* Datos históricos por canasta para las cards KPI CR */
-var HIST_CR_BY_CANASTA = (typeof HIST_CR !== 'undefined') ? {
-  global: {
-    ef: HIST_CR['hcr-global-ef'] || HIST_CR['h-global-ef'],
-    cv: HIST_CR['hcr-global-cv'] || HIST_CR['h-global-cv']
-  },
-  b2c: {
-    ef: HIST_CR['h-b2c-ef'] || HIST_CR['hcr-global-ef'],
-    cv: HIST_CR['h-b2c-cv'] || HIST_CR['hcr-global-cv']
-  },
-  op: {
-    ef: HIST_CR['h-op-ef'] || HIST_CR['hcr-global-ef'],
-    cv: HIST_CR['h-op-cv'] || HIST_CR['hcr-global-cv']
-  },
-  cug: {
-    ef: HIST_CR['h-cug-ef'] || HIST_CR['hcr-global-ef'],
-    cv: HIST_CR['h-cug-cv'] || HIST_CR['hcr-global-cv']
-  }
-} : {};
+/* Datos históricos por canasta — inyectados desde Python como HIST_CR_BY_CANASTA y HIST_RND_BY_CANASTA */
 
 function w22_redrawCanvas(accent){
  var rgb=RGB[accent]||'92,70,156';

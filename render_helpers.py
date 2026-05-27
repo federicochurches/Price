@@ -330,7 +330,7 @@ def tab_column_header(cols, widths):
     )
     return (
         f'<div style="display:grid;grid-template-columns:{widths};'
-        f'gap:10px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+        f'gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
         f'{spans}</div>'
     )
 

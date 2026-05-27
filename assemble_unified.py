@@ -152,9 +152,49 @@ _HIST_RND_PY = {
     'hrnd-b2c-ipm':    {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w21',{}).get('rpm',0),0)), 'target': 650.0},
 }
 
+_HIST_CR_BY_CANASTA_PY = {
+    'global': {
+        'ef':  _HIST_CR_PY.get('hcr-global-ef'),
+        'cv':  _HIST_CR_PY.get('hcr-global-cv'),
+    },
+    'b2c': {
+        'ef':  _HIST_CR_PY.get('h-b2c-ef'),
+        'cv':  _HIST_CR_PY.get('h-b2c-cv'),
+    },
+    'op': {
+        'ef':  _HIST_CR_PY.get('h-op-ef'),
+        'cv':  _HIST_CR_PY.get('h-op-cv'),
+    },
+    'cug': {
+        'ef':  _HIST_CR_PY.get('h-cug-ef'),
+        'cv':  _HIST_CR_PY.get('h-cug-cv'),
+    },
+}
+
+_HIST_RND_BY_CANASTA_PY = {
+    'global': {
+        'nd':  _HIST_RND_PY.get('hrnd-global-nd'),
+        'ipm': _HIST_RND_PY.get('hrnd-global-ipm'),
+    },
+    'b2c': {
+        'nd':  _HIST_RND_PY.get('hrnd-b2c-nd'),
+        'ipm': _HIST_RND_PY.get('hrnd-b2c-ipm'),
+    },
+    'op': {
+        'nd':  _HIST_RND_PY.get('hrnd-op-nd'),
+        'ipm': _HIST_RND_PY.get('hrnd-op-ipm'),
+    },
+    'cug': {
+        'nd':  _HIST_RND_PY.get('hrnd-cug-nd'),
+        'ipm': _HIST_RND_PY.get('hrnd-cug-ipm'),
+    },
+}
+
 _HIST_INIT_JS = (
     f'var HIST_CR={_json.dumps(_HIST_CR_PY)};\n'
     f'var HIST_RND={_json.dumps(_HIST_RND_PY)};\n'
+    f'var HIST_CR_BY_CANASTA={_json.dumps(_HIST_CR_BY_CANASTA_PY)};\n'
+    f'var HIST_RND_BY_CANASTA={_json.dumps(_HIST_RND_BY_CANASTA_PY)};\n'
 )
 
 FOOTER_JS = (
