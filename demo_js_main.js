@@ -216,6 +216,8 @@ function w22_update(){
  /* Canvas */
  w22_redrawCanvas(col);
  w22_recolorSparks(col);
+ /* Re-aplicar con delay para que los IIFE del módulo histórico estén listos */
+ setTimeout(function(){ w22_recolorSparks(cv().col); }, 200);
 }
 
 function w22_setMode(m, el){
@@ -443,7 +445,7 @@ function w22_redrawCanvas(accent){
 }
 
 w22_update();
-[100,400,900].forEach(function(d){setTimeout(function(){var col=cv().col;w22_redrawCanvas(col);w22_recolorSparks(col);},d);});
+[100,400,900,1500].forEach(function(d){setTimeout(function(){var col=cv().col;w22_redrawCanvas(col);w22_recolorSparks(col);},d);});
 window.addEventListener('resize',function(){setTimeout(function(){w22_redrawCanvas(cv().col);},100);});
 /* Tooltip en canvas del IIFE W21 */
 setTimeout(function(){

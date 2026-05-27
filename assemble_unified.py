@@ -310,12 +310,17 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  /* Highlight fila seleccionada */
-  row.setAttribute('data-selected', '1');
-  row.style.background = 'var(--accent-soft)';
-
   /* Obtener color de la canasta activa */
   var accent = (typeof cv === 'function') ? cv().col : '#5C469C';
+  var accentAlpha = accent === '#333132' ? 'rgba(51,49,50,0.07)' :
+                    accent === '#EA0074' ? 'rgba(234,0,116,0.07)' :
+                    accent === '#FCB000' ? 'rgba(252,176,0,0.10)' :
+                    accent === '#4FC3F4' ? 'rgba(79,195,244,0.10)' :
+                    'rgba(92,70,156,0.07)';
+
+  /* Highlight fila seleccionada con color de canasta */
+  row.setAttribute('data-selected', '1');
+  row.style.background = accentAlpha;
 
   /* Disparar hist-update para el canvas del panel */
   document.dispatchEvent(new CustomEvent('hist-update', {
@@ -532,15 +537,19 @@ SHARED_CONTAINERS = f'''
   </div>
   <div style="padding-top:14px;">
     <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-      <colgroup><col style="width:auto"/><col style="width:85px"/><col style="width:65px"/><col style="width:65px"/><col style="width:52px"/><col style="width:65px"/><col style="width:52px"/></colgroup>
+      <colgroup>
+        <col/><col style="width:100px"/><col style="width:64px"/><col style="width:44px"/>
+        <col style="width:68px"/><col style="width:44px"/><col style="width:84px"/><col style="width:44px"/>
+      </colgroup>
       <thead><tr style="border-bottom:2px solid var(--accent);">
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:6px 0 6px 12px;">Hotel</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:center;padding:6px 4px;">Severity</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-th-col3">Tráfico</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-th-col4">Eficacia</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;">WoW</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-th-col5">ConvRate</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 12px 6px 4px;">WoW</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:6px 0 6px 12px;" id="w22-th-lbl-hotel">Hotel</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:6px 4px;">Severity</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col3">Tráfico</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col4">Eficacia</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-th-col5">Conv Rate</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px 6px 2px;">WoW↕</th>
       </tr></thead>
       <tbody id="w22-th"></tbody>
     </table>
@@ -559,15 +568,19 @@ SHARED_CONTAINERS = f'''
     {SB_PANEL_TD}
   </div>
   <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-    <colgroup><col style="width:auto"/><col style="width:85px"/><col style="width:65px"/><col style="width:65px"/><col style="width:52px"/><col style="width:65px"/><col style="width:52px"/></colgroup>
+    <colgroup>
+      <col/><col style="width:100px"/><col style="width:64px"/><col style="width:44px"/>
+      <col style="width:68px"/><col style="width:44px"/><col style="width:84px"/><col style="width:44px"/>
+    </colgroup>
     <thead><tr style="border-bottom:2px solid var(--accent);">
         <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:6px 0 6px 12px;" id="w22-th-dim">Corporativo</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:center;padding:6px 4px;">Severity</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-td-col3">Tráfico</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-td-col4">Eficacia</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;">WoW</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px;" id="w22-td-col5">ConvRate</th>
-        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 12px 6px 4px;">WoW</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:6px 4px;">Severity</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col3">Tráfico</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col4">Eficacia</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 2px;">WoW↕</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 4px;" id="w22-td-col5">ConvRate</th>
+        <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:6px 8px 6px 2px;">WoW↕</th>
       </tr></thead>
     <tbody id="w22-td"></tbody>
   </table>
