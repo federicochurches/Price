@@ -897,7 +897,7 @@ function ar_setHotelTab(n, tab, el) {
   if (ph) ph.querySelectorAll('.tab-label').forEach(function(l){ l.classList.remove('tab-label-active'); });
   if (el) { el.classList.add('tab-label-active'); }
   var rows = _arRows(n, tab);
-  w22_renderTable('ar'+n+'-th', 'ar'+n+'-th-more', rows, false);
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
 }
 
 /* Cambiar dimensión de una card */
@@ -907,7 +907,7 @@ function ar_setDim(n, dim) {
   var lbl = document.getElementById('ar'+n+'-td-lbl');
   if (lbl) lbl.textContent = dimLabelMap[dim] || 'Corporativo';
   var drows = _arDimRows(n, dim);
-  w22_renderTable('ar'+n+'-td', 'ar'+n+'-td-more', drows, false);
+  ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
 }
 
 /* Actualizar etiquetas de las cards según modo CR/RND */
