@@ -246,18 +246,17 @@ w22_setMode = function(m, el) {
   /* Actualizar estado */
   W.mode = m; W.canasta = 'global'; W.reOpen = false;
 
-  /* Segmented control */
-  var modeCol = m==='cr' ? '#5C469C' : '#EA0074';
+  /* Segmented control — siempre negro independiente del modo */
   var seg = document.querySelector('.w22-seg');
-  if(seg){ seg.style.border='1.5px solid '+modeCol; seg.style.borderRadius='4px'; }
+  if(seg){ seg.style.border=''; seg.style.borderRadius=''; } /* usar CSS base */
   var btns = document.querySelectorAll('.w22-seg-btn');
   btns.forEach(function(b,i){
     b.classList.remove('on');
     b.style.background=''; b.style.color='';
-    if(i===0) b.style.borderRight='1.5px solid '+modeCol;
+    if(i===0) b.style.borderRight=''; /* usar CSS base */
   });
   el.classList.add('on');
-  el.style.background = modeCol; el.style.color = '#fff';
+  el.style.background = ''; el.style.color = ''; /* dejar que CSS .on lo maneje */
 
   /* Accent CSS global */
   var root = document.documentElement;

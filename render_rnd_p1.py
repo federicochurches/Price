@@ -442,11 +442,12 @@ def _build_rnd_card_tabs_json():
             ('corp',    TAB_NoDispo['corp'],    TAB_RPM['corp']),
             ('hotel',   TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
         ]:
+            _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
             df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(100)
             nd_tab = []
             for _, r in df_nd_s.iterrows():
-                lab  = str(r.get('Destino', r.get('CorpName', r.get('Hotel', '?'))))[:60]
+                lab  = str(r.get(_name_col, '?'))[:60]
                 nd   = r.get('%NoDispo', 0)
                 traf = r.get('Trafico', 0)
                 wow  = r.get('NoDispo_WoW_pp', None)
@@ -468,7 +469,7 @@ def _build_rnd_card_tabs_json():
             df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(100)
             ipm_tab = []
             for _, r in df_ipm_s.iterrows():
-                lab  = str(r.get('Destino', r.get('CorpName', r.get('Hotel', '?'))))[:60]
+                lab  = str(r.get(_name_col, '?'))[:60]
                 ipm  = r.get('IPM', r.get('RPM', 0))
                 traf = r.get('Trafico', 0)
                 wow  = r.get('IPM_WoW_pp', None)
