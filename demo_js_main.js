@@ -186,16 +186,17 @@ function w22_update(){
  /* Sincronizar barra local de Análisis de Rendimiento */
  (function(){
   var accent_col = col;
-  /* Switcher local AR — mismo comportamiento que w22-seg */
+  /* Switcher local AR — color fijo del modo, no de la canasta */
+  var modeCol = W.mode==='cr' ? '#5C469C' : '#EA0074';
   var arSeg = g('ar-seg');
-  if(arSeg) arSeg.style.border = '1.5px solid ' + accent_col;
+  if(arSeg) arSeg.style.border = '1.5px solid ' + modeCol;
   ['ar-btn-cr','ar-btn-rnd'].forEach(function(id){
    var btn = g(id); if(!btn) return;
    var isCurrent = (id === 'ar-btn-'+W.mode);
    btn.classList.toggle('on', isCurrent);
-   btn.style.background = isCurrent ? accent_col : '';
+   btn.style.background = isCurrent ? modeCol : '';
    btn.style.color = isCurrent ? '#fff' : '';
-   if(id==='ar-btn-cr') btn.style.borderRight = '1.5px solid ' + accent_col;
+   if(id==='ar-btn-cr') btn.style.borderRight = '1.5px solid ' + modeCol;
   });
   /* Chips canasta AR — misma lógica que el loop de .c-chip */
   ['global','b2c','op','cug'].forEach(function(c){
