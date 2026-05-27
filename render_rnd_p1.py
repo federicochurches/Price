@@ -437,6 +437,7 @@ def _build_rnd_card_tabs_json():
         # (por canasta usaría filtros adicionales — por ahora global)
         nd_rows, ipm_rows = [], []
         for t_key, df_nd, df_ipm in [
+            ('pais',    TAB_NoDispo['pais'],    TAB_RPM['pais']),
             ('destino', TAB_NoDispo['destino'], TAB_RPM['destino']),
             ('corp',    TAB_NoDispo['corp'],    TAB_RPM['corp']),
             ('hotel',   TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
