@@ -724,6 +724,37 @@ document.addEventListener('click', function(e) {
   }
 });
 /* ── w22_renderCardTabs — re-renderiza los tabs de las cards KPI CR por canasta ── */
+/* ── w22_renderRNDCardTabs — re-renderiza los tabs de las cards KPI RND por canasta ── */
+function w22_renderRNDCardTabs(canasta) {
+  var RND_TABS = (typeof RND_CARD_TABS !== 'undefined') ? RND_CARD_TABS : null;
+  if (!RND_TABS) return;
+  var tabs = RND_TABS[canasta] || RND_TABS['global'] || {};
+  var grids = { 'nd': 'minmax(0,1fr) 76px 52px 44px 54px 36px', 'ipm': 'minmax(0,1fr) 76px 52px 44px 54px 36px' };
+  var hdrs  = { 'nd': ['Severity','Tráfico','WoW','%NoDispo','WoW'], 'ipm': ['Severity','Tráfico','WoW','IPM','WoW'] };
+  var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
+  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+  ['nd','ipm'].forEach(function(metric) {
+    var tabPrefix = metric === 'nd' ? 'nd' : 'rpm';
+    ['pais','destino','corp','hotel'].forEach(function(tkey) {
+      var allRows = ((tabs[metric]||{})[tkey])||[];
+      if (!allRows.length) return;
+      var radioEl = document.getElementById('tab-'+tabPrefix+'-'+tkey);
+      if (!radioEl) return;
+      var card = radioEl.closest('.kpi-card'); if (!card) return;
+      var panel = card.querySelector('[data-tab="'+tkey+'"]'); if (!panel) return;
+      var kpiRows = panel.querySelector('.kpi-tab-rows'); if (!kpiRows) return;
+      var grid = grids[metric];
+      var hdrSpans = '<span></span>' + hdrs[metric].map(function(h){
+        return '<span style="'+(h==='Severity'?_ll:_lr)+'">'+h+'</span>';
+      }).join('');
+      var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'+hdrSpans+'</div>';
+      var isEf = (metric === 'nd');
+      var rowsHtml = allRows.slice(0,10).map(function(r,idx){ return _cardRow(r, idx, isEf, grid); }).join('');
+      kpiRows.innerHTML = hdrHtml + rowsHtml;
+    });
+  });
+}
+
 function _fmtInt(n){ if(n==null) return '—'; return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
 function _fmtPct(n){ if(n==null) return '—'; return n.toFixed(2).replace('.',',')+'%'; }
 function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);font-size:10px;">—</span>':'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+v+'</em>'; }

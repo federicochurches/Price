@@ -226,9 +226,11 @@ function w22_update(){
  /* Actualizar headers de tabla según modo */
  w22_updateTableHeaders();
  
- /* Re-renderizar cards KPI CR con datos de la canasta activa */
+ /* Re-renderizar cards KPI según modo */
  if(W.mode === 'cr' && typeof w22_renderCardTabs === 'function') {
    w22_renderCardTabs(W.canasta || 'global');
+ } else if(W.mode === 'rnd' && typeof w22_renderRNDCardTabs === 'function') {
+   w22_renderRNDCardTabs(W.canasta || 'global');
  }
 
  /* RE + Alertas + Plan */
