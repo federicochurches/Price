@@ -492,13 +492,13 @@ GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANE
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
-SWITCHER = f'''<div style="padding-top:20px;">
+SWITCHER = f'''<div style="padding-top:10px;">
 <div class="w22-seg">
   <button class="w22-seg-btn on" id="mode-cr" onclick="w22_setMode('cr',this)">CheckRates</button>
   <button class="w22-seg-btn" id="mode-rnd" onclick="w22_setMode('rnd',this)">Rates No Dispo</button>
 </div>
 </div>
-<div id="w22-filter-wrap" style="margin-top:16px;">
+<div id="w22-filter-wrap" style="margin-top:8px;">
 <div class="cfb">
   <div class="cfb-lbl">Canasta</div>
   <div class="cfb-chips">
