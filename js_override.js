@@ -883,10 +883,14 @@ function _arRenderChan(n) {
     var wowNum = (wow_pp!=null && !isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
     var w20num = (wow_pp!=null && !isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
     var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+nombre+'" data-hist-card="'+n+'"';
-    return '<div '+histAttrs+' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
-      +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
-      +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
-      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
+    var isInactive = banda === 'Sin Actividad';
+    var rowStyle = isInactive
+      ? 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+      : 'display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+    return '<div '+histAttrs+' style="'+rowStyle+'">'
+      +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
+      +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink-muted);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
       +'<div style="text-align:right;">'+mw+'</div>'
       +'</div>';
   }

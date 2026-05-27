@@ -348,7 +348,28 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             else:
                 chans_pp.append(r)
 
-    # Plan de acción (4 items hardcodeados con owners reales)
+    # Catálogo canónico — channels que siempre deben aparecer
+    CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+    CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    
+    # Row vacío para channels sin actividad esta semana
+    def _inactive_row(name):
+        return [name, '#F2EEE6', '#8A8377', 'Sin Actividad',
+                '—', '—', '—', None, '—', '—', '—']
+    
+    # Detectar nombres presentes (normalizado)
+    pp_names = set(r[0] for r in chans_pp)
+    tp_names = set(r[0] for r in chans_tp)
+    
+    # Completar PP con faltantes
+    for name in CATALOG_PP:
+        if not any(name.lower() in n.lower() for n in pp_names):
+            chans_pp.append(_inactive_row(name))
+    
+    # Completar TP con faltantes
+    for name in CATALOG_TP:
+        if not any(name.lower() in n.lower() for n in tp_names):
+            chans_tp.append(_inactive_row(name))
     owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
     plan = []
     if len(df_crit_top):
