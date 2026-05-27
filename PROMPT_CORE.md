@@ -349,20 +349,66 @@ kpis-hero { margin: 6px 0 12px; }   /* antes 12px 0 16px */
 `outer_bg` siempre `var(--paper-soft)` — tanto global como canastas — para garantizar contraste de las celdas internas.
 **Nunca hardcodear 'W20'/'W19' en llamadas a `wow_box()`.**
 
-### Tablas KPI cards · Grid
+### Scoping de acento por sección (asset_supply_head.html)
+
+```css
+.section-cr  { --accent: #5C469C; --accent-soft: #EDE8F7; }  /* violet */
+.section-rnd { --accent: #EA0074; --accent-soft: #FCE4F1; }  /* magenta */
+```
+
+### Cards AR · Colores complementarios
 
 ```
-RND cards:  minmax(0,1fr) 76px 54px 36px
-CR cards:   según cols_def (Severity 90px)
+Card 1 (Ef/NoDispo):  --accent de la sección (violet CR · magenta RND)
+Card 2 (CV/IPM):      band_cv / bbg_cv / bfg_cv — banda SEPARADA de card 1
+Switcher CR/RND:      color fijo del modo (violet/magenta), no cambia con canasta
+Canasta global:       #333132 gris
+Canasta b2c:          #EA0074 magenta
+Canasta op:           #FCB000 amber
+Canasta cug:          #4FC3F4 cyan
 ```
+
+### Formato tráfico · Canónico
+
+Siempre: `<strong>Tráfico:</strong> {valor}` — label bold primero, número después.
+Aplica en: cards KPI globales (CR+RND), cards AR, subhead hero RND.
+- CR: `fmt_int_es(cr_unicos)` → `746.111`
+- RND: `fmt_big(trafico)` → `12,2B`
 
 ### Tablas grandes (hotel + dim) · HTML table pattern
 
 Las tablas de "Análisis por hotel" y "Análisis por dimensión" usan **HTML `<table>` con `table-layout:fixed`**.
 
-**Colwidths calibrados (contenedor ~1168px):**
-- RND hotel/dim (7 cols): `[800, 80, 65, 58, 50, 52, 50]`
-- CR hotel (8 cols): `[800, 60, 56, 48, 50, 52, 50, 52]`
+**Colwidths calibrados — cards AR (assemble_unified.py · 6 cols):**
+`<col/>` (fill) · `90px` · `60px` · `42px` · `76px` · `42px`
+Columnas: Nombre · Severity · Tráfico · WoW · Métrica · WoW
+
+**Colwidths calibrados — tablas p2 (render_cr_p2 / render_rnd_p2 · 8 cols):**
+`['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']`
+
+### Grids cards KPI globales (tab panels)
+
+```
+CR Eficacia:   minmax(0,1fr) 80px 56px 52px 54px 48px
+CR ConvRate:   minmax(0,1fr) 80px 56px 52px 68px 40px
+RND NoDispo:   minmax(0,1fr) 76px 52px 44px 54px 36px
+RND IPM:       minmax(0,1fr) 76px 52px 44px 54px 36px
+```
+Orden: Nombre · Severity · Tráfico · WoW · Métrica · WoW
+
+### Sort por columna · Columnas ordenables
+
+```
+Cards KPI (_KPI_RCOLS):  { 2: 5, 4: 7 }
+  th[2] = Tráfico  → r[5] en CR_CARD_TABS
+  th[4] = Métrica  → r[7] en CR_CARD_TABS
+
+Cards AR (rmap):         { 2: 4, 4: (n===1?5:6) }
+  th[2] = Tráfico  → r[4] en CR_D/RND_D
+  th[4] = Métrica  → r[5] (card1 Ef/ND) · r[6] (card2 CV/IPM)
+```
+Estructura row `CR_CARD_TABS`: `[lab, sub, bbg, bfg, banda, cr_u, cr_wow, val_pct, wow_pp, hist21, hist20]`
+Estructura row `CR_D/RND_D`:   `[nombre, bbg, bfg, banda, trafico_str, metrica1_str, metrica2_str, ...]`
 
 ### Canastas · Grids reducidos (caben en 2 columnas ~570px)
 
