@@ -533,18 +533,18 @@ SHARED_CONTAINERS = f'''
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
 </div></div>
 
-<!-- Barra de controles local: una sola .cfb con Reporte + Canasta + KPIs -->
+<!-- Switcher CR/RND — mismo componente w22-seg que el de las cards -->
+<div style="margin-bottom:4px;">
+  <div class="w22-seg" id="ar-seg">
+    <button class="w22-seg-btn on" id="ar-btn-cr"
+      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">CheckRates</button>
+    <button class="w22-seg-btn" id="ar-btn-rnd"
+      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Rates No Dispo</button>
+  </div>
+</div>
+<!-- Barra de canastas — misma .cfb que la barra de cards, con IDs ar-* -->
 <div id="ar-filter-wrap" style="margin-bottom:16px;">
 <div class="cfb">
-  <div class="cfb-lbl">Reporte</div>
-  <div class="cfb-chips" style="flex:none;">
-    <div class="ar-mode-chip" id="ar-btn-cr"
-      onclick="w22_setMode('cr',document.getElementById('mode-cr'))"
-      style="display:flex;align-items:center;padding:0 22px;height:46px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);transition:all .15s;white-space:nowrap;user-select:none;background:#5C469C;color:#fff;">CheckRates</div>
-    <div class="ar-mode-chip" id="ar-btn-rnd"
-      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))"
-      style="display:flex;align-items:center;padding:0 22px;height:46px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);transition:all .15s;white-space:nowrap;user-select:none;color:var(--ink-muted);">Rates No Dispo</div>
-  </div>
   <div class="cfb-lbl">Canasta</div>
   <div class="cfb-chips">
     <div class="c-chip active" id="ar-chip-global" onclick="w22_setC('global',document.getElementById('chip-global'))">Global</div>

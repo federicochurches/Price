@@ -186,17 +186,25 @@ function w22_update(){
  /* Sincronizar barra local de Análisis de Rendimiento */
  (function(){
   var accent_col = col;
-  /* Botones Reporte CR/RND — fondo sólido como el switcher */
+  /* Switcher local AR — mismo comportamiento que w22-seg */
+  var arSeg = g('ar-seg');
+  if(arSeg) arSeg.style.border = '1.5px solid ' + accent_col;
   ['ar-btn-cr','ar-btn-rnd'].forEach(function(id){
    var btn = g(id); if(!btn) return;
    var isCurrent = (id === 'ar-btn-'+W.mode);
+   btn.classList.toggle('on', isCurrent);
    btn.style.background = isCurrent ? accent_col : '';
-   btn.style.color = isCurrent ? '#fff' : 'var(--ink-muted)';
+   btn.style.color = isCurrent ? '#fff' : '';
+   if(id==='ar-btn-cr') btn.style.borderRight = '1.5px solid ' + accent_col;
   });
-  /* Chips de canasta */
+  /* Chips canasta AR — misma lógica que el loop de .c-chip */
   ['global','b2c','op','cug'].forEach(function(c){
    var chip = g('ar-chip-'+c); if(!chip) return;
-   chip.classList.toggle('active', c === (W.canasta||'global'));
+   var isCurrent = c === (W.canasta||'global');
+   chip.classList.toggle('active', isCurrent);
+   chip.style.borderBottomColor = isCurrent ? accent_col : 'transparent';
+   chip.style.color = isCurrent ? accent_col : '';
+   chip.style.background = isCurrent ? 'var(--paper)' : '';
   });
   /* KPIs inline de la barra AR — mismos valores que la barra principal */
   var lbl1 = g('ar-strip-lbl1'), lbl2 = g('ar-strip-lbl2');
