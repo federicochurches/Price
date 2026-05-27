@@ -1371,63 +1371,75 @@ function _arSortAttach(n, tbodyId, btnId) {
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
   var rmap = {2:4, 4:(n===1?5:6)};
   _markSortable(ths, _SS[key].col, _SS[key].dir);
-
-  /* Determinar si este tbody es de hotel o de dimensión */
   var isHotelTbody = tbodyId === 'ar'+n+'-th';
-
-  /* Función que devuelve los 100 rows del source correcto */
-  function _getSource() {
-    if (isHotelTbody) {
-      return _arRows(n, _arHTab[n]);
-    } else {
-      return _arDimRows(n, _arDim[n]);
-    }
-  }
 
   ths.forEach(function(th, i) {
     if (rmap[i] == null) return;
     var newTh = th.cloneNode(true);
     th.parentNode.replaceChild(newTh, th);
     newTh.style.cursor = 'pointer';
-    newTh.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col===i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      var allRows = _getSource(); /* 100 rows del source correcto */
-      console.log('[sort] tbodyId='+tbodyId+' allRows='+allRows.length+' dir='+dir+' ri='+ri);
-      var ri = rmap[i];
-      var sorted = allRows.slice();
-      if (dir !== 'orig') {
-        sorted.sort(function(a,b){
-          var va=_sv(a[ri]),vb=_sv(b[ri]);
-          if(va==null&&vb==null) return 0;
-          if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc'?va-vb:vb-va;
-        });
-      }
-      ar_renderTable(n, tbodyId, btnId, sorted);
-      setTimeout(function(){_arSortAttach(n,tbodyId,btnId);},20);
-    });
+    /* IIFE para capturar i correctamente */
+    (function(colIdx){
+      var rowIdx = rmap[colIdx];
+      newTh.addEventListener('click', function() {
+        /* Leer estado actual */
+        var st = _SS[key];
+        var dir = (st.col===colIdx) ? _nd(st.dir) : 'asc';
+        _SS[key] = {col:colIdx, dir:dir};
+        /* Obtener todos los rows del source */
+        var allRows = isHotelTbody
+          ? _arRows(n, _arHTab[n])
+          : _arDimRows(n, _arDim[n]);
+        console.log('[sort] n='+n+' col='+colIdx+' ri='+rowIdx+' dir='+dir+' allRows='+allRows.length);
+        /* Ordenar */
+        var sorted = allRows.slice();
+        if (dir !== 'orig') {
+          sorted.sort(function(a,b){
+            var va=_sv(a[rowIdx]), vb=_sv(b[rowIdx]);
+            if(va==null&&vb==null) return 0;
+            if(va==null) return 1; if(vb==null) return -1;
+            return dir==='asc' ? va-vb : vb-va;
+          });
+        }
+        /* Escribir top 10 directamente en tbody — sin pasar por patch */
+        var tbEl = document.getElementById(tbodyId);
+        if (tbEl) {
+          tbEl.innerHTML = sorted.slice(0,10).map(function(r,idx){
+            return trow_ar(r, n, idx+1);
+          }).join('');
+        }
+        /* Re-enganchar */
+        setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 20);
+      });
+    })(i);
   });
 }
 
-/* Patch ar_renderTable — enganchar sort después de cada render */
+/* Enganchar sort en las cards AR — llamado tras cada render */
+function _arSortInit() {
+  [1,2].forEach(function(n){
+    _arSortAttach(n, 'ar'+n+'-th', 'ar'+n+'-th-more');
+    _arSortAttach(n, 'ar'+n+'-td', 'ar'+n+'-td-more');
+  });
+}
+
+/* Patch ar_renderTable */
 var _origART = ar_renderTable;
 ar_renderTable = function(n, tbodyId, btnId, rows) {
   _origART(n, tbodyId, btnId, rows);
-  setTimeout(function(){_arSortAttach(n, tbodyId, btnId);}, 20);
+  setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 50);
 };
 
-setTimeout(_initAllSort, 1500);
+setTimeout(function(){ _initAllSort(); _arSortInit(); }, 1500);
 var _origSC_s = w22_setC;
 w22_setC = function(c,el){
   _origSC_s(c,el);
-  _SS = {}; /* reset sort state al cambiar canasta */
-  setTimeout(_initAllSort, 400);
+  _SS = {};
+  setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
 };
 var _origSM_s = w22_setMode;
 w22_setMode = function(m,el){
   _origSM_s(m,el);
   _SS = {};
-  setTimeout(_initAllSort, 400);
+  setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
 };
