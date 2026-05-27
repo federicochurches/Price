@@ -857,24 +857,59 @@ function _arRows(n, tab) {
   }
 }
 
-/* Render canal con split PP/TP para las cards AR */
+/* Render canal con split PP/TP en 2 columnas para las cards AR */
 function _arRenderChan(n) {
-  var tbody = document.getElementById('ar'+n+'-td');
-  var btn   = document.getElementById('ar'+n+'-td-more');
-  if (!tbody) return;
-  if (btn) btn.style.display = 'none';
   var dd = data();
   var pp = dd.chans_pp || [];
   var tp = dd.chans_tp || [];
   var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
   var cyan = '#4FC3F4';
-  function hdr(label, col) {
-    return '<tr><td colspan="6" style="padding:7px 0 3px 8px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:'+col+';border-bottom:2px solid '+col+';border-top:1px solid var(--rule-soft);">'+label+'</td></tr>';
+  var isCR = W.mode === 'cr';
+
+  /* Cada fila: div con grid minmax(0,1fr) 90px 60px 44px — igual que _chanRow de las cards KPI */
+  function chanRowAR(r) {
+    var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp=r[6];
+    var badge = '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+    var mw_up = wow_pp!=null && wow_pp>0;
+    var mw = wow_pp!=null
+      ? '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(mw_up?'#EAF3DE':'#FCE8E6')+';color:'+(mw_up?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'</em>'
+      : '<span style="color:var(--ink-muted)">—</span>';
+    /* val según card: n===1 → ef/nd, n===2 → cv/ipm */
+    var displayVal = (n === 1) ? (val_pct != null ? (isCR ? (parseFloat(val_pct)*100).toFixed(2).replace('.',',')+' %' : val_pct) : '—') : (val_pct != null ? (isCR ? (parseFloat(val_pct)*100).toFixed(2).replace('.',',')+' %' : '$'+Math.round(parseFloat(val_pct))) : '—');
+    /* val_pct ya viene formateado como string desde el server en chan_row */
+    displayVal = val_pct || '—';
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
+      +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
+      +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
+      +'<div style="text-align:right;">'+mw+'</div>'
+      +'</div>';
   }
-  var html = '';
-  if (pp.length) { html += hdr('\uD83C\uDFE0 Producto Propio', acc); html += pp.map(function(r){ return trow_ar(r,n); }).join(''); }
-  if (tp.length) { html += hdr('\uD83D\uDD0C Third Party', cyan);    html += tp.map(function(r){ return trow_ar(r,n); }).join(''); }
-  tbody.innerHTML = html;
+
+  var pp_html = pp.map(chanRowAR).join('');
+  var tp_html = tp.map(chanRowAR).join('');
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:8px 0;">'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+pp_html+'</div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+tp_html+'</div>'
+    +'</div>';
+
+  /* Ocultar la tabla y mostrar el div de canal */
+  var pd = document.getElementById('ar'+n+'-pd');
+  if (!pd) return;
+  var table = pd.querySelector('table');
+  var btn   = document.getElementById('ar'+n+'-td-more');
+  if (table) table.style.display = 'none';
+  if (btn)   btn.style.display   = 'none';
+
+  /* Usar o crear el div canal */
+  var chanDiv = document.getElementById('ar'+n+'-chan-div');
+  if (!chanDiv) {
+    chanDiv = document.createElement('div');
+    chanDiv.id = 'ar'+n+'-chan-div';
+    pd.appendChild(chanDiv);
+  }
+  chanDiv.innerHTML = html;
+  chanDiv.style.display = '';
 }
 
 function _arDimRows(n, dim) {
@@ -888,12 +923,21 @@ function _arDimRows(n, dim) {
 function _arRenderTable(n, view) {
   var v = view || _arView[n];
   if (v === 'hotel') {
+    /* Asegurar tabla visible, chanDiv oculto */
+    var pd = document.getElementById('ar'+n+'-pd');
+    if (pd) { var cd = document.getElementById('ar'+n+'-chan-div'); if(cd) cd.style.display='none'; }
     var rows = _arRows(n, _arHTab[n]);
     ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
   } else {
     if (_arDim[n] === 'chan') {
       _arRenderChan(n);
     } else {
+      /* Restaurar tabla, ocultar chanDiv */
+      var pd2 = document.getElementById('ar'+n+'-pd');
+      if (pd2) {
+        var tbl = pd2.querySelector('table'); if(tbl) tbl.style.display='';
+        var cd2 = document.getElementById('ar'+n+'-chan-div'); if(cd2) cd2.style.display='none';
+      }
       var drows = _arDimRows(n, _arDim[n]);
       ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
     }
@@ -931,11 +975,22 @@ function ar_setDim(n, dim) {
   var dimLabelMap = {corp:'Corporativo', dest:'Destino', chan: isCR ? 'Channel' : 'País'};
   var lbl = document.getElementById('ar'+n+'-td-lbl');
   if (lbl) lbl.textContent = dimLabelMap[dim] || 'Corporativo';
-  if (dim === 'chan') {
-    _arRenderChan(n);
-  } else {
-    var drows = _arDimRows(n, dim);
-    ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+
+  /* Mostrar/ocultar tabla vs div canal */
+  var pd = document.getElementById('ar'+n+'-pd');
+  if (pd) {
+    var table   = pd.querySelector('table');
+    var btn     = document.getElementById('ar'+n+'-td-more');
+    var chanDiv = document.getElementById('ar'+n+'-chan-div');
+    if (dim === 'chan') {
+      if (table) table.style.display = 'none';
+      _arRenderChan(n);
+    } else {
+      if (table)   table.style.display   = '';
+      if (chanDiv) chanDiv.style.display  = 'none';
+      var drows = _arDimRows(n, dim);
+      ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+    }
   }
 }
 
