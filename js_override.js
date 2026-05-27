@@ -1372,6 +1372,18 @@ function _arSortAttach(n, tbodyId, btnId) {
   var rmap = {2:4, 4:(n===1?5:6)};
   _markSortable(ths, _SS[key].col, _SS[key].dir);
 
+  /* Determinar si este tbody es de hotel o de dimensión */
+  var isHotelTbody = tbodyId === 'ar'+n+'-th';
+
+  /* Función que devuelve los 100 rows del source correcto */
+  function _getSource() {
+    if (isHotelTbody) {
+      return _arRows(n, _arHTab[n]);
+    } else {
+      return _arDimRows(n, _arDim[n]);
+    }
+  }
+
   ths.forEach(function(th, i) {
     if (rmap[i] == null) return;
     var newTh = th.cloneNode(true);
@@ -1381,8 +1393,8 @@ function _arSortAttach(n, tbodyId, btnId) {
       var st = _SS[key];
       var dir = (st.col===i) ? _nd(st.dir) : 'asc';
       _SS[key] = {col:i, dir:dir};
-      /* Leer los 100 rows directamente del data source en el momento del click */
-      var allRows = _arRows(n, _arHTab[n]);
+      var allRows = _getSource(); /* 100 rows del source correcto */
+      console.log('[sort] tbodyId='+tbodyId+' allRows='+allRows.length+' dir='+dir+' ri='+ri);
       var ri = rmap[i];
       var sorted = allRows.slice();
       if (dir !== 'orig') {
