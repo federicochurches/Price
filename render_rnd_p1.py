@@ -447,20 +447,22 @@ def _build_rnd_card_tabs_json():
             df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(100)
             nd_tab = []
             for _, r in df_nd_s.iterrows():
-                lab  = str(r.get(_name_col, '?'))[:60]
-                nd   = r.get('%NoDispo', 0)
-                traf = r.get('Trafico', 0)
-                wow  = r.get('NoDispo_WoW_pp', None)
-                w21  = round(nd * 100, 4)
-                bnd  = banda_nodispo(nd)
-                bc   = BANDA_COLORS.get(bnd, {})
+                lab      = str(r.get(_name_col, '?'))[:60]
+                nd       = r.get('%NoDispo', 0)
+                traf     = r.get('Trafico', 0)
+                traf_wow = r.get('Trafico_WoW_pct', None)
+                wow      = r.get('NoDispo_WoW_pp', None)
+                w21      = round(nd * 100, 4)
+                bnd      = banda_nodispo(nd)
+                bc       = BANDA_COLORS.get(bnd, {})
+                traf_str = fmt_big(traf) if traf else '0'
                 nd_tab.append([
                     lab,
-                    '',              # r[1] sub — vacío para alinear con CR_CARD_TABS
+                    '',              # r[1] sub
                     bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
-                    int(traf) if traf and not _math_rnd.isnan(float(traf)) else 0,
-                    None,            # r[6] wow tráfico
-                    round(nd * 100, 2),   # r[7] val_pct — métrica en misma posición que CR
+                    traf_str,        # r[5] tráfico abreviado (6,9M)
+                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
+                    round(nd * 100, 2),   # r[7] val_pct
                     round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
                     None, '—', '—',
                     w21, round((nd - r.get('%NoDispo_W18', nd)) * 100, 4)
@@ -469,18 +471,20 @@ def _build_rnd_card_tabs_json():
             df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(100)
             ipm_tab = []
             for _, r in df_ipm_s.iterrows():
-                lab  = str(r.get(_name_col, '?'))[:60]
-                ipm  = r.get('IPM', r.get('RPM', 0))
-                traf = r.get('Trafico', 0)
-                wow  = r.get('IPM_WoW_pp', None)
-                bnd  = banda_rpm(ipm, int(r.get('Bookings', 1)))
-                bc   = BANDA_COLORS.get(bnd, {})
+                lab      = str(r.get(_name_col, '?'))[:60]
+                ipm      = r.get('IPM', r.get('RPM', 0))
+                traf     = r.get('Trafico', 0)
+                traf_wow = r.get('Trafico_WoW_pct', None)
+                wow      = r.get('IPM_WoW_pp', None)
+                bnd      = banda_rpm(ipm, int(r.get('Bookings', 1)))
+                bc       = BANDA_COLORS.get(bnd, {})
+                traf_str = fmt_big(traf) if traf else '0'
                 ipm_tab.append([
                     lab,
-                    '',              # r[1] sub — vacío para alinear con CR_CARD_TABS
+                    '',              # r[1] sub
                     bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
-                    int(traf) if traf and not _math_rnd.isnan(float(traf)) else 0,
-                    None,            # r[6] wow tráfico
+                    traf_str,        # r[5] tráfico abreviado
+                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
                     round(ipm, 2),   # r[7] val_pct
                     round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
                     None, '—', '—',

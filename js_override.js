@@ -768,12 +768,20 @@ function _cardRow(r, idx, isEf, grid){
   var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 52px 54px 48px'
                                 : 'minmax(0,1fr) 80px 56px 52px 68px 40px');
   var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-  var cr_str = _fmtInt(cr_u);
-  /* WoW tráfico */
-  var tw = _wowInt(cr_wow_delta);
-  var tw_bg = cr_wow_delta!=null&&cr_wow_delta>0?'#EAF3DE':'#FCE8E6';
-  var tw_fg = cr_wow_delta!=null&&cr_wow_delta>0?'#2F6C34':'#C0392B';
-  var tw_pill = _pill(tw, tw_bg, tw_fg);
+  var cr_str = (typeof cr_u === 'string' && isNaN(parseFloat(cr_u.replace(',','.')))) ? cr_u : _fmtInt(cr_u);
+  /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
+  var tw, tw_bg, tw_fg, tw_pill;
+  if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
+    var tw_up = cr_wow_delta > 0;
+    tw_bg = tw_up ? '#EAF3DE' : '#FCE8E6';
+    tw_fg = tw_up ? '#2F6C34' : '#C0392B';
+    /* Si el valor es pequeño (< 100) es un % → mostrar con signo; si es grande es int delta */
+    var tw_abs = Math.abs(cr_wow_delta);
+    tw = (tw_up?'▲':'▼') + (tw_abs < 1000 ? tw_abs.toFixed(1).replace('.',',')+'%' : _fmtInt(tw_abs));
+    tw_pill = _pill(tw, tw_bg, tw_fg);
+  } else {
+    tw_pill = _pill(null, '', '');
+  }
   /* WoW métrica */
   var mw = _wowPct(wow_pp);
   var mw_up = wow_pp!=null && (isEf ? wow_pp>0 : wow_pp>0);
