@@ -868,20 +868,23 @@ function _arRenderChan(n) {
 
   /* Cada fila: div clickeable con data-hist para el histórico */
   function chanRowAR(r, origIdx) {
-    var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp=r[6];
+    var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
+    /* wow_pp puede ser string '1,31%' o número — normalizar */
+    var wow_pp = (wow_pp_raw != null && wow_pp_raw !== '—' && wow_pp_raw !== '')
+      ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.'))
+      : null;
     var badge = '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-    var mw_up = wow_pp!=null && wow_pp>0;
-    var mw = wow_pp!=null
+    var mw_up = wow_pp!=null && !isNaN(wow_pp) && wow_pp>0;
+    var mw = (wow_pp!=null && !isNaN(wow_pp))
       ? '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(mw_up?'#EAF3DE':'#FCE8E6')+';color:'+(mw_up?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'</em>'
       : '<span style="color:var(--ink-muted)">—</span>';
-    displayVal = val_pct || '—';
-    /* data-hist para canvas histórico */
+    var displayVal = val_pct || '—';
     var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
-    var wowNum = wow_pp != null ? Math.abs(wow_pp) : 0;
-    var w20num = wow_pp != null ? (mw_up ? metNum - wowNum : metNum + wowNum) : metNum;
+    var wowNum = (wow_pp!=null && !isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
+    var w20num = (wow_pp!=null && !isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
     var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+nombre+'" data-hist-card="'+n+'"';
-    return '<div '+histAttrs+' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-      +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
+    return '<div '+histAttrs+' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
+      +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
       +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
       +'<div style="text-align:right;">'+mw+'</div>'
@@ -932,6 +935,11 @@ function _arRenderTable(n, view) {
     /* Asegurar tabla visible, chanDiv oculto */
     var pd = document.getElementById('ar'+n+'-pd');
     if (pd) { var cd = document.getElementById('ar'+n+'-chan-div'); if(cd) cd.style.display='none'; }
+    /* Asegurar que la tabla hotel es visible */
+    var ph = document.getElementById('ar'+n+'-ph');
+    if (ph) {
+      var tbl = ph.querySelector('table'); if(tbl) tbl.style.display='';
+    }
     var rows = _arRows(n, _arHTab[n]);
     ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
   } else {
