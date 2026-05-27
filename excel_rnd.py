@@ -1,9 +1,9 @@
 """
-excel_rnd.py · W21+ · Excel Rates No Dispo con estructura completa
-Pestañas por canasta: Severity KPI1 | Severity KPI2 | País EF | País IPM |
-                      Destino ND | Destino IPM | Corp ND | Corp IPM |
-                      Hotel ND | Hotel IPM | AR-Hotel ND | AR-Hotel IPM |
-                      AR-Dim ND | AR-Dim IPM
+excel_rnd.py · W21+ · Excel Rates No Dispo estructura completa
+Por canasta: Severity | País ND | País IPM | Dest ND | Dest IPM |
+             Corp ND | Corp IPM | Hotel ND Críticos | Hotel ND Bajo Rend |
+             Hotel ND Sin Conv | Hotel ND Súper Crítica | Hotel IPM |
+             Dim Corp ND | Dim Corp IPM | Dim Dest ND | Dim Dest IPM
 """
 import pickle, os
 import pandas as pd
@@ -21,248 +21,217 @@ with open(os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl'), 'rb') as f:
 
 TAB_ND  = D['TAB_NoDispo']
 TAB_IPM = D['TAB_RPM']
-df_all  = D['df18'].copy() if 'df18' in D else D['p80_hotel'].copy()
+CANASTA = D['CANASTA']
 
-# ── Estilos ──────────────────────────────────────────────────────────────────
 RND = 'EA0074'
-HF  = PatternFill(start_color=RND, end_color=RND, fill_type='solid')
-HFt = Font(name='Arial', size=10, bold=True, color='FFFFFF')
-TF  = Font(name='Arial', size=13, bold=True, color=RND)
-SF  = Font(name='Arial', size=10, color='666666')
-DF  = Font(name='Arial', size=10)
-T   = Side(border_style='thin', color='DDDDDD')
-BD  = Border(left=T, right=T, top=T, bottom=T)
+def fill(c): return PatternFill(start_color=c, end_color=c, fill_type='solid')
+def fnt(c='000000', sz=10, bold=False, white=False):
+    return Font(name='Arial', size=sz, bold=bold, color='FFFFFF' if white else c)
+T  = Side(border_style='thin', color='CCCCCC')
+BD = Border(left=T, right=T, top=T, bottom=T)
 
-BAND_FILLS = {
-    'Exitosa':        PatternFill(start_color='E1F5EE', end_color='E1F5EE', fill_type='solid'),
-    'Aceptable':      PatternFill(start_color='FEF9C3', end_color='FEF9C3', fill_type='solid'),
-    'Revisar':        PatternFill(start_color='FED7AA', end_color='FED7AA', fill_type='solid'),
-    'Crítica':        PatternFill(start_color='FCE4F1', end_color='FCE4F1', fill_type='solid'),
-    'Súper Crítica':  PatternFill(start_color='E8E6E3', end_color='E8E6E3', fill_type='solid'),
-    'Sin Conversión': PatternFill(start_color='F2EEE6', end_color='F2EEE6', fill_type='solid'),
+BFILL = {
+    'Exitosa':       fill('E1F5EE'), 'Aceptable':     fill('FEF9C3'),
+    'Revisar':       fill('FED7AA'), 'Crítica':        fill('FCE4F1'),
+    'Súper Crítica': fill('E8E6E3'), 'Sin Conversión': fill('F2EEE6'),
 }
-BAND_FONTS = {
-    'Exitosa':        Font(name='Arial', size=10, color='1A6B4A', bold=True),
-    'Aceptable':      Font(name='Arial', size=10, color='713F12', bold=True),
-    'Revisar':        Font(name='Arial', size=10, color='C2410C', bold=True),
-    'Crítica':        Font(name='Arial', size=10, color='99162B', bold=True),
-    'Súper Crítica':  Font(name='Arial', size=10, color='2D2828', bold=True),
-    'Sin Conversión': Font(name='Arial', size=10, color='5F5E5A', bold=True),
+BFONT = {
+    'Exitosa':       fnt('1A6B4A',bold=True), 'Aceptable':     fnt('713F12',bold=True),
+    'Revisar':       fnt('C2410C',bold=True), 'Crítica':        fnt('99162B',bold=True),
+    'Súper Crítica': fnt('2D2828',bold=True), 'Sin Conversión': fnt('5F5E5A',bold=True),
 }
 
-def safe_float(v):
-    try:
-        f = float(v)
-        return None if pd.isna(f) else f
+def sf(v):
+    try: f=float(v); return None if pd.isna(f) else f
     except: return None
 
-def hdr(ws, row, cols):
-    for c, label in enumerate(cols, 1):
-        cell = ws.cell(row=row, column=c, value=label)
-        cell.font = HFt; cell.fill = HF
-        cell.alignment = Alignment(horizontal='center'); cell.border = BD
-    return row + 1
+def title(ws, t, sub=''):
+    ws.cell(1,1,t).font = fnt(RND,13,True)
+    if sub: ws.cell(2,1,sub).font = fnt('666666')
 
-def data_row(ws, row, vals, banda=None):
-    for c, v in enumerate(vals, 1):
-        cell = ws.cell(row=row, column=c, value=v)
-        cell.font = DF; cell.border = BD
-        cell.alignment = Alignment(horizontal='left' if c == 1 else 'center')
-    if banda and banda in BAND_FILLS:
-        b_cell = ws.cell(row=row, column=2)
-        b_cell.fill = BAND_FILLS[banda]
-        b_cell.font = BAND_FONTS[banda]
+def mk_hdr(ws, row, cols):
+    for c,lbl in enumerate(cols,1):
+        cell=ws.cell(row,c,lbl)
+        cell.font=fnt(white=True,bold=True); cell.fill=fill(RND)
+        cell.alignment=Alignment(horizontal='center'); cell.border=BD
+    ws.auto_filter.ref=f'A{row}:{get_column_letter(len(cols))}{row}'
+    return row+1
 
-def write_severity(ws, df, title, nd_col='%NoDispo', ipm_col='IPM', bk_col='Bookings'):
-    ws.cell(row=1, column=1, value=title).font = TF
-    ws.cell(row=2, column=1, value=f'W{VOL_NUM} · {PERIODO}').font = SF
+def mk_row(ws, row, vals, sev_col=2, banda=None):
+    for c,v in enumerate(vals,1):
+        cell=ws.cell(row,c,v)
+        cell.font=Font(name='Arial',size=10); cell.border=BD
+        cell.alignment=Alignment(horizontal='left' if c==1 else 'center')
+    if banda and banda in BFILL:
+        ws.cell(row,sev_col).fill=BFILL[banda]
+        ws.cell(row,sev_col).font=BFONT[banda]
+
+def autofit(ws, widths):
+    for i,w in enumerate(widths,1): ws.column_dimensions[get_column_letter(i)].width=w
+
+def fmt_wow(v):
+    if v is None or (isinstance(v,float) and pd.isna(v)): return '—'
+    s='▲' if float(v)>=0 else '▼'; return f'{s}{abs(round(float(v),2))}'.replace('.',',')
+
+# ── Severity ──────────────────────────────────────────────────────────────────
+def write_severity(ws, df, can_label):
+    title(ws, f'{can_label} · Severity Rates No Dispo W{VOL_NUM}', f'W{VOL_NUM} · {PERIODO}')
     r = 4
-    # Severity NoDispo
-    ws.cell(row=r, column=1, value='Severity % NoDispo').font = Font(name='Arial', size=11, bold=True, color=RND)
-    r += 1
-    r = hdr(ws, r, ['Banda', 'Registros', '% del Total'])
-    sev_nd = {}
+    # NoDispo severity
+    ws.cell(r,1,'Severity %NoDispo').font=fnt(RND,11,True); r+=1
+    r=mk_hdr(ws, r, ['Severity','Hoteles','% del Total'])
+    sev_nd={}
     for _, row in df.iterrows():
-        nd = safe_float(row.get(nd_col))
-        if nd is not None:
-            b = banda_nodispo(nd)
-            sev_nd[b] = sev_nd.get(b, 0) + 1
-    total_nd = sum(sev_nd.values()) or 1
-    for banda in ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica']:
-        n = sev_nd.get(banda, 0)
-        cell = ws.cell(row=r, column=1, value=banda)
-        ws.cell(row=r, column=2, value=n)
-        ws.cell(row=r, column=3, value=round(n/total_nd, 4))
-        ws.cell(row=r, column=3).number_format = '0.0%'
-        if banda in BAND_FILLS: cell.fill = BAND_FILLS[banda]; cell.font = BAND_FONTS[banda]
-        for c in range(1,4): ws.cell(row=r, column=c).border = BD
-        r += 1
-    r += 1
-    # Severity IPM
-    ws.cell(row=r, column=1, value='Severity IPM').font = Font(name='Arial', size=11, bold=True, color=RND)
-    r += 1
-    r = hdr(ws, r, ['Banda', 'Registros', '% del Total'])
-    sev_ipm = {}
+        nd=sf(row.get('%NoDispo'))
+        if nd is not None: b=banda_nodispo(nd); sev_nd[b]=sev_nd.get(b,0)+1
+    total=sum(sev_nd.values()) or 1
+    for b in ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica']:
+        n=sev_nd.get(b,0)
+        cell=ws.cell(r,1,b); ws.cell(r,2,n); ws.cell(r,3,round(n/total,4))
+        ws.cell(r,3).number_format='0.0%'
+        if b in BFILL: cell.fill=BFILL[b]; cell.font=BFONT[b]
+        for c in range(1,4): ws.cell(r,c).border=BD
+        r+=1
+    r+=1
+    # IPM severity
+    ws.cell(r,1,'Severity IPM').font=fnt(RND,11,True); r+=1
+    r=mk_hdr(ws, r, ['Severity','Hoteles','% del Total'])
+    sev_ipm={}
     for _, row in df.iterrows():
-        ipm = safe_float(row.get(ipm_col, row.get('RPM')))
-        bk  = int(safe_float(row.get(bk_col)) or 0)
-        if ipm is not None:
-            b = banda_rpm(ipm, bk)
-            sev_ipm[b] = sev_ipm.get(b, 0) + 1
-    total_ipm = sum(sev_ipm.values()) or 1
-    for banda in ['Exitosa','Aceptable','Revisar','Crítica','Sin Conversión']:
-        n = sev_ipm.get(banda, 0)
-        cell = ws.cell(row=r, column=1, value=banda)
-        ws.cell(row=r, column=2, value=n)
-        ws.cell(row=r, column=3, value=round(n/total_ipm, 4))
-        ws.cell(row=r, column=3).number_format = '0.0%'
-        if banda in BAND_FILLS: cell.fill = BAND_FILLS[banda]; cell.font = BAND_FONTS[banda]
-        for c in range(1,4): ws.cell(row=r, column=c).border = BD
-        r += 1
-    ws.column_dimensions['A'].width = 18
-    ws.column_dimensions['B'].width = 12
-    ws.column_dimensions['C'].width = 12
+        ipm=sf(row.get('IPM',row.get('RPM'))); bk=int(sf(row.get('Bookings')) or 0)
+        if ipm is not None: b=banda_rpm(ipm,bk); sev_ipm[b]=sev_ipm.get(b,0)+1
+    total=sum(sev_ipm.values()) or 1
+    for b in ['Exitosa','Aceptable','Revisar','Crítica','Sin Conversión']:
+        n=sev_ipm.get(b,0)
+        cell=ws.cell(r,1,b); ws.cell(r,2,n); ws.cell(r,3,round(n/total,4))
+        ws.cell(r,3).number_format='0.0%'
+        if b in BFILL: cell.fill=BFILL[b]; cell.font=BFONT[b]
+        for c in range(1,4): ws.cell(r,c).border=BD
+        r+=1
+    autofit(ws,[22,12,12])
 
-def write_nd(ws, df, title, name_col):
-    ws.cell(row=1, column=1, value=title).font = TF
-    ws.cell(row=2, column=1, value='Ordenado por %NoDispo DESC (peor primero) · Top 100').font = SF
+# ── Top ND ────────────────────────────────────────────────────────────────────
+ND_COLS = ['Nombre','Severity NoDispo','Severity IPM','Tráfico','Bookings',
+           '%NoDispo','WoW ND','IPM','WoW IPM','GB USD']
+
+def write_nd(ws, df, t, name_col):
+    title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 100')
+    if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
     df_s = df.sort_values('%NoDispo', ascending=False).head(100)
-    r = hdr(ws, 4, [name_col, 'Banda NoDispo', 'Tráfico', 'Bookings', '%NoDispo', 'WoW pp', 'IPM', 'GB USD'])
+    r = mk_hdr(ws, 4, ND_COLS)
     for _, row in df_s.iterrows():
-        nd  = safe_float(row.get('%NoDispo'))
-        ipm = safe_float(row.get('IPM', row.get('RPM')))
-        bk  = int(safe_float(row.get('Bookings')) or 0)
-        trf = int(safe_float(row.get('Trafico')) or 0)
-        wow = safe_float(row.get('NoDispo_WoW_pp'))
-        gb  = safe_float(row.get('gb_usd'))
+        nd  = sf(row.get('%NoDispo')); ipm = sf(row.get('IPM',row.get('RPM')))
+        bk  = int(sf(row.get('Bookings')) or 0); trf = int(sf(row.get('Trafico')) or 0)
+        gb  = sf(row.get('gb_usd')); wow_nd = sf(row.get('NoDispo_WoW_pp')); wow_ipm = sf(row.get('IPM_WoW_pp'))
         bnd = banda_nodispo(nd) if nd is not None else '—'
-        vals = [row.get(name_col,'—'), bnd, trf, bk,
-                round(nd,4) if nd else None,
-                round(wow,4) if wow else None,
-                round(ipm,2) if ipm else None,
-                round(gb,2) if gb else None]
-        data_row(ws, r, vals, bnd)
-        if nd: ws.cell(row=r, column=5).number_format = '0.00%'
-        if wow: ws.cell(row=r, column=6).number_format = '+0.00%;-0.00%;0.00%'
-        if ipm: ws.cell(row=r, column=7).number_format = '$#,##0'
-        r += 1
-    ws.column_dimensions['A'].width = 35
-    for i, w in enumerate([16,14,10,10,10,10], 2):
-        ws.column_dimensions[get_column_letter(i)].width = w
+        bipm= banda_rpm(ipm,bk) if ipm is not None else '—'
+        nm  = str(row.get(name_col,'—'))
+        vals=[nm, bnd, bipm, trf, bk, round(nd,4) if nd else None,
+              fmt_wow(wow_nd), round(ipm,2) if ipm else None, fmt_wow(wow_ipm),
+              round(gb,2) if gb else None]
+        mk_row(ws, r, vals, 2, bnd)
+        if nd: ws.cell(r,6).number_format='0.00%'
+        if ipm: ws.cell(r,8).number_format='$#,##0'
+        r+=1
+    autofit(ws,[35,18,14,12,10,10,10,10,10,10])
 
-def write_ipm(ws, df, title, name_col):
-    ws.cell(row=1, column=1, value=title).font = TF
-    ws.cell(row=2, column=1, value='Ordenado por IPM ASC (peor primero) · Top 100').font = SF
-    df_s = df[df['Bookings'] > 0].sort_values('IPM' if 'IPM' in df.columns else 'RPM', ascending=True).head(100)
-    ipm_col = 'IPM' if 'IPM' in df.columns else 'RPM'
-    r = hdr(ws, 4, [name_col, 'Banda IPM', 'Tráfico', 'Bookings', 'IPM', 'WoW IPM', '%NoDispo', 'GB USD'])
+# ── Top IPM ───────────────────────────────────────────────────────────────────
+IPM_COLS = ['Nombre','Severity IPM','Severity NoDispo','Tráfico','Bookings',
+            'IPM','WoW IPM','%NoDispo','WoW ND','GB USD']
+
+def write_ipm(ws, df, t, name_col):
+    title(ws, t, 'Ordenado por IPM ASC (peor primero) · Top 100')
+    if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
+    ipm_col='IPM' if 'IPM' in df.columns else 'RPM'
+    df_s = df[df['Bookings']>0].sort_values(ipm_col, ascending=True).head(100)
+    r = mk_hdr(ws, 4, IPM_COLS)
     for _, row in df_s.iterrows():
-        nd  = safe_float(row.get('%NoDispo'))
-        ipm = safe_float(row.get(ipm_col))
-        bk  = int(safe_float(row.get('Bookings')) or 0)
-        trf = int(safe_float(row.get('Trafico')) or 0)
-        wow = safe_float(row.get('IPM_WoW_pp'))
-        gb  = safe_float(row.get('gb_usd'))
-        bnd = banda_rpm(ipm, bk) if ipm is not None else '—'
-        vals = [row.get(name_col,'—'), bnd, trf, bk,
-                round(ipm,2) if ipm else None,
-                round(wow,2) if wow else None,
-                round(nd,4) if nd else None,
-                round(gb,2) if gb else None]
-        data_row(ws, r, vals, bnd)
-        if ipm: ws.cell(row=r, column=5).number_format = '$#,##0'
-        if nd: ws.cell(row=r, column=7).number_format = '0.00%'
-        r += 1
-    ws.column_dimensions['A'].width = 35
-    for i, w in enumerate([14,14,10,10,10,10], 2):
-        ws.column_dimensions[get_column_letter(i)].width = w
+        nd  = sf(row.get('%NoDispo')); ipm = sf(row.get(ipm_col))
+        bk  = int(sf(row.get('Bookings')) or 0); trf = int(sf(row.get('Trafico')) or 0)
+        gb  = sf(row.get('gb_usd')); wow_nd = sf(row.get('NoDispo_WoW_pp')); wow_ipm = sf(row.get('IPM_WoW_pp'))
+        bnd = banda_nodispo(nd) if nd is not None else '—'
+        bipm= banda_rpm(ipm,bk) if ipm is not None else '—'
+        nm  = str(row.get(name_col,'—'))
+        vals=[nm, bipm, bnd, trf, bk, round(ipm,2) if ipm else None,
+              fmt_wow(wow_ipm), round(nd,4) if nd else None, fmt_wow(wow_nd),
+              round(gb,2) if gb else None]
+        mk_row(ws, r, vals, 2, bipm)
+        if ipm: ws.cell(r,6).number_format='$#,##0'
+        if nd: ws.cell(r,8).number_format='0.00%'
+        r+=1
+    autofit(ws,[35,14,18,12,10,10,10,10,10,10])
 
-# ── Canastas ─────────────────────────────────────────────────────────────────
+# ── Canastas ──────────────────────────────────────────────────────────────────
 CANASTAS = [
     ('global', 'Global',     None),
     ('b2c',    'B2C',        'B2C'),
-    ('op',     'Opaco',      'B2B (OP)'),
-    ('cug',    'Ultra Opaco','CUG (UOP)'),
+    ('op',     'Opaco',      'B2B-OP'),
+    ('cug',    'Ultra Opaco','CUG'),
 ]
 
-wb = Workbook()
-wb.remove(wb.active)
+wb = Workbook(); wb.remove(wb.active)
 
-for can_key, can_label, distrib_filter in CANASTAS:
-    # Filtrar df_all para esta canasta
-    if distrib_filter and 'DistributionCategory' in df_all.columns:
-        df_can = df_all[df_all['DistributionCategory'] == distrib_filter].copy()
-    else:
-        df_can = df_all.copy()
+for can_key, can_label, can_id in CANASTAS:
+    can = CANASTA.get(can_id, CANASTA.get(can_key, {}))
+    px  = can_label[:3]
 
-    prefix = can_label[:3]
+    # p80_hotel para severity
+    p80_can = can.get('p80_hotel', can.get('p80', D.get('p80_hotel', D.get('df18'))))
+    if p80_can is None: p80_can = D.get('p80_hotel', D.get('df18'))
 
-    # 1. Severity (NoDispo + IPM juntos en una hoja)
-    ws = wb.create_sheet(f'{prefix}-Severity')
-    ws.sheet_properties.tabColor = RND
-    write_severity(ws, df_can, f'{can_label} · Severity W{VOL_NUM}')
+    # ── 1. Severity
+    ws=wb.create_sheet(f'{px}-Severity'); ws.sheet_properties.tabColor=RND
+    write_severity(ws, p80_can, can_label)
 
-    # 2-3. País NoDispo / IPM
+    # ── 2-3. País ND / IPM
     df_pais = TAB_ND.get('pais', pd.DataFrame())
-    if len(df_pais) > 0:
-        ws = wb.create_sheet(f'{prefix}-País NoDispo')
-        ws.sheet_properties.tabColor = RND
-        write_nd(ws, df_pais, f'{can_label} · Top Países %NoDispo W{VOL_NUM}', 'PaisDestino')
-        ws = wb.create_sheet(f'{prefix}-País IPM')
-        ws.sheet_properties.tabColor = RND
-        write_ipm(ws, df_pais, f'{can_label} · Top Países IPM W{VOL_NUM}', 'PaisDestino')
+    ws=wb.create_sheet(f'{px}-País ND'); ws.sheet_properties.tabColor=RND
+    write_nd(ws, df_pais, f'{can_label} · Top Países %NoDispo W{VOL_NUM}', 'PaisDestino')
+    ws=wb.create_sheet(f'{px}-País IPM'); ws.sheet_properties.tabColor=RND
+    write_ipm(ws, df_pais, f'{can_label} · Top Países IPM W{VOL_NUM}', 'PaisDestino')
 
-    # 4-5. Destino NoDispo / IPM
+    # ── 4-5. Destino ND / IPM
     df_dest = TAB_ND.get('destino', pd.DataFrame())
-    if len(df_dest) > 0:
-        ws = wb.create_sheet(f'{prefix}-Dest NoDispo')
-        ws.sheet_properties.tabColor = RND
-        write_nd(ws, df_dest, f'{can_label} · Top Destinos %NoDispo W{VOL_NUM}', 'Destino')
-        ws = wb.create_sheet(f'{prefix}-Dest IPM')
-        ws.sheet_properties.tabColor = RND
-        write_ipm(ws, df_dest, f'{can_label} · Top Destinos IPM W{VOL_NUM}', 'Destino')
+    ws=wb.create_sheet(f'{px}-Dest ND'); ws.sheet_properties.tabColor=RND
+    write_nd(ws, df_dest, f'{can_label} · Top Destinos %NoDispo W{VOL_NUM}', 'Destino')
+    ws=wb.create_sheet(f'{px}-Dest IPM'); ws.sheet_properties.tabColor=RND
+    write_ipm(ws, df_dest, f'{can_label} · Top Destinos IPM W{VOL_NUM}', 'Destino')
 
-    # 6-7. Corp NoDispo / IPM
+    # ── 6-7. Corp ND / IPM
     df_corp = TAB_ND.get('corp', pd.DataFrame())
-    if len(df_corp) > 0:
-        ws = wb.create_sheet(f'{prefix}-Corp NoDispo')
-        ws.sheet_properties.tabColor = RND
-        write_nd(ws, df_corp, f'{can_label} · Top Corp %NoDispo W{VOL_NUM}', 'CorpName')
-        ws = wb.create_sheet(f'{prefix}-Corp IPM')
-        ws.sheet_properties.tabColor = RND
-        write_ipm(ws, df_corp, f'{can_label} · Top Corp IPM W{VOL_NUM}', 'CorpName')
+    ws=wb.create_sheet(f'{px}-Corp ND'); ws.sheet_properties.tabColor=RND
+    write_nd(ws, df_corp, f'{can_label} · Top Corp %NoDispo W{VOL_NUM}', 'CorpName')
+    ws=wb.create_sheet(f'{px}-Corp IPM'); ws.sheet_properties.tabColor=RND
+    write_ipm(ws, df_corp, f'{can_label} · Top Corp IPM W{VOL_NUM}', 'CorpName')
 
-    # 8-9. Hotel NoDispo / IPM
-    df_hotel = TAB_ND.get('hotel', pd.DataFrame())
-    if len(df_hotel) > 0:
-        ws = wb.create_sheet(f'{prefix}-Hotel NoDispo')
-        ws.sheet_properties.tabColor = RND
-        write_nd(ws, df_hotel, f'{can_label} · Top Hoteles %NoDispo W{VOL_NUM}', 'Hotel')
-        ws = wb.create_sheet(f'{prefix}-Hotel IPM')
-        ws.sheet_properties.tabColor = RND
-        write_ipm(ws, df_hotel, f'{can_label} · Top Hoteles IPM W{VOL_NUM}', 'Hotel')
+    # ── 8-11. Hotel por categoría
+    hotel_cats_nd = [
+        ('top_dnc',  'ND Sin Conv'),
+        ('top_br',   'ND Bajo Rend'),
+        ('top_sc',   'ND Súper Crítica'),
+        ('top_hot',  'ND Top %NoDispo'),
+    ]
+    for cat_key, cat_label in hotel_cats_nd:
+        df_cat = can.get(cat_key, TAB_ND.get('hotel', pd.DataFrame()))
+        ws=wb.create_sheet(f'{px}-{cat_label[:12]}'); ws.sheet_properties.tabColor=RND
+        write_nd(ws, df_cat, f'{can_label} · Hotel {cat_label} W{VOL_NUM}', 'Hotel')
 
-    # 10-11. AR Dimensión (dest + corp combinados) NoDispo / IPM
-    df_dim_nd  = pd.concat([
-        TAB_ND.get('destino', pd.DataFrame()).assign(**{'Dimensión': lambda x: x.get('Destino', x.index)}),
-        TAB_ND.get('corp', pd.DataFrame()).assign(**{'Dimensión': lambda x: x.get('CorpName', x.index)})
-    ], ignore_index=True) if len(TAB_ND.get('destino', pd.DataFrame())) > 0 else pd.DataFrame()
+    ws=wb.create_sheet(f'{px}-Hot IPM'); ws.sheet_properties.tabColor=RND
+    write_ipm(ws, can.get('top_hot_rpm', TAB_IPM.get('hotel', pd.DataFrame())),
+              f'{can_label} · Hotel Top IPM W{VOL_NUM}', 'Hotel')
 
-    if len(df_dim_nd) > 0:
-        # Agregar columna Dimensión correctamente
-        df_dest_d = TAB_ND.get('destino', pd.DataFrame()).copy()
-        df_corp_d = TAB_ND.get('corp', pd.DataFrame()).copy()
-        if 'Destino' in df_dest_d.columns: df_dest_d['Dimensión'] = df_dest_d['Destino']
-        if 'CorpName' in df_corp_d.columns: df_corp_d['Dimensión'] = df_corp_d['CorpName']
-        df_dim = pd.concat([df_dest_d, df_corp_d], ignore_index=True)
-        ws = wb.create_sheet(f'{prefix}-Dim NoDispo')
-        ws.sheet_properties.tabColor = RND
-        write_nd(ws, df_dim, f'{can_label} · AR Dimensión %NoDispo W{VOL_NUM}', 'Dimensión')
-        ws = wb.create_sheet(f'{prefix}-Dim IPM')
-        ws.sheet_properties.tabColor = RND
-        write_ipm(ws, df_dim, f'{can_label} · AR Dimensión IPM W{VOL_NUM}', 'Dimensión')
+    # ── 12-15. Dimensión Corp y Dest
+    for df_nd, df_ipm, nc, suf in [
+        (TAB_ND.get('corp'), TAB_IPM.get('corp'), 'CorpName', 'Corp'),
+        (TAB_ND.get('destino'), TAB_IPM.get('destino'), 'Destino', 'Dest'),
+    ]:
+        ws=wb.create_sheet(f'{px}-Dim {suf} ND'); ws.sheet_properties.tabColor=RND
+        write_nd(ws, df_nd, f'{can_label} · AR Dim {suf} %NoDispo W{VOL_NUM}', nc)
+        ws=wb.create_sheet(f'{px}-Dim {suf} IPM'); ws.sheet_properties.tabColor=RND
+        write_ipm(ws, df_ipm, f'{can_label} · AR Dim {suf} IPM W{VOL_NUM}', nc)
 
 out = f'{OUTPUTS}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx'
 wb.save(out)
-print(f'✅ Excel RND escrito: {out}')
-print(f'   {len(wb.sheetnames)} hojas: {" | ".join(wb.sheetnames[:6])}...')
+n = len(wb.sheetnames)
+print(f'✅ Excel RND: {out}')
+print(f'   {n} hojas: {" | ".join(wb.sheetnames[:8])}...')
