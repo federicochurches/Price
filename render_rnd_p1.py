@@ -94,7 +94,7 @@ def render_masthead():
 <img alt="PriceTravel" src="{LOGO}" style="height:50px;width:auto;vertical-align:middle;"/>
 <span style="display:inline-block;width:1px;height:38px;background:var(--rule);margin:0 12px;vertical-align:middle;"></span>
 <span style="display:inline-block;vertical-align:middle;text-align:left;line-height:1.15;">
-<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--accent);">Supply Optimization</span>
+<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--ink);">Supply Optimization</span>
 </span>
 </div>
 </div>

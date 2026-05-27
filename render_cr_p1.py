@@ -49,7 +49,7 @@ def render_masthead():
 <div style="display:table;width:100%;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div style="display:table-cell;vertical-align:middle;">
 <div style="display:inline-block;vertical-align:top;">
-<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {VOL_NUM}</div>
+<div style="font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1;">Week {WEEK_NUM}</div>
 <div style="font-size:12px;font-weight:400;color:var(--ink-muted);margin-top:3px;">{PERIODO}</div>
 </div>
 </div>
@@ -57,7 +57,7 @@ def render_masthead():
 <img alt="PriceTravel" src="{LOGO}" style="height:50px;width:auto;vertical-align:middle;"/>
 <span style="display:inline-block;width:1px;height:38px;background:var(--rule);margin:0 12px;vertical-align:middle;"></span>
 <span style="display:inline-block;vertical-align:middle;text-align:left;line-height:1.15;">
-<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--accent);">Supply Optimization</span>
+<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--ink);">Supply Optimization</span>
 </span>
 </div>
 </div>
@@ -120,24 +120,10 @@ CR_ACCENT = '#5C469C'
 from historico_module import render_historico
 
 def _cr_trafico_line():
-    """Mini-fila con CR Únicos globales W21 y WoW vs W17."""
+    """Mini-fila con CR Únicos globales y WoW — delegada al helper centralizado."""
     cr_w21 = M['global_current'].get('cr_unicos', 0)
     cr_w17_val = M.get('global_w17', {}).get('cr_unicos')
-    if cr_w17_val and cr_w17_val > 0:
-        cr_delta = cr_w21 - cr_w17_val
-        cr_pct = (cr_delta / cr_w17_val) * 100
-        cr_arrow = '↑' if cr_delta > 0 else '↓'
-        cr_wb = '#EAF3DE' if cr_delta > 0 else '#FCE8E6'
-        cr_wc = '#2F6C34' if cr_delta > 0 else '#C0392B'
-        pct_str = f'{cr_pct:+.1f}%'.replace('.', ',').replace('+-', '-')
-        cr_wow_pill = (f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;'
-                       f'padding:1px 5px;border-radius:3px;background:{cr_wb};color:{cr_wc};white-space:nowrap;">'
-                       f'{cr_arrow} {pct_str}</em>')
-    else:
-        cr_wow_pill = ''
-    return (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-            f'<span style="color:var(--ink-soft);"><strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_int_es(cr_w21)}</span>'
-            f'{cr_wow_pill}</div>')
+    return render_traf_line_cr(cr_w21, cr_w17_val)
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -164,31 +150,33 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     _wow_pill_ef = wow_pill_html(ef_wow, unit='')
     cr_trafico_line = _cr_trafico_line()
     
-    # Tráfico CR Únicos con WoW
-    cr_w21 = M['global_current'].get('cr_unicos', 0)
-    cr_w17_val = M.get('global_w17', {}).get('cr_unicos')
-    if cr_w17_val and cr_w17_val > 0:
-        cr_delta = cr_w21 - cr_w17_val
-        cr_pct = (cr_delta / cr_w17_val) * 100
-        cr_arrow = '↑' if cr_delta > 0 else '↓'
-        cr_wb = '#EAF3DE' if cr_delta > 0 else '#FCE8E6'
-        cr_wc = '#2F6C34' if cr_delta > 0 else '#C0392B'
-        cr_wow_pill = (f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;'
-                       f'padding:1px 5px;border-radius:3px;background:{cr_wb};color:{cr_wc};white-space:nowrap;">'
-                       f'{cr_arrow} {cr_pct:+.1f}%</em>'.replace('+', '+').replace('.', ','))
-    else:
-        cr_wow_pill = ''
-    cr_trafico_line = (f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-                       f'<span style="color:var(--ink-soft);"><strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> {fmt_int_es(cr_w21)}</span>'
-                       f'{cr_wow_pill}</div>')
-    
     tabs = ''
     for t_key, t_label in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
         tabs += f'<label class="tab-label" for="tab-ef-{t_key}">{t_label}</label>'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
     THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
-    
+
+    # ── Config centralizada — 1 sola línea controla grid, top_n, etc. ──────────
+    _EF_CFG = {
+        'val_col':       'Eficacia',
+        'val_fmt':       fmt_pct2,
+        'hist_scale':    lambda v: round(float(v) * 100, 4),
+        'hist_prev_col': 'Eficacia_W17',
+        'banda_fn':      banda_eficacia,
+        'banda_col':     'BandaEficacia',
+        'traf_col':      'CR_Unicos',
+        'traf_fmt':      fmt_int_es,
+        'traf_wow_col':  'CR_Unicos_WoW_pp',
+        'traf_wow_type': 'abs',     # viene escalado ×100, reescalamos /100 → abs delta
+        'wow_col':       'Eficacia_WoW_pp',
+        'wow_is_pos':    True,
+        'grid_cols':     'minmax(0,1fr) 80px 56px 52px 54px 48px',
+    }
+    _EF_HDR = {'headers': ['Severity','Tráfico','WoW','Eficacia','WoW'],
+               'widths':  'minmax(0,1fr) 80px 56px 52px 54px 48px'}
+    # ────────────────────────────────────────────────────────────────────────────
+
     panels = ''
     for t_key, df_t in [
         ('destino', TAB_EF['destino']),
@@ -199,21 +187,12 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     ]:
         if t_key == 'channel':
             # Split en Producto Propio + Third Party — catálogo canónico fijo
-            # Para canales sin datos esa semana se renderiza '—'
             def _lookup_chan(nombre, df_src):
-                """Busca nombre en df_src; si no existe devuelve row dummy con NaN."""
-                import math
-                # Normalizar: HotelBeds* → 'HotelBeds'
-                _name_norm = nombre
                 mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
                 hits = df_src[mask]
-                if len(hits) == 0:
-                    return None
-                return hits.iloc[0]
+                return hits.iloc[0] if len(hits) > 0 else None
 
-            # Ordenar los que tienen datos por Eficacia (peor primero), luego los sin datos al final
             def _sorted_canonical(lista, df_src, val_col):
-                """Solo incluye canales que tienen datos en el dataset de la semana."""
                 with_data = []
                 for nombre in lista:
                     r = _lookup_chan(nombre, df_src)
@@ -225,12 +204,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
             _pp_sorted = _sorted_canonical(PRODUCTO_PROPIO, df_t, 'Eficacia')
             _tp_sorted = _sorted_canonical(THIRD_PARTY, df_t, 'Eficacia')
 
-            _WOW_MUTED_EF = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
-
             def chan_row(i, nombre, r, val_col):
                 import math
-                if r is None:
-                    return ''  # no mostrar canales sin datos
+                if r is None: return ''
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
                     val_str = '—'
@@ -240,17 +216,14 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                 bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
                 badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
                          f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
-                wow_col = val_col + '_WoW_pp'
+                wow_col_k = val_col + '_WoW_pp'
                 try:
-                    wow_v = r[wow_col]
+                    wow_v = r[wow_col_k]
                     if wow_v != wow_v: raise ValueError
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
-                        wc = '#2F6C34' if mejora else '#C0392B'
-                        wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        arrow = '▲' if wow_v > 0 else '▼'
-                        wow_txt = f'{arrow}{abs(wow_v):.2f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{wow_txt}</em>'
+                        wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"▲" if wow_v>0 else "▼"}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
@@ -275,70 +248,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto channel/canasta)
-        rows_html = top5 = next5 = rest = ''
-        for i, r in df_t.iterrows():
-            _corp_sub = ''
-            if t_key=='canasta':
-                raw_lab = r['Canasta']; lab = raw_lab; val = r['Eficacia']
-            elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = r['Eficacia']
-                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-            elif t_key=='corp':
-                raw_lab = str(r['CorpName']); lab = truncate(clean_corp_name(raw_lab), 36); val = r['Eficacia']
-            elif t_key=='destino':
-                raw_lab = str(r['Destino']); lab = clean_destino_name(raw_lab, 36); val = r['Eficacia']
-            else:
-                col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['Eficacia']
-            wow_pill = ''
-            if t_key in ('destino', 'corp', 'hotel'):
-                wow_pill = make_wow_pill_row(r.get('Eficacia_WoW_pp', None))
-            import math as _math
-            _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
-            _w20_raw = r.get('Eficacia_W17', None)
-            _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            _bnd = r.get('BandaEficacia','') if 'BandaEficacia' in r.index else (banda_eficacia(val) if val is not None else '')
-            _badge = _mini_badge(_bnd)
-            # Tráfico (CR Únicos)
-            _cr_unicos = r.get('CR_Unicos', None)
-            _cr_unicos_str = fmt_int_es(int(_cr_unicos)) if _cr_unicos and not _math.isnan(float(_cr_unicos)) else '—'
-            # WoW de tráfico
-            _cr_wow_pp = r.get('CR_Unicos_WoW_pp', None)
-            if _cr_wow_pp is not None and not (isinstance(_cr_wow_pp, float) and _math.isnan(_cr_wow_pp)):
-                _cr_delta = _cr_wow_pp / 100  # ya fue calculado como (cr-crW17)*100
-                _cr_wow_str = f'▲{fmt_int_es(int(abs(_cr_delta)))}' if _cr_delta > 0 else f'▼{fmt_int_es(int(abs(_cr_delta)))}'
-                _cr_wow_bg = '#EAF3DE' if _cr_delta > 0 else '#FCE8E6'
-                _cr_wow_color = '#2F6C34' if _cr_delta > 0 else '#C0392B'
-                _cr_wow_pill = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_cr_wow_bg};color:{_cr_wow_color};white-space:nowrap;">{_cr_wow_str}</em>'
-            else:
-                _cr_wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
-            # Top 10 siempre visibles, sin botón Ver más
-            if i < 10:
-                _cls = ''
-            else:
-                _cls = 'sb-hidden'
-            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 54px 48px;align-items:center;gap:6px;'
-                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
-                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
-                    + f'</div>'
-                    f'<div style="display:flex;align-items:center;justify-content:flex-start;">{_badge}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_cr_unicos_str}</span>'
-                    f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
-                    f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
-            if i < 10: top5 += _row
-            else: rest += _row
-        if t_key not in ('channel', 'canasta'):
-            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Eficacia','WoW'], 'minmax(0,1fr) 80px 56px 52px 54px 48px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}</div>{rest}'
-        else:
-            panel_html = top5 + rest
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+
+        # ── Filas generadas por helper centralizado ───────────────────────────
+        panels += build_kpi_tab_panel(df_t, t_key, _EF_CFG, _EF_HDR)
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
@@ -387,7 +299,27 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
     THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
-    
+
+    # ── Config centralizada ConvRate ────────────────────────────────────────────
+    _CV_CFG = {
+        'val_col':       'ConvRate',
+        'val_fmt':       fmt_pct2,
+        'hist_scale':    lambda v: round(float(v) * 100, 4),
+        'hist_prev_col': 'ConvRate_W17',
+        'banda_fn':      lambda v: banda_convrate(v, 1),  # banda sin bkgs en tab (bkgs en card hero)
+        'banda_col':     'BandaConvRate',
+        'traf_col':      'CR_Unicos',
+        'traf_fmt':      fmt_int_es,
+        'traf_wow_col':  'CR_Unicos_WoW_pp',
+        'traf_wow_type': 'abs',
+        'wow_col':       'ConvRate_WoW_pp',
+        'wow_is_pos':    True,
+        'grid_cols':     'minmax(0,1fr) 80px 56px 52px 68px 40px',
+    }
+    _CV_HDR = {'headers': ['Severity','Tráfico','WoW','Conv Rate','WoW'],
+               'widths':  'minmax(0,1fr) 80px 56px 52px 68px 40px'}
+    # ────────────────────────────────────────────────────────────────────────────
+
     panels = ''
     for t_key, df_t in [
         ('destino', TAB_CV['destino']),
@@ -397,14 +329,12 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         ('canasta', TAB_CV['canasta']),
     ]:
         if t_key == 'channel':
-            # Split en Producto Propio + Third Party — catálogo canónico fijo
             def _lookup_chan_cv(nombre, df_src):
                 mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
                 hits = df_src[mask]
                 return hits.iloc[0] if len(hits) > 0 else None
 
             def _sorted_canonical_cv(lista, df_src, val_col):
-                """Solo incluye canales que tienen datos en el dataset de la semana."""
                 with_data = []
                 for nombre in lista:
                     r = _lookup_chan_cv(nombre, df_src)
@@ -416,32 +346,23 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
             _pp_sorted_cv = _sorted_canonical_cv(PRODUCTO_PROPIO, df_t, 'ConvRate')
             _tp_sorted_cv = _sorted_canonical_cv(THIRD_PARTY, df_t, 'ConvRate')
 
-            _WOW_MUTED_CV = '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#F2EEE6;color:#8A8377;margin-left:4px;white-space:nowrap;">—</em>'
-
             def chan_row_cv(i, nombre, r, val_col):
                 import math
-                if r is None:
-                    return ''  # no mostrar canales sin datos
+                if r is None: return ''
                 raw_val = r[val_col] if val_col in r.index else float('nan')
-                if raw_val != raw_val or (isinstance(raw_val, float) and math.isinf(raw_val)):
-                    val_str = '—'
-                else:
-                    val_str = fmt_pct2(raw_val)
+                val_str = fmt_pct2(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isinf(raw_val)) else '—'
                 bnd = banda_convrate(raw_val, int(r.get('Bookings',0))) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 'Sin Conversión'
                 bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
                 badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
                          f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
-                wow_col = val_col + '_WoW_pp'
+                wow_col_k = val_col + '_WoW_pp'
                 try:
-                    wow_v = r[wow_col]
+                    wow_v = r[wow_col_k]
                     if wow_v != wow_v: raise ValueError
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
-                        wc = '#2F6C34' if mejora else '#C0392B'
-                        wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        arrow = '▲' if wow_v > 0 else '▼'
-                        wow_txt = f'{arrow}{abs(wow_v):.2f}'.replace('.', ',')
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{wow_txt}</em>'
+                        wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"▲" if wow_v>0 else "▼"}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
@@ -466,68 +387,9 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
             continue
-        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto channel/canasta)
-        rows_html = top5 = next5 = rest = ''
-        for i, r in df_t.iterrows():
-            _corp_sub = ''
-            if t_key=='canasta':
-                raw_lab = r['Canasta']; lab = raw_lab; val = r['ConvRate']
-            elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = r['ConvRate']
-                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-            elif t_key=='corp':
-                raw_lab = str(r['CorpName']); lab = truncate(clean_corp_name(raw_lab), 36); val = r['ConvRate']
-            elif t_key=='destino':
-                raw_lab = str(r['Destino']); lab = clean_destino_name(raw_lab, 36); val = r['ConvRate']
-            else:
-                col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 32); val = r['ConvRate']
-            wow_pill = ''
-            if t_key in ('destino', 'corp', 'hotel'):
-                wow_pill = make_wow_pill_row(r.get('ConvRate_WoW_pp', None))
-            import math as _math
-            _w21 = round(val * 100, 4) if val and not _math.isnan(float(val)) else 0
-            _w20_raw = r.get('ConvRate_W17', None)
-            _w20 = round(float(_w20_raw) * 100, 4) if _w20_raw and not _math.isnan(float(_w20_raw)) else _w21
-            _bnd_cv = (
-                r.get('BandaConvRate','') if 'BandaConvRate' in r.index else (banda_convrate(val, int(r.get('Bookings',0))) if val is not None else ''))
-            _badge_cv = _mini_badge(_bnd_cv)
-            # Tráfico
-            _cr_u = r.get('CR_Unicos', None)
-            _cr_u_str = fmt_int_es(int(_cr_u)) if _cr_u and not _math.isnan(float(_cr_u)) else '—'
-            # WoW de tráfico
-            _cr_wow_pp2 = r.get('CR_Unicos_WoW_pp', None)
-            if _cr_wow_pp2 is not None and not (isinstance(_cr_wow_pp2, float) and _math.isnan(_cr_wow_pp2)):
-                _cr_delta2 = _cr_wow_pp2 / 100
-                _cr_wow_str2 = f'▲{fmt_int_es(int(abs(_cr_delta2)))}' if _cr_delta2 > 0 else f'▼{fmt_int_es(int(abs(_cr_delta2)))}'
-                _cr_wow_bg2 = '#EAF3DE' if _cr_delta2 > 0 else '#FCE8E6'
-                _cr_wow_color2 = '#2F6C34' if _cr_delta2 > 0 else '#C0392B'
-                _cr_wow_pill2 = f'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{_cr_wow_bg2};color:{_cr_wow_color2};white-space:nowrap;">{_cr_wow_str2}</em>'
-            else:
-                _cr_wow_pill2 = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
-            if i < 10: _cls = ''
-            else: _cls = 'sb-hidden'
-            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:minmax(0,1fr) 80px 56px 52px 68px 40px;align-items:center;gap:6px;'
-                    f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
-                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
-                    + f'</div>'
-                    f'<div style="display:flex;align-items:center;justify-content:flex-start;">{_badge_cv}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_cr_u_str}</span>'
-                    f'<div style="text-align:right;white-space:nowrap;">{_cr_wow_pill2}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{fmt_pct2(val)}</span>'
-                    f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div></div>')
-            if i < 10: top5 += _row
-            else: rest += _row
-        if t_key not in ('channel', 'canasta'):
-            _tab_hdr = tab_column_header(['Severity','Tráfico','WoW','Conv Rate','WoW'], 'minmax(0,1fr) 80px 56px 52px 68px 40px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}</div>{rest}'
-        else:
-            panel_html = top5 + rest
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+
+        # ── Filas generadas por helper centralizado ───────────────────────────
+        panels += build_kpi_tab_panel(df_t, t_key, _CV_CFG, _CV_HDR)
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-cv-destino" name="tabs-cv" style="display:none;" type="radio"/>
@@ -630,7 +492,7 @@ def render_alerts_block():
 # Build hero
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
-<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 6px;">
+<div class="kpis-hero" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 12px;">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 {render_kpi_card_convrate(cv18, cv17, cv_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 </div>
@@ -720,10 +582,6 @@ def _build_card_rows_cv(tab_cv, t_key):
 def _build_card_rows_chan(tab, metric_col, wow_col):
     """Convierte tab channel en array de filas para JS."""
     PRODUCTO_PROPIO = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
-    CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
-    def _inactive(name):
-        return [name, '#F2EEE6', '#8A8377', 'Sin Actividad', None, None, None]
     df = tab.get('channel', pd.DataFrame())
     pp_rows, tp_rows = [], []
     for _, r in df.iterrows():
@@ -742,18 +600,6 @@ def _build_card_rows_chan(tab, metric_col, wow_col):
             pp_rows.append(entry)
         else:
             tp_rows.append(entry)
-    # Ordenar activos: peor eficacia primero (val_pct ASC, None al final)
-    pp_rows.sort(key=lambda r: r[5] if r[5] is not None else 999)
-    tp_rows.sort(key=lambda r: r[5] if r[5] is not None else 999)
-    # Completar con catálogo canónico
-    pp_names = [r[0] for r in pp_rows]
-    tp_names = [r[0] for r in tp_rows]
-    for name in CATALOG_PP:
-        if not any(name.lower() in n.lower() for n in pp_names):
-            pp_rows.append(_inactive(name))
-    for name in CATALOG_TP:
-        if not any(name.lower() in n.lower() for n in tp_names):
-            tp_rows.append(_inactive(name))
     return {'pp': pp_rows, 'tp': tp_rows}
 
 def _build_cr_card_tabs_json():

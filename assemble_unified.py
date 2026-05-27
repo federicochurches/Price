@@ -827,17 +827,13 @@ if (typeof HIST_DATA !== 'undefined') {
 '''
     + GLOBAL_PANEL_SCRIPT
     + f'''
-<div style="max-width:960px;margin:40px auto 32px;padding:20px 28px;background:var(--paper);border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-  <div>
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);margin-bottom:8px;">Descargas W{VOL_NUM}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:6px 14px;background:#5C469C;border-radius:3px;">⬇ Excel CheckRates</a>
-      <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:6px 14px;background:#EA0074;border-radius:3px;">⬇ Excel Rates No Dispo</a>
-      <a href="../../checkrates/week-{VOL_NUM}/Dataset_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:6px 14px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset CR</a>
-      <a href="../../rates-nodispo/week-{VOL_NUM}/Dataset_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:6px 14px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset RND</a>
-    </div>
+<div style="width:100%;margin:40px 0 0;padding:20px 40px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-sizing:border-box;">
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Descargas W{VOL_NUM}</span>
+    <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel CheckRates</a>
+    <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel Rates No Dispo</a>
   </div>
-  <a href="../../index.html" style="font-size:11px;font-weight:600;color:var(--ink-muted);text-decoration:none;padding:6px 14px;border:1px solid var(--rule);border-radius:3px;white-space:nowrap;">← Volver al Hub</a>
+  <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;">← Volver al Hub</a>
 </div>
 '''
     + '\n</body>\n</html>\n'

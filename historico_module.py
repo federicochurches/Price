@@ -127,7 +127,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     <div id="hist-{canvas_id}-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
     <div style="position:relative;height:14px;margin-top:2px;">
       {''.join(
-        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{accent if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
+        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{'var(--ink)' if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
         for i, s in enumerate(semanas)
       )}
     </div>
