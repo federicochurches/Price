@@ -1270,161 +1270,165 @@ function ar_updateKPIs() {
    ORDENAMIENTO POR COLUMNA
    ══════════════════════════════════════════════════ */
 
-/* Parser numérico robusto para strings europeos */
 function _sv(s) {
-  if (s == null || s === false || s === true) return null;
-  s = String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
-  if (!s || s === '—' || s === '-') return null;
-  /* Europeo: 1.733,25 → coma=decimal, punto=miles */
-  if (s.indexOf(',') !== -1) { s = s.replace(/\./g,'').replace(',','.'); }
-  else { s = s.replace(/\.(?=\d{3}(?:\.|$))/g,''); }
-  var n = parseFloat(s); return isNaN(n) ? null : n;
+  if (s==null||s===false||s===true) return null;
+  s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
+  if(!s||s==='—'||s==='-') return null;
+  if(s.indexOf(',')!==-1){s=s.replace(/\./g,'').replace(',','.');}
+  else{s=s.replace(/\.(?=\d{3}(?:\.|$))/g,'');}
+  var n=parseFloat(s); return isNaN(n)?null:n;
 }
-function _nd(d) { return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig'; }
-var _SS = {};
+function _nd(d){return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig';}
+var _SS={};
 
-/* Indicador visual en un th/span — span fijo 12px, no desalinea */
-function _setArrow(el, dir) {
-  var base = el.getAttribute('data-sl') || el.textContent.replace(/[↑↓ ]/g,'').trim();
-  el.setAttribute('data-sl', base);
-  el.innerHTML = base + '<span style="display:inline-block;width:12px;text-align:center;'
-    +'font-size:9px;color:var(--accent);opacity:'+(dir&&dir!=='orig'?'1':'0.25')+';margin-left:1px;">'
+/* Indicador ↑↓ en span fijo — no desalinea */
+function _setArrow(el,dir){
+  var base=el.getAttribute('data-sl')||el.textContent.replace(/[↑↓ ]/g,'').trim();
+  el.setAttribute('data-sl',base);
+  el.innerHTML=base+'<span style="display:inline-block;width:12px;text-align:center;font-size:9px;'
+    +'color:var(--accent);opacity:'+(dir&&dir!=='orig'?'1':'0.25')+';margin-left:1px;">'
     +(dir==='asc'?'↑':dir==='desc'?'↓':'')+'</span>';
 }
 
-/* ══ SORT CARDS KPI (destino/corp/hotel) — opera sobre CR_CARD_TABS completo ══ */
-/* Estructura row: [lab, sub, bbg, bfg, banda, cr_u, cr_wow, val_pct, wow_pp, hist21, hist20] */
-/* col_idx para sort: Tráfico=5, Métrica=7 */
-var _KPI_RCOLS = { 2:5, 4:7 }; /* span-header-idx → row-array-idx */
+/* ══ SORT CARDS KPI — sobre CR_CARD_TABS[100] completo ══ */
+/* row: [lab,sub,bbg,bfg,banda, cr_u,cr_wow, val_pct,wow_pp, hist21,hist20] */
+/* span-idx → row-idx: Tráfico=2→5, Métrica=4→7 */
+var _KPI_RCOLS={2:5,4:7};
 
-function _kpiSortAttach(card, tkey, isEf, allRows100) {
-  /* allRows100: array completo (100 rows) de CR_CARD_TABS para este tkey+metric */
-  var panel = card.querySelector('[data-tab="'+tkey+'"]');
-  if (!panel) return;
-  var rc = panel.querySelector('.kpi-tab-rows');
-  if (!rc) return;
-  var hdr = rc.firstElementChild;
-  if (!hdr) return;
-  var hspans = hdr.querySelectorAll('span');
-  var key = (card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+function _kpiSortAttach(card,tkey,isEf,allRows100){
+  var panel=card.querySelector('[data-tab="'+tkey+'"]');
+  if(!panel) return;
+  var rc=panel.querySelector('.kpi-tab-rows');
+  if(!rc) return;
+  var hdr=rc.firstElementChild; if(!hdr) return;
+  var hspans=hdr.querySelectorAll('span');
+  var key=(card.id||tkey)+'_'+(isEf?'ef':'cv')+'_'+tkey;
+  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
 
-  hspans.forEach(function(sp, i) {
-    if (_KPI_RCOLS[i] == null) return;
-    sp.style.cursor = 'pointer';
-    sp.title = 'Ordenar';
-    _setArrow(sp, _SS[key].col===i ? _SS[key].dir : null);
-    var newSp = sp.cloneNode(true);
-    newSp.setAttribute('data-sl', sp.getAttribute('data-sl')||'');
-    sp.parentNode.replaceChild(newSp, sp);
-    newSp.style.cursor = 'pointer';
-    newSp.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col === i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      /* Ordenar sobre los 100 rows completos */
-      var ri = _KPI_RCOLS[i];
-      var sorted = allRows100.slice();
-      if (dir !== 'orig') {
-        sorted.sort(function(a,b) {
-          var va=_sv(a[ri]), vb=_sv(b[ri]);
+  hspans.forEach(function(sp,i){
+    if(_KPI_RCOLS[i]==null) return;
+    sp.style.cursor='pointer'; sp.title='Ordenar';
+    _setArrow(sp, _SS[key].col===i?_SS[key].dir:null);
+    var newSp=sp.cloneNode(true);
+    newSp.setAttribute('data-sl',sp.getAttribute('data-sl')||'');
+    sp.parentNode.replaceChild(newSp,sp);
+    newSp.style.cursor='pointer';
+    newSp.addEventListener('click',function(){
+      var st=_SS[key];
+      var dir=(st.col===i)?_nd(st.dir):'asc';
+      _SS[key]={col:i,dir:dir};
+      var ri=_KPI_RCOLS[i];
+      var sorted=allRows100.slice(); /* copia de los 100 originales */
+      if(dir!=='orig'){
+        sorted.sort(function(a,b){
+          var va=_sv(a[ri]),vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc' ? va-vb : vb-va;
+          return dir==='asc'?va-vb:vb-va;
         });
       }
-      /* Re-renderizar top 10 */
-      var rowsHtml = sorted.slice(0,10).map(function(r,idx){ return _cardRow(r,idx,isEf); }).join('');
-      rc.innerHTML = (hdr ? hdr.outerHTML : '') + rowsHtml;
-      if (typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
-      /* Re-enganchar con los mismos 100 rows originales */
-      setTimeout(function(){ _kpiSortAttach(card, tkey, isEf, allRows100); }, 15);
+      var rowsHtml=sorted.slice(0,10).map(function(r,idx){return _cardRow(r,idx,isEf);}).join('');
+      rc.innerHTML=(hdr?hdr.outerHTML:'')+rowsHtml;
+      if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
+      /* Re-enganchar con los 100 ORIGINALES siempre */
+      setTimeout(function(){_kpiSortAttach(card,tkey,isEf,allRows100);},15);
     });
   });
 }
 
-function _initAllSort() {
-  var mode = (typeof W!=='undefined') ? W.mode : 'cr';
-  var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
-  /* Obtener tabs del modo activo */
-  var TABS = (mode==='cr') ? (typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
-                           : (typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
-  if (!TABS) return;
-  var tabs = TABS[canasta] || TABS['global'] || {};
-
-  ['ef','cv'].forEach(function(metric) {
-    var isEf = metric==='ef';
-    var suffix = isEf ? '-ef-' : '-cv-';
-    ['destino','corp','hotel'].forEach(function(tkey) {
-      var allRows = (tabs[metric]||{})[tkey] || [];
-      if (!allRows.length) return;
-      var radioEl = document.getElementById('tab'+suffix+tkey);
-      if (!radioEl) return;
-      var card = radioEl.closest('.kpi-card');
-      if (!card) return;
-      _kpiSortAttach(card, tkey, isEf, allRows);
+function _initAllSort(){
+  var mode=(typeof W!=='undefined')?W.mode:'cr';
+  var canasta=(typeof W!=='undefined')?(W.canasta||'global'):'global';
+  var TABS=(mode==='cr')?(typeof CR_CARD_TABS!=='undefined'?CR_CARD_TABS:null)
+                        :(typeof RND_CARD_TABS!=='undefined'?RND_CARD_TABS:null);
+  if(!TABS) return;
+  var tabs=TABS[canasta]||TABS['global']||{};
+  ['ef','cv'].forEach(function(metric){
+    var isEf=metric==='ef';
+    var suffix=isEf?'-ef-':'-cv-';
+    ['destino','corp','hotel'].forEach(function(tkey){
+      var allRows=(tabs[metric]||{})[tkey]||[];
+      if(!allRows.length) return;
+      var radioEl=document.getElementById('tab'+suffix+tkey);
+      if(!radioEl) return;
+      var card=radioEl.closest('.kpi-card');
+      if(!card) return;
+      _kpiSortAttach(card,tkey,isEf,allRows);
     });
   });
 }
 
-/* ══ SORT CARDS AR (table/tbody) — opera sobre el array JS original (100 rows) ══ */
-/* Mapeo th-index → row-array-index: tráfico=2→r[4], métrica=4→r[5 o 6] */
-function _arSort(n, tbodyId, btnId, origRows100) {
-  var tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-  var table = tbody.closest('table');
-  if (!table) return;
-  var ths = table.querySelectorAll('thead th');
-  var key = tbodyId;
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
-  var rmap = {2:4, 4:(n===1?5:6)};
+/* ══ SORT CARDS AR — sobre origRows100 guardados por tbodyId ══ */
+/* origRows100: siempre los 100 del data source, NUNCA los ya ordenados */
+var _AR_ORIG={};  /* tbodyId → array 100 rows originales */
 
-  ths.forEach(function(th, i) {
-    if (rmap[i] == null) return;
-    th.style.cursor = 'pointer';
-    th.title = 'Ordenar';
-    _setArrow(th, _SS[key].col===i ? _SS[key].dir : null);
-    var newTh = th.cloneNode(true);
-    newTh.setAttribute('data-sl', th.getAttribute('data-sl')||'');
-    th.parentNode.replaceChild(newTh, th);
-    newTh.style.cursor = 'pointer';
-    newTh.addEventListener('click', function() {
-      var st = _SS[key];
-      var dir = (st.col === i) ? _nd(st.dir) : 'asc';
-      _SS[key] = {col:i, dir:dir};
-      /* Ordenar sobre los 100 rows originales */
-      var ri = rmap[i];
-      var sorted = origRows100.slice();
-      if (dir !== 'orig') {
-        sorted.sort(function(a,b) {
-          var va=_sv(a[ri]), vb=_sv(b[ri]);
+/* th-idx → row-array-idx: trafico=2→r[4], metrica=4→r[5 o 6] */
+function _arSort(n,tbodyId,btnId,rows100){
+  /* Guardar originales solo la primera vez o si vienen más rows */
+  if(!_AR_ORIG[tbodyId]||rows100.length>(_AR_ORIG[tbodyId]||[]).length){
+    _AR_ORIG[tbodyId]=rows100.slice();
+  }
+  var origRows=_AR_ORIG[tbodyId];
+
+  var tbody=document.getElementById(tbodyId); if(!tbody) return;
+  var table=tbody.closest('table'); if(!table) return;
+  var ths=table.querySelectorAll('thead th');
+  var key=tbodyId;
+  if(!_SS[key]) _SS[key]={col:null,dir:'orig'};
+  var rmap={2:4,4:(n===1?5:6)};
+
+  ths.forEach(function(th,i){
+    if(rmap[i]==null) return;
+    th.style.cursor='pointer'; th.title='Ordenar';
+    _setArrow(th,_SS[key].col===i?_SS[key].dir:null);
+    var newTh=th.cloneNode(true);
+    newTh.setAttribute('data-sl',th.getAttribute('data-sl')||'');
+    th.parentNode.replaceChild(newTh,th);
+    newTh.style.cursor='pointer';
+    newTh.addEventListener('click',function(){
+      var st=_SS[key];
+      var dir=(st.col===i)?_nd(st.dir):'asc';
+      _SS[key]={col:i,dir:dir};
+      var ri=rmap[i];
+      var sorted=origRows.slice(); /* siempre desde los 100 originales */
+      if(dir!=='orig'){
+        sorted.sort(function(a,b){
+          var va=_sv(a[ri]),vb=_sv(b[ri]);
           if(va==null&&vb==null) return 0;
           if(va==null) return 1; if(vb==null) return -1;
-          return dir==='asc' ? va-vb : vb-va;
+          return dir==='asc'?va-vb:vb-va;
         });
       }
-      /* Mostrar top 10 del resultado */
-      ar_renderTable(n, tbodyId, btnId, sorted);
-      /* Re-enganchar con origRows100 sin modificar */
-      setTimeout(function(){ _arSort(n, tbodyId, btnId, origRows100); }, 20);
+      /* Renderizar top 10 del sort */
+      ar_renderTable(n,tbodyId,btnId,sorted);
+      /* Re-enganchar CON LOS ORIGINALES — no con sorted */
+      setTimeout(function(){_arSort(n,tbodyId,btnId,origRows);},20);
     });
   });
 }
 
 /* Patch ar_renderTable — guardar origRows y enganchar sort */
-var _origART = ar_renderTable;
-ar_renderTable = function(n, tbodyId, btnId, rows) {
-  _origART(n, tbodyId, btnId, rows);
-  /* rows aquí es el array completo que viene de _arRows() o de _arSort() */
-  /* Siempre re-enganchamos con los rows recibidos como origen */
-  setTimeout(function(){ _arSort(n, tbodyId, btnId, rows); }, 20);
+var _origART=ar_renderTable;
+ar_renderTable=function(n,tbodyId,btnId,rows){
+  _origART(n,tbodyId,btnId,rows);
+  /* Guardar como originales solo si vienen más rows que lo guardado */
+  if(!_AR_ORIG[tbodyId]||rows.length>(_AR_ORIG[tbodyId]||[]).length){
+    _AR_ORIG[tbodyId]=rows.slice();
+  }
+  setTimeout(function(){_arSort(n,tbodyId,btnId,_AR_ORIG[tbodyId]);},20);
 };
 
-/* Init al cargar — después de que w22_update haya renderizado */
-setTimeout(_initAllSort, 1500);
-
-/* Re-init al cambiar canasta o modo */
-var _origSC_s = w22_setC;
-w22_setC = function(c,el) { _origSC_s(c,el); setTimeout(_initAllSort, 400); };
-var _origSM_s = w22_setMode;
-w22_setMode = function(m,el) { _origSM_s(m,el); setTimeout(_initAllSort, 400); };
+setTimeout(_initAllSort,1500);
+var _origSC_s=w22_setC;
+w22_setC=function(c,el){
+  _origSC_s(c,el);
+  /* Reset origenes al cambiar canasta — los datos cambian */
+  _AR_ORIG={};
+  setTimeout(_initAllSort,400);
+};
+var _origSM_s=w22_setMode;
+w22_setMode=function(m,el){
+  _origSM_s(m,el);
+  _AR_ORIG={};
+  setTimeout(_initAllSort,400);
+};
