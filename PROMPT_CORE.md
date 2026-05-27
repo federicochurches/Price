@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W21-post2 · Mayo 2026 · HTML unificado + Módulo histórico v5 + Análisis dinámico**
+**Versión W21-post3 · Mayo 2026 · HTML unificado + Módulo histórico v5 + Análisis dinámico + Sort + Top 10 fijo**
 
 ---
 
@@ -394,9 +394,13 @@ em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
 ```
 Sin `margin-left` — elimina el "guion fantasma".
 
-### Toggle "Ver más / Ver menos"
+### Top N fijo · Sin colapso
 
-JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-more`.
+- Cards KPI globales (Eficacia, ConvRate, NoDispo, IPM): **10 rows siempre visibles**, sin botón "Ver más/menos"
+- Cards AR (Análisis de Rendimiento): **10 rows visibles** del resultado del sort
+- El sort opera sobre los **100 rows del JSON** (no sobre el DOM), preservando numeración original
+- `ri < 10` en el searchbox filter de `asset_shared_head.html` — NO `ri < 5`
+- El `w22_renderTable` en `demo_js_main.js` hace `rows.slice(0,10)` sin toggle
 
 ### Datos históricos reales W17-W21
 
@@ -421,7 +425,7 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 
 ## 📌 Reglas Generales
 
-- **Top 5** en Editorial · **Top 100** en Excel de Análisis
+- **Top 10** en Editorial · **Top 100** en Excel de Análisis y JSON de cards AR
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
 - Ultra Opaco y Opaco son prioridad estratégica (Weight 0.6) — keys internos: `cug` y `op`
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
@@ -485,6 +489,10 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 34. Olvidar cargar g_dest_w17 y g_channel_w17 de D — necesarios para WoW en dest_rows y chan_rows. Ver render_cr_p2.py líneas 33–36
 35. Renderizar trow() con 9 elementos (array sin wow_cr_str) — ahora es 11: [..., wow_ef_str, wow_cv_str, wow_cr_str]. r[10] accede a tráfico WoW
 36. No validar que labels de tabla coincidan con índices de trow() — colisión de columnas. th_labels_hotel debe ser 7: ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
+37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py` (ver `NOTA_REFACTOR_PENDIENTE.md`)
+38. Usar `ri < 5` en el searchbox filter de `asset_shared_head.html` — siempre `ri < 10` para mostrar el top 10 al resetear la búsqueda
+39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (100 rows) y renderizar el top 10 del resultado
+40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
 
 ---
 
@@ -493,6 +501,7 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
+| P9 | Refactor centralización CR/RND en `render_helpers.py` | ver `NOTA_REFACTOR_PENDIENTE.md` |
 
 > Bugs P1 (eje X undefined), P2 (click histórico dim), P3, P4, P6-P8 cerrados en sesiones W21/W21-post.
 
@@ -520,7 +529,7 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21-post2 (gráficas + análisis dinámico) · May 2026
+**Última actualización:** W21-post3 (sort + top 10 + tráfico bold + cards AR) · Mayo 2026
 
 ---
 
