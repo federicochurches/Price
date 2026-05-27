@@ -868,42 +868,60 @@ function w22_renderCardTabs(canasta){
     CATALOG_PP.forEach(function(n){ if(!pp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) pp.push(_inactive(n)); });
     CATALOG_TP.forEach(function(n){ if(!tp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) tp.push(_inactive(n)); });
 
-    /* Row con cursor, data-hist, estilo inactivo */
-    function _chanRow(r, i){
-      var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
-      var isInactive = banda === 'Sin Actividad';
-      var wow_pp = (wow_pp_raw!=null && wow_pp_raw!=='—' && wow_pp_raw!=='')
-        ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
-      var badge = isInactive
-        ? '<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>'
-        : '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-      var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
-      var mw = (wow_pp!=null&&!isNaN(wow_pp))
-        ? _pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
-        : '<span style="color:var(--ink-muted)">—</span>';
-      var displayVal = val_pct || '—';
-      var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
-      var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
-      var num = (i<10?'0'+(i+1):(i+1))+'. ';
-      var rowStyle = isInactive
-        ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-        : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
-      return '<div '+histAttrs+' style="'+rowStyle+'">'
-        +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+num+nombre+'</span>'
-        +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
-        +'<span style="text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
-        +'<div style="text-align:right;">'+mw+'</div>'
-        +'</div>';
-    }
+    /* Row canal — función unificada para KPI card y AR card (P10)
+       opts.cardN : número de card AR (undefined para KPI card)
+       opts.w20   : incluir data-hist-w20 (true para AR card)              */
     var acc = (typeof cv==='function') ? cv().col : '#5C469C';
-    var pp_html = pp.map(_chanRow).join('');
-    var tp_html = tp.map(_chanRow).join('');
+    var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
+    var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
       +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
       +'</div>';
     if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
   });
+}
+
+/* ═══ Función unificada de fila de canal — usada en KPI cards y AR cards (P10) ═══
+   r       : [nombre, bbg, bfg, banda, cr_u, val_pct, wow_pp_raw]
+   i       : índice 0-based
+   opts    : { cardN: int|undefined, w20: bool }
+             cardN → agrega data-hist-card para AR cards
+             w20   → agrega data-hist-w20 calculado desde WoW
+*/
+function _buildChanRow(r, i, opts) {
+  opts = opts || {};
+  var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], val_pct=r[5], wow_pp_raw=r[6];
+  var isInactive = banda === 'Sin Actividad';
+  var wow_pp = (wow_pp_raw!=null && wow_pp_raw!=='—' && wow_pp_raw!=='')
+    ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
+  var badge = isInactive
+    ? '<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>'
+    : '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+  var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
+  var mw = (wow_pp!=null&&!isNaN(wow_pp))
+    ? _pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
+    : '<span style="color:var(--ink-muted)">—</span>';
+  var displayVal = val_pct || '—';
+  var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+  var wowNum = (wow_pp!=null&&!isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
+  var w20num = (wow_pp!=null&&!isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
+  var num = (i<10?'0'+(i+1):(i+1))+'. ';
+  /* data-hist attrs: AR cards incluyen w20 y card number */
+  var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
+  if (opts.w20)   histAttrs += ' data-hist-w20="'+w20num+'"';
+  if (opts.cardN) histAttrs += ' data-hist-card="'+opts.cardN+'"';
+  var rowStyle = isInactive
+    ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+    : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+  var nameStyle = 'font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;';
+  var valStyle  = 'text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;';
+  return '<div '+histAttrs+' style="'+rowStyle+'">'
+    +'<span style="'+nameStyle+'">'+num+nombre+'</span>'
+    +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
+    +'<span style="'+valStyle+'">'+displayVal+'</span>'
+    +'<div style="text-align:right;">'+mw+'</div>'
+    +'</div>';
 }
 
 /* ═══ Funciones de las dos cards de Análisis de Rendimiento ═══ */
@@ -943,37 +961,9 @@ function _arRenderChan(n) {
   var cyan = '#4FC3F4';
   var isCR = W.mode === 'cr';
 
-  /* Cada fila: div clickeable con data-hist para el histórico */
-  function chanRowAR(r, origIdx) {
-    var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
-    /* wow_pp puede ser string '1,31%' o número — normalizar */
-    var wow_pp = (wow_pp_raw != null && wow_pp_raw !== '—' && wow_pp_raw !== '')
-      ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.'))
-      : null;
-    var badge = '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
-    var mw_up = wow_pp!=null && !isNaN(wow_pp) && wow_pp>0;
-    var mw = (wow_pp!=null && !isNaN(wow_pp))
-      ? '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(mw_up?'#EAF3DE':'#FCE8E6')+';color:'+(mw_up?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'</em>'
-      : '<span style="color:var(--ink-muted)">—</span>';
-    var displayVal = val_pct || '—';
-    var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
-    var wowNum = (wow_pp!=null && !isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
-    var w20num = (wow_pp!=null && !isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
-    var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+nombre+'" data-hist-card="'+n+'"';
-    var isInactive = banda === 'Sin Actividad';
-    var rowStyle = isInactive
-      ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-      : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
-    return '<div '+histAttrs+' style="'+rowStyle+'">'
-      +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
-      +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
-      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink-muted);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
-      +'<div style="text-align:right;">'+mw+'</div>'
-      +'</div>';
-  }
-
-  var pp_html = pp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
-  var tp_html = tp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
+  /* chanRowAR reemplazada por _buildChanRow(r, i, {cardN:n, w20:true}) — P10 */
+  var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
+  var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
   var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0;">'
     +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+pp_html+'</div>'
     +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+tp_html+'</div>'
