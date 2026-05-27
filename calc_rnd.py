@@ -161,12 +161,12 @@ _gh17['IPM_W18']      = (_gh17['_gb'].clip(lower=0) / _gh17['_Trafico'].replace(
 _gh17['RPM_W18']      = _gh17['IPM_W18']
 _gh17['Trafico_W18']  = _gh17['_Trafico']
 g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18','Trafico_W18']]
-g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['CorpName','%NoDispo_W18','IPM_W18']]
-g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['Destino','%NoDispo_W18','IPM_W18']]
-g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['PaisDestino','%NoDispo_W18','IPM_W18']]
+g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['CorpName','%NoDispo_W18','IPM_W18','Trafico_W18']]
+g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['Destino','%NoDispo_W18','IPM_W18','Trafico_W18']]
+g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['PaisDestino','%NoDispo_W18','IPM_W18','Trafico_W18']]
 
 # Enriquecer p80 con WoW
 p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
@@ -227,6 +227,8 @@ for g in [g_corp, g_dest, g_pais]:
     g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W18', g['%NoDispo'])) * 100
     if 'IPM_W18' in g.columns and 'IPM_WoW_pp' not in g.columns:
         g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W18']
+    if 'Trafico_W18' in g.columns:
+        g['Trafico_WoW_pct'] = ((g['Trafico'] - g['Trafico_W18']) / g['Trafico_W18'].replace(0, float('nan')) * 100)
 
 # ── TABs para KPI hero ────────────────────────────────────────────
 def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
