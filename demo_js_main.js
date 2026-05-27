@@ -94,38 +94,41 @@ function w22_updateTableHeaders(){
 
 function w22_renderTable(tbodyId, btnId, rows, open){
  var tbody=g(tbodyId);if(!tbody)return;
- /* Renderizar TODOS los rows con extras ocultos */
- tbody.innerHTML=rows.map(function(r,i){
-  var html = trow(r);
-  /* Marcar rows 6-10 (índices 5-9) como rows-more */
-  if(i>=5 && i<10){
-    html = html.replace(/^<tr/, '<tr class="rows-more" style="display:none;"');
+ 
+ /* Para tablas AR, renderizar TODOS los rows pero ocultar 6-10 */
+ if(tbodyId==='w22-th' || tbodyId==='w22-td'){
+  tbody.innerHTML=rows.map(function(r,i){
+   var html = trow(r);
+   if(i>=5 && i<10){
+    html = html.replace(/^<tr/, '<tr style="display:none;"');
+   }
+   return html;
+  }).join('');
+  
+  var btn=g(btnId);
+  if(btn && rows.length>5){
+   btn.style.display='';
+   btn.textContent='Ver más ▾';
+   btn.onclick=function(){
+    var expanded = this.getAttribute('data-exp')==='1';
+    this.setAttribute('data-exp', expanded?'0':'1');
+    tbody.querySelectorAll('tr').forEach(function(tr,i){
+     if(i>=5 && i<10){
+      tr.style.display = expanded?'none':'';
+     }
+    });
+    this.textContent = expanded?'Ver más ▾':'Ver menos ▴';
+   };
+  }else if(btn){
+   btn.style.display='none';
   }
-  /* Marcar rows 11+ (índice 10+) como sb-hidden */
-  else if(i>=10){
-    html = html.replace(/^<tr/, '<tr class="sb-hidden" style="display:none;"');
-  }
-  return html;
- }).join('');
- /* Mostrar botón y asignar onclick si hay más de 5 rows */
- var btn=g(btnId);
- if(btn){
-  if(rows.length>5){
-    btn.style.display='';
-    btn.textContent='Ver más ▾';
-    /* onclick para expandir/contraer rows-more */
-    btn.onclick=function(e){
-      e.preventDefault();
-      var expanded = this.getAttribute('data-exp')==='1';
-      this.setAttribute('data-exp', expanded?'0':'1');
-      tbody.querySelectorAll('.rows-more').forEach(function(tr){
-        tr.style.display = expanded?'none':'';
-      });
-      this.textContent = expanded?'Ver más ▾':'Ver menos ▴';
-    };
-  }else{
-    btn.style.display='none';
-  }
+ }else{
+  /* Para otras tablas, comportamiento original */
+  tbody.innerHTML=rows.slice(0,10).map(function(r){
+   return trow(r);
+  }).join('');
+  var btn=g(btnId);
+  if(btn) btn.style.display='none';
  }
 }
 function w22_renderRE(open){
