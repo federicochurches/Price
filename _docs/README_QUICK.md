@@ -106,9 +106,11 @@ Price/
 | `COMMIT_GUIDE.md` | Workflow de commit |
 | `destinatarios.md` | 15 destinatarios BCC |
 
+| `NOTA_REFACTOR_PENDIENTE.md` | Refactor centralización CR/RND — ejecutar en W22 |
+
 ---
 
-**Última actualización:** Mayo 2026 · W21+
+**Última actualización:** Mayo 2026 · W21-post3
 
 ---
 

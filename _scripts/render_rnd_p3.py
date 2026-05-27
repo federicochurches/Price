@@ -62,7 +62,7 @@ def render_historico_seccion_rnd(canvas_id_nd, canvas_id_ipm, banda_nd, val_nd, 
   <div>{html_nd}</div><div>{html_ipm}</div>
 </div>{js}'''
 
-with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
 

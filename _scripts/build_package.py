@@ -213,6 +213,10 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-rnd" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
         <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-rnd" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
       </div>
+      <div style="padding:10px 20px 14px;display:flex;gap:8px;">
+        <a href="rates-nodispo/week-{WEEK}/Analisis_RatesNoDispo_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="font-size:10px;font-weight:600;color:var(--rnd);text-decoration:none;padding:3px 8px;border:1px solid var(--rnd);border-radius:3px;">⬇ Excel Análisis</a>
+        <a href="rates-nodispo/week-{WEEK}/Dataset_RatesNoDispo_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="font-size:10px;font-weight:600;color:var(--muted);text-decoration:none;padding:3px 8px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset</a>
+      </div>
     </div>
 
     <div class="rpt-card" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html#section-cr'">
@@ -226,6 +230,10 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <span class="pill active" style="background:var(--cr);border-color:var(--cr);">{SEMANA}</span>
         <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html#section-cr" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
         <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html#section-cr" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
+      </div>
+      <div style="padding:10px 20px 14px;display:flex;gap:8px;">
+        <a href="checkrates/week-{WEEK}/Analisis_CheckRates_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="font-size:10px;font-weight:600;color:var(--cr);text-decoration:none;padding:3px 8px;border:1px solid var(--cr);border-radius:3px;">⬇ Excel Análisis</a>
+        <a href="checkrates/week-{WEEK}/Dataset_CheckRates_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="font-size:10px;font-weight:600;color:var(--muted);text-decoration:none;padding:3px 8px;border:1px solid var(--rule);border-radius:3px;">⬇ Dataset</a>
       </div>
     </div>
   </div>
@@ -346,6 +354,37 @@ index_html = build_index()
 index_path = OUTPUTS / 'index.html'
 index_path.write_text(index_html, encoding='utf-8')
 print(f'✅ index.html generado · {len(index_html):,} chars')
+
+# ── Copiar Excels canónicos al repo (para que Netlify los sirva vía links del HTML) ─
+_cr_excel_src  = OUTPUTS / f'Analisis_CheckRates_W{WEEK}.xlsx'
+_rnd_excel_src = OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx'
+_cr_excel_dst  = PROJECT / 'checkrates'   / WEEK_STR / f'Analisis_CheckRates_W{WEEK}.xlsx'
+_rnd_excel_dst = PROJECT / 'rates-nodispo' / WEEK_STR / f'Analisis_RatesNoDispo_W{WEEK}.xlsx'
+_cr_excel_dst.parent.mkdir(parents=True, exist_ok=True)
+_rnd_excel_dst.parent.mkdir(parents=True, exist_ok=True)
+for _src, _dst, _label in [
+    (_cr_excel_src,  _cr_excel_dst,  'Analisis_CheckRates'),
+    (_rnd_excel_src, _rnd_excel_dst, 'Analisis_RatesNoDispo'),
+]:
+    if _src.exists():
+        shutil.copy2(_src, _dst)
+        print(f'✅ {_label}_W{WEEK}.xlsx → repo/{_dst.relative_to(PROJECT)}')
+    else:
+        print(f'⚠️  FALTA: {_src.name} (generar con excel_cr.py / excel_rnd.py primero)')
+
+# Limpiar excels legacy en las carpetas de la semana actual (solo dejar los canónicos)
+_legacy_patterns = [
+    f'Analisis_Checkrates_7d.xlsx', f'Analisis_Checkrates_OP_7d.xlsx',
+    f'Analisis_Checkrates_B2C_7d.xlsx', f'Analisis_Checkrates_CUG_7d.xlsx',
+    f'Analisis_Rates_NoDispo_7d.xlsx', f'Analisis_Rates_NoDispo_OP_7d.xlsx',
+    f'Analisis_Rates_NoDispo_B2C_7d.xlsx', f'Analisis_Rates_NoDispo_CUG_7d.xlsx',
+]
+for _folder in [PROJECT / 'checkrates' / WEEK_STR, PROJECT / 'rates-nodispo' / WEEK_STR]:
+    for _pattern in _legacy_patterns:
+        _f = _folder / _pattern
+        if _f.exists():
+            _f.unlink()
+            print(f'🗑️  Eliminado legacy: {_f.name}')
 
 
 # ── Generar archivo de seguimiento para la próxima semana ────────────────────

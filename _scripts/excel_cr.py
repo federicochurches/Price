@@ -1,440 +1,314 @@
 """
-excel_cr.py · W21+ · Excel único consolidado CheckRates
-Genera: Analisis_CheckRates_W{NN}.xlsx
-Hojas: Global | B2C | B2B-OP | CUG
-Cada hoja = filtro del mismo DataFrame base (p80_hotel por DistributionCategory).
-Reemplaza: excel_cr.py + excel_cr_canastas.py (4 archivos → 1)
+excel_cr.py · W21+ · 44 hojas (11 × 4 canastas)
+Por canasta: Severity | Top Destinos | Top Corp | Hot Críticos | Hot Bajo Rend |
+             Hot Sin Conv | Hot Menor CV | Channel | Dim Corp | Dim Dest | (WoW KPIs en Severity)
 """
-import pickle
-import os
-import re
+import pickle, os, re
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
-from datetime import datetime
 from engine import banda_eficacia, banda_convrate
 
-# ── Config ────────────────────────────────────────────────────────────────────
-VOL_NUM   = os.getenv('VOL_NUM', '21')
-PERIODO   = os.getenv('PERIODO', '18–24 may 2026')
-OUTPUTS   = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
+VOL_NUM = os.getenv('VOL_NUM', '21')
+PERIODO = os.getenv('PERIODO', '19-25 mayo 2026')
+OUTPUTS = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
 
-with open(os.getenv('PICKLE_CR', f'cr_w{VOL_NUM}_data.pkl'), 'rb') as _f:
-    D = pickle.load(_f)
+with open(os.getenv('PICKLE_CR', f'cr_w{VOL_NUM}_data.pkl'), 'rb') as f:
+    D = pickle.load(f)
 
-M            = D['M']
-CANASTA      = D['CANASTA']
-sev_ef_p80   = D['sev_ef_p80']
-sev_cv_p80   = D['sev_cv_p80']
-g_hotel      = D['g_hotel']
-g_corp       = D['g_corp']
-g_channel    = D['g_channel']
-p80_hotel    = D['p80_hotel'].copy()
-hotel_channel_map = D.get('hotel_channel_map', {})
+CANASTA  = D['CANASTA']
+TAB_EF   = D['TAB_EF_BY_CANASTA']
+TAB_CV   = D['TAB_CV_BY_CANASTA']
+M        = D['M']
+p80_all  = D['p80_hotel'].copy()
+hcm      = D.get('hotel_channel_map', {})
 
-def clean_hotel_name(name):
-    if name and isinstance(name, str):
-        return re.sub(r'^\(\d+\)\s*-\s*', '', name).strip()
-    return name
+def clean(n):
+    return re.sub(r'^\(\d+\)\s*-\s*', '', str(n)).strip() if n else str(n)
 
-p80_hotel['Hotel'] = p80_hotel['Hotel'].apply(clean_hotel_name)
-
-_hcm_clean = {clean_hotel_name(k): v for k, v in hotel_channel_map.items()} if hotel_channel_map else {}
-if _hcm_clean and 'Channel' not in p80_hotel.columns:
-    p80_hotel['Channel'] = p80_hotel['Hotel'].map(_hcm_clean).fillna('—')
+hcm_clean = {clean(k): v for k, v in hcm.items()}
+p80_all['Hotel']   = p80_all['Hotel'].apply(clean)
+p80_all['Channel'] = p80_all['Hotel'].map(hcm_clean).fillna('—')
 
 # ── Estilos ───────────────────────────────────────────────────────────────────
-CR_COLOR    = '5C469C'
-HEADER_FILL = PatternFill(start_color=CR_COLOR, end_color=CR_COLOR, fill_type='solid')
-HEADER_FONT = Font(name='Arial', size=10, bold=True, color='FFFFFF')
-TITLE_FONT  = Font(name='Arial', size=14, bold=True, color=CR_COLOR)
-SUBTITLE_FONT = Font(name='Arial', size=11, color=CR_COLOR)
-META_FONT   = Font(name='Arial', size=10, color='666666')
-DATA_FONT   = Font(name='Arial', size=10)
-TAB_FONT    = Font(name='Arial', size=10, bold=True, color='FFFFFF')
-THIN        = Side(border_style='thin', color='DDDDDD')
-BORDER      = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
+CR = '5C469C'
+def fill(c): return PatternFill(start_color=c, end_color=c, fill_type='solid')
+def fnt(c='000000', sz=10, bold=False, white=False):
+    return Font(name='Arial', size=sz, bold=bold, color='FFFFFF' if white else c)
+T  = Side(border_style='thin', color='CCCCCC')
+BD = Border(left=T, right=T, top=T, bottom=T)
 
-BAND_FILLS = {
-    'Exitosa':        PatternFill(start_color='E1F5EE', end_color='E1F5EE', fill_type='solid'),
-    'Aceptable':      PatternFill(start_color='FEF9C3', end_color='FEF9C3', fill_type='solid'),
-    'Revisar':        PatternFill(start_color='FED7AA', end_color='FED7AA', fill_type='solid'),
-    'Crítica':        PatternFill(start_color='FCE4F1', end_color='FCE4F1', fill_type='solid'),
-    'Súper Crítica':  PatternFill(start_color='161616', end_color='161616', fill_type='solid'),
-    'Sin Conversión': PatternFill(start_color='F2EEE6', end_color='F2EEE6', fill_type='solid'),
+BFILL = {
+    'Exitosa':       fill('E1F5EE'), 'Aceptable':     fill('FEF9C3'),
+    'Revisar':       fill('FED7AA'), 'Crítica':        fill('FCE4F1'),
+    'Súper Crítica': fill('E8E6E3'), 'Sin Conversión': fill('F2EEE6'),
 }
-BAND_FONTS = {
-    'Súper Crítica':  Font(name='Arial', size=10, bold=True, color='FFFFFF'),
-    'Sin Conversión': Font(name='Arial', size=10, color='8A8377'),
+BFONT = {
+    'Exitosa':       fnt('1A6B4A',bold=True), 'Aceptable':     fnt('713F12',bold=True),
+    'Revisar':       fnt('C2410C',bold=True), 'Crítica':        fnt('99162B',bold=True),
+    'Súper Crítica': fnt('2D2828',bold=True), 'Sin Conversión': fnt('5F5E5A',bold=True),
 }
+# WoW pills — verde si positivo Eficacia (más alto = mejor), rojo si negativo
+WOW_UP   = fill('EAF3DE');  WOW_UP_F   = fnt('2F6C34', bold=True)
+WOW_DN   = fill('FCE8E6');  WOW_DN_F   = fnt('C0392B', bold=True)
+WOW_NEU  = fill('F2EEE6');  WOW_NEU_F  = fnt('8A8377', bold=True)
 
-# Colores de pestaña por canasta
-TAB_COLORS = {
-    'Global': '5C469C',
-    'B2C':    '4472C4',
-    'B2B-OP': '2E75B6',
-    'CUG':    '1F4E79',
-}
+def apply_wow(ws, row, col, val_pp, invert=False):
+    """Colorea celda WoW: verde=mejora, rojo=empeora. invert=True para métricas donde subir es malo."""
+    cell = ws.cell(row, col)
+    if val_pp is None or (isinstance(val_pp, float) and pd.isna(val_pp)):
+        cell.value = '—'; cell.font = WOW_NEU_F; cell.fill = WOW_NEU; cell.border = BD; return
+    is_up = float(val_pp) >= 0
+    is_good = (is_up and not invert) or (not is_up and invert)
+    s = '▲' if is_up else '▼'
+    cell.value = f'{s}{abs(round(float(val_pp),2))}'.replace('.', ',')
+    cell.fill  = WOW_UP if is_good else WOW_DN
+    cell.font  = WOW_UP_F if is_good else WOW_DN_F
+    cell.border = BD
+    cell.alignment = Alignment(horizontal='center')
 
-DISPLAY_RENAME = {
-    'CR_Unicos': 'Checkrates',
-    'ConvRate':  'Conv Rate',
-}
+def title(ws, t, sub=''):
+    ws.cell(1,1,t).font = fnt(CR, 13, True)
+    if sub: ws.cell(2,1,sub).font = fnt('666666')
 
-PP_CHANNELS = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+def mk_hdr(ws, row, cols):
+    for c, lbl in enumerate(cols, 1):
+        cell = ws.cell(row, c, lbl)
+        cell.font = fnt(white=True, bold=True); cell.fill = fill(CR)
+        cell.alignment = Alignment(horizontal='center'); cell.border = BD
+    ws.auto_filter.ref = f'A{row}:{get_column_letter(len(cols))}{row}'
+    return row + 1
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def add_header(ws, title, subtitle='', canasta_label=''):
-    """Cabecera estándar: título + subtítulo + metadata."""
-    ws['A1'] = title
-    ws['A1'].font = TITLE_FONT
-    if canasta_label:
-        ws['A2'] = canasta_label
-        ws['A2'].font = SUBTITLE_FONT
-    if subtitle:
-        ws['A3'] = subtitle
-        ws['A3'].font = META_FONT
-    ws['A4'] = f'W{VOL_NUM} · {PERIODO} · Generado {datetime.now().strftime("%d/%m/%Y %H:%M")}'
-    ws['A4'].font = META_FONT
+def mk_cell(ws, row, col, val, banda=None, is_sev=False, align='center'):
+    cell = ws.cell(row, col, val)
+    cell.font = Font(name='Arial', size=10)
+    cell.border = BD
+    cell.alignment = Alignment(horizontal=align)
+    if is_sev and banda and banda in BFILL:
+        cell.fill = BFILL[banda]; cell.font = BFONT[banda]
 
-def add_table(ws, df, start_row=6, num_formats=None, banda_col=None, banda_col2=None):
-    """Escribe DataFrame como tabla con header y bandas de color."""
-    if num_formats is None:
-        num_formats = {}
-    df = df.rename(columns=DISPLAY_RENAME)
-    if banda_col and banda_col in DISPLAY_RENAME:
-        banda_col = DISPLAY_RENAME[banda_col]
-    if banda_col2 and banda_col2 in DISPLAY_RENAME:
-        banda_col2 = DISPLAY_RENAME[banda_col2]
-    num_formats = {DISPLAY_RENAME.get(k, k): v for k, v in num_formats.items()}
+def fmt_pct(v):
+    if v is None or (isinstance(v, float) and pd.isna(v)): return None
+    return round(float(v), 4)
 
-    cols = list(df.columns)
-    # Header row
-    for j, c in enumerate(cols, 1):
-        cell = ws.cell(row=start_row, column=j, value=c)
-        cell.font = HEADER_FONT
-        cell.fill = HEADER_FILL
-        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-        cell.border = BORDER
-    # Data rows
-    for i, (_, row) in enumerate(df.iterrows(), 1):
-        for j, c in enumerate(cols, 1):
-            val = row[c]
-            cell = ws.cell(row=start_row + i, column=j, value=(val if not pd.isna(val) else ''))
-            cell.font = DATA_FONT
-            cell.border = BORDER
-            if c in num_formats:
-                cell.number_format = num_formats[c]
-            if banda_col and c == banda_col and val in BAND_FILLS:
-                cell.fill = BAND_FILLS[val]
-                if val in BAND_FONTS:
-                    cell.font = BAND_FONTS[val]
-            if banda_col2 and c == banda_col2 and val in BAND_FILLS:
-                cell.fill = BAND_FILLS[val]
-                if val in BAND_FONTS:
-                    cell.font = BAND_FONTS[val]
-    # Column widths
-    for j, c in enumerate(cols, 1):
-        vals = [str(c)] + [str(row[c]) for _, row in df.iterrows() if not pd.isna(row[c])]
-        max_len = max((len(v) for v in vals), default=8)
-        ws.column_dimensions[get_column_letter(j)].width = min(max_len + 3, 52)
-    ws.freeze_panes = ws.cell(row=start_row + 1, column=1)
+def fmt_wow_str(v):
+    if v is None or (isinstance(v, float) and pd.isna(v)): return None
+    return float(v)
 
-def set_tab_color(ws, canasta):
-    ws.sheet_properties.tabColor = TAB_COLORS.get(canasta, CR_COLOR)
+def autofit(ws, widths):
+    for i, w in enumerate(widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
 
-# ── Función principal por hoja ─────────────────────────────────────────────────
-def build_sheet(wb, canasta_label, df_hotel, sev_ef, sev_cv, g_corp_df, g_channel_df, g_dest_df=None):
-    """
-    Construye todas las sub-secciones de una hoja de canasta.
-    df_hotel: p80_hotel filtrado (o completo para Global).
-    """
-    is_global = (canasta_label == 'Global')
-    tab_title = f'CheckRates · {canasta_label}'
-    
-    ws = wb.create_sheet(canasta_label)
-    set_tab_color(ws, canasta_label)
+# ── Severity con WoW de KPIs globales ────────────────────────────────────────
+def write_severity(ws, df, can_label, m_curr, m_prev):
+    title(ws, f'{can_label} · Severity CheckRates W{VOL_NUM}', f'W{VOL_NUM} · {PERIODO}')
 
-    # ── Portada / índice de la hoja ──
-    add_header(ws,
-               title=f'Supply CheckRates · W{VOL_NUM} · {canasta_label}',
-               subtitle=f'{len(df_hotel)} hoteles P80 · {PERIODO}',
-               canasta_label='' if is_global else f'Canasta {canasta_label}')
+    # WoW KPIs globales
+    ef_curr = m_curr.get('eficacia', 0); ef_prev = m_prev.get('eficacia', 0)
+    cv_curr = m_curr.get('conv_rate', 0); cv_prev = m_prev.get('conv_rate', 0)
+    ef_wow  = (ef_curr - ef_prev) * 100 if ef_prev else None
+    cv_wow  = (cv_curr - cv_prev) * 100 if cv_prev else None
 
-    current_row = 6  # Reservar filas de portada, empezar secciones desde fila 6
+    r = 4
+    ws.cell(r, 1, 'KPI Global').font = fnt(CR, 11, True); r+=1
+    r = mk_hdr(ws, r, ['Métrica', f'W{int(VOL_NUM)-1}', f'W{VOL_NUM}', 'WoW'])
+    for label, prev, curr, wow, inv in [
+        ('Eficacia', ef_prev, ef_curr, ef_wow, False),
+        ('Conv Rate', cv_prev, cv_curr, cv_wow, False),
+    ]:
+        ws.cell(r, 1, label).font = Font(name='Arial', size=10, bold=True); ws.cell(r,1).border=BD
+        ws.cell(r, 2, round(prev,4) if prev else None).border=BD
+        ws.cell(r, 3, round(curr,4) if curr else None).border=BD
+        ws.cell(r, 2).number_format='0.00%'; ws.cell(r,3).number_format='0.00%'
+        ws.cell(r, 2).alignment=Alignment(horizontal='center')
+        ws.cell(r, 3).alignment=Alignment(horizontal='center')
+        apply_wow(ws, r, 4, wow, invert=inv)
+        r += 1
 
-    # Separador visual entre secciones dentro de la hoja
-    def section_sep(ws, row, title):
-        cell = ws.cell(row=row, column=1, value=f'▌ {title}')
-        cell.font = Font(name='Arial', size=11, bold=True, color=CR_COLOR)
-        ws.row_dimensions[row].height = 20
-        return row + 1
+    r += 1
+    # Severity tables
+    sev_ef, sev_cv = {}, {}
+    for _, row in df.iterrows():
+        ef = fmt_pct(row.get('Eficacia'))
+        cv = fmt_pct(row.get('ConvRate'))
+        bk = int(row.get('Bookings',0)) if pd.notna(row.get('Bookings',0)) else 0
+        if ef is not None: b=banda_eficacia(ef); sev_ef[b]=sev_ef.get(b,0)+1
+        if cv is not None: b=banda_convrate(cv,bk); sev_cv[b]=sev_cv.get(b,0)+1
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 1 · SEVERITY EFICACIA
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Severity · Eficacia  (target ≥ 97%)')
-    total_ef = int(sev_ef.sum()) if hasattr(sev_ef, 'sum') else (sum(sev_ef.values()) or 1)
-    RANGOS_EF = {'Súper Crítica':'<60%','Crítica':'60–85%','Revisar':'85–93%',
-                 'Aceptable':'93–97%','Exitosa':'≥97%'}
-    data_ef = [{'Banda': n, 'Rango': RANGOS_EF[n],
-                'Hoteles': int(sev_ef.get(n, 0)),
-                '%': int(sev_ef.get(n, 0)) / total_ef}
-               for n in ['Súper Crítica','Crítica','Revisar','Aceptable','Exitosa']]
-    add_table(ws, pd.DataFrame(data_ef), start_row=current_row,
-              num_formats={'%': '0.0%'}, banda_col='Banda')
-    current_row += len(data_ef) + 3
+    for label, sev, orden in [
+        ('Severity Eficacia', sev_ef, ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica']),
+        ('Severity Conv Rate', sev_cv, ['Exitosa','Aceptable','Revisar','Crítica','Sin Conversión']),
+    ]:
+        ws.cell(r,1,label).font=fnt(CR,11,True); r+=1
+        r=mk_hdr(ws, r, ['Severity','Hoteles','% del Total'])
+        total=sum(sev.values()) or 1
+        for b in orden:
+            n=sev.get(b,0)
+            mk_cell(ws, r, 1, b, b, is_sev=True, align='center')
+            ws.cell(r,1).border=BD
+            ws.cell(r,2,n).border=BD; ws.cell(r,2).alignment=Alignment(horizontal='center')
+            ws.cell(r,3,round(n/total,4)).number_format='0.0%'; ws.cell(r,3).border=BD
+            ws.cell(r,3).alignment=Alignment(horizontal='center')
+            r+=1
+        r+=1
+    autofit(ws,[20,12,12,12])
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 2 · SEVERITY CONV RATE
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Severity · Conv Rate  (target ≥ 2,5%)')
-    total_cv = int(sev_cv.sum()) if hasattr(sev_cv, 'sum') else (sum(sev_cv.values()) or 1)
-    RANGOS_CV = {'Sin Conversión':'BKGS=0','Crítica':'<0,8%','Revisar':'0,8–1,5%',
-                 'Aceptable':'1,5–2,5%','Exitosa':'≥2,5%'}
-    data_cv = [{'Banda': n, 'Rango': RANGOS_CV[n],
-                'Hoteles': int(sev_cv.get(n, 0)),
-                '%': int(sev_cv.get(n, 0)) / total_cv}
-               for n in ['Sin Conversión','Crítica','Revisar','Aceptable','Exitosa']]
-    add_table(ws, pd.DataFrame(data_cv), start_row=current_row,
-              num_formats={'%': '0.0%'}, banda_col='Banda')
-    current_row += len(data_cv) + 3
+# ── Tabla combinada EF+CV ─────────────────────────────────────────────────────
+COLS_COMBINED = ['Nombre','Sev Eficacia','Sev Conv Rate','CR Únicos','Bookings',
+                 'Eficacia','WoW Ef','Conv Rate','WoW CV']
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 3 · TOP 100 CRÍTICOS (BKGS>0, peor Eficacia)
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Top 100 · Críticos  (BKGS>0 · Eficacia < 85%)')
-    mask_c = (df_hotel['Bookings'] > 0) & (df_hotel['BandaEficacia'].isin(['Crítica','Súper Crítica']))
-    df_c = (df_hotel[mask_c]
-            .sort_values('Eficacia', ascending=True)
-            .head(100)
-            .reset_index(drop=True))
-    df_c.insert(0, 'Rk', range(1, len(df_c)+1))
-    cols_c = [col for col in ['Rk','Hotel','CorpName','Channel','Destino',
-                               'CR_Unicos','Successful','Bookings','Eficacia','ConvRate','BandaEficacia']
-              if col in df_c.columns]
-    add_table(ws, df_c[cols_c], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                           'CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
-              banda_col='BandaEficacia')
-    current_row += len(df_c) + 3
+def write_combined(ws, df_ef, df_name_col, title_str, extra_cols=None):
+    """Top 100 ordenado por Eficacia ASC con ambas métricas + severity coloreada."""
+    title(ws, title_str, 'Ordenado por Eficacia ASC (peor primero) · Top 100')
+    if df_ef is None or len(df_ef)==0: ws.cell(4,1,'Sin datos'); return
+    df_s = df_ef.sort_values('Eficacia', ascending=True).head(100).copy()
+    all_cols = COLS_COMBINED + (list(extra_cols.keys()) if extra_cols else [])
+    r = mk_hdr(ws, 4, all_cols)
+    for _, row in df_s.iterrows():
+        ef = fmt_pct(row.get('Eficacia'))
+        cv = fmt_pct(row.get('ConvRate'))
+        bk = int(row.get('Bookings',0)) if pd.notna(row.get('Bookings',0)) else 0
+        cru= int(row.get('CR_Unicos',0)) if pd.notna(row.get('CR_Unicos',0)) else 0
+        bef= banda_eficacia(ef) if ef is not None else '—'
+        bcv= banda_convrate(cv,bk) if cv is not None else '—'
+        wow_ef = fmt_wow_str(row.get('Eficacia_WoW_pp'))
+        wow_cv = fmt_wow_str(row.get('ConvRate_WoW_pp'))
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 4 · TOP 100 BAJO RENDIMIENTO (ConvRate Crítica/Revisar)
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Top 100 · Bajo Rendimiento  (BKGS>0 · ConvRate Crítica/Revisar)')
-    mask_b = (df_hotel['Bookings'] > 0) & (df_hotel['BandaConvRate'].isin(['Crítica','Revisar']))
-    df_b = (df_hotel[mask_b]
-            .sort_values('Eficacia', ascending=True)
-            .head(100)
-            .reset_index(drop=True))
-    df_b.insert(0, 'Rk', range(1, len(df_b)+1))
-    cols_b = [col for col in ['Rk','Hotel','CorpName','Channel','Destino',
-                               'CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']
-              if col in df_b.columns]
-    add_table(ws, df_b[cols_b], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                           'CR_Unicos':'#,##0','Bookings':'#,##0'},
-              banda_col='BandaConvRate')
-    current_row += len(df_b) + 3
+        # Nombre
+        mk_cell(ws,r,1, clean(str(row.get(df_name_col,'—'))), align='left')
+        # Severity EF (coloreada)
+        mk_cell(ws,r,2, bef, bef, is_sev=True)
+        # Severity CV (coloreada)
+        mk_cell(ws,r,3, bcv, bcv, is_sev=True)
+        # CR Únicos, Bookings
+        mk_cell(ws,r,4, cru); mk_cell(ws,r,5, bk)
+        # Eficacia
+        c = ws.cell(r,6, ef); c.border=BD; c.alignment=Alignment(horizontal='center')
+        if ef: ws.cell(r,6).number_format='0.00%'
+        # WoW Eficacia (coloreada: subir Ef = bueno)
+        apply_wow(ws,r,7, wow_ef, invert=False)
+        # Conv Rate
+        c2=ws.cell(r,8, cv); c2.border=BD; c2.alignment=Alignment(horizontal='center')
+        if cv: ws.cell(r,8).number_format='0.00%'
+        # WoW Conv Rate (coloreada: subir CV = bueno)
+        apply_wow(ws,r,9, wow_cv, invert=False)
+        # Extra cols (Channel, Destino, Corp)
+        if extra_cols:
+            for ci, col_name in enumerate(extra_cols.values(), 10):
+                mk_cell(ws,r,ci, str(row.get(col_name,'—')), align='left')
+        r += 1
+    widths = [40,16,16,10,10,10,10,10,10]
+    if extra_cols: widths += [15]*len(extra_cols)
+    autofit(ws, widths)
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 5 · SIN CONVERSIÓN (BKGS=0)
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Top 100 · Sin Conversión  (BKGS=0 · cohorte estructural)')
-    df_sc = (df_hotel[df_hotel['Bookings'] == 0]
-             .sort_values('Eficacia', ascending=True)
-             .head(100)
-             .reset_index(drop=True))
-    df_sc.insert(0, 'Rk', range(1, len(df_sc)+1))
-    cols_sc = [col for col in ['Rk','Hotel','CorpName','Channel','Destino',
-                                'CR_Unicos','Successful','Eficacia','BandaEficacia']
-               if col in df_sc.columns]
-    add_table(ws, df_sc[cols_sc], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','CR_Unicos':'#,##0','Successful':'#,##0'},
-              banda_col='BandaEficacia')
-    current_row += len(df_sc) + 3
+# ── Channel unificado ─────────────────────────────────────────────────────────
+def write_channel(ws, df_ef, df_cv, can_label):
+    title(ws, f'{can_label} · Channel W{VOL_NUM}', 'Eficacia y Conv Rate por canal')
+    if df_ef is None or len(df_ef)==0: ws.cell(4,1,'Sin datos'); return
+    # Merge EF + CV
+    df = df_ef.copy()
+    if df_cv is not None and 'ConvRate_WoW_pp' in df_cv.columns:
+        df = df.merge(df_cv[['ExternalProviderName','ConvRate_WoW_pp']], on='ExternalProviderName', how='left')
+    df_s = df.sort_values('Eficacia', ascending=True)
+    cols = ['Channel','Sev Eficacia','Sev Conv Rate','CR Únicos','Bookings',
+            'Eficacia','WoW Ef','Conv Rate','WoW CV']
+    r = mk_hdr(ws, 4, cols)
+    for _, row in df_s.iterrows():
+        ef = fmt_pct(row.get('Eficacia'))
+        cv = fmt_pct(row.get('ConvRate'))
+        bk = int(row.get('Bookings',0)) if pd.notna(row.get('Bookings',0)) else 0
+        cru= int(row.get('CR_Unicos',0)) if pd.notna(row.get('CR_Unicos',0)) else 0
+        bef= banda_eficacia(ef) if ef is not None else '—'
+        bcv= banda_convrate(cv,bk) if cv is not None else '—'
+        chan = str(row.get('ExternalProviderName','—'))
+        mk_cell(ws,r,1, chan, align='left')
+        mk_cell(ws,r,2, bef, bef, is_sev=True)
+        mk_cell(ws,r,3, bcv, bcv, is_sev=True)
+        mk_cell(ws,r,4, cru); mk_cell(ws,r,5, bk)
+        c=ws.cell(r,6,ef); c.border=BD; c.alignment=Alignment(horizontal='center')
+        if ef: ws.cell(r,6).number_format='0.00%'
+        apply_wow(ws,r,7, fmt_wow_str(row.get('Eficacia_WoW_pp')), invert=False)
+        c2=ws.cell(r,8,cv); c2.border=BD; c2.alignment=Alignment(horizontal='center')
+        if cv: ws.cell(r,8).number_format='0.00%'
+        apply_wow(ws,r,9, fmt_wow_str(row.get('ConvRate_WoW_pp')), invert=False)
+        r+=1
+    autofit(ws,[22,16,16,10,10,10,10,10,10])
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 6 · POR CORPORATIVO
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Por Corporativo  (Top 100 · ordenado por Eficacia ↑)')
-    df_co = (g_corp_df
-             .sort_values('Eficacia', ascending=True, na_position='last')
-             .head(100)
-             .reset_index(drop=True))
-    df_co.insert(0, 'Rk', range(1, len(df_co)+1))
-    if _hcm_clean:
-        corp_ch = (df_hotel.groupby('CorpName')
-                   .apply(lambda x: ', '.join(sorted(set(x['Channel'].fillna('—').tolist()))))
-                   .reset_index().rename(columns={0: 'Channels'}))
-        df_co = df_co.merge(corp_ch, on='CorpName', how='left')
-    cols_co = [col for col in ['Rk','CorpName','Channels','CR_Unicos','Successful',
-                                'Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
-               if col in df_co.columns]
-    add_table(ws, df_co[cols_co], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                           'CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
-              banda_col='BandaEficacia')
-    current_row += len(df_co) + 3
+# ── Canastas ──────────────────────────────────────────────────────────────────
+CANASTAS = [
+    ('global', 'Global',     None,      'global',   'global_w21',    'global_w20'),
+    ('b2c',    'B2C',        'B2C',     'B2C',      'B2C_w21',       'B2C_w20'),
+    ('op',     'Opaco',      'B2B-OP',  'B2B-OP',   'B2B (OP)_w21', 'B2B (OP)_w20'),
+    ('cug',    'Ultra Opaco','CUG',     'CUG',      'CUG (UOP)_w21','CUG (UOP)_w20'),
+]
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 7 · POR DESTINO
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Por Destino  (Top 100 · ordenado por Eficacia ↑)')
-    if g_dest_df is not None:
-        df_de = (g_dest_df
-                 .sort_values('Eficacia', ascending=True, na_position='last')
-                 .head(100)
-                 .reset_index(drop=True))
+wb = Workbook(); wb.remove(wb.active)
+
+for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
+    can    = CANASTA.get(can_id, CANASTA.get(can_key, {}))
+    tab_ef = TAB_EF.get(can_key, TAB_EF.get('global',{}))
+    tab_cv = TAB_CV.get(can_key, TAB_CV.get('global',{}))
+    m_curr = M.get(m_curr_key, M.get(f'global_w{VOL_NUM}', {}))
+    m_prev = M.get(m_prev_key, M.get(f'global_w{int(VOL_NUM)-1}', {}))
+    px     = can_label[:3]
+
+    # p80 con channel
+    if can_id and 'DistributionCategory' in p80_all.columns:
+        df_can = p80_all[p80_all['DistributionCategory']==can_id].copy()
     else:
-        # Calcular desde df_hotel filtrado
-        df_de = (df_hotel.groupby('Destino')
-                 .agg(CR_Unicos=('CR_Unicos','sum'), Successful=('Successful','sum'),
-                      Bookings=('Bookings','sum'), Hoteles=('Hotel','nunique'))
-                 .reset_index())
-        df_de['Eficacia']   = df_de['Successful'] / df_de['CR_Unicos'].replace(0, 1)
-        df_de['ConvRate']   = df_de['Bookings']   / df_de['CR_Unicos'].replace(0, 1)
-        df_de['BandaEficacia'] = df_de['Eficacia'].apply(banda_eficacia)
-        df_de['BandaConvRate'] = df_de.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
-        df_de = df_de.sort_values('Eficacia', ascending=True, na_position='last').head(100).reset_index(drop=True)
-    df_de.insert(0, 'Rk', range(1, len(df_de)+1))
-    if _hcm_clean and 'Channel' in df_hotel.columns:
-        dest_ch = (df_hotel.groupby('Destino')
-                   .apply(lambda x: ', '.join(sorted(set(x['Channel'].fillna('—').tolist()))))
-                   .reset_index().rename(columns={0: 'Channels'}))
-        df_de = df_de.merge(dest_ch, on='Destino', how='left')
-    cols_de = [col for col in ['Rk','Destino','Channels','Hoteles','CR_Unicos',
-                                'Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
-               if col in df_de.columns]
-    add_table(ws, df_de[cols_de], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                           'CR_Unicos':'#,##0','Bookings':'#,##0'},
-              banda_col='BandaEficacia')
-    current_row += len(df_de) + 3
+        df_can = p80_all.copy()
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 8 · POR CHANNEL (solo Global — en canastas no aplica)
-    # ─────────────────────────────────────────────────────────────────
-    if is_global:
-        current_row = section_sep(ws, current_row, 'Por Channel  (Producto Propio vs Third Party)')
-        df_ch = (g_channel_df
-                 .sort_values('Eficacia', ascending=True, na_position='last')
-                 .reset_index(drop=True))
-        df_ch.insert(0, 'Rk', range(1, len(df_ch)+1))
-        df_ch['Grupo'] = df_ch['ExternalProviderName'].apply(
-            lambda x: 'Producto Propio' if x in PP_CHANNELS else 'Third Party')
-        df_ch = df_ch.rename(columns={'ExternalProviderName': 'Channel'})
-        cols_ch = [col for col in ['Rk','Channel','Grupo','CR_Unicos','Successful',
-                                    'Bookings','Eficacia','ConvRate','BandaEficacia','BandaConvRate']
-                   if col in df_ch.columns]
-        add_table(ws, df_ch[cols_ch], start_row=current_row,
-                  num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                               'CR_Unicos':'#,##0','Bookings':'#,##0','Successful':'#,##0'},
-                  banda_col='BandaEficacia')
-        current_row += len(df_ch) + 3
+    def add_ch(df):
+        if df is None or len(df)==0: return df
+        df2 = df.copy()
+        if 'Channel' not in df2.columns and 'Hotel' in df2.columns:
+            df2['Hotel_c'] = df2['Hotel'].apply(clean)
+            df2['Channel'] = df2['Hotel_c'].map(hcm_clean).fillna('—')
+        return df2
 
-    # ─────────────────────────────────────────────────────────────────
-    # SECCIÓN 9 · MENOR CONV RATE (BKGS>0)
-    # ─────────────────────────────────────────────────────────────────
-    current_row = section_sep(ws, current_row, 'Top 100 · Menor Conv Rate  (BKGS>0)')
-    df_mc = (df_hotel[df_hotel['Bookings'] > 0]
-             .sort_values('ConvRate', ascending=True)
-             .head(100)
-             .reset_index(drop=True))
-    df_mc.insert(0, 'Rk', range(1, len(df_mc)+1))
-    cols_mc = [col for col in ['Rk','Hotel','CorpName','Channel','Destino',
-                                'CR_Unicos','Bookings','Eficacia','ConvRate','BandaConvRate']
-               if col in df_mc.columns]
-    add_table(ws, df_mc[cols_mc], start_row=current_row,
-              num_formats={'Eficacia':'0.00%','ConvRate':'0.00%',
-                           'CR_Unicos':'#,##0','Bookings':'#,##0'},
-              banda_col='BandaConvRate')
+    # 1. Severity + WoW KPIs
+    ws=wb.create_sheet(f'{px}-Severity'); ws.sheet_properties.tabColor=CR
+    write_severity(ws, df_can, can_label, m_curr, m_prev)
 
-    return ws
+    # 2. Top Destinos (EF+CV combinado)
+    ws=wb.create_sheet(f'{px}-Destinos'); ws.sheet_properties.tabColor=CR
+    write_combined(ws, tab_ef.get('destino'), 'Destino', f'{can_label} · Top Destinos W{VOL_NUM}')
 
+    # 3. Top Corp
+    ws=wb.create_sheet(f'{px}-Corp'); ws.sheet_properties.tabColor=CR
+    write_combined(ws, tab_ef.get('corp'), 'CorpName', f'{can_label} · Top Corporativos W{VOL_NUM}')
 
-# ── Construir el workbook ─────────────────────────────────────────────────────
-wb = Workbook()
-wb.remove(wb.active)   # quitar Sheet default
+    # 4-7. Hotel por categoría (EF+CV+Channel)
+    extra = {'Channel':'Channel','Destino':'Destino','Corp':'CorpName'}
+    cat_map = [
+        ('top_crit','Hot Críticos',   'Críticos'),
+        ('top_br',  'Hot Bajo Rend',  'Bajo Rendimiento'),
+        ('top_sc',  'Hot Sin Conv',   'Sin Conversión'),
+        ('top_mcv', 'Hot Menor CV',   'Menor Conv Rate'),
+    ]
+    for cat_key_h, tab_name, cat_label in cat_map:
+        df_cat = can.get(cat_key_h, tab_ef.get('hotel'))
+        df_cat = add_ch(df_cat)
+        ws=wb.create_sheet(f'{px}-{tab_name}'); ws.sheet_properties.tabColor=CR
+        write_combined(ws, df_cat, 'Hotel',
+                       f'{can_label} · Hotel {cat_label} W{VOL_NUM}', extra_cols=extra)
 
-# Calcular g_dest global (para hoja Global)
-g_dest_global = (g_hotel.groupby('Destino')
-                 .agg(CR_Unicos=('CR_Unicos','sum'), Successful=('Successful','sum'),
-                      Bookings=('Bookings','sum'), Hoteles=('Hotel','nunique'))
-                 .reset_index())
-g_dest_global['Eficacia']      = g_dest_global['Successful'] / g_dest_global['CR_Unicos'].replace(0,1)
-g_dest_global['ConvRate']      = g_dest_global['Bookings']   / g_dest_global['CR_Unicos'].replace(0,1)
-g_dest_global['BandaEficacia'] = g_dest_global['Eficacia'].apply(banda_eficacia)
-g_dest_global['BandaConvRate'] = g_dest_global.apply(
-    lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
+    # 8. Channel unificado
+    ws=wb.create_sheet(f'{px}-Channel'); ws.sheet_properties.tabColor=CR
+    write_channel(ws, tab_ef.get('channel'), tab_cv.get('channel'), can_label)
 
-# ── HOJA 1: GLOBAL ──
-build_sheet(wb, 'Global',
-            df_hotel=p80_hotel,
-            sev_ef=sev_ef_p80,
-            sev_cv=sev_cv_p80,
-            g_corp_df=g_corp,
-            g_channel_df=g_channel,
-            g_dest_df=g_dest_global)
-print('  ✓ Hoja Global')
+    # 9. Dim Corp (EF+CV)
+    ws=wb.create_sheet(f'{px}-Dim Corp'); ws.sheet_properties.tabColor=CR
+    write_combined(ws, tab_ef.get('corp'), 'CorpName',
+                   f'{can_label} · AR Dim Corporativo W{VOL_NUM}')
 
-# ── HOJAS 2-4: CANASTAS ──
-CANASTA_MAP = {
-    'B2C':    ('B2C', 'B2C'),
-    'B2B-OP': ('B2B-OP', 'B2B (OP)'),
-    'CUG':    ('CUG', 'CUG (UOP)'),
-}
+    # 10. Dim Destino (EF+CV)
+    ws=wb.create_sheet(f'{px}-Dim Dest'); ws.sheet_properties.tabColor=CR
+    write_combined(ws, tab_ef.get('destino'), 'Destino',
+                   f'{can_label} · AR Dim Destino W{VOL_NUM}')
 
-for sheet_name, (c_key_upper, dist_cat) in CANASTA_MAP.items():
-    c = CANASTA.get(c_key_upper) or CANASTA.get(c_key_upper.lower())
-    if c is None:
-        print(f'  ⚠ Canasta {c_key_upper} no encontrada en pickle, omitiendo')
-        continue
-
-    # Filtrar p80_hotel por DistributionCategory
-    if 'DistributionCategory' in p80_hotel.columns:
-        df_canasta = p80_hotel[p80_hotel['DistributionCategory'] == dist_cat].copy()
-    elif 'agg_hotel' in c:
-        df_canasta = c['agg_hotel'].copy()
-        df_canasta['Hotel'] = df_canasta['Hotel'].apply(clean_hotel_name)
-        if _hcm_clean and 'Channel' not in df_canasta.columns:
-            df_canasta['Channel'] = df_canasta['Hotel'].map(_hcm_clean).fillna('—')
-    else:
-        print(f'  ⚠ Sin datos para canasta {c_key_upper}, omitiendo')
-        continue
-
-    # sev_ef y sev_cv de la canasta
-    sev_ef_c = c.get('sev_ef', {})
-    sev_cv_c = c.get('sev_cv', {})
-
-    # g_corp de la canasta
-    if 'agg_corp' in c:
-        g_corp_c = c['agg_corp']
-    else:
-        g_corp_c = (df_canasta.groupby('CorpName')
-                    .agg(CR_Unicos=('CR_Unicos','sum'), Successful=('Successful','sum'),
-                         Bookings=('Bookings','sum'))
-                    .reset_index())
-        g_corp_c['Eficacia']      = g_corp_c['Successful'] / g_corp_c['CR_Unicos'].replace(0,1)
-        g_corp_c['ConvRate']      = g_corp_c['Bookings']   / g_corp_c['CR_Unicos'].replace(0,1)
-        g_corp_c['BandaEficacia'] = g_corp_c['Eficacia'].apply(banda_eficacia)
-        g_corp_c['BandaConvRate'] = g_corp_c.apply(
-            lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
-
-    build_sheet(wb, sheet_name,
-                df_hotel=df_canasta,
-                sev_ef=sev_ef_c,
-                sev_cv=sev_cv_c,
-                g_corp_df=g_corp_c,
-                g_channel_df=g_channel,  # channel siempre global
-                g_dest_df=None)          # se calcula desde df_canasta
-    print(f'  ✓ Hoja {sheet_name}')
-
-# ── Guardar ───────────────────────────────────────────────────────────────────
 out = f'{OUTPUTS}/Analisis_CheckRates_W{VOL_NUM}.xlsx'
 wb.save(out)
-n_sheets = len(wb.sheetnames)
-print(f'\n✅ Excel CR escrito: {out}')
-print(f'   {n_sheets} hojas: {" | ".join(wb.sheetnames)}')
+print(f'✅ Excel CR: {out}')
+print(f'   {len(wb.sheetnames)} hojas: {" | ".join(wb.sheetnames[:11])}...')

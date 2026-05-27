@@ -127,13 +127,13 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     <div id="hist-{canvas_id}-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
     <div style="position:relative;height:14px;margin-top:2px;">
       {''.join(
-        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{accent if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
+        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{'var(--ink)' if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
         for i, s in enumerate(semanas)
       )}
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{bc['footer']};text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
+    <span id="hist-{canvas_id}-banda-footer" style="font-size:8px;font-weight:700;color:{bc['footer']};background:{bc['bg']};padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">{banda_actual.upper()}</span>
     <span id="hist-{canvas_id}-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: {target_disp}</span>
   </div>
 </div>
@@ -289,7 +289,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
     if (bbEl) {{ bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }}
     if (bEl) {{ bEl.textContent = banda; bEl.style.color = bc.fg; }}
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; }}
+    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) {{ el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }}
     /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
     var kvMap = {{'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
                  'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'}};
@@ -346,5 +346,19 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else requestAnimationFrame(init);
+  
+  /* Exponer función de redraw con nuevo accent para cambio de canasta */
+  window['histRedraw_'+CID] = function(newAccent, newVals) {{
+    if (newAccent) {{
+      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {{
+        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
+        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
+      }};
+      ACCENT_HEX = newAccent;
+      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
+    }}
+    var vals = newVals || currentVals;
+    drawCanvas(vals); updateMetrics(vals, 'Global');
+  }};
 }})();
 </script>'''

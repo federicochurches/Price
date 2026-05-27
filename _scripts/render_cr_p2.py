@@ -8,7 +8,7 @@ import sys, os, json, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_eficacia, banda_convrate
-from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2
+from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big
 
 # ── Config ────────────────────────────────────────────────────────────────────
 with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'), 'rb') as f:
@@ -31,6 +31,8 @@ sev_cv   = dict(D['sev_cv_p80'])
 # WoW lookups
 g_hotel_w17 = D.get('g_hotel_w17')
 g_corp_w17  = D.get('g_corp_w17')
+g_dest_w17  = D.get('g_dest_w17')
+g_channel_w17 = D.get('g_channel_w17')
 
 hotel_channel_map = D.get('hotel_channel_map', {})
 _hcm_clean = {clean_hotel_name(k): v for k, v in hotel_channel_map.items()} if hotel_channel_map else {}
@@ -53,6 +55,13 @@ if _tab_cv_h is not None and 'ConvRate_WoW_pp' in _tab_cv_h.columns:
     _cv_wow = _cv_wow.drop_duplicates('Hotel')
     p80 = p80.merge(_cv_wow, on='Hotel', how='left')
 
+# Agregar CR_Unicos_WoW_pp si no existe (desde p80_hotel enriquecido)
+if 'CR_Unicos_WoW_pp' not in p80.columns and 'CR_Unicos_WoW_pp' in D['p80_hotel'].columns:
+    _cr_wow = D['p80_hotel'][['Hotel','CR_Unicos_WoW_pp']].copy()
+    _cr_wow['Hotel'] = _cr_wow['Hotel'].apply(clean_hotel_name)
+    _cr_wow = _cr_wow.drop_duplicates('Hotel')
+    p80 = p80.merge(_cr_wow, on='Hotel', how='left')
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def es_pct(v): return f'{v*100:.2f}%'.replace('.', ',')
 def es_int(v): return f'{int(v):,}'.replace(',', '.')
@@ -65,18 +74,30 @@ def banda_colors(banda):
 def wow_arrow(pp):
     if pp is None or (isinstance(pp, float) and np.isnan(pp)):
         return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}pp'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}pp'.replace('.', ',')
+    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
+    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
+    return '—'
+
+def wow_arrow_abs(delta):
+    """WoW para tráfico (número absoluto, sin unidad pp). delta = diferencia real."""
+    if delta is None or (isinstance(delta, float) and np.isnan(delta)):
+        return '—'
+    val = abs(delta)
+    # Formatear como entero con puntos de miles
+    formatted = f'{int(val):,}'.replace(',', '.')
+    if delta > 0: return f'▲{formatted}'
+    if delta < 0: return f'▼{formatted}'
     return '—'
 
 def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
                     cr_col='CR_Unicos', band_col='BandaEficacia', wow_col='Eficacia_WoW_pp',
-                    wow_cv_col='ConvRate_WoW_pp'):
-    """Construye fila: [nombre, bbg, bfg, banda, CR, ef, cv, wow_up, wow_ef_str, wow_cv_str]"""
+                    wow_cv_col='ConvRate_WoW_pp', wow_cr_col='CR_Unicos_WoW_pp'):
+    """Construye fila: [nombre, bbg, bfg, banda, CR, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]"""
     name  = clean_hotel_name(str(row.get('Hotel', row.get('CorpName', '?'))))[:60]
     banda = row.get(band_col, 'Sin Conversión')
     bbg, bfg = banda_colors(banda)
-    cr    = es_int(row.get(cr_col, 0))
+    cr_val = row.get(cr_col, 0)
+    cr    = fmt_big(float(cr_val)) if cr_val and not (isinstance(cr_val, float) and np.isnan(cr_val)) else '0'
     ef    = es_pct(row.get(ef_col, 0))
     cv    = es_pct(row.get(cv_col, 0))
     # WoW Eficacia
@@ -91,7 +112,14 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
         wow_cv_str = '—'
     else:
         wow_cv_str = wow_arrow(wow_cv_pp)
-    return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str]
+    # WoW CR_Unicos (tráfico)
+    wow_cr_pp = row.get(wow_cr_col)
+    if wow_cr_pp is None or (isinstance(wow_cr_pp, float) and np.isnan(wow_cr_pp)):
+        wow_cr_str = '—'
+    else:
+        # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
+        wow_cr_str = wow_arrow_abs(wow_cr_pp / 100)
+    return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
 
 def sev_badge_html(banda):
     bbg, bfg = banda_colors(banda)
@@ -101,12 +129,13 @@ def sev_badge_html(banda):
 
 # ── Construir CR_CV[canasta] ──────────────────────────────────────────────────
 def build_cr_cv():
+    """Retorna KPIs + datos de hoteles para CR_CV."""
     result = {}
     canasta_map = {'global': ('global', WEEK_NUM),
                    'b2c':    ('B2C', WEEK_NUM),
                    'op':     ('B2B (OP)', WEEK_NUM),
                    'cug':    ('CUG (UOP)', WEEK_NUM)}
-    # Colores por canasta para el chart histórico
+    # Colores por canasta
     canasta_col = {'global': '#333132', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
 
     for key, (m_key, wn) in canasta_map.items():
@@ -118,23 +147,47 @@ def build_cr_cv():
         cv    = m.get('conv_rate', 0)
         banda = banda_eficacia(ef)
         bbg, bfg = banda_colors(banda)
+        
+        cr_unicos  = m.get('cr_unicos', 0)
+        cr_prev    = M.get(f'{m_key}_w{int(wn)-1}', {}).get('cr_unicos', 0) if key != 'global' else M.get(f'global_w{int(wn)-1}', {}).get('cr_unicos', 0)
+        traf_wow   = round(((cr_unicos - cr_prev) / cr_prev * 100), 1) if cr_prev else None
+        banda_cv_v = banda_convrate(cv, int(m.get('bookings', 1)))
+        bbg_cv, bfg_cv = banda_colors(banda_cv_v)
+
+        # Valores semana anterior para WoW en cards AR
+        wn_prev = int(wn) - 1
+        m_prev = M.get(f'global_w{wn_prev}', {}) if key == 'global' else M.get(f'{m_key}_w{wn_prev}', {})
+        ef_prev = m_prev.get('eficacia', None)
+        cv_prev = m_prev.get('conv_rate', None)
+
         result[key] = {
-            'ef':   es_pct(ef),
-            'cv':   es_pct(cv),
-            'band': banda,
-            'bbg':  bbg,
-            'bfg':  bfg,
-            'col':  canasta_col[key],
+            'ef':      es_pct(ef),
+            'cv':      es_pct(cv),
+            'ef_prev': es_pct(ef_prev) if ef_prev is not None else None,
+            'cv_prev': es_pct(cv_prev) if cv_prev is not None else None,
+            'ef_wow':  round((ef - ef_prev) * 100, 2) if ef_prev is not None else None,
+            'cv_wow':  round((cv - cv_prev) * 100, 2) if cv_prev is not None else None,
+            'band':    banda,
+            'bbg':     bbg,
+            'bfg':     bfg,
+            'band_cv': banda_cv_v,
+            'bbg_cv':  bbg_cv,
+            'bfg_cv':  bfg_cv,
+            'col':     canasta_col[key],
+            'vol':     f'{int(cr_unicos/1000)}K' if cr_unicos >= 1000 else str(cr_unicos),
+            'trafico': fmt_int_es(int(cr_unicos)),
+            'traf_wow': traf_wow,
             'kv_id':   f'w{wn}-kv-ef',
             'kv2_id':  f'w{wn}-kv-cv',
             'hist_id': f'w{wn}-hist-ef',
             'hist2_id':f'w{wn}-hist-cv',
         }
+    
     return result
 
 # ── Construir CR_D[canasta] ───────────────────────────────────────────────────
 def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
-                       g_corp_c, g_dest_c, n_p80):
+                       g_corp_c, g_dest_c, n_p80, g_channel_c=None, g_dest_local=None):
     """Construye {re, hotels, dims, plan, co} para una canasta CR."""
 
     ef   = m18.get('eficacia', 0)
@@ -211,13 +264,13 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         return [build_hotel_row(r, wow_col='Eficacia_WoW_pp') for _, r in df.iterrows()]
 
     # Críticos: Eficacia < 93% (Crítica + Súper Crítica), con bookings, top 10 Eficacia ASC
-    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(10)
+    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(100)
     # Bajo Rendimiento: Eficacia Revisar o Aceptable, con bookings
-    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(10)
+    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(100)
     # Sin Conversión: bookings = 0
-    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(10)
+    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100)
     # Menor ConvRate: con bookings, orden ConvRate ASC
-    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(10)
+    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(100)
 
     hotel_rows      = hotel_rows_from(df_crit)  # default = Críticos
     hotels_crit_rows = hotel_rows_from(df_crit)
@@ -229,12 +282,13 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
 
     # Dims rows (por Corp, top 10 Eficacia ASC)
     dim_rows = []
-    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(10)
+    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(100)
     for _, row in g_sort.iterrows():
         name  = str(row['CorpName'])[:60]
         banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
         bbg, bfg = banda_colors(banda)
-        cr    = es_int(row['CR_Unicos'])
+        cr_v  = row.get('CR_Unicos',0)
+        cr    = fmt_big(float(cr_v)) if cr_v and not (isinstance(cr_v,float) and np.isnan(cr_v)) else '0'
         ef    = es_pct(row['Eficacia'])
         cv    = es_pct(row['ConvRate'])
         wow_pp = None
@@ -244,43 +298,97 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
                 wow_pp = (row['Eficacia'] - match.iloc[0]['Eficacia_W17']) * 100
         wow_up  = None if wow_pp is None else bool(wow_pp >= 0)
         wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, '—'])
+        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, '—', '—'])
 
-    # Dims rows por Destino (top 10 Eficacia ASC)
+    # Dims rows por Destino (top 10 Eficacia ASC) — con WoW de tráfico
     dest_rows = []
-    if 'Destino' in df_hotel.columns:
+    g_dest = None
+    # Usar destinos por canasta si disponible, sino calcular desde df_hotel
+    if g_dest_local is not None and len(g_dest_local) > 0:
+        g_dest = g_dest_local.copy()
+        if 'Eficacia' not in g_dest.columns and 'Successful' in g_dest.columns:
+            g_dest['Eficacia'] = g_dest['Successful'] / g_dest['CR_Unicos'].replace(0,1)
+        if 'ConvRate' not in g_dest.columns and 'Bookings' in g_dest.columns:
+            g_dest['ConvRate'] = g_dest['Bookings'] / g_dest['CR_Unicos'].replace(0,1)
+    elif 'Destino' in df_hotel.columns:
         g_dest = df_hotel.groupby('Destino').agg(
             CR_Unicos=('CR_Unicos','sum'), Successful=('Successful','sum'),
             Bookings=('Bookings','sum')).reset_index()
         g_dest['Eficacia'] = g_dest['Successful'] / g_dest['CR_Unicos'].replace(0,1)
         g_dest['ConvRate'] = g_dest['Bookings'] / g_dest['CR_Unicos'].replace(0,1)
-        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(10).iterrows():
+        if g_dest_w17 is not None:
+            g_dest = g_dest.merge(g_dest_w17[['Destino','CR_Unicos_W17']], on='Destino', how='left')
+            g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17']) * 100
+    if g_dest is not None and len(g_dest) > 0:
+        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(100).iterrows():
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
+            wow_cr = row.get('CR_Unicos_WoW_pp')
+            wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
-                              es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
-                              es_pct(row['ConvRate']), None, '—', '—'])
+                              fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
+                              es_pct(row['ConvRate']), None, '—', '—', wow_cr_str])
 
-    # Dims rows por Canal — split Producto Propio / Third Party
+    # Dims rows por Canal — split Producto Propio / Third Party — con WoW de tráfico
     PROPIO_SET = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
     THIRD_SET  = {'Expedia','HotelBeds','Hotel Unico','Travelgate','Hotel Unico V2'}
     chan_rows = []
     chans_pp  = []
     chans_tp  = []
-    if g_channel is not None and len(g_channel):
-        for _, row in g_channel.sort_values('Eficacia', ascending=True).iterrows():
+    
+    # Usar canal por canasta si disponible, sino el global
+    g_chan_local = (g_channel_c.copy() if g_channel_c is not None and len(g_channel_c) > 0
+                   else (g_channel.copy() if g_channel is not None and len(g_channel) else None))
+    
+    if g_chan_local is not None and len(g_chan_local):
+        # Merge WoW si disponible
+        if g_channel_w17 is not None:
+            g_chan_local = g_chan_local.merge(g_channel_w17[['ExternalProviderName','CR_Unicos_W17']], on='ExternalProviderName', how='left')
+            g_chan_local['CR_Unicos_WoW_pp'] = (g_chan_local['CR_Unicos'] - g_chan_local['CR_Unicos_W17']) * 100
+        for _, row in g_chan_local.sort_values('Eficacia', ascending=True).iterrows():
             banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
             bbg, bfg = banda_colors(banda)
+            wow_cr = row.get('CR_Unicos_WoW_pp')
+            # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
+            wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             r = [str(row['ExternalProviderName'])[:45], bbg, bfg, banda,
-                 es_int(row['CR_Unicos']), es_pct(row['Eficacia']),
-                 es_pct(row['ConvRate']), None, '—']
+                 fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
+                 es_pct(row['ConvRate']), None, '—', '—', wow_cr_str]
             chan_rows.append(r)
             if row['ExternalProviderName'] in THIRD_SET:
                 chans_tp.append(r)
             else:
                 chans_pp.append(r)
 
-    # Plan de acción (4 items hardcodeados con owners reales)
+    # Catálogo canónico — channels que siempre deben aparecer
+    CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+    CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    
+    # Row vacío para channels sin actividad esta semana
+    def _inactive_row(name):
+        return [name, '#F2EEE6', '#8A8377', 'Sin Actividad',
+                '—', '—', '—', None, '—', '—', '—']
+    
+    # Detectar nombres presentes (normalizado)
+    pp_names = set(r[0] for r in chans_pp)
+    tp_names = set(r[0] for r in chans_tp)
+    
+    # Ordenar activos: peor eficacia primero (r[5]=metrica str, parsear)
+    def _sort_val(r):
+        try: return float(str(r[5]).replace('%','').replace(',','.'))
+        except: return 999
+    chans_pp.sort(key=_sort_val)
+    chans_tp.sort(key=_sort_val)
+
+    # Completar PP con faltantes
+    for name in CATALOG_PP:
+        if not any(name.lower() in n.lower() for n in pp_names):
+            chans_pp.append(_inactive_row(name))
+    
+    # Completar TP con faltantes
+    for name in CATALOG_TP:
+        if not any(name.lower() in n.lower() for n in tp_names):
+            chans_tp.append(_inactive_row(name))
     owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
     plan = []
     if len(df_crit_top):
@@ -320,9 +428,9 @@ def build_cr_d():
 
     # CANASTAS
     canasta_map = {
-        'b2c': ('B2C', 'B2C', 'B2B (OP)', False),
-        'op':  ('Opaco', 'B2B (OP)', 'B2B (OP)', False),
-        'cug': ('Ultra Opaco', 'CUG (UOP)', 'CUG (UOP)', False),
+        'b2c': ('B2C',    'B2C',       'B2B (OP)', False),
+        'op':  ('B2B-OP', 'B2B (OP)',  'B2B (OP)', False),
+        'cug': ('CUG',    'CUG (UOP)', 'CUG (UOP)', False),
     }
     for key, (c_key, m_key, _dist, _) in canasta_map.items():
         c = CANASTA.get(c_key)
@@ -347,7 +455,9 @@ def build_cr_d():
         sev_cv_c = dict(c.get('sev_cv', {}))
         result[key] = build_canasta_data(
             key, df_h, m18, m17, sev_ef_c, sev_cv_c,
-            g_corp_c, g_corp_c, n_p80_c)
+            g_corp_c, g_corp_c, n_p80_c,
+            g_channel_c=c.get('agg_channel'),
+            g_dest_local=c.get('agg_destino'))
     return result
 
 
@@ -456,18 +566,25 @@ def render_severity():
 
 # ── HTML tabla de análisis de rendimiento ─────────────────────────────────────
 def render_analisis_rendimiento():
-    th_labels_hotel = ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW']
-    th_labels_corp  = ['Corporativo', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW']
+    th_labels_hotel = ['Hotel', 'Severity', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
+    th_labels_corp  = ['Corporativo', 'Severity', 'Tráfico', 'WoW↕', 'Eficacia', 'WoW↕', 'Conv Rate', 'WoW↕']
 
     def table_html(tbody_id, btn_id, th_labels, dim_header_id=None):
+        # Colgroup: nombre amplio, resto fijos para evitar wrap
+        colwidths = ['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']
+        colgroup = ''.join(
+            f'<col style="width:{colwidths[i]}">' if colwidths[i] else '<col>'
+            for i in range(len(th_labels))
+        )
         cols = ''.join(
-            f'<th style="padding:8px 8px 8px {"12px" if i==0 else "8px"};'
+            f'<th style="padding:8px {"6px" if i>0 else "12px"} 8px {"6px" if i>0 else "12px"};'
             f'border-bottom:2px solid #5C469C;font-size:10px;font-weight:700;'
-            f'text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);'
-            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};">'
+            f'text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);'
+            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};white-space:nowrap;">'
             f'{"<span id=\""+dim_header_id+"\">Corporativo</span>" if dim_header_id and i==0 else lbl}</th>'
             for i, lbl in enumerate(th_labels))
         return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+                f'<colgroup>{colgroup}</colgroup>'
                 f'<thead><tr>{cols}</tr></thead>'
                 f'<tbody id="{tbody_id}"></tbody></table>'
                 f'<div style="text-align:center;margin-top:10px;">'
@@ -483,7 +600,7 @@ def render_analisis_rendimiento():
 </div></div>
 <div id="w22-ph" style="border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
   <div class="tabs-row" style="margin-top:0;">
-    <label style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this)">Críticos</label>
+    <label class="active" style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this)">Críticos</label>
     <label class="tab-label" onclick="w22_iTab(this)">Bajo Rendimiento</label>
     <label class="tab-label" onclick="w22_iTab(this)">Sin Conversión</label>
     <label class="tab-label" onclick="w22_iTab(this)">Menor ConvRate</label>
@@ -493,7 +610,14 @@ def render_analisis_rendimiento():
   </div>
 </div>
 <div id="w22-pd" style="display:none;border:1px solid var(--rule);border-top:none;padding:20px;background:var(--paper);">
-  {table_html('w22-td', 'w22-td-more', th_labels_corp, dim_header_id='w22-th-dim')}
+  <div class="tabs-row" style="margin-top:0;">
+    <label style="padding:8px 14px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px 6px 0 0;border:1px solid var(--rule);border-bottom:1px solid var(--paper);background:var(--paper);margin-bottom:-1px;" onclick="w22_iTab(this);w22_setDim('corp')">Por Corporativo</label>
+    <label class="tab-label" onclick="w22_iTab(this);w22_setDim('dest')">Por Destino</label>
+    <label class="tab-label" onclick="w22_iTab(this);w22_setDim('chan')">Por Channel</label>
+  </div>
+  <div style="padding-top:14px;">
+    {table_html('w22-td', 'w22-td-more', th_labels_corp, dim_header_id='w22-th-dim')}
+  </div>
 </div>
 </section>'''
 
@@ -546,6 +670,18 @@ CR_D  = build_cr_d()
 print('Calculando CR_AL...')
 CR_AL = build_cr_al()
 
+# Extraer datos de hoteles desde CR_D para inyectarlos en CR_CV
+CR_HOTELS = {}
+for canasta in ['global', 'b2c', 'op', 'cug']:
+    if canasta in CR_D and 'hotels_crit' in CR_D[canasta]:
+        CR_HOTELS[canasta] = {
+            'hotels': CR_D[canasta].get('hotels', []),
+            'hotels_crit': CR_D[canasta].get('hotels_crit', []),
+            'hotels_br': CR_D[canasta].get('hotels_br', []),
+            'hotels_sc': CR_D[canasta].get('hotels_sc', []),
+            'hotels_cv': CR_D[canasta].get('hotels_cv', []),
+        }
+
 # Serializar JSON
 def safe_json(obj):
     if isinstance(obj, (np.integer,)): return int(obj)
@@ -556,10 +692,11 @@ def safe_json(obj):
 CR_CV_JSON = json.dumps(CR_CV, ensure_ascii=False, default=safe_json)
 CR_D_JSON  = json.dumps(CR_D,  ensure_ascii=False, default=safe_json)
 CR_AL_JSON = json.dumps(CR_AL, ensure_ascii=False, default=safe_json)
+CR_HOTELS_JSON = json.dumps(CR_HOTELS, ensure_ascii=False, default=safe_json)
 
 PART2 = (
     '<div id="w22-sev-cr">\n' + render_severity() + '\n</div>\n' +
-    f'\n<script>\nvar CR_CV={CR_CV_JSON};\nvar CR_D={CR_D_JSON};\nvar CR_AL={CR_AL_JSON};\n</script>\n'
+    f'\n<script>\nvar CR_CV={CR_CV_JSON};\nvar CR_D={CR_D_JSON};\nvar CR_AL={CR_AL_JSON};\nvar CR_HOTELS={CR_HOTELS_JSON};\n</script>\n'
 )
 
 with open('part2_cr.html', 'w', encoding='utf-8') as f:

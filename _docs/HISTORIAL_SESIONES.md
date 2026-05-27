@@ -6,6 +6,180 @@
 
 ---
 
+## 📝 Sesión W22-pre · Mayo 2026 · Refactor P9 + Fix Sort KPI
+
+### Contexto
+Sesión de pre-pipeline antes de recibir los datasets W22. No se corrió pipeline. Dos tareas ejecutadas: (1) refactor de centralización CR/RND documentado en `NOTA_REFACTOR_PENDIENTE.md`, (2) fix del sort en las cards KPI principales.
+
+### Cambios aplicados
+
+#### Refactor P9 — Centralización CR/RND en `render_helpers.py`
+
+**Problema raíz:** el bloque `for i, r in df_t.iterrows()` con toda la lógica de rows KPI se repetía 4 veces (Eficacia, ConvRate en CR · NoDispo, IPM en RND). Cualquier cambio visual requería tocar 4 archivos.
+
+**Solución:** extraer a `render_helpers.py`:
+
+| Función/Constante | Descripción |
+|---|---|
+| `KPI_TOP_N = 10` | Único punto de control del top N visible |
+| `render_traf_wow_pill_pct(delta)` | Pill WoW de tráfico como % |
+| `render_traf_wow_pill_abs(delta)` | Pill WoW de tráfico como delta absoluto |
+| `render_traf_line_cr(curr, prev)` | Línea "Tráfico: 746.111 ↑pill" CR |
+| `render_traf_line_rnd(curr, prev)` | Línea "Tráfico: 12,2B ↑pill" RND |
+| `_resolve_label(r, t_key)` | Extrae `(raw_lab, lab, corp_sub)` según t_key |
+| `build_kpi_tab_rows(df_t, t_key, cfg)` | Genera HTML de filas — corazón del refactor |
+| `build_kpi_tab_panel(df_t, t_key, cfg, spec)` | Construye `<div class="tab-panel">` completo |
+
+**Reducción de código:**
+- `render_cr_p1.py`: 791 → 653 líneas (−138)
+- `render_rnd_p1.py`: 538 → 458 líneas (−80)
+- `render_helpers.py`: 481 → 775 líneas (+294 de funciones nuevas)
+
+**Nota de diseño:** tabs `channel` y `canasta` conservan lógica ad-hoc (channel tiene split PP/TP con grid diferente; canasta no tiene WoW por fila). `build_kpi_tab_panel` devuelve `''` para `t_key='channel'`, delegando al caller.
+
+#### Fix Sort KPI — 3 bugs corregidos en `js_override.js`
+
+**Bug 1 — Sort RND nunca se enganchaba (crítico):**
+`_initAllSort` solo iteraba `['ef','cv']` buscando IDs `tab-ef-*` y `tab-cv-*`. Las cards KPI de RND usan `tab-nd-*` y `tab-rpm-*`. `RND_CARD_TABS` no existe como variable JS. Resultado: el sort nunca se enganchaba en las cards NoDispo e IPM.
+Fix: `_initAllSort` ahora bifurca por `W.mode`. Para RND itera `['nd','rpm']` y busca los IDs correctos. Si `RND_CARD_TABS` no existe, el sort opera sobre el DOM estático de Python (sin re-render JS).
+
+**Bug 2 — Grid incorrecto en ConvRate post-sort:**
+`_cardRow` hardcodeaba `minmax(0,1fr) 80px 56px 52px 54px 48px` (grid de Eficacia) para todas las cards. ConvRate usa `68px 40px` en la última columna.
+Fix: `_cardRow` acepta parámetro `grid` opcional. Se agrega `_KPI_GRID = {ef, cv, nd, ipm}`. `_kpiSortAttach` y `w22_renderCardTabs` pasan el grid correcto por métrica.
+
+**Bug 3 — `_injectHistAttrs` con args incorrectos:**
+Post-sort llamaba `window._injectHistAttrs(card)` — elemento DOM en lugar de `(tbodyId, rows)`. Fix: eliminada la llamada incorrecta; los `data-hist-*` los inyecta directamente `_cardRow` en cada `<div>`.
+
+**Fix adicional en `w22_renderCardTabs`:**
+El guard al preservar el header: ahora verifica `!header.hasAttribute('data-row-idx')` antes de usar `header.outerHTML`, evitando que un row de datos sea tratado como header.
+
+### Root causes documentados
+
+| Bug | Causa | Fix |
+|---|---|---|
+| Sort RND sin efecto | `_initAllSort` no conocía IDs `tab-nd-*`/`tab-rpm-*` + `RND_CARD_TABS` undefined | Bifurcar por modo + buscar IDs RND correctos |
+| ConvRate desalineada post-sort | `_cardRow` hardcodeaba grid de Eficacia | Pasar `grid` como parámetro desde `_KPI_GRID` |
+| `_injectHistAttrs` silencioso | Se llamaba con `(card)` en lugar de `(tbodyId, rows)` | Eliminar llamada; `_cardRow` inyecta attrs directamente |
+
+### Archivos modificados esta sesión
+`render_helpers.py` · `render_cr_p1.py` · `render_rnd_p1.py` · `js_override.js` · `PROMPT_CORE.md` · `NOTA_REFACTOR_PENDIENTE.md` · `HISTORIAL_SESIONES.md`
+
+### Pendiente para W22
+- Pipeline W21 con los archivos actualizados (commit pendiente)
+- `RND_CARD_TABS`: evaluar si conviene generarlo desde `render_rnd_p1.py` (análogo a `CR_CARD_TABS`) para que el sort RND tenga re-render JS completo, no solo DOM estático
+
+---
+
+
+
+### Contexto
+Sesión de fixes sobre el reporte W21 ya publicado en Netlify. No se recibieron nuevos datasets. El pipeline **no se re-corrió** al cierre — HTML publicado refleja todos los cambios (commit 7d8e12e).
+
+### Cambios aplicados
+
+#### Channel — Cards KPI globales y Cards AR
+- **Catálogo canónico completo**: PP = [DerbySoft, Internal, HBSI, SynXis, Siteminder, Travelclick, Omnibees] · TP = [Expedia, HotelBeds Apitude, Hotel Unico V2, Travelgate]. Channels sin datos de la semana muestran "sin actividad" con `opacity:0.45`.
+- **Orden**: peor eficacia primero → inactivos al final. Sort en Python (`render_cr_p1.py` `_build_card_rows_chan`, `render_cr_p2.py` `chans_pp/tp`).
+- **Nombres visibles**: fix `width:100%` + `min-width:0` + `display:block` en span del nombre. Grid `72px 52px 36px` + `gap:10px` entre PP/TP.
+- **Filas clickeables**: `cursor:pointer` + `data-hist-label` + `data-hist-w21/w20` en todas las filas (activas e inactivas).
+- **Listener de click extendido** (`assemble_unified.py PANEL_LISTENER_JS`): acepta tanto `<tbody>` (tablas AR) como `<div id="ar{n}-chan-div">`. Segundo click resetea a global. Sombra de canasta activa al seleccionar.
+- **Cards KPI y AR unificadas**: `_chanRow` en `w22_renderCardTabs` y `chanRowAR` en `_arRenderChan` usan la misma lógica — catálogo, orden, estilo, inactivos.
+
+#### Orden de ejecución JS — Bug crítico
+- **`w22_update()` movido al final de `js_override.js`**: en `demo_js_main.js` el render inicial llamaba `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estuvieran definidas (JS hoisting no aplica a `var` assignments). Resultado: todos los nombres de elementos aparecían vacíos. Fix: comentar `w22_update()` en `demo_js_main.js`, moverlo al final de `js_override.js` después de todas las definiciones.
+
+#### W20 = `—` y WoW = `NaN` en cards AR
+- **Root cause**: `ar_updateKPIs` leía `HIST_CR['hcr-panel-ef'].vals` que está vacío al cargar (el canvas del panel no se inicializa hasta después). El `||` de JS no descartaba el objeto vacío.
+- **Fix definitivo**: agregar `ef_prev`, `cv_prev`, `ef_wow`, `cv_wow` directamente en `CR_CV` y `RND_CV` desde Python (`render_cr_p2.py`, `render_rnd_p2.py`). El JS lee de `cdata` que siempre está disponible sin depender del timing de HIST_CR.
+- **Fix adicional**: `cdata.ef = '93,15%'` → se le agregaba `+'%'` → `'93,15%%'` → `parseFloat = NaN`. Removido el `+` extra.
+
+#### Header "Week W21" → "Week 21"
+- `render_cr_p1.py`: `{WEEK_NUM}` tomaba el env var `WEEK=W21`. Cambiado a `{VOL_NUM}` = `21`.
+
+#### Espaciado visual
+- `masthead` margin-bottom: 16px → 8px (`asset_shared_head.html`)
+- Switcher padding-top: 20px → 10px (`assemble_unified.py`)
+- Filter-wrap margin-top: 16px → 8px
+- `kpis-hero` margin-bottom: 12px → 6px (`render_cr_p1.py`, `render_rnd_p1.py`)
+- `.hero` padding: 16px/24px → 8px/12px (`asset_shared_head.html`)
+
+#### Numeración cards AR
+- Color `var(--ink-muted)` → `var(--ink)` negro (`js_override.js trow_ar`)
+
+### Root causes documentados
+
+| Bug | Causa | Fix |
+|---|---|---|
+| Nombres vacíos al cargar | `w22_update()` corría antes de que `_cardRow` estuviera definida | Mover al final de `js_override.js` |
+| WoW = NaN en carga inicial | `HIST_CR['hcr-panel-ef'].vals` vacío en timing inicial | `ef_prev/ef_wow` calculados en Python y expuestos en `CR_CV` |
+| Doble `%` en ef21 | `cdata.ef+'%'` cuando `cdata.ef` ya tenía `%` | Remover el `+` |
+| Channel click no funciona | `row.closest('tbody')` = null para divs del channel | Extender listener a `closest('[id$="-chan-div"]')` |
+
+### Archivos modificados esta sesión
+`render_cr_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `js_override.js` · `assemble_unified.py` · `asset_shared_head.html` · `HISTORIAL_SESIONES.md` · `PROMPT_CORE.md`
+
+### Pendiente para W22
+- **Refactor centralización CR/RND**: ver `NOTA_REFACTOR_PENDIENTE.md` — ejecutar antes de recibir datasets W22. Urgencia alta: esta sesión evidenció que `_chanRow` y `chanRowAR` son prácticamente idénticas y se mantienen por separado.
+
+---
+
+## 📝 Sesión W21-post3 · Mayo 2026 · Sort + Top 10 + UX cards
+
+### Contexto
+Sesión de UX y funcionalidad sobre el HTML W21 generado en sesiones anteriores. No se recibieron nuevos datasets — todos los cambios son sobre el mismo pickle W21. El pipeline **no se re-corrió** al final (no es necesario: los scripts están actualizados y listos para W22).
+
+### Cambios aplicados
+
+#### Cards KPI globales (render_cr_p1.py · render_rnd_p1.py)
+- **Top 10 fijo sin "Ver más"**: reemplazado el sistema top5+next5+botón por 10 rows siempre visibles. Eliminada clase `rows-more` de los primeros 10. Rows 10+ siguen con `sb-hidden`.
+- **Formato tráfico**: `{número} Tráfico` → `<strong>Tráfico:</strong> {número}` en todas las cards (Eficacia, ConvRate, NoDispo, IPM).
+- **Línea de tráfico en RND**: agregada a `render_kpi_card_nodispo()` y `render_kpi_card_rpm()` — no existía. Lee de `M['global_current']['trafico']` y prev de `M['global_w17']`.
+- **Alertas Críticas eliminadas**: sección quitada de `assemble_unified.py / SHARED_CONTAINERS`.
+
+#### Cards AR (js_override.js)
+- **Top 10 fijo**: `ar_renderTable` hace `rows.slice(0,10)` sin botón "Ver más".
+- **Numeración original preservada al ordenar**: `trow_ar(r, n, origPos)` — si el elemento era #47 en el ranking original, muestra `47.` incluso cuando aparece primero tras el sort.
+- **Channel con split PP/TP en 2 columnas**: `_arRenderChan(n)` genera grid `1fr 1fr` igual a las cards KPI. La tabla se oculta y se muestra un div dedicado para Channel.
+- **Persistencia de selección entre canastas**: `ar_update()` guarda el `data-hist-label` seleccionado y lo re-selecciona tras cambio de canasta.
+- **Formato tráfico**: `{número} Tráfico` → `<strong>Tráfico:</strong> {número}` en `ar_updateKPIs`.
+- **Banda separada card 2**: `band_cv`/`bbg_cv`/`bfg_cv` expuestos en `CR_CV` y `RND_CV` — card 2 usa la banda de IPM (RND) o ConvRate (CR), no la banda de NoDispo/Eficacia.
+- **WoW tráfico**: `traf_wow` calculado en Python y expuesto en `CR_CV`/`RND_CV`.
+
+#### Sistema de ordenamiento por columna (js_override.js)
+- Clickear header Tráfico o Métrica ordena ASC → DESC → Original
+- **Sort sobre 100 rows reales**: cards KPI leen de `CR_CARD_TABS[canasta]` (100 rows), cards AR leen de `_arRows()` / `_arDimRows()` en el momento del click
+- Sin flechas en el texto del header (no desalinean columnas) — indicador visual: `underline + color accent` en la columna activa
+- `_kpiSortAttach`: engancha en los span headers de `.kpi-tab-rows`; re-engancha siempre con los 100 originales
+- `_arSortAttach`: distingue `ar{n}-th` (hotel) vs `ar{n}-td` (dim) para leer el source correcto; usa IIFE para closure correcto
+
+#### Datos CR_CV / RND_CV (render_cr_p2.py · render_rnd_p2.py)
+- Agregados: `trafico`, `vol`, `traf_wow`, `band_cv`, `bbg_cv`, `bfg_cv` — expuestos en el JSON de `CR_CV` y `RND_CV`
+- RND usa `fmt_big()` para el tráfico (12,2B) igual que el subhead del hero
+
+#### Searchbox filter (asset_shared_head.html)
+- `ri < 5` → `ri < 10` en todos los puntos del filter — el reset de búsqueda mostraba solo 5 rows en vez de 10
+
+#### JSON top 100 (render_cr_p2.py · render_rnd_p2.py)
+- Todos los `.head(10)` → `.head(100)` en `build_canasta_data` y `build_canasta_data_rnd`
+- CR_D y RND_D ahora tienen 100 rows en `hotels_crit`, `hotels_br`, `hotels_sc`, `corps`, `dests`
+- Part 2 CR: 87K → 460K chars · Part 2 RND: 54K → 367K chars
+
+### Root causes de bugs encontrados en esta sesión
+
+**"Sort ordena solo los 10"**: el searchbox filter tenía `ri < 5` y reseteaba a 5 rows visibles al cargar. `w22_renderCardTabs` los sobreescribía con 10, pero `_kpiSort` capturaba el DOM antes de ese re-render. Fix: `ri < 10` + `_kpiSortAttach` lee de `CR_CARD_TABS` directamente.
+
+**"Numeración nueva al ordenar"**: `trow_ar(r, n, idx+1)` donde `idx` era la posición en el sorted (0-9), no en el original. Fix: wrappear rows con `{r, origPos}` antes de ordenar.
+
+**"Closures de sort incorrectos"**: el forEach con `var i` en IE-style no captura `i` correctamente. Fix: IIFE `(function(colIdx){...})(i)`.
+
+### Archivos modificados esta sesión
+`render_cr_p1.py` · `render_rnd_p1.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `js_override.js` · `demo_js_main.js` · `asset_shared_head.html` · `assemble_unified.py` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md` · `NOTA_REFACTOR_PENDIENTE.md` (nuevo)
+
+### Pendiente para W22
+- **Refactor centralización CR/RND**: ver `NOTA_REFACTOR_PENDIENTE.md` — ejecutar antes de recibir datasets W22
+
+---
+
 ## 📝 Sesión W21 · Mayo 2026 · Migración HTML unificado + Excels consolidados
 
 ### Contexto

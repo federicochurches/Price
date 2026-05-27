@@ -26,7 +26,7 @@ from template_seguimiento import render_seguimiento_block
 
 with open('asset_cr_footer.html') as f: FOOTER = f.read()
 
-with open(os.getenv('PICKLE_CR', 'cr_w20_data.pkl'),'rb') as f:
+with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; CANASTA = D['CANASTA']
 

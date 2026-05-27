@@ -7,7 +7,7 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm
-from render_helpers import BANDA_COLORS
+from render_helpers import BANDA_COLORS, fmt_int_es, fmt_big
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -19,8 +19,9 @@ WEEK_PREV = WEEK_NUM - 1
 M        = D['M']
 CANASTA  = D['CANASTA']
 p80      = D['p80_hotel'].copy()
-g_corp   = D['g_corp']
-g_dest   = D['g_dest']
+g_corp        = D['g_corp']
+g_dest        = D['g_dest']
+g_pais_global = D['g_pais']   # alias para evitar colisión con variable local g_pais
 sev_nd   = D['sev_nd']
 sev_rpm  = D['sev_rpm']
 TOP      = D['TOP']
@@ -38,8 +39,8 @@ def banda_colors(banda):
 
 def wow_arrow(pp):
     if pp is None or (isinstance(pp, float) and np.isnan(pp)): return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}pp'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}pp'.replace('.', ',')
+    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
+    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
     return '—'
 
 def sev_badge_html(banda):
@@ -49,11 +50,12 @@ def sev_badge_html(banda):
             f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
 
 def build_hotel_row_rnd(row):
-    """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str]"""
+    """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]"""
     name   = str(row.get('Hotel', '?'))[:60]
     banda  = row.get('BandaNoDispo', 'Sin Conversión')
     bbg, bfg = banda_colors(banda)
-    traf   = es_int(row.get('Trafico', 0))
+    traf_v = row.get('Trafico', 0)
+    traf   = fmt_big(float(traf_v)) if traf_v and not np.isnan(float(traf_v)) else '0'
     nd     = es_pct(row.get('%NoDispo', 0))
     ipm    = es_ipm(row.get('IPM', row.get('RPM', 0)))
     # WoW NoDispo
@@ -69,12 +71,19 @@ def build_hotel_row_rnd(row):
         wow_ipm_str = '—'
     else:
         wow_ipm_str = wow_arrow(wow_ipm_pp)
-    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str]
+    # WoW Tráfico
+    wow_traf = row.get('Trafico_WoW_pct')
+    if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+        wow_traf_str = '—'
+    else:
+        sign = '▲' if wow_traf >= 0 else '▼'
+        wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.', ',') + '%'
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]
 
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
     result = {}
-    canasta_col = {'global': '#333132', 'b2c': '#FCB000', 'op': '#4FC3F4', 'cug': '#EA0074'}
+    canasta_col = {'global': '#333132', 'b2c': '#EA0074', 'op': '#FCB000', 'cug': '#4FC3F4'}
     canasta_m = {'global': f'global_w{WEEK_NUM}',
                  'b2c':    f'B2C_w{WEEK_NUM}',
                  'op':     f'B2B (OP)_w{WEEK_NUM}',
@@ -85,13 +94,45 @@ def build_rnd_cv():
         ipm   = m.get('ipm', m.get('rpm', 0))
         banda = banda_nodispo(nd)
         bbg, bfg = banda_colors(banda)
+        banda_ipm_v = banda_rpm(ipm, m.get('bookings', 1))
+        bbg_cv, bfg_cv = banda_colors(banda_ipm_v)
+        trafico_v = m.get('trafico', 0)
+        # WoW tráfico
+        m_prev_key = m_key.replace(f'_w{WEEK_NUM}', f'_w{WEEK_NUM-1}')
+        m_prev = M.get(m_prev_key, {})
+        traf_prev = m_prev.get('trafico', 0)
+        traf_wow = round((trafico_v - traf_prev) / traf_prev * 100, 1) if traf_prev else None
+        # Formatear tráfico
+        def _fmt_big(v):
+            v = float(v) if v else 0
+            if v >= 1e9: return f'{v/1e9:.1f}B'.replace('.',',')
+            if v >= 1e6: return f'{v/1e6:.1f}M'.replace('.',',')
+            if v >= 1e3: return f'{v/1e3:.0f}K'
+            return str(int(v))
+        trafico_str = _fmt_big(trafico_v)
+        vol_str = _fmt_big(trafico_v)
+        # Valores semana anterior para WoW en cards AR
+        nd_prev  = m_prev.get('pct_nodispo', m_prev.get('nodispo', None))
+        ipm_prev = m_prev.get('ipm', m_prev.get('rpm', None))
+        nd_wow   = round((nd  - nd_prev)  * 100, 2) if nd_prev  is not None else None
+        ipm_wow  = round((ipm - ipm_prev), 2)        if ipm_prev is not None else None
         result[key] = {
-            'ef':  es_pct(nd),
-            'cv':  es_ipm(ipm),
-            'band': banda,
-            'bbg': bbg,
-            'bfg': bfg,
-            'col': canasta_col[key],
+            'ef':      es_pct(nd),
+            'cv':      es_ipm(ipm),
+            'ef_prev': es_pct(nd_prev)   if nd_prev  is not None else None,
+            'cv_prev': es_ipm(ipm_prev)  if ipm_prev is not None else None,
+            'ef_wow':  nd_wow,
+            'cv_wow':  ipm_wow,
+            'band':    banda,
+            'bbg':     bbg,
+            'bfg':     bfg,
+            'band_cv': banda_ipm_v,
+            'bbg_cv':  bbg_cv,
+            'bfg_cv':  bfg_cv,
+            'col':     canasta_col[key],
+            'vol':     vol_str,
+            'trafico': trafico_str,
+            'traf_wow': traf_wow,
         }
     return result
 
@@ -168,12 +209,12 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
         return [build_hotel_row_rnd(r) for _, r in df.iterrows()]
 
     # Demanda NC: mayor NoDispo (con o sin bookings)
-    df_dnc  = df_hotel.sort_values('%NoDispo', ascending=False).head(10)
+    df_dnc  = df_hotel.sort_values('%NoDispo', ascending=False).head(100)
     # Bajo Rendimiento: Bookings > 0, NoDispo Revisar o Crítica/SC
     df_bkgs = df_hotel[df_hotel.get('Bookings', pd.Series([0]*len(df_hotel))) > 0] if 'Bookings' in df_hotel.columns else df_hotel
-    df_br   = df_bkgs[df_bkgs['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(10)
+    df_br   = df_bkgs[df_bkgs['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(100)
     # Sin Conversión: Bookings = 0
-    df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(10) if 'Bookings' in df_hotel.columns else pd.DataFrame()
+    df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(100) if 'Bookings' in df_hotel.columns else pd.DataFrame()
 
     hotel_rows       = rnd_hotel_rows_from(df_dnc)
     hotels_dnc_rows  = rnd_hotel_rows_from(df_dnc)
@@ -182,43 +223,44 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
 
     # Dim rows (por corp, peor NoDispo)
     dim_rows = []
-    g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(10) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(10)
+    g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(100) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(100)
     for _, row in g_c_sort.iterrows():
         name   = str(row.get('CorpName', '?'))[:45]
         nd_r   = row.get('%NoDispo', 0)
         ipm_r  = row.get('IPM', row.get('RPM', 0))
         banda  = banda_nodispo(nd_r)
         bbg, bfg = banda_colors(banda)
-        traf   = es_int(row.get('Trafico', 0))
+        traf_v = row.get('Trafico', 0)
+        traf   = fmt_big(float(traf_v)) if traf_v and not np.isnan(float(traf_v)) else '0'
         wow_pp = row.get('NoDispo_WoW_pp')
         if wow_pp is None or (isinstance(wow_pp, float) and np.isnan(wow_pp)):
             wow_up = None; wow_str = '—'
         else:
             wow_up = bool(wow_pp <= 0); wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—'])
+        # WoW tráfico
+        wow_traf = row.get('Trafico_WoW_pct')
+        if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+            wow_traf_str = '—'
+        else:
+            sign = '▲' if wow_traf >= 0 else '▼'
+            wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', wow_traf_str])
 
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows
 
-    # Dest rows (por Destino, peor NoDispo)
+    # Dest rows — usar g_dest global que ya tiene NoDispo_WoW_pp, IPM_WoW_pp, Trafico_WoW_pct
     dest_rows = []
-    # Agrupar por destino desde df_hotel
-    g_d_avail = None
-    if 'Destino' in df_hotel.columns and len(df_hotel):
-        g_d_avail = df_hotel.groupby('Destino').agg(
-            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
-            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
-        ).reset_index()
-        g_d_avail['%NoDispo'] = g_d_avail['TraficoNoDispo'] / g_d_avail['Trafico'].replace(0,1)
-        g_d_avail['IPM'] = g_d_avail['gb_usd'] / g_d_avail['Trafico'].replace(0,1) * 1_000_000
-    if g_d_avail is not None and '%NoDispo' in g_d_avail.columns:
-        for _, row in g_d_avail.sort_values('%NoDispo', ascending=False).head(10).iterrows():
+    g_d_src = g_dest.copy() if g_dest is not None and len(g_dest) > 0 else None
+    if g_d_src is not None and '%NoDispo' in g_d_src.columns:
+        for _, row in g_d_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
             dest_name = str(row.get('Destino','?')).replace(' Area','').replace(' area','')[:55]
             nd_r  = row.get('%NoDispo', 0)
             ipm_r = row.get('IPM', row.get('RPM', 0))
             banda = banda_nodispo(nd_r)
             bbg, bfg = banda_colors(banda)
-            traf  = es_int(row.get('Trafico', 0))
+            traf_dv = row.get('Trafico', 0)
+            traf  = fmt_big(float(traf_dv)) if traf_dv and not np.isnan(float(traf_dv)) else '0'
             wow_pp = row.get('NoDispo_WoW_pp')
             wow_up = None; wow_nd = '—'
             if wow_pp is not None and not (isinstance(wow_pp, float) and np.isnan(wow_pp)):
@@ -227,26 +269,42 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             wow_ipm = '—'
             if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
                 wow_ipm = wow_arrow(wow_ipm_pp)
-            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm])
+            wow_traf = row.get('Trafico_WoW_pct')
+            if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+                wow_traf_str = '—'
+            else:
+                sign = '▲' if wow_traf >= 0 else '▼'
+                wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
+            dest_rows.append([dest_name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
-    # Pais rows
+    # Pais rows — usar g_pais global que ya tiene NoDispo_WoW_pp, IPM_WoW_pp, Trafico_WoW_pct
     pais_rows = []
-    if 'PaisDestino' in df_hotel.columns and len(df_hotel):
-        g_pais = df_hotel.groupby('PaisDestino').agg(
-            Trafico=('Trafico','sum'), Bookings=('Bookings','sum'),
-            gb_usd=('gb_usd','sum'), TraficoNoDispo=('TraficoNoDispo','sum')
-        ).reset_index()
-        g_pais['%NoDispo'] = g_pais['TraficoNoDispo'] / g_pais['Trafico'].replace(0,1)
-        g_pais['IPM'] = g_pais['gb_usd'] / g_pais['Trafico'].replace(0,1) * 1_000_000
-        for _, row in g_pais.sort_values('%NoDispo', ascending=False).head(10).iterrows():
+    g_p_src = g_pais_global.copy() if g_pais_global is not None and len(g_pais_global) > 0 else None
+    if g_p_src is not None and '%NoDispo' in g_p_src.columns:
+        for _, row in g_p_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
             pais_name = str(row.get('PaisDestino','?'))[:55]
             nd_r  = row.get('%NoDispo', 0)
-            ipm_r = row.get('IPM', 0)
+            ipm_r = row.get('IPM', row.get('RPM', 0))
             banda = banda_nodispo(nd_r)
             bbg, bfg = banda_colors(banda)
-            traf  = es_int(row.get('Trafico', 0))
+            traf_pv = row.get('Trafico', 0)
+            traf  = fmt_big(float(traf_pv)) if traf_pv and not np.isnan(float(traf_pv)) else '0'
+            wow_pp = row.get('NoDispo_WoW_pp')
+            wow_up = None; wow_nd = '—'
+            if wow_pp is not None and not (isinstance(wow_pp, float) and np.isnan(wow_pp)):
+                wow_up = bool(wow_pp <= 0); wow_nd = wow_arrow(wow_pp)
+            wow_ipm_pp = row.get('IPM_WoW_pp')
+            wow_ipm = '—'
+            if wow_ipm_pp is not None and not (isinstance(wow_ipm_pp, float) and np.isnan(wow_ipm_pp)):
+                wow_ipm = wow_arrow(wow_ipm_pp)
+            wow_traf = row.get('Trafico_WoW_pct')
+            if wow_traf is None or (isinstance(wow_traf, float) and np.isnan(wow_traf)):
+                wow_traf_str = '—'
+            else:
+                sign = '▲' if wow_traf >= 0 else '▼'
+                wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
             pais_rows.append([pais_name, bbg, bfg, banda, traf,
-                              es_pct(nd_r), es_ipm(ipm_r), None, '—', '—'])
+                              es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
     # Plan
     owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
@@ -292,7 +350,7 @@ def build_rnd_d():
         dict(sev_nd), dict(sev_rpm), g_corp_nd, len(p80_w))
 
     # CANASTAS
-    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+    for key, c_key in [('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
         if c is None:
             result[key] = {'re': [], 'hotels': [], 'dims': [], 'plan': [], 'co': []}
@@ -354,7 +412,7 @@ def build_rnd_al():
         g_corp_nd['IPM'] = g_corp_nd['gb_usd'] / g_corp_nd['Trafico'].replace(0,1) * 1_000_000
 
     result['global'] = al_for(p80, g_corp_nd)
-    for key, c_key in [('b2c','B2C'),('op','Opaco'),('cug','Ultra Opaco')]:
+    for key, c_key in [('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         c = CANASTA.get(c_key) or CANASTA.get(c_key.lower())
         if c is None: result[key] = []; continue
         df_h     = c.get('agg_hotel', pd.DataFrame()).copy()
@@ -421,14 +479,20 @@ def render_severity():
 # ── Análisis de Rendimiento ───────────────────────────────────────────────────
 def render_analisis():
     def table_html(tbody_id, btn_id, th_labels, dim_id=None):
+        colwidths = ['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']
+        colgroup = ''.join(
+            f'<col style="width:{colwidths[i]}">' if i < len(colwidths) and colwidths[i] else '<col>'
+            for i in range(len(th_labels))
+        )
         cols = ''.join(
-            f'<th style="padding:8px 8px 8px {"12px" if i==0 else "8px"};'
+            f'<th style="padding:8px {"6px" if i>0 else "12px"} 8px {"6px" if i>0 else "12px"};'
             f'border-bottom:2px solid #EA0074;font-size:10px;font-weight:700;'
-            f'text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);'
-            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};">'
+            f'text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);'
+            f'text-align:{"left" if i==0 else "center" if i==1 else "right"};white-space:nowrap;">'
             f'{"<span id=\""+dim_id+"\">Corporativo</span>" if dim_id and i==0 else lbl}</th>'
             for i, lbl in enumerate(th_labels))
         return (f'<table style="width:100%;border-collapse:collapse;table-layout:fixed;">'
+                f'<colgroup>{colgroup}</colgroup>'
                 f'<thead><tr>{cols}</tr></thead>'
                 f'<tbody id="{tbody_id}"></tbody></table>'
                 f'<div style="text-align:center;margin-top:10px;">'
@@ -437,8 +501,8 @@ def render_analisis():
                 f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
                 f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
-    th_h = ['Hotel', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
-    th_d = ['Corporativo', 'Banda', 'Tráfico', '%NoDispo', 'IPM', 'WoW']
+    th_h = ['Hotel', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
+    th_d = ['Dimensión', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
 
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>

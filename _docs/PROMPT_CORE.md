@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W21-post · Mayo 2026 · HTML unificado · Panel Análisis interactivo**
+**Versión W21-post3 · Mayo 2026 · HTML unificado + Módulo histórico v5 + Análisis dinámico + Sort + Top 10 fijo**
 
 ---
 
@@ -349,20 +349,66 @@ kpis-hero { margin: 6px 0 12px; }   /* antes 12px 0 16px */
 `outer_bg` siempre `var(--paper-soft)` — tanto global como canastas — para garantizar contraste de las celdas internas.
 **Nunca hardcodear 'W20'/'W19' en llamadas a `wow_box()`.**
 
-### Tablas KPI cards · Grid
+### Scoping de acento por sección (asset_supply_head.html)
+
+```css
+.section-cr  { --accent: #5C469C; --accent-soft: #EDE8F7; }  /* violet */
+.section-rnd { --accent: #EA0074; --accent-soft: #FCE4F1; }  /* magenta */
+```
+
+### Cards AR · Colores complementarios
 
 ```
-RND cards:  minmax(0,1fr) 76px 54px 36px
-CR cards:   según cols_def (Severity 90px)
+Card 1 (Ef/NoDispo):  --accent de la sección (violet CR · magenta RND)
+Card 2 (CV/IPM):      band_cv / bbg_cv / bfg_cv — banda SEPARADA de card 1
+Switcher CR/RND:      color fijo del modo (violet/magenta), no cambia con canasta
+Canasta global:       #333132 gris
+Canasta b2c:          #EA0074 magenta
+Canasta op:           #FCB000 amber
+Canasta cug:          #4FC3F4 cyan
 ```
+
+### Formato tráfico · Canónico
+
+Siempre: `<strong>Tráfico:</strong> {valor}` — label bold primero, número después.
+Aplica en: cards KPI globales (CR+RND), cards AR, subhead hero RND.
+- CR: `fmt_int_es(cr_unicos)` → `746.111`
+- RND: `fmt_big(trafico)` → `12,2B`
 
 ### Tablas grandes (hotel + dim) · HTML table pattern
 
 Las tablas de "Análisis por hotel" y "Análisis por dimensión" usan **HTML `<table>` con `table-layout:fixed`**.
 
-**Colwidths calibrados (contenedor ~1168px):**
-- RND hotel/dim (7 cols): `[800, 80, 65, 58, 50, 52, 50]`
-- CR hotel (8 cols): `[800, 60, 56, 48, 50, 52, 50, 52]`
+**Colwidths calibrados — cards AR (assemble_unified.py · 6 cols):**
+`<col/>` (fill) · `90px` · `60px` · `42px` · `76px` · `42px`
+Columnas: Nombre · Severity · Tráfico · WoW · Métrica · WoW
+
+**Colwidths calibrados — tablas p2 (render_cr_p2 / render_rnd_p2 · 8 cols):**
+`['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']`
+
+### Grids cards KPI globales (tab panels)
+
+```
+CR Eficacia:   minmax(0,1fr) 80px 56px 52px 54px 48px
+CR ConvRate:   minmax(0,1fr) 80px 56px 52px 68px 40px
+RND NoDispo:   minmax(0,1fr) 76px 52px 44px 54px 36px
+RND IPM:       minmax(0,1fr) 76px 52px 44px 54px 36px
+```
+Orden: Nombre · Severity · Tráfico · WoW · Métrica · WoW
+
+### Sort por columna · Columnas ordenables
+
+```
+Cards KPI (_KPI_RCOLS):  { 2: 5, 4: 7 }
+  th[2] = Tráfico  → r[5] en CR_CARD_TABS
+  th[4] = Métrica  → r[7] en CR_CARD_TABS
+
+Cards AR (rmap):         { 2: 4, 4: (n===1?5:6) }
+  th[2] = Tráfico  → r[4] en CR_D/RND_D
+  th[4] = Métrica  → r[5] (card1 Ef/ND) · r[6] (card2 CV/IPM)
+```
+Estructura row `CR_CARD_TABS`: `[lab, sub, bbg, bfg, banda, cr_u, cr_wow, val_pct, wow_pp, hist21, hist20]`
+Estructura row `CR_D/RND_D`:   `[nombre, bbg, bfg, banda, trafico_str, metrica1_str, metrica2_str, ...]`
 
 ### Canastas · Grids reducidos (caben en 2 columnas ~570px)
 
@@ -394,9 +440,17 @@ em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
 ```
 Sin `margin-left` — elimina el "guion fantasma".
 
-### Toggle "Ver más / Ver menos"
+### Top N · 5 visibles + 5 expandibles + 490 buscables
 
-JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-more`.
+- Cards KPI globales: **5 rows visibles** por defecto, **5 más expandibles** (filas 6-10, clase `rows-more`, `display:none`), filas 11-500 clase `sb-hidden`
+- El botón **"Ver más ▾ / Ver menos ▴"** se genera en **Python estático** (`render_helpers.py`) dentro del `kpi-tab-rows` div con `onclick` inline
+- Cards AR (Análisis de Rendimiento): **5 rows visibles**, **5 expandibles** vía `_moreBtn()` JS
+- El searchbox opera sobre **todos los rows en el DOM** (hasta 500) — los `sb-hidden` se muestran al buscar
+- `KPI_TOP_N = 5` en `render_helpers.py` — único lugar a cambiar el top visible
+- `_KPI_TOP_N = 5` y `_KPI_EXPAND_N = 10` en `js_override.js` — controlan el comportamiento JS
+- `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` en `asset_shared_head.html` — resetea al top N al limpiar búsqueda
+- **NUNCA** crear el botón Ver más con `addEventListener` — el evento es interceptado por listeners del parent. Usar `onclick` inline o HTML estático de Python
+- **NUNCA** usar `slice(0,10)` en los renders JS de cards — poner todos los rows en DOM con los extras ocultos
 
 ### Datos históricos reales W17-W21
 
@@ -421,7 +475,10 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 
 ## 📌 Reglas Generales
 
-- **Top 5** en Editorial · **Top 100** en Excel de Análisis
+- **Top 5 visible + 5 expandible** en Editorial · **Top 500** en JSON de cards y Excel de Análisis
+- Searchbox busca sobre **todos los rows en DOM** (hasta 500) — no solo los visibles
+- **Todo el pipeline es P80** — `g_dest`, `g_pais`, `g_corp` vienen de `df18_p80`; `TAB_NoDispo/RPM` usan esos aggregados
+- `MIN_TRAFICO_DIM = 50K` (antes 500K) — evita excluir destinos de alto tráfico como Cancún (#264 NoDispo), New York (#217), Las Vegas (#249)
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
 - Ultra Opaco y Opaco son prioridad estratégica (Weight 0.6) — keys internos: `cug` y `op`
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
@@ -479,6 +536,26 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 28. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"; los keys internos Python/JS siguen siendo `op` y `cug`
 29. Usar `VALS_DEF` en re-draws automáticos del histórico (IntersectionObserver, toggle, radio, setTimeout) — usar `currentVals` para mantener el estado seleccionado; solo `resetToGlobal()` y `hist-reset` deben usar `VALS_DEF`
 30. Confiar en `el.onmousemove` cuando hay listeners registrados con `addEventListener` — para ganar a múltiples listeners en un canvas, hookear el setter `textContent` del tooltip target
+31. Olvidar agregar WoW de tráfico (CR_Unicos_WoW_pp) en tab_eficacia/tab_convrate — afecta rendimiento de análisis. Ver calc_cr.py líneas 236–242 y 276–282
+32. Usar `.tab-label` sin clase `.active` en JS — w22_iTab() debe agregar classList.add('active') para aplicar estilos. Sin esto tabs no se visualizan correctamente
+33. Hardcodear dimensión en w22_setDim() — usar W.dim para persistencia. W.update() debe leer de W.dim y renderizar la dimensión activa
+34. Olvidar cargar g_dest_w17 y g_channel_w17 de D — necesarios para WoW en dest_rows y chan_rows. Ver render_cr_p2.py líneas 33–36
+35. Renderizar trow() con 9 elementos (array sin wow_cr_str) — ahora es 11: [..., wow_ef_str, wow_cv_str, wow_cr_str]. r[10] accede a tráfico WoW
+36. No validar que labels de tabla coincidan con índices de trow() — colisión de columnas. th_labels_hotel debe ser 7: ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
+37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py`. Usar `build_kpi_tab_panel()` para los loops de tab panels y `render_traf_line_cr/rnd()` para las líneas de tráfico. Cambiar top N visible → solo `KPI_TOP_N` en `render_helpers.py`
+38. Usar `ri < 10` fijo en el searchbox de `asset_shared_head.html` — siempre `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` para que sea configurable
+39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (500 rows) y renderizar el resultado completo con extras ocultos
+40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
+41. Llamar `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estén definidas — siempre va al final de `js_override.js`. En `demo_js_main.js` debe estar comentado.
+42. Leer `ef_prev`/`cv_prev`/`ef_wow`/`cv_wow` de `HIST_CR` en `ar_updateKPIs` — estos valores deben venir de `CR_CV`/`RND_CV` (calculados en Python). HIST_CR tiene problemas de timing al cargar.
+43. Agregar `%` a `cdata.ef` o `cdata.cv` que ya lo traen — `cdata.ef = '93,15%'` ya incluye el signo.
+44. Usar `row.closest('tbody')` como único selector en el listener de click del histórico — los divs del Channel no tienen `<tbody>` padre. Usar `closest('tbody') || closest('[id$="-chan-div"]')`.
+45. Omitir `RND_CARD_TABS` en `render_rnd_p1.py` — es obligatorio igual que `CR_CARD_TABS` en `render_cr_p1.py`. Sin él el sort de las cards KPI RND no funciona. Usar `_KPI_RCOLS_RND = {2:4, 4:5}` (tráfico=r[4], métrica=r[5]) vs `_KPI_RCOLS_CR = {2:5, 4:7}`.
+46. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner **todos** los rows en el DOM, con extras marcados `rows-more` (display:none, filas 6-10) o `sb-hidden` (filas 11+). El searchbox los muestra al buscar.
+47. Crear el botón "Ver más" con `addEventListener('click')` en JS — el evento es interceptado por listeners del parent. Usar `onclick` inline en HTML estático generado por Python (`render_helpers.py`).
+48. Recalcular `g_dest`/`g_pais` desde `df_hotel` (df de canasta) en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle que ya tienen WoW calculado sobre P80.
+49. Usar `MIN_TRAFICO_DIM = 500K` en `calc_rnd.py` — con ese umbral se excluyen destinos como Cancún (417M tráfico), New York (477M), Las Vegas (236M). El umbral correcto es **50K**.
+50. Poner el badge de banda en el footer histórico sin background — `bc['bg']` es necesario además de `bc['footer']` (el color de texto). Sin background el badge es invisible sobre el fondo crema.
 
 ---
 
@@ -487,8 +564,9 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
+| P10 | Refactor centralización CR/RND — `_chanRow`/`chanRowAR` duplicadas, `_build_rnd_card_tabs_json` duplica lógica de `_build_cr_card_tabs_json` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta** |
 
-> Bugs P1 (eje X undefined), P2 (click histórico dim), P3, P4, P6-P8 cerrados en sesiones W21/W21-post.
+> Bugs P1–P4, P6–P9 cerrados. P9 (refactor centralización CR/RND) completado W22-pre: `build_kpi_tab_panel()`, `render_traf_line_cr/rnd()`, `KPI_TOP_N` agregados a `render_helpers.py`. Bugs P11, P12, P13 cerrados en W21-post6.
 
 ---
 
@@ -498,7 +576,36 @@ JS handler usa `data-row-idx` (5–9) como selector estable, NO la clase `.rows-
 
 Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del proyecto, plano (sin carpetas). Se entrega junto con el commit de GitHub en cada pipeline.
 
-**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`).
+**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`), `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
+
+### Canal · Catálogo canónico (W21-post4)
+
+```
+Producto Propio: DerbySoft · Internal · HBSI · SynXis · Siteminder · Travelclick · Omnibees
+Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
+```
+- Channels sin datos → "sin actividad" `opacity:0.45` · Orden: peor eficacia primero → inactivos al final
+- Mismo catálogo en KPI cards y AR cards
+
+### RND_CARD_TABS · Estructura (W21-post5)
+
+```
+RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
+  canasta: global / b2c / op / cug
+  metric:  nd / ipm
+  tkey:    destino / corp / hotel
+  row:     [lab, bbg, bfg, banda, traf(r[4]), val(r[5]), wow_pp(r[6]), None, '—','—','—', hist21, hist20]
+```
+
+### CR_CV / RND_CV · Keys disponibles (W21-post4)
+
+```python
+'ef', 'cv',           # valores actuales con %
+'ef_prev', 'cv_prev', # semana anterior con %
+'ef_wow', 'cv_wow',   # delta pp (float)
+'band', 'bbg', 'bfg', 'band_cv', 'bbg_cv', 'bfg_cv',
+'col', 'vol', 'trafico', 'traf_wow'
+```
 
 ### Regla de clasificación
 
@@ -514,7 +621,7 @@ Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del pr
 
 ---
 
-**Última actualización:** W21 (pipeline) · May 2026
+**Última actualización:** W21-post6 + W22-pre (Refactor P9 centralización CR/RND · Fix sort KPI RND) · Mayo 2026
 
 ---
 

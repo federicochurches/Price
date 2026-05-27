@@ -65,8 +65,17 @@ def load_rnd(path, week):
 
 # ── CONFIG SEMANAL ────────────────────────────────────────────────────────────
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
-WEEK     = os.getenv('WEEK', 'W20')
-VOL_NUM  = os.getenv('VOL_NUM', '20')
+WEEK     = os.getenv('WEEK', 'W21')
+VOL_NUM  = os.getenv('VOL_NUM', None)
+if VOL_NUM is None:
+    # Si no viene VOL_NUM, extraerlo de WEEK
+    try:
+        WEEK_NUM = int(WEEK.replace('W', ''))
+        VOL_NUM = str(WEEK_NUM)
+    except:
+        VOL_NUM = '21'
+else:
+    VOL_NUM = str(VOL_NUM)
 PERIODO  = os.getenv('PERIODO', '11–17 may 2026')
 MES_AÑO  = os.getenv('MES_AÑO', 'Mayo 2026')
 FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 18 de Mayo de 2026')  # Día de publicación del reporte
@@ -150,18 +159,20 @@ _gh17 = df17.groupby('Hotel').agg(
 _gh17['%NoDispo_W18'] = (_gh17['_TND'] / _gh17['_Trafico'].replace(0, np.nan)).fillna(0)
 _gh17['IPM_W18']      = (_gh17['_gb'].clip(lower=0) / _gh17['_Trafico'].replace(0, np.nan) * 1_000_000).fillna(0)
 _gh17['RPM_W18']      = _gh17['IPM_W18']
-g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18']]
-g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['CorpName','%NoDispo_W18','IPM_W18']]
-g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['Destino','%NoDispo_W18','IPM_W18']]
-g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})\
-    [['PaisDestino','%NoDispo_W18','IPM_W18']]
+_gh17['Trafico_W18']  = _gh17['_Trafico']
+g_hotel_w17 = _gh17[['Hotel','%NoDispo_W18','IPM_W18','RPM_W18','Trafico_W18']]
+g_corp_w17  = agg_dim(df17,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['CorpName','%NoDispo_W18','IPM_W18','Trafico_W18']]
+g_dest_w17  = agg_dim(df17,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['Destino','%NoDispo_W18','IPM_W18','Trafico_W18']]
+g_pais_w17  = agg_dim(df17,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})\
+    [['PaisDestino','%NoDispo_W18','IPM_W18','Trafico_W18']]
 
 # Enriquecer p80 con WoW
 p80_hotel = p80_hotel.merge(g_hotel_w17, on='Hotel', how='left')
-p80_hotel['NoDispo_WoW_pp'] = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W18']) * 100
-p80_hotel['IPM_WoW_pp']     = p80_hotel['IPM'] - p80_hotel['IPM_W18']
+p80_hotel['NoDispo_WoW_pp']   = (p80_hotel['%NoDispo'] - p80_hotel['%NoDispo_W18']) * 100
+p80_hotel['IPM_WoW_pp']       = p80_hotel['IPM'] - p80_hotel['IPM_W18']
+p80_hotel['Trafico_WoW_pct']  = ((p80_hotel['Trafico'] - p80_hotel['Trafico_W18']) / p80_hotel['Trafico_W18'].replace(0, float('nan')) * 100).fillna(float('nan'))
 
 # ── Métricas globales · basadas en P80 (metodología) ─────────────
 # Las cards globales muestran métricas del P80, no del dataset completo
@@ -216,19 +227,21 @@ for g in [g_corp, g_dest, g_pais]:
     g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W18', g['%NoDispo'])) * 100
     if 'IPM_W18' in g.columns and 'IPM_WoW_pp' not in g.columns:
         g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W18']
+    if 'Trafico_W18' in g.columns:
+        g['Trafico_WoW_pct'] = ((g['Trafico'] - g['Trafico_W18']) / g['Trafico_W18'].replace(0, float('nan')) * 100)
 
 # ── TABs para KPI hero ────────────────────────────────────────────
-def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None):
+def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None, top_n=500):
     sub = df.copy()
     if min_ipm:
         sub = sub[sub['IPM'] > 0]
     if min_trafico:
         sub = sub[sub['Trafico'] >= min_trafico]
-    return sub.sort_values(sort_col, ascending=asc).head(100).reset_index(drop=True)
+    return sub.sort_values(sort_col, ascending=asc).head(top_n).reset_index(drop=True)
 
-# Umbral mínimo de tráfico para destino y país (evita outliers de bajo volumen)
-# Corp: sin filtro de tráfico — mismo universo que pestaña "Por Corporativo" del Excel
-MIN_TRAFICO_DIM = 500_000
+# Umbral mínimo de tráfico para destino/país — 50K (mismo que hoteles, sin cortar destinos relevantes)
+# Cancún (417M tráfico), New York (477M), Las Vegas (236M) estaban excluidos con 500K
+MIN_TRAFICO_DIM = 50_000
 
 TAB_NoDispo = {
     'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),
@@ -245,8 +258,8 @@ TAB_NoDispo = {
 TAB_RPM = {
     'pais':    make_tab(g_pais,'PaisDestino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
     'destino': make_tab(g_dest,'Destino','IPM',True, min_ipm=True, min_trafico=MIN_TRAFICO_DIM),
-    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True),
-    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True),
+    'corp':    make_tab(g_corp,'CorpName','IPM',True, min_ipm=True, top_n=100),
+    'hotel':   make_tab(p80_hotel,'Hotel','IPM',True, min_ipm=True, top_n=100),
     'canasta': TAB_NoDispo['canasta'],
 }
 # Alias RPM en TABs

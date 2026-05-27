@@ -19,7 +19,7 @@ def _mini_badge(bnd):
 
 
 # Cargar datos
-with open(os.getenv('PICKLE_RND', 'rnd_w20_data.pkl'),'rb') as f:
+with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
 
@@ -94,7 +94,7 @@ def render_masthead():
 <img alt="PriceTravel" src="{LOGO}" style="height:50px;width:auto;vertical-align:middle;"/>
 <span style="display:inline-block;width:1px;height:38px;background:var(--rule);margin:0 12px;vertical-align:middle;"></span>
 <span style="display:inline-block;vertical-align:middle;text-align:left;line-height:1.15;">
-<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--accent);">Supply Optimization</span>
+<span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:var(--ink);">Supply Optimization</span>
 </span>
 </div>
 </div>
@@ -150,7 +150,7 @@ def render_hero():
           f'<span class="accent">{top_corp[1]}</span> y '
           f'<span class="accent">{top_corp[2]}</span> son los corporativos con mayor demanda no convertida.</span>')
     
-    subhead = (f'<strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> Tráfico · '
+    subhead = (f'<strong style="font-weight:700;color:var(--ink);">Tráfico:</strong> <strong style="color:#EA0074;font-weight:700;">{fmt_big(tr18)}</strong> · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_hot)}</strong> hoteles · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(bk18)}</strong> Bookings · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '
@@ -167,20 +167,45 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     
     wow_color = '#2F6C34' if pct_wow < 0 else '#C0392B'  # mejor si baja
     wow_arrow = '↓' if pct_wow < 0 else ('↑' if pct_wow > 0 else '=')
-    wow_str = f'{wow_arrow} {abs(pct_wow):+.2f}pp'.replace('+', '').replace('.', ',')
-    if pct_wow < 0: wow_str = f'{wow_arrow} -{abs(pct_wow):.2f}pp'.replace('.', ',')
-    elif pct_wow > 0: wow_str = f'{wow_arrow} +{pct_wow:.2f}pp'.replace('.', ',')
-    else: wow_str = '= 0,00pp'
+    wow_str = f'{wow_arrow} {abs(pct_wow):+.2f}'.replace('+', '').replace('.', ',')
+    if pct_wow < 0: wow_str = f'{wow_arrow} -{abs(pct_wow):.2f}'.replace('.', ',')
+    elif pct_wow > 0: wow_str = f'{wow_arrow} +{pct_wow:.2f}'.replace('.', ',')
+    else: wow_str = '= 0,00'
     
     wow_block = wow_box(fmt_pct2(pct_w17), fmt_pct2(pct_w18), wow_str, wow_color, ACCENT)
     # Prop V1: NoDispo baja = buena → invertir signo para que verde = mejora
-    _wow_pill_nd = wow_pill_html(-pct_wow, unit='pp', prefix_pos='↓', prefix_neg='↑')
+    _wow_pill_nd = wow_pill_html(-pct_wow, unit='', prefix_pos='↓', prefix_neg='↑')
+    
+    # Línea de tráfico — helper centralizado
+    _tr18 = M['global_current'].get('trafico', 0)
+    _tr17 = M.get('global_w17', {}).get('trafico', 0)
+    _traf_line = render_traf_line_rnd(_tr18, _tr17)
     
     # Tabs panels
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
         tabs += f'<label class="tab-label" for="tab-nd-{t_key}">{t_label}</label>'
-    
+
+    # ── Config centralizada NoDispo ─────────────────────────────────────────────
+    _ND_CFG = {
+        'val_col':       '%NoDispo',
+        'val_fmt':       fmt_pct2,
+        'hist_scale':    lambda v: round(float(v) * 100, 4),
+        'hist_prev_col': '%NoDispo_W17',   # fallback: NoDispo_W17 / %NoDispo_W18
+        'banda_fn':      banda_nodispo,
+        'banda_col':     'BandaNoDispo',
+        'traf_col':      'Trafico',
+        'traf_fmt':      fmt_int_es,
+        'traf_wow_col':  'Trafico_WoW_pct',
+        'traf_wow_type': 'pct',
+        'wow_col':       'NoDispo_WoW_pp',
+        'wow_is_pos':    False,            # NoDispo: bajar = mejorar
+        'grid_cols':     'minmax(0,1fr) 76px 52px 44px 54px 36px',
+    }
+    _ND_HDR = {'headers': ['Severity','Tráfico','WoW','%NoDispo','WoW'],
+               'widths':  'minmax(0,1fr) 76px 52px 44px 54px 36px'}
+    # ────────────────────────────────────────────────────────────────────────────
+
     panels = ''
     for t_key, t_label, df_t in [
         ('pais','País', TAB_NoDispo['pais']),
@@ -188,77 +213,21 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         ('corp','Corp', TAB_NoDispo['corp']),
         ('hotel','Hotel', TAB_NoDispo['hotel']),
     ]:
-        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
-        rows_html = top5 = next5 = rest = ''
-        for i, r in df_t.iterrows():
-            nd_val = r.get('%NoDispo', r.get('pct_nodispo', r.get('nodispo', 0)))
-            _corp_sub = ''
-            if t_key=='canasta':
-                raw_lab = r['Canasta']; lab = raw_lab; val = nd_val
-            elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = nd_val
-                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-            elif t_key=='pais':
-                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = nd_val
-            else:
-                col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 36) if t_key=='corp' else clean_destino_name(r[col], 36); val = r['%NoDispo']
-            show_wow = t_key in ('pais', 'destino', 'corp', 'hotel')
-            wow_pill = ''
-            if show_wow:
-                wow_pp = r.get('NoDispo_WoW_pp', None)
-                if wow_pp is not None and not (wow_pp != wow_pp) and abs(wow_pp) >= 0.05:
-                    mejora = wow_pp < 0
-                    wow_color = '#2F6C34' if mejora else '#C0392B'
-                    wow_bg    = '#EAF3DE' if mejora else '#FCE8E6'
-                    arrow = '↓' if wow_pp < 0 else '↑'
-                    wow_txt = f'{arrow}{abs(wow_pp):.2f}'.replace('.', ',')
-                    css_cls = "wow-pill dn" if mejora else "wow-pill up"
-                    wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-                else:
-                    wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
-            import math as _mnd
-            _nd_w21 = round(float(val)*100, 4) if val and not _mnd.isnan(float(val)) else 0
-            _nd_w20_raw = r.get('%NoDispo_W18', r.get('NoDispo_W17', r.get('%NoDispo_W17', None)))
-            try: _nd_w20 = round(float(_nd_w20_raw)*100,4) if _nd_w20_raw is not None and not _mnd.isnan(float(_nd_w20_raw)) else _nd_w21
-            except: _nd_w20 = _nd_w21
-            _bnd_nd = r.get('BandaNoDispo','') if 'BandaNoDispo' in r.index else ''
-            if not _bnd_nd and val is not None:
-                from engine import banda_nodispo as _bn; _bnd_nd = _bn(val)
-            _badge_nd = _mini_badge(_bnd_nd)
-            if i < 5: _cls = ''
-            elif i < 10: _cls = 'rows-more'
-            else: _cls = 'sb-hidden'
-            _row = (f'<div class="{_cls}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_nd_w21}" data-hist-w20="{_nd_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
-                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
-                    + f'</div>'
-                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_nd}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5: top5 += _row
-            elif i < 10: next5 += _row
-            else: rest += _row
-        if t_key not in ('canasta',):
-            has_more = len(df_t) > 5
-            ver_mas_btn = ''
-            if has_more:
-                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
-                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                               f'<span class="toggle-label">Ver 5 más</span> '
-                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','%NoDispo','WoW'], 'minmax(0,1fr) 76px 54px 36px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
-        else:
-            panel_html = top5 + next5 + rest
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+        # ── Helper centralizado — val_col buscado con fallbacks de NoDispo ─────
+        # Para NoDispo la columna puede llamarse %NoDispo, pct_nodispo, nodispo
+        # Normalizar df_t para que siempre tenga '%NoDispo'
+        _df = df_t.copy()
+        if '%NoDispo' not in _df.columns:
+            for _alt in ('pct_nodispo','nodispo'):
+                if _alt in _df.columns:
+                    _df = _df.rename(columns={_alt: '%NoDispo'})
+                    break
+        # Fallback hist_prev: puede ser %NoDispo_W17, NoDispo_W17 o %NoDispo_W18
+        for _hcol in ('%NoDispo_W17','NoDispo_W17','%NoDispo_W18'):
+            if _hcol in _df.columns:
+                _ND_CFG['hist_prev_col'] = _hcol
+                break
+        panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR)
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-nd-pais" name="tabs-nd" style="display:none;" type="radio"/>
@@ -271,6 +240,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div>
 <div id="w21-kv-nd" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
+{_traf_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -291,16 +261,42 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     
     wow_color = '#2F6C34' if rpm_wow > 0 else '#C0392B'
     wow_arrow = '↑' if rpm_wow > 0 else ('↓' if rpm_wow < 0 else '=')
-    wow_str = f'{wow_arrow} {rpm_wow:+.1f}%'.replace('.', ',')
+    wow_str = f'{wow_arrow} {abs(rpm_wow):.1f}'.replace('.', ',')
     
     wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
     # Prop V1: IPM sube = buena → pasar directo, unidad %
-    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='%')
+    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='')
+    
+    # Línea de tráfico — helper centralizado
+    _tr18 = M['global_current'].get('trafico', 0)
+    _tr17 = M.get('global_w17', {}).get('trafico', 0)
+    _traf_line = render_traf_line_rnd(_tr18, _tr17)
     
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
         tabs += f'<label class="tab-label" for="tab-rpm-{t_key}">{t_label}</label>'
-    
+
+    # ── Config centralizada IPM/RPM ──────────────────────────────────────────────
+    _IPM_CFG = {
+        'val_col':       'RPM',            # la col puede ser RPM, rpm, IPM, ipm
+        'val_fmt':       fmt_num2,
+        'val_prefix':    '$',
+        'hist_scale':    lambda v: round(float(v), 2),
+        'hist_prev_col': 'IPM_W17',        # fallback: IPM_W18
+        'banda_fn':      lambda v: banda_rpm(v, 1),
+        'banda_col':     'BandaRPM',
+        'traf_col':      'Trafico',
+        'traf_fmt':      fmt_int_es,
+        'traf_wow_col':  'Trafico_WoW_pct',
+        'traf_wow_type': 'pct',
+        'wow_col':       'IPM_WoW_pp',     # fallback: RPM_WoW_pct
+        'wow_is_pos':    True,             # IPM: subir = mejorar
+        'grid_cols':     'minmax(0,1fr) 76px 52px 44px 54px 36px',
+    }
+    _IPM_HDR = {'headers': ['Severity','Tráfico','WoW','IPM','WoW'],
+                'widths':  'minmax(0,1fr) 76px 52px 44px 54px 36px'}
+    # ────────────────────────────────────────────────────────────────────────────
+
     panels = ''
     for t_key, t_label, df_t in [
         ('pais','País', TAB_RPM['pais']),
@@ -308,77 +304,24 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         ('corp','Corp', TAB_RPM['corp']),
         ('hotel','Hotel', TAB_RPM['hotel']),
     ]:
-        # Layout: 1 columna de 5 visible + botón "Ver 5 más" (excepto canasta)
-        rows_html = top5 = next5 = rest = ''
-        for i, r in df_t.iterrows():
-            rpm_val = r.get('RPM', r.get('rpm', r.get('IPM', r.get('ipm', 0))))
-            _corp_sub = ''
-            if t_key=='canasta':
-                raw_lab = r['Canasta']; lab = raw_lab; val = rpm_val
-            elif t_key=='hotel':
-                raw_lab = str(r['Hotel']); lab = truncate(clean_hotel_name(raw_lab), 38); val = rpm_val
-                _corp_sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-            elif t_key=='pais':
-                raw_lab = str(r['PaisDestino']); lab = clean_pais_name(raw_lab, max_len=30); val = rpm_val
-            else:
-                col = {'destino':'Destino','corp':'CorpName'}[t_key]
-                raw_lab = str(r[col]); lab = truncate(r[col], 36) if t_key=='corp' else clean_destino_name(r[col], 36); val = rpm_val
-            show_wow = t_key in ('pais', 'destino', 'corp', 'hotel')
-            wow_pill = ''
-            if show_wow:
-                wow_v = r.get('IPM_WoW_pp', r.get('RPM_WoW_pct', None))
-                ipm_prev = r.get('IPM_W18', r.get('IPM_W17', 0))
-                if wow_v is not None and not (wow_v != wow_v) and abs(wow_v) > 0.1 and ipm_prev > 0:
-                    wow_pct = (wow_v / ipm_prev) * 100
-                    mejora = wow_pct > 0
-                    arrow = '↑' if wow_pct > 0 else '↓'
-                    wow_txt = f'{arrow}{abs(wow_pct):.1f}%'.replace('.', ',')
-                    css_cls = "wow-pill dn" if mejora else "wow-pill up"
-                    wow_pill = f'<em class="{css_cls}">{wow_txt}</em>'
-                else:
-                    wow_pill = '<em class="wow-pill nd">—</em>'
-            grid = 'minmax(0,1fr) 76px 54px 36px' if show_wow else 'minmax(0,1fr) 76px 54px'
-            import math as _mipm
-            _ipm_w21 = round(float(val), 2) if val and not _mipm.isnan(float(val)) else 0
-            _ipm_w20_raw = r.get('IPM_W18', r.get('IPM_W17', None))
-            try: _ipm_w20 = round(float(_ipm_w20_raw), 2) if _ipm_w20_raw is not None and not _mipm.isnan(float(_ipm_w20_raw)) else _ipm_w21
-            except: _ipm_w20 = _ipm_w21
-            _bnd_ipm = r.get('BandaRPM', r.get('BandaIPM','')) if ('BandaRPM' in r.index or 'BandaIPM' in r.index) else ''
-            if not _bnd_ipm and val is not None:
-                from engine import banda_rpm as _brpm; _bnd_ipm = _brpm(val, 1)
-            _badge_ipm = _mini_badge(_bnd_ipm)
-            if i < 5: _cls2 = ''
-            elif i < 10: _cls2 = 'rows-more'
-            else: _cls2 = 'sb-hidden'
-            _row2 = (f'<div class="{_cls2}" data-row-idx="{i}"'
-                    f' data-hist-w21="{_ipm_w21}" data-hist-w20="{_ipm_w20}" data-hist-label="{raw_lab}"'
-                    f' style="display:grid;grid-template-columns:{grid};align-items:center;gap:10px;'
-                    f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-                    f'<div style="min-width:0;overflow:hidden;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
-                    + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
-                    + f'</div>'
-                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
-                    f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
-                    + (f'{wow_pill}</div>' if show_wow else '</div>'))
-            if i < 5: top5 += _row2
-            elif i < 10: next5 += _row2
-            else: rest += _row2
-        if t_key not in ('canasta',):
-            has_more = len(df_t) > 5
-            ver_mas_btn = ''
-            if has_more:
-                ver_mas_btn = (f'<button class="rows-toggle" data-panel="{t_key}" '
-                               f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-                               f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-                               f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-                               f'<span class="toggle-label">Ver 5 más</span> '
-                               f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>')
-            _tab_hdr = tab_column_header(['Severity','IPM','WoW'], 'minmax(0,1fr) 76px 54px 36px')
-            panel_html = f'<div class="kpi-tab-rows">{_tab_hdr}{top5}{next5}{ver_mas_btn}</div>{rest}'
-        else:
-            panel_html = top5 + next5 + rest
-        panels += f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+        _df = df_t.copy()
+        # Normalizar columna de valor: RPM, rpm, IPM, ipm → siempre 'RPM'
+        for _alt in ('rpm','IPM','ipm'):
+            if 'RPM' not in _df.columns and _alt in _df.columns:
+                _df = _df.rename(columns={_alt: 'RPM'})
+                break
+        # Banda: BandaIPM → BandaRPM si no existe
+        if 'BandaRPM' not in _df.columns and 'BandaIPM' in _df.columns:
+            _df = _df.rename(columns={'BandaIPM': 'BandaRPM'})
+        # WoW col fallback
+        if 'IPM_WoW_pp' not in _df.columns and 'RPM_WoW_pct' in _df.columns:
+            _df = _df.rename(columns={'RPM_WoW_pct': 'IPM_WoW_pp'})
+        # hist_prev fallback
+        for _hcol in ('IPM_W17','IPM_W18','RPM_W17'):
+            if _hcol in _df.columns:
+                _IPM_CFG['hist_prev_col'] = _hcol
+                break
+        panels += build_kpi_tab_panel(_df, t_key, _IPM_CFG, _IPM_HDR)
     
     return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <input checked="" id="tab-rpm-pais" name="tabs-rpm" style="display:none;" type="radio"/>
@@ -391,6 +334,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <div>
 <div id="w21-kv-rpm" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ipm}</div>
+{_traf_line}
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -481,11 +425,105 @@ HERO = f'''<section class="hero" id="kpis-hero-section">
 </section>
 '''
 
+import json as _json_rnd
+import math as _math_rnd
+
+def _build_rnd_card_tabs_json():
+    """Genera JSON RND_CARD_TABS con datos para sort en cards KPI NoDispo e IPM."""
+    CANASTA_BY = D.get('CANASTA', {})
+    result = {}
+    for canasta_key, tab_key in [('global','global'),('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
+        # Usar TAB_NoDispo / TAB_RPM global para todas las canastas
+        # (por canasta usaría filtros adicionales — por ahora global)
+        nd_rows, ipm_rows = [], []
+        for t_key, df_nd, df_ipm in [
+            ('pais',    TAB_NoDispo['pais'],    TAB_RPM['pais']),
+            ('destino', TAB_NoDispo['destino'], TAB_RPM['destino']),
+            ('corp',    TAB_NoDispo['corp'],    TAB_RPM['corp']),
+            ('hotel',   TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
+        ]:
+            _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
+            # NoDispo rows: ordenar peor primero (mayor %NoDispo)
+            df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(500)
+            nd_tab = []
+            for _, r in df_nd_s.iterrows():
+                lab      = str(r.get(_name_col, '?'))[:60]
+                nd       = r.get('%NoDispo', 0)
+                traf     = r.get('Trafico', 0)
+                traf_wow = r.get('Trafico_WoW_pct', None)
+                wow      = r.get('NoDispo_WoW_pp', None)
+                w21      = round(nd * 100, 4)
+                bnd      = banda_nodispo(nd)
+                bc       = BANDA_COLORS.get(bnd, {})
+                traf_str = fmt_big(traf) if traf else '0'
+                nd_tab.append([
+                    lab,
+                    '',              # r[1] sub
+                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+                    traf_str,        # r[5] tráfico abreviado (6,9M)
+                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
+                    round(nd * 100, 2),   # r[7] val_pct
+                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
+                    None, '—', '—',
+                    w21, round((nd - r.get('%NoDispo_W18', nd)) * 100, 4)
+                ])
+            # IPM rows: ordenar peor primero (menor IPM)
+            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(500)
+            ipm_tab = []
+            for _, r in df_ipm_s.iterrows():
+                lab      = str(r.get(_name_col, '?'))[:60]
+                ipm      = r.get('IPM', r.get('RPM', 0))
+                traf     = r.get('Trafico', 0)
+                traf_wow = r.get('Trafico_WoW_pct', None)
+                wow      = r.get('IPM_WoW_pp', None)
+                bnd      = banda_rpm(ipm, int(r.get('Bookings', 1)))
+                bc       = BANDA_COLORS.get(bnd, {})
+                traf_str = fmt_big(traf) if traf else '0'
+                ipm_tab.append([
+                    lab,
+                    '',              # r[1] sub
+                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+                    traf_str,        # r[5] tráfico abreviado
+                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
+                    round(ipm, 2),   # r[7] val_pct
+                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
+                    None, '—', '—',
+                    round(ipm, 4), 0
+                ])
+            nd_rows_map  = nd_rows if t_key == 'hotel' else None
+            ipm_rows_map = ipm_rows if t_key == 'hotel' else None
+            result.setdefault(canasta_key, {}).setdefault('nd', {})[t_key]  = nd_tab
+            result.setdefault(canasta_key, {}).setdefault('ipm', {})[t_key] = ipm_tab
+    return f'\n<script>\nvar RND_CARD_TABS={_json_rnd.dumps(result, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN RND ═══════════════ -->\n'
     '<section id="section-rnd" class="section-rnd">\n'
     + render_masthead()
     + HERO
+    + _build_rnd_card_tabs_json()
+    + '''
+<script>
+// HIST_DATA: datos históricos RND W17-W21
+if (!window.HIST_DATA) {
+    window.HIST_DATA = {};
+}
+window.HIST_DATA['rnd'] = {
+    'nodispo': {
+        'global': [3.63, 2.84, 2.31, 2.59, 2.59],
+        'op':     [3.18, 2.62, 1.93, 2.24, 2.19],
+        'cug':    [4.34, 3.07, 2.73, 2.82, 2.78],
+        'b2c':    [4.48, 3.68, 3.36, 3.31, 3.29],
+    },
+    'ipm': {
+        'global': [574.0, 524.0, 499.0, 677.0, 834.0],
+        'op':     [523.0, 534.0, 479.0, 688.0, 845.0],
+        'cug':    [866.0, 659.0, 656.0, 787.0, 944.0],
+        'b2c':    [183.0, 206.0, 188.0, 248.0, 304.0],
+    },
+};
+</script>
+'''
 )
 
 with open('part1_rnd.html', 'w') as f:

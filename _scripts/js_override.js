@@ -102,7 +102,7 @@ function _renderChanSplit(dd) {
   var accent = W.mode === 'cr' ? '#5C469C' : '#EA0074';
   var cyan = '#4FC3F4';
   function headerRow(label, col) {
-    return '<tr><td colspan="6" style="padding:8px 0 4px 12px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:'+col+';border-bottom:2px solid '+col+';border-top:1px solid var(--rule-soft);">'+label+'</td></tr>';
+    return '<tr><td colspan="7" style="padding:8px 0 4px 12px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:'+col+';border-bottom:2px solid '+col+';border-top:1px solid var(--rule-soft);">'+label+'</td></tr>';
   }
   var html = '';
   if (pp.length) {
@@ -118,7 +118,7 @@ function _renderChanSplit(dd) {
 
 w22_setDim = function(d) {
   _currentDim = d;
-  var l = {corp:'Corporativo', dest:'Destino', chan:'Canal'};
+  var l = {corp:'Corporativo', dest:'Destino', chan:'Channel'};
   var thd = document.getElementById('w22-th-dim');
   if (thd) thd.textContent = l[d] || 'Corporativo';
   var dd = data();
@@ -138,21 +138,26 @@ var _currentHotelTab = 'crit';
 
 function w22_setHotelTab(tab, el) {
   _currentHotelTab = tab;
+  var ph = document.getElementById('w22-ph');
+  if (ph) {
+    ph.querySelectorAll('.tabs-row label').forEach(function(l) {
+      l.classList.remove('tab-label-active');
+    });
+  }
+  if (el) { el.classList.add('tab-label-active'); }
   var dd = data();
   var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
              tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
              tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
-             (dd.hotels_crit || dd.hotels_dnc || dd.hotels);
+             (dd.hotels_crit || dd.hotels);
   w22_renderTable('w22-th', 'w22-th-more', rows, false);
-  /* trow sin patch — los atributos hist se agregan en w22_renderTable parcheado */
+  if (typeof window._injectHistAttrs === 'function') window._injectHistAttrs('w22-th', rows);
+}
 
-
-
-/* Exportar al scope global para que onclick en TR pueda llamarla */
-/* Inyectar en render inicial */
+/* Inyectar atributos hist en render inicial */
 setTimeout(function(){
   var dd = data();
-  var hrows = (dd.hotels_crit || dd.hotels_dnc || dd.hotels);
+  var hrows = (dd.hotels_crit || dd.hotels);
   if(typeof window._injectHistAttrs==="function") window._injectHistAttrs('w22-th', hrows);
   if(typeof window._injectHistAttrs==="function") window._injectHistAttrs('w22-td', dd.dims);
 }, 200);
@@ -184,24 +189,7 @@ window._injectHistAttrs = function _injectHistAttrs(tbodyId, rows) {
   });
 }
 
-/* Actualizar header de columna nombre según tab activa */
-  var thHotel = document.querySelector('#w22-ph thead th:first-child');
-  if (thHotel) {
-    var lbls = {
-      crit: W.mode==='rnd' ? 'Demanda No Convertida' : 'Hotel · Críticos',
-      br:   'Hotel · Bajo Rendimiento',
-      sc:   'Hotel · Sin Conversión',
-      cv:   'Hotel · Menor ConvRate'
-    };
-    thHotel.textContent = lbls[tab] || 'Hotel';
-  }
-  /* Estilo tab activa */
-  if (el) {
-    var row = el.parentElement;
-    row.querySelectorAll('label').forEach(function(l){ l.classList.remove('tab-label-active'); });
-    el.classList.add('tab-label-active');
-  }
-}
+/* Header de columna y estilo de tab se manejan en TAB_BINDING_JS */
 
 /* Patch w22_renderTable — auto-inject data-hist-* después de cada render */
 var _origRenderTable = w22_renderTable;
@@ -258,18 +246,17 @@ w22_setMode = function(m, el) {
   /* Actualizar estado */
   W.mode = m; W.canasta = 'global'; W.reOpen = false;
 
-  /* Segmented control */
-  var modeCol = m==='cr' ? '#5C469C' : '#EA0074';
+  /* Segmented control — siempre negro independiente del modo */
   var seg = document.querySelector('.w22-seg');
-  if(seg){ seg.style.border='1.5px solid '+modeCol; seg.style.borderRadius='4px'; }
+  if(seg){ seg.style.border=''; seg.style.borderRadius=''; } /* usar CSS base */
   var btns = document.querySelectorAll('.w22-seg-btn');
   btns.forEach(function(b,i){
     b.classList.remove('on');
     b.style.background=''; b.style.color='';
-    if(i===0) b.style.borderRight='1.5px solid '+modeCol;
+    if(i===0) b.style.borderRight=''; /* usar CSS base */
   });
   el.classList.add('on');
-  el.style.background = modeCol; el.style.color = '#fff';
+  el.style.background = ''; el.style.color = ''; /* dejar que CSS .on lo maneje */
 
   /* Accent CSS global */
   var root = document.documentElement;
@@ -339,9 +326,9 @@ w22_setMode = function(m, el) {
     var el=document.getElementById(id); if(el) el.style.display=m==='rnd'?'block':'none';
   });
 
-  /* Tab dim Canal ↔ País según modo */
+  /* Tab dim Channel ↔ País según modo */
   var dimChan = document.getElementById('w22-dim-lbl-chan');
-  if(dimChan) dimChan.textContent = m==='cr' ? 'Canal' : 'País';
+  if(dimChan) dimChan.textContent = m==='cr' ? 'Channel' : 'País';
 
   /* Plan subtitle */
   var psub = document.getElementById('w22-plan-sub');
@@ -384,8 +371,7 @@ w22_iTab = function(el) {
 };
 
 
-/* Disparar render inicial */
-w22_update();
+/* w22_update() se llama al final del archivo cuando _cardRow ya está definida */
 /* Reemplazar w22_setView completamente — usar !important vía style */
 w22_setView = function(v) {
   W.view = v;
@@ -735,3 +721,1069 @@ document.addEventListener('click', function(e) {
     ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
   }
 });
+/* ── w22_renderCardTabs — re-renderiza los tabs de las cards KPI CR por canasta ── */
+/* ── w22_renderRNDCardTabs — re-renderiza los tabs de las cards KPI RND por canasta ── */
+function w22_renderRNDCardTabs(canasta) {
+  var RND_TABS = (typeof RND_CARD_TABS !== 'undefined') ? RND_CARD_TABS : null;
+  if (!RND_TABS) return;
+  var tabs = RND_TABS[canasta] || RND_TABS['global'] || {};
+  var grids = { 'nd': 'minmax(0,1fr) 76px 52px 44px 54px 36px', 'ipm': 'minmax(0,1fr) 76px 52px 44px 54px 36px' };
+  var hdrs  = { 'nd': ['Severity','Tráfico','WoW','%NoDispo','WoW'], 'ipm': ['Severity','Tráfico','WoW','IPM','WoW'] };
+  var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
+  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+  ['nd','ipm'].forEach(function(metric) {
+    var tabPrefix = metric === 'nd' ? 'nd' : 'rpm';
+    ['pais','destino','corp','hotel'].forEach(function(tkey) {
+      var allRows = ((tabs[metric]||{})[tkey])||[];
+      if (!allRows.length) return;
+      var radioEl = document.getElementById('tab-'+tabPrefix+'-'+tkey);
+      if (!radioEl) return;
+      var card = radioEl.closest('.kpi-card'); if (!card) return;
+      var panel = card.querySelector('[data-tab="'+tkey+'"]'); if (!panel) return;
+      var kpiRows = panel.querySelector('.kpi-tab-rows'); if (!kpiRows) return;
+      var grid = grids[metric];
+      var hdrSpans = '<span></span>' + hdrs[metric].map(function(h){
+        return '<span style="'+(h==='Severity'?_ll:_lr)+'">'+h+'</span>';
+      }).join('');
+      var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'+hdrSpans+'</div>';
+      var isEf = (metric === 'nd');
+      var rowsHtml = allRows.map(function(r,idx){
+        var disp = idx>=_KPI_EXPAND_N ? 'none' : idx>=_KPI_TOP_N ? 'none' : 'grid';
+        var cls  = idx>=_KPI_EXPAND_N ? 'sb-hidden' : idx>=_KPI_TOP_N ? 'rows-more' : '';
+        return _cardRow(r, idx, isEf, grid, disp, cls);
+      }).join('');
+      kpiRows.innerHTML = hdrHtml + rowsHtml;
+      _moreBtn(kpiRows);
+    });
+  });
+}
+
+function _fmtInt(n){ if(n==null) return '—'; return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function _fmtPct(n){ if(n==null) return '—'; return n.toFixed(2).replace('.',',')+'%'; }
+function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);font-size:10px;">—</span>':'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+v+'</em>'; }
+function _wowInt(delta){ if(delta==null) return null; var abs=Math.round(Math.abs(delta)); return (delta>0?'▲':'▼')+_fmtInt(abs); }
+function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp>0?'▲':'▼')+abs.toFixed(2).replace('.',','); }
+
+function _cardRow(r, idx, isEf, grid){
+  /* r: [lab,sub,bbg,bfg,banda, cr_u,cr_wow_delta, val_pct, wow_pp, hist_w21, hist_w20] */
+  var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
+  var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
+  var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
+  /* Grid por métrica: Eficacia usa 54px+48px, ConvRate usa 68px+40px */
+  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 52px 54px 48px'
+                                : 'minmax(0,1fr) 80px 56px 52px 68px 40px');
+  var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtInt(cr_u);
+  /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
+  var tw, tw_bg, tw_fg, tw_pill;
+  if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
+    var tw_up = cr_wow_delta > 0;
+    tw_bg = tw_up ? '#EAF3DE' : '#FCE8E6';
+    tw_fg = tw_up ? '#2F6C34' : '#C0392B';
+    /* Si el valor es pequeño (< 100) es un % → mostrar con signo; si es grande es int delta */
+    var tw_abs = Math.abs(cr_wow_delta);
+    tw = (tw_up?'▲':'▼') + (tw_abs < 1000 ? tw_abs.toFixed(1).replace('.',',')+'%' : _fmtInt(tw_abs));
+    tw_pill = _pill(tw, tw_bg, tw_fg);
+  } else {
+    tw_pill = _pill(null, '', '');
+  }
+  /* WoW métrica */
+  var mw = _wowPct(wow_pp);
+  var mw_up = wow_pp!=null && (isEf ? wow_pp>0 : wow_pp>0);
+  var mw_bg = wow_pp!=null&&mw_up?'#EAF3DE':'#FCE8E6';
+  var mw_fg = wow_pp!=null&&mw_up?'#2F6C34':'#C0392B';
+  var mw_pill = _pill(mw, mw_bg, mw_fg);
+  var nameSpan='<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+(idx+1)+'. '+lab+'</span>'
+    +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
+  var _display = (typeof arguments[4]==='string') ? arguments[4] : 'grid';
+  var _cls = (typeof arguments[5]==='string') ? ' class="'+arguments[5]+'"' : '';
+  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
+    +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
+    +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+    +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
+    +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
+    +'<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>'
+    +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+_fmtPct(val_pct)+'</span>'
+    +'<div style="text-align:right;white-space:nowrap;">'+mw_pill+'</div>'
+    +'</div>';
+}
+
+function w22_renderCardTabs(canasta){
+  if(typeof CR_CARD_TABS === 'undefined') return;
+  var tabs = CR_CARD_TABS[canasta] || CR_CARD_TABS['global'];
+  if(!tabs) return;
+  
+  /* destino / corp / hotel */
+  ['ef','cv'].forEach(function(metric){
+    var isEf = metric==='ef';
+    var suffix = isEf ? '-ef-' : '-cv-';
+    var grid = _KPI_GRID[metric] || _KPI_GRID['ef'];
+    ['destino','corp','hotel'].forEach(function(tkey){
+      var rows = (tabs[metric]||{})[tkey]||[];
+      var radioEl = document.getElementById('tab'+suffix+tkey);
+      if(!radioEl) return;
+      var card = radioEl.closest('.kpi-card');
+      if(!card) return;
+      var panel = card.querySelector('[data-tab="'+tkey+'"]');
+      if(!panel) return;
+      var rowsHtml = rows.map(function(r,i){
+        var disp = i>=_KPI_EXPAND_N ? 'none' : i>=_KPI_TOP_N ? 'none' : 'grid';
+        var cls  = i>=_KPI_EXPAND_N ? 'sb-hidden' : i>=_KPI_TOP_N ? 'rows-more' : '';
+        return _cardRow(r,i,isEf,grid,disp,cls);
+      }).join('');
+      var kpiRows = panel.querySelector('.kpi-tab-rows');
+      if(kpiRows){
+        var header = kpiRows.querySelector('div:first-child');
+        /* Solo preservar el header si NO es un row de datos */
+        var hdrHtml = (header && !header.hasAttribute('data-row-idx') && !header.hasAttribute('data-hist-label'))
+          ? header.outerHTML : '';
+        kpiRows.innerHTML = hdrHtml + rowsHtml;
+      } else {
+        panel.innerHTML = rowsHtml;
+      }
+    });
+  });
+  
+  /* channel — layout especial: PP / TP en dos columnas */
+  ['ef','cv'].forEach(function(metric){
+    var isEf = metric==='ef';
+    var suffix = isEf ? '-ef-' : '-cv-';
+    var chanKey = metric+'_chan';
+    var chanData = tabs[chanKey] || {};
+    var pp = chanData.pp || [], tp = chanData.tp || [];
+    var radioEl = document.getElementById('tab'+suffix+'channel');
+    if(!radioEl) return;
+    var card = radioEl.closest('.kpi-card');
+    if(!card) return;
+    var panel = card.querySelector('[data-tab="channel"]');
+    if(!panel) return;
+
+    /* Completar con catálogo canónico — channels sin datos = Sin Actividad */
+    var CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'];
+    var CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate'];
+    function _inactive(name){ return [name,'#F2EEE6','#8A8377','Sin Actividad','—','—',null]; }
+    var pp_names = pp.map(function(r){ return r[0]; });
+    var tp_names = tp.map(function(r){ return r[0]; });
+    CATALOG_PP.forEach(function(n){ if(!pp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) pp.push(_inactive(n)); });
+    CATALOG_TP.forEach(function(n){ if(!tp_names.some(function(p){ return p.toLowerCase().indexOf(n.toLowerCase())>=0; })) tp.push(_inactive(n)); });
+
+    /* Row con cursor, data-hist, estilo inactivo */
+    function _chanRow(r, i){
+      var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
+      var isInactive = banda === 'Sin Actividad';
+      var wow_pp = (wow_pp_raw!=null && wow_pp_raw!=='—' && wow_pp_raw!=='')
+        ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
+      var badge = isInactive
+        ? '<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>'
+        : '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+      var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
+      var mw = (wow_pp!=null&&!isNaN(wow_pp))
+        ? _pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
+        : '<span style="color:var(--ink-muted)">—</span>';
+      var displayVal = val_pct || '—';
+      var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+      var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
+      var num = (i<10?'0'+(i+1):(i+1))+'. ';
+      var rowStyle = isInactive
+        ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+        : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+      return '<div '+histAttrs+' style="'+rowStyle+'">'
+        +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+num+nombre+'</span>'
+        +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
+        +'<span style="text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
+        +'<div style="text-align:right;">'+mw+'</div>'
+        +'</div>';
+    }
+    var acc = (typeof cv==='function') ? cv().col : '#5C469C';
+    var pp_html = pp.map(_chanRow).join('');
+    var tp_html = tp.map(_chanRow).join('');
+    panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+      +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
+      +'</div>';
+    if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
+  });
+}
+
+/* ═══ Funciones de las dos cards de Análisis de Rendimiento ═══ */
+
+/* Estado por card */
+var _arView  = {1:'hotel', 2:'hotel'};
+var _arHTab  = {1:'crit',  2:'crit'};
+var _arDim   = {1:'corp',  2:'corp'};
+
+/* Obtener filas para card n según modo, canasta y tab */
+function _arRows(n, tab) {
+  var dd = data();
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  if (n === 1) {
+    /* Card 1: Eficacia (CR) / NoDispo (RND) — usa hotels_crit/br/sc/cv */
+    var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
+               tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
+               tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
+               (dd.hotels_crit || dd.hotels);
+    return rows || [];
+  } else {
+    /* Card 2: Conv Rate (CR) / IPM (RND) — mismos tabs pero ordenados por cv/ipm */
+    var rows2 = tab === 'br' ? (dd.hotels_br || dd.hotels) :
+                tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
+                tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
+                (dd.hotels_crit || dd.hotels);
+    return rows2 || [];
+  }
+}
+
+/* Render canal con split PP/TP en 2 columnas para las cards AR */
+function _arRenderChan(n) {
+  var dd = data();
+  var pp = dd.chans_pp || [];
+  var tp = dd.chans_tp || [];
+  var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
+  var cyan = '#4FC3F4';
+  var isCR = W.mode === 'cr';
+
+  /* Cada fila: div clickeable con data-hist para el histórico */
+  function chanRowAR(r, origIdx) {
+    var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
+    /* wow_pp puede ser string '1,31%' o número — normalizar */
+    var wow_pp = (wow_pp_raw != null && wow_pp_raw !== '—' && wow_pp_raw !== '')
+      ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.'))
+      : null;
+    var badge = '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+    var mw_up = wow_pp!=null && !isNaN(wow_pp) && wow_pp>0;
+    var mw = (wow_pp!=null && !isNaN(wow_pp))
+      ? '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(mw_up?'#EAF3DE':'#FCE8E6')+';color:'+(mw_up?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'</em>'
+      : '<span style="color:var(--ink-muted)">—</span>';
+    var displayVal = val_pct || '—';
+    var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+    var wowNum = (wow_pp!=null && !isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
+    var w20num = (wow_pp!=null && !isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
+    var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+nombre+'" data-hist-card="'+n+'"';
+    var isInactive = banda === 'Sin Actividad';
+    var rowStyle = isInactive
+      ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+      : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+    return '<div '+histAttrs+' style="'+rowStyle+'">'
+      +'<span style="font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">'+(origIdx<10?'0'+origIdx:origIdx)+'. '+nombre+'</span>'
+      +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink-muted);white-space:nowrap;font-variant-numeric:tabular-nums;">'+displayVal+'</span>'
+      +'<div style="text-align:right;">'+mw+'</div>'
+      +'</div>';
+  }
+
+  var pp_html = pp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
+  var tp_html = tp.map(function(r,i){ return chanRowAR(r,i+1); }).join('');
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0;">'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+pp_html+'</div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+tp_html+'</div>'
+    +'</div>';
+
+  /* Ocultar la tabla y mostrar el div de canal */
+  var pd = document.getElementById('ar'+n+'-pd');
+  if (!pd) return;
+  var table = pd.querySelector('table');
+  var btn   = document.getElementById('ar'+n+'-td-more');
+  if (table) table.style.display = 'none';
+  if (btn)   btn.style.display   = 'none';
+
+  /* Usar o crear el div canal */
+  var chanDiv = document.getElementById('ar'+n+'-chan-div');
+  if (!chanDiv) {
+    chanDiv = document.createElement('div');
+    chanDiv.id = 'ar'+n+'-chan-div';
+    pd.appendChild(chanDiv);
+  }
+  chanDiv.innerHTML = html;
+  chanDiv.style.display = '';
+  /* Enganchar clicks en las filas del channel */
+  if (typeof window._injectHistAttrs === 'function') {
+    window._injectHistAttrs(chanDiv.closest('.ar-card') || chanDiv.parentElement);
+  }
+}
+
+function _arDimRows(n, dim) {
+  var dd = data();
+  if (dim === 'chan') return dd.chans || dd.dims || [];
+  if (dim === 'dest') return dd.dests || dd.dims || [];
+  return dd.corps || dd.dims || [];
+}
+
+/* Render tabla de una card */
+function _arRenderTable(n, view) {
+  var v = view || _arView[n];
+  if (v === 'hotel') {
+    /* Asegurar tabla visible, chanDiv oculto */
+    var pd = document.getElementById('ar'+n+'-pd');
+    if (pd) { var cd = document.getElementById('ar'+n+'-chan-div'); if(cd) cd.style.display='none'; }
+    /* Asegurar que la tabla hotel es visible */
+    var ph = document.getElementById('ar'+n+'-ph');
+    if (ph) {
+      var tbl = ph.querySelector('table'); if(tbl) tbl.style.display='';
+    }
+    var rows = _arRows(n, _arHTab[n]);
+    ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+  } else {
+    var isCR_upd = (typeof W !== 'undefined') && W.mode === 'cr';
+    if (_arDim[n] === 'chan' && isCR_upd) {
+      _arRenderChan(n);
+    } else {
+      /* Restaurar tabla, ocultar chanDiv */
+      var pd2 = document.getElementById('ar'+n+'-pd');
+      if (pd2) {
+        var tbl = pd2.querySelector('table'); if(tbl) tbl.style.display='';
+        var cd2 = document.getElementById('ar'+n+'-chan-div'); if(cd2) cd2.style.display='none';
+      }
+      var drows = _arDimRows(n, _arDim[n]);
+      ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+    }
+  }
+}
+
+/* Cambiar vista hotel/dim de una card */
+function ar_setView(n, v) {
+  _arView[n] = v;
+  var ph  = document.getElementById('ar'+n+'-ph');
+  var pd  = document.getElementById('ar'+n+'-pd');
+  var vch = document.getElementById('ar'+n+'-vch-h');
+  var vcd = document.getElementById('ar'+n+'-vch-d');
+  if (ph) ph.style.display = v === 'hotel' ? '' : 'none';
+  if (pd) pd.style.display = v === 'dim'   ? '' : 'none';
+  if (vch) { vch.classList.toggle('tab-label-active', v==='hotel'); }
+  if (vcd) { vcd.classList.toggle('tab-label-active', v==='dim');   }
+  _arRenderTable(n, v);
+}
+
+/* Cambiar sub-pestaña hotel de una card */
+function ar_setHotelTab(n, tab, el) {
+  _arHTab[n] = tab;
+  var ph = document.getElementById('ar'+n+'-ph');
+  if (ph) ph.querySelectorAll('.tab-label').forEach(function(l){ l.classList.remove('tab-label-active'); });
+  if (el) { el.classList.add('tab-label-active'); }
+  var rows = _arRows(n, tab);
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+  /* Re-enganchar sort después de cambiar pestaña hotel */
+  setTimeout(function(){ _arSortAttach(n, 'ar'+n+'-th', 'ar'+n+'-th-more'); }, 50);
+}
+
+/* Cambiar dimensión de una card */
+function ar_setDim(n, dim) {
+  _arDim[n] = dim;
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var dimLabelMap = {corp:'Corporativo', dest:'Destino', chan: isCR ? 'Channel' : 'País'};
+  var lbl = document.getElementById('ar'+n+'-td-lbl');
+  if (lbl) lbl.textContent = dimLabelMap[dim] || 'Corporativo';
+
+  /* Mostrar/ocultar tabla vs div canal */
+  var pd = document.getElementById('ar'+n+'-pd');
+  if (pd) {
+    var table   = pd.querySelector('table');
+    var btn     = document.getElementById('ar'+n+'-td-more');
+    var chanDiv = document.getElementById('ar'+n+'-chan-div');
+    if (dim === 'chan') {
+      if (isCR) {
+        /* CR: Channel con layout PP/TP */
+        if (table) table.style.display = 'none';
+        _arRenderChan(n);
+      } else {
+        /* RND: País — tabla simple con datos de dd.chans (países) */
+        if (chanDiv) chanDiv.style.display = 'none';
+        if (table) table.style.display = '';
+        var drows = _arDimRows(n, 'chan');
+        ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+      }
+    } else {
+      if (table)   table.style.display   = '';
+      if (chanDiv) chanDiv.style.display  = 'none';
+      var drows = _arDimRows(n, dim);
+      ar_renderTable(n, 'ar'+n+'-td', 'ar'+n+'-td-more', drows);
+    }
+    /* Re-enganchar sort después de cambiar dimensión */
+    setTimeout(function(){ _arSortAttach(n, 'ar'+n+'-td', 'ar'+n+'-td-more'); }, 50);
+  }
+}
+
+/* Actualizar etiquetas de las cards según modo CR/RND */
+function ar_updateLabels() {
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var lbl1 = document.getElementById('ar-card1-lbl');
+  var lbl2 = document.getElementById('ar-card2-lbl');
+  var col1 = document.getElementById('ar1-col-m');
+  var col2 = document.getElementById('ar2-col-m');
+  var tdc1 = document.getElementById('ar1-td-col-m');
+  var tdc2 = document.getElementById('ar2-td-col-m');
+  if (lbl1) lbl1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (col1) col1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (col2) col2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (tdc1) tdc1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  /* Pestaña Canal → Channel (CR) o País (RND) */
+  var chanLabel = isCR ? 'Channel' : 'País';
+  [1,2].forEach(function(n){
+    var el = document.getElementById('ar'+n+'-dim-chan');
+    if (el) el.textContent = chanLabel;
+  });
+  /* Canvas hist: mostrar CR o RND según modo */
+  ['ar1-hist-cr','ar2-hist-cr'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.style.display = isCR ? 'block' : 'none';
+  });
+  ['ar1-hist-rnd','ar2-hist-rnd'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.style.display = isCR ? 'none' : 'block';
+  });
+}
+
+/* Inicializar y re-renderizar las dos cards */
+function ar_update() {
+  ar_updateLabels();
+  ar_updateKPIs();
+  /* Guardar labels seleccionados antes de re-renderizar */
+  var sel = {};
+  [1,2].forEach(function(n){
+    ['th','td'].forEach(function(t){
+      var tbody = document.getElementById('ar'+n+'-'+t);
+      if (!tbody) return;
+      var selRow = tbody.querySelector('[data-selected="1"]');
+      if (selRow) sel['ar'+n+'-'+t] = selRow.getAttribute('data-hist-label');
+    });
+  });
+  _arRenderTable(1);
+  _arRenderTable(2);
+  /* Restaurar estilos de vista activa */
+  [1,2].forEach(function(n){ ar_setView(n, _arView[n]); });
+  /* Re-seleccionar elementos que estaban seleccionados */
+  setTimeout(function(){
+    Object.keys(sel).forEach(function(tbodyId){
+      var label = sel[tbodyId];
+      var tbody = document.getElementById(tbodyId);
+      if (!tbody || !label) return;
+      var rows = tbody.querySelectorAll('[data-hist-label]');
+      var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
+      var accentAlpha = acc === '#333132' ? 'rgba(51,49,50,0.07)' :
+                        acc === '#EA0074' ? 'rgba(234,0,116,0.07)' :
+                        acc === '#FCB000' ? 'rgba(252,176,0,0.10)' :
+                        acc === '#4FC3F4' ? 'rgba(79,195,244,0.10)' :
+                        'rgba(92,70,156,0.07)';
+      rows.forEach(function(r){
+        if (r.getAttribute('data-hist-label') === label) {
+          r.setAttribute('data-selected','1');
+          r.style.background = accentAlpha;
+        }
+      });
+    });
+  }, 30);
+}
+
+/* Hook en w22_update para re-renderizar AR */
+/* Patch w22_update — disparar ar_update después de que el DOM esté actualizado */
+var _origW22Update = w22_update;
+w22_update = function() {
+  _origW22Update.apply(this, arguments);
+  ar_update(); /* sincrónicamente — el DOM ya está actualizado */
+  setTimeout(_moreBtnAll, 50);
+};
+
+/* Inicializar al cargar — después de w22_update() final */
+
+/* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
+function trow_ar(r, card, idx) {
+ /* data-hist para canvas histórico */
+ var isCR = W.mode === 'cr';
+ var metVal = card === 1 ? r[5] : r[6];
+ var metNum = parseFloat(String(metVal).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+ var wowStr = card === 1 ? (r[8]||'—') : (r[9]||'—');
+ var isUp = wowStr.charAt(0)==='▲';
+ var delta = parseFloat(wowStr.replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
+ var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
+ var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
+ var num = idx != null ? '<span style="font-size:10px;font-weight:700;color:var(--ink);min-width:18px;margin-right:4px;">'+(idx<10?'0'+idx:idx)+'.</span>' : '';
+ var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+num+r[0]+'</td>';
+ var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
+ var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
+ function pill(str, isGood){
+  if(!str||str==='—') return '<td style="padding:7px 2px;text-align:right;"><span style="color:var(--ink-muted);font-size:10px;">—</span></td>';
+  var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
+  var good = isGood ? up : !up;
+  var label = str.replace(/pp$/,'').replace(/,00$/,'').trim();
+  return '<td style="padding:7px 2px;text-align:right;"><em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+label+'</em></td>';
+ }
+ var cells;
+ if (isCR) {
+  cells = card===1
+   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)
+   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
+ } else {
+  cells = card===1
+   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)
+   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
+ }
+ return '<tr '+histAttr+' style="border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'+cells+'</tr>';
+}
+
+/* Render tabla AR con trow_ar */
+function ar_renderTable(n, tbodyId, btnId, rows) {
+ var tbody = document.getElementById(tbodyId);
+ if (!tbody) return;
+ tbody.innerHTML = rows.map(function(r,i){
+    var html = trow_ar(r, n, i+1);
+    if(i >= _KPI_EXPAND_N) {
+      html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    } else if(i >= _KPI_TOP_N) {
+      html = html.replace(/^(<tr)/, '$1 class="rows-more" style="display:none;"');
+    }
+    return html;
+  }).join('');
+ /* Botón Ver más — insertar después de la tabla */
+ var table = tbody.closest('table');
+ if (table && table.parentNode) _moreBtn(table.parentNode);
+}
+
+/* KPI headers completos de las cards AR */
+function ar_updateKPIs() {
+ var isCR = W.mode === 'cr';
+ var canasta = W.canasta || 'global';
+ var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
+ var cdata = (typeof cv === 'function') ? cv() : {};
+
+ /* Función helper: pill WoW */
+ function wPill(val, isMejoraSiPositivo) {
+  if (val == null || isNaN(val)) return '';
+  var up = val > 0;
+  var good = isMejoraSiPositivo ? up : !up;
+  var bg = good ? '#EAF3DE' : '#FCE8E6';
+  var fg = good ? '#2F6C34' : '#C0392B';
+  var arrow = up ? '↑' : '↓';
+  var txt = arrow + ' ' + Math.abs(val).toFixed(2).replace('.',',');
+  return '<span style="display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+bg+';color:'+fg+';">'+txt+'</span>';
+ }
+
+ /* Función helper: pill % WoW pequeño */
+ function wPillSm(val, isMejoraSiPositivo) {
+  if (val == null || isNaN(val)) return '';
+  var up = val > 0;
+  var good = isMejoraSiPositivo ? up : !up;
+  var bg = good ? '#EAF3DE' : '#FCE8E6';
+  var fg = good ? '#2F6C34' : '#C0392B';
+  var arrow = up ? '↑' : '↓';
+  var txt = arrow + ' ' + Math.abs(val).toFixed(1).replace('.',',') + '%';
+  return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+txt+'</em>';
+ }
+
+ /* Función helper: gauge 5 barras */
+ function gauge(colors) {
+  return colors.map(function(c){ return '<div style="flex:1;background:'+c+';height:6px;opacity:1;"></div>'; }).join('');
+ }
+
+ /* Función helper: wow box W20/W21/WoW */
+ function wowBox(w20, w21, wow, wowIsGood, acc) {
+  var wowGood = wowIsGood ? (parseFloat(wow) > 0) : (parseFloat(wow) < 0);
+  var wBg = wowGood ? '#E0F0E2' : '#FCE8E6';
+  var wFg = wowGood ? '#2F6C34' : '#C0392B';
+  var wPrev = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'21':'21')-1) : 'W20';
+  var wCurr = 'W21';
+  var wowTxt = (parseFloat(wow) > 0 ? '↑ +' : '↓ ') + parseFloat(wow).toFixed(2).replace('.',',');
+  return '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wPrev+'</div>'
+   +'<div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+w20+'</div></div>'
+   +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wCurr+'</div>'
+   +'<div style="font-size:14px;font-weight:700;margin-top:2px;" style="color:'+acc+'">'+w21+'</div></div>'
+   +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;">'
+   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div>'
+   +'<div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
+ }
+
+ var GAUGE_COLORS = ['#8A8377','#C0392B','#F97316','#FCD34D','#1A6B4A'];
+
+ /* Leer datos de HIST_CR / HIST_RND */
+ var ef21='—', ef20='—', efWow=null, efBanda='—', efBandaBg='#F2EEE6', efBandaFg='#5F5E5A', efTarget='';
+ var cv21='—', cv20='—', cvWow=null, cvBanda='—', cvBandaBg='#F2EEE6', cvBandaFg='#5F5E5A', cvTarget='';
+ var vol='—', trafico='—', trafWow=null;
+
+ if (isCR && typeof HIST_CR !== 'undefined') {
+  /* Fuente primaria: ef_prev/ef_wow desde CR_CV (calculado en Python) */
+  if (cdata.ef_prev != null) {
+   ef20  = cdata.ef_prev;
+   ef21  = cdata.ef;
+   efWow = cdata.ef_wow;
+  } else {
+   /* Fallback: HIST_CR global */
+   var ef_g = HIST_CR['hcr-global-ef'] || {};
+   if (ef_g.vals && ef_g.vals.length >= 2) {
+    var ev = ef_g.vals;
+    ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
+    ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
+    efWow = ev[ev.length-1] - ev[ev.length-2];
+   }
+   if (cdata.ef) { ef21 = cdata.ef; }
+  }
+  if (cdata.cv_prev != null) {
+   cv20  = cdata.cv_prev;
+   cv21  = cdata.cv;
+   cvWow = cdata.cv_wow;
+  } else {
+   var cv_g = HIST_CR['hcr-global-cv'] || {};
+   if (cv_g.vals && cv_g.vals.length >= 2) {
+    var cv_v = cv_g.vals;
+    cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %';
+    cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
+    cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
+   }
+   if (cdata.cv) { cv21 = cdata.cv; }
+  }
+  if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
+  if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.vol)      { vol = cdata.vol; }
+  if (cdata.trafico)  { trafico = cdata.trafico; }
+  if (cdata.traf_wow) { trafWow = cdata.traf_wow; }
+  efTarget = '· Target ≥ 97%'; cvTarget = '· Target ≥ 2,5%';
+  /* Colores banda Eficacia */
+  var BANDA_C = {
+   'Exitosa':      {bg:'#E1F5EE',fg:'#1A6B4A'},
+   'Aceptable':    {bg:'#FEF9C3',fg:'#713F12'},
+   'Revisar':      {bg:'#FED7AA',fg:'#C2410C'},
+   'Crítica':      {bg:'#FCE4F1',fg:'#99162B'},
+   'Súper Crítica':{bg:'#E8E6E3',fg:'#2D2828'},
+   'Sin Conversión':{bg:'#F2EEE6',fg:'#5F5E5A'}
+  };
+  var bc1 = BANDA_C[efBanda] || BANDA_C['Sin Conversión'];
+  efBandaBg = bc1.bg; efBandaFg = bc1.fg;
+  var bc2 = BANDA_C[cvBanda] || BANDA_C['Sin Conversión'];
+  cvBandaBg = bc2.bg; cvBandaFg = bc2.fg;
+ } else if (!isCR && typeof HIST_RND !== 'undefined') {
+  if (cdata.ef_prev != null) {
+   ef20  = cdata.ef_prev;
+   ef21  = cdata.ef;
+   efWow = cdata.ef_wow;
+  } else {
+   var nd_g = HIST_RND['hrnd-global-nd'] || {};
+   if (nd_g.vals && nd_g.vals.length >= 2) {
+    var nv = nd_g.vals;
+    ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %';
+    ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
+    efWow = nv[nv.length-1] - nv[nv.length-2];
+   }
+   if (cdata.ef) { ef21 = cdata.ef; }
+  }
+  if (cdata.cv_prev != null) {
+   cv20  = cdata.cv_prev;
+   cv21  = cdata.cv;
+   cvWow = cdata.cv_wow;
+  } else {
+   var ipm_g = HIST_RND['hrnd-global-ipm'] || {};
+   if (ipm_g.vals && ipm_g.vals.length >= 2) {
+    var iv = ipm_g.vals;
+    cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    cvWow = iv[iv.length-1] - iv[iv.length-2];
+   }
+   if (cdata.cv) { cv21 = cdata.cv; }
+  }
+  if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
+  efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
+ }
+
+ /* Aplicar a card 1 */
+ var k1 = document.getElementById('ar-kpi-1');
+ if (k1) { k1.textContent = ef21.replace(' %','%'); k1.style.color = acc; }
+ var v1 = document.getElementById('ar1-vol'); if (v1) v1.textContent = vol;
+ var wp1 = document.getElementById('ar1-wow-pill'); if (wp1) wp1.innerHTML = wPill(efWow, !isCR ? false : true);
+ var tr1 = document.getElementById('ar1-trafico');
+ if (tr1) tr1.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
+ var tw1 = document.getElementById('ar1-trafico-wow');
+ if (tw1) tw1.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
+ var b1 = document.getElementById('ar1-badge');
+ if (b1) { b1.textContent = efBanda + ' ' + efTarget; b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
+ var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
+ var wb1 = document.getElementById('ar1-wowbox'); if (wb1) wb1.innerHTML = wowBox(ef20, ef21.replace(' %','%'), efWow, !isCR ? false : true, acc);
+
+ /* Aplicar a card 2 */
+ var k2 = document.getElementById('ar-kpi-2');
+ if (k2) { k2.textContent = cv21.replace(' %','%'); k2.style.color = acc; }
+ var v2 = document.getElementById('ar2-vol'); if (v2) v2.textContent = vol;
+ var wp2 = document.getElementById('ar2-wow-pill'); if (wp2) wp2.innerHTML = wPill(cvWow, true);
+ var tr2 = document.getElementById('ar2-trafico');
+ if (tr2) tr2.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
+ var tw2 = document.getElementById('ar2-trafico-wow');
+ if (tw2) tw2.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
+ var b2 = document.getElementById('ar2-badge');
+ var cvBanda2 = cdata.band_cv || cvBanda;
+ var cvBandaBg2 = cdata.bbg_cv || cvBandaBg;
+ var cvBandaFg2 = cdata.bfg_cv || cvBandaFg;
+ if (b2) { b2.textContent = cvBanda2 + ' ' + cvTarget; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
+ var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
+ var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
+}
+
+/* ══════════════════════════════════════════════════
+   ORDENAMIENTO POR COLUMNA
+   ══════════════════════════════════════════════════ */
+
+function _sv(s){
+  if(s==null||s===false||s===true) return null;
+  s=String(s).trim().replace(/\$/g,'').replace(/%/g,'').trim();
+  if(!s||s==='—'||s==='-') return null;
+  /* Detectar sufijos K/M/B antes de parsear */
+  var mult=1;
+  var su=s.toUpperCase();
+  if(/[KMB]$/.test(su)){
+    var last=su[su.length-1];
+    if(last==='K') mult=1e3;
+    else if(last==='M') mult=1e6;
+    else if(last==='B') mult=1e9;
+    s=s.slice(0,-1); /* quitar sufijo */
+  }
+  if(s.indexOf(',')!==-1){s=s.replace(/\./g,'').replace(',','.');}
+  else{s=s.replace(/\.(?=\d{3}(?:\.|$))/g,'');}
+  var n=parseFloat(s); return isNaN(n)?null:n*mult;
+}
+function _nd(d){return d==='orig'||d==null?'asc':d==='asc'?'desc':'orig';}
+var _SS={};
+
+/* ── Indicador en cursor, no en texto ──────────────────────────
+   Usamos cursor para mostrar el estado: pointer siempre,
+   color del acento para la col activa. Sin tocar el textContent. */
+function _markSortable(els, activeIdx, dir) {
+  els.forEach(function(el, i) {
+    el.style.cursor = 'pointer';
+    el.style.textDecoration = (i===activeIdx && dir && dir!=='orig') ? 'underline' : '';
+    el.style.color = (i===activeIdx && dir && dir!=='orig') ? 'var(--accent)' : '';
+    el.title = i===activeIdx && dir==='asc' ? '↑ Ascendente (click para Descendente)'
+             : i===activeIdx && dir==='desc'? '↓ Descendente (click para Original)'
+             : 'Ordenar';
+  });
+}
+
+/* ── renderTopN — renderiza todos los rows, top N visibles, resto sb-hidden ──
+   El searchbox ya tiene lógica para mostrar todos cuando hay query (ri<TOP_N check).
+   Aquí ponemos TODO en el DOM para que el search opere sobre los 500. */
+var _KPI_TOP_N = 5;   /* filas visibles por defecto */
+
+/* Aplicar _moreBtn a todos los paneles activos después del render inicial */
+function _moreBtnAll() {
+  document.querySelectorAll('.kpi-tab-rows').forEach(function(el) {
+    /* Solo si tiene rows-more y no tiene ya el botón */
+    if (el.querySelector('.rows-more') && !el.querySelector('.kpi-more-btn')) {
+      _moreBtn(el);
+    }
+  });
+  /* También para las tablas AR */
+  [1,2].forEach(function(n) {
+    ['th','td'].forEach(function(t) {
+      var tbody = document.getElementById('ar'+n+'-'+t);
+      if (!tbody) return;
+      var wrap = tbody.closest('table');
+      if (wrap && wrap.parentNode) {
+        if (wrap.querySelector('.rows-more') && !wrap.parentNode.querySelector('.kpi-more-btn')) {
+          _moreBtn(wrap.parentNode);
+        }
+      }
+    });
+  });
+}
+var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
+
+/* ── Ver más / menos botón para cards KPI ── */
+function _moreBtn(containerEl) {
+  /* Si ya tiene botón estático (cards KPI desde Python), no duplicar */
+  if (containerEl.querySelector('.kpi-more-btn')) return;
+  var moreRows = containerEl.querySelectorAll('.rows-more');
+  if (!moreRows.length) return;
+
+  var btn = document.createElement('div');
+  btn.className = 'kpi-more-btn';
+  btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;user-select:none;';
+  btn.textContent = 'Ver más ▾';
+  /* onclick inline — busca rows-more en el parentNode del botón */
+  btn.setAttribute('onclick', [
+    '(function(el){',
+    '  var exp = el.getAttribute("data-exp") !== "1";',
+    '  el.setAttribute("data-exp", exp ? "1" : "0");',
+    '  var p = el.parentNode;',
+    '  console.log("CLICK parentNode:", p ? p.className || p.tagName : "NULL");',
+    '  if(!p) return;',
+    '  var found = p.querySelectorAll(".rows-more");',
+    '  console.log("rows-more en parentNode:", found.length);',
+    '  found.forEach(function(r){',
+    '    var d = exp ? (r.tagName==="TR" ? "" : "grid") : "none";',
+    '    console.log("row", r.getAttribute("data-row-idx"), "display->", d);',
+    '    r.style.setProperty("display", d, "important");',
+    '  });',
+    '  el.textContent = exp ? "Ver menos ▴" : "Ver más ▾";',
+    '})(this)'
+  ].join(''));
+  containerEl.appendChild(btn);
+}
+
+function _renderAllRows(rows, renderFn) {
+  return rows.map(function(item, i) {
+    var html = renderFn(item, i);
+    /* Marcar los que van más allá del top visible como sb-hidden */
+    if (i >= _KPI_TOP_N) {
+      html = html.replace(/^(<div|<tr)/, '$1 class="sb-hidden" style="display:none;"');
+      /* Si ya tiene class, agregamos sb-hidden */
+      if (html.indexOf('sb-hidden') === -1) {
+        html = html.replace(/^(<div[^>]*?)>/, '$1 class="sb-hidden" style="display:none;">');
+      }
+    }
+    return html;
+  }).join('');
+}
+
+/* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
+/* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
+var _KPI_RCOLS_CR  = {2:5, 4:7};
+var _KPI_RCOLS_RND = {2:5, 4:7}; /* misma estructura desde W21-post5 */
+var _KPI_RCOLS = _KPI_RCOLS_CR;
+
+/* Grid CSS por métrica — para que _cardRow use el correcto según la card */
+var _KPI_GRID = {
+  ef:  'minmax(0,1fr) 80px 56px 52px 54px 48px',
+  cv:  'minmax(0,1fr) 80px 56px 52px 68px 40px',
+  nd:  'minmax(0,1fr) 76px 52px 44px 54px 36px',
+  ipm: 'minmax(0,1fr) 76px 52px 44px 54px 36px',
+};
+
+function _kpiSortAttach(card, tkey, metricKey, allRows100) {
+  /* Evitar doble registro — usar flag en el panel */
+  var panel = card.querySelector('[data-tab="'+tkey+'"]');
+  if (!panel) return;
+  if (panel._sortKey === (metricKey+'_'+tkey)) return; /* ya enganchado */
+  panel._sortKey = metricKey+'_'+tkey;
+
+  var isEf = (metricKey === 'ef' || metricKey === 'nd');
+  var grid  = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
+  var rcols = _KPI_RCOLS_CR; /* {2:5, 4:7} */
+  var key   = (card.id||tkey)+'_'+metricKey+'_'+tkey;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+
+  /* Re-renderizar el panel completo desde allRows100 */
+  function _render(sorted10, activeCol, dir) {
+    var rc = panel.querySelector('.kpi-tab-rows');
+    if (!rc) return;
+    var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
+    var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+    var hdrLabels = {
+      ef:  ['Severity','Tráfico','WoW','Eficacia','WoW'],
+      cv:  ['Severity','Tráfico','WoW','Conv Rate','WoW'],
+      nd:  ['Severity','Tráfico','WoW','%NoDispo','WoW'],
+      ipm: ['Severity','Tráfico','WoW','IPM','WoW'],
+    };
+    var labels = hdrLabels[metricKey] || hdrLabels.ef;
+    var hdrSpans = '<span></span>' + labels.map(function(h, i){
+      var isActive = (i+1 === activeCol) && dir && dir !== 'orig';
+      var baseStyle = h === 'Severity' ? _ll : _lr;
+      var extra = isActive ? 'color:var(--accent);text-decoration:underline;' : '';
+      return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
+    }).join('');
+    var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
+        var rowsHtml = sorted10.map(function(item,i){
+      var disp = i>=_KPI_EXPAND_N ? 'none' : i>=_KPI_TOP_N ? 'none' : 'grid';
+      var cls  = i>=_KPI_EXPAND_N ? 'sb-hidden' : i>=_KPI_TOP_N ? 'rows-more' : '';
+      return _cardRow(item.r, item.origPos-1, isEf, grid, disp, cls);
+    }).join('');;    rc.innerHTML = hdrHtml + rowsHtml;
+    _moreBtn(rc);
+  }
+
+  /* Render inicial */
+  var initSorted = allRows100.map(function(r,i){ return {r:r, origPos:i+1}; });
+  _render(initSorted, _SS[key].col, _SS[key].dir);
+
+  /* Event delegation en el panel — UN solo listener */
+  panel.addEventListener('click', function(e) {
+    var sp = e.target.closest('[data-sort-col]');
+    if (!sp) return;
+    var i = parseInt(sp.getAttribute('data-sort-col'));
+    if (rcols[i] == null) return;
+    var ri = rcols[i];
+    var st = _SS[key];
+    var dir = (st.col === i) ? _nd(st.dir) : 'asc';
+    _SS[key] = {col:i, dir:dir};
+    var sorted = allRows100.slice().map(function(r, origIdx){
+      return {r:r, origPos: origIdx+1};
+    });
+    if (dir !== 'orig') {
+      sorted.sort(function(a,b){
+        var va=_sv(a.r[ri]), vb=_sv(b.r[ri]);
+        if(va==null&&vb==null) return 0;
+        if(va==null) return 1; if(vb==null) return -1;
+        return dir==='asc' ? va-vb : vb-va;
+      });
+    }
+    _render(sorted, i, dir);
+  });
+}
+
+/* Mapeo de metricKey → sufijo de tab ID y clave en TABS */
+var _METRIC_DEFS = {
+  'ef':  {suffix:'-ef-',  tabKeys:['nd','ef'], tabs_key:'ef'},
+  'cv':  {suffix:'-cv-',  tabKeys:['nd','cv'], tabs_key:'cv'},
+  'nd':  {suffix:'-nd-',  tabKeys:['pais','destino','corp','hotel'], tabs_key:'nd'},
+  'ipm': {suffix:'-rpm-', tabKeys:['pais','destino','corp','hotel'], tabs_key:'ipm'},
+};
+
+function _initAllSort() {
+  var mode    = (typeof W!=='undefined') ? W.mode    : 'cr';
+  var canasta = (typeof W!=='undefined') ? (W.canasta||'global') : 'global';
+
+  /* Resetear flags para forzar re-enganche */
+  document.querySelectorAll('[data-tab]').forEach(function(p){ p._sortKey = null; });
+  document.querySelectorAll('thead').forEach(function(t){ t._sortKey = null; });
+
+  if (mode === 'cr') {
+    /* CR: cards Eficacia + ConvRate */
+    var CR_TABS = (typeof CR_CARD_TABS!=='undefined') ? CR_CARD_TABS : null;
+    if (!CR_TABS) return;
+    var tabs = CR_TABS[canasta] || CR_TABS['global'] || {};
+    ['ef','cv'].forEach(function(metric){
+      var suffix = metric==='ef' ? '-ef-' : '-cv-';
+      ['destino','corp','hotel'].forEach(function(tkey){
+        var allRows = (tabs[metric]||{})[tkey]||[];
+        if (!allRows.length) return;
+        var radioEl = document.getElementById('tab'+suffix+tkey);
+        if (!radioEl) return;
+        var card = radioEl.closest('.kpi-card');
+        if (!card) return;
+        _kpiSortAttach(card, tkey, metric, allRows);
+      });
+    });
+  } else {
+    /* RND: cards NoDispo + IPM — buscar tabs en los panels RND */
+    /* Los tabs RND usan IDs tab-nd-* y tab-rpm-* */
+    var RND_TABS = (typeof RND_CARD_TABS!=='undefined') ? RND_CARD_TABS : null;
+    /* Si RND_CARD_TABS no existe, intentar enganchar directamente del DOM */
+    ['nd','rpm'].forEach(function(tabPrefix){
+      var metricKey = tabPrefix === 'nd' ? 'nd' : 'ipm';
+      ['pais','destino','corp','hotel'].forEach(function(tkey){
+        var radioEl = document.getElementById('tab-'+tabPrefix+'-'+tkey);
+        if (!radioEl) return;
+        var card = radioEl.closest('.kpi-card');
+        if (!card) return;
+        /* allRows: leer de RND_CARD_TABS si existe, sino tabla vacía */
+        var allRows = RND_TABS ? ((RND_TABS[canasta]||RND_TABS['global']||{})[metricKey]||{})[tkey]||[] : [];
+        /* Con allRows vacío el sort opera sobre el DOM pero sin re-render JS */
+        _kpiSortAttach(card, tkey, metricKey, allRows);
+      });
+    });
+  }
+}
+
+/* ══ SORT CARDS AR — lee 100 rows directamente de data() en cada click ══ */
+/* th-idx → row-array-idx */
+var _AR_SORT_MAP = {2:4}; /* tráfico: th[2] → r[4] */
+/* métrica: th[4] → r[5] (card1) o r[6] (card2) — se calcula al enganchar */
+
+function _arSortAttach(n, tbodyId, btnId) {
+  var tbody = document.getElementById(tbodyId); if (!tbody) return;
+  var table = tbody.closest('table'); if (!table) return;
+  var thead = table.querySelector('thead'); if (!thead) return;
+
+  /* Remover listener anterior si existe */
+  if (thead._sortAbort) { thead._sortAbort.abort(); }
+  var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  thead._sortAbort = ac;
+  thead._sortKey = tbodyId;
+
+  var key = tbodyId;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+  var rmap = {2:4, 4:(n===1?5:6)};
+  var isHotelTbody = tbodyId === 'ar'+n+'-th';
+
+  /* Marcar columnas ordenables */
+  var ths = Array.from(thead.querySelectorAll('th'));
+  ths.forEach(function(th, i) {
+    if (rmap[i] != null) {
+      th.style.cursor = 'pointer';
+      th.setAttribute('data-sort-col', i);
+    }
+  });
+  _markSortable(ths, _SS[key].col, _SS[key].dir);
+
+  /* Event delegation en thead */
+  var listenerOpts = ac ? {signal: ac.signal} : {};
+  thead.addEventListener('click', function(e) {
+    var th = e.target.closest('[data-sort-col]');
+    if (!th) return;
+    var colIdx = parseInt(th.getAttribute('data-sort-col'));
+    var rowIdx = rmap[colIdx];
+    if (rowIdx == null) return;
+
+    var st = _SS[key];
+    var dir = (st.col === colIdx) ? _nd(st.dir) : 'asc';
+    _SS[key] = {col:colIdx, dir:dir};
+
+    /* Leer rows actuales dinámicamente */
+    var allRows = isHotelTbody ? _arRows(n, _arHTab[n]) : _arDimRows(n, _arDim[n]);
+    var sorted = allRows.slice().map(function(r, origIdx){
+      return {r:r, origPos: origIdx+1};
+    });
+    if (dir !== 'orig') {
+      sorted.sort(function(a,b){
+        var va=_sv(a.r[rowIdx]), vb=_sv(b.r[rowIdx]);
+        if(va==null&&vb==null) return 0;
+        if(va==null) return 1; if(vb==null) return -1;
+        return dir==='asc' ? va-vb : vb-va;
+      });
+    }
+    var tbEl = document.getElementById(tbodyId);
+    if (tbEl) {
+      tbEl.innerHTML = sorted.map(function(item,i){
+        var html = trow_ar(item.r, n, item.origPos);
+        if(i >= _KPI_EXPAND_N) {
+      html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
+    } else if(i >= _KPI_TOP_N) {
+      html = html.replace(/^(<tr)/, '$1 class="rows-more" style="display:none;"');
+    }
+        return html;
+      }).join('');
+      /* Actualizar botón Ver más tras re-render */
+      var tbl = tbEl.closest('table');
+      if (tbl && tbl.parentNode) {
+        var existing = tbl.parentNode.querySelector('.kpi-more-btn');
+        if (existing) existing.remove();
+        _moreBtn(tbl.parentNode);
+      }
+    }
+    _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);
+  }, listenerOpts);
+}
+
+/* Enganchar sort en las cards AR — llamado tras cada render */
+function _arSortInit() {
+  [1,2].forEach(function(n){
+    _arSortAttach(n, 'ar'+n+'-th', 'ar'+n+'-th-more');
+    _arSortAttach(n, 'ar'+n+'-td', 'ar'+n+'-td-more');
+  });
+}
+
+/* Patch ar_renderTable — re-enganchar sort después de render */
+var _origART = ar_renderTable;
+ar_renderTable = function(n, tbodyId, btnId, rows) {
+  _origART(n, tbodyId, btnId, rows);
+  /* Limpiar flag para que _arSortAttach re-enganche en el nuevo thead */
+  var tbody = document.getElementById(tbodyId);
+  if (tbody) { var t = tbody.closest('table'); if (t && t.querySelector('thead')) t.querySelector('thead')._sortKey = null; }
+  setTimeout(function(){ _arSortAttach(n, tbodyId, btnId); }, 10);
+};
+
+/* ── Render inicial — DESPUÉS de que _cardRow y w22_renderCardTabs están definidas ── */
+var _origSC_s = w22_setC;
+w22_setC = function(c,el){
+  _origSC_s(c,el);
+  _SS = {};
+  setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
+};
+var _origSM_s = w22_setMode;
+w22_setMode = function(m,el){
+  _origSM_s(m,el);
+  _SS = {};
+  setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
+};
+
+/* Render inicial aquí para garantizar que _cardRow ya existe */
+w22_update();
+setTimeout(_moreBtnAll, 300); /* Botones Ver más después del render inicial */
+
+/* Sort inicial — después de w22_update() para que el DOM esté listo */
+setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
