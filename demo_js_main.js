@@ -186,11 +186,12 @@ function w22_update(){
  /* Sincronizar barra local de Análisis de Rendimiento */
  (function(){
   var accent_col = col;
-  /* Botones CR/RND */
+  /* Botones Reporte CR/RND — fondo sólido como el switcher */
   ['ar-btn-cr','ar-btn-rnd'].forEach(function(id){
    var btn = g(id); if(!btn) return;
    var isCurrent = (id === 'ar-btn-'+W.mode);
-   btn.classList.toggle('active', isCurrent);
+   btn.style.background = isCurrent ? accent_col : '';
+   btn.style.color = isCurrent ? '#fff' : 'var(--ink-muted)';
   });
   /* Chips de canasta */
   ['global','b2c','op','cug'].forEach(function(c){

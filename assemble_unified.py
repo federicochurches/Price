@@ -538,8 +538,12 @@ SHARED_CONTAINERS = f'''
 <div class="cfb">
   <div class="cfb-lbl">Reporte</div>
   <div class="cfb-chips" style="flex:none;">
-    <div class="c-chip active" id="ar-btn-cr"  onclick="w22_setMode('cr',document.getElementById('mode-cr'))">CheckRates</div>
-    <div class="c-chip"        id="ar-btn-rnd" onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Rates No Dispo</div>
+    <div class="ar-mode-chip" id="ar-btn-cr"
+      onclick="w22_setMode('cr',document.getElementById('mode-cr'))"
+      style="display:flex;align-items:center;padding:0 22px;height:46px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);transition:all .15s;white-space:nowrap;user-select:none;background:#5C469C;color:#fff;">CheckRates</div>
+    <div class="ar-mode-chip" id="ar-btn-rnd"
+      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))"
+      style="display:flex;align-items:center;padding:0 22px;height:46px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-right:1px solid var(--rule);transition:all .15s;white-space:nowrap;user-select:none;color:var(--ink-muted);">Rates No Dispo</div>
   </div>
   <div class="cfb-lbl">Canasta</div>
   <div class="cfb-chips">
