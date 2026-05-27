@@ -250,7 +250,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
-                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_nd}</div>'
+                    f'<div style="display:flex;align-items:center;justify-content:flex-start;min-width:0;overflow:hidden;">{_badge_nd}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_traf_str}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{_traf_wow_pill}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{fmt_pct2(val)}</span>'
@@ -383,7 +383,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
                     f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
                     + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">{_corp_sub}</span>' if _corp_sub else '')
                     + f'</div>'
-                    f'<div style="display:flex;align-items:center;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
+                    f'<div style="display:flex;align-items:center;justify-content:flex-start;min-width:0;overflow:hidden;">{_badge_ipm}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">{_traf_str2}</span>'
                     f'<div style="text-align:right;white-space:nowrap;">{_traf_wow_pill2}</div>'
                     f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">${fmt_num2(val)}</span>'
