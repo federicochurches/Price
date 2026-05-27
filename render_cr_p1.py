@@ -742,6 +742,9 @@ def _build_card_rows_chan(tab, metric_col, wow_col):
             pp_rows.append(entry)
         else:
             tp_rows.append(entry)
+    # Ordenar activos: peor eficacia primero (val_pct ASC, None al final)
+    pp_rows.sort(key=lambda r: r[5] if r[5] is not None else 999)
+    tp_rows.sort(key=lambda r: r[5] if r[5] is not None else 999)
     # Completar con catálogo canónico
     pp_names = [r[0] for r in pp_rows]
     tp_names = [r[0] for r in tp_rows]

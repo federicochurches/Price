@@ -361,6 +361,13 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     pp_names = set(r[0] for r in chans_pp)
     tp_names = set(r[0] for r in chans_tp)
     
+    # Ordenar activos: peor eficacia primero (r[5]=metrica str, parsear)
+    def _sort_val(r):
+        try: return float(str(r[5]).replace('%','').replace(',','.'))
+        except: return 999
+    chans_pp.sort(key=_sort_val)
+    chans_tp.sort(key=_sort_val)
+
     # Completar PP con faltantes
     for name in CATALOG_PP:
         if not any(name.lower() in n.lower() for n in pp_names):
