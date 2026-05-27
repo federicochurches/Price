@@ -8,7 +8,7 @@ import sys, os, json, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_eficacia, banda_convrate
-from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2
+from render_helpers import clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es
 
 # ── Config ────────────────────────────────────────────────────────────────────
 with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'), 'rb') as f:
@@ -147,13 +147,25 @@ def build_cr_cv():
         banda = banda_eficacia(ef)
         bbg, bfg = banda_colors(banda)
         
+        cr_unicos  = m.get('cr_unicos', 0)
+        cr_prev    = M.get(f'{m_key}_w{int(wn)-1}', {}).get('cr_unicos', 0) if key != 'global' else M.get(f'global_w{int(wn)-1}', {}).get('cr_unicos', 0)
+        traf_wow   = round(((cr_unicos - cr_prev) / cr_prev * 100), 1) if cr_prev else None
+        banda_cv_v = banda_convrate(cv, int(m.get('bookings', 1)))
+        bbg_cv, bfg_cv = banda_colors(banda_cv_v)
+
         result[key] = {
-            'ef':   es_pct(ef),
-            'cv':   es_pct(cv),
-            'band': banda,
-            'bbg':  bbg,
-            'bfg':  bfg,
-            'col':  canasta_col[key],
+            'ef':      es_pct(ef),
+            'cv':      es_pct(cv),
+            'band':    banda,
+            'bbg':     bbg,
+            'bfg':     bfg,
+            'band_cv': banda_cv_v,
+            'bbg_cv':  bbg_cv,
+            'bfg_cv':  bfg_cv,
+            'col':     canasta_col[key],
+            'vol':     f'{int(cr_unicos/1000)}K' if cr_unicos >= 1000 else str(cr_unicos),
+            'trafico': fmt_int_es(int(cr_unicos)),
+            'traf_wow': traf_wow,
             'kv_id':   f'w{wn}-kv-ef',
             'kv2_id':  f'w{wn}-kv-cv',
             'hist_id': f'w{wn}-hist-ef',

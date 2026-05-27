@@ -7,7 +7,7 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm
-from render_helpers import BANDA_COLORS
+from render_helpers import BANDA_COLORS, fmt_int_es
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -85,13 +85,36 @@ def build_rnd_cv():
         ipm   = m.get('ipm', m.get('rpm', 0))
         banda = banda_nodispo(nd)
         bbg, bfg = banda_colors(banda)
+        banda_ipm_v = banda_rpm(ipm, m.get('bookings', 1))
+        bbg_cv, bfg_cv = banda_colors(banda_ipm_v)
+        trafico_v = m.get('trafico', 0)
+        # WoW tráfico
+        m_prev_key = m_key.replace(f'_w{WEEK_NUM}', f'_w{WEEK_NUM-1}')
+        m_prev = M.get(m_prev_key, {})
+        traf_prev = m_prev.get('trafico', 0)
+        traf_wow = round((trafico_v - traf_prev) / traf_prev * 100, 1) if traf_prev else None
+        # Formatear tráfico
+        def _fmt_big(v):
+            v = float(v) if v else 0
+            if v >= 1e9: return f'{v/1e9:.1f}B'.replace('.',',')
+            if v >= 1e6: return f'{v/1e6:.1f}M'.replace('.',',')
+            if v >= 1e3: return f'{v/1e3:.0f}K'
+            return str(int(v))
+        trafico_str = _fmt_big(trafico_v)
+        vol_str = _fmt_big(trafico_v)
         result[key] = {
-            'ef':  es_pct(nd),
-            'cv':  es_ipm(ipm),
-            'band': banda,
-            'bbg': bbg,
-            'bfg': bfg,
-            'col': canasta_col[key],
+            'ef':      es_pct(nd),
+            'cv':      es_ipm(ipm),
+            'band':    banda,
+            'bbg':     bbg,
+            'bfg':     bfg,
+            'band_cv': banda_ipm_v,
+            'bbg_cv':  bbg_cv,
+            'bfg_cv':  bfg_cv,
+            'col':     canasta_col[key],
+            'vol':     vol_str,
+            'trafico': trafico_str,
+            'traf_wow': traf_wow,
         }
     return result
 

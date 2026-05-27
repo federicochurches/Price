@@ -1138,8 +1138,10 @@ function ar_updateKPIs() {
  if (k1) { k1.textContent = ef21.replace(' %','%'); k1.style.color = acc; }
  var v1 = document.getElementById('ar1-vol'); if (v1) v1.textContent = vol;
  var wp1 = document.getElementById('ar1-wow-pill'); if (wp1) wp1.innerHTML = wPill(efWow, !isCR ? false : true);
- var tr1 = document.getElementById('ar1-trafico'); if (tr1) tr1.textContent = trafico + ' Tráfico';
- var tw1 = document.getElementById('ar1-trafico-wow'); if (tw1) tw1.innerHTML = trafWow != null ? wPillSm(trafWow, true) : '';
+ var tr1 = document.getElementById('ar1-trafico');
+ if (tr1) tr1.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
+ var tw1 = document.getElementById('ar1-trafico-wow');
+ if (tw1) tw1.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
  var b1 = document.getElementById('ar1-badge');
  if (b1) { b1.textContent = efBanda + ' ' + efTarget; b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
  var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
@@ -1150,10 +1152,15 @@ function ar_updateKPIs() {
  if (k2) { k2.textContent = cv21.replace(' %','%'); k2.style.color = acc; }
  var v2 = document.getElementById('ar2-vol'); if (v2) v2.textContent = vol;
  var wp2 = document.getElementById('ar2-wow-pill'); if (wp2) wp2.innerHTML = wPill(cvWow, true);
- var tr2 = document.getElementById('ar2-trafico'); if (tr2) tr2.textContent = trafico + ' Tráfico';
- var tw2 = document.getElementById('ar2-trafico-wow'); if (tw2) tw2.innerHTML = trafWow != null ? wPillSm(trafWow, true) : '';
+ var tr2 = document.getElementById('ar2-trafico');
+ if (tr2) tr2.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
+ var tw2 = document.getElementById('ar2-trafico-wow');
+ if (tw2) tw2.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
  var b2 = document.getElementById('ar2-badge');
- if (b2) { b2.textContent = cvBanda + ' ' + cvTarget; b2.style.background = cvBandaBg; b2.style.color = cvBandaFg; b2.style.border = '1px solid '+cvBandaFg+'44'; }
+ var cvBanda2 = cdata.band_cv || cvBanda;
+ var cvBandaBg2 = cdata.bbg_cv || cvBandaBg;
+ var cvBandaFg2 = cdata.bfg_cv || cvBandaFg;
+ if (b2) { b2.textContent = cvBanda2 + ' ' + cvTarget; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
  var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 }
