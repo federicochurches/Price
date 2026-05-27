@@ -1224,30 +1224,29 @@ function ar_updateKPIs() {
  var vol='—', trafico='—', trafWow=null;
 
  if (isCR && typeof HIST_CR !== 'undefined') {
-  var ef_e = HIST_CR['hcr-panel-ef'] || HIST_CR['hcr-global-ef'] || {};
-  var cv_e = HIST_CR['hcr-panel-cv'] || HIST_CR['hcr-global-cv'] || {};
+  /* Usar global como fuente primaria — siempre tiene vals al cargar */
+  var ef_g = HIST_CR['hcr-global-ef'] || {};
+  var cv_g = HIST_CR['hcr-global-cv'] || {};
+  /* Panel solo si ya fue inicializado con datos */
+  var ef_p = HIST_CR['hcr-panel-ef'] || {};
+  var cv_p = HIST_CR['hcr-panel-cv'] || {};
+  var ef_e = (ef_p.vals && ef_p.vals.length >= 2) ? ef_p : ef_g;
+  var cv_e = (cv_p.vals && cv_p.vals.length >= 2) ? cv_p : cv_g;
   if (ef_e.vals && ef_e.vals.length >= 2) {
-   var ev = ef_e.vals; ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %'; ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
+   var ev = ef_e.vals;
+   ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
+   ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
    efWow = ev[ev.length-1] - ev[ev.length-2];
   }
   if (cv_e.vals && cv_e.vals.length >= 2) {
-   var cv_v = cv_e.vals; cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %'; cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
+   var cv_v = cv_e.vals;
+   cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %';
+   cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
    cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
   }
-  /* Banda y datos del cv() actual — no sobreescribir ef21/ef20/efWow ya calculados */
-  if (cdata.ef) { ef21 = cdata.ef; }  /* cdata.ef ya viene con % */
-  if (cdata.cv) { cv21 = cdata.cv; }  /* cdata.cv ya viene con % o $ */
-  /* Calcular ef20 y WoW desde el historial si ef20 sigue vacío */
-  if (ef20 === '—' && ef_e.vals && ef_e.vals.length >= 2) {
-   var ev2 = ef_e.vals;
-   ef20 = ev2[ev2.length-2].toFixed(2).replace('.',',')+' %';
-   efWow = ev2[ev2.length-1] - ev2[ev2.length-2];
-  }
-  if (cv20 === '—' && cv_e.vals && cv_e.vals.length >= 2) {
-   var cv_v2 = cv_e.vals;
-   cv20 = cv_v2[cv_v2.length-2].toFixed(2).replace('.',',')+' %';
-   cvWow = cv_v2[cv_v2.length-1] - cv_v2[cv_v2.length-2];
-  }
+  /* Sobreescribir ef21/cv21 con el valor exacto de la canasta activa */
+  if (cdata.ef) { ef21 = cdata.ef; }
+  if (cdata.cv) { cv21 = cdata.cv; }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
   if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; }
@@ -1268,10 +1267,16 @@ function ar_updateKPIs() {
   var bc2 = BANDA_C[cvBanda] || BANDA_C['Sin Conversión'];
   cvBandaBg = bc2.bg; cvBandaFg = bc2.fg;
  } else if (!isCR && typeof HIST_RND !== 'undefined') {
-  var nd_e  = HIST_RND['hrnd-panel-nd']  || HIST_RND['hrnd-global-nd']  || {};
-  var ipm_e = HIST_RND['hrnd-panel-ipm'] || HIST_RND['hrnd-global-ipm'] || {};
+  var nd_g  = HIST_RND['hrnd-global-nd']  || {};
+  var ipm_g = HIST_RND['hrnd-global-ipm'] || {};
+  var nd_p  = HIST_RND['hrnd-panel-nd']   || {};
+  var ipm_p = HIST_RND['hrnd-panel-ipm']  || {};
+  var nd_e  = (nd_p.vals  && nd_p.vals.length  >= 2) ? nd_p  : nd_g;
+  var ipm_e = (ipm_p.vals && ipm_p.vals.length >= 2) ? ipm_p : ipm_g;
   if (nd_e.vals && nd_e.vals.length >= 2) {
-   var nv = nd_e.vals; ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %'; ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
+   var nv = nd_e.vals;
+   ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %';
+   ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
    efWow = nv[nv.length-1] - nv[nv.length-2];
   }
   if (ipm_e.vals && ipm_e.vals.length >= 2) {
@@ -1280,17 +1285,8 @@ function ar_updateKPIs() {
    cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
    cvWow = iv[iv.length-1] - iv[iv.length-2];
   }
-  if (cdata.ef) { ef21 = cdata.ef; } if (cdata.cv) { cv21 = cdata.cv; }
-  /* Calcular ef20/cv20 desde historial si vacíos */
-  if (ef20 === '—' && nd_e.vals && nd_e.vals.length >= 2) {
-   var nv2 = nd_e.vals; ef20 = nv2[nv2.length-2].toFixed(2).replace('.',',')+' %';
-   efWow = nv2[nv2.length-1] - nv2[nv2.length-2];
-  }
-  if (cv20 === '—' && ipm_e.vals && ipm_e.vals.length >= 2) {
-   var iv2 = ipm_e.vals;
-   cv20 = '$'+Math.round(iv2[iv2.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-   cvWow = iv2[iv2.length-1] - iv2[iv2.length-2];
-  }
+  if (cdata.ef) { ef21 = cdata.ef; }
+  if (cdata.cv) { cv21 = cdata.cv; }
   if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
   if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
   efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
