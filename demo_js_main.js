@@ -292,10 +292,12 @@ function w22_iTab(el){
 function w22_recolorSparks(accent){
  var accentRgb=RGB[accent]||'92,70,156';
  
- /* IDs de spark containers para las cards KPI activas */
+ /* IDs de spark containers para las cards KPI + panel análisis */
  var sparkIds = W.mode==='cr'
-   ? ['hist-hcr-global-ef-spark','hist-hcr-global-cv-spark']
-   : ['hist-hrnd-global-nd-spark','hist-hrnd-global-ipm-spark'];
+   ? ['hist-hcr-global-ef-spark','hist-hcr-global-cv-spark',
+      'hist-hcr-panel-ef-spark','hist-hcr-dim-ef-spark']
+   : ['hist-hrnd-global-nd-spark','hist-hrnd-global-ipm-spark',
+      'hist-hrnd-panel-nd-spark','hist-hrnd-dim-nd-spark'];
  
  sparkIds.forEach(function(sid){
   var el=g(sid);if(!el)return;
@@ -317,8 +319,10 @@ function w22_recolorSparks(accent){
  
  /* Recolorear el valor "Actual" en los módulos históricos CR activos */
  var actualIds = W.mode==='cr'
-   ? ['hist-hcr-global-ef-actual','hist-hcr-global-cv-actual']
-   : ['hist-hrnd-global-nd-actual','hist-hrnd-global-ipm-actual'];
+   ? ['hist-hcr-global-ef-actual','hist-hcr-global-cv-actual',
+      'hist-hcr-panel-ef-actual','hist-hcr-dim-ef-actual']
+   : ['hist-hrnd-global-nd-actual','hist-hrnd-global-ipm-actual',
+      'hist-hrnd-panel-nd-actual','hist-hrnd-dim-nd-actual'];
  actualIds.forEach(function(aid){
   var el=g(aid);if(el)el.style.color=accent;
  });
