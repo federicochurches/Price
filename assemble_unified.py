@@ -123,14 +123,22 @@ _M_cr  = _D_cr.get('M', {})
 _M_rnd = _D_rnd.get('M', {})
 
 _HIST_CR_PY = {
-    'h-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-op-ef':     {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-op-cv':     {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-cug-ef':    {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-cug-cv':    {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-b2c-ef':    {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-b2c-cv':    {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    # Canvas de las cards KPI (global) — IDs fijos en el DOM
+    'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    # Canvas del panel de análisis (por canasta)
+    'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    # Canvas de dimensiones
+    'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    # Canvas por canasta (para w22_setMode cuando cambia canasta)
+    'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-op-cv':       {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-cug-ef':      {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-cug-cv':      {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-b2c-ef':      {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-b2c-cv':      {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
 }
 
 _HIST_RND_PY = {
