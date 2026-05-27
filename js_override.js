@@ -720,7 +720,7 @@ function _fmtInt(n){ if(n==null) return '—'; return Math.round(n).toString().r
 function _fmtPct(n){ if(n==null) return '—'; return n.toFixed(2).replace('.',',')+'%'; }
 function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);font-size:10px;">—</span>':'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+v+'</em>'; }
 function _wowInt(delta){ if(delta==null) return null; var abs=Math.round(Math.abs(delta)); return (delta>0?'▲':'▼')+_fmtInt(abs); }
-function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp>0?'▲':'▼')+abs.toFixed(2).replace('.',',')+'pp'; }
+function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp>0?'▲':'▼')+abs.toFixed(2).replace('.',','); }
 
 function _cardRow(r, idx, isEf){
   /* r: [lab,sub,bbg,bfg,banda, cr_u,cr_wow_delta, val_pct, wow_pp, hist_w21, hist_w20] */
@@ -804,7 +804,7 @@ function w22_renderCardTabs(canasta){
       var mw_up = wow_pp!=null&&wow_pp>0;
       var mw_bg = mw_up?'#EAF3DE':'#FCE8E6';
       var mw_fg = mw_up?'#2F6C34':'#C0392B';
-      var mw = wow_pp!=null?_pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',',')+'pp', mw_bg, mw_fg):'<span style="color:var(--ink-muted)">—</span>';
+      var mw = wow_pp!=null?_pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_bg, mw_fg):'<span style="color:var(--ink-muted)">—</span>';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule-soft);gap:6px;">'
         +'<span style="font-size:11px;font-weight:600;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nombre+'</span>'
         +'<span>'+badge+'</span>'

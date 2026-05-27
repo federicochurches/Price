@@ -155,13 +155,13 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     
     wow_color = '#2F6C34' if ef_wow > 0 else '#C0392B'
     wow_arrow = '↑' if ef_wow > 0 else ('↓' if ef_wow < 0 else '=')
-    if ef_wow > 0: wow_str = f'{wow_arrow} +{ef_wow:.2f}pp'.replace('.', ',')
-    elif ef_wow < 0: wow_str = f'{wow_arrow} {ef_wow:.2f}pp'.replace('.', ',')
-    else: wow_str = '= 0,00pp'
+    if ef_wow > 0: wow_str = f'{wow_arrow} +{ef_wow:.2f}'.replace('.', ',')
+    elif ef_wow < 0: wow_str = f'{wow_arrow} {ef_wow:.2f}'.replace('.', ',')
+    else: wow_str = '= 0,00'
     
     wow_block = wow_box(fmt_pct2(ef_w17), fmt_pct2(ef_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     # Prop V1: pill WoW redondeada (+ = verde, - = rojo)
-    _wow_pill_ef = wow_pill_html(ef_wow, unit='pp')
+    _wow_pill_ef = wow_pill_html(ef_wow, unit='')
     cr_trafico_line = _cr_trafico_line()
     
     # Tráfico CR Únicos con WoW
@@ -387,13 +387,13 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     
     wow_color = '#2F6C34' if cv_wow > 0 else '#C0392B'
     wow_arrow = '↑' if cv_wow > 0 else ('↓' if cv_wow < 0 else '=')
-    if cv_wow > 0: wow_str = f'{wow_arrow} +{cv_wow:.2f}pp'.replace('.', ',')
-    elif cv_wow < 0: wow_str = f'{wow_arrow} {cv_wow:.2f}pp'.replace('.', ',')
-    else: wow_str = '= 0,00pp'
+    if cv_wow > 0: wow_str = f'{wow_arrow} +{cv_wow:.2f}'.replace('.', ',')
+    elif cv_wow < 0: wow_str = f'{wow_arrow} {cv_wow:.2f}'.replace('.', ',')
+    else: wow_str = '= 0,00'
     
     wow_block = wow_box(fmt_pct2(cv_w17), fmt_pct2(cv_w18), wow_str, wow_color, CR_ACCENT, week_num, week_prev)
     # Prop V1: pill WoW redondeada
-    _wow_pill_cv = wow_pill_html(cv_wow, unit='pp')
+    _wow_pill_cv = wow_pill_html(cv_wow, unit='')
     cr_trafico_line = _cr_trafico_line()
     
     tabs = ''

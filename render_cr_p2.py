@@ -74,8 +74,8 @@ def banda_colors(banda):
 def wow_arrow(pp):
     if pp is None or (isinstance(pp, float) and np.isnan(pp)):
         return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}pp'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}pp'.replace('.', ',')
+    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
+    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
     return '—'
 
 def wow_arrow_abs(delta):

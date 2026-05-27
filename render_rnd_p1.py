@@ -167,14 +167,14 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     
     wow_color = '#2F6C34' if pct_wow < 0 else '#C0392B'  # mejor si baja
     wow_arrow = '↓' if pct_wow < 0 else ('↑' if pct_wow > 0 else '=')
-    wow_str = f'{wow_arrow} {abs(pct_wow):+.2f}pp'.replace('+', '').replace('.', ',')
-    if pct_wow < 0: wow_str = f'{wow_arrow} -{abs(pct_wow):.2f}pp'.replace('.', ',')
-    elif pct_wow > 0: wow_str = f'{wow_arrow} +{pct_wow:.2f}pp'.replace('.', ',')
-    else: wow_str = '= 0,00pp'
+    wow_str = f'{wow_arrow} {abs(pct_wow):+.2f}'.replace('+', '').replace('.', ',')
+    if pct_wow < 0: wow_str = f'{wow_arrow} -{abs(pct_wow):.2f}'.replace('.', ',')
+    elif pct_wow > 0: wow_str = f'{wow_arrow} +{pct_wow:.2f}'.replace('.', ',')
+    else: wow_str = '= 0,00'
     
     wow_block = wow_box(fmt_pct2(pct_w17), fmt_pct2(pct_w18), wow_str, wow_color, ACCENT)
     # Prop V1: NoDispo baja = buena → invertir signo para que verde = mejora
-    _wow_pill_nd = wow_pill_html(-pct_wow, unit='pp', prefix_pos='↓', prefix_neg='↑')
+    _wow_pill_nd = wow_pill_html(-pct_wow, unit='', prefix_pos='↓', prefix_neg='↑')
     
     # Tabs panels
     tabs = ''
@@ -306,11 +306,11 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     
     wow_color = '#2F6C34' if rpm_wow > 0 else '#C0392B'
     wow_arrow = '↑' if rpm_wow > 0 else ('↓' if rpm_wow < 0 else '=')
-    wow_str = f'{wow_arrow} {rpm_wow:+.1f}%'.replace('.', ',')
+    wow_str = f'{wow_arrow} {abs(rpm_wow):.1f}'.replace('.', ',')
     
     wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
     # Prop V1: IPM sube = buena → pasar directo, unidad %
-    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='%')
+    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='')
     
     tabs = ''
     for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
