@@ -18,13 +18,8 @@
 ```
 Price/
 ├── index.html                        ← hub · NO editar manualmente
-├── _docs/                            (no se publica)
-│   ├── PROMPT_CORE.md                ← contexto operativo vigente
-│   ├── HISTORIAL_SESIONES.md         ← arqueología W16-W20
-│   ├── BANDAS.md                     ← paleta canónica completa
-│   └── COMMIT_GUIDE.md
-├── _scripts/                         (no se publica)
-│   └── *.py / *.html                 ← pipeline completo
+├── *.py / *.html / *.js / *.css      ← pipeline completo en raíz
+├── *.md                              ← docs operativos en raíz
 ├── _email/week-NN/
 │   └── Mail_WNN.html
 ├── _seguimiento/
@@ -38,6 +33,8 @@ Price/
     ├── Analisis_CheckRates_WNN.xlsx      (4 hojas: Global · B2C · B2B-OP · CUG)
     └── Dataset_CheckRates_WNN.xlsx
 ```
+
+> **W22-pre:** carpetas `_scripts/` y `_docs/` eliminadas — todos los archivos viven en la raíz del repo.
 
 ---
 
@@ -55,7 +52,7 @@ Price/
 🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W21](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html) · [CR](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-rnd)
 
 
-## 🗂️ Inventario de scripts (`_scripts/`)
+## 🗂️ Inventario de scripts (raíz del repo)
 
 ### Pipeline principal
 | Archivo | Función |
@@ -69,7 +66,6 @@ Price/
 | `excel_cr.py` / `excel_rnd.py` | 1 Excel por reporte · 4 hojas c/u (W21+) |
 | `render_mail_v3.py` | Draft mail semanal |
 | `build_package.py` | Hub index.html + ZIP |
-| `update_docs.py` | Actualiza CHANGELOG + README + PROMPT_CORE |
 | `github_commit.py` | Commit API GitHub + ZIP proyecto Claude |
 
 ### Helpers y templates
