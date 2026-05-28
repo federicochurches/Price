@@ -799,3 +799,347 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
         panel_html = top_html + rest_html
 
     return f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# REFACTOR P10 · Helpers compartidos CR+RND · p2 · W22
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def es_pct(v):
+    """Convierte fracción → '93,15%'. Usado en tablas AR."""
+    return f'{v*100:.2f}%'.replace('.', ',')
+
+def es_int(v):
+    """Entero con punto de miles español: 746.111"""
+    return f'{int(v):,}'.replace(',', '.')
+
+def es_pct2(v):
+    """Ya viene en %, no multiplica: '1,57%'. Para CV y values ya escalados."""
+    return f'{v:.2f}%'.replace('.', ',') if isinstance(v, float) else str(v)
+
+def es_ipm(v):
+    """IPM formateado: '$834'"""
+    return f'${int(v):,}'.replace(',', '.')
+
+def banda_colors(banda):
+    """Devuelve (bg, fg) desde BANDA_COLORS. Centraliza el lookup."""
+    bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
+    return bc['bg'], bc['fg']
+
+def wow_arrow(pp):
+    """▲1,2 / ▼0,5 / — para WoW en pp. Compartido CR+RND."""
+    import math as _m
+    if pp is None or (isinstance(pp, float) and (_m.isnan(pp) or _m.isinf(pp))):
+        return '—'
+    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
+    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
+    return '—'
+
+def wow_arrow_abs(delta):
+    """▲746.111 / ▼12.345 para WoW de tráfico (delta absoluto, no pp)."""
+    import math as _m
+    if delta is None or (isinstance(delta, float) and (_m.isnan(delta) or _m.isinf(delta))):
+        return '—'
+    formatted = f'{int(abs(delta)):,}'.replace(',', '.')
+    if delta > 0: return f'▲{formatted}'
+    if delta < 0: return f'▼{formatted}'
+    return '—'
+
+def sev_badge_html_p2(banda):
+    """Badge de banda para tablas AR (p2). Usa <b> con sev-badge class."""
+    bbg, bfg = banda_colors(banda)
+    return (f'<b class="sev-badge" style="background:{bbg};color:{bfg};'
+            f'font-size:8px;padding:2px 6px;text-transform:uppercase;'
+            f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# REFACTOR P10 (cont.) · canasta_tab_rows + build_card_rows · W22
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def canasta_tab_rows(df, dim_col, cfg):
+    """Genera filas HTML para tabs de canastas (p3 CR y RND).
+
+    Reemplaza tab_rows_canasta() duplicada en render_cr_p3.py y render_rnd_p3.py.
+
+    cfg keys:
+        val_col       str  — columna de la métrica ('Eficacia', '%NoDispo', 'IPM', etc.)
+        val_fmt       fn   — función de formato del valor (fmt_pct2, fmt_num2, etc.)
+        val_prefix    str  — prefijo del valor ('', '$')
+        hist_scale    fn   — transforma val → float para data-hist-w21
+        hist_prev_col str  — columna del valor anterior
+        banda_fn      fn   — función de banda
+        banda_col     str  — columna pre-calculada de banda
+        wow_fn        fn   — fn(r) → html de la pill WoW (None = make_wow_pill_row automático)
+        wow_col       str  — columna de WoW (si wow_fn es None)
+        wow_is_pos    bool — True si subir = mejorar
+        traf_col      str  — columna de tráfico extra ('' = sin tráfico)
+        traf_fmt      fn   — función de formato del tráfico
+        grid_cols     str  — grid-template-columns
+        metric_lbl    str  — label de la columna métrica en el header
+        col_headers   list — lista de labels de columnas (después de nombre)
+                             ['Severity', 'Tráfico', 'Métrica', 'WoW']
+        tab_key       str  — usado para is_simple check
+        parse_hotel   bool — si True, genera sub-label con CorpName
+    """
+    import math as _m
+    top5 = next5 = rest = ''
+
+    val_col     = cfg['val_col']
+    val_fmt     = cfg.get('val_fmt', fmt_pct2)
+    val_prefix  = cfg.get('val_prefix', '')
+    hist_scale  = cfg.get('hist_scale', lambda v: round(float(v) * 100, 4))
+    hist_prev   = cfg.get('hist_prev_col', '')
+    banda_fn    = cfg.get('banda_fn', None)
+    banda_col   = cfg.get('banda_col', '')
+    wow_fn      = cfg.get('wow_fn', None)
+    wow_col     = cfg.get('wow_col', '')
+    wow_is_pos  = cfg.get('wow_is_pos', True)
+    traf_col    = cfg.get('traf_col', '')
+    traf_fmt    = cfg.get('traf_fmt', fmt_big)
+    grid_cols   = cfg['grid_cols']
+    tab_key     = cfg.get('tab_key', '')
+    parse_hotel = cfg.get('parse_hotel', False)
+
+    for i, r in df.iterrows():
+        # ── Label ────────────────────────────────────────────────────────────
+        raw_lab = str(r[dim_col])
+        if parse_hotel:
+            lab = truncate(raw_lab, 28)
+        elif dim_col == 'PaisDestino':
+            lab = clean_pais_name(raw_lab, max_len=24)
+        elif dim_col == 'Destino':
+            lab = clean_destino_name(raw_lab, 28)
+        elif dim_col == 'CorpName':
+            lab = truncate(clean_corp_name(raw_lab), 28)
+        elif dim_col == 'Hotel':
+            lab = truncate(clean_hotel_name(raw_lab), 28)
+        else:
+            lab = truncate(raw_lab, 28)
+
+        corp_sub = ''
+        if parse_hotel and 'CorpName' in r.index:
+            corp_sub = truncate(clean_corp_name(str(r.get('CorpName', ''))), 24)
+
+        # ── Valor ────────────────────────────────────────────────────────────
+        val = r.get(val_col, 0)
+        try:
+            _vf = float(val)
+            if _m.isnan(_vf) or _m.isinf(_vf):
+                val = None
+        except (TypeError, ValueError):
+            val = None
+
+        _val_is_nan = val is None
+        val_str = (val_prefix + val_fmt(val)) if val is not None else '—'
+
+        # ── Banda + badge ─────────────────────────────────────────────────────
+        _bnd = ''
+        if not parse_hotel:
+            if banda_col and banda_col in r.index:
+                _bnd = r[banda_col]
+            if not _bnd and val is not None and banda_fn:
+                _bnd = banda_fn(val)
+        _badge = _mini_badge(_bnd)
+
+        # ── Histórico ─────────────────────────────────────────────────────────
+        _w21 = hist_scale(val) if val is not None else 0
+        _w20 = _w21
+        if hist_prev:
+            _prev = r.get(hist_prev)
+            try:
+                _pf = float(_prev)
+                if not _m.isnan(_pf) and not _m.isinf(_pf):
+                    _w20 = hist_scale(_pf)
+            except (TypeError, ValueError):
+                pass
+
+        # ── WoW pill ──────────────────────────────────────────────────────────
+        if wow_fn:
+            wow_html = wow_fn(r)
+        elif wow_col:
+            wow_html = make_wow_pill_row(
+                r.get(wow_col) if wow_col in r.index else None,
+                is_mejora_si_positivo=wow_is_pos
+            )
+        else:
+            wow_html = '<em class="wow-pill nd">—</em>'
+
+        # ── Tráfico extra (RND) ───────────────────────────────────────────────
+        traf_str = ''
+        if traf_col:
+            _tv = r.get(traf_col)
+            try:
+                _tvf = float(_tv)
+                if not _m.isnan(_tvf):
+                    traf_str = traf_fmt(_tvf)
+            except (TypeError, ValueError):
+                pass
+
+        # ── Visibilidad ───────────────────────────────────────────────────────
+        if i < 5:   _cls = ''
+        elif i < 10: _cls = 'rows-more'
+        else:        _cls = 'sb-hidden'
+
+        _no_data = 'opacity:.45;pointer-events:none;' if _val_is_nan else ''
+
+        # ── Nombre cell ───────────────────────────────────────────────────────
+        if parse_hotel:
+            _name_cell = (
+                f'<div style="min-width:0;overflow:hidden;">'
+                f'<span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;'
+                f'overflow:hidden;text-overflow:ellipsis;display:block;">{i+1}. {lab}</span>'
+                + (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;'
+                   f'overflow:hidden;text-overflow:ellipsis;display:block;">{corp_sub}</span>'
+                   if corp_sub else '')
+                + f'</div>'
+            )
+        else:
+            _name_cell = (
+                f'<span style="font-size:11px;font-weight:600;color:var(--ink);'
+                f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">'
+                f'{i+1}. {lab}</span>'
+            )
+
+        # ── Tráfico td (solo si hay traf_col) ────────────────────────────────
+        _traf_td = (
+            f'<span style="text-align:right;font-size:11px;color:var(--ink-muted);'
+            f'font-variant-numeric:tabular-nums;">{traf_str}</span>'
+        ) if traf_col else ''
+
+        _row = (
+            f'<div class="{_cls}" data-row-idx="{i}" '
+            f'data-hist-w21="{_w21}" data-hist-w20="{_w20}" data-hist-label="{raw_lab}"'
+            f' style="display:grid;grid-template-columns:{grid_cols};align-items:center;gap:4px;'
+            f'padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;'
+            f'transition:background .12s;{_no_data}">'
+            f'{_name_cell}'
+            f'<div style="display:flex;align-items:center;">'
+            f'{_badge if not _val_is_nan else ""}</div>'
+            f'{_traf_td}'
+            f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
+            f'font-variant-numeric:tabular-nums;">{val_str}</span>'
+            f'{wow_html}</div>'
+        )
+
+        if i < 5:    top5  += _row
+        elif i < 10: next5 += _row
+        else:        rest  += _row
+
+    # ── Ver más btn ───────────────────────────────────────────────────────────
+    is_simple = tab_key in ('canasta', 'channel', 'provider')
+    ver_mas_btn = ''
+    if len(df) > 5 and not is_simple:
+        ver_mas_btn = (
+            f'<button class="rows-toggle" data-panel="{tab_key}" '
+            f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
+            f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
+            f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
+            f'<span class="toggle-label">Ver 5 más</span> '
+            f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>'
+        )
+
+    # ── Header de columnas ────────────────────────────────────────────────────
+    _hdr = ''
+    if not is_simple:
+        col_headers = cfg.get('col_headers', ['Severity', cfg.get('metric_lbl','Métrica'), 'WoW'])
+        _spans = '<span></span>' + ''.join(
+            f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+            f'color:var(--ink-muted);text-align:{"left" if h=="Severity" else "right"};padding:2px 0;">'
+            f'{h}</span>'
+            for h in col_headers
+        )
+        _hdr = (
+            f'<div style="display:grid;grid-template-columns:{grid_cols};'
+            f'gap:4px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+            f'{_spans}</div>'
+        )
+
+    return f'<div class="kpi-tab-rows">{_hdr}{top5}{next5}</div>{rest}{ver_mas_btn}'
+
+
+def build_card_rows(df, t_key, cfg):
+    """Genera array de rows para CR_CARD_TABS / RND_CARD_TABS.
+
+    Reemplaza _build_card_rows_ef y _build_card_rows_cv en render_cr_p1.py.
+
+    cfg keys:
+        val_col       str  — columna de la métrica
+        val_scale     fn   — transforma val → val_pct para el array JS
+        banda_fn      fn   — función de banda
+        banda_col     str  — columna pre-calculada de banda
+        traf_col      str  — columna de tráfico (CR_Unicos, Trafico)
+        traf_wow_col  str  — columna de WoW tráfico
+        traf_wow_scale fn  — transforma traf_wow → delta para JS
+        wow_col       str  — columna de WoW de la métrica
+        hist_prev_col str  — columna del valor anterior
+    """
+    import math as _m
+    NAME_COLS = {
+        'hotel':   ('Hotel',    lambda r: truncate(clean_hotel_name(str(r.get('Hotel',''))), 38)),
+        'corp':    ('CorpName', lambda r: truncate(clean_corp_name(str(r.get('CorpName',''))), 36)),
+        'destino': ('Destino',  lambda r: clean_destino_name(str(r.get('Destino','')), 36)),
+        'pais':    ('PaisDestino', lambda r: clean_pais_name(str(r.get('PaisDestino','')), 30)),
+    }
+    val_col      = cfg['val_col']
+    val_scale    = cfg.get('val_scale', lambda v: round(float(v)*100, 2))
+    banda_fn     = cfg.get('banda_fn', None)
+    banda_col    = cfg.get('banda_col', '')
+    traf_col     = cfg.get('traf_col', '')
+    traf_wow_col = cfg.get('traf_wow_col', '')
+    traf_wow_scl = cfg.get('traf_wow_scale', lambda v: round(float(v)/100, 0))
+    wow_col      = cfg.get('wow_col', '')
+    hist_prev    = cfg.get('hist_prev_col', '')
+
+    _, name_fn = NAME_COLS.get(t_key, ('?', lambda r: str(r.get('Hotel', '?'))[:36]))
+    sub_fn = (lambda r: truncate(str(r.get('CorpName','')), 20)
+              if 'CorpName' in r.index else '') if t_key == 'hotel' else (lambda r: '')
+
+    rows = []
+    for _, r in df.iterrows():
+        lab = name_fn(r)
+        sub = sub_fn(r)
+        val = r.get(val_col)
+        try:
+            _vf = float(val)
+            if _m.isnan(_vf) or _m.isinf(_vf): val = None
+        except (TypeError, ValueError): val = None
+
+        val_pct = val_scale(val) if val is not None else None
+
+        bnd = ''
+        if banda_col and banda_col in r.index: bnd = r[banda_col]
+        if not bnd and val is not None and banda_fn: bnd = banda_fn(val)
+        bc = BANDA_COLORS.get(bnd, {})
+
+        traf = r.get(traf_col) if traf_col else None
+        try:
+            traf = int(float(traf)) if traf is not None and not _m.isnan(float(traf)) else None
+        except (TypeError, ValueError): traf = None
+
+        traf_wow = r.get(traf_wow_col) if traf_wow_col else None
+        try:
+            traf_wow = traf_wow_scl(traf_wow) if traf_wow is not None and not _m.isnan(float(traf_wow)) else None
+        except (TypeError, ValueError): traf_wow = None
+
+        wow = r.get(wow_col) if wow_col else None
+        try:
+            wow = round(float(wow), 2) if wow is not None and not _m.isnan(float(wow)) else None
+        except (TypeError, ValueError): wow = None
+
+        hist_w21 = val_scale(val) if val is not None else 0
+        hist_w20 = hist_w21
+        if hist_prev:
+            _prev = r.get(hist_prev)
+            try:
+                _pf = float(_prev)
+                if not _m.isnan(_pf): hist_w20 = val_scale(_pf)
+            except (TypeError, ValueError): pass
+
+        rows.append([
+            lab, sub,
+            bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
+            traf, traf_wow, val_pct, wow,
+            round(hist_w21, 4), round(hist_w20, 4),
+        ])
+    return rows
