@@ -1909,3 +1909,96 @@ _(ver commit en GitHub)_
 `SUPPLY_W21.html` (unificado CR+RND) · 2 Excels (4 hojas c/u) · `Mail_W21.html` · `index.html` · `Price_W21.zip`
 
 **Última actualización:** W21 (pipeline) · May 2026 · 19-25 mayo 2026
+
+---
+
+## Sesión W22-pre · Mayo 2026 · Refactor P10 completo + P11 + Documentación
+
+### Contexto
+Sesión de refactor y fixes sin datasets nuevos. Pipeline W21 re-corrido con todos los cambios aplicados y validado visualmente. Cinco commits en total.
+
+### Refactor P10 — Bloque A (helpers de formato)
+
+Funciones idénticas en `render_cr_p2.py` y `render_rnd_p2.py` movidas a `render_helpers.py`:
+
+| Función | Descripción |
+|---|---|
+| `es_pct`, `es_int`, `es_pct2`, `es_ipm` | Formateo de valores numéricos |
+| `banda_colors` | Lookup `(bg, fg)` desde `BANDA_COLORS` |
+| `wow_arrow`, `wow_arrow_abs` | Pills WoW en pp y absoluto |
+| `sev_badge_html_p2` | Badge `<b>` para tablas AR |
+
+`render_cr_p2.py`: 704 → 678 líneas. `render_rnd_p2.py`: 553 → 538 líneas.
+
+### Refactor P10 — Bloque B (unificaciones JS + p3)
+
+**`_mini_badge`** — ya existía en `render_helpers.py` (línea 42). Eliminada definición local duplicada de `render_cr_p3.py` y `render_rnd_p3.py`.
+
+**`_chanRow` + `chanRowAR` → `_buildChanRow(r, i, opts)`** en `js_override.js`:
+- `opts = {}` para KPI cards · `opts = {cardN:n, w20:true}` para AR cards
+- `js_override.js`: 1789 → 1779 líneas
+
+**`canasta_tab_rows(df, dim_col, cfg)`** en `render_helpers.py`:
+- Reemplaza `tab_rows_canasta()` duplicada en `render_cr_p3.py` y `render_rnd_p3.py`
+- La diferencia CR/RND (columnas, WoW logic, bandas) se expresa como cfg dict
+- `render_cr_p3.py`: 1122 → 1064 líneas. `render_rnd_p3.py`: 984 → 945 líneas
+
+**`build_card_rows(df, t_key, cfg)`** en `render_helpers.py`:
+- Reemplaza `_build_card_rows_ef` + `_build_card_rows_cv` en `render_cr_p1.py`
+- `render_cr_p1.py`: 653 → 607 líneas
+
+### Decisiones de diseño — qué NO se unificó y por qué
+
+| Componente | Razón para no unificar |
+|---|---|
+| `render_canasta_block` (p3 CR vs RND) | Lógica interna divergente: métricas, escalas, columnas, bandas y WoW pills completamente distintos. Unificar agregaría más complejidad que la que elimina |
+| `_build_rnd_card_tabs_json` | Scaffolding similar a CR pero datos completamente distintos (`%NoDispo`, `IPM`, `Trafico`). Mismo razonamiento |
+
+### P11 — Bugs de WoW y "Ver más" cerrados
+
+**`ConvRate_WoW_pp` para todos los hoteles P80:**
+- Root cause: `calc_cr.py` solo mergeaba `Eficacia_W17` y `CR_Unicos_W17` en `p80_hotel`. `ConvRate_W17` no se incluía → solo 100 de 1342 hoteles tenían WoW.
+- Fix: agregar `ConvRate_W17` al merge + calcular `ConvRate_WoW_pp` para todos.
+
+**`BandaConvRate` con Bookings reales:**
+- Root cause: `tab_convrate()` no calculaba `BandaConvRate` en `df_d`/`df_c`/`df_h`. `build_card_rows` usaba `banda_convrate(val, 0)` → todos "Sin Conversión".
+- Fix: agregar `BandaConvRate = banda_convrate(ConvRate, Bookings)` en `tab_convrate()` y `tab_convrate_for()`.
+
+**WoW Corp en cards AR CR:**
+- Root cause: `dim_rows` en `build_canasta_data` tenía `'—'` hardcodeado para WoW ConvRate.
+- Fix: calcular `wow_cv_pp` desde `g_corp_w17['ConvRate_W17']`.
+
+**WoW Dest en cards AR CR:**
+- Root cause: merge duplicado de `g_dest_w17` generaba columnas `_x`/`_y`. El código entraba por el `elif` que recalculaba `g_dest` desde `df_hotel` sin hacer merge completo.
+- Fix: unificar merge en un solo lugar antes del loop, con todas las columnas WoW en una sola operación.
+
+**WoW IPM Corp en cards AR RND:**
+- Root cause: `dim_rows` en `render_rnd_p2.py` tenía `'—'` hardcodeado para `r[9]` (WoW IPM). `g_corp` ya tenía `IPM_WoW_pp` pero no se leía.
+- Fix: calcular `wow_ipm_str` desde `row.get('IPM_WoW_pp')` con escala `(wow_ipm / ipm_base) * 100`.
+
+**"Ver más" no expandía filas:**
+- Root cause 1: `display:''` (string vacío) no es un valor válido para `<tr>` — el browser lo ignora. El valor correcto es `display:'table-row'`.
+- Root cause 2: `addEventListener('click')` en botón JS dinámico era interceptado por el listener global del panel histórico.
+- Fix: `_moreBtn` detecta el botón HTML estático existente (`ar{n}-th-more`) con `querySelector('button[id$="-more"]')` y lo activa con `onclick` inline + `display:'table-row'` para `<tr>`.
+
+### Pipeline W21 validado
+Output visual confirmado: sort RND/CR funcionando · WoW Corp/Dest/IPM correctos · "Ver más" expande filas 6-10 · BandaConvRate correcta en tab Destino.
+
+### Documentación
+- `NOTA_REFACTOR_PENDIENTE.md` reescrita como guía de arquitectura vigente "Dónde tocar qué"
+- `PROMPT_CORE.md` limpiado: 648 → 434 líneas · 50 → 35 reglas NUNCA · sección archivos eliminada (→ `README_QUICK.md`) · triggers de mantenimiento por archivo agregados
+- `PROMPT_CORE.md` sección nueva: checklist de cierre de sesión + tabla de triggers por archivo
+
+### Archivos modificados
+`calc_cr.py` · `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `js_override.js` · `NOTA_REFACTOR_PENDIENTE.md` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+### Commits
+- `8f98d4c` — W22-pre fix P9+sort
+- `61068429` — pipeline W21 + P10 Bloque A+B
+- `57738dcb` — P10 Parte 2 (render_cr_p1, cr_p3, rnd_p3)
+- `7cc8a169` — P10 completo + canasta_tab_rows + build_card_rows
+- `a825ddf8` — P11 cerrado: WoW Corp/Dest/IPM + BandaConvRate + Ver más
+- `76db80f8` — NOTA_REFACTOR_PENDIENTE reescrita
+- `14556b9d` — PROMPT_CORE limpieza
+- `de2f0953` — PROMPT_CORE triggers de mantenimiento
+
