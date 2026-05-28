@@ -402,3 +402,33 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 2. **No duplicar** — si una regla está en el código, puede eliminarse del CORE
 3. **Lecciones aprendidas → HISTORIAL** · El CORE solo tiene "qué hacer"
 4. **Revisión periódica** — cada ~4 commits importantes
+
+---
+
+## 📋 Mantenimiento de documentación — triggers por archivo
+
+Claude valida estos triggers al final de cada sesión **sin que Federico lo pida**.
+
+| Archivo | Actualizar cuando... |
+|---|---|
+| `PROMPT_CORE.md` | Se cierra un bug · cambia arquitectura · nueva regla · limpieza periódica |
+| `HISTORIAL_SESIONES.md` | **Siempre** al final de sesión con cambios de código o bugs cerrados |
+| `NOTA_REFACTOR_PENDIENTE.md` | Cambia la arquitectura · nueva función centralizada · nuevo patrón de cambio |
+| `README_QUICK.md` | Cambia estructura del repo · nuevas URLs · métricas de la semana publicada |
+| `BANDAS.md` | Solo si cambian thresholds o paleta de colores |
+| `COMMIT_GUIDE.md` | Solo si cambia el proceso de commit o estructura del repo |
+
+### Checklist de cierre de sesión
+
+Al terminar cualquier sesión con cambios, Claude debe verificar:
+
+```
+□ HISTORIAL_SESIONES.md — agregar entrada con: contexto, cambios, archivos modificados
+□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿bugs cerrados? ¿arquitectura nueva?
+□ NOTA_REFACTOR_PENDIENTE.md — ¿cambió dónde tocar qué?
+□ README_QUICK.md — ¿hay nueva semana publicada? ¿cambió el repo?
+□ ZIP del proyecto Claude — regenerar con todos los archivos actualizados
+□ Commit GitHub — incluir docs actualizados
+```
+
+**Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
