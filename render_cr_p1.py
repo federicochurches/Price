@@ -504,80 +504,34 @@ import json as _json
 import math as _math_glob
 
 def _build_card_rows_ef(tab_ef, t_key):
-    """Convierte tab de eficacia en array de filas para JS."""
+    """Convierte tab de eficacia en array de filas para JS — via build_card_rows."""
     df = tab_ef.get(t_key, pd.DataFrame())
-    rows = []
-    for _, r in df.iterrows():
-        if t_key == 'hotel':
-            lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
-            sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-        elif t_key == 'corp':
-            lab = truncate(clean_corp_name(str(r.get('CorpName', ''))), 36)
-            sub = ''
-        elif t_key == 'destino':
-            lab = clean_destino_name(str(r.get('Destino', '')), 36)
-            sub = ''
-        else:
-            lab = str(r.get('Destino', r.get('CorpName', r.get('Hotel', '?'))))[:36]
-            sub = ''
-        val = r.get('Eficacia', None)
-        ef_pct = round(float(val) * 100, 2) if val and not _math_glob.isnan(float(val)) else None
-        bnd = r.get('BandaEficacia', banda_eficacia(val) if val is not None else '')
-        bc = BANDA_COLORS.get(bnd, {})
-        cr_u = r.get('CR_Unicos', None)
-        cr_wow = r.get('CR_Unicos_WoW_pp', None)  # delta absoluto * 100
-        ef_wow = r.get('Eficacia_WoW_pp', None)
-        hist_w21 = round(float(val) * 100, 4) if val and not _math_glob.isnan(float(val)) else 0
-        hist_w20_raw = r.get('Eficacia_W17', None)
-        hist_w20 = round(float(hist_w20_raw) * 100, 4) if hist_w20_raw and not _math_glob.isnan(float(hist_w20_raw)) else hist_w21
-        rows.append([
-            lab, sub,
-            bc.get('bg', '#F2EEE6'), bc.get('fg', '#5F5E5A'), bnd,
-            int(cr_u) if cr_u and not _math_glob.isnan(float(cr_u)) else None,
-            round(float(cr_wow) / 100, 0) if cr_wow and not _math_glob.isnan(float(cr_wow)) else None,
-            ef_pct,
-            round(float(ef_wow), 2) if ef_wow and not _math_glob.isnan(float(ef_wow)) else None,
-            hist_w21, hist_w20,
-        ])
-    return rows
+    return build_card_rows(df, t_key, {
+        'val_col':       'Eficacia',
+        'val_scale':     lambda v: round(float(v)*100, 2),
+        'banda_fn':      banda_eficacia,
+        'banda_col':     'BandaEficacia',
+        'traf_col':      'CR_Unicos',
+        'traf_wow_col':  'CR_Unicos_WoW_pp',
+        'traf_wow_scale': lambda v: round(float(v)/100, 0),
+        'wow_col':       'Eficacia_WoW_pp',
+        'hist_prev_col': 'Eficacia_W17',
+    })
 
 def _build_card_rows_cv(tab_cv, t_key):
-    """Convierte tab de convrate en array de filas para JS."""
+    """Convierte tab de convrate en array de filas para JS — via build_card_rows."""
     df = tab_cv.get(t_key, pd.DataFrame())
-    rows = []
-    for _, r in df.iterrows():
-        if t_key == 'hotel':
-            lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
-            sub = truncate(str(r.get('CorpName', '')), 20) if 'CorpName' in r.index else ''
-        elif t_key == 'corp':
-            lab = truncate(clean_corp_name(str(r.get('CorpName', ''))), 36)
-            sub = ''
-        elif t_key == 'destino':
-            lab = clean_destino_name(str(r.get('Destino', '')), 36)
-            sub = ''
-        else:
-            lab = str(r.get('Destino', r.get('CorpName', r.get('Hotel', '?'))))[:36]
-            sub = ''
-        val = r.get('ConvRate', r.get('Eficacia', None))
-        cv_pct = round(float(val) * 100, 2) if val and not _math_glob.isnan(float(val)) else None
-        bnd = r.get('BandaConvRate', banda_convrate(val, int(r.get('Bookings', 0))) if val is not None else '')
-        bc = BANDA_COLORS.get(bnd, {})
-        cr_u = r.get('CR_Unicos', None)
-        cr_wow = r.get('CR_Unicos_WoW_pp', None)
-        cv_wow = r.get('ConvRate_WoW_pp', None)
-        hist_w21 = round(float(val) * 100, 4) if val and not _math_glob.isnan(float(val)) else 0
-        hist_w20_raw = r.get('ConvRate_W17', None)
-        hist_w20 = round(float(hist_w20_raw) * 100, 4) if hist_w20_raw and not _math_glob.isnan(float(hist_w20_raw)) else hist_w21
-        rows.append([
-            lab, sub,
-            bc.get('bg', '#F2EEE6'), bc.get('fg', '#5F5E5A'), bnd,
-            int(cr_u) if cr_u and not _math_glob.isnan(float(cr_u)) else None,
-            round(float(cr_wow) / 100, 0) if cr_wow and not _math_glob.isnan(float(cr_wow)) else None,
-            cv_pct,
-            round(float(cv_wow), 2) if cv_wow and not _math_glob.isnan(float(cv_wow)) else None,
-            hist_w21, hist_w20,
-        ])
-    return rows
+    return build_card_rows(df, t_key, {
+        'val_col':       'ConvRate',
+        'val_scale':     lambda v: round(float(v)*100, 2),
+        'banda_fn':      lambda v: banda_convrate(v, 0),
+        'banda_col':     'BandaConvRate',
+        'traf_col':      'CR_Unicos',
+        'traf_wow_col':  'CR_Unicos_WoW_pp',
+        'traf_wow_scale': lambda v: round(float(v)/100, 0),
+        'wow_col':       'ConvRate_WoW_pp',
+        'hist_prev_col': 'ConvRate_W17',
+    })
 
 def _build_card_rows_chan(tab, metric_col, wow_col):
     """Convierte tab channel en array de filas para JS."""
