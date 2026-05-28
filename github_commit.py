@@ -180,19 +180,16 @@ def build_blobs_map(week_num, outputs_dir, scripts_dir):
                     blobs[name] = zf.read(name)
         print(f"  📦 ZIP del repo: {len(blobs)} archivos de {zip_path.name}")
     else:
-        print(f"  ⚠️  No se encontró {zip_path.name} — commitando solo scripts y docs")
-
-    # 2. Scripts actualizados en _scripts/
-    for fname in SCRIPT_FILES:
-        local = scripts / fname
-        if local.exists():
-            blobs[f'_scripts/{fname}'] = local.read_bytes()
-
-    # 3. Documentación en _docs/
-    for fname in DOC_FILES:
-        local = scripts / fname
-        if local.exists():
-            blobs[f'_docs/{fname}'] = local.read_bytes()
+        print(f"  ⚠️  No se encontró {zip_path.name} — commitando solo scripts desde raíz")
+        # Fallback: subir scripts individuales a la raíz
+        for fname in SCRIPT_FILES:
+            local = scripts / fname
+            if local.exists():
+                blobs[fname] = local.read_bytes()
+        for fname in DOC_FILES:
+            local = scripts / fname
+            if local.exists():
+                blobs[fname] = local.read_bytes()
 
     return blobs
 
