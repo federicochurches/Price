@@ -1223,9 +1223,13 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
     }
     return html;
   }).join('');
- /* Botón Ver más — insertar después de la tabla */
+ /* Botón Ver más — insertar después de la tabla, eliminar el anterior */
  var table = tbody.closest('table');
- if (table && table.parentNode) _moreBtn(table.parentNode);
+ if (table && table.parentNode) {
+   var existing = table.parentNode.querySelector('.kpi-more-btn');
+   if (existing) existing.remove();
+   _moreBtn(table.parentNode, tbodyId);
+ }
 }
 
 /* KPI headers completos de las cards AR */
@@ -1461,12 +1465,13 @@ function _moreBtnAll() {
   /* También para las tablas AR */
   [1,2].forEach(function(n) {
     ['th','td'].forEach(function(t) {
-      var tbody = document.getElementById('ar'+n+'-'+t);
+      var tbodyId = 'ar'+n+'-'+t;
+      var tbody = document.getElementById(tbodyId);
       if (!tbody) return;
       var wrap = tbody.closest('table');
       if (wrap && wrap.parentNode) {
         if (wrap.querySelector('.rows-more') && !wrap.parentNode.querySelector('.kpi-more-btn')) {
-          _moreBtn(wrap.parentNode);
+          _moreBtn(wrap.parentNode, tbodyId);
         }
       }
     });
@@ -1475,32 +1480,55 @@ function _moreBtnAll() {
 var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
 /* ── Ver más / menos botón para cards KPI ── */
-function _moreBtn(containerEl) {
-  /* Si ya tiene botón estático (cards KPI desde Python), no duplicar */
+function _moreBtn(containerEl, tbodyId) {
+  /* Preferir el botón HTML estático si existe (más confiable que createElement) */
+  var staticBtn = containerEl.querySelector('button[id$="-more"]');
+  if (staticBtn) {
+    /* Activar el botón estático si hay rows-more */
+    var moreRows = tbodyId
+      ? (document.getElementById(tbodyId) || containerEl).querySelectorAll('.rows-more')
+      : containerEl.querySelectorAll('.rows-more');
+    if (!moreRows.length) { staticBtn.style.display = 'none'; return; }
+    staticBtn.style.display = '';
+    staticBtn.textContent = 'Ver más ▾';
+    staticBtn.setAttribute('data-exp', '0');
+    /* onclick inline robusto — usa el tbodyId para localizar las filas */
+    var sid = tbodyId || staticBtn.id.replace('-more','');
+    staticBtn.setAttribute('onclick', [
+      '(function(btn){',
+      '  var exp=btn.getAttribute("data-exp")!=="1";',
+      '  btn.setAttribute("data-exp",exp?"1":"0");',
+      '  var tb=document.getElementById("' + sid + '");',
+      '  var rows=tb?tb.querySelectorAll(".rows-more"):[];',
+      '  Array.prototype.forEach.call(rows,function(r){',
+      '    var show=exp?(r.tagName==="TR"?"table-row":"grid"):"none";',
+      '    r.style.setProperty("display",show,"important");',
+      '  });',
+      '  btn.textContent=exp?"Ver menos ▴":"Ver más ▾";',
+      '})(this)'
+    ].join(''));
+    return;
+  }
+  /* Fallback: crear botón dinámico si no hay estático */
   if (containerEl.querySelector('.kpi-more-btn')) return;
-  var moreRows = containerEl.querySelectorAll('.rows-more');
-  if (!moreRows.length) return;
-
+  var moreRows2 = containerEl.querySelectorAll('.rows-more');
+  if (!moreRows2.length) return;
   var btn = document.createElement('div');
   btn.className = 'kpi-more-btn';
   btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;user-select:none;';
   btn.textContent = 'Ver más ▾';
-  /* onclick inline — busca rows-more en el parentNode del botón */
+  var sid2 = tbodyId || '';
   btn.setAttribute('onclick', [
-    '(function(el){',
-    '  var exp = el.getAttribute("data-exp") !== "1";',
-    '  el.setAttribute("data-exp", exp ? "1" : "0");',
-    '  var p = el.parentNode;',
-    '  console.log("CLICK parentNode:", p ? p.className || p.tagName : "NULL");',
-    '  if(!p) return;',
-    '  var found = p.querySelectorAll(".rows-more");',
-    '  console.log("rows-more en parentNode:", found.length);',
-    '  found.forEach(function(r){',
-    '    var d = exp ? (r.tagName==="TR" ? "" : "grid") : "none";',
-    '    console.log("row", r.getAttribute("data-row-idx"), "display->", d);',
-    '    r.style.setProperty("display", d, "important");',
+    '(function(btn){',
+    '  var exp=btn.getAttribute("data-exp")!=="1";',
+    '  btn.setAttribute("data-exp",exp?"1":"0");',
+    '  var p=btn.parentNode;',
+    '  var rows=p?p.querySelectorAll(".rows-more"):[];',
+    '  Array.prototype.forEach.call(rows,function(r){',
+    '    var d=exp?(r.tagName==="TR"?"table-row":"grid"):"none";',
+    '    r.style.setProperty("display",d,"important");',
     '  });',
-    '  el.textContent = exp ? "Ver menos ▴" : "Ver más ▾";',
+    '  btn.textContent=exp?"Ver menos ▴":"Ver más ▾";',
     '})(this)'
   ].join(''));
   containerEl.appendChild(btn);
@@ -1732,7 +1760,7 @@ function _arSortAttach(n, tbodyId, btnId) {
       if (tbl && tbl.parentNode) {
         var existing = tbl.parentNode.querySelector('.kpi-more-btn');
         if (existing) existing.remove();
-        _moreBtn(tbl.parentNode);
+        _moreBtn(tbl.parentNode, tbodyId);
       }
     }
     _markSortable(Array.from(thead.querySelectorAll('th')), colIdx, dir);

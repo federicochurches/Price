@@ -564,9 +564,8 @@ Sin `margin-left` — elimina el "guion fantasma".
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P11 | WoW ConvRate vacío en cards AR — `ConvRate_WoW_pp` solo existe en `TAB_CV` (100 hoteles con Bookings > 0), no en `p80_hotel` (1342 hoteles) | `calc_cr.py` |
 
-> Bugs P1–P4, P6–P10 cerrados. P11 (WoW ConvRate en cards AR — ConvRate_WoW_pp solo existe para hoteles con Bookings > 0, resto queda —) pendiente.
+> Bugs P1–P4, P6–P11 cerrados. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80 (no solo los con Bookings > 0). `BandaConvRate` calculada en `tab_convrate()` con Bookings reales. WoW Corp/Dest completo en `render_cr_p2.py`. WoW IPM Corp en `render_rnd_p2.py`. `_moreBtn` usa botón HTML estático con `display:table-row`.
 
 ---
 
@@ -621,7 +620,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ---
 
-**Última actualización:** W21-post6 + W22-pre (Refactor P9+P10 completo: centralización CR/RND, canasta_tab_rows, build_card_rows, _buildChanRow) · Mayo 2026
+**Última actualización:** W21-post6 + W22-pre (P9+P10 refactor completo · P11 cerrado: WoW Corp/Dest/IPM · Ver más · BandaConvRate) · Mayo 2026
 
 ---
 

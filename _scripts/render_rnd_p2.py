@@ -229,7 +229,19 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
         else:
             sign = '▲' if wow_traf >= 0 else '▼'
             wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
-        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', wow_traf_str])
+        # WoW IPM
+        wow_ipm = row.get('IPM_WoW_pp')
+        if wow_ipm is None or (isinstance(wow_ipm, float) and np.isnan(wow_ipm)) or ipm_r <= 0:
+            wow_ipm_str = '—'
+        else:
+            ipm_base = row.get('IPM_W18', 0)
+            if ipm_base > 0:
+                wow_ipm_pct = (wow_ipm / ipm_base) * 100
+                cls = '▲' if wow_ipm_pct >= 0 else '▼'
+                wow_ipm_str = f'{cls}{abs(round(wow_ipm_pct,1))}'.replace('.',',') + '%'
+            else:
+                wow_ipm_str = '—'
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, wow_ipm_str, wow_traf_str])
 
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows

@@ -43,19 +43,15 @@ p80['Hotel'] = p80['Hotel'].apply(clean_hotel_name)
 if _hcm_clean and 'Channel' not in p80.columns:
     p80['Channel'] = p80['Hotel'].map(_hcm_clean).fillna('—')
 
-# Enriquecer p80 con WoW de Eficacia y ConvRate desde TAB_EF/TAB_CV
+# Enriquecer p80 con WoW de Eficacia desde TAB_EF (si no viene en el pickle)
 _tab_ef_h = D.get('TAB_EF', {}).get('hotel')
-_tab_cv_h = D.get('TAB_CV', {}).get('hotel')
-if _tab_ef_h is not None and 'Eficacia_WoW_pp' in _tab_ef_h.columns:
+if _tab_ef_h is not None and 'Eficacia_WoW_pp' in _tab_ef_h.columns and 'Eficacia_WoW_pp' not in p80.columns:
     _ef_wow = _tab_ef_h[['Hotel','Eficacia_WoW_pp']].copy()
     _ef_wow['Hotel'] = _ef_wow['Hotel'].apply(clean_hotel_name)
     _ef_wow = _ef_wow.drop_duplicates('Hotel')
     p80 = p80.merge(_ef_wow, on='Hotel', how='left')
-if _tab_cv_h is not None and 'ConvRate_WoW_pp' in _tab_cv_h.columns:
-    _cv_wow = _tab_cv_h[['Hotel','ConvRate_WoW_pp']].copy()
-    _cv_wow['Hotel'] = _cv_wow['Hotel'].apply(clean_hotel_name)
-    _cv_wow = _cv_wow.drop_duplicates('Hotel')
-    p80 = p80.merge(_cv_wow, on='Hotel', how='left')
+# ConvRate_WoW_pp ya viene en p80_hotel desde calc_cr.py — no mergear nuevamente
+_tab_cv_h = D.get('TAB_CV', {}).get('hotel')
 
 # Agregar CR_Unicos_WoW_pp si no existe (desde p80_hotel enriquecido)
 if 'CR_Unicos_WoW_pp' not in p80.columns and 'CR_Unicos_WoW_pp' in D['p80_hotel'].columns:
@@ -265,14 +261,19 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         cr    = fmt_big(float(cr_v)) if cr_v and not (isinstance(cr_v,float) and np.isnan(cr_v)) else '0'
         ef    = es_pct(row['Eficacia'])
         cv    = es_pct(row['ConvRate'])
-        wow_pp = None
+        wow_pp = None; cr_wow_str = '—'; wow_cv_pp = None
         if g_corp_w17 is not None and 'CorpName' in g_corp_w17.columns:
             match = g_corp_w17[g_corp_w17['CorpName'] == row['CorpName']]
             if len(match):
-                wow_pp = (row['Eficacia'] - match.iloc[0]['Eficacia_W17']) * 100
-        wow_up  = None if wow_pp is None else bool(wow_pp >= 0)
-        wow_str = wow_arrow(wow_pp)
-        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, '—', '—'])
+                m0 = match.iloc[0]
+                wow_pp    = (row['Eficacia'] - m0['Eficacia_W17']) * 100
+                wow_cv_pp = (row['ConvRate'] - m0['ConvRate_W17']) * 100 if 'ConvRate_W17' in m0.index else None
+                cr_delta  = row.get('CR_Unicos', 0) - m0.get('CR_Unicos_W17', row.get('CR_Unicos', 0))
+                cr_wow_str = wow_arrow_abs(cr_delta)
+        wow_up     = None if wow_pp is None else bool(wow_pp >= 0)
+        wow_str    = wow_arrow(wow_pp)
+        wow_cv_str = wow_arrow(wow_cv_pp)
+        dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, wow_cv_str, cr_wow_str])
 
     # Dims rows por Destino (top 10 Eficacia ASC) — con WoW de tráfico
     dest_rows = []
@@ -290,18 +291,31 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             Bookings=('Bookings','sum')).reset_index()
         g_dest['Eficacia'] = g_dest['Successful'] / g_dest['CR_Unicos'].replace(0,1)
         g_dest['ConvRate'] = g_dest['Bookings'] / g_dest['CR_Unicos'].replace(0,1)
-        if g_dest_w17 is not None:
-            g_dest = g_dest.merge(g_dest_w17[['Destino','CR_Unicos_W17']], on='Destino', how='left')
-            g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17']) * 100
+    # Merge WoW de Eficacia, ConvRate y Tráfico desde g_dest_w17 (una sola vez)
+    if g_dest is not None and g_dest_w17 is not None and 'Eficacia_W17' in g_dest_w17.columns:
+        _w17_cols = [c for c in ['Destino','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']
+                     if c in g_dest_w17.columns]
+        g_dest = g_dest.merge(g_dest_w17[_w17_cols], on='Destino', how='left')
+        g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17'].fillna(g_dest['CR_Unicos'])) * 100
     if g_dest is not None and len(g_dest) > 0:
         for _, row in g_dest.sort_values('Eficacia', ascending=True).head(100).iterrows():
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
+            # WoW Eficacia
+            ef_w17 = row.get('Eficacia_W17')
+            wow_ef_pp = (row['Eficacia'] - ef_w17) * 100 if ef_w17 is not None and not (isinstance(ef_w17, float) and np.isnan(ef_w17)) else None
+            wow_ef_str = wow_arrow(wow_ef_pp)
+            # WoW ConvRate
+            cv_w17 = row.get('ConvRate_W17')
+            wow_cv_pp = (row['ConvRate'] - cv_w17) * 100 if cv_w17 is not None and not (isinstance(cv_w17, float) and np.isnan(cv_w17)) else None
+            wow_cv_str = wow_arrow(wow_cv_pp)
+            # WoW Tráfico
             wow_cr = row.get('CR_Unicos_WoW_pp')
             wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
                               fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
-                              es_pct(row['ConvRate']), None, '—', '—', wow_cr_str])
+                              es_pct(row['ConvRate']), None if wow_ef_pp is None else bool(wow_ef_pp >= 0),
+                              wow_ef_str, wow_cv_str, wow_cr_str])
 
     # Dims rows por Canal — split Producto Propio / Third Party — con WoW de tráfico
     PROPIO_SET = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
