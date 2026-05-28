@@ -847,7 +847,7 @@ if (typeof HIST_DATA !== 'undefined') {
         window.HIST_RND['hrnd-b2c-ipm'] = { vals: HIST_DATA.rnd.ipm.b2c, metric: 'ipm' };
     }
     
-    console.log('✓ HIST_CR y HIST_RND configurados para tooltip');
+    /* HIST_CR y HIST_RND configurados para tooltip */
 }
 </script>
 '''
