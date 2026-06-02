@@ -39,6 +39,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 .hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px;margin-bottom:10px;}
 .rpt-card{background:var(--paper);border:1px solid var(--rule);border-radius:4px;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;position:relative;}
 .rpt-card.card-active:hover{border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.rpt-card.card-active[data-no-link="1"]:hover{border-color:var(--rule);box-shadow:none;}
 .rpt-card.card-inactive{background:#F0EBE2;cursor:default;}
 .rpt-card.card-inactive .rpt-card-top,.rpt-card.card-inactive .rpt-pills{position:relative;z-index:0;}
 .dim-overlay{position:absolute;inset:0;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);background:rgba(240,235,226,0.35);z-index:1;pointer-events:none;}
@@ -132,7 +133,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
       </div>
     </div>
 
-    <div class="rpt-card card-active" onclick="location.href='inventory/week-21/INVENTORY_W21.html'">
+    <div class="rpt-card card-active" style="cursor:default;" data-no-link="1">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">&#9679; Beta &nbsp;·&nbsp; Hotel Inventory</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory</div>
