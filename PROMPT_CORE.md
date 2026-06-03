@@ -63,6 +63,60 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 
 ---
 
+
+---
+
+## 💻 Ejecución standalone desde PowerShell (sin Claude)
+
+Para correr el pipeline localmente antes de una sesión Claude, o para validar datos rápidamente.
+
+### Requisitos
+```powershell
+pip install pandas openpyxl xlsxwriter
+```
+
+### Setup
+1. Clonar el repo o descargar los scripts
+2. Colocar los 4 datasets en la misma carpeta que `calc_supply.py`:
+```
+calc_supply.py
+Dataset_CheckRates_WNN.xlsx
+Dataset_CheckRates_W(N-1).xlsx
+Dataset_RatesNoDispo_WNN.xlsx
+Dataset_RatesNoDispo_W(N-1).xlsx
+```
+
+3. Editar el bloque CONFIG en `calc_supply.py`:
+```python
+WEEK        = 'W23'
+VOL_NUM     = '23'
+PERIODO     = '2–8 jun 2026'
+MES_ANO     = 'Junio 2026'
+FECHA_PUB   = 'LUNES 09 de Junio de 2026'
+```
+
+### Ejecución
+```powershell
+cd C:\ruta\a\tus\scripts
+python calc_supply.py
+```
+
+### Outputs generados
+- `SUPPLY_W23.html` — reporte unificado CR + RND
+- `cr_w23_data.pkl` + `rnd_w23_data.pkl` — pickles para pasos siguientes
+- `part1_cr.html` … `part3_rnd.html` — parciales HTML
+
+### Workflow recomendado
+```
+1. Correr calc_supply.py en PowerShell → SUPPLY_WNN.html
+2. Abrir el HTML en el browser → validación visual
+3. Si OK → iniciar sesión Claude con los datasets
+4. Claude retoma desde los pickles (pasos Excels + Mail + commit)
+```
+
+> **Nota:** `calc_supply.py` ejecuta pasos 1–3 del pipeline (pickles + render + assemble).
+> Los pasos 4–7 (Excels, Mail, build_package, commit) requieren sesión Claude.
+
 ## 📅 Workflow Semanal
 
 ### Validación pre-pipeline
