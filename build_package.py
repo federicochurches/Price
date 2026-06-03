@@ -461,7 +461,9 @@ files = {
     # ── rates-nodispo/week-NN · Excel consolidado + Dataset ───────────────
     OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx':
         ZIP_ROOT / 'rates-nodispo' / WEEK_STR / f'Analisis_RatesNoDispo_W{WEEK}.xlsx',
-    # ── inventory/week-NN · HTML + Excel ────────────────────────────────────
+    # ── inventory/week-NN · script + HTML + Excel ──────────────────────────
+    Path('inventory/calc_inv.py'):
+        ZIP_ROOT / 'inventory' / 'calc_inv.py',
     OUTPUTS / f'INVENTORY_W{WEEK}.html':
         ZIP_ROOT / 'inventory' / WEEK_STR / f'INVENTORY_W{WEEK}.html',
     OUTPUTS / f'Analisis_Inventory_W{WEEK}.xlsx':
