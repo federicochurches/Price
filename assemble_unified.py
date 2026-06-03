@@ -213,8 +213,8 @@ FOOTER_JS = (
     + _cr_data_js + '\n'
     + _rnd_data_js + '\n'
     + _HIST_INIT_JS + '\n'      # ← HIST_CR y HIST_RND definidos ANTES de demo_js_main.js
-    + open('/mnt/project/demo_js_main.js', encoding='utf-8').read() + '\n'
-    + open('/mnt/project/js_override.js', encoding='utf-8').read()
+    + open('demo_js_main.js', encoding='utf-8').read() + '\n'
+    + open('js_override.js', encoding='utf-8').read()
     + '\n</script>'
 )
 
