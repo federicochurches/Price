@@ -76,7 +76,7 @@ pip install pandas openpyxl xlsxwriter
 ```
 
 ### Setup
-1. Clonar el repo o descargar los scripts
+1. Clonar el repo o descargar los scripts desde GitHub
 2. Colocar los 4 datasets en la misma carpeta que `calc_supply.py`:
 ```
 calc_supply.py
@@ -85,7 +85,6 @@ Dataset_CheckRates_W(N-1).xlsx
 Dataset_RatesNoDispo_WNN.xlsx
 Dataset_RatesNoDispo_W(N-1).xlsx
 ```
-
 3. Editar el bloque CONFIG en `calc_supply.py`:
 ```python
 WEEK        = 'W23'
@@ -102,19 +101,19 @@ python calc_supply.py
 ```
 
 ### Outputs generados
-- `SUPPLY_W23.html` — reporte unificado CR + RND
-- `cr_w23_data.pkl` + `rnd_w23_data.pkl` — pickles para pasos siguientes
-- `part1_cr.html` … `part3_rnd.html` — parciales HTML
+- `SUPPLY_W23.html` — reporte unificado CR + RND listo para validación visual
+- `cr_w23_data.pkl` + `rnd_w23_data.pkl` — pickles para pasos siguientes en Claude
+- `part1_cr.html` … `part3_rnd.html` — parciales HTML intermedios
 
 ### Workflow recomendado
 ```
 1. Correr calc_supply.py en PowerShell → SUPPLY_WNN.html
 2. Abrir el HTML en el browser → validación visual
-3. Si OK → iniciar sesión Claude con los datasets
-4. Claude retoma desde los pickles (pasos Excels + Mail + commit)
+3. Si OK → iniciar sesión Claude con los datasets + token
+4. Claude retoma desde los pickles (Excels + Mail + commit)
 ```
 
-> **Nota:** `calc_supply.py` ejecuta pasos 1–3 del pipeline (pickles + render + assemble).
+> `calc_supply.py` ejecuta pasos 1–3 del pipeline (pickles + render + assemble).
 > Los pasos 4–7 (Excels, Mail, build_package, commit) requieren sesión Claude.
 
 ## 📅 Workflow Semanal
