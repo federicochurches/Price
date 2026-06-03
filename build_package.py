@@ -101,9 +101,9 @@ def build_index():
     cr_ef_wow_str = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
 
     # Inventory KPIs (static fallback — update when pickle available)
-    inv_n      = '309.509'
-    inv_pp_pct = '17.0%'
-    inv_gap    = '17.509'
+    inv_n      = '309.591'
+    inv_pp_n   = '53.097'
+    inv_gap    = '16.903'
 
 
     html = f"""<!DOCTYPE html>
@@ -247,9 +247,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Universo</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_pct}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#C0392B;">{inv_gap}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Total Hotel Inventory</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Producto Propio</div><div class="rpt-kpi-val">{inv_pp_n} htls</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#C0392B;">{inv_gap} htls</div></div>
         </div>
       </div>
       <div class="rpt-pills">
