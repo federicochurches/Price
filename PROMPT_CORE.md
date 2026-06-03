@@ -431,10 +431,42 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ## 🗂️ Gestión del Proyecto Claude
 
-### ZIP del proyecto
-`ProyectoClaude_PRICE_WNN.zip` — 39 archivos planos. Se entrega junto con el commit de GitHub en cada pipeline.
+### Archivos del proyecto Claude (W23+)
+El proyecto Claude solo necesita **3 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
 
-**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html`, `global_panel_fns.js`, `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
+| Archivo | Por qué está en el proyecto |
+|---|---|
+| `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
+| `PROMPT_INV.md` | Instrucciones pipeline Inventory |
+| `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
+
+**Docs** (`HISTORIAL_SESIONES.md`, `NOTA_REFACTOR_PENDIENTE.md`, `BANDAS.md`, `README_QUICK.md`, `COMMIT_GUIDE.md`) — están en el repo, se clonan solos. No subirlos al proyecto.
+
+### Estructura del repo GitHub (W22+)
+```
+Price/
+  ├── 📄 Scripts pipeline PRICE (raíz) — calc_*.py, render_*.py, assemble_unified.py, etc.
+  ├── 📁 inventory/
+  │     ├── calc_inv.py              ← pipeline Inventory
+  │     └── week-NN/INVENTORY_WNN.html + Analisis_Inventory_WNN.xlsx
+  ├── 📁 reports/week-NN/SUPPLY_WNN.html
+  ├── 📁 checkrates/week-NN/Excels + Dataset
+  └── 📁 rates-nodispo/week-NN/Excels + Dataset
+```
+
+### Ejecución local desde PowerShell
+Tanto el pipeline PRICE como el de Inventory se pueden correr localmente:
+```powershell
+# PRICE — desde la raíz del repo
+python calc_supply.py
+
+# Inventory — desde la carpeta inventory/
+cd inventory
+python calc_inv.py
+```
+
+### ZIP del proyecto (pre-W23, deprecado)
+~~`ProyectoClaude_PRICE_WNN.zip`~~ — ya no se genera. Los scripts viven en el repo.
 
 ### Canal · Catálogo canónico
 ```
