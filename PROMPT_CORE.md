@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W21-post3 · Mayo 2026 · HTML unificado + Módulo histórico v5 + Análisis dinámico + Sort + Top 10 fijo**
+**Versión W22 · Junio 2026 · HTML unificado + Hub v2 visual**
 
 ---
 
@@ -23,18 +23,30 @@ Recibí los datasets Week NN
 ```
 Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo en orden.
 
+**Paso 0 — Inicialización de sesión (SIEMPRE primero)**
+```python
+python3 session_init.py --token-file /mnt/user-data/uploads/text2.txt
+```
+Clona `federicochurches/Price` → `/home/claude/` y verifica que todos los scripts estén presentes.
+El token se pasa en `text2.txt` (mismo archivo del commit). El repo ES la fuente canónica de scripts —
+no es necesario subir archivos al proyecto Claude, solo `PROMPT_CORE.md` y `PROMPT_INV.md`.
+
 **Pasos internos:**
 ```
 1. calc_rnd.py + calc_cr.py          → pickles
-2. render_*_p1/p2/p3.py              → 6 parciales HTML (sin <body>, solo secciones)
-3. assemble_unified.py               → SUPPLY_WNN.html (reemplaza assemble_cr + assemble_rnd)
-4. excel_cr.py + excel_rnd.py        → 2 Excels (1 por reporte, 4 hojas cada uno)
+2. render_*_p1/p2/p3.py              → 6 parciales HTML
+3. assemble_unified.py               → SUPPLY_WNN.html
+4. excel_cr.py + excel_rnd.py        → 2 Excels (4 hojas cada uno)
 5. render_mail_v3.py                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
-7. commit GitHub + ZIP proyecto Claude (todos los archivos, plano sin carpetas)
+7. commit GitHub
 ```
 
-**Variables de entorno del pipeline:**
+**Script standalone (alternativa rápida):**
+`calc_supply.py` — ejecuta pasos 1–4 en una sola corrida sin run_pipeline.py.
+Editar bloque CONFIG, colocar 4 datasets en la misma carpeta, correr `python calc_supply.py`.
+
+**Variables de entorno:**
 ```bash
 WEEK=W{NN} VOL_NUM={NN} PERIODO="DD–DD mes YYYY" MES_ANO="Mes YYYY"
 FECHA_PUB="LUNES DD de Mes de YYYY"
@@ -46,62 +58,8 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 - `Price_W{NN}.zip` — repo completo para commit
 - `ProyectoClaude_PRICE_W{NN}.zip` — todos los scripts planos para subir al proyecto Claude
 
----
-
-## 📁 Sistema de Archivos del Proyecto Claude
-
-### Scripts del pipeline
-| Archivo | Descripción |
-|---|---|
-| `calc_cr.py` | Cálculos CR → `cr_wNN_data.pkl` · enriquece TOP[] y CANASTA[] con WoW post-construcción |
-| `calc_rnd.py` | Cálculos RND → `rnd_wNN_data.pkl` · auto-transforma formato pivotado · enriquece TOP[] y CANASTA[] con WoW post-construcción |
-| `render_cr_p1.py` | KPIs hero CR · genera `<section id="section-cr">` (sin `<body>`) |
-| `render_cr_p2.py` | Severity + Tablas hotel/dim CR · colwidths calibrados · `_fmt_wow_cv` inline |
-| `render_cr_p3.py` | Canastas CR · cierra `</section>` (sin footer ni `</body>`) |
-| `render_rnd_p1.py` | KPIs hero RND · genera `<section id="section-rnd">` (sin `<body>`) |
-| `render_rnd_p2.py` | Severity + Tablas hotel/dim RND · aligns center Severity |
-| `render_rnd_p3.py` | Canastas RND · cierra `</section>` (sin footer ni `</body>`) |
-| `assemble_unified.py` | **W21+** · Ensambla 6 parciales → `SUPPLY_WNN.html` · switcher CR↔RND · back-hub · scoping CSS |
-| `excel_cr.py` | **W21+** · 1 Excel, 4 hojas (Global · B2C · B2B-OP · CUG) · reemplaza excel_cr + excel_cr_canastas |
-| `excel_rnd.py` | **W21+** · 1 Excel, 4 hojas (Global · B2C · B2B-OP · CUG) · reemplaza excel_rnd + excel_rnd_canastas |
-| `render_mail_v3.py` | Mail · week labels dinámicos · URL unificada `SUPPLY_WNN.html` con anchors |
-| `build_package.py` | Hub index.html + Price_WNN.zip · carpeta `reports/week-NN/` para el HTML unificado |
-| `run_pipeline.py` | Orquestador YAML |
-| `github_commit.py` | Commit vía API GitHub |
-
-### Archivos deprecados desde W21 (NO usar)
-| Archivo | Reemplazado por |
-|---|---|
-| `assemble_cr.py` | `assemble_unified.py` |
-| `assemble_rnd.py` | `assemble_unified.py` |
-| `excel_cr_canastas.py` | absorbido en `excel_cr.py` |
-| `excel_rnd_canastas.py` | absorbido en `excel_rnd.py` |
-
-### Helpers compartidos
-| Archivo | Descripción |
-|---|---|
-| `engine.py` | Bandas + thresholds |
-| `render_helpers.py` | `wow_box()` siempre `paper-soft`, `BANDA_COLORS`, `sev-badge`, `clean_hotel_name()` |
-| `asset_shared_head.html` | CSS compartido · `.sev-badge` unificado · `.wow-pill` sin margin-left · toggle fix |
-| `template_resumen.py` | Render Resumen Ejecutivo |
-| `template_alertas.py` | Render alertas críticas |
-| `template_severity.py` | Render bloques severity |
-| `template_seguimiento.py` | Render Plan de Acción + Carryover |
-| `areas_catalogo.py` | Catálogo v2 áreas accountable |
-| `historico_data.py` | Datos reales W16-W21 + `get_serie()` |
-| `historico_module.py` | Módulo histórico unificado CR+RND |
-
-### Assets HTML
-| Archivo | Descripción |
-|---|---|
-| `asset_supply_head.html` | **W21+** · Head unificado · scoping `.section-cr` / `.section-rnd` · switcher CSS · back-hub |
-| `asset_cr_head.html` | Head CR standalone (legacy, para compatibilidad W16-W20) |
-| `asset_cr_masthead.html` | Header CR con logo |
-| `asset_cr_footer.html` | Footer CR (legacy) |
-| `asset_rnd_head.html` | Head RND standalone (legacy) |
-| `asset_rnd_masthead.html` | Header RND con logo |
-| `asset_rnd_footer.html` | Footer RND (legacy) |
-| `asset_shared_head.html` | CSS compartido CR+RND · resuelto por `assemble_unified.py` |
+> **Inventario completo de archivos → `README_QUICK.md`**
+> **Dónde tocar qué → `NOTA_REFACTOR_PENDIENTE.md`**
 
 ---
 
@@ -128,6 +86,19 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 ```
 **Nunca correr pipeline completo en cada iteración de fix visual.**
 
+### Hub · 6 módulos
+`build_package.py` genera `index.html` con Hub v2:
+- **Activos:** Weekly KPIs (CR+RND) · Hotel Inventory (Beta)
+- **En construcción:** RateCode Inventory · Supply Troubleshooting
+- **Backlog:** Optimization Strategy Layer · Alertas
+
+**Visual Hub v2 — decisiones canónicas:**
+- Logo: PNG real (`_LOGO_B64` en `build_package.py`), `40px`, negro (`filter:saturate(0) brightness(0)`) — mismo tratamiento que login. No depende de `logo_b64.txt` externo.
+- Header: `border-top:3px solid var(--ink)` + `border-bottom:1px solid var(--rule)` — ancla el bloque
+- Cards activas: fondo `var(--paper)` — se funden con el Hub
+- Cards inactivas: fondo `#F0EBE2` + `backdrop-filter:blur(1.5px)` + velo `rgba(240,235,226,0.35)` — chip z-index:3 nítido encima
+- Sección "Últimas semanas" eliminada — historial solo en pills de cada card activa
+
 ### Commit semanal
 ```
 feat: Week NN · Supply unificado + Excels consolidados · DD-MM-YYYY
@@ -135,9 +106,10 @@ feat: Week NN · Supply unificado + Excels consolidados · DD-MM-YYYY
 Siempre commitear **Y** generar `ProyectoClaude_PRICE_WNN.zip` con todos los archivos planos.
 
 ### Actualización histórico semanal (`historico_data.py`)
-- Ventana móvil de **5 semanas** — agregar la semana nueva y descartar la más antigua
-- W22: agregar W21 (global+canastas) → descartar W17 → SEMANAS = [W18,W19,W20,W21,W22]
-- Los arrays en `HIST_DATA` siempre tienen 4 valores (W22+ los render agrega el 5° dinámicamente)
+- Ventana creciente hasta **8 semanas** (W16–W22 = 7 · W23 = 8 · luego móvil)
+- Los arrays en `HIST_DATA` tienen N-1 valores; el último lo agrega el render dinámicamente desde el pickle
+- `_hist_vals()` en `assemble_unified.py` usa condición `len(base) >= 1` — soporta cualquier longitud
+- Para W23+: agregar el valor W22 a cada array en `HIST_DATA` y actualizar `SEMANAS`
 
 ---
 
@@ -159,7 +131,6 @@ Excel · una fila por Hotel × Canasta. Acepta formato largo (9 col) o pivotado 
 - `IPM = gb_usd / Trafico * 1M` (Income Per Million USD)
 - `%NoDispo` = proporción de búsquedas sin disponibilidad
 - `Conversión = Bookings / Trafico`
-- `Demanda NC = Trafico × %NoDispo`
 - Filtro operacional: `MIN_TRAFICO = 50.000` por hotel × canasta
 
 **Muestra:** P90 del tráfico global
@@ -188,24 +159,16 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 
 ### Estructura del SUPPLY_WNN.html
 ```
-<!DOCTYPE html>
-<html>
-[asset_supply_head.html → resuelve {{SHARED_HEAD}} con asset_shared_head.html]
 <body>
 <div class="shell">
-  <nav class="report-switcher">         ← switcher sticky + back-hub
-    [CHECKRATES] [RATES NO DISPO] [← Hub]
-  </nav>
+  <nav class="report-switcher">  ← switcher sticky CR↔RND + back-hub
   <section id="section-cr" class="report-section section-cr">
-    [part1_cr + part2_cr + part3_cr]    ← visible por defecto
+    [part1_cr + part2_cr + part3_cr]  ← visible por defecto
   </section>
   <section id="section-rnd" class="report-section section-rnd">
-    [part1_rnd + part2_rnd + part3_rnd] ← oculto hasta click
+    [part1_rnd + part2_rnd + part3_rnd]  ← oculto hasta click
   </section>
 </div>
-[FOOTER_JS: TOC observer + switcher JS + cr_setTab]
-</body>
-</html>
 ```
 
 ### Scoping de acento por sección
@@ -213,62 +176,58 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 .section-cr  { --accent: #5C469C; --accent-soft: #EDE8F7; }  /* violet */
 .section-rnd { --accent: #EA0074; --accent-soft: #FCE4F1; }  /* magenta */
 ```
-Todos los selectores de tabs CSS llevan prefijo `.section-cr` o `.section-rnd` para evitar conflictos de IDs entre secciones.
 
 ### Estructura del repo GitHub (W21+)
 ```
-reports/week-NN/SUPPLY_WNN.html          ← HTML unificado (nuevo)
-checkrates/week-NN/[Excels + Dataset]    ← sin cambios
-rates-nodispo/week-NN/[Excels + Dataset] ← sin cambios
+reports/week-NN/SUPPLY_WNN.html
+inventory/week-NN/INVENTORY_WNN.html
+inventory/week-NN/Analisis_Inventory_WNN.xlsx
+checkrates/week-NN/[Excels + Dataset]
+rates-nodispo/week-NN/[Excels + Dataset]
 ```
-W16-W20 mantienen estructura anterior (dos HTMLs separados).
 
-### Excels consolidados (W21+)
-| Archivo | Hojas | Origen |
-|---|---|---|
-| `Analisis_CheckRates_WNN.xlsx` | Global · B2C · B2B-OP · CUG | Filtro de `p80_hotel` por `DistributionCategory` |
-| `Analisis_RatesNoDispo_WNN.xlsx` | Global · B2C · B2B-OP · CUG | Filtro de `df18` por `DistributionCategory` |
+### Mobile Responsive (W22+)
+- Breakpoints: `600px` (teléfono) y `400px` (teléfono chico) — en `assemble_unified.py`
+- Patrón canónico para grids: `repeat(auto-fit, minmax(min(Npx, 100%), 1fr))` — colapsa solo, sin media queries
+- Grids problemáticos que usan este patrón: `kpis-hero`, `severity`, `alertas`, `cards AR`
+- Masthead: `display:flex;flex-wrap:wrap` — colapsa en mobile automáticamente
+- Tabs canasta y dim: `overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none` — scroll horizontal invisible
+- Canvas histórico: `max-width:100%` + `overflow-x:auto` en wrapper
+- **Nunca usar `display:table/table-cell` en el masthead** — usar flex
 
-Cada hoja tiene todas las secciones (Severity, Top100, Por Corp, Por Destino, etc.) generadas desde el mismo DataFrame filtrado. Un solo `wb.save()` por reporte.
+### Masthead (W22+) — Estructura canónica
+Generado en `render_masthead()` de `render_cr_p1.py` y `render_rnd_p1.py`. Propagación obligatoria a ambos.
+```
+Badge "Week NN"   → fondo #EA0074, texto blanco, uppercase
+H1 título         → clamp(20px,2.0vw,30px) · font-weight:800
+                    "Connectivities" negro · "& Hotel" magenta · "Availability" negro
+Subtítulo métricas → uppercase small, valores en <strong color:#EA0074>
+                    CR: CR_UNICOS_FMT · N_HOTELES_FMT · BOOKINGS_FMT
+                    RND: TRAFICO_FMT · N_HOTELES_FMT · BOOKINGS_FMT
+Fecha + Vol        → misma línea, separados por | muted
+Logo PriceTravel   → derecha, flex-shrink:0
+```
+Variables de métricas calculadas dentro de `render_masthead()` desde `M.get(f'global_w{WEEK_NUM_INT}')`.
 
-### Panel Análisis de Rendimiento (W21-post)
-
-El panel `w22-ph` (Por Hotel) y `w22-pd` (Por Dimensión) son interactivos:
-
-- **Searchbox** — `sb-panel-th` / `sb-panel-td` en tabs-row
-- **Evolución Histórica** — divs `w22-panel-hist-cr/rnd` (Por Hotel) y `w22-panel-dim-hist-cr/rnd` (Por Dimensión) con canvas IDs únicos: `hcr-panel-ef`, `hrnd-panel-nd`, `hcr-dim-ef`, `hrnd-dim-nd`
-- **Click en fila → actualiza histórico** — `window._injectHistAttrs` inyecta `data-hist-w21/w20/label` en cada `<tr>`; `document.addEventListener('click')` en `GLOBAL_PANEL_SCRIPT` captura el evento
-
-#### Arquitectura JS del panel (crítica)
+### Panel Análisis de Rendimiento — Arquitectura JS crítica
 ```
 FOOTER_JS (un <script>)
-  ├── asset_shared_head.html → 3 IIFEs anidados que nunca cierran dentro del script
+  ├── asset_shared_head.html → 3 IIFEs anidados
   ├── demo_js_main.js
   └── js_override.js
-        ├── _injectHistAttrs asignada a window._injectHistAttrs
-        └── w22_renderTable parcheado → llama window._injectHistAttrs automáticamente
+        └── w22_renderTable parcheado → llama window._injectHistAttrs
 
 GLOBAL_PANEL_SCRIPT (script separado, ÚLTIMO en el body)
-  ├── window._injectHistAttrs = function(...) — definición global real
-  ├── document.addEventListener('click', ...) — captura clicks en [data-hist-w21]
-  └── tryInject() IIFE — inyecta atributos en filas ya renderizadas al cargar
+  ├── window._injectHistAttrs — definición global real
+  ├── document.addEventListener('click') — captura clicks en [data-hist-w21]
+  └── tryInject() IIFE
 ```
+**Regla crítica:** funciones con scope global van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`, NO en `js_override.js`.
 
-**Regla crítica:** Funciones que necesiten ser accesibles desde `onclick` HTML o desde fuera del IIFE del `asset_shared_head` deben definirse en `GLOBAL_PANEL_SCRIPT` en `assemble_unified.py`, NO en `js_override.js`.
-
-#### Tab Por Dimensión
-- **CR:** Corporativo / Destino / Canal
-- **RND:** Corporativo / Destino / País (el label "Canal" cambia a "País" via `w22_setMode` en el override)
-
-### Hub index.html — URL helper W21+
-```python
-# URLs con anchors para las dos cards
-href="reports/week-21/SUPPLY_W21.html#section-cr"   # card CR
-href="reports/week-21/SUPPLY_W21.html#section-rnd"  # card RND
-
-# Historial: W16-W20 mantienen paths viejos
-# W21+ usan reports/week-NN/SUPPLY_WNN.html
-```
+### Botón "Ver más" — Regla de implementación
+- **Cards AR** → botón HTML estático `ar{n}-th-more` / `ar{n}-td-more` activado por `_moreBtn` en `js_override.js`. Usa `display:table-row` para `<tr>`.
+- **Cards KPI** → botón Python estático con `onclick` inline generado por `render_helpers.py`.
+- **Nunca** crear botón dinámico `createElement` para las cards AR — el listener global intercepta `addEventListener`.
 
 ---
 
@@ -284,8 +243,6 @@ href="reports/week-21/SUPPLY_W21.html#section-rnd"  # card RND
 | Crítica | `#FCE4F1` | `#99162B` | `#C0392B` |
 | Súper Crítica | `#E8E6E3` | `#2D2828` | `#DC2626` |
 | Sin Conversión | `#F2EEE6` | `#5F5E5A` | `#8A8377` |
-
-> **Nota Súper Crítica:** el gris `#E8E6E3` con fg oscuro `#2D2828` + el `outline:1px solid rgba(0,0,0,0.15)` del `.sev-badge` garantizan visibilidad sobre cualquier fondo crema.
 
 #### % NoDispo (RND)
 | Banda | Rango |
@@ -336,133 +293,53 @@ href="reports/week-21/SUPPLY_W21.html#section-rnd"  # card RND
 - `--ink-muted: #8A8377` — Sin Conversión, valores muted
 - Gauge 5 niveles: `height:6px · opacity:1` uniforme
 
-### Gaps visuales · Valores canónicos (W21+)
-```css
-.masthead { margin-bottom: 8px; }   /* antes 16px */
-.hero { padding: 8px 0 20px; }      /* antes 16px 0 24px */
-kpis-hero { margin: 6px 0 12px; }   /* antes 12px 0 16px */
-```
-
 ### wow_box · Labels dinámicos
-
 `wow_box()` en `render_helpers.py` lee `VOL_NUM` del env → labels `W{N-1}` / `W{N}` automáticos.
-`outer_bg` siempre `var(--paper-soft)` — tanto global como canastas — para garantizar contraste de las celdas internas.
-**Nunca hardcodear 'W20'/'W19' en llamadas a `wow_box()`.**
-
-### Scoping de acento por sección (asset_supply_head.html)
-
-```css
-.section-cr  { --accent: #5C469C; --accent-soft: #EDE8F7; }  /* violet */
-.section-rnd { --accent: #EA0074; --accent-soft: #FCE4F1; }  /* magenta */
-```
+`outer_bg` siempre `var(--paper-soft)`. **Nunca hardcodear semanas en llamadas a `wow_box()`.**
 
 ### Cards AR · Colores complementarios
-
 ```
 Card 1 (Ef/NoDispo):  --accent de la sección (violet CR · magenta RND)
 Card 2 (CV/IPM):      band_cv / bbg_cv / bfg_cv — banda SEPARADA de card 1
-Switcher CR/RND:      color fijo del modo (violet/magenta), no cambia con canasta
-Canasta global:       #333132 gris
-Canasta b2c:          #EA0074 magenta
-Canasta op:           #FCB000 amber
-Canasta cug:          #4FC3F4 cyan
+Canasta global:       #333132 · b2c: #EA0074 · op: #FCB000 · cug: #4FC3F4
 ```
 
 ### Formato tráfico · Canónico
-
-Siempre: `<strong>Tráfico:</strong> {valor}` — label bold primero, número después.
-Aplica en: cards KPI globales (CR+RND), cards AR, subhead hero RND.
+`<strong>Tráfico:</strong> {valor}` — label bold primero, número después.
 - CR: `fmt_int_es(cr_unicos)` → `746.111`
 - RND: `fmt_big(trafico)` → `12,2B`
 
-### Tablas grandes (hotel + dim) · HTML table pattern
+### Tablas grandes · HTML table pattern
+`<table>` con `table-layout:fixed`. **Nunca CSS grid para tablas hotel/dim.**
 
-Las tablas de "Análisis por hotel" y "Análisis por dimensión" usan **HTML `<table>` con `table-layout:fixed`**.
-
-**Colwidths calibrados — cards AR (assemble_unified.py · 6 cols):**
+**Colwidths calibrados — cards AR (6 cols):**
 `<col/>` (fill) · `90px` · `60px` · `42px` · `76px` · `42px`
-Columnas: Nombre · Severity · Tráfico · WoW · Métrica · WoW
-
-**Colwidths calibrados — tablas p2 (render_cr_p2 / render_rnd_p2 · 8 cols):**
-`['', '100px', '64px', '44px', '68px', '44px', '84px', '44px']`
-
-### Grids cards KPI globales (tab panels)
-
-```
-CR Eficacia:   minmax(0,1fr) 80px 56px 52px 54px 48px
-CR ConvRate:   minmax(0,1fr) 80px 56px 52px 68px 40px
-RND NoDispo:   minmax(0,1fr) 76px 52px 44px 54px 36px
-RND IPM:       minmax(0,1fr) 76px 52px 44px 54px 36px
-```
-Orden: Nombre · Severity · Tráfico · WoW · Métrica · WoW
-
-### Sort por columna · Columnas ordenables
-
-```
-Cards KPI (_KPI_RCOLS):  { 2: 5, 4: 7 }
-  th[2] = Tráfico  → r[5] en CR_CARD_TABS
-  th[4] = Métrica  → r[7] en CR_CARD_TABS
-
-Cards AR (rmap):         { 2: 4, 4: (n===1?5:6) }
-  th[2] = Tráfico  → r[4] en CR_D/RND_D
-  th[4] = Métrica  → r[5] (card1 Ef/ND) · r[6] (card2 CV/IPM)
-```
-Estructura row `CR_CARD_TABS`: `[lab, sub, bbg, bfg, banda, cr_u, cr_wow, val_pct, wow_pp, hist21, hist20]`
-Estructura row `CR_D/RND_D`:   `[nombre, bbg, bfg, banda, trafico_str, metrica1_str, metrica2_str, ...]`
-
-### Canastas · Grids reducidos (caben en 2 columnas ~570px)
-
-**RND canastas dim:** `1fr 60px 54px 48px 48px 52px 48px`
-**CR canastas hotel:** `1fr 60px 50px 48px 52px 48px`
-- `gap:4px` · `padding:6px 8px 6px 0` · `width:100%` obligatorio
-
-### .sev-badge · Clase unificada
-
-```css
-.sev-badge {
-  display: inline-flex; justify-content: center; align-items: center;
-  font-size: 7px; font-weight: 700; padding: 2px 4px; border-radius: 2px;
-  text-transform: uppercase; letter-spacing: .02em; white-space: nowrap;
-  text-align: center; box-sizing: border-box; line-height: 1.2;
-  outline: 1px solid rgba(0,0,0,0.15);
-}
-```
-Sin `min-width` — evita truncado en cols de 60px.
-
-### wow-pill · Clase CSS
-
-```css
-em.wow-pill { font-style:normal; display:inline-block; font-size:8px; font-weight:700;
-              padding:1px 5px; border-radius:3px; white-space:nowrap; }
-em.wow-pill.up  { background:#FCE8E6 !important; color:#C0392B !important; }
-em.wow-pill.dn  { background:#EAF3DE !important; color:#2F6C34 !important; }
-em.wow-pill.nd  { background:#F2EEE6 !important; color:#8A8377 !important; }
-```
-Sin `margin-left` — elimina el "guion fantasma".
 
 ### Top N · 5 visibles + 5 expandibles + 490 buscables
-
-- Cards KPI globales: **5 rows visibles** por defecto, **5 más expandibles** (filas 6-10, clase `rows-more`, `display:none`), filas 11-500 clase `sb-hidden`
-- El botón **"Ver más ▾ / Ver menos ▴"** se genera en **Python estático** (`render_helpers.py`) dentro del `kpi-tab-rows` div con `onclick` inline
-- Cards AR (Análisis de Rendimiento): **5 rows visibles**, **5 expandibles** vía `_moreBtn()` JS
-- El searchbox opera sobre **todos los rows en el DOM** (hasta 500) — los `sb-hidden` se muestran al buscar
 - `KPI_TOP_N = 5` en `render_helpers.py` — único lugar a cambiar el top visible
-- `_KPI_TOP_N = 5` y `_KPI_EXPAND_N = 10` en `js_override.js` — controlan el comportamiento JS
-- `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` en `asset_shared_head.html` — resetea al top N al limpiar búsqueda
-- **NUNCA** crear el botón Ver más con `addEventListener` — el evento es interceptado por listeners del parent. Usar `onclick` inline o HTML estático de Python
-- **NUNCA** usar `slice(0,10)` en los renders JS de cards — poner todos los rows en DOM con los extras ocultos
+- Filas 6-10: clase `rows-more` (display:none) · Filas 11+: clase `sb-hidden`
+- Botón "Ver más" generado por Python estático con `onclick` inline (cards KPI)
+- Botón "Ver más" es HTML estático activado por `_moreBtn` JS (cards AR)
 
-### Datos históricos reales W17-W21
+### Canvas histórico — Puntos visibles (W22+)
+Todos los puntos de la serie histórica son visibles: `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5`.
+El punto de la semana actual tiene radio `3.5` + anillo blanco `#FDFCF9`.
+Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
+**Nunca** volver a `globalAlpha < 1` o `rgba(..., 0.5)` para puntos intermedios.
+
+### Datos históricos reales W16-W22
 
 | Semana | CR Eficacia | CR ConvRate | RND %NoDispo | RND IPM |
 |---|---|---|---|---|
+| W16 | 93,27% | 1,29% | 3,69% | $661 |
 | W17 | 93,58% | 1,15% | 3,63% | $574 |
 | W18 | 93,71% | 1,02% | 2,84% | $524 |
 | W19 | 93,30% | 1,14% | 2,31% | $499 |
 | W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
+| W22 | 94,21% | 1,00% | 2,61% | $653 |
 
-### Módulo Histórico · Canvas IDs
+### Canvas IDs · Módulo Histórico
 
 | Scope | CR Eficacia | CR ConvRate | RND NoDispo | RND IPM |
 |---|---|---|---|---|
@@ -471,20 +348,31 @@ Sin `margin-left` — elimina el "guion fantasma".
 | CUG | `h-cug-ef` | `h-cug-cv` | `hrnd-cug-nd` | `hrnd-cug-ipm` |
 | B2C | `h-b2c-ef` | `h-b2c-cv` | `hrnd-b2c-nd` | `hrnd-b2c-ipm` |
 
+### RND_CARD_TABS · Estructura
+```
+RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
+  row: [lab, bbg, bfg, banda, traf(r[4]), val(r[5]), wow_pp(r[6]), None, '—','—','—', hist21, hist20]
+```
+
+### CR_CV / RND_CV · Keys disponibles
+```python
+'ef', 'cv', 'ef_prev', 'cv_prev', 'ef_wow', 'cv_wow',
+'band', 'bbg', 'bfg', 'band_cv', 'bbg_cv', 'bfg_cv',
+'col', 'vol', 'trafico', 'traf_wow'
+```
+
 ---
 
 ## 📌 Reglas Generales
 
 - **Top 5 visible + 5 expandible** en Editorial · **Top 500** en JSON de cards y Excel de Análisis
-- Searchbox busca sobre **todos los rows en DOM** (hasta 500) — no solo los visibles
-- **Todo el pipeline es P80** — `g_dest`, `g_pais`, `g_corp` vienen de `df18_p80`; `TAB_NoDispo/RPM` usan esos aggregados
-- `MIN_TRAFICO_DIM = 50K` (antes 500K) — evita excluir destinos de alto tráfico como Cancún (#264 NoDispo), New York (#217), Las Vegas (#249)
+- Searchbox busca sobre **todos los rows en DOM** (hasta 500)
+- **Todo el pipeline es P80** — `g_dest`, `g_pais`, `g_corp` vienen de `df18_p80`
+- `MIN_TRAFICO_DIM = 50K` — evita excluir destinos de alto tráfico
 - "Sin Conversión" SIEMPRE separada de "Bajo Rendimiento"
 - Ultra Opaco y Opaco son prioridad estratégica (Weight 0.6) — keys internos: `cug` y `op`
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
 - `SUPPLY_WNN.html` nunca se edita manualmente — siempre vía `assemble_unified.py`
-- Commit siempre incluye ZIP proyecto Claude con **todos los archivos planos**
-- ZIP proyecto Claude excluye: `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`
 
 ### Excels · Reglas canónicas (W21+)
 
@@ -492,14 +380,7 @@ Sin `margin-left` — elimina el "guion fantasma".
 |---|---|---|
 | **Archivo output** | `Analisis_RatesNoDispo_WNN.xlsx` | `Analisis_CheckRates_WNN.xlsx` |
 | **Hojas** | Global · B2C · Opaco · Ultra Opaco | Global · B2C · Opaco · Ultra Opaco |
-| **Origen datos canasta** | Filtro `df18[DistributionCategory==X]` | Filtro `p80_hotel[DistributionCategory==X]` |
 | **Orden hotel** | `%NoDispo DESC` | `Eficacia ASC` (menor = peor primero) |
-| **Orden Sin Conversión** | `Trafico DESC` | `Eficacia ASC` |
-| **Formato %NoDispo** | `0.00%` | — |
-| **Formato Eficacia / ConvRate** | — | `0.00%` |
-| **Formato IPM** | `$#,##0` | — |
-| **Nombre hotel CR** | — | `clean_hotel_name()` quita prefijo `(ID) - ` |
-| **Channel CR** | — | `_hcm_clean` — nunca mapear con nombres con ID |
 | **Top N** | 100 en todas las secciones | 100 en todas las secciones |
 
 ---
@@ -511,51 +392,36 @@ Sin `margin-left` — elimina el "guion fantasma".
 3. Hardcodear colores fuera de `:root` salvo excepciones (cyan `#4FC3F4`, amber `#A86A1D`)
 4. Mezclar variables Python con displays — `rpm` en Python, "IPM" en displays
 5. Combinar Bajo Rendimiento con Sin Conversión en una pestaña
-6. Editar `index.html` directamente — siempre regenerar con `build_package.py`
-7. Editar `SUPPLY_WNN.html` directamente — siempre regenerar con `assemble_unified.py`
-8. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
-9. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed` + `<colgroup>`
-10. Usar `1fr` en colgroup — siempre ancho fijo (800px nombre + cols datos fijas)
-11. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
-12. Agregar `<p class="tab-kicker">` en tabs de hotel/dim — texto removido en W21
-13. Setear `r.style.display = 'grid'` directo en JS — usar `r.tagName==='TR'?'':'grid'`
-14. Usar `margin-left` en `.wow-pill` — causa "guion fantasma"
-15. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
-16. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
-17. Usar `padding-right:20px` en última col TD — recorta pills; usar 12px
-18. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo — usar enriquecimiento post-construcción en `calc_*.py`
-19. Mapear Channel con `hotel_channel_map` directamente — el mapa tiene IDs; usar `_hcm_clean`
-20. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — usar función `_enrich(df)`
-21. Escribir `<body>` o `</body>` en `render_*_p1.py` o `render_*_p3.py` — el documento lo abre/cierra `assemble_unified.py`
-22. Usar `assemble_cr.py` o `assemble_rnd.py` desde W21 — reemplazados por `assemble_unified.py`
-23. Generar 4 Excels por reporte desde W21 — son 1 Excel con 4 hojas cada uno
-24. Poner selectores de tabs CSS sin prefijo `.section-cr` / `.section-rnd` — colisionan entre secciones en el HTML unificado
-25. Definir funciones que necesiten scope global en `js_override.js` — van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`
-26. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser (adopta divs como hijos inline)
-27. Generar el switcher `vch-h`/`vch-d` en los parciales p2 — solo debe existir en `SHARED_CONTAINERS` de `assemble_unified.py`
-28. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"; los keys internos Python/JS siguen siendo `op` y `cug`
-29. Usar `VALS_DEF` en re-draws automáticos del histórico (IntersectionObserver, toggle, radio, setTimeout) — usar `currentVals` para mantener el estado seleccionado; solo `resetToGlobal()` y `hist-reset` deben usar `VALS_DEF`
-30. Confiar en `el.onmousemove` cuando hay listeners registrados con `addEventListener` — para ganar a múltiples listeners en un canvas, hookear el setter `textContent` del tooltip target
-31. Olvidar agregar WoW de tráfico (CR_Unicos_WoW_pp) en tab_eficacia/tab_convrate — afecta rendimiento de análisis. Ver calc_cr.py líneas 236–242 y 276–282
-32. Usar `.tab-label` sin clase `.active` en JS — w22_iTab() debe agregar classList.add('active') para aplicar estilos. Sin esto tabs no se visualizan correctamente
-33. Hardcodear dimensión en w22_setDim() — usar W.dim para persistencia. W.update() debe leer de W.dim y renderizar la dimensión activa
-34. Olvidar cargar g_dest_w17 y g_channel_w17 de D — necesarios para WoW en dest_rows y chan_rows. Ver render_cr_p2.py líneas 33–36
-35. Renderizar trow() con 9 elementos (array sin wow_cr_str) — ahora es 11: [..., wow_ef_str, wow_cv_str, wow_cr_str]. r[10] accede a tráfico WoW
-36. No validar que labels de tabla coincidan con índices de trow() — colisión de columnas. th_labels_hotel debe ser 7: ['Hotel', 'Banda', 'CR', 'Eficacia', 'Conv Rate', 'WoW Ef/CV', 'Tráfico WoW']
-37. Duplicar lógica de presentación entre `render_cr_p1.py` y `render_rnd_p1.py` — toda lógica compartida va en `render_helpers.py`. Usar `build_kpi_tab_panel()` para los loops de tab panels y `render_traf_line_cr/rnd()` para las líneas de tráfico. Cambiar top N visible → solo `KPI_TOP_N` en `render_helpers.py`
-38. Usar `ri < 10` fijo en el searchbox de `asset_shared_head.html` — siempre `ri < (typeof _KPI_TOP_N!=="undefined"?_KPI_TOP_N:10)` para que sea configurable
-39. Ordenar solo los rows visibles en el DOM — el sort JS debe leer de `_arRows()` / `_arDimRows()` / `CR_CARD_TABS[canasta]` (500 rows) y renderizar el resultado completo con extras ocultos
-40. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking (el #47 sigue siendo #47 aunque aparezca primero en el sort)
-41. Llamar `w22_update()` antes de que `_cardRow` y `w22_renderCardTabs` estén definidas — siempre va al final de `js_override.js`. En `demo_js_main.js` debe estar comentado.
-42. Leer `ef_prev`/`cv_prev`/`ef_wow`/`cv_wow` de `HIST_CR` en `ar_updateKPIs` — estos valores deben venir de `CR_CV`/`RND_CV` (calculados en Python). HIST_CR tiene problemas de timing al cargar.
-43. Agregar `%` a `cdata.ef` o `cdata.cv` que ya lo traen — `cdata.ef = '93,15%'` ya incluye el signo.
-44. Usar `row.closest('tbody')` como único selector en el listener de click del histórico — los divs del Channel no tienen `<tbody>` padre. Usar `closest('tbody') || closest('[id$="-chan-div"]')`.
-45. Omitir `RND_CARD_TABS` en `render_rnd_p1.py` — es obligatorio igual que `CR_CARD_TABS` en `render_cr_p1.py`. Sin él el sort de las cards KPI RND no funciona. Usar `_KPI_RCOLS_RND = {2:4, 4:5}` (tráfico=r[4], métrica=r[5]) vs `_KPI_RCOLS_CR = {2:5, 4:7}`.
-46. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner **todos** los rows en el DOM, con extras marcados `rows-more` (display:none, filas 6-10) o `sb-hidden` (filas 11+). El searchbox los muestra al buscar.
-47. Crear el botón "Ver más" con `addEventListener('click')` en JS — el evento es interceptado por listeners del parent. Usar `onclick` inline en HTML estático generado por Python (`render_helpers.py`).
-48. Recalcular `g_dest`/`g_pais` desde `df_hotel` (df de canasta) en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle que ya tienen WoW calculado sobre P80.
-49. Usar `MIN_TRAFICO_DIM = 500K` en `calc_rnd.py` — con ese umbral se excluyen destinos como Cancún (417M tráfico), New York (477M), Las Vegas (236M). El umbral correcto es **50K**.
-50. Poner el badge de banda en el footer histórico sin background — `bc['bg']` es necesario además de `bc['footer']` (el color de texto). Sin background el badge es invisible sobre el fondo crema.
+6. Editar `index.html` o `SUPPLY_WNN.html` directamente
+7. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
+8. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed`
+9. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
+10. Usar `margin-left` en `.wow-pill` — causa "guion fantasma"
+11. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
+12. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
+13. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo — usar enriquecimiento post-construcción en `calc_*.py`
+14. Mapear Channel con `hotel_channel_map` directamente — el mapa tiene IDs; usar `_hcm_clean`
+15. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — usar función `_enrich(df)`
+16. Escribir `<body>` o `</body>` en `render_*_p1.py` o `render_*_p3.py`
+17. Poner selectores de tabs CSS sin prefijo `.section-cr` / `.section-rnd` — colisionan entre secciones
+18. Definir funciones con scope global en `js_override.js` — van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`
+19. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser
+20. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"
+21. Usar `VALS_DEF` en re-draws automáticos del histórico — usar `currentVals` para mantener el estado
+22. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner todos los rows en DOM con extras ocultos
+23. Crear el botón "Ver más" de cards AR con `createElement`+`addEventListener` — usar el botón HTML estático existente activado por `_moreBtn`
+24. Usar `display:''` o `display:'grid'` para mostrar `<tr>` — el valor correcto es `display:'table-row'`
+25. Recalcular `g_dest`/`g_pais` desde `df_hotel` en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle
+26. Usar `MIN_TRAFICO_DIM = 500K` — el umbral correcto es **50K**
+27. Duplicar lógica de formato entre `render_cr_p2.py` y `render_rnd_p2.py` — toda lógica compartida va en `render_helpers.py`
+28. Duplicar `tab_rows_canasta` entre p3 CR y RND — usar `canasta_tab_rows(df, dim_col, cfg)` de `render_helpers.py`
+29. Duplicar `_build_card_rows_ef`/`_build_card_rows_cv` — usar `build_card_rows(df, t_key, cfg)` de `render_helpers.py`
+30. Duplicar `_chanRow`/`chanRowAR` — usar `_buildChanRow(r, i, opts)` en `js_override.js`
+31. Calcular `BandaConvRate` en `tab_convrate()` sin Bookings reales — `banda_convrate(val, bookings)` con los Bookings del row, no hardcodeado a 0
+32. Mergear `ConvRate_WoW_pp` dos veces en `render_cr_p2.py` — desde W22 viene directo en `p80_hotel` del pickle
+33. Omitir WoW de Corp/Dest en las cards AR — `g_corp_w17` y `g_dest_w17` están en el pickle y deben mergearse en `render_cr_p2.py` y `render_rnd_p2.py`
+34. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking
+35. Leer `ef_prev`/`cv_prev` de `HIST_CR` en `ar_updateKPIs` — estos valores vienen de `CR_CV`/`RND_CV`
 
 ---
 
@@ -564,86 +430,78 @@ Sin `margin-left` — elimina el "guion fantasma".
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P10 | Refactor centralización CR/RND — `_chanRow`/`chanRowAR` duplicadas, `_build_rnd_card_tabs_json` duplica lógica de `_build_cr_card_tabs_json` | ver `NOTA_REFACTOR_PENDIENTE.md` · **urgencia alta** |
 
-> Bugs P1–P4, P6–P9 cerrados. Bugs P11 (WoW en dim País/Dest), P12 (Ver más), P13 (badge Aceptable) cerrados en sesión W21-post6.
+> Bugs P1–P4, P6–P11 cerrados. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
+> 
+> W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
 ---
 
 ## 🗂️ Gestión del Proyecto Claude
 
-### ZIP del proyecto
+### Archivos del proyecto Claude (W23+)
+El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
 
-Siempre generar `ProyectoClaude_PRICE_WNN.zip` con **todos** los archivos del proyecto, plano (sin carpetas). Se entrega junto con el commit de GitHub en cada pipeline.
+| Archivo | Por qué está en el proyecto |
+|---|---|
+| `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
+| `PROMPT_INV.md` | Pipeline INV separado, no está en el repo |
+| `calc_inv.py` | Pipeline INV separado, no está en el repo |
+| `build_package.py` | Pipeline INV separado, no está en el repo |
 
-**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html` (intermedios), `global_panel_fns.js` (absorbido en `assemble_unified.py`), `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
+**Docs** (`HISTORIAL_SESIONES.md`, `NOTA_REFACTOR_PENDIENTE.md`, `BANDAS.md`, `README_QUICK.md`, `COMMIT_GUIDE.md`) — están en el repo, se clonan solos. No subirlos al proyecto.
 
-### Canal · Catálogo canónico (W21-post4)
+### ZIP del proyecto (pre-W23, deprecado)
+~~`ProyectoClaude_PRICE_WNN.zip`~~ — ya no se genera. Los scripts viven en el repo.
 
+### Canal · Catálogo canónico
 ```
 Producto Propio: DerbySoft · Internal · HBSI · SynXis · Siteminder · Travelclick · Omnibees
 Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ```
 - Channels sin datos → "sin actividad" `opacity:0.45` · Orden: peor eficacia primero → inactivos al final
-- Mismo catálogo en KPI cards y AR cards
-
-### RND_CARD_TABS · Estructura (W21-post5)
-
-```
-RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
-  canasta: global / b2c / op / cug
-  metric:  nd / ipm
-  tkey:    destino / corp / hotel
-  row:     [lab, bbg, bfg, banda, traf(r[4]), val(r[5]), wow_pp(r[6]), None, '—','—','—', hist21, hist20]
-```
-
-### CR_CV / RND_CV · Keys disponibles (W21-post4)
-
-```python
-'ef', 'cv',           # valores actuales con %
-'ef_prev', 'cv_prev', # semana anterior con %
-'ef_wow', 'cv_wow',   # delta pp (float)
-'band', 'bbg', 'bfg', 'band_cv', 'bbg_cv', 'bfg_cv',
-'col', 'vol', 'trafico', 'traf_wow'
-```
-
-### Regla de clasificación
-
-| Contenido | Destino |
-|---|---|
-| Bandas, colores, thresholds vigentes | CORE |
-| Workflow semanal, comandos | CORE |
-| Bugs abiertos | CORE |
-| Datos históricos reales (tabla resumen) | CORE |
-| Arquitectura HTML unificada | CORE |
-| Bugs cerrados y resueltos | HISTORIAL |
-| Decisiones ya absorbidas en el código | HISTORIAL |
 
 ---
 
-**Última actualización:** W21-post6 (Top 500 destinos · Ver más/menos · WoW País/Dest · Badge Aceptable · Loading overlay · P80 verificado) · Mayo 2026
+**Última actualización:** W22 · Junio 2026
+**Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
+**Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 
 ---
 
 ## Mantenimiento del PROMPT_CORE
 
-**Objetivo:** Mantener el documento acotado y accionable. El PROMPT_CORE es una referencia viva, no un archivo histórico.
+1. **Máximo 35 reglas** en "Cosas que NUNCA" — al llegar al límite, hacer pasada de limpieza
+2. **No duplicar** — si una regla está en el código, puede eliminarse del CORE
+3. **Lecciones aprendidas → HISTORIAL** · El CORE solo tiene "qué hacer"
+4. **Revisión periódica** — cada ~4 commits importantes
 
-**Reglas de crecimiento:**
+---
 
-1. **Máximo 35 reglas en "Cosas que NUNCA hay que hacer"** — cuando se alcance ese número, hacer una pasada de limpieza.
+## 📋 Mantenimiento de documentación — triggers por archivo
 
-2. **No duplicar reglas** — si una regla está implícita en otra o en el código, consolidarlas.
+Claude valida estos triggers al final de cada sesión **sin que Federico lo pida**.
 
-3. **Mover lecciones aprendidas al HISTORIAL_SESIONES** — las "por qué pasó X" y los casos de estudio van al HISTORIAL. El CORE solo tiene "qué hacer".
+| Archivo | Actualizar cuando... |
+|---|---|
+| `PROMPT_CORE.md` | Se cierra un bug · cambia arquitectura · nueva regla · limpieza periódica |
+| `HISTORIAL_SESIONES.md` | **Siempre** al final de sesión con cambios de código o bugs cerrados |
+| `NOTA_REFACTOR_PENDIENTE.md` | Cambia la arquitectura · nueva función centralizada · nuevo patrón de cambio |
+| `README_QUICK.md` | Cambia estructura del repo · nuevas URLs · métricas de la semana publicada |
+| `BANDAS.md` | Solo si cambian thresholds o paleta de colores |
+| `COMMIT_GUIDE.md` | Solo si cambia el proceso de commit o estructura del repo |
 
-4. **Mantener solo lo accionable** — si una regla no puedo aplicarla al escribir código o documentación, posiblemente pertenece al HISTORIAL o está resuelta en el código y se puede eliminar.
+### Checklist de cierre de sesión
 
-5. **Revisión periódica** — cada 3-4 semanas (cada ~4 commits importantes), revisar el CORE y hacer limpieza.
+Al terminar cualquier sesión con cambios, Claude debe verificar:
 
-**Ejemplo de limpieza:**
-- **ANTES:** "Regla 15: No usar `VALS_DEF` directamente en re-draws automáticos — usarlos con `currentVals`" (aprendizaje de W21-post2)
-- **DURANTE:** Si `historico_module.py` ya codifica esto en todos lados, la regla es redundante.
-- **DESPUÉS:** Mover la razón ("Para mantener estado tras scroll") al HISTORIAL_SESIONES con contexto. Eliminar de CORE.
+```
+□ HISTORIAL_SESIONES.md — agregar entrada con: contexto, cambios, archivos modificados
+□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿bugs cerrados? ¿arquitectura nueva?
+□ NOTA_REFACTOR_PENDIENTE.md — ¿cambió dónde tocar qué?
+□ README_QUICK.md — ¿hay nueva semana publicada? ¿cambió el repo?
+□ ZIP del proyecto Claude — regenerar con todos los archivos actualizados
+□ Commit GitHub — incluir docs actualizados
+```
 
-**Última limpieza:** 2026-05-26 · W21 (post-fixes) — N/A, aún en fase de consolidación.
+**Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
