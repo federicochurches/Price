@@ -41,10 +41,18 @@ def load_and_clean(path):
     df = pd.read_excel(path)
     df.rename(columns={'Corporate':'CorpName', 'CheckRates Únicos':'CR_Unicos'}, inplace=True)
     df = df[df['DistributionCategory'].isin(CANAL_VALIDO)].copy()
-    df['Eficacia']  = df['Successful UniqueChkRts'] / df['CR_Unicos']
-    df['ConvRate']  = df['Bookings'] / df['CR_Unicos']
-    df['Eficacia']  = df['Eficacia'].clip(0, 1)
-    df['ConvRate']  = df['ConvRate'].clip(0)
+    # Compatibilidad W22+: dataset puede no tener 'Successful UniqueChkRts'
+    # En ese caso, derivar de 'Efectividad en CheckRates' * CR_Unicos
+    if 'Successful UniqueChkRts' not in df.columns:
+        if 'Efectividad en CheckRates' in df.columns:
+            ef_col = pd.to_numeric(df['Efectividad en CheckRates'], errors='coerce').fillna(0).clip(0, 1)
+            df['Successful UniqueChkRts'] = (ef_col * df['CR_Unicos']).round().astype(int)
+        else:
+            df['Successful UniqueChkRts'] = 0
+    df['Eficacia']  = pd.to_numeric(df['Successful UniqueChkRts'], errors='coerce').fillna(0) / df['CR_Unicos'].replace(0, np.nan)
+    df['Eficacia']  = df['Eficacia'].fillna(0).clip(0, 1)
+    df['ConvRate']  = pd.to_numeric(df['Bookings'], errors='coerce').fillna(0) / df['CR_Unicos'].replace(0, np.nan)
+    df['ConvRate']  = df['ConvRate'].fillna(0).clip(0)
     return df
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
