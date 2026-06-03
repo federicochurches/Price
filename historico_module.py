@@ -263,16 +263,15 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
     for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
     ctx.stroke(); ctx.restore();
-    /* Puntos en la serie */
+    /* Puntos en la serie — todos visibles */
     for (var i = 0; i < n; i++) {{ 
       var isLast = (i === n - 1); 
-      ctx.fillStyle = isLast ? ACCENT_HEX : (ACCENT_RGB ? 'rgba('+ACCENT_RGB+',0.50)' : ACCENT_HEX); 
-      ctx.globalAlpha = isLast ? 1.0 : 0.6; 
+      ctx.fillStyle = ACCENT_HEX;
+      ctx.globalAlpha = 1.0; 
       ctx.beginPath(); 
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2, 0, 2 * Math.PI); 
+      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI); 
       ctx.fill(); 
       if (isLast) {{ ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }}
-      ctx.globalAlpha = 1.0; 
     }}
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {{vals: vals, semanas: SEMANAS, metric: METRIC}};

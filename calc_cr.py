@@ -51,6 +51,7 @@ def load_and_clean(path):
             df['Successful UniqueChkRts'] = 0
     df['Eficacia']  = pd.to_numeric(df['Successful UniqueChkRts'], errors='coerce').fillna(0) / df['CR_Unicos'].replace(0, np.nan)
     df['Eficacia']  = df['Eficacia'].fillna(0).clip(0, 1)
+    # ConvRate: puede venir como columna o calcular desde Bookings / CR_Unicos
     df['ConvRate']  = pd.to_numeric(df['Bookings'], errors='coerce').fillna(0) / df['CR_Unicos'].replace(0, np.nan)
     df['ConvRate']  = df['ConvRate'].fillna(0).clip(0)
     return df

@@ -114,52 +114,52 @@ from historico_data import HIST_DATA as _HD
 import json as _json
 
 def _hist_vals(mode, metric, canasta, actual_val=None):
-    """Retorna array de 5 valores [W17,W18,W19,W20,W21] para canvas."""
+    """Retorna array de 7 valores [W16,W17,W18,W19,W20,W21,W22] para canvas."""
     base = _HD.get(mode, {}).get(metric, {}).get(canasta, [])
-    if actual_val is not None and len(base) == 4:
+    if actual_val is not None and len(base) >= 1:
         return base + [actual_val]
     return base
 
 # Cargar valores actuales del pickle para el 5° punto
 import pickle as _pkl
-with open(f'cr_w21_data.pkl', 'rb') as _f:
+with open(f'cr_w22_data.pkl', 'rb') as _f:
     _D_cr = _pkl.load(_f)
-with open(f'rnd_w21_data.pkl', 'rb') as _f:
+with open(f'rnd_w22_data.pkl', 'rb') as _f:
     _D_rnd = _pkl.load(_f)
 
 _M_cr  = _D_cr.get('M', {})
 _M_rnd = _D_rnd.get('M', {})
 
 _HIST_CR_PY = {
-    'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-panel-cv':  {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-dim-cv':    {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-op-cv':       {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-cug-ef':      {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-cug-cv':      {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-b2c-ef':      {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w21',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-b2c-cv':      {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w21',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-panel-cv':  {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-dim-cv':    {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-op-cv':       {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-cug-ef':      {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-cug-cv':      {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-b2c-ef':      {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-b2c-cv':      {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
 }
 
 _HIST_RND_PY = {
-    'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w21',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w21',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w21',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w22',{}).get('rpm',0),0)), 'target': 650.0},
 }
 
 _HIST_CR_BY_CANASTA_PY = {
@@ -208,7 +208,7 @@ _HIST_INIT_JS = (
 )
 
 FOOTER_JS = (
-    '<style>\n' + open('/mnt/project/demo_css_w22.css', encoding='utf-8').read() + '\n</style>\n'
+    '<style>\n' + open('/mnt/project/demo_css_w22.css', encoding='utf-8').read() + '\n' + '\n/* ═══════════════════════════════════════════════════\n   MOBILE RESPONSIVE · W22+\n   Breakpoints: 600px (teléfono), 400px (teléfono chico)\n   ═══════════════════════════════════════════════════ */\n@media (max-width: 600px) {\n\n  /* Shell */\n  .shell { padding: 0 16px; }\n\n  /* Masthead */\n  .hero h1 { font-size: clamp(24px, 7vw, 32px) !important; }\n  .hero-brand { flex-wrap: wrap; gap: 8px; }\n  .hero-brand-logo { max-width: 140px; }\n  .hero-brand-title { font-size: clamp(13px, 3.5vw, 18px); }\n\n  /* Switcher CR/RND */\n  .report-switcher { padding: 10px 16px 0; margin: 0 -16px; }\n  .switcher-btn { padding: 8px 14px; font-size: 10px; letter-spacing: .07em; }\n  .back-hub { font-size: 10px; padding: 6px 10px; }\n\n  /* Canasta tabs — scroll horizontal sin corte */\n  .canasta-tabs .tabs-row {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n    padding-bottom: 1px;\n  }\n  .canasta-tabs .tabs-row::-webkit-scrollbar { display: none; }\n  .canasta-tabs .tab-label {\n    padding: 8px 12px;\n    font-size: 9px;\n    white-space: nowrap;\n    flex-shrink: 0;\n  }\n\n  /* KPI cards — apilar verticalmente */\n  .kpis-hero { grid-template-columns: 1fr !important; gap: 12px !important; }\n  .kpi-card { padding: 16px; }\n  .kpi-val { font-size: clamp(32px, 10vw, 52px) !important; }\n\n  /* Tabs de dim (DESTINO/CORP/HOTEL/CHANNEL) */\n  .kpi-tab-labels {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n  }\n  .kpi-tab-labels::-webkit-scrollbar { display: none; }\n  .kpi-tab-label { font-size: 9px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }\n\n  /* Tabla AR — ocultar col WoW en mobile para que quepan las celdas clave */\n  .ar-table td:nth-child(4),\n  .ar-table th:nth-child(4),\n  .ar-table td:nth-child(6),\n  .ar-table th:nth-child(6) { display: none; }\n  .ar-table td, .ar-table th { font-size: 10px; padding: 5px 4px; }\n  .sev-badge { font-size: 8px; padding: 2px 5px; }\n\n  /* Canvas histórico */\n  canvas { max-width: 100%; }\n  .hist-canvas-wrap { overflow-x: auto; }\n\n  /* Hero meta */\n  .hero-meta { grid-template-columns: 1fr 1fr !important; }\n\n  /* Searchbox */\n  .sb-wrap { max-width: 100%; }\n  .sb-input { font-size: 12px; }\n\n  /* Section head */\n  .section-head { flex-wrap: wrap; gap: 8px; }\n  .section-title { font-size: clamp(16px, 5vw, 22px); }\n\n  /* Masthead flex — mobile */\n  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 8px; }\n  .masthead-left { min-width: 0; }\n  .masthead-left > div:first-child { font-size: 22px !important; white-space: nowrap; }\n  .masthead-right { flex-shrink: 0; }\n  .masthead-logo { height: 32px !important; }\n  .masthead-sub { font-size: 9px; }\n\n  /* Footer descargas — apilar botones */\n  .footer-downloads { flex-direction: column; gap: 8px; }\n  .footer-downloads a { width: 100%; text-align: center; box-sizing: border-box; }\n\n  /* Severity row — mobile: ocultar col rango */\n  .sev-row { grid-template-columns: minmax(90px,auto) 1fr 52px 40px !important; }\n  .sev-row span:nth-child(2) { display: none; }\n\n  /* Evitar scroll horizontal global */\n  body, .shell { overflow-x: hidden; }\n}\n\n@media (max-width: 400px) {\n  .shell { padding: 0 12px; }\n  .report-switcher { padding: 8px 12px 0; margin: 0 -12px; }\n  .switcher-btn { padding: 7px 10px; font-size: 9px; }\n  .kpi-val { font-size: clamp(28px, 9vw, 40px) !important; }\n  .canasta-tabs .tab-label { padding: 7px 10px; font-size: 8.5px; }\n}\n' + '\n</style>\n'
     + '<script>\n'
     + _cr_data_js + '\n'
     + _rnd_data_js + '\n'
@@ -371,7 +371,7 @@ document.addEventListener('click', function(e) {
     var nv = oc.vals.slice();
     nv[nv.length-1] = w21;
     nv[nv.length-2] = w20;
-    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W17','W18','W19','W20','W21'], metric: oc.metric};
+    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W16','W17','W18','W19','W20','W21','W22'], metric: oc.metric};
   }
   _updateCfg(cid);
 
@@ -380,7 +380,7 @@ document.addEventListener('click', function(e) {
     var canvasEl = document.getElementById(id);
     if (!canvasEl) return;
     (function(capturedId, capturedW21, capturedW20){
-      var sems = ['W17','W18','W19','W20','W21'];
+      var sems = ['W16','W17','W18','W19','W20','W21','W22'];
       canvasEl.onmousemove = function(e) {
         var cfg = W22_CANVAS_CFG[capturedId];
         if (!cfg) return;
@@ -585,7 +585,7 @@ SHARED_CONTAINERS = f'''
 </div>
 
 <!-- Grid 2 cards: Métrica 1 (Ef/ND) + Métrica 2 (CV/IPM) -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+<div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;">
 
   <!-- ── CARD 1: Eficacia / NoDispo ── -->
   <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
@@ -853,13 +853,13 @@ if (typeof HIST_DATA !== 'undefined') {
 '''
     + GLOBAL_PANEL_SCRIPT
     + f'''
-<div style="width:100%;margin:40px 0 0;padding:20px 40px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-sizing:border-box;">
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<div class="footer-bar" style="width:100%;margin:40px 0 0;padding:20px 24px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-sizing:border-box;">
+  <div class="footer-downloads" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Descargas W{VOL_NUM}</span>
-    <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel CheckRates</a>
-    <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel Rates No Dispo</a>
+    <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel CheckRates</a>
+    <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel Rates No Dispo</a>
   </div>
-  <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;white-space:nowrap;">← Volver al Hub</a>
+  <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
 '''
     + '\n</body>\n</html>\n'

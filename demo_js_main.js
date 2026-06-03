@@ -94,45 +94,11 @@ function w22_updateTableHeaders(){
 
 function w22_renderTable(tbodyId, btnId, rows, open){
  var tbody=g(tbodyId);if(!tbody)return;
- 
- /* Para tablas AR, renderizar TODOS los rows pero ocultar 6-10 */
- if(tbodyId==='w22-th' || tbodyId==='w22-td'){
-  tbody.innerHTML=rows.map(function(r,i){
-   var html = trow(r);
-   if(i>=5 && i<10){
-    html = html.replace(/^<tr/, '<tr style="display:none;" data-row-idx="'+i+'"');
-   }
-   return html;
-  }).join('');
-  
-  var btn=g(btnId);
-  if(btn && rows.length>5){
-   btn.style.display='';
-   btn.textContent='Ver más ▾';
-   btn.setAttribute('data-exp', '0');
-   btn.onclick=function(e){
-    e.preventDefault();
-    var expanded = this.getAttribute('data-exp')==='1';
-    this.setAttribute('data-exp', expanded?'0':'1');
-    var allTrs = tbody.querySelectorAll('tr');
-    allTrs.forEach(function(tr,i){
-     if(i>=5 && i<10){
-      tr.style.display = expanded?'none':'';
-     }
-    });
-    this.textContent = expanded?'Ver más ▾':'Ver menos ▴';
-   };
-  }else if(btn){
-   btn.style.display='none';
-  }
- }else{
-  /* Para otras tablas, comportamiento original */
-  tbody.innerHTML=rows.slice(0,10).map(function(r){
-   return trow(r);
-  }).join('');
-  var btn=g(btnId);
-  if(btn) btn.style.display='none';
- }
+ tbody.innerHTML=rows.slice(0,10).map(function(r){
+  return trow(r);
+ }).join('');
+ var btn=g(btnId);
+ if(btn) btn.style.display='none';
 }
 function w22_renderRE(open){
  W.reOpen=open;
@@ -527,8 +493,8 @@ function w22_redrawCanvas(accent){
   for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();
   for(var i=0;i<pts.length;i++){
    var last=i===pts.length-1;
-   ctx.fillStyle=last?accent:'rgba('+rgb+',0.5)';ctx.globalAlpha=last?1:0.5;
-   ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI);ctx.fill();ctx.globalAlpha=1;
+   ctx.fillStyle=last?accent:'rgba('+rgb+',1)';ctx.globalAlpha=1;
+   ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI);ctx.fill();
   }
   /* Bind tooltip */
   var tipCfg={vals:cfg.vals,semanas:['W17','W18','W19','W20','W21'],metric:cid.indexOf('cv')>-1?'convrate':cid.indexOf('ipm')>-1?'ipm':cid.indexOf('nd')>-1?'nodispo':'eficacia'};

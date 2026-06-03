@@ -6,10 +6,107 @@
 
 ---
 
+## 📝 Sesión W22-pre · Junio 2026 · Hub v2 visual — ajustes finales
+
+### Contexto
+Sesión de ajustes visuales sobre el Hub (`build_package.py`). No se corrió pipeline PRICE. Objetivo: pulir el Hub antes de W22 con logo real, contraste de cards corregido, blur en inactivas, y eliminación de la sección "Últimas semanas".
+
+### Cambios aplicados
+
+#### `build_package.py` — Hub v2 visual
+
+**Logo:**
+- Eliminada la dependencia de `logo_b64.txt` externo (archivo que no existe en el proyecto Claude)
+- `_LOGO_B64` ahora hardcodeado directamente en el script, extraído de `calc_inv.py` (mismo PNG)
+- Login (`lock-logo-wrap`): sin cambios — ya usaba `{_LOGO_B64}` correctamente
+- Hub header: reemplazado SVG geométrico + span "PriceTravel" por `<img>` con el logo real: `height:40px`, `filter:saturate(0) brightness(0)` — idéntico al login
+- Bug corregido: `{{_LOGO_B64}}` (doble llave, literal) → `{_LOGO_B64}` (expansión correcta en f-string)
+
+**Header del Hub:**
+- Agregado `border-bottom:1px solid var(--rule)` + `padding-bottom:16px` — ancla el header visualmente
+- Antes: flotaba suelto con solo el `border-top` grueso
+
+**Contraste de cards:**
+- Cards activas: `background:#EDE8DF` → `background:var(--paper)` (`#F8F4EC`) — se funden con el fondo del Hub
+- Cards inactivas: `background:#EDE8DF` + `filter:grayscale(0.35)` → `background:#F0EBE2` + `backdrop-filter:blur(1.5px)` + velo `rgba(240,235,226,0.35)` — chip "En construcción" flota nítido z-index:3 encima del blur
+- Eliminada la trama diagonal (`repeating-linear-gradient`) — reemplazada por el blur
+
+**Sección "Últimas semanas" eliminada:**
+- Bloque HTML `.archivo` completo eliminado del Hub — el historial de semanas anteriores ya existe en las pills de cada card activa
+- CSS `.archivo`, `.archivo-title`, `.archivo-grid`, etc. eliminados
+- JS de `recent-link` y toggle acordeón eliminado
+
+### Archivos modificados
+`build_package.py` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+---
+
 ## 📝 Sesión W22-pre · Mayo 2026 · Refactor P9 + Fix Sort KPI
 
 ### Contexto
 Sesión de pre-pipeline antes de recibir los datasets W22. No se corrió pipeline. Dos tareas ejecutadas: (1) refactor de centralización CR/RND documentado en `NOTA_REFACTOR_PENDIENTE.md`, (2) fix del sort en las cards KPI principales.
+
+---
+
+## 📝 Sesión W22-pre (cont.) · Mayo 2026 · Refactor P10 + Pipeline W21
+
+### Contexto
+Continuación de la sesión W22-pre. Se completó el refactor P10 (Bloque A + Bloque B) y se corrió el pipeline W21 completo con los archivos refactorizados.
+
+### Cambios aplicados
+
+#### Bloque A — Helpers de formato centralizados (sin impacto visual)
+
+Funciones idénticas en `render_cr_p2.py` y `render_rnd_p2.py` movidas a `render_helpers.py`:
+
+| Función | Descripción |
+|---|---|
+| `es_pct(v)` | Fracción → `'93,15%'` |
+| `es_int(v)` | Entero con punto de miles `'746.111'` |
+| `es_pct2(v)` | Ya viene en % `'1,57%'` |
+| `es_ipm(v)` | IPM formateado `'$834'` |
+| `banda_colors(banda)` | Lookup `(bg, fg)` desde `BANDA_COLORS` |
+| `wow_arrow(pp)` | `▲1,2` / `▼0,5` / `—` para WoW en pp |
+| `wow_arrow_abs(delta)` | `▲746.111` para WoW de tráfico |
+| `sev_badge_html_p2(banda)` | Badge `<b>` para tablas AR |
+
+`render_cr_p2.py`: 704 → 678 líneas (−26). `render_rnd_p2.py`: 553 → 538 líneas (−15).
+
+#### Bloque B — Unificación JS + _mini_badge (con validación visual)
+
+**`_mini_badge`** — ya existía en `render_helpers.py` (línea 42). Eliminada la definición local duplicada de `render_cr_p3.py` y `render_rnd_p3.py`.
+
+**`_chanRow` + `chanRowAR` → `_buildChanRow`** en `js_override.js`:
+- Unificadas en `_buildChanRow(r, i, opts)` donde `opts = {cardN, w20}`
+- KPI card: `_buildChanRow(r, i, {})` · AR card: `_buildChanRow(r, i, {cardN:n, w20:true})`
+- `js_override.js`: 1789 → 1779 líneas
+
+#### Pipeline W21
+Output idéntico en los 6 parciales. Validación visual confirmada: sort RND funciona + channels PP/TP correctos.
+
+### Archivos modificados
+`render_helpers.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_cr_p3.py` · `render_rnd_p3.py` · `js_override.js` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+`render_cr_p1.py` (parte 2 del refactor)
+
+#### Parte 2 — canasta_tab_rows + build_card_rows
+
+**`canasta_tab_rows(df, dim_col, cfg)`** en `render_helpers.py`:
+- Reemplaza `tab_rows_canasta()` duplicada en `render_cr_p3.py` y `render_rnd_p3.py`
+- La diferencia CR/RND (columnas, WoW logic, bandas) se expresa como cfg dict
+- `render_cr_p3.py`: 1122 → 1064 líneas (−58). `render_rnd_p3.py`: 984 → 945 líneas (−39)
+
+**`build_card_rows(df, t_key, cfg)`** en `render_helpers.py`:
+- Reemplaza `_build_card_rows_ef` y `_build_card_rows_cv` en `render_cr_p1.py`
+- `render_cr_p1.py`: 653 → 607 líneas (−46)
+
+**P11 detectado (no regresión):** `ConvRate_WoW_pp` solo existe en `TAB_CV` (100 hoteles con Bookings > 0), no en `p80_hotel` (1342). Los hoteles Sin Conversión muestran `—` en WoW ConvRate en cards AR. Preexistía antes del refactor.
+
+
+
+---
+
+
 
 ### Cambios aplicados
 
@@ -1850,47 +1947,231 @@ _(ver commit en GitHub)_
 
 ---
 
-## Sesión W21-post6 · 27 Mayo 2026 · Fixes UX + Top 500 + P80
+## Sesión W22-pre · Mayo 2026 · Refactor P10 completo + P11 + Documentación
 
-**Tipo:** Fixes post-pipeline  
-**Commits:** 85c4841 → 689a961
+### Contexto
+Sesión de refactor y fixes sin datasets nuevos. Pipeline W21 re-corrido con todos los cambios aplicados y validado visualmente. Cinco commits en total.
 
-### Fixes aplicados
+### Refactor P10 — Bloque A (helpers de formato)
 
-#### 1. WoW en dimensiones País y Destino (P11)
-`render_rnd_p2.py` recalculaba `g_pais` y `g_dest` desde `df_hotel` (df de canasta) sin WoW. Fix: usar `g_pais_global` y `g_dest` del pickle que ya tienen `NoDispo_WoW_pp`, `IPM_WoW_pp`, `Trafico_WoW_pct`. Agregado `g_pais_global = D['g_pais']` como alias global en el módulo.
+Funciones idénticas en `render_cr_p2.py` y `render_rnd_p2.py` movidas a `render_helpers.py`:
 
-#### 2. Top 500 destinos — Cancún, New York, Las Vegas visibles
-`MIN_TRAFICO_DIM = 500K` en `calc_rnd.py` excluía destinos de alto tráfico que tienen NoDispo baja (rank >100): Cancún #264 (417M tráfico), New York #217 (477M), Las Vegas #249 (236M). Fix: `MIN_TRAFICO_DIM = 50K`. `make_tab()` ahora acepta `top_n` (default 500). `render_rnd_p1.py` también actualizado a `head(500)`.
+| Función | Descripción |
+|---|---|
+| `es_pct`, `es_int`, `es_pct2`, `es_ipm` | Formateo de valores numéricos |
+| `banda_colors` | Lookup `(bg, fg)` desde `BANDA_COLORS` |
+| `wow_arrow`, `wow_arrow_abs` | Pills WoW en pp y absoluto |
+| `sev_badge_html_p2` | Badge `<b>` para tablas AR |
 
-#### 3. P80 verificado en toda la cadena
-Confirmado que `g_dest`, `g_pais`, `g_corp` se calculan sobre `df18_p80` (hoteles que acumulan 80% tráfico). Los TAB_NoDispo/RPM usan esos aggregados. Excels CR y RND usan `p80_hotel` y `TAB_EF_BY_CANASTA` respectivamente.
+`render_cr_p2.py`: 704 → 678 líneas. `render_rnd_p2.py`: 553 → 538 líneas.
 
-#### 4. Ver más / Ver menos 5+5 (P12) — root cause y fix definitivo
-Múltiples intentos fallidos:
-- `addEventListener('click')` interceptado por listener del parent (cards KPI usan event delegation para el histórico)
-- `onclick` attribute con `window[]` referencias — el container era reemplazado por re-renders
-- `appendChild` con `insertAdjacentElement` — botón fuera del contenedor visible
-- `data-exp` + `parentNode.querySelectorAll` — el onclick no disparaba (div creado con `createElement`)
+### Refactor P10 — Bloque B (unificaciones JS + p3)
 
-**Fix definitivo:** Botón generado en **Python estático** (`render_helpers.py`) con `onclick` inline HTML. Las filas 6-10 marcadas como `rows-more` con `display:none` directamente en el `_row` f-string. `KPI_TOP_N = 5`, `_EXPAND_N = 10`. El botón está en el HTML antes de que el browser ejecute cualquier JS.
+**`_mini_badge`** — ya existía en `render_helpers.py` (línea 42). Eliminada definición local duplicada de `render_cr_p3.py` y `render_rnd_p3.py`.
 
-#### 5. Badge Aceptable amarillo en footer histórico (P13)
-`historico_module.py` usaba solo `color:{bc['footer']}` sin `background`. Fix: agregar `background:{bc['bg']}` + `padding:2px 6px` + `border-radius:2px` tanto en el HTML estático como en el update JS dinámico (`el.style.background = bc.bg`).
+**`_chanRow` + `chanRowAR` → `_buildChanRow(r, i, opts)`** en `js_override.js`:
+- `opts = {}` para KPI cards · `opts = {cardN:n, w20:true}` para AR cards
+- `js_override.js`: 1789 → 1779 líneas
 
-#### 6. Loading overlay con logo PriceTravel
-`assemble_unified.py` agrega overlay al inicio del `<body>`: logo base64 en negro (filter saturate/brightness), barra de progreso animada (0→90% con `setInterval`, salta a 100% en `window.load`), texto "LOADING". Se desvanece con `opacity:0` + `transition:.3s`.
+**`canasta_tab_rows(df, dim_col, cfg)`** en `render_helpers.py`:
+- Reemplaza `tab_rows_canasta()` duplicada en `render_cr_p3.py` y `render_rnd_p3.py`
+- La diferencia CR/RND (columnas, WoW logic, bandas) se expresa como cfg dict
+- `render_cr_p3.py`: 1122 → 1064 líneas. `render_rnd_p3.py`: 984 → 945 líneas
 
-#### 7. netlify.toml
-Creado para forzar headers correctos. Con gzip el HTML de 6.6 MB se comprime a 782 KB (11.5%). Hosting en proceso de migración desde Netlify.
+**`build_card_rows(df, t_key, cfg)`** en `render_helpers.py`:
+- Reemplaza `_build_card_rows_ef` + `_build_card_rows_cv` en `render_cr_p1.py`
+- `render_cr_p1.py`: 653 → 607 líneas
 
-### Lección clave sobre Ver más
-El patrón `addEventListener` en elementos creados con JS no funciona cuando hay event delegation en el árbol del DOM. La única solución confiable es HTML estático con `onclick` inline — el browser lo ejecuta directamente sin pasar por el sistema de eventos.
+### Decisiones de diseño — qué NO se unificó y por qué
 
-### Estado final
-- `SUPPLY_W21.html`: 6.6 MB sin comprimir / ~782 KB gzip
-- 19 botones "Ver más" estáticos en el HTML
-- 72 filas `rows-more` (filas 6-10 de cada tab panel)
-- 2429+ filas `sb-hidden` (buscables, no visibles)
-- Searchbox opera sobre todos los rows en DOM
-- Último commit: 689a961
+| Componente | Razón para no unificar |
+|---|---|
+| `render_canasta_block` (p3 CR vs RND) | Lógica interna divergente: métricas, escalas, columnas, bandas y WoW pills completamente distintos. Unificar agregaría más complejidad que la que elimina |
+| `_build_rnd_card_tabs_json` | Scaffolding similar a CR pero datos completamente distintos (`%NoDispo`, `IPM`, `Trafico`). Mismo razonamiento |
+
+### P11 — Bugs de WoW y "Ver más" cerrados
+
+**`ConvRate_WoW_pp` para todos los hoteles P80:**
+- Root cause: `calc_cr.py` solo mergeaba `Eficacia_W17` y `CR_Unicos_W17` en `p80_hotel`. `ConvRate_W17` no se incluía → solo 100 de 1342 hoteles tenían WoW.
+- Fix: agregar `ConvRate_W17` al merge + calcular `ConvRate_WoW_pp` para todos.
+
+**`BandaConvRate` con Bookings reales:**
+- Root cause: `tab_convrate()` no calculaba `BandaConvRate` en `df_d`/`df_c`/`df_h`. `build_card_rows` usaba `banda_convrate(val, 0)` → todos "Sin Conversión".
+- Fix: agregar `BandaConvRate = banda_convrate(ConvRate, Bookings)` en `tab_convrate()` y `tab_convrate_for()`.
+
+**WoW Corp en cards AR CR:**
+- Root cause: `dim_rows` en `build_canasta_data` tenía `'—'` hardcodeado para WoW ConvRate.
+- Fix: calcular `wow_cv_pp` desde `g_corp_w17['ConvRate_W17']`.
+
+**WoW Dest en cards AR CR:**
+- Root cause: merge duplicado de `g_dest_w17` generaba columnas `_x`/`_y`. El código entraba por el `elif` que recalculaba `g_dest` desde `df_hotel` sin hacer merge completo.
+- Fix: unificar merge en un solo lugar antes del loop, con todas las columnas WoW en una sola operación.
+
+**WoW IPM Corp en cards AR RND:**
+- Root cause: `dim_rows` en `render_rnd_p2.py` tenía `'—'` hardcodeado para `r[9]` (WoW IPM). `g_corp` ya tenía `IPM_WoW_pp` pero no se leía.
+- Fix: calcular `wow_ipm_str` desde `row.get('IPM_WoW_pp')` con escala `(wow_ipm / ipm_base) * 100`.
+
+**"Ver más" no expandía filas:**
+- Root cause 1: `display:''` (string vacío) no es un valor válido para `<tr>` — el browser lo ignora. El valor correcto es `display:'table-row'`.
+- Root cause 2: `addEventListener('click')` en botón JS dinámico era interceptado por el listener global del panel histórico.
+- Fix: `_moreBtn` detecta el botón HTML estático existente (`ar{n}-th-more`) con `querySelector('button[id$="-more"]')` y lo activa con `onclick` inline + `display:'table-row'` para `<tr>`.
+
+### Pipeline W21 validado
+Output visual confirmado: sort RND/CR funcionando · WoW Corp/Dest/IPM correctos · "Ver más" expande filas 6-10 · BandaConvRate correcta en tab Destino.
+
+### Documentación
+- `NOTA_REFACTOR_PENDIENTE.md` reescrita como guía de arquitectura vigente "Dónde tocar qué"
+- `PROMPT_CORE.md` limpiado: 648 → 434 líneas · 50 → 35 reglas NUNCA · sección archivos eliminada (→ `README_QUICK.md`) · triggers de mantenimiento por archivo agregados
+- `PROMPT_CORE.md` sección nueva: checklist de cierre de sesión + tabla de triggers por archivo
+
+### Archivos modificados
+`calc_cr.py` · `render_helpers.py` · `render_cr_p1.py` · `render_cr_p2.py` · `render_cr_p3.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `js_override.js` · `NOTA_REFACTOR_PENDIENTE.md` · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+### Commits
+- `8f98d4c` — W22-pre fix P9+sort
+- `61068429` — pipeline W21 + P10 Bloque A+B
+- `57738dcb` — P10 Parte 2 (render_cr_p1, cr_p3, rnd_p3)
+- `7cc8a169` — P10 completo + canasta_tab_rows + build_card_rows
+- `a825ddf8` — P11 cerrado: WoW Corp/Dest/IPM + BandaConvRate + Ver más
+- `76db80f8` — NOTA_REFACTOR_PENDIENTE reescrita
+- `14556b9d` — PROMPT_CORE limpieza
+- `de2f0953` — PROMPT_CORE triggers de mantenimiento
+
+
+---
+
+## 📝 Sesión Junio 2026 · Hotel Inventory + Hub v2 + calc_supply.py
+
+### Contexto
+Sesión de desarrollo del módulo Hotel Inventory (`calc_inv.py`) y actualización del Hub. No se corrió pipeline PRICE. Tres tracks paralelos: (1) fixes iterativos sobre `calc_inv.py`, (2) rediseño del Hub con 6 módulos, (3) nuevo script `calc_supply.py`.
+
+### Track 1 — calc_inv.py · Fixes acumulados
+
+**Sistema de pills unificado (`udSyncBadges`):**
+- Reemplaza múltiples sistemas de pills por una función única que lee el estado real (`hFRegion`, `hFChannel`, `hFCorp`, `udActiveFilter`)
+- Usa `Set` para deduplicar — si el mismo valor viene de dos fuentes, aparece una sola pill
+- El × de cada pill limpia ambas fuentes simultáneamente
+
+**Combos siempre cyan:**
+- `color:var(--accent)!important` en todos los combos habilitados — borde y texto cyan sin importar si dicen "Todos" o tienen valor
+
+**Columnas siempre visibles:**
+- `col-show-XX` ya no oculta otras columnas — todas PP/SP/Hybrid/TP visibles siempre
+- `_tryInit` inicia con `udContent('all')` para mostrar todas las columnas por defecto
+
+**Channel view:**
+- Click en channel filtra el gráfico histórico (no drill de hoteles)
+- Sin banner "Filtro activo", sin texto "Hacé clic..."
+- RateFox → Third Party normal (`residual=False`)
+- PP: Avg Dest con barra visual; Third Party: % Gap (`hoteles/N*100`)
+- `max_avg_dest` definido antes del loop `p_rows`
+
+**Otros fixes:**
+- `× Limpiar` oculto hasta que `hIsFiltered()` sea true
+- Espacio entre filas de pills (border-bottom separador)
+- `hPopulateWeeks` llamado en `hInit` → semanas pre-populadas
+- `months_by_year` desde `acum_weeks` con cap a `snapshot_month`
+- Masthead con `height:12px` spacer + padding aumentado
+- Header ordenable PP/SP/Hybrid con `udSortCol()`
+- `gapSyncDim()` respeta `udActiveFilter` + `udActiveFilters`
+- Excel generado automáticamente al final: 5 hojas (Resumen/Región/Corp/Destino/Channel)
+- Footer con botón `⬇ Excel Inventory`
+
+**Bugs cerrados en esta sesión:** B9–B22 (ver PROMPT_INV.md v12.0)
+
+### Track 2 — Hub v2 · 6 módulos
+
+**Diseño nuevo (`build_package.py`):**
+- Título "Hub" + tag "Supply Optimization" + logo PriceTravel con ícono a la derecha
+- 3 secciones: Activos · En construcción · Backlog
+- Cards fondo `#EDE8DF` (mismo tono que el Hub)
+- Cards inactivas: trama diagonal + chip flotante (🔧 llave / 🔒 candado)
+- Backlog con opacidad 55%
+
+**6 módulos:**
+| # | Módulo | Estado |
+|---|---|---|
+| 1 | Weekly KPIs (CR + RND) | ✅ Activo — con KPIs reales W21 + WoW |
+| 2 | Hotel Inventory | 🔵 Beta |
+| 3 | RateCode Inventory | 🚧 En construcción (15%) |
+| 4 | Supply Troubleshooting (Rocket Chat) | 🚧 En construcción (60%) |
+| 5 | Optimization Strategy Layer | 📋 Backlog |
+| 6 | Alertas | 📋 Backlog |
+
+**Estructura repo actualizada:**
+```
+inventory/week-NN/
+    INVENTORY_WNN.html
+    Analisis_Inventory_WNN.xlsx
+```
+`build_package.py` incluye esta carpeta en el ZIP del repo.
+
+### Track 3 — calc_supply.py
+
+Script standalone que reemplaza el pipeline de 10 pasos para CR+RND:
+- Bloque CONFIG al principio (WEEK, VOL_NUM, PERIODO, etc.)
+- 4 datasets en la misma carpeta
+- Ejecuta los scripts del pipeline en orden via `runpy`
+- Pickles en `/tmp/` para no ensuciar la carpeta de trabajo
+- Coexiste con el pipeline oficial — no lo reemplaza
+
+### Pendientes para próxima sesión (INV)
+- Fixes residuales pills: doble pill, pill métrica, Marriott pisa filtro anterior, Channel sin pills
+- Destino como cuarta dimensión en filtros del histórico
+
+### Archivos generados/modificados
+`calc_inv.py` · `build_package.py` · `calc_supply.py` · `PROMPT_INV.md` (v12.0)
+
+---
+
+## Pipeline W22 · Junio 2026 · 02 Jun 2026
+
+**Período:** 26 may – 1 jun 2026
+**Tipo:** Pipeline completo
+
+### KPIs W22
+
+| Métrica | W21 | W22 | WoW |
+|---|---|---|---|
+| CR Eficacia | 93,15% | **94,21%** | +0,86pp 🟢 |
+| CR ConvRate | 1,57% | **1,00%** | -0,57pp 🔴 |
+| RND %NoDispo | 2,63% | **2,61%** | -0,02pp ≈ |
+| RND IPM | $834 | **$653** | -21,7% 🔴 |
+
+**Por canastas CR:** Eficacia mejora en todos (CUG +2,49pp · B2C +0,80pp · OP +0,31pp). ConvRate cae en todos.
+**Por canastas RND:** NoDispo estable. IPM cae ~20-27% en todos los canales.
+
+### Cambios aplicados
+
+#### Compatibilidad dataset CR W22
+Dataset `Dataset_CheckRates_W22.xlsx` no incluye columna `Successful UniqueChkRts`.
+Fix en `calc_cr.py` (función `load_and_clean`): si la columna está ausente, se deriva automáticamente como `round(Efectividad en CheckRates × CR_Unicos)`. Compatibilidad permanente para datasets futuros.
+
+#### Histórico expandido a 7 semanas (W16–W22)
+- `historico_data.py`: ventana expandida de 5 → 7 semanas. `SEMANAS = ['W16'...'W22']`. Arrays de 4 → 6 valores estáticos; el 7° (semana actual) sigue siendo dinámico desde el pickle.
+- Datos W16 global: reales del historial. Datos W16 por canasta: estimados con ratios W17.
+- Con W23 se alcanza la ventana objetivo de 8 semanas; desde W24 ventana móvil.
+- Bug corregido en `_hist_vals()` de `assemble_unified.py`: condición `len(base) == 4` → `len(base) >= 1` (fallaba con arrays de 6 valores).
+- `js_override.js` y `assemble_unified.py`: array de semanas actualizado a 7 elementos.
+
+#### Fix puntos canvas — todos visibles
+Los puntos intermedios de las gráficas históricas eran prácticamente invisibles (`alpha=0.6, rgba con opacidad 0.5, radio=2`). Fix aplicado en 3 archivos fuente:
+- `historico_module.py` (fuente principal del JS canvas)
+- `js_override.js` (re-draws al cambiar canasta)
+- `demo_js_main.js` (canvas inicial)
+
+Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5`. El último punto mantiene radio `3.5` + anillo blanco `#FDFCF9` para distinguir la semana actual.
+
+### Archivos modificados
+`calc_cr.py` · `calc_supply.py` · `assemble_unified.py` · `historico_data.py` · `historico_module.py` · `js_override.js` · `demo_js_main.js`
+
+### Archivos generados
+`SUPPLY_W22.html` · `Analisis_CheckRates_W22.xlsx` · `Analisis_RatesNoDispo_W22.xlsx` · `Mail_W22.html` · `Price_W22.zip` · `ProyectoClaude_PRICE_W22.zip`
+
+---
+
+## Pendientes para W23
+
+- **Histórico 8 semanas:** agregar valores W22 a cada array en `historico_data.py` → ventana completa W16–W23
+- **P5 · `extract_hist_data.py`:** util para extraer KPIs del pickle y actualizar `historico_data.py` automáticamente cada semana
+- **`update_docs.py`:** regenerar — falta en el proyecto, genera warning en el commit

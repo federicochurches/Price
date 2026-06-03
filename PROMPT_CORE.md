@@ -23,14 +23,6 @@ Recibí los datasets Week NN
 ```
 Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo en orden.
 
-**Paso 0 — Inicialización de sesión (SIEMPRE primero)**
-```python
-python3 session_init.py --token-file /mnt/user-data/uploads/text2.txt
-```
-Clona `federicochurches/Price` → `/home/claude/` y verifica que todos los scripts estén presentes.
-El token se pasa en `text2.txt` (mismo archivo del commit). El repo ES la fuente canónica de scripts —
-no es necesario subir archivos al proyecto Claude, solo `PROMPT_CORE.md` y `PROMPT_INV.md`.
-
 **Pasos internos:**
 ```
 1. calc_rnd.py + calc_cr.py          → pickles
@@ -39,7 +31,7 @@ no es necesario subir archivos al proyecto Claude, solo `PROMPT_CORE.md` y `PROM
 4. excel_cr.py + excel_rnd.py        → 2 Excels (4 hojas cada uno)
 5. render_mail_v3.py                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
-7. commit GitHub
+7. commit GitHub + ZIP proyecto Claude
 ```
 
 **Script standalone (alternativa rápida):**
@@ -62,59 +54,6 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 > **Dónde tocar qué → `NOTA_REFACTOR_PENDIENTE.md`**
 
 ---
-
-
----
-
-## 💻 Ejecución standalone desde PowerShell (sin Claude)
-
-Para correr el pipeline localmente antes de una sesión Claude, o para validar datos rápidamente.
-
-### Requisitos
-```powershell
-pip install pandas openpyxl xlsxwriter
-```
-
-### Setup
-1. Clonar el repo o descargar los scripts desde GitHub
-2. Colocar los 4 datasets en la misma carpeta que `calc_supply.py`:
-```
-calc_supply.py
-Dataset_CheckRates_WNN.xlsx
-Dataset_CheckRates_W(N-1).xlsx
-Dataset_RatesNoDispo_WNN.xlsx
-Dataset_RatesNoDispo_W(N-1).xlsx
-```
-3. Editar el bloque CONFIG en `calc_supply.py`:
-```python
-WEEK        = 'W23'
-VOL_NUM     = '23'
-PERIODO     = '2–8 jun 2026'
-MES_ANO     = 'Junio 2026'
-FECHA_PUB   = 'LUNES 09 de Junio de 2026'
-```
-
-### Ejecución
-```powershell
-cd C:\ruta\a\tus\scripts
-python calc_supply.py
-```
-
-### Outputs generados
-- `SUPPLY_W23.html` — reporte unificado CR + RND listo para validación visual
-- `cr_w23_data.pkl` + `rnd_w23_data.pkl` — pickles para pasos siguientes en Claude
-- `part1_cr.html` … `part3_rnd.html` — parciales HTML intermedios
-
-### Workflow recomendado
-```
-1. Correr calc_supply.py en PowerShell → SUPPLY_WNN.html
-2. Abrir el HTML en el browser → validación visual
-3. Si OK → iniciar sesión Claude con los datasets + token
-4. Claude retoma desde los pickles (Excels + Mail + commit)
-```
-
-> `calc_supply.py` ejecuta pasos 1–3 del pipeline (pickles + render + assemble).
-> Los pasos 4–7 (Excels, Mail, build_package, commit) requieren sesión Claude.
 
 ## 📅 Workflow Semanal
 
@@ -492,20 +431,10 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ## 🗂️ Gestión del Proyecto Claude
 
-### Archivos del proyecto Claude (W23+)
-El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
+### ZIP del proyecto
+`ProyectoClaude_PRICE_WNN.zip` — 39 archivos planos. Se entrega junto con el commit de GitHub en cada pipeline.
 
-| Archivo | Por qué está en el proyecto |
-|---|---|
-| `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
-| `PROMPT_INV.md` | Pipeline INV separado, no está en el repo |
-| `calc_inv.py` | Pipeline INV separado, no está en el repo |
-| `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
-
-**Docs** (`HISTORIAL_SESIONES.md`, `NOTA_REFACTOR_PENDIENTE.md`, `BANDAS.md`, `README_QUICK.md`, `COMMIT_GUIDE.md`) — están en el repo, se clonan solos. No subirlos al proyecto.
-
-### ZIP del proyecto (pre-W23, deprecado)
-~~`ProyectoClaude_PRICE_WNN.zip`~~ — ya no se genera. Los scripts viven en el repo.
+**Excluir siempre:** `__init__.py`, `assemble_cr.py`, `assemble_rnd.py`, `excel_cr_canastas.py`, `excel_rnd_canastas.py`, `part*.html`, `global_panel_fns.js`, `asset_cr_masthead.html`, `asset_rnd_masthead.html`, `CHANGELOG_NIVEL3.md`.
 
 ### Canal · Catálogo canónico
 ```

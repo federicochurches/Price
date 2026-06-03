@@ -7,7 +7,9 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm
-from render_helpers import BANDA_COLORS, fmt_int_es, fmt_big
+from render_helpers import (BANDA_COLORS, fmt_int_es, fmt_big,
+                            es_pct, es_int, es_ipm, banda_colors, wow_arrow,
+                            sev_badge_html_p2)
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -28,26 +30,9 @@ TOP      = D['TOP']
 g_corp_w17 = D.get('g_corp_w17')
 g_dest_w17 = D.get('g_dest_w17')
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def es_pct(v):  return f'{v*100:.2f}%'.replace('.', ',')
-def es_int(v):  return f'{int(v):,}'.replace(',', '.')
-def es_ipm(v):  return f'${int(v):,}'.replace(',', '.')
-
-def banda_colors(banda):
-    bc = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
-    return bc['bg'], bc['fg']
-
-def wow_arrow(pp):
-    if pp is None or (isinstance(pp, float) and np.isnan(pp)): return '—'
-    if pp > 0: return f'▲{abs(pp):.1f}'.replace('.', ',')
-    if pp < 0: return f'▼{abs(pp):.1f}'.replace('.', ',')
-    return '—'
-
-def sev_badge_html(banda):
-    bbg, bfg = banda_colors(banda)
-    return (f'<b class="sev-badge" style="background:{bbg};color:{bfg};'
-            f'font-size:8px;padding:2px 6px;text-transform:uppercase;'
-            f'outline:1px solid rgba(0,0,0,.12);">{banda}</b>')
+# ── Helpers locales eliminados en P10 — vienen de render_helpers.py ──────────
+# es_pct, es_int, es_ipm, banda_colors, wow_arrow, sev_badge_html → render_helpers
+def sev_badge_html(banda): return sev_badge_html_p2(banda)  # alias de compatibilidad
 
 def build_hotel_row_rnd(row):
     """r: [nombre, bbg, bfg, banda, trafico, %NoDispo, IPM, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]"""
@@ -244,7 +229,19 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
         else:
             sign = '▲' if wow_traf >= 0 else '▼'
             wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.',',') + '%'
-        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, '—', wow_traf_str])
+        # WoW IPM
+        wow_ipm = row.get('IPM_WoW_pp')
+        if wow_ipm is None or (isinstance(wow_ipm, float) and np.isnan(wow_ipm)) or ipm_r <= 0:
+            wow_ipm_str = '—'
+        else:
+            ipm_base = row.get('IPM_W18', 0)
+            if ipm_base > 0:
+                wow_ipm_pct = (wow_ipm / ipm_base) * 100
+                cls = '▲' if wow_ipm_pct >= 0 else '▼'
+                wow_ipm_str = f'{cls}{abs(round(wow_ipm_pct,1))}'.replace('.',',') + '%'
+            else:
+                wow_ipm_str = '—'
+        dim_rows.append([name, bbg, bfg, banda, traf, es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_str, wow_ipm_str, wow_traf_str])
 
     # Corp rows = dim_rows (alias)
     corps_rows = dim_rows
@@ -433,7 +430,7 @@ def render_severity():
         bc  = BANDA_COLORS.get(banda, {})
         bar_color = bc.get('bar', bbg)
         bar_w = min(int(pct*100), 100)
-        return (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
+        return (f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
                 f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
                 f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
                 f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{banda}</span>'
@@ -463,7 +460,7 @@ def render_severity():
 <span class="section-subtitle" style="color:#EA0074">P80 · {len(p80)} hoteles · {len(p80.get("DistributionCategory", p80).drop_duplicates() if "DistributionCategory" in p80.columns else p80)} registros</span>
 <p class="section-kicker">Distribución global del P80 por banda de %NoDispo (target < 3%) e IPM (target ≥ $650). Sin Conversión = BKGS=0, cohorte estructural separada.</p>
 </div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
 <div>
 <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">%NoDispo</h3>
 {rows_nd}

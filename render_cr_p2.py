@@ -508,7 +508,7 @@ def render_severity():
         bc = BANDA_COLORS.get(banda, {})
         bar_color = bc.get('bar', bbg)
         bar_w = min(int(pct*100), 100)
-        return (f'<div style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
+        return (f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
                 f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
                 f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
                 f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
@@ -539,7 +539,7 @@ def render_severity():
 <span class="section-subtitle" style="color:#5C469C">P80 · {len(p80)} hoteles</span>
 <p class="section-kicker">Distribución del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte estructural separada.</p>
 </div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
 <div>
 <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Eficacia</h3>
 {rows_ef}
@@ -617,7 +617,7 @@ def render_alertas():
 <h2 class="section-title">Alertas Críticas</h2>
 <span class="section-subtitle" id="w22-alertas-sub" style="color:var(--accent)">Peor Eficacia + Peor ConvRate · canasta activa</span>
 </div></div>
-<div id="w22-alertas" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"></div>
+<div id="w22-alertas" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px;"></div>
 </section>'''
 
 
@@ -640,7 +640,7 @@ def render_plan():
 <h2 class="section-title">Plan de Acción</h2>
 <span class="section-subtitle" style="color:var(--accent)">Canasta activa · W{WEEK_NUM}</span>
 </div></div>
-<div class="p-grid" id="w22-pg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"></div>
+<div class="p-grid" id="w22-pg" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:8px;margin-top:6px;"></div>
 <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
   <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px;">Carryover W{WEEK_PREV}</div>
   <div id="w22-co"></div>

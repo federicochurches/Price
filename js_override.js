@@ -28,13 +28,13 @@ w22_redrawCanvas = function(accent){
       for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
       for(var i=0;i<pts.length;i++){
         var last = i===pts.length-1;
-        ctx.fillStyle = last?accent:'rgba('+rgb+',0.5)'; ctx.globalAlpha = last?1:0.5;
-        ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+        ctx.fillStyle = last?accent:'rgba('+rgb+',1)'; ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI); ctx.fill();
       }
       /* Bind tooltip RND */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_rnd = cid.indexOf('ipm')>-1?'ipm':'nodispo';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W17','W18','W19','W20','W21'], metric:metric_rnd}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_rnd}, pts);
       }
     });
   }
@@ -63,13 +63,13 @@ w22_redrawCanvas = function(accent){
       for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
       for(var i=0;i<pts.length;i++){
         var last = i===pts.length-1;
-        ctx.fillStyle = last?accent:'rgba('+rgb2+',0.5)'; ctx.globalAlpha = last?1:0.5;
-        ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+        ctx.fillStyle = last?accent:'rgba('+rgb2+',1)'; ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI); ctx.fill();
       }
       /* Bind tooltip CR panel */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_cr = cid.indexOf('cv')>-1?'convrate':'eficacia';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W17','W18','W19','W20','W21'], metric:metric_cr}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_cr}, pts);
       }
     });
   }
@@ -457,7 +457,7 @@ function _patchCanvasTooltips() {
         if (dx < bestDx) { bestDx = dx; best = i; }
       });
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
-      var sems = cfg.semanas || ['W17','W18','W19','W20','W21'];
+      var sems = cfg.semanas || ['W16','W17','W18','W19','W20','W21','W22'];
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
@@ -546,8 +546,8 @@ document.addEventListener('click', function(e) {
   for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
   for(var i=0;i<pts.length;i++){
     var last=i===pts.length-1;
-    ctx.fillStyle=last?accent:'rgba('+rgb+',0.5)'; ctx.globalAlpha=last?1:0.5;
-    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+    ctx.fillStyle=last?accent:'rgba('+rgb+',1)'; ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI); ctx.fill();
   }
 });
 
@@ -607,8 +607,8 @@ document.addEventListener('click', function(e) {
   for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
   for(var i=0;i<pts.length;i++){
     var last=i===pts.length-1;
-    ctx.fillStyle=last?accent:'rgba('+rgb+',0.5)'; ctx.globalAlpha=last?1:0.5;
-    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+    ctx.fillStyle=last?accent:'rgba('+rgb+',1)'; ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI); ctx.fill();
   }
 });
 
@@ -717,8 +717,8 @@ document.addEventListener('click', function(e) {
   for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
   for(var i=0;i<pts.length;i++){
     var last=i===pts.length-1;
-    ctx.fillStyle=last?accent:'rgba('+rgb+',0.5)'; ctx.globalAlpha=last?1:0.5;
-    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3:2,0,2*Math.PI); ctx.fill(); ctx.globalAlpha=1;
+    ctx.fillStyle=last?accent:'rgba('+rgb+',1)'; ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI); ctx.fill();
   }
 });
 /* ── w22_renderCardTabs — re-renderiza los tabs de las cards KPI CR por canasta ── */
