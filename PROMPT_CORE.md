@@ -500,6 +500,7 @@ El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline 
 | `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
 | `PROMPT_INV.md` | Pipeline INV separado, no está en el repo |
 | `calc_inv.py` | Pipeline INV separado, no está en el repo |
+| `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
 
 **Docs** (`HISTORIAL_SESIONES.md`, `NOTA_REFACTOR_PENDIENTE.md`, `BANDAS.md`, `README_QUICK.md`, `COMMIT_GUIDE.md`) — están en el repo, se clonan solos. No subirlos al proyecto.
 
