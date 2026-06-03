@@ -20,3 +20,18 @@ Analisis_Checkrates_*_7d*.xlsx
 /data_set_*.xlsx
 /Week*.xlsx
 /Week-*.xlsx
+# Datasets de input (no van al repo — archivos grandes, cambian cada semana)
+Dataset_*.xlsx
+detalleHoteles_*.xlsx
+inventory/Dataset_*.xlsx
+inventory/detalleHoteles_*.xlsx
+
+# Pickles generados por el pipeline
+*.pkl
+
+# Parciales HTML intermedios
+part*.html
+
+# Archivos temporales Python
+__pycache__/
+*.pyc
