@@ -2256,3 +2256,20 @@ Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5
 ### Lección aprendida
 - `build_package.py` tiene múltiples capas de parches — para W23 conviene auditar el bloque de cards del Hub de una vez antes de tocar nada
 - El ZIP del proyecto Claude se genera SIEMPRE después de actualizar docs
+
+---
+
+## Fix pipeline local · calc_supply.py · 03 Jun 2026
+
+### Problema resuelto
+- `calc_supply.py` guardaba pickles en `tempfile.gettempdir()` (C:\Temp\)
+- Los renders buscaban los pickles ahí pero con path largo que fallaba
+- Fix: `Path(__file__).parent` — pickles en el mismo directorio que el script
+
+### Git pull lento
+- `git pull` se cuelga con archivos grandes (SUPPLY_W22.html 7MB)
+- Alternativa: `git fetch origin && git reset --hard origin/main`
+- Los datasets no se pierden (están en .gitignore)
+
+### Dependencias verificadas en PC local
+- Python 3.14.5 · pandas 3.0.3 · openpyxl 3.1.5 · xlsxwriter 3.2.9 · numpy 2.4.6
