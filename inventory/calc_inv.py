@@ -17,9 +17,9 @@ import json, sys
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W23"
-WEEK_NUM      = 23
-VOL_NUM       = "23"
+WEEK          = "W22"
+WEEK_NUM      = 22
+VOL_NUM       = "22"
 YEAR_ACTUAL   = 2026
 SNAPSHOT_DATE = "2 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
@@ -3018,6 +3018,31 @@ def build_html():
 <style>{CSS}</style>
 </head>
 <body>
+<div id="inv-loading" style="position:fixed;inset:0;background:#F8F4EC;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px;">
+  <img src="{LOGO_B64}" alt="PriceTravel" style="height:36px;filter:saturate(0) brightness(0);opacity:.85;">
+  <div style="width:120px;height:2px;background:#C9C1B0;border-radius:2px;overflow:hidden;">
+    <div id="inv-loading-bar" style="width:0%;height:100%;background:#4FC3F4;border-radius:2px;transition:width .4s ease;"></div>
+  </div>
+  <div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8A8377;">LOADING</div>
+</div>
+<script>
+(function(){{
+  var bar = document.getElementById('inv-loading-bar');
+  var pct = 0;
+  var iv = setInterval(function(){{
+    pct = Math.min(pct + (90-pct)*0.08 + 0.5, 90);
+    if(bar) bar.style.width = pct.toFixed(1)+'%';
+  }}, 80);
+  window.addEventListener('load', function(){{
+    clearInterval(iv);
+    if(bar) bar.style.width = '100%';
+    setTimeout(function(){{
+      var el = document.getElementById('inv-loading');
+      if(el){{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(function(){{ el.style.display='none'; }},300); }}
+    }}, 150);
+  }});
+}})();
+</script>
 <div class="shell">
 
 <!-- MASTHEAD -->
