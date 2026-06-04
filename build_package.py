@@ -95,10 +95,14 @@ def build_index():
     )
 
     # KPI WoW strings
-    rnd_wow = (rnd_pct - mr17['pct_nodispo']*100)
-    cr_ef_wow = (cr_ef - mc17['eficacia']*100)
-    rnd_wow_str  = f'+{rnd_wow:.2f}pp' if rnd_wow >= 0 else f'{rnd_wow:.2f}pp'
-    cr_ef_wow_str = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
+    rnd_wow      = (rnd_pct - mr17['pct_nodispo']*100)
+    cr_ef_wow    = (cr_ef - mc17['eficacia']*100)
+    cr_cv_wow    = (cr_cv - mc17['conv_rate']*100)
+    rnd_ipm_wow  = (rnd_ipm - mr17['ipm']) / mr17['ipm'] * 100 if mr17['ipm'] else 0
+    rnd_wow_str      = f'+{rnd_wow:.2f}pp'   if rnd_wow >= 0   else f'{rnd_wow:.2f}pp'
+    cr_ef_wow_str    = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
+    cr_cv_wow_str    = f'+{cr_cv_wow:.2f}pp' if cr_cv_wow >= 0 else f'{cr_cv_wow:.2f}pp'
+    rnd_ipm_wow_str  = f'+{rnd_ipm_wow:.1f}%' if rnd_ipm_wow >= 0 else f'{rnd_ipm_wow:.1f}%'
 
     # Inventory KPIs (static fallback — update when pickle available)
     inv_n      = '309.591'
@@ -225,9 +229,10 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
         <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div><div class="rpt-kpi-wow">{cr_ef_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div><div class="rpt-kpi-wow">{rnd_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if cr_ef_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if cr_ef_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{cr_ef_wow_str}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if cr_cv_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if cr_cv_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{cr_cv_wow_str}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if rnd_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if rnd_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{rnd_wow_str}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if rnd_ipm_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if rnd_ipm_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{rnd_ipm_wow_str}</div></div>
         </div>
       </div>
       <div class="rpt-pills">
