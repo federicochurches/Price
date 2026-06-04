@@ -221,7 +221,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">&#9679; Activo &nbsp;·&nbsp; Weekly KPIs</span>
+        <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">ACTIVO</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
         <div class="rpt-kpis">
@@ -243,7 +243,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" style="cursor:default;" data-no-link="1">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">&#9679; Beta &nbsp;·&nbsp; Hotel Inventory</span>
+        <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">BETA</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
@@ -307,7 +307,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="dim-overlay"></div>
       <div class="lock-chip">&#128274; Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">Backlog &nbsp;·&nbsp; Strategy</span>
+        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Strategy</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Optimization Strategy Layer</div>
         <div class="rpt-desc">Síntesis cross-módulo · recomendaciones priorizadas · cruza CR, RND e Inventory.</div>
       </div>
@@ -318,7 +318,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="dim-overlay"></div>
       <div class="lock-chip">&#128274; Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">Backlog &nbsp;·&nbsp; Alertas</span>
+        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Alertas</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Alertas</div>
         <div class="rpt-desc">Alertas proactivas automáticas · hoteles bajo threshold · flags por canal y corporativo.</div>
       </div>
