@@ -20,7 +20,6 @@ import os
 import sys
 import shutil
 import runpy
-import tempfile
 from pathlib import Path
 
 # ─────────────────────────────────────────────
@@ -83,8 +82,8 @@ def run_step(label, script_name, extra_env=None):
         'MES_ANO':    MES_ANO,
         'FECHA_PUB':  FECHA_PUB,
         'OUTPUTS_DIR': OUTPUT_DIR,
-        'PICKLE_RND': str(Path(tempfile.gettempdir()) / f'rnd_w{VOL_NUM}_data.pkl'),
-        'PICKLE_CR':  str(Path(tempfile.gettempdir()) / f'cr_w{VOL_NUM}_data.pkl'),
+        'PICKLE_RND': str(Path(__file__).parent / f'rnd_w{VOL_NUM}_data.pkl'),
+        'PICKLE_CR':  str(Path(__file__).parent / f'cr_w{VOL_NUM}_data.pkl'),
     }
     if extra_env:
         env.update(extra_env)
