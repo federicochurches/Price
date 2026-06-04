@@ -158,7 +158,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 .lock-chip{{position:absolute;top:10px;right:10px;z-index:3;background:#F0EBE2;border:1px solid var(--rule);border-radius:20px;padding:2px 8px;font-size:9px;color:var(--muted);display:flex;align-items:center;gap:3px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}}
 .rpt-card-top{{padding:18px 18px 14px;flex:1;}}
 .rpt-accent{{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;border-radius:3px;}}
-.rpt-kpis{{display:flex;gap:14px;margin-top:10px;}}
+.rpt-kpis{{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}}
 .rpt-kpi{{display:flex;flex-direction:column;gap:1px;}}
 .rpt-kpi-label{{font-size:9px;color:var(--muted);}}
 .rpt-kpi-val{{font-size:13px;font-weight:700;color:var(--ink);}}
