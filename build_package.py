@@ -225,9 +225,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <img src="data:image/png;base64,{_LOGO_B64}" alt="PriceTravel" style="height:40px;display:block;filter:saturate(0) brightness(0);">
     </div>
   </div>
-
-  <!-- ACTIVOS -->
-  <div class="section-label"><span class="section-dot" style="background:#1D9E75;"></span>Activos</div>
   <div class="hub-grid" style="margin-bottom:20px;">
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
@@ -235,12 +232,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">ACTIVO</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
-        <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if cr_ef_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if cr_ef_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{cr_ef_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if cr_cv_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if cr_cv_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{cr_cv_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if rnd_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if rnd_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{rnd_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div><div style="font-size:9px;font-weight:700;color:{{\"#1A6B4A\" if rnd_ipm_wow>=0 else \"#FF3B30\"}};background:{{\"#E1F5EE\" if rnd_ipm_wow>=0 else \"#FFE5E3\"}};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{rnd_ipm_wow_str}</div></div>
-        </div>
+        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -256,12 +248,12 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="rpt-card card-active" style="cursor:default;" data-no-link="1">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">BETA</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">State of PriceTravel Product</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Total Hotel Inventory</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Producto Propio</div><div class="rpt-kpi-val">{inv_pp_n} htls</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#C0392B;">{inv_gap} htls</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Total State of PriceTravel Product</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Producto Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#C0392B;">{inv_gap}</div></div>
         </div>
       </div>
       <div class="rpt-pills">
@@ -275,9 +267,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       </div>
     </div>
   </div>
-
-  <!-- EN CONSTRUCCIÓN -->
-  <div class="section-label"><span class="section-dot" style="background:#EF9F27;"></span>En construcción</div>
   <div class="hub-grid inactive" style="margin-bottom:20px;">
 
     <div class="rpt-card card-inactive">
@@ -310,9 +299,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-pills" style="justify-content:flex-end;"><span style="font-size:9px;color:var(--muted);">Extracción local vía Python</span></div>
     </div>
   </div>
-
-  <!-- BACKLOG -->
-  <div class="section-label"><span class="section-dot" style="background:#7F77DD;"></span>Backlog</div>
   <div class="hub-grid inactive" style="margin-bottom:28px;">
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
