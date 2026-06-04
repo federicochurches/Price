@@ -192,7 +192,7 @@ Generado en `render_masthead()` de `render_cr_p1.py` y `render_rnd_p1.py`. Propa
 ```
 Badge "Week NN"   → fondo #EA0074, texto blanco, uppercase
 H1 título         → clamp(20px,2.0vw,30px) · font-weight:800
-                    "Connectivities" negro · "& Hotel" magenta · "Availability" negro
+                    "Connectivities" cyan `#4FC3F4` · "& Hotel" negro · "Availability" cyan `#4FC3F4`
 Subtítulo métricas → uppercase small, valores en <strong color:#EA0074>
                     CR: CR_UNICOS_FMT · N_HOTELES_FMT · BOOKINGS_FMT
                     RND: TRAFICO_FMT · N_HOTELES_FMT · BOOKINGS_FMT
@@ -432,12 +432,13 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 ## 🗂️ Gestión del Proyecto Claude
 
 ### Archivos del proyecto Claude (W23+)
-El proyecto Claude solo necesita **3 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
+El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
 
 | Archivo | Por qué está en el proyecto |
 |---|---|
 | `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
 | `PROMPT_INV.md` | Instrucciones pipeline Inventory |
+| `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
 
@@ -478,9 +479,10 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W22 · Junio 2026
+**Última actualización:** W22 · Junio 2026 · 03-06-2026
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
+**Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities cyan + Availability cyan · footer unificado · State of PriceTravel Product
 
 ---
 
