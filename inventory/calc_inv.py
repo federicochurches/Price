@@ -1262,7 +1262,7 @@ function udContent(id, btn) {{
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
     const _labels = {{pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'}};
-    _titleEl.textContent = 'Evolución Histórica' + (id && _labels[id] ? ' · ' + _labels[id] : '');
+    _titleEl.textContent = 'Evolución Histórica del Producto' + (id && _labels[id] ? ' · ' + _labels[id] : '');
   }}
   if (typeof hRender === 'function') hRender();
   udCurrentContent = id;
@@ -2036,7 +2036,7 @@ function hTipo(btn, val) {{
   const titleEl = document.getElementById('hist-section-title');
   if (titleEl) {{
     const suffix = val ? ' · ' + val : '';
-    titleEl.textContent = 'Evolución Histórica' + suffix;
+    titleEl.textContent = 'Evolución Histórica del Producto' + suffix;
   }}
   hApplyFilter();
 }}
@@ -3167,7 +3167,7 @@ def build_html():
 
 <!-- ZONA 5+6: PANEL UNIFICADO (filtros + gráfico + tabla) -->
 <div class="sec-head">
-  <span class="sec-title" id="hist-section-title">Evolución Histórica</span>
+  <span class="sec-title" id="hist-section-title">Evolución Histórica del Producto</span>
 </div>
 
 <!-- ── BLOQUE DE FILTROS UNIFICADO — compact ── -->
