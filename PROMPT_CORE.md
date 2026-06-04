@@ -87,9 +87,27 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 **Visual Hub v2 — decisiones canónicas:**
 - Logo: PNG real (`_LOGO_B64` en `build_package.py`), `40px`, negro (`filter:saturate(0) brightness(0)`) — mismo tratamiento que login. No depende de `logo_b64.txt` externo.
 - Header: `border-top:3px solid var(--ink)` + `border-bottom:1px solid var(--rule)` — ancla el bloque
-- Cards activas: fondo `var(--paper)` — se funden con el Hub
-- Cards inactivas: fondo `#F0EBE2` + `backdrop-filter:blur(1.5px)` + velo `rgba(240,235,226,0.35)` — chip z-index:3 nítido encima
+- Cards activas: fondo `var(--paper)` · grid `1fr 1fr` fijo — siempre 2 columnas
+- Cards inactivas: fondo `#F0EBE2` + blur — badge amarillo `#FCB000` texto `#333132`
+- Labels de sección eliminados (ACTIVOS / EN CONSTRUCCIÓN / BACKLOG)
 - Sección "Últimas semanas" eliminada — historial solo en pills de cada card activa
+
+**Hub header (W22+):**
+- Badge `WEEK NN` → fondo `#FCB000` amarillo · texto `#333132` dark grey
+- Título: `Hub` en `#5C469C` violet · `Supply Optimization` en `#333132` dark grey
+- Subtítulo: `{SEMANA} · {PERIODO}`
+
+**Badges unificados (W22+):** todos `#FCB000` + texto `#333132` — ACTIVO · BETA · EN CONSTRUCCIÓN · BACKLOG
+
+**Card Connectivities (W22+):**
+- KPIs: Eficacia CR · Conv Rate · %NoDispo · IPM
+- Cada KPI con badge WoW verde `#1A6B4A` / rojo `#FF3B30` según dirección
+- Bajada: "Connectivities Health & Availability Success · por canal y corporativo."
+
+**Card State of PriceTravel Product (W22+):**
+- Título reemplaza "Hotel Inventory"
+- KPIs: Total · Producto Propio · Gap 2026
+- Rojo (Hub card + Inventory HTML): `#FF3B30`
 
 ### Commit semanal
 ```
@@ -192,7 +210,7 @@ Generado en `render_masthead()` de `render_cr_p1.py` y `render_rnd_p1.py`. Propa
 ```
 Badge "Week NN"   → fondo #EA0074, texto blanco, uppercase
 H1 título         → clamp(20px,2.0vw,30px) · font-weight:800
-                    "Connectivities" negro · "& Hotel" magenta · "Availability" negro
+                    "Connectivities" magenta `#EA0074` · "& Hotel" negro · "Availability" magenta `#EA0074`
 Subtítulo métricas → uppercase small, valores en <strong color:#EA0074>
                     CR: CR_UNICOS_FMT · N_HOTELES_FMT · BOOKINGS_FMT
                     RND: TRAFICO_FMT · N_HOTELES_FMT · BOOKINGS_FMT
@@ -432,12 +450,13 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 ## 🗂️ Gestión del Proyecto Claude
 
 ### Archivos del proyecto Claude (W23+)
-El proyecto Claude solo necesita **3 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
+El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline viven en el repo GitHub y se clonan automáticamente con `session_init.py`.
 
 | Archivo | Por qué está en el proyecto |
 |---|---|
 | `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
 | `PROMPT_INV.md` | Instrucciones pipeline Inventory |
+| `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
 
@@ -478,9 +497,10 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W22 · Junio 2026
+**Última actualización:** W22 · Junio 2026 · 03-06-2026
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
+**Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities cyan + Availability cyan · footer unificado · State of PriceTravel Product
 
 ---
 
@@ -511,12 +531,16 @@ Claude valida estos triggers al final de cada sesión **sin que Federico lo pida
 Al terminar cualquier sesión con cambios, Claude debe verificar:
 
 ```
+□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿colores? ¿arquitectura nueva?
+□ PROMPT_INV.md — ¿cambió algo de Inventory?
 □ HISTORIAL_SESIONES.md — agregar entrada con: contexto, cambios, archivos modificados
-□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿bugs cerrados? ¿arquitectura nueva?
-□ NOTA_REFACTOR_PENDIENTE.md — ¿cambió dónde tocar qué?
-□ README_QUICK.md — ¿hay nueva semana publicada? ¿cambió el repo?
-□ ZIP del proyecto Claude — regenerar con todos los archivos actualizados
-□ Commit GitHub — incluir docs actualizados
+□ Verificar que build_package.py refleja TODOS los cambios visuales de la sesión
+□ Regenerar index.html desde build_package.py y verificar el HTML antes de commitear
+□ ZIP del proyecto Claude — regenerar SOLO después de todo lo anterior
+□ Commit GitHub — incluir docs + scripts actualizados
 ```
+
+**Regla crítica:** El ZIP del proyecto Claude se genera ÚLTIMO, después de verificar
+que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`

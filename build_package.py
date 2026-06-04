@@ -95,10 +95,21 @@ def build_index():
     )
 
     # KPI WoW strings
-    rnd_wow = (rnd_pct - mr17['pct_nodispo']*100)
-    cr_ef_wow = (cr_ef - mc17['eficacia']*100)
-    rnd_wow_str  = f'+{rnd_wow:.2f}pp' if rnd_wow >= 0 else f'{rnd_wow:.2f}pp'
-    cr_ef_wow_str = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
+    rnd_wow      = (rnd_pct - mr17['pct_nodispo']*100)
+    cr_ef_wow    = (cr_ef - mc17['eficacia']*100)
+    cr_cv_wow    = (cr_cv - mc17['conv_rate']*100)
+    rnd_ipm_wow  = (rnd_ipm - mr17['ipm']) / mr17['ipm'] * 100 if mr17['ipm'] else 0
+    rnd_wow_str      = f'+{rnd_wow:.2f}pp'   if rnd_wow >= 0   else f'{rnd_wow:.2f}pp'
+    cr_ef_wow_str    = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
+    cr_cv_wow_str    = f'+{cr_cv_wow:.2f}pp' if cr_cv_wow >= 0 else f'{cr_cv_wow:.2f}pp'
+    rnd_ipm_wow_str  = f'+{rnd_ipm_wow:.1f}%' if rnd_ipm_wow >= 0 else f'{rnd_ipm_wow:.1f}%'
+    # Colores WoW pre-calculados
+    def _wc(v): return ("#1A6B4A","#E1F5EE") if v>=0 else ("#FF3B30","#FFE5E3")
+    def _wb(v,s): fg,bg=_wc(v); return f'<div style="font-size:9px;font-weight:700;color:{fg};background:{bg};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{s}</div>'
+    wow_ef  = _wb(cr_ef_wow,  cr_ef_wow_str)
+    wow_cv  = _wb(cr_cv_wow,  cr_cv_wow_str)
+    wow_nd  = _wb(rnd_wow,    rnd_wow_str)
+    wow_ipm = _wb(rnd_ipm_wow, rnd_ipm_wow_str)
 
     # Inventory KPIs (static fallback — update when pickle available)
     inv_n      = '309.591'
@@ -131,34 +142,34 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 .lock-btn{{width:100%;padding:15px;background:var(--ink);color:#fff;border:none;font-family:'Geist',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:background .15s;margin-top:4px;}}
 .lock-btn:hover{{background:#EA0074;}}
 .lock-btn:active{{transform:scale(.99);}}
-.lock-error{{font-size:11px;color:#C0392B;margin-top:10px;display:none;padding:10px 14px;border-left:3px solid #C0392B;background:rgba(192,57,43,.06);font-weight:500;}}
+.lock-error{{font-size:11px;color:#FF3B30;margin-top:10px;display:none;padding:10px 14px;border-left:3px solid #FF3B30;background:rgba(192,57,43,.06);font-weight:500;}}
 .lock-footer{{padding:18px 40px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;}}
 .lock-footer-tag{{font-size:10px;color:var(--muted);}}
 .lock-footer-url{{font-size:10px;color:var(--muted);}}
 @media(max-width:480px){{.lock-inner{{padding:36px 24px 28px;}}.lock-footer{{padding:14px 24px;}}}}
 #hub{{display:none;width:100%;max-width:1060px;padding:36px 40px 60px;}}
 .hub-header{{border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);padding-top:14px;padding-bottom:16px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;gap:20px;}}
-.hub-tag{{display:inline-block;background:#EA0074;color:#fff;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;margin-bottom:6px;}}
+.hub-tag{{display:inline-block;background:#FCB000;color:#333132;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;margin-bottom:6px;}}
 .hub-title{{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}}
 .hub-sub{{font-size:12px;color:var(--muted);margin-top:4px;}}
 .hub-logo{{display:flex;align-items:center;}}
 .section-label{{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}}
 .section-dot{{width:6px;height:6px;border-radius:50%;display:inline-block;}}
-.hub-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px;margin-bottom:10px;}}
-.rpt-card{{background:var(--paper);border:1px solid var(--rule);border-radius:4px;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;position:relative;}}
+.hub-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}}.hub-grid.inactive{{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}}
+.rpt-card{{background:var(--paper);border:1px solid var(--rule);border-radius:4px;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;position:relative;min-width:0;}}
 .rpt-card.card-active:hover{{border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08);}}
 .rpt-card.card-active[data-no-link="1"]:hover{{border-color:var(--rule);box-shadow:none;}}
 .rpt-card.card-inactive{{background:#F0EBE2;cursor:default;}}
 .rpt-card.card-inactive .rpt-card-top,.rpt-card.card-inactive .rpt-pills{{position:relative;z-index:0;}}
 .dim-overlay{{position:absolute;inset:0;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);background:rgba(240,235,226,0.35);z-index:1;pointer-events:none;}}
-.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;background:#F0EBE2;border:1px solid var(--rule);border-radius:20px;padding:2px 8px;font-size:9px;color:var(--muted);display:flex;align-items:center;gap:3px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}}
+.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;background:#FCB000;color:#333132;border:none;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}}
 .rpt-card-top{{padding:18px 18px 14px;flex:1;}}
 .rpt-accent{{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;border-radius:3px;}}
-.rpt-kpis{{display:flex;gap:14px;margin-top:10px;}}
+.rpt-kpis{{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}}
 .rpt-kpi{{display:flex;flex-direction:column;gap:1px;}}
 .rpt-kpi-label{{font-size:9px;color:var(--muted);}}
 .rpt-kpi-val{{font-size:13px;font-weight:700;color:var(--ink);}}
-.rpt-kpi-wow{{font-size:9px;color:#C0392B;}}
+.rpt-kpi-wow{{font-size:9px;color:#FF3B30;}}
 .rpt-desc{{font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px;}}
 .rpt-progress{{margin-top:10px;}}
 .rpt-progress-bar{{height:3px;background:var(--rule-soft);border-radius:2px;overflow:hidden;}}
@@ -207,28 +218,21 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
   <div class="hub-header">
     <div>
       <div class="hub-tag">{SEMANA}</div>
-      <div class="hub-title">Supply Analytics Hub</div>
+      <div class="hub-title"><span style="color:#5C469C;">Hub</span> <span style="color:#333132;">Supply Optimization</span></div>
       <div class="hub-sub">{SEMANA} · {PERIODO}</div>
     </div>
     <div class="hub-logo">
       <img src="data:image/png;base64,{_LOGO_B64}" alt="PriceTravel" style="height:40px;display:block;filter:saturate(0) brightness(0);">
     </div>
   </div>
-
-  <!-- ACTIVOS -->
-  <div class="section-label"><span class="section-dot" style="background:#1D9E75;"></span>Activos</div>
   <div class="hub-grid" style="margin-bottom:20px;">
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">&#9679; Activo &nbsp;·&nbsp; Weekly KPIs</span>
+        <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">ACTIVO</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
-        <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div><div class="rpt-kpi-wow">{cr_ef_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div><div class="rpt-kpi-wow">{rnd_wow_str}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div></div>
-        </div>
+        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -241,15 +245,15 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       </div>
     </div>
 
-    <div class="rpt-card card-active" style="cursor:default;" data-no-link="1">
+    <div class="rpt-card card-active" onclick="location.href='inventory/{WEEK_STR}/INVENTORY_W{WEEK}.html'" style="cursor:pointer;">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">&#9679; Beta &nbsp;·&nbsp; Hotel Inventory</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory</div>
+        <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">BETA</span>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">State of PriceTravel Product</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Total Hotel Inventory</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Producto Propio</div><div class="rpt-kpi-val">{inv_pp_n} htls</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#C0392B;">{inv_gap} htls</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#FF3B30;">{inv_gap}</div></div>
         </div>
       </div>
       <div class="rpt-pills">
@@ -263,14 +267,11 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       </div>
     </div>
   </div>
-
-  <!-- EN CONSTRUCCIÓN -->
-  <div class="section-label"><span class="section-dot" style="background:#EF9F27;"></span>En construcción</div>
-  <div class="hub-grid" style="margin-bottom:20px;">
+  <div class="hub-grid inactive" style="margin-bottom:20px;">
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">&#128295; En construcción</div>
+      <div class="lock-chip">EN CONSTRUCCIÓN</div>
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(239,159,39,.1);color:#854F0B;">En construcción &nbsp;·&nbsp; RateCode Inventory</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">RateCode Inventory</div>
@@ -285,7 +286,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">&#128295; En construcción</div>
+      <div class="lock-chip">EN CONSTRUCCIÓN</div>
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:rgba(239,159,39,.1);color:#854F0B;">En construcción &nbsp;·&nbsp; Troubleshooting</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Supply Troubleshooting</div>
@@ -298,16 +299,13 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-pills" style="justify-content:flex-end;"><span style="font-size:9px;color:var(--muted);">Extracción local vía Python</span></div>
     </div>
   </div>
-
-  <!-- BACKLOG -->
-  <div class="section-label"><span class="section-dot" style="background:#7F77DD;"></span>Backlog</div>
-  <div class="hub-grid" style="margin-bottom:28px;">
+  <div class="hub-grid inactive" style="margin-bottom:28px;">
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">&#128274; Backlog</div>
+      <div class="lock-chip">BACKLOG</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">Backlog &nbsp;·&nbsp; Strategy</span>
+        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Strategy</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Optimization Strategy Layer</div>
         <div class="rpt-desc">Síntesis cross-módulo · recomendaciones priorizadas · cruza CR, RND e Inventory.</div>
       </div>
@@ -316,9 +314,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">&#128274; Backlog</div>
+      <div class="lock-chip">BACKLOG</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">Backlog &nbsp;·&nbsp; Alertas</span>
+        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Alertas</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Alertas</div>
         <div class="rpt-desc">Alertas proactivas automáticas · hoteles bajo threshold · flags por canal y corporativo.</div>
       </div>

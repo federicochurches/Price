@@ -56,7 +56,7 @@ TARGET_PROPIO = 70_000
 ### Estructura de secciones HTML
 1. **Masthead** — estructura idéntica a Supply PRICE
 2. **KPI Bar** — 4 cards en grid
-3. **Evolución Histórica** — gráfico Chart.js (sección renombrada desde W23)
+3. **Evolución Histórica del Producto** — gráfico Chart.js (sección renombrada desde W23)
 4. **Distribución y Exploración** — tabla unificada con pills integradas
 5. **Sin Contratación Directa (GAP)** — tabla separada activada por pill
 6. **Channel View** — vista por canal de conectividad
@@ -95,7 +95,7 @@ Labels → `color:var(--ink-muted)`
 
 ---
 
-## 📈 Evolución Histórica (W23+, antes "Crecimiento Histórico")
+## 📈 Evolución Histórica del Producto (W23+, antes "Crecimiento Histórico")
 
 ### Chart — Combo Violet/Cyan (W23+)
 
@@ -332,8 +332,33 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 
 - **`text2.txt`** en el proyecto Claude — token GitHub PAT
 - Path del repo: `federicochurches/Price` · branch `main`
-- Outputs: `inventory/week-23/INVENTORY_W23.html` + `Analisis_Inventory_W23.xlsx`
-- Commit message: `feat: Inventory W23 · Revamp visual chart · UI fixes · Jun 2026`
+- Outputs: `inventory/week-NN/INVENTORY_WNN.html` + `Analisis_Inventory_WNN.xlsx`
+- Commit message: `feat: Inventory WNN · descripción · DD-MM-YYYY`
+
+## 💻 Ejecución local desde PowerShell
+
+```powershell
+cd C:\ruta\al\repo\Price\inventory
+# Poner dataHoteles_contratos.xlsx en esta carpeta
+python calc_inv.py
+# Genera: week-NN/INVENTORY_WNN.html + week-NN/Analisis_Inventory_WNN.xlsx
+```
+
+**Config semanal en `calc_inv.py`:**
+```python
+WEEK          = "W23"
+WEEK_NUM      = 23
+VOL_NUM       = "23"
+SNAPSHOT_DATE = "9 de Junio de 2026"
+INPUT_FILE    = "dataHoteles_contratos.xlsx"
+```
+
+## 🎨 Decisiones visuales (W22+)
+
+- **Rojo:** `#FF3B30` — reemplaza `#C0392B` en todo el HTML
+- **Loading screen:** overlay cyan `#4FC3F4` — mismo patrón Supply
+- **Footer:** botón "← Volver al Hub" — `href="../../index.html"`
+- **OUTPUT_DIR:** `Path(f"week-{WEEK_NUM:02d}")` — outputs en subcarpeta automática
 
 ---
 
@@ -341,7 +366,7 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 
 **Cambios v13:**
 - Masthead idéntico al Supply (shell padding-top, masthead-inner, border-bottom rule, logo 40px)
-- Sección renombrada "Evolución Histórica"
+- Sección renombrada "Evolución Histórica del Producto"
 - Chart revamp: Combo Violet `#5C469C` / Cyan `#4FC3F4` · área dinámica proporcional a PP ratio · sin puntos intermedios · punto final único · label dinámico Variación semanal/mensual/anual · ejes reforzados weight:700
 - `dest_grp` incluye `solo_propio` + `hybrid` — filas destino muestran desglose real
 - GLOBAL row orden corregido: Total | PP | Solo P. | Hybrid | Third P.

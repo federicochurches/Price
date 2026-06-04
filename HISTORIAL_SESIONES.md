@@ -2175,3 +2175,65 @@ Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5
 - **Histórico 8 semanas:** agregar valores W22 a cada array en `historico_data.py` → ventana completa W16–W23
 - **P5 · `extract_hist_data.py`:** util para extraer KPIs del pickle y actualizar `historico_data.py` automáticamente cada semana
 - **`update_docs.py`:** regenerar — falta en el proyecto, genera warning en el commit
+
+---
+
+## Post-Pipeline W22 · Visual & Infrastructure · 03 Jun 2026
+
+### Hub (`index.html` + `build_package.py`)
+- Header: badge `WEEK NN` amarillo `#FCB000` texto dark grey · título `Hub` violet `#5C469C` · `Supply Optimization` dark grey
+- Badges unificados: todos amarillo `#FCB000` + texto `#333132` (ACTIVO, BETA, EN CONSTRUCCIÓN, BACKLOG)
+- Labels de sección eliminados (ACTIVOS / EN CONSTRUCCIÓN / BACKLOG)
+- Card 1: bajada → "Connectivities Health & Availability Success" · KPIs: Eficacia CR · %NoDispo · IPM
+- Card 2: "Hotel Inventory" → "State of PriceTravel Product" · label "Total" · sin "htls" · rojo `#E53935`
+- Card Inventory clickeable → `inventory/week-NN/INVENTORY_WNN.html`
+
+### Masthead Connectivities & Hotel Availability
+- Título: `Connectivities` cyan `#4FC3F4` · `& Hotel` negro · `Availability` cyan `#4FC3F4`
+- Loading screen: barra violet `#5C469C`
+- Archivos: `render_cr_p1.py` · `render_rnd_p1.py` · `assemble_unified.py`
+
+### Pipeline Inventory (`calc_inv.py`)
+- Movido a `inventory/calc_inv.py` en el repo GitHub
+- `OUTPUT_DIR = Path(f"week-{WEEK_NUM:02d}")` — outputs en subcarpeta automática
+- Loading screen cyan `#4FC3F4` — mismo patrón que Supply
+- Footer: botón "← Volver al Hub"
+- Rojo: `#C0392B` → `#E53935` (24 ocurrencias)
+- `INPUT_FILE = "dataHoteles_contratos.xlsx"` (nombre real del dataset)
+
+### Infrastructure
+- `session_init.py` — nuevo script de bootstrap: clona repo al inicio de sesión
+- Proyecto Claude: 4 archivos (PROMPT_CORE + PROMPT_INV + calc_inv + text2.txt)
+- Docs y scripts viven en el repo — no subirlos al proyecto Claude
+- `build_package.py` incluye `inventory/calc_inv.py` en el ZIP del repo
+- `.gitignore` actualizado — excluye datasets Excel y pickles
+
+### Pendientes para W23
+- Segunda corrida `calc_inv.py` W22 con rojo `#E53935` + loading cyan + footer Hub
+- Reorganizar scripts en subcarpetas del repo (alto riesgo — dejar para W24)
+- `extract_hist_data.py` — automatizar actualización histórico
+- `update_docs.py` — eliminar warning del commit
+
+---
+
+## Post-Pipeline W22 · Hub visual fixes · 03 Jun 2026 (continuación)
+
+### Masthead Connectivities & Hotel Availability — color final
+- `Connectivities` → magenta `#EA0074` (antes cyan)
+- `& Hotel` → negro `var(--ink)`
+- `Availability` → magenta `#EA0074` (antes cyan)
+- Loading bar → magenta `#EA0074` (antes violet)
+- Archivos: `render_cr_p1.py` · `render_rnd_p1.py` · `assemble_unified.py`
+
+### Hub — fixes adicionales
+- Card 2 clickeable → `inventory/week-NN/INVENTORY_WNN.html`
+- KPIs card 2: Total · P. Propio · Gap 2026 · sin "htls" · rojo `#FF3B30`
+- Badges WoW: variables Python pre-calculadas (no f-strings con expresiones)
+- Grid cards activas: `repeat(2,minmax(0,1fr))` + `min-width:0` en rpt-card
+- Todas las ocurrencias `#C0392B` → `#FF3B30` en build_package.py
+
+### Inventory calc_inv.py — fixes
+- Rojo `#FF3B30` (24 ocurrencias, antes `#C0392B`)
+- Loading screen cyan `#4FC3F4`
+- Footer: botón "← Volver al Hub"
+- OUTPUT_DIR automático `week-{WEEK_NUM:02d}/`

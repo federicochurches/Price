@@ -679,12 +679,12 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 /* TABS */
 .distrib-tab{display:none;}
 .distrib-tab.on{display:block;}
-.gap-pill.active{background:#FEE2E2!important;color:#C0392B!important;border-color:#C0392B!important;}
+.gap-pill.active{background:#FEE2E2!important;color:#FF3B30!important;border-color:#FF3B30!important;}
 /* Metric pills use their own accent color when active */
 .metric-pill.on{background:var(--pill-on-bg,#E0F4FD);color:var(--pill-on-fg,#1A6B8A);border-color:var(--pill-on-bd,#4FC3F4);}
 /* Active row filter */
 tr.ud-filter-active td{font-weight:700;}
-tr.ud-filter-active td:first-child::after{content:' ×';color:#C0392B;font-size:10px;cursor:pointer;}
+tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:10px;cursor:pointer;}
 /* Column visibility by active pill — table gets col-show-XX class */
 /* col-show-pp no longer hides other columns — all columns always visible */
 .col-show-pp-DISABLED .th-sp,
@@ -730,7 +730,7 @@ tr.ud-filter-active > td:first-child { border-left:3px solid var(--accent,#4FC3F
 .td-pos{color:var(--green);font-size:11px;font-weight:700;text-align:right;}
 tr.sel > td{background:var(--accent-soft,#E0F4FD)!important;font-weight:700;}
 tr.sel > td:first-child{border-left:3px solid var(--accent,#4FC3F4);}
-.td-neg{color:#C0392B;font-size:11px;font-weight:700;text-align:right;}
+.td-neg{color:#FF3B30;font-size:11px;font-weight:700;text-align:right;}
 .td-pp{color:#4FC3F4;font-weight:600;}
 .td-tp{color:var(--ink);font-weight:400;}
 .td-tot{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums;}
@@ -1262,7 +1262,7 @@ function udContent(id, btn) {{
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
     const _labels = {{pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'}};
-    _titleEl.textContent = 'Evolución Histórica' + (id && _labels[id] ? ' · ' + _labels[id] : '');
+    _titleEl.textContent = 'Evolución Histórica del Producto' + (id && _labels[id] ? ' · ' + _labels[id] : '');
   }}
   if (typeof hRender === 'function') hRender();
   udCurrentContent = id;
@@ -2036,7 +2036,7 @@ function hTipo(btn, val) {{
   const titleEl = document.getElementById('hist-section-title');
   if (titleEl) {{
     const suffix = val ? ' · ' + val : '';
-    titleEl.textContent = 'Evolución Histórica' + suffix;
+    titleEl.textContent = 'Evolución Histórica del Producto' + suffix;
   }}
   hApplyFilter();
 }}
@@ -2533,7 +2533,7 @@ def pct_bar_html(pct, color='var(--accent)', max_pct=100):
             f'<span class="pct-val" style="color:{color}">{pct:.1f}%</span></div>')
 
 def vs_bar_html(vs):
-    color = 'var(--green)' if vs >= 0 else '#C0392B'
+    color = 'var(--green)' if vs >= 0 else '#FF3B30'
     sign  = '+' if vs >= 0 else ''
     w = min(100, abs(vs) / 30 * 100)
     return (f'<div class="pct-wrap">'
@@ -2759,7 +2759,7 @@ def build_channel_tab():
                    f'<td><strong>{r["channel"]}</strong>{badge}</td>'
                    f'<td>{fmt_n(r["hoteles"])}</td>'
                    f'<td>{fmt_n(r["destinos"])}</td>'
-                   f'<td style="color:#C0392B;font-weight:700;">{pct_str}</td></tr>')
+                   f'<td style="color:#FF3B30;font-weight:700;">{pct_str}</td></tr>')
 
     return f'''
       <!-- Canal overview: dos columnas lado a lado -->
@@ -2847,7 +2847,7 @@ def build_gap_tab():
             f' onclick="udRowClick(\'region\',\'{reg}\',this)">'
             f'<td><strong>{reg}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#C0392B;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#FF3B30;font-weight:700;">{fmt_n(sin_d)}</td>'
             f'<td class="td-pp">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
             f'<td class="td-vs">{vs_bar_html(vs)}</td>'
@@ -2867,7 +2867,7 @@ def build_gap_tab():
             f' onclick="udRowClick(\'corp\',\'{corp}\',this)">'
             f'<td><strong>{r["Corporativo"]}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#C0392B;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#FF3B30;font-weight:700;">{fmt_n(sin_d)}</td>'
             f'<td class="td-pp">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
             f'<td class="td-vs">{vs_bar_html(vs)}</td>'
@@ -2892,7 +2892,7 @@ def build_gap_tab():
             f'<td><strong>{r["Destino"]}</strong>'
             f'<div style="font-size:10px;color:var(--ink-muted);line-height:1.3;margin-top:1px;">{r["Region_display"]}</div></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#C0392B;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#FF3B30;font-weight:700;">{fmt_n(sin_d)}</td>'
             f'<td class="td-pp">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
             f'<td class="td-vs">{vs_bar_html(vs)}</td>'
@@ -2919,7 +2919,7 @@ def build_gap_tab():
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th style="color:#C0392B;">Sin Directo</th>
+        <th style="color:#FF3B30;">Sin Directo</th>
         <th class="th-pp">Con Directo</th>
         <th style="min-width:120px;">Penetración</th>
         <th>vs Global</th>
@@ -2928,7 +2928,7 @@ def build_gap_tab():
         <tr class="global-row">
           <td>GLOBAL</td>
           <td>{fmt_n(N)}</td>
-          <td style="color:#C0392B;font-weight:700;">{fmt_n(int(market_tp))}</td>
+          <td style="color:#FF3B30;font-weight:700;">{fmt_n(int(market_tp))}</td>
           <td class="td-pp">{fmt_n(pp)}</td>
           <td>{pct_bar_html(pp/N*100,"var(--green)")}</td>
           <td>—</td>
@@ -3119,9 +3119,9 @@ def build_html():
 
     <div>
       <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Gap</div>
-      <div style="font-size:28px;font-weight:700;color:#C0392B;letter-spacing:-.02em;" id="card-gap">{fmt_n(gap)}</div>
-      <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#C0392B;border-radius:2px;"></div></div>
-      <div style="font-size:11px;font-weight:700;color:#C0392B;margin-top:3px;">Pendientes para alcanzar el target</div>
+      <div style="font-size:28px;font-weight:700;color:#FF3B30;letter-spacing:-.02em;" id="card-gap">{fmt_n(gap)}</div>
+      <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#FF3B30;border-radius:2px;"></div></div>
+      <div style="font-size:11px;font-weight:700;color:#FF3B30;margin-top:3px;">Pendientes para alcanzar el target</div>
     </div>
 
   </div>
@@ -3133,12 +3133,12 @@ def build_html():
       f'<div style="margin-bottom:10px;">'
       f'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'
       f'<div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;">{r["Corporativo"]}</div>'
-      f'<span style="font-size:13px;font-weight:700;color:#C0392B;">{100-int(r["pct_penetracion"]):.1f}%</span>'
+      f'<span style="font-size:13px;font-weight:700;color:#FF3B30;">{100-int(r["pct_penetracion"]):.1f}%</span>'
       f'</div>'
       f'<div style="height:3px;background:var(--rule-soft);border-radius:2px;">'
-      f'<div style="height:100%;width:{min(100,100-int(r["pct_penetracion"])):.1f}%;background:#C0392B;border-radius:2px;opacity:.7;"></div>'
+      f'<div style="height:100%;width:{min(100,100-int(r["pct_penetracion"])):.1f}%;background:#FF3B30;border-radius:2px;opacity:.7;"></div>'
       f'</div>'
-      f'<div style="font-size:11px;color:#C0392B;margin-top:1px;">{fmt_n(int(r["sin_directo"]))}</div>'
+      f'<div style="font-size:11px;color:#FF3B30;margin-top:1px;">{fmt_n(int(r["sin_directo"]))}</div>'
       f'</div>'
       for _, r in corp_mkt[corp_mkt['Corporativo']!='AA-Independent'].head(5).iterrows()
     )}
@@ -3151,12 +3151,12 @@ def build_html():
       f'<div style="margin-bottom:10px;">'
       f'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'
       f'<div style="font-size:13px;font-weight:700;color:var(--ink);">{r["Region_display"]}</div>'
-      f'<span style="font-size:13px;font-weight:700;color:#C0392B;">{r["pct_sin"]:.1f}%</span>'
+      f'<span style="font-size:13px;font-weight:700;color:#FF3B30;">{r["pct_sin"]:.1f}%</span>'
       f'</div>'
       f'<div style="height:3px;background:var(--rule-soft);border-radius:2px;">'
-      f'<div style="height:100%;width:{min(100,r["pct_sin"]):.1f}%;background:#C0392B;border-radius:2px;opacity:.7;"></div>'
+      f'<div style="height:100%;width:{min(100,r["pct_sin"]):.1f}%;background:#FF3B30;border-radius:2px;opacity:.7;"></div>'
       f'</div>'
-      f'<div style="font-size:11px;color:#C0392B;margin-top:1px;">{fmt_n(int(r["sin_directo"]))}</div>'
+      f'<div style="font-size:11px;color:#FF3B30;margin-top:1px;">{fmt_n(int(r["sin_directo"]))}</div>'
       f'</div>'
       for _, r in reg_mkt.head(5).iterrows()
     )}
@@ -3167,7 +3167,7 @@ def build_html():
 
 <!-- ZONA 5+6: PANEL UNIFICADO (filtros + gráfico + tabla) -->
 <div class="sec-head">
-  <span class="sec-title" id="hist-section-title">Evolución Histórica</span>
+  <span class="sec-title" id="hist-section-title">Evolución Histórica del Producto</span>
 </div>
 
 <!-- ── BLOQUE DE FILTROS UNIFICADO — compact ── -->
@@ -3230,7 +3230,7 @@ def build_html():
         style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
         onclick="udToggleContent('hy',this)">Hybrid</button>
       <button class="pill metric-pill gap-pill" data-col="gap" id="btn-gap"
-        style="font-size:9px;--pill-on-bg:#FEE2E2;--pill-on-fg:#C0392B;--pill-on-bd:#C0392B;border-color:#C0392B;color:#C0392B;"
+        style="font-size:9px;--pill-on-bg:#FEE2E2;--pill-on-fg:#FF3B30;--pill-on-bd:#FF3B30;border-color:#FF3B30;color:#FF3B30;"
         onclick="udToggleContent('gap',this)">Sin Contrat.</button>
     </div>
   </div>
@@ -3300,6 +3300,7 @@ _tryInit();
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Descargas {WEEK}</span>
     <a href="Analisis_Inventory_W{WEEK_NUM}.xlsx" download style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel Inventory</a>
   </div>
+  <a href="../../index.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
 </body>
 </html>"""
