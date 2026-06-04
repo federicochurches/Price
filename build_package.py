@@ -138,9 +138,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 @media(max-width:480px){{.lock-inner{{padding:36px 24px 28px;}}.lock-footer{{padding:14px 24px;}}}}
 #hub{{display:none;width:100%;max-width:1060px;padding:36px 40px 60px;}}
 .hub-header{{border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);padding-top:14px;padding-bottom:16px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;gap:20px;}}
-.hub-tag{{display:inline-block;background:var(--muted);color:#fff;padding:2px 8px;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px;}}
-.hub-title{{font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1;}}
-.hub-sub{{font-size:12px;color:var(--muted);margin-top:5px;}}
+.hub-tag{{display:inline-block;background:#EA0074;color:#fff;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;margin-bottom:6px;}}
+.hub-title{{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1;}}
+.hub-sub{{font-size:12px;color:var(--muted);margin-top:4px;}}
 .hub-logo{{display:flex;align-items:center;}}
 .section-label{{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}}
 .section-dot{{width:6px;height:6px;border-radius:50%;display:inline-block;}}
@@ -206,8 +206,8 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 <div id="hub">
   <div class="hub-header">
     <div>
-      <div class="hub-tag">Supply Optimization</div>
-      <div class="hub-title">Hub</div>
+      <div class="hub-tag">{SEMANA}</div>
+      <div class="hub-title">Supply Analytics Hub</div>
       <div class="hub-sub">{SEMANA} · {PERIODO}</div>
     </div>
     <div class="hub-logo">
