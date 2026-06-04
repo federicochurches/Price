@@ -207,7 +207,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
   <div class="hub-header">
     <div>
       <div class="hub-tag">{SEMANA}</div>
-      <div class="hub-title" style="color:#333132;">Hub Supply Optimization</div>
+      <div class="hub-title"><span style="color:#333132;">Hub</span> <span style="color:#EA0074;">Supply Optimization</span></div>
       <div class="hub-sub">{SEMANA} · {PERIODO}</div>
     </div>
     <div class="hub-logo">
