@@ -436,6 +436,11 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ---
 
+## ⚠️ Nota sobre git pull local
+- `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
+- Alternativa rápida: `git fetch origin && git reset --hard origin/main`
+- Los datasets locales no se pierden con reset (están en .gitignore)
+
 ## 🐛 Bugs pendientes
 
 | # | Descripción | Archivo probable |
@@ -479,6 +484,7 @@ Price/
 Tanto el pipeline PRICE como el de Inventory se pueden correr localmente:
 ```powershell
 # PRICE — desde la raíz del repo
+# Copiar los 4 datasets a la raíz antes de correr
 python calc_supply.py
 
 # Inventory — desde la carpeta inventory/
