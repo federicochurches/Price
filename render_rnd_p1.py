@@ -524,6 +524,6 @@ window.HIST_DATA['rnd'] = {
 '''
 )
 
-with open('part1_rnd.html', 'w') as f:
+with open('part1_rnd.html', 'w', encoding='utf-8') as f:
     f.write(PART1)
 print(f"Part 1 RND escrito: {len(PART1):,} chars")

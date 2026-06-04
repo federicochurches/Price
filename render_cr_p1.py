@@ -600,6 +600,6 @@ window.HIST_DATA = HIST_DATA;
     + _build_cr_card_tabs_json()
 )
 
-with open('part1_cr.html', 'w') as f:
+with open('part1_cr.html', 'w', encoding='utf-8') as f:
     f.write(PART1)
 print(f"Part 1 CR escrito: {len(PART1):,} chars")
