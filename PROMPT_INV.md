@@ -332,8 +332,33 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 
 - **`text2.txt`** en el proyecto Claude — token GitHub PAT
 - Path del repo: `federicochurches/Price` · branch `main`
-- Outputs: `inventory/week-23/INVENTORY_W23.html` + `Analisis_Inventory_W23.xlsx`
-- Commit message: `feat: Inventory W23 · Revamp visual chart · UI fixes · Jun 2026`
+- Outputs: `inventory/week-NN/INVENTORY_WNN.html` + `Analisis_Inventory_WNN.xlsx`
+- Commit message: `feat: Inventory WNN · descripción · DD-MM-YYYY`
+
+## 💻 Ejecución local desde PowerShell
+
+```powershell
+cd C:\ruta\al\repo\Price\inventory
+# Poner dataHoteles_contratos.xlsx en esta carpeta
+python calc_inv.py
+# Genera: week-NN/INVENTORY_WNN.html + week-NN/Analisis_Inventory_WNN.xlsx
+```
+
+**Config semanal en `calc_inv.py`:**
+```python
+WEEK          = "W23"
+WEEK_NUM      = 23
+VOL_NUM       = "23"
+SNAPSHOT_DATE = "9 de Junio de 2026"
+INPUT_FILE    = "dataHoteles_contratos.xlsx"
+```
+
+## 🎨 Decisiones visuales (W22+)
+
+- **Rojo:** `#FF3B30` — reemplaza `#C0392B` en todo el HTML
+- **Loading screen:** overlay cyan `#4FC3F4` — mismo patrón Supply
+- **Footer:** botón "← Volver al Hub" — `href="../../index.html"`
+- **OUTPUT_DIR:** `Path(f"week-{WEEK_NUM:02d}")` — outputs en subcarpeta automática
 
 ---
 
