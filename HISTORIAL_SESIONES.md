@@ -2237,3 +2237,22 @@ Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5
 - Loading screen cyan `#4FC3F4`
 - Footer: botón "← Volver al Hub"
 - OUTPUT_DIR automático `week-{WEEK_NUM:02d}/`
+
+---
+
+## Cierre sesión W22 · Hub + Inventory final · 03 Jun 2026
+
+### Estado final deployado ✅
+- **SUPPLY_W22.html** — Connectivities+Availability magenta · loading magenta · barra violet eliminada
+- **INVENTORY_W22.html** — rojo #FF3B30 · loading cyan · Volver al Hub · footer beige · Evolución Histórica del Producto
+- **Hub (index.html)** — Hub violet · Supply Optimization dark grey · badges FCB000 · 2 cols fijas · badges WoW · sin labels sección
+
+### Pendientes W23
+- Instrucciones PowerShell completas para ambos pipelines
+- `extract_hist_data.py` — automatizar histórico
+- Segunda corrida Inventory cada semana después del git pull
+- Agregar W22 al histórico en `historico_data.py` cuando se procese W23
+
+### Lección aprendida
+- `build_package.py` tiene múltiples capas de parches — para W23 conviene auditar el bloque de cards del Hub de una vez antes de tocar nada
+- El ZIP del proyecto Claude se genera SIEMPRE después de actualizar docs
