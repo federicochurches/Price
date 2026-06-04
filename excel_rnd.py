@@ -239,22 +239,40 @@ for can_key, can_label, can_id in CANASTAS:
     ws=wb.create_sheet(f'{px}-Severity'); ws.sheet_properties.tabColor=RND
     write_severity(ws, p80_can, can_label, m_curr, m_prev)
 
+    # ── Dimensiones por canasta (agg_corp/agg_dest/agg_pais del CANASTA_DATA)
+    # Para Global se usan los TAB_ND globales; para canastas específicas los agg_* del pickle
+    if can_id is None:
+        # Global: usar TABs globales
+        df_pais = TAB_ND.get('pais', pd.DataFrame())
+        df_dest = TAB_ND.get('destino', pd.DataFrame())
+        df_corp = TAB_ND.get('corp', pd.DataFrame())
+        df_dim_corp_nd  = TAB_ND.get('corp',     pd.DataFrame())
+        df_dim_corp_ipm = TAB_IPM.get('corp',    pd.DataFrame())
+        df_dim_dest_nd  = TAB_ND.get('destino',  pd.DataFrame())
+        df_dim_dest_ipm = TAB_IPM.get('destino', pd.DataFrame())
+    else:
+        # Canasta específica: usar agg_* calculados por canasta en calc_rnd.py
+        df_pais = can.get('agg_pais', TAB_ND.get('pais', pd.DataFrame()))
+        df_dest = can.get('agg_dest', TAB_ND.get('destino', pd.DataFrame()))
+        df_corp = can.get('agg_corp', TAB_ND.get('corp', pd.DataFrame()))
+        df_dim_corp_nd  = df_corp
+        df_dim_corp_ipm = df_corp
+        df_dim_dest_nd  = df_dest
+        df_dim_dest_ipm = df_dest
+
     # ── 2-3. País ND / IPM
-    df_pais = TAB_ND.get('pais', pd.DataFrame())
     ws=wb.create_sheet(f'{px}-País ND'); ws.sheet_properties.tabColor=RND
     write_nd(ws, df_pais, f'{can_label} · Top Países %NoDispo W{VOL_NUM}', 'PaisDestino')
     ws=wb.create_sheet(f'{px}-País IPM'); ws.sheet_properties.tabColor=RND
     write_ipm(ws, df_pais, f'{can_label} · Top Países IPM W{VOL_NUM}', 'PaisDestino')
 
     # ── 4-5. Destino ND / IPM
-    df_dest = TAB_ND.get('destino', pd.DataFrame())
     ws=wb.create_sheet(f'{px}-Dest ND'); ws.sheet_properties.tabColor=RND
     write_nd(ws, df_dest, f'{can_label} · Top Destinos %NoDispo W{VOL_NUM}', 'Destino')
     ws=wb.create_sheet(f'{px}-Dest IPM'); ws.sheet_properties.tabColor=RND
     write_ipm(ws, df_dest, f'{can_label} · Top Destinos IPM W{VOL_NUM}', 'Destino')
 
     # ── 6-7. Corp ND / IPM
-    df_corp = TAB_ND.get('corp', pd.DataFrame())
     ws=wb.create_sheet(f'{px}-Corp ND'); ws.sheet_properties.tabColor=RND
     write_nd(ws, df_corp, f'{can_label} · Top Corp %NoDispo W{VOL_NUM}', 'CorpName')
     ws=wb.create_sheet(f'{px}-Corp IPM'); ws.sheet_properties.tabColor=RND
@@ -278,8 +296,8 @@ for can_key, can_label, can_id in CANASTAS:
 
     # ── 12-15. Dimensión Corp y Dest
     for df_nd, df_ipm, nc, suf in [
-        (TAB_ND.get('corp'), TAB_IPM.get('corp'), 'CorpName', 'Corp'),
-        (TAB_ND.get('destino'), TAB_IPM.get('destino'), 'Destino', 'Dest'),
+        (df_dim_corp_nd, df_dim_corp_ipm, 'CorpName', 'Corp'),
+        (df_dim_dest_nd, df_dim_dest_ipm, 'Destino', 'Dest'),
     ]:
         ws=wb.create_sheet(f'{px}-Dim {suf} ND'); ws.sheet_properties.tabColor=RND
         write_nd(ws, df_nd, f'{can_label} · AR Dim {suf} %NoDispo W{VOL_NUM}', nc)
