@@ -102,12 +102,12 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 **Card Connectivities (W22+):**
 - KPIs: Eficacia CR · Conv Rate · %NoDispo · IPM
 - Cada KPI con badge WoW verde `#1A6B4A` / rojo `#FF3B30` según dirección
-- Bajada: "Connectivities Health & Availability Success"
+- Bajada: "Connectivities Health & Availability Success · por canal y corporativo."
 
 **Card State of PriceTravel Product (W22+):**
 - Título reemplaza "Hotel Inventory"
 - KPIs: Total · Producto Propio · Gap 2026
-- Rojo: `#FF3B30`
+- Rojo (Hub card + Inventory HTML): `#FF3B30`
 
 ### Commit semanal
 ```
@@ -210,7 +210,7 @@ Generado en `render_masthead()` de `render_cr_p1.py` y `render_rnd_p1.py`. Propa
 ```
 Badge "Week NN"   → fondo #EA0074, texto blanco, uppercase
 H1 título         → clamp(20px,2.0vw,30px) · font-weight:800
-                    "Connectivities" cyan `#4FC3F4` · "& Hotel" negro · "Availability" cyan `#4FC3F4`
+                    "Connectivities" magenta `#EA0074` · "& Hotel" negro · "Availability" magenta `#EA0074`
 Subtítulo métricas → uppercase small, valores en <strong color:#EA0074>
                     CR: CR_UNICOS_FMT · N_HOTELES_FMT · BOOKINGS_FMT
                     RND: TRAFICO_FMT · N_HOTELES_FMT · BOOKINGS_FMT
