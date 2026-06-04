@@ -440,12 +440,14 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 - `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
 - Alternativa rápida: `git fetch origin && git reset --hard origin/main`
 - Los datasets locales no se pierden con reset (están en .gitignore)
+- **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
 ## 🐛 Bugs pendientes
 
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
+| P6 | Inventory Channel View · columna `% Gap` junto a `Hoteles` en tabla Third Party | `calc_inv.py` |
 
 > Bugs P1–P4, P6–P11 cerrados. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
 > 
