@@ -53,7 +53,7 @@ def render_masthead():
 <div class="masthead-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div class="masthead-left">
 <div style="display:inline-block;background:#EA0074;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-bottom:6px;">Week {WEEK_NUM_INT}</div>
-<h1 style="margin:6px 0 4px;font-size:clamp(20px,2.0vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.05;"><span style="color:var(--ink);">Connectivities </span><span style="color:#EA0074;">&amp; Hotel </span><span style="color:var(--ink);">Availability</span></h1>
+<h1 style="margin:6px 0 4px;font-size:clamp(20px,2.0vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.05;"><span style="color:#4FC3F4;">Connectivities </span><span style="color:var(--ink);">&amp; Hotel </span><span style="color:#4FC3F4;">Availability</span></h1>
 <div style="font-size:10px;font-weight:500;color:var(--ink-muted);margin-top:6px;letter-spacing:.06em;text-transform:uppercase;"><strong style="color:#EA0074;font-weight:700;">{CR_UNICOS_FMT}</strong> CheckRates · <strong style="color:#EA0074;font-weight:700;">{N_HOTELES_FMT}</strong> hoteles P80 · Target: <strong style="color:#EA0074;font-weight:700;">{BOOKINGS_FMT}</strong> Bookings</div>
 <div style="font-size:11px;font-weight:400;color:var(--ink-muted);margin-top:6px;">{FECHA_PUB}<span style="margin:0 16px;color:var(--rule);">|</span>Vol. {VOL_NUM}</div>
 </div>
