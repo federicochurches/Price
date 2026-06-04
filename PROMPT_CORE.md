@@ -98,6 +98,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 - Subtítulo: `{SEMANA} · {PERIODO}`
 
 **Badges unificados (W22+):** todos `#FCB000` + texto `#333132` — ACTIVO · BETA · EN CONSTRUCCIÓN · BACKLOG
+- `lock-chip` CSS: `background:#FCB000;color:#333132;border:none;border-radius:20px` — sin emojis
 
 **Card Connectivities (W22+):**
 - KPIs: Eficacia CR · Conv Rate · %NoDispo · IPM
@@ -500,7 +501,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 **Última actualización:** W22 · Junio 2026 · 03-06-2026
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
-**Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities cyan + Availability cyan · footer unificado · State of PriceTravel Product
+**Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities magenta + Availability magenta · footer unificado beige · State of PriceTravel Product · Evolución Histórica del Producto · rojo `#FF3B30`
 
 ---
 
