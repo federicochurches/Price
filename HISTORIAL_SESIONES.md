@@ -2213,3 +2213,27 @@ Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5
 - Reorganizar scripts en subcarpetas del repo (alto riesgo — dejar para W24)
 - `extract_hist_data.py` — automatizar actualización histórico
 - `update_docs.py` — eliminar warning del commit
+
+---
+
+## Post-Pipeline W22 · Hub visual fixes · 03 Jun 2026 (continuación)
+
+### Masthead Connectivities & Hotel Availability — color final
+- `Connectivities` → magenta `#EA0074` (antes cyan)
+- `& Hotel` → negro `var(--ink)`
+- `Availability` → magenta `#EA0074` (antes cyan)
+- Loading bar → magenta `#EA0074` (antes violet)
+- Archivos: `render_cr_p1.py` · `render_rnd_p1.py` · `assemble_unified.py`
+
+### Hub — fixes adicionales
+- Card 2 clickeable → `inventory/week-NN/INVENTORY_WNN.html`
+- KPIs card 2: Total · P. Propio · Gap 2026 · sin "htls" · rojo `#FF3B30`
+- Badges WoW: variables Python pre-calculadas (no f-strings con expresiones)
+- Grid cards activas: `repeat(2,minmax(0,1fr))` + `min-width:0` en rpt-card
+- Todas las ocurrencias `#C0392B` → `#FF3B30` en build_package.py
+
+### Inventory calc_inv.py — fixes
+- Rojo `#FF3B30` (24 ocurrencias, antes `#C0392B`)
+- Loading screen cyan `#4FC3F4`
+- Footer: botón "← Volver al Hub"
+- OUTPUT_DIR automático `week-{WEEK_NUM:02d}/`
