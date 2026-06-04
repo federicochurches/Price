@@ -148,7 +148,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 .hub-logo{{display:flex;align-items:center;}}
 .section-label{{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}}
 .section-dot{{width:6px;height:6px;border-radius:50%;display:inline-block;}}
-.hub-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px;margin-bottom:10px;}}
+.hub-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}}.hub-grid.inactive{{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}}
 .rpt-card{{background:var(--paper);border:1px solid var(--rule);border-radius:4px;color:var(--ink);display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s;overflow:hidden;cursor:pointer;position:relative;min-width:0;}}
 .rpt-card.card-active:hover{{border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08);}}
 .rpt-card.card-active[data-no-link="1"]:hover{{border-color:var(--rule);box-shadow:none;}}
@@ -271,7 +271,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
   <!-- EN CONSTRUCCIÓN -->
   <div class="section-label"><span class="section-dot" style="background:#EF9F27;"></span>En construcción</div>
-  <div class="hub-grid" style="margin-bottom:20px;">
+  <div class="hub-grid inactive" style="margin-bottom:20px;">
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
@@ -306,7 +306,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
   <!-- BACKLOG -->
   <div class="section-label"><span class="section-dot" style="background:#7F77DD;"></span>Backlog</div>
-  <div class="hub-grid" style="margin-bottom:28px;">
+  <div class="hub-grid inactive" style="margin-bottom:28px;">
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
