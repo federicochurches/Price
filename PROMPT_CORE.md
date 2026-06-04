@@ -87,9 +87,27 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 **Visual Hub v2 — decisiones canónicas:**
 - Logo: PNG real (`_LOGO_B64` en `build_package.py`), `40px`, negro (`filter:saturate(0) brightness(0)`) — mismo tratamiento que login. No depende de `logo_b64.txt` externo.
 - Header: `border-top:3px solid var(--ink)` + `border-bottom:1px solid var(--rule)` — ancla el bloque
-- Cards activas: fondo `var(--paper)` — se funden con el Hub
-- Cards inactivas: fondo `#F0EBE2` + `backdrop-filter:blur(1.5px)` + velo `rgba(240,235,226,0.35)` — chip z-index:3 nítido encima
+- Cards activas: fondo `var(--paper)` · grid `1fr 1fr` fijo — siempre 2 columnas
+- Cards inactivas: fondo `#F0EBE2` + blur — badge amarillo `#FCB000` texto `#333132`
+- Labels de sección eliminados (ACTIVOS / EN CONSTRUCCIÓN / BACKLOG)
 - Sección "Últimas semanas" eliminada — historial solo en pills de cada card activa
+
+**Hub header (W22+):**
+- Badge `WEEK NN` → fondo `#FCB000` amarillo · texto `#333132` dark grey
+- Título: `Hub` en `#5C469C` violet · `Supply Optimization` en `#333132` dark grey
+- Subtítulo: `{SEMANA} · {PERIODO}`
+
+**Badges unificados (W22+):** todos `#FCB000` + texto `#333132` — ACTIVO · BETA · EN CONSTRUCCIÓN · BACKLOG
+
+**Card Connectivities (W22+):**
+- KPIs: Eficacia CR · Conv Rate · %NoDispo · IPM
+- Cada KPI con badge WoW verde `#1A6B4A` / rojo `#FF3B30` según dirección
+- Bajada: "Connectivities Health & Availability Success"
+
+**Card State of PriceTravel Product (W22+):**
+- Título reemplaza "Hotel Inventory"
+- KPIs: Total · Producto Propio · Gap 2026
+- Rojo: `#FF3B30`
 
 ### Commit semanal
 ```
