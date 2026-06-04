@@ -3300,6 +3300,7 @@ _tryInit();
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Descargas {WEEK}</span>
     <a href="Analisis_Inventory_W{WEEK_NUM}.xlsx" download style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;white-space:nowrap;">⬇ Excel Inventory</a>
   </div>
+  <a href="../../index.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
 </body>
 </html>"""
