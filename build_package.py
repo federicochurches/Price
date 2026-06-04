@@ -103,6 +103,13 @@ def build_index():
     cr_ef_wow_str    = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
     cr_cv_wow_str    = f'+{cr_cv_wow:.2f}pp' if cr_cv_wow >= 0 else f'{cr_cv_wow:.2f}pp'
     rnd_ipm_wow_str  = f'+{rnd_ipm_wow:.1f}%' if rnd_ipm_wow >= 0 else f'{rnd_ipm_wow:.1f}%'
+    # Colores WoW pre-calculados
+    def _wc(v): return ("#1A6B4A","#E1F5EE") if v>=0 else ("#FF3B30","#FFE5E3")
+    def _wb(v,s): fg,bg=_wc(v); return f'<div style="font-size:9px;font-weight:700;color:{fg};background:{bg};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{s}</div>'
+    wow_ef  = _wb(cr_ef_wow,  cr_ef_wow_str)
+    wow_cv  = _wb(cr_cv_wow,  cr_cv_wow_str)
+    wow_nd  = _wb(rnd_wow,    rnd_wow_str)
+    wow_ipm = _wb(rnd_ipm_wow, rnd_ipm_wow_str)
 
     # Inventory KPIs (static fallback — update when pickle available)
     inv_n      = '309.591'
