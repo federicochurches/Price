@@ -531,12 +531,16 @@ Claude valida estos triggers al final de cada sesión **sin que Federico lo pida
 Al terminar cualquier sesión con cambios, Claude debe verificar:
 
 ```
+□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿colores? ¿arquitectura nueva?
+□ PROMPT_INV.md — ¿cambió algo de Inventory?
 □ HISTORIAL_SESIONES.md — agregar entrada con: contexto, cambios, archivos modificados
-□ PROMPT_CORE.md — ¿hay nuevas reglas? ¿bugs cerrados? ¿arquitectura nueva?
-□ NOTA_REFACTOR_PENDIENTE.md — ¿cambió dónde tocar qué?
-□ README_QUICK.md — ¿hay nueva semana publicada? ¿cambió el repo?
-□ ZIP del proyecto Claude — regenerar con todos los archivos actualizados
-□ Commit GitHub — incluir docs actualizados
+□ Verificar que build_package.py refleja TODOS los cambios visuales de la sesión
+□ Regenerar index.html desde build_package.py y verificar el HTML antes de commitear
+□ ZIP del proyecto Claude — regenerar SOLO después de todo lo anterior
+□ Commit GitHub — incluir docs + scripts actualizados
 ```
+
+**Regla crítica:** El ZIP del proyecto Claude se genera ÚLTIMO, después de verificar
+que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
