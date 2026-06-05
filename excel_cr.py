@@ -162,7 +162,7 @@ def write_combined(ws, df_ef, df_name_col, title_str, extra_cols=None):
     """Top 100 ordenado por Eficacia ASC con ambas métricas + severity coloreada."""
     title(ws, title_str, 'Ordenado por Eficacia ASC (peor primero) · Top 100')
     if df_ef is None or len(df_ef)==0: ws.cell(4,1,'Sin datos'); return
-    df_s = df_ef.sort_values('Eficacia', ascending=True).head(100).copy()
+    df_s = df_ef.sort_values('Eficacia', ascending=True).head(1000).copy()
     all_cols = COLS_COMBINED + (list(extra_cols.keys()) if extra_cols else [])
     r = mk_hdr(ws, 4, all_cols)
     for _, row in df_s.iterrows():
