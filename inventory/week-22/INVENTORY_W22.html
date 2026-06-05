@@ -1039,14 +1039,12 @@ function udContent(id, btn) {
     hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
     return;
   }
-  // Sync tipo filter to historical chart — solo actualizar si viene de toggle
-  // (hFTipo ya fue seteado por udToggleContent, no sobreescribir)
-  if (!hFTipo) {
-    if (id === 'sp')               hFTipo = 'Solo Propio';
-    else if (id === 'hy')          hFTipo = 'Hybrid';
-    else if (id === 'pp')          hFTipo = 'Prod. Propio';
-    else if (id === 'sincontrato') hFTipo = 'Third Party';
-  }
+  // Sync tipo filter to historical chart
+  if (id === 'sp')               hFTipo = 'Solo Propio';
+  else if (id === 'hy')          hFTipo = 'Hybrid';
+  else if (id === 'pp')          hFTipo = 'Prod. Propio';
+  else if (id === 'sincontrato') hFTipo = 'Third Party';
+  else                           hFTipo = '';
   // Update section title
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {
