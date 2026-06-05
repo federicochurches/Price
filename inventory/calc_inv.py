@@ -386,7 +386,7 @@ for ch_label, ch_col in CHANNEL_COL_MAP.items():
 
 # Histórico — acumulado global continuo
 df_hist = df[df['FechaCreación'].notna() & (df['FechaCreación'] != '-')].copy()
-df_hist['fecha_dt'] = pd.to_datetime(df_hist['FechaCreación'], errors='coerce')
+df_hist['fecha_dt'] = pd.to_datetime(df_hist['FechaCreación'].str.slice(0,19), errors='coerce')
 df_hist = df_hist[df_hist['fecha_dt'].notna()]
 # Include all hotel types — 'Producto Propio' filter is applied via pills in the UI
 df_hist = df_hist[df_hist['fecha_dt'].dt.year >= 2021].copy()
