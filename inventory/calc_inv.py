@@ -555,6 +555,14 @@ for r in dim_hotel_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
 
+# Índice por tipo solamente (sin duplicar por corp/región) — para filtro solo-tipo
+dim_tipo_idx = (df_hist.groupby(['yw','ym','ch_tipo'])
+                .size().reset_index(name='n').sort_values('yw'))
+dim_tipo_rows = dim_tipo_idx.to_dict('records')
+for r in dim_tipo_rows:
+    for k, v in r.items():
+        if hasattr(v, 'item'): r[k] = v.item()
+
 # Build ch_corp_map from full universe
 ch_corp_map = {}
 for ch_label, ch_col in CHANNEL_COL_MAP.items():
@@ -584,6 +592,7 @@ hist_data = {
     'years':    years_available,
     'months_by_year': months_by_year,
     'dim':        dim_rows,
+    'dim_tipo':   dim_tipo_rows,
     'dim_hotel':  dim_hotel_rows,
     'hist_regions':          hist_regions,
     'hist_corps':            hist_corps,
