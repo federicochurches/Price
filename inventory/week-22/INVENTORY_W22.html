@@ -1036,14 +1036,15 @@ function udContent(id, btn) {
     document.querySelectorAll('.distrib-pills .pill').forEach(p=>p.classList.remove('on'));
     if (btn) btn.classList.add('on');
     udToggleGap(btn);
-    hFTipo = ''; if (typeof hRender === 'function') hRender();
+    hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
     return;
   }
   // Sync tipo filter to historical chart
-  if (id === 'sp') { hFTipo = 'Solo Propio'; }
-  else if (id === 'hy') { hFTipo = 'Hybrid'; }
-  else if (id === 'pp') { hFTipo = 'Solo Propio'; } // PP = Solo Propio + Hybrid, chart shows SP as proxy
-  else { hFTipo = ''; }
+  if (id === 'sp')          { hFTipo = 'Solo Propio'; }
+  else if (id === 'hy')     { hFTipo = 'Hybrid'; }
+  else if (id === 'pp')     { hFTipo = 'Prod. Propio'; }
+  else if (id === 'sincontrato') { hFTipo = 'Third Party'; }
+  else                      { hFTipo = ''; }
   // Update section title
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {
