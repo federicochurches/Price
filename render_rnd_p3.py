@@ -422,14 +422,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     MIN_T = 500_000  # mínimo tráfico para destino y país (no para corp)
 
-    df_dest = _enrich_wow(agg_dest[agg_dest['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp = _enrich_wow(agg_corp.sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_corp, 'CorpName')
-    df_hot  = c['p80'].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True)
-    df_pais = _enrich_wow(agg_pais[agg_pais['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(100).reset_index(drop=True), agg_pais, 'PaisDestino')
-    df_dest_rpm = _enrich_wow(agg_dest[(agg_dest['IPM']>0)&(agg_dest['Trafico']>=MIN_T)].sort_values('IPM').head(100).reset_index(drop=True), agg_dest, 'Destino')
-    df_corp_rpm = _enrich_wow(agg_corp[agg_corp['IPM']>0].sort_values('IPM').head(100).reset_index(drop=True), agg_corp, 'CorpName')
-    df_hot_rpm  = c['p80'][(c['p80']['Bookings']>0)&(c['p80']['IPM']>0)].sort_values('IPM').head(100).reset_index(drop=True)
-    df_pais_rpm = _enrich_wow(agg_pais[(agg_pais['IPM']>0)&(agg_pais['Trafico']>=MIN_T)].sort_values('IPM').head(100).reset_index(drop=True), agg_pais, 'PaisDestino')
+    df_dest = _enrich_wow(agg_dest[agg_dest['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(1000).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp = _enrich_wow(agg_corp.sort_values('%NoDispo', ascending=False).head(1000).reset_index(drop=True), agg_corp, 'CorpName')
+    df_hot  = c['p80'].sort_values('%NoDispo', ascending=False).head(1000).reset_index(drop=True)
+    df_pais = _enrich_wow(agg_pais[agg_pais['Trafico']>=MIN_T].sort_values('%NoDispo', ascending=False).head(1000).reset_index(drop=True), agg_pais, 'PaisDestino')
+    df_dest_rpm = _enrich_wow(agg_dest[(agg_dest['IPM']>0)&(agg_dest['Trafico']>=MIN_T)].sort_values('IPM').head(1000).reset_index(drop=True), agg_dest, 'Destino')
+    df_corp_rpm = _enrich_wow(agg_corp[agg_corp['IPM']>0].sort_values('IPM').head(1000).reset_index(drop=True), agg_corp, 'CorpName')
+    df_hot_rpm  = c['p80'][(c['p80']['Bookings']>0)&(c['p80']['IPM']>0)].sort_values('IPM').head(1000).reset_index(drop=True)
+    df_pais_rpm = _enrich_wow(agg_pais[(agg_pais['IPM']>0)&(agg_pais['Trafico']>=MIN_T)].sort_values('IPM').head(1000).reset_index(drop=True), agg_pais, 'PaisDestino')
 
     wow_nd_dest = tab_nd.get('destino', {}); wow_nd_corp = tab_nd.get('corp', {}); wow_nd_pais = tab_nd.get('pais', {})
     wow_rpm_dest = tab_rpm.get('destino', {}); wow_rpm_corp = tab_rpm.get('corp', {}); wow_rpm_pais = tab_rpm.get('pais', {})
@@ -672,9 +672,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
 
     df_dnc_c = c['p80'].copy()
     df_dnc_c['DemandaNoConvertida'] = df_dnc_c['Trafico'] * df_dnc_c['%NoDispo']
-    df_dnc_c = df_dnc_c.sort_values('DemandaNoConvertida', ascending=False).head(100).reset_index(drop=True)
-    df_br_c  = c.get('bajo_rend',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM')).head(100).reset_index(drop=True)
-    df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False)).head(100).reset_index(drop=True)
+    df_dnc_c = df_dnc_c.sort_values('DemandaNoConvertida', ascending=False).head(1000).reset_index(drop=True)
+    df_br_c  = c.get('bajo_rend',  c['p80'][(c['p80']['Bookings']>0)&(c['p80']['RPM']>0)].sort_values('RPM')).head(1000).reset_index(drop=True)
+    df_sc_c  = c.get('sin_conv',   c['p80'][c['p80']['Bookings']==0].sort_values('Trafico', ascending=False)).head(1000).reset_index(drop=True)
 
     # Valores actuales de canasta para módulos históricos
     _pct_c = c['m18'].get('pct_nodispo', 0)
@@ -709,14 +709,14 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
     # === ANÁLISIS POR DIMENSIÓN · 3 tabs (Corp · Destino · País) ===
     def tab_panel_dim(t_key, df_full, dim_col, dim_label):
         sb_id_dim = f'sb-{idx_str}-rd-{t_key}'
-        df100 = df_full.head(100).reset_index(drop=True)
+        df100 = df_full.head(1000).reset_index(drop=True)
         rows_html = panel_inner_rnd(df100, dim_col, dim_label, parse_hotel=False, start_idx=0, sb_id=sb_id_dim)
         body = f'<div class="tbl-wrap">{rows_html}</div>'
         return f'<div class="tab-panel-c" data-tab="{t_key}">{body}</div>'
 
-    df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True)
-    df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True) if 'agg_dest' in c else df_dest
-    df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(100).reset_index(drop=True) if 'agg_pais' in c else df_pais
+    df_corp_dim = c['agg_corp'].sort_values('Trafico', ascending=False).head(1000).reset_index(drop=True)
+    df_dest_dim = c['agg_dest'].sort_values('Trafico', ascending=False).head(1000).reset_index(drop=True) if 'agg_dest' in c else df_dest
+    df_pais_dim = c['agg_pais'].sort_values('Trafico', ascending=False).head(1000).reset_index(drop=True) if 'agg_pais' in c else df_pais
 
     hist_dim_canasta = render_historico_seccion_rnd(
         f'hrnd-{idx_str}-dim-nd', f'hrnd-{idx_str}-dim-ipm',
