@@ -396,15 +396,18 @@ df_hist['yw']    = df_hist['year'].astype(str) + '-W' + df_hist['fecha_dt'].dt.i
 df_hist['ym']    = df_hist['year'].astype(str) + '-' + df_hist['month'].astype(str).str.zfill(2)
 df_hist['ch']    = df_hist['TipoHotel'].map({'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid'}).fillna('Third Party')
 
+# Subconjunto PP (Solo Propio + Hybrid) para el gráfico por defecto
+df_hist_pp = df_hist[df_hist['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])].copy()
+
 # Acumulado por año (global)
-by_year_g = df_hist.groupby('year').size().reset_index(name='netnew').sort_values('year')
+by_year_g = df_hist_pp.groupby('year').size().reset_index(name='netnew').sort_values('year')
 cum = 0; acum_years = []
 for _, r in by_year_g.iterrows():
     cum += int(r['netnew'])
     acum_years.append({'year': int(r['year']), 'netnew': int(r['netnew']), 'acum': cum})
 
 # Acumulado por mes (global) — con fill hasta el mes del snapshot
-by_month_g = df_hist.groupby('ym').size().reset_index(name='netnew').sort_values('ym')
+by_month_g = df_hist_pp.groupby('ym').size().reset_index(name='netnew').sort_values('ym')
 month_netnew = {r['ym']: int(r['netnew']) for _, r in by_month_g.iterrows()}
 
 # Mes del snapshot derivado de WEEK_NUM (aprox: cada 4.33 semanas = 1 mes)
@@ -430,7 +433,7 @@ for r in all_months:
     acum_months.append({'ym': r['ym'], 'netnew': r['netnew'], 'acum': cum})
 
 # Acumulado por semana ISO (global) — con fill de semanas sin datos
-by_week_g = df_hist.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
+by_week_g = df_hist_pp.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
 # Construir lookup de netnew por yw
 week_netnew = {r['yw']: int(r['netnew']) for _, r in by_week_g.iterrows()}
 # Determinar yw de la primera semana con dato hasta la última
