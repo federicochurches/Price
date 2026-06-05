@@ -60,27 +60,44 @@ def channel_intensity(val):
 print(f"[1/5] Cargando {INPUT_FILE}...")
 df_raw = pd.read_excel(INPUT_FILE, header=1, dtype=str)
 df_raw['Hotel'] = df_raw['Hotel'].str.strip()
-# Limpiar " Area" del nombre de destino (ej: "Bali Area" → "Bali", "Istanbul Area" → "Istanbul")
+# Limpiar " Area" del nombre de destino
 if 'Destino' in df_raw.columns:
     df_raw['Destino'] = df_raw['Destino'].str.replace(r'\s+Area$', '', regex=True).str.strip()
-# Normalize column names — dataset may use Propio/Tercero (singular) or Prpios/Terceros
-col_map = {}
-if 'Propio'  in df_raw.columns and 'Prpios'   not in df_raw.columns: col_map['Propio']  = 'Prpios'
-if 'Tercero' in df_raw.columns and 'Terceros'  not in df_raw.columns: col_map['Tercero'] = 'Terceros'
-if col_map: df_raw = df_raw.rename(columns=col_map)
-df_raw.columns = list(df_raw.columns[:20]) + ['Expedia_tercero'] + list(df_raw.columns[21:])
 df_raw['HtActive'] = pd.to_numeric(df_raw['HtActive'], errors='coerce').fillna(0).astype(int)
-df_raw['Prpios']   = pd.to_numeric(df_raw['Prpios'],   errors='coerce').fillna(0).astype(int)
-df_raw['Terceros'] = pd.to_numeric(df_raw['Terceros'], errors='coerce').fillna(0).astype(int)
+
+# Compatibilidad: dataset nuevo usa tipo_Ht_contrato_2, dataset viejo usa TipoHotel + Prpios/Terceros
+NUEVO_FORMATO = 'tipo_Ht_contrato_2' in df_raw.columns and 'Prpios' not in df_raw.columns
+
+if NUEVO_FORMATO:
+    # Dataset nuevo — renombrar columna de tipo
+    df_raw = df_raw.rename(columns={'tipo_Ht_contrato_2': 'TipoHotel'})
+    # Calcular Prpios y Terceros desde tipo
+    TIPO_NORM_RAW = {
+        'propio_con_tercero':'Propio_con_tercero',
+        'Propio_con_tercero':'Propio_con_tercero',
+        'solo_terceros':'sólo terceros',
+        'sólo terceros':'sólo terceros',
+        'sólo propio':'sólo propio',
+        'solo propio':'sólo propio',
+        'sincontrato':'sincontrato',
+    }
+    df_raw['TipoHotel'] = df_raw['TipoHotel'].map(TIPO_NORM_RAW).fillna(df_raw['TipoHotel'])
+    df_raw['Prpios']   = df_raw['TipoHotel'].isin(['sólo propio','Propio_con_tercero']).astype(int)
+    df_raw['Terceros'] = df_raw['TipoHotel'].isin(['sólo terceros']).astype(int)
+    # Renombrar columna Región para compatibilidad
+    if 'Región' in df_raw.columns and 'RegionDestino' not in df_raw.columns:
+        df_raw = df_raw.rename(columns={'Región': 'RegionDestino'})
+else:
+    # Dataset viejo — normalizar columnas
+    col_map = {}
+    if 'Propio'  in df_raw.columns and 'Prpios'   not in df_raw.columns: col_map['Propio']  = 'Prpios'
+    if 'Tercero' in df_raw.columns and 'Terceros'  not in df_raw.columns: col_map['Tercero'] = 'Terceros'
+    if col_map: df_raw = df_raw.rename(columns=col_map)
+    df_raw.columns = list(df_raw.columns[:20]) + ['Expedia_tercero'] + list(df_raw.columns[21:])
+    df_raw['Prpios']   = pd.to_numeric(df_raw['Prpios'],   errors='coerce').fillna(0).astype(int)
+    df_raw['Terceros'] = pd.to_numeric(df_raw['Terceros'], errors='coerce').fillna(0).astype(int)
 
 df_sistema = df_raw[df_raw['HtActive'] == 1].copy()
-
-# Compatibilidad: si el dataset usa tipo_Ht_contrato_2 en lugar de TipoHotel
-if 'TipoHotel' not in df_sistema.columns and 'tipo_Ht_contrato_2' in df_sistema.columns:
-    df_sistema = df_sistema.rename(columns={'tipo_Ht_contrato_2': 'TipoHotel'})
-elif 'tipo_Ht_contrato_2' in df_sistema.columns:
-    # Si ambas existen, usar tipo_Ht_contrato_2 como fuente de verdad
-    df_sistema['TipoHotel'] = df_sistema['tipo_Ht_contrato_2']
 
 # Normalize TipoHotel — handle accented/unaccented and singular/plural variants
 TIPO_NORM = {
