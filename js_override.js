@@ -1805,3 +1805,232 @@ setTimeout(_moreBtnAll, 300); /* Botones Ver más después del render inicial */
 
 /* Sort inicial — después de w22_update() para que el DOM esté listo */
 setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIX 1 — Searchbox panel AR (w22-ph / w22-pd)
+   Opera sobre [data-hist-label] en w22-th y w22-td.
+   Se re-inicializa en cada cambio de canasta/modo.
+   ══════════════════════════════════════════════════════════════════════ */
+(function initPanelSearch() {
+  function _normStr(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+  function _attachPanelSb(inputId, tbodyId, countId, clearId) {
+    var input   = document.getElementById(inputId);
+    var countEl = document.getElementById(countId);
+    var clearBtn= document.getElementById(clearId);
+    if (!input) return;
+
+    function _filter() {
+      var q = _normStr(input.value.trim());
+      var tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      var rows = tbody.querySelectorAll('[data-hist-label]');
+      var vis = 0, total = rows.length;
+      rows.forEach(function(r, i) {
+        var match = !q || _normStr(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
+        if (q) {
+          if (match) {
+            r.classList.remove('sb-hidden'); r.classList.remove('rows-more');
+            r.style.setProperty('display','table-row','important'); vis++;
+          } else {
+            r.style.setProperty('display','none','important');
+          }
+        } else {
+          /* Sin query: restaurar visibilidad original por índice */
+          var ri = parseInt(r.getAttribute('data-row-idx')||String(i));
+          if (ri < _KPI_TOP_N) {
+            r.classList.remove('sb-hidden'); r.classList.remove('rows-more');
+            r.style.setProperty('display','table-row','important'); vis++;
+          } else if (ri < _KPI_EXPAND_N) {
+            /* rows-more — visibles solo si el botón está expandido */
+            var btn = document.getElementById(tbodyId + '-more');
+            var expanded = btn && btn.getAttribute('data-exp') === '1';
+            if (expanded) { r.style.setProperty('display','table-row','important'); vis++; }
+            else { r.classList.add('rows-more'); r.style.setProperty('display','none','important'); }
+          } else {
+            r.classList.add('sb-hidden'); r.style.setProperty('display','none','important');
+          }
+        }
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+      if (countEl) {
+        if (q) { countEl.textContent = vis + ' / ' + total; countEl.className = 'sb-pill-count has-q'; }
+        else   { countEl.textContent = ''; countEl.className = 'sb-pill-count'; }
+      }
+    }
+
+    /* Limpiar handler anterior si existe */
+    if (input._panelSbAttached) { input.removeEventListener('input', input._panelSbHandler); }
+    input._panelSbHandler = function() { _filter(); };
+    input._panelSbAttached = true;
+    input.addEventListener('input', input._panelSbHandler);
+
+    if (clearBtn) {
+      clearBtn.onclick = function() { input.value = ''; _filter(); input.focus(); };
+    }
+
+    /* Exponer para que otros patches puedan re-filtrar tras render */
+    window['_panelSbFilter_' + tbodyId] = _filter;
+  }
+
+  function _initPanelSearch() {
+    _attachPanelSb('sb-panel-th', 'w22-th', 'cnt-panel-th', 'sb-panel-th-clear');
+    _attachPanelSb('sb-panel-td', 'w22-td', 'cnt-panel-td', 'sb-panel-td-clear');
+  }
+
+  /* Limpiar searchbox y contador al cambiar tab de hotel o dim */
+  function _clearPanelSb(inputId, countId) {
+    var inp = document.getElementById(inputId);
+    var cnt = document.getElementById(countId);
+    if (inp) { inp.value = ''; }
+    if (cnt) { cnt.textContent = ''; cnt.className = 'sb-pill-count'; }
+    var clr = document.getElementById(inputId + '-clear');
+    if (clr) clr.style.display = 'none';
+  }
+
+  /* Re-correr _injectHistAttrs Y re-lanzar filtro tras cada render de tabla */
+  var _origRT_sb = w22_renderTable;
+  w22_renderTable = function(tbodyId, btnId, rows, open) {
+    _origRT_sb(tbodyId, btnId, rows, open);
+    /* Limpiar searchbox al re-renderizar (cambio de tab) */
+    if (tbodyId === 'w22-th') _clearPanelSb('sb-panel-th', 'cnt-panel-th');
+    if (tbodyId === 'w22-td') _clearPanelSb('sb-panel-td', 'cnt-panel-td');
+  };
+
+  /* Init con retry hasta que los inputs existan */
+  (function tryInit() {
+    if (document.getElementById('sb-panel-th')) { _initPanelSearch(); }
+    else { setTimeout(tryInit, 100); }
+  })();
+
+  /* Re-init al cambiar modo CR↔RND o canasta */
+  var _origSM_sb = w22_setMode;
+  w22_setMode = function(m, el) { _origSM_sb(m, el); setTimeout(_initPanelSearch, 150); };
+  var _origSC_sb = w22_setC;
+  w22_setC = function(c, el) { _origSC_sb(c, el); setTimeout(_initPanelSearch, 150); };
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIX 2 — Clicks en rows 6-1000 (rows-more / sb-hidden)
+   _injectHistAttrs solo corre en render inicial. Los rows-more
+   no tienen data-hist-w21 hasta que se hacen visibles.
+   Patch: inyectar attrs también al expandir con "Ver más".
+   ══════════════════════════════════════════════════════════════════════ */
+(function patchMoreBtnInject() {
+  /* Interceptar _moreBtn para agregar inyección de hist attrs al expand */
+  var _origMoreBtn = _moreBtn;
+  _moreBtn = function(containerEl, tbodyId) {
+    _origMoreBtn(containerEl, tbodyId);
+    /* Buscar el botón recién configurado y wrappear su onclick */
+    var sid = tbodyId || '';
+    var btn = containerEl.querySelector('button[id="' + sid + '-more"]') ||
+              containerEl.querySelector('button[id$="-more"]');
+    if (!btn) return;
+    var prevOnclick = btn.getAttribute('onclick') || '';
+    if (prevOnclick.indexOf('_injectAfterExpand') >= 0) return; /* ya patcheado */
+    /* Agregar llamada a inject después del expand */
+    btn.setAttribute('onclick', prevOnclick +
+      ';(function(){' +
+      '  var tb=document.getElementById("' + sid + '");' +
+      '  if(!tb||typeof window._injectHistAttrs!=="function") return;' +
+      '  var trs=tb.querySelectorAll("tr");' +
+      '  /* Re-inyectar solo los que faltan (sin data-hist-w21) */' +
+      '  var allRows=tb._lastRows||[];' +
+      '  trs.forEach(function(tr,i){' +
+      '    if(tr.getAttribute("data-hist-w21")) return;' +
+      '    var r=allRows[i]; if(!r) return;' +
+      '    tr.setAttribute("data-hist-label", r[0]||"");' +
+      '    tr.setAttribute("data-row-idx", String(i));' +
+      '    tr.style.cursor="pointer";' +
+      '    var v=parseFloat((r[5]||"0").toString().replace(/[^0-9,.]/g,"").replace(",","."));' +
+      '    if(!isNaN(v)){tr.setAttribute("data-hist-w21",String(v));}' +
+      '  });' +
+      '  /* Re-filtrar searchbox si hay query activo */' +
+      '  if(tb.id==="w22-th"&&typeof window._panelSbFilter_w22_th==="function") window._panelSbFilter_w22_th();' +
+      '  if(tb.id==="w22-td"&&typeof window._panelSbFilter_w22_td==="function") window._panelSbFilter_w22_td();' +
+      '})();'
+    );
+  };
+
+  /* Guardar _lastRows en cada render para que el inject los encuentre */
+  var _origRT_rows = w22_renderTable;
+  w22_renderTable = function(tbodyId, btnId, rows, open) {
+    var tb = document.getElementById(tbodyId);
+    if (tb) tb._lastRows = rows;
+    _origRT_rows(tbodyId, btnId, rows, open);
+  };
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIX 3 — Persistencia de selección entre pestañas del panel AR
+   Al cambiar tab (Críticos → Bajo Rendimiento), w22_renderTable
+   re-escribe el tbody y se pierde el highlight.
+   Guardamos _selectedPanelLabel y lo re-aplicamos tras cada render.
+   ══════════════════════════════════════════════════════════════════════ */
+(function patchPanelSelection() {
+  var _selectedPanelLabel = null; /* label del hotel/dim seleccionado */
+  var _selectedPanelTbody = null; /* 'w22-th' o 'w22-td' */
+
+  /* Capturar selección en el click listener existente */
+  var _origClickHandler = null; /* El listener ya está en GLOBAL_PANEL_SCRIPT */
+  /* Hookear con un listener adicional en capture phase */
+  document.addEventListener('click', function(e) {
+    var row = e.target.closest ? e.target.closest('[data-hist-w21]') : null;
+    if (!row) return;
+    var tbody = row.closest('tbody');
+    if (!tbody) return;
+    if (tbody.id !== 'w22-th' && tbody.id !== 'w22-td') return;
+
+    var label = row.getAttribute('data-hist-label') || '';
+    var isAlready = row.getAttribute('data-selected') === '1';
+    if (isAlready) {
+      /* Segundo click = deseleccionar */
+      _selectedPanelLabel = null;
+      _selectedPanelTbody = null;
+    } else {
+      _selectedPanelLabel = label;
+      _selectedPanelTbody = tbody.id;
+    }
+  }, true); /* capture — antes del listener principal */
+
+  /* Re-aplicar selección tras cada w22_renderTable */
+  var _origRT_sel = w22_renderTable;
+  w22_renderTable = function(tbodyId, btnId, rows, open) {
+    _origRT_sel(tbodyId, btnId, rows, open);
+    if (!_selectedPanelLabel || tbodyId !== _selectedPanelTbody) return;
+    /* Buscar la fila con el mismo label y re-aplicar highlight */
+    setTimeout(function() {
+      var tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      var accent = (typeof cv === 'function') ? cv().col : '#5C469C';
+      var accentAlpha = accent === '#EA0074' ? 'rgba(234,0,116,0.07)' :
+                        accent === '#FCB000' ? 'rgba(252,176,0,0.10)' :
+                        accent === '#4FC3F4' ? 'rgba(79,195,244,0.10)' :
+                        'rgba(92,70,156,0.07)';
+      /* Limpiar selección previa */
+      tbody.querySelectorAll('[data-selected="1"]').forEach(function(r) {
+        r.style.background = ''; r.removeAttribute('data-selected');
+      });
+      /* Aplicar en la fila que coincide */
+      var trs = tbody.querySelectorAll('[data-hist-label]');
+      trs.forEach(function(tr) {
+        if (tr.getAttribute('data-hist-label') === _selectedPanelLabel) {
+          tr.setAttribute('data-selected', '1');
+          tr.style.background = accentAlpha;
+        }
+      });
+    }, 20);
+  };
+
+  /* Limpiar selección al cambiar canasta o modo */
+  var _origSM_sel = w22_setMode;
+  w22_setMode = function(m, el) {
+    _selectedPanelLabel = null; _selectedPanelTbody = null;
+    _origSM_sel(m, el);
+  };
+  var _origSC_sel = w22_setC;
+  w22_setC = function(c, el) {
+    _selectedPanelLabel = null; _selectedPanelTbody = null;
+    _origSC_sel(c, el);
+  };
+})();
