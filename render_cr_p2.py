@@ -234,13 +234,13 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         return [build_hotel_row(r, wow_col='Eficacia_WoW_pp') for _, r in df.iterrows()]
 
     # Críticos: Eficacia < 93% (Crítica + Súper Crítica), con bookings, top 10 Eficacia ASC
-    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(100)
+    df_crit = df_w[df_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(1000)
     # Bajo Rendimiento: Eficacia Revisar o Aceptable, con bookings
-    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(100)
+    df_br   = df_w[df_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(1000)
     # Sin Conversión: bookings = 0
-    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(100)
+    df_sc   = df_hotel[df_hotel['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(1000)
     # Menor ConvRate: con bookings, orden ConvRate ASC
-    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(100)
+    df_cv   = df_w.sort_values('ConvRate', ascending=True).head(1000)
 
     hotel_rows      = hotel_rows_from(df_crit)  # default = Críticos
     hotels_crit_rows = hotel_rows_from(df_crit)
@@ -252,7 +252,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
 
     # Dims rows (por Corp, top 10 Eficacia ASC)
     dim_rows = []
-    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(100)
+    g_sort = g_corp_c.sort_values('Eficacia', ascending=True).head(1000)
     for _, row in g_sort.iterrows():
         name  = str(row['CorpName'])[:60]
         banda = row.get('BandaEficacia', banda_eficacia(row['Eficacia']))
@@ -298,7 +298,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         g_dest = g_dest.merge(g_dest_w17[_w17_cols], on='Destino', how='left')
         g_dest['CR_Unicos_WoW_pp'] = (g_dest['CR_Unicos'] - g_dest['CR_Unicos_W17'].fillna(g_dest['CR_Unicos'])) * 100
     if g_dest is not None and len(g_dest) > 0:
-        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(100).iterrows():
+        for _, row in g_dest.sort_values('Eficacia', ascending=True).head(1000).iterrows():
             banda = banda_eficacia(row['Eficacia'])
             bbg, bfg = banda_colors(banda)
             # WoW Eficacia
@@ -581,6 +581,50 @@ def render_analisis_rendimiento():
                 f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
                 f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
+    # Searchbox pill para panel hotel y panel dim
+    sb_th = (
+        '<div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;">'
+        '<div class="sb-pill" style="display:inline-flex;align-items:center;gap:5px;'
+        'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
+        'padding:3px 10px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" '
+        'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">'
+        '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+        '<input type="text" id="sb-panel-th" placeholder="Buscar hotel…" autocomplete="off" spellcheck="false" '
+        'style="background:none;border:none;outline:none;font-size:10px;font-family:inherit;'
+        'color:var(--ink);width:140px;caret-color:#5C469C;" '
+        'onfocus="this.closest(\'.sb-pill\').style.borderColor=\'#5C469C\';this.closest(\'.sb-pill\').style.boxShadow=\'0 0 0 2px #5C469C1A\';" '
+        'onblur="if(!this.value){this.closest(\'.sb-pill\').style.borderColor=\'\';this.closest(\'.sb-pill\').style.boxShadow=\'\';}"></input>'
+        '<button id="sb-panel-th-clear" type="button" style="display:none;background:none;border:none;'
+        'cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" '
+        'title="Limpiar">×</button>'
+        '</div>'
+        '<span id="cnt-panel-th" style="font-size:9px;font-weight:700;color:var(--ink-muted);'
+        'background:var(--rule-soft);padding:2px 7px;border-radius:10px;white-space:nowrap;"></span>'
+        '</div>'
+    )
+    sb_td = (
+        '<div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;">'
+        '<div class="sb-pill" style="display:inline-flex;align-items:center;gap:5px;'
+        'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
+        'padding:3px 10px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" '
+        'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">'
+        '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+        '<input type="text" id="sb-panel-td" placeholder="Buscar…" autocomplete="off" spellcheck="false" '
+        'style="background:none;border:none;outline:none;font-size:10px;font-family:inherit;'
+        'color:var(--ink);width:140px;caret-color:#5C469C;" '
+        'onfocus="this.closest(\'.sb-pill\').style.borderColor=\'#5C469C\';this.closest(\'.sb-pill\').style.boxShadow=\'0 0 0 2px #5C469C1A\';" '
+        'onblur="if(!this.value){this.closest(\'.sb-pill\').style.borderColor=\'\';this.closest(\'.sb-pill\').style.boxShadow=\'\';}"></input>'
+        '<button id="sb-panel-td-clear" type="button" style="display:none;background:none;border:none;'
+        'cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" '
+        'title="Limpiar">×</button>'
+        '</div>'
+        '<span id="cnt-panel-td" style="font-size:9px;font-weight:700;color:var(--ink-muted);'
+        'background:var(--rule-soft);padding:2px 7px;border-radius:10px;white-space:nowrap;"></span>'
+        '</div>'
+    )
+
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Análisis de Rendimiento</h2>
@@ -593,7 +637,8 @@ def render_analisis_rendimiento():
     <label class="tab-label" onclick="w22_iTab(this)">Sin Conversión</label>
     <label class="tab-label" onclick="w22_iTab(this)">Menor ConvRate</label>
   </div>
-  <div style="padding-top:14px;">
+  {sb_th}
+  <div style="padding-top:4px;">
     {table_html('w22-th', 'w22-th-more', th_labels_hotel)}
   </div>
 </div>
@@ -603,7 +648,8 @@ def render_analisis_rendimiento():
     <label class="tab-label" onclick="w22_iTab(this);w22_setDim('dest')">Por Destino</label>
     <label class="tab-label" onclick="w22_iTab(this);w22_setDim('chan')">Por Channel</label>
   </div>
-  <div style="padding-top:14px;">
+  {sb_td}
+  <div style="padding-top:4px;">
     {table_html('w22-td', 'w22-td-more', th_labels_corp, dim_header_id='w22-th-dim')}
   </div>
 </div>
