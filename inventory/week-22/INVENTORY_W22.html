@@ -499,7 +499,7 @@ canvas{display:block;}
 </div>
 
 <!-- ── DRILL-DOWN: Hoteles incrementales por semana ── -->
-<div id="drill-wrap" style="display:none;margin:16px 0;border:1px solid var(--rule);border-radius:4px;overflow:hidden;">
+<div id="drill-wrap" style="display:none;/* legacy */margin:16px 0;border:1px solid var(--rule);border-radius:4px;overflow:hidden;">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper-soft);border-bottom:1px solid var(--rule);">
     <span id="drill-title" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);">Hoteles nuevos</span>
     <button onclick="hCloseDrill()" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink-muted);">×</button>
@@ -517,56 +517,87 @@ canvas{display:block;}
 function hOpenDrill(yw, label) {
   const dim = window._activeDim || 'region';
   window._lastDrillYw = yw;
-  console.log('[drill] yw:', yw, 'label:', label, 'dim:', dim);
-  console.log('[drill] HIST.dim sample:', HIST.dim.slice(0,3));
-  // Intentar match exacto primero, luego por label
-  let rows = HIST.dim.filter(r => r.yw === yw);
-  if (!rows.length && label) {
-    // El label puede ser "W22" o "2026-W22" — buscar match parcial
-    rows = HIST.dim.filter(r => r.yw && r.yw.endsWith(label.replace('W','W')));
-  }
-  if (!rows.length) {
-    console.log('[drill] No rows found for yw:', yw, '— available sample:', HIST.dim.slice(0,5).map(r=>r.yw));
-    return;
-  }
-  console.log('[drill] rows found:', rows.length);
+
+  // Usar dim_hotel para el desglose (un row por hotel, sin duplicar por channel)
+  let rows = HIST.dim_hotel.filter(r => r.yw === yw);
+  if (!rows.length) return;
 
   // Agrupar por dimensión activa
-  const key = dim === 'region' ? 'region' : dim === 'corp' ? 'corp' : dim === 'channel' ? 'channel' : 'region';
+  const keyMap = {region:'region', corp:'corp', channel:'channel', dest:'region'};
+  const key = keyMap[dim] || 'region';
+
+  // Calcular totales por dimensión y tipo
   const agg = {};
   rows.forEach(r => {
     const k = r[key] || '—';
-    agg[k] = (agg[k] || 0) + r.n;
+    if (!agg[k]) agg[k] = {total:0, pp:0, sp:0, hy:0, tp:0};
+    agg[k].total += r.n;
+    if (r.ch_tipo === 'Solo Propio')  agg[k].sp += r.n;
+    if (r.ch_tipo === 'Hybrid')       agg[k].hy += r.n;
+    if (r.ch_tipo === 'Third Party')  agg[k].tp += r.n;
+    if (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid') agg[k].pp += r.n;
   });
 
-  const sorted = Object.entries(agg).sort((a,b) => b[1]-a[1]);
-  const total = sorted.reduce((s,[,v]) => s+v, 0);
+  const sorted = Object.entries(agg).sort((a,b) => b[1].total - a[1].total);
+  const totals = {total:0,pp:0,sp:0,hy:0,tp:0};
+  sorted.forEach(([,v]) => { totals.total+=v.total; totals.pp+=v.pp; totals.sp+=v.sp; totals.hy+=v.hy; totals.tp+=v.tp; });
 
-  // Labels de dimensión
-  const dimLabel = {'region':'Región','corp':'Corporativo','channel':'Channel','dest':'Destino'}[dim] || 'Dimensión';
+  // Actualizar header de la tabla con el período seleccionado
+  const th = document.getElementById('ud-dim-th');
+  const dimLabel = {region:'Región',corp:'Corporativo',channel:'Channel',dest:'Destino'}[dim] || 'Dimensión';
 
-  // Render tabla
-  document.getElementById('drill-title').textContent = `Hoteles nuevos · ${label} · por ${dimLabel}`;
-  document.getElementById('drill-thead').innerHTML = `<tr>
-    <th style="text-align:left;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">${dimLabel.toUpperCase()}</th>
-    <th style="text-align:right;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">HOTELES</th>
-    <th style="text-align:right;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">% DEL TOTAL</th>
+  // Actualizar título de la sección
+  const secTitle = document.getElementById('hist-section-title');
+  if (secTitle) {
+    secTitle.innerHTML = `Evolución Histórica del Producto <span style="font-size:11px;font-weight:500;color:var(--accent);margin-left:8px;">· Hoteles nuevos ${label} <span onclick="hResetDrill()" style="cursor:pointer;font-size:12px;color:var(--ink-muted);margin-left:4px;" title="Ver todos">×</span></span>`;
+  }
+
+  // Rerender tbody de la tabla principal
+  const tbody = document.getElementById('ud-tbody');
+  if (!tbody) return;
+
+  const fmtN = n => n.toLocaleString('es-MX');
+  const pctBar = (n, tot) => {
+    const pct = tot ? (n/tot*100) : 0;
+    return `<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${pct.toFixed(1)}%;background:#4FC3F4"></div></div><span class="pct-val" style="color:#4FC3F4">${pct.toFixed(1)}%</span></div>`;
+  };
+
+  // Fila GLOBAL
+  const globalRow = `<tr class="global-row">
+    <td>${dimLabel} <span style="font-size:10px;color:var(--ink-muted);">· nuevos ${label}</span></td>
+    <td>${fmtN(totals.total)}</td>
+    <td class="td-pp" style="color:#4FC3F4;font-weight:700;">${fmtN(totals.pp)}</td>
+    <td class="td-sp" style="opacity:.55;">${fmtN(totals.sp)}</td>
+    <td class="td-hy" style="opacity:.55;">${fmtN(totals.hy)}</td>
+    <td class="td-tp">${fmtN(totals.tp)}</td>
+    <td>${pctBar(totals.pp, totals.total)}</td>
+    <td>—</td>
   </tr>`;
 
-  document.getElementById('drill-tbody').innerHTML = sorted.map(([k,v], i) => `
-    <tr style="border-top:1px solid var(--rule);background:${i%2===0?'var(--paper)':'var(--paper-soft)'}">
-      <td style="padding:6px 14px;font-weight:${i===0?'700':'400'}">${k}</td>
-      <td style="padding:6px 14px;text-align:right;font-weight:700;color:var(--accent);">${v.toLocaleString('es-MX')}</td>
-      <td style="padding:6px 14px;text-align:right;color:var(--ink-muted);">${((v/total)*100).toFixed(1)}%</td>
-    </tr>`).join('') + `
-    <tr style="border-top:2px solid var(--rule);background:var(--paper-soft)">
-      <td style="padding:6px 14px;font-weight:700;">TOTAL</td>
-      <td style="padding:6px 14px;text-align:right;font-weight:700;color:var(--accent);">${total.toLocaleString('es-MX')}</td>
-      <td style="padding:6px 14px;text-align:right;color:var(--ink-muted);">100%</td>
-    </tr>`;
+  const dataRows = sorted.map(([k, v]) => `<tr>
+    <td style="font-weight:600;">${k}</td>
+    <td>${fmtN(v.total)}</td>
+    <td class="td-pp" style="color:#4FC3F4;font-weight:700;">${fmtN(v.pp)}</td>
+    <td class="td-sp" style="opacity:.55;">${fmtN(v.sp)}</td>
+    <td class="td-hy" style="opacity:.55;">${fmtN(v.hy)}</td>
+    <td class="td-tp">${fmtN(v.tp)}</td>
+    <td>${pctBar(v.pp, v.total)}</td>
+    <td>—</td>
+  </tr>`).join('');
 
-  document.getElementById('drill-wrap').style.display = 'block';
-  document.getElementById('drill-wrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+  tbody.innerHTML = globalRow + dataRows;
+
+  // Scroll a la tabla
+  tbody.closest('table').scrollIntoView({behavior:'smooth', block:'nearest'});
+  window._drillActive = true;
+}
+
+function hResetDrill() {
+  // Restaurar título original
+  const secTitle = document.getElementById('hist-section-title');
+  if (secTitle) secTitle.textContent = 'Evolución Histórica del Producto';
+  // Recargar la página para restaurar la tabla — más simple que re-renderear
+  location.reload();
 }
 
 function hCloseDrill() {
