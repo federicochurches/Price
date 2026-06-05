@@ -389,8 +389,11 @@ df_hist = df[df['FechaCreación'].notna() & (df['FechaCreación'] != '-')].copy(
 df_hist['fecha_dt'] = pd.to_datetime(df_hist['FechaCreación'].str.slice(0,19), errors='coerce')
 df_hist = df_hist[df_hist['fecha_dt'].notna()]
 # Include all hotel types — 'Producto Propio' filter is applied via pills in the UI
-# Sin filtro de año — incluir todos los hoteles con fecha válida
-# df_hist ya tiene solo HtActive=1 y sin sincontrato
+# Filtrar hasta el fin de la semana del snapshot (último día de WEEK_NUM)
+from datetime import date, timedelta
+_snap_date = date.fromisocalendar(YEAR_ACTUAL, WEEK_NUM, 7)  # domingo de la semana
+df_hist = df_hist[df_hist['fecha_dt'] <= pd.Timestamp(_snap_date)].copy()
+print(f"    Hoteles PP con fecha hasta {_snap_date}: {len(df_hist[df_hist['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])])}")
 df_hist['year']  = df_hist['fecha_dt'].dt.year
 df_hist['month'] = df_hist['fecha_dt'].dt.month
 df_hist['yw']    = df_hist['year'].astype(str) + '-W' + df_hist['fecha_dt'].dt.isocalendar().week.astype(int).astype(str).str.zfill(2)
