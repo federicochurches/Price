@@ -326,7 +326,7 @@ Canasta global:       #333132 · b2c: #EA0074 · op: #FCB000 · cug: #4FC3F4
 **Colwidths calibrados — cards AR (6 cols):**
 `<col/>` (fill) · `90px` · `60px` · `42px` · `76px` · `42px`
 
-### Top N · 5 visibles + 5 expandibles + 490 buscables
+### Top N · 5 visibles + 5 expandibles + 990 buscables
 - `KPI_TOP_N = 5` en `render_helpers.py` — único lugar a cambiar el top visible
 - Filas 6-10: clase `rows-more` (display:none) · Filas 11+: clase `sb-hidden`
 - Botón "Ver más" generado por Python estático con `onclick` inline (cards KPI)
@@ -376,7 +376,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ## 📌 Reglas Generales
 
-- **Top 5 visible + 5 expandible** en Editorial · **Top 500** en JSON de cards y Excel de Análisis
+- **Top 5 visible + 5 expandible** en Editorial · **Top 1.000** en JSON de cards y Excel de Análisis
 - Searchbox busca sobre **todos los rows en DOM** (hasta 500)
 - **Todo el pipeline es P80** — `g_dest`, `g_pais`, `g_corp` vienen de `df18_p80`
 - `MIN_TRAFICO_DIM = 50K` — evita excluir destinos de alto tráfico
@@ -392,7 +392,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 | **Archivo output** | `Analisis_RatesNoDispo_WNN.xlsx` | `Analisis_CheckRates_WNN.xlsx` |
 | **Hojas** | Global · B2C · Opaco · Ultra Opaco | Global · B2C · Opaco · Ultra Opaco |
 | **Orden hotel** | `%NoDispo DESC` | `Eficacia ASC` (menor = peor primero) |
-| **Top N** | 100 en todas las secciones | 100 en todas las secciones |
+| **Top N** | 1.000 en todas las secciones | 1.000 en todas las secciones |
 
 ---
 
@@ -449,8 +449,10 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 | P6 | Inventory Channel View · columna `% Gap` junto a `Hoteles` en tabla Third Party | `calc_inv.py` |
 
-> Bugs P1–P4, P6–P11 cerrados. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
-> 
+> Bugs P1–P4, P6–P12 cerrados. P12 resuelto: `excel_rnd.py` usaba `TAB_NoDispo` global en todas las canastas — fix usa `agg_pais`/`agg_dest`/`agg_corp` del pickle por canasta.
+>
+> Panel AR CR (js_override.js): searchbox funcional · rows 6-1000 clickeables · selección persiste entre pestañas. Top N subido a **1.000** en CR/RND (render + excel).
+>
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
 ---
@@ -506,10 +508,11 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W22 · Junio 2026 · 03-06-2026
+**Última actualización:** W22 post-pipeline · Junio 2026 · 05-06-2026
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 **Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities magenta + Availability magenta · footer unificado beige · State of PriceTravel Product · Evolución Histórica del Producto · rojo `#FF3B30`
+**Post-W22 (cont.):** fix excel_rnd pestañas repetidas (P12) · panel AR CR: searchbox + rows 6-1000 clickeables + selección persistente entre pestañas · Top N 100→1000 en CR/RND render + excel
 
 ---
 
