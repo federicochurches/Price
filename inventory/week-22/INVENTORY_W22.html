@@ -517,6 +517,7 @@ canvas{display:block;}
 function hOpenDrill(yw, label) {
   const dim = window._activeDim || 'region';
   window._lastDrillYw = yw;
+  console.log('[drill] yw recibido:', yw, '· label:', label);
 
   // Usar dim_hotel para el desglose (un row por hotel, sin duplicar por channel)
   let rows = HIST.dim_hotel.filter(r => r.yw === yw);
@@ -2320,6 +2321,7 @@ function hRender() {
       ctx.font='13px system-ui'; ctx.fillStyle='#8A8377';
       ctx.fillText('Sin datos de contratos para este período', 20, 90); return;
     }
+    window._semYwKeys = d.map(r=>r.yw || null);  // yw completos para drill-down
     labels = d.map(r=>r.yw ? 'W'+r.yw.split('-W')[1] : 'W'+(r.week||'?'));
     netnew = d.map(r=>r.netnew);
     acum   = d.map(r=>r.acum);
@@ -2350,7 +2352,7 @@ function hRender() {
     data:{
       labels,
       datasets:[
-        {label:'Hoteles acumulados', data:acum, type:'line', _ywKeys: hLevel==='sem' ? labels : null,
+        {label:'Hoteles acumulados', data:acum, type:'line', _ywKeys: hLevel==='sem' ? (window._semYwKeys || labels) : null,
           fill:true, backgroundColor:_grad,
           borderColor:'#5C469C', borderWidth:2.5,
           pointRadius: acum.map((_,i) => i===acum.length-1 ? 6 : 0),
