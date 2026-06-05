@@ -2142,11 +2142,20 @@ function hRender() {
 
   const filtered = hIsFiltered();
   let labels, acum, netnew, title, onClickFn = function(evt, elements, chart) {
-    if (!elements || !elements.length) return;
-    const idx = elements[0].index;
-    const labels = chart.data.labels;
-    const yw = chart.data.datasets[0]._ywKeys ? chart.data.datasets[0]._ywKeys[idx] : null;
-    if (yw && window.hOpenDrill) hOpenDrill(yw, labels[idx]);
+    // Intentar con los elementos pasados directamente
+    let elems = elements;
+    // Si no hay elementos, usar getElementsAtEventForMode para ser más tolerante
+    if (!elems || !elems.length) {
+      elems = chart.getElementsAtEventForMode(evt, 'nearest', {intersect: false}, true);
+    }
+    if (!elems || !elems.length) return;
+    const i = elems[0].index;
+    const ywKeys = chart.data.datasets[0]._ywKeys;
+    const yw = ywKeys ? ywKeys[i] : null;
+    const lbl = chart.data.labels[i];
+    if (yw && window.hOpenDrill) {
+      hOpenDrill(yw, lbl);
+    }
   };
 
   // Helper: compute true global cumulative acum for a series of rows
@@ -2314,6 +2323,9 @@ function hRender() {
     options:{
       responsive:true, maintainAspectRatio:false,
       onClick: onClickFn || undefined,
+      onHover: function(evt, elements) {
+        evt.native.target.style.cursor = elements && elements.length ? 'pointer' : 'default';
+      },
       plugins:{
         title:{display:false},
         legend:{
