@@ -46,3 +46,31 @@ Los tabs `channel` (CR) y `canasta` (ambos) conservan su lógica ad-hoc porque:
 ---
 > P9 movido a HISTORIAL_SESIONES como bug cerrado.
 
+---
+
+## Panel AR — Patrones canónicos (W22 post-pipeline)
+
+### Top N en panel AR y Excels
+- **`head(1000)`** en todos los tabs de hotel y dimensiones — `render_cr_p2.py`, `render_rnd_p2.py`, `render_rnd_p3.py`, `excel_cr.py`, `excel_rnd.py`
+- El DOM carga hasta 1.000 rows; `_KPI_TOP_N=5` controla cuántos son visibles por defecto
+
+### Searchbox panel AR (`render_cr_p2.py` + `js_override.js`)
+- HTML: dos pills inline en `render_analisis_rendimiento()` — `sb-panel-th` (hotel) y `sb-panel-td` (dim)
+- JS: handler `initPanelSearch()` en `js_override.js` — **no** usar `attachPill` de `asset_shared_head` (necesita `.kpi-card`)
+- Filtra `[data-hist-label]` en el tbody activo · se limpia al cambiar tab · se re-init al cambiar canasta/modo
+
+### Clicks en rows 6-1000 (`js_override.js`)
+- `_injectHistAttrs` solo inyecta en render inicial → rows-more sin `data-hist-w21`
+- Fix: patch de `_moreBtn` agrega inyección al expandir usando `tbody._lastRows`
+- `tbody._lastRows` se guarda en cada `w22_renderTable`
+
+### Persistencia selección entre pestañas (`js_override.js`)
+- `_selectedPanelLabel` guarda label del hotel/dim seleccionado
+- Cada `w22_renderTable` re-aplica highlight si label existe en nuevos rows
+- Segundo click, cambio de canasta o modo → limpia `_selectedPanelLabel`
+
+### Excel RND — dimensiones por canasta (`excel_rnd.py`)
+- Para canasta `Global` (`can_id is None`): usar `TAB_ND`/`TAB_IPM` globales
+- Para B2C/OP/CUG: usar `can.get('agg_pais')`, `can.get('agg_dest')`, `can.get('agg_corp')` del pickle
+- `calc_rnd.py` ya calcula estas dimensiones por canasta en `CANASTA_DATA`
+
