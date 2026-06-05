@@ -1247,12 +1247,6 @@ function udShowActiveFilterBadge(value) {
 }
 
 function udSetDim(dim, btn) {
-  window._activeDim = dim;
-  // Si hay drill activo, re-renderizar tabla con nueva dimensión
-  if (window._drillYw && window._tbodyOrig) {
-    const rows = (HIST.dim_hotel || []).filter(r => r.yw === window._drillYw);
-    if (rows.length) _renderDrillTable(rows, window._drillYw.replace(/^\d+-W/, 'W'), dim);
-  }
   // Don't clear active filters when switching dimension — preserve cross-dim context
   // Only reset hFRegion/hFCorp from current udActiveFilters
   const lastReg  = udActiveFilters.filter(f=>f.type==='region').map(f=>f.value);
@@ -1667,11 +1661,14 @@ function hGetDim() {
   }
 
   // No channel filter: use dim_hotel (one row per hotel, no channel duplication)
-  return HIST.dim_hotel.filter(r =>
-    (!activeRegions.length || activeRegions.includes(r.region)) &&
-    (!activeCorps.length   || activeCorps.includes(r.corp))     &&
-    (!activeTipo           || r.ch_tipo === activeTipo)
-  );
+  return HIST.dim_hotel.filter(r => {
+    const tipoOk = !activeTipo
+      || r.ch_tipo === activeTipo
+      || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
+    return (!activeRegions.length || activeRegions.includes(r.region)) &&
+           (!activeCorps.length   || activeCorps.includes(r.corp))     &&
+           tipoOk;
+  });
 }
 
 // Aggregate dim rows to weekly netnew, then compute running acum within window
@@ -2078,17 +2075,7 @@ function hRender() {
   const ctx = document.getElementById('canvas-hist').getContext('2d');
 
   const filtered = hIsFiltered();
-  let labels, acum, netnew, title, onClickFn = function(evt, elements, chart) {
-    let elems = elements;
-    if (!elems || !elems.length) {
-      elems = chart.getElementsAtEventForMode(evt, 'nearest', {intersect:false}, true);
-    }
-    if (!elems || !elems.length) return;
-    const i = elems[0].index;
-    const yw = window._semYwKeys ? window._semYwKeys[i] : null;
-    const lbl = chart.data.labels ? chart.data.labels[i] : null;
-    if (yw && window.hOpenDrill) hOpenDrill(yw, lbl);
-  };
+  let labels, acum, netnew, title, onClickFn = null;
 
   // Helper: compute true global cumulative acum for a series of rows
   // For filtered data, we must compute a running sum starting from 0
@@ -2209,7 +2196,6 @@ function hRender() {
       ctx.font='13px system-ui'; ctx.fillStyle='#8A8377';
       ctx.fillText('Sin datos de contratos para este período', 20, 90); return;
     }
-    window._semYwKeys = d.map(r=>r.yw||null);
     labels = d.map(r=>r.yw ? 'W'+r.yw.split('-W')[1] : 'W'+(r.week||'?'));
     netnew = d.map(r=>r.netnew);
     acum   = d.map(r=>r.acum);
@@ -2256,10 +2242,6 @@ function hRender() {
     options:{
       responsive:true, maintainAspectRatio:false,
       onClick: onClickFn || undefined,
-      onHover: function(evt, elements) {
-        if (evt.native && evt.native.target)
-          evt.native.target.style.cursor = (hLevel==='sem' && elements && elements.length) ? 'pointer' : 'default';
-      },
       plugins:{
         title:{display:false},
         legend:{
@@ -2362,125 +2344,5 @@ _tryInit();
   </div>
   <a href="../../index.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
-
-<script>
-// ── Drill-down semanal ──────────────────────────────────────────────
-window._drillYw    = null;   // yw activo
-window._activeDim  = 'region';
-window._tbodyOrig  = null;   // snapshot del tbody original
-
-function _snapTbody() {
-  if (!window._tbodyOrig) {
-    const tb = document.getElementById('ud-tbody');
-    if (tb) window._tbodyOrig = tb.innerHTML;
-  }
-}
-
-function hOpenDrill(yw, label) {
-  _snapTbody();
-
-  // Segundo click sobre la misma barra → reset
-  if (window._drillYw === yw) {
-    hResetDrill();
-    return;
-  }
-  window._drillYw = yw;
-  window._activeDim = window._activeDim || 'region';
-
-  const dim = window._activeDim;
-  const rows = (HIST.dim_hotel || []).filter(r => r.yw === yw);
-  if (!rows.length) return;
-
-  _renderDrillTable(rows, label, dim);
-  _renderDrillPill(label);
-}
-
-function _renderDrillTable(rows, label, dim) {
-  const keyMap = {region:'region', corp:'corp', channel:'channel', dest:'region'};
-  const key = keyMap[dim] || 'region';
-
-  const agg = {};
-  rows.forEach(r => {
-    const k = r[key] || '—';
-    if (!agg[k]) agg[k] = {total:0, pp:0, sp:0, hy:0, tp:0};
-    agg[k].total += r.n;
-    if (r.ch_tipo === 'Solo Propio')  { agg[k].sp += r.n; agg[k].pp += r.n; }
-    if (r.ch_tipo === 'Hybrid')       { agg[k].hy += r.n; agg[k].pp += r.n; }
-    if (r.ch_tipo === 'Third Party')  agg[k].tp += r.n;
-  });
-
-  const sorted = Object.entries(agg).sort((a,b) => b[1].total - a[1].total);
-  const tot = {total:0,pp:0,sp:0,hy:0,tp:0};
-  sorted.forEach(([,v]) => { tot.total+=v.total; tot.pp+=v.pp; tot.sp+=v.sp; tot.hy+=v.hy; tot.tp+=v.tp; });
-
-  const fmt = n => n.toLocaleString('es-MX');
-  const pctBar = (n, t) => {
-    const p = t ? (n/t*100) : 0;
-    return `<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${p.toFixed(1)}%;background:#4FC3F4"></div></div><span class="pct-val" style="color:#4FC3F4">${p.toFixed(1)}%</span></div>`;
-  };
-
-  const tbody = document.getElementById('ud-tbody');
-  if (!tbody) return;
-
-  const globalRow = `<tr class="global-row">
-    <td>Nuevos ${label}</td>
-    <td>${fmt(tot.total)}</td>
-    <td class="td-pp" style="color:#4FC3F4;font-weight:700;">${fmt(tot.pp)}</td>
-    <td class="td-sp" style="opacity:.55;">${fmt(tot.sp)}</td>
-    <td class="td-hy" style="opacity:.55;">${fmt(tot.hy)}</td>
-    <td class="td-tp">${fmt(tot.tp)}</td>
-    <td>${pctBar(tot.pp, tot.total)}</td>
-    <td>—</td>
-  </tr>`;
-
-  const dataRows = sorted.map(([k,v]) => `<tr>
-    <td style="font-weight:600;">${k}</td>
-    <td>${fmt(v.total)}</td>
-    <td class="td-pp" style="color:#4FC3F4;font-weight:700;">${fmt(v.pp)}</td>
-    <td class="td-sp" style="opacity:.55;">${fmt(v.sp)}</td>
-    <td class="td-hy" style="opacity:.55;">${fmt(v.hy)}</td>
-    <td class="td-tp">${fmt(v.tp)}</td>
-    <td>${pctBar(v.pp, v.total)}</td>
-    <td>—</td>
-  </tr>`).join('');
-
-  tbody.innerHTML = globalRow + dataRows;
-  tbody.closest('table').scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-function _renderDrillPill(label) {
-  // Agregar pill en el contenedor de pills activas del histograma
-  let container = document.getElementById('hf-active-pills');
-  if (!container) return;
-  // Quitar pill anterior de drill
-  const old = container.querySelector('.drill-pill');
-  if (old) old.remove();
-  // Crear nueva pill
-  const pill = document.createElement('span');
-  pill.className = 'drill-pill';
-  pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 10px;'
-    + 'border:1.5px solid #5C469C;border-radius:20px;font-size:9px;font-weight:700;'
-    + 'letter-spacing:.06em;text-transform:uppercase;color:#5C469C;'
-    + 'background:#EDE8F7;white-space:nowrap;cursor:pointer;';
-  pill.innerHTML = `Nuevos ${label} <span style="cursor:pointer;font-size:11px;margin-left:2px;">×</span>`;
-  pill.querySelector('span').addEventListener('click', hResetDrill);
-  container.appendChild(pill);
-}
-
-function hResetDrill() {
-  window._drillYw = null;
-  // Restaurar tbody original
-  const tbody = document.getElementById('ud-tbody');
-  if (tbody && window._tbodyOrig) tbody.innerHTML = window._tbodyOrig;
-  // Quitar pill
-  const pill = document.querySelector('.drill-pill');
-  if (pill) pill.remove();
-}
-
-// ── FEATURE 4: Dimensión activa actualiza el gráfico ──────────────────
-const _origUdSetDim = window.udSetDim;
-// Será re-definido después de que udSetDim exista — ver abajo
-window._pendingDimHook = true;
-</script>
 </body>
 </html>
