@@ -149,7 +149,7 @@ ND_COLS = ['Nombre','Severity NoDispo','Severity IPM','Tráfico','Bookings',
 def write_nd(ws, df, t, name_col):
     title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 100')
     if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
-    df_s = df.sort_values('%NoDispo', ascending=False).head(100)
+    df_s = df.sort_values('%NoDispo', ascending=False).head(1000)
     r = mk_hdr(ws, 4, ND_COLS)
     for _, row in df_s.iterrows():
         nd  = sf(row.get('%NoDispo')); ipm = sf(row.get('IPM',row.get('RPM')))
@@ -183,7 +183,7 @@ def write_ipm(ws, df, t, name_col):
     title(ws, t, 'Ordenado por IPM ASC (peor primero) · Top 100')
     if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
     ipm_col='IPM' if 'IPM' in df.columns else 'RPM'
-    df_s = df[df['Bookings']>0].sort_values(ipm_col, ascending=True).head(100)
+    df_s = df[df['Bookings']>0].sort_values(ipm_col, ascending=True).head(1000)
     r = mk_hdr(ws, 4, IPM_COLS)
     for _, row in df_s.iterrows():
         nd  = sf(row.get('%NoDispo')); ipm = sf(row.get(ipm_col))
