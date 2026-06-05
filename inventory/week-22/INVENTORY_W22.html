@@ -498,6 +498,73 @@ canvas{display:block;}
   <div style="position:relative;height:220px;width:100%;"><canvas id="canvas-hist"></canvas></div>
 </div>
 
+<!-- ── DRILL-DOWN: Hoteles incrementales por semana ── -->
+<div id="drill-wrap" style="display:none;margin:16px 0;border:1px solid var(--rule);border-radius:4px;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--paper-soft);border-bottom:1px solid var(--rule);">
+    <span id="drill-title" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);">Hoteles nuevos</span>
+    <button onclick="hCloseDrill()" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink-muted);">×</button>
+  </div>
+  <div style="overflow-x:auto;">
+    <table id="drill-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead id="drill-thead" style="background:var(--paper-soft);"></thead>
+      <tbody id="drill-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ── Drill-down: hoteles nuevos por semana ──
+function hOpenDrill(yw, label) {
+  const dim = window._activeDim || 'region';
+  const rows = HIST.dim.filter(r => r.yw === yw);
+  if (!rows.length) return;
+
+  // Agrupar por dimensión activa
+  const key = dim === 'region' ? 'region' : dim === 'corp' ? 'corp' : dim === 'channel' ? 'channel' : 'region';
+  const agg = {};
+  rows.forEach(r => {
+    const k = r[key] || '—';
+    agg[k] = (agg[k] || 0) + r.n;
+  });
+
+  const sorted = Object.entries(agg).sort((a,b) => b[1]-a[1]);
+  const total = sorted.reduce((s,[,v]) => s+v, 0);
+
+  // Labels de dimensión
+  const dimLabel = {'region':'Región','corp':'Corporativo','channel':'Channel','dest':'Destino'}[dim] || 'Dimensión';
+
+  // Render tabla
+  document.getElementById('drill-title').textContent = `Hoteles nuevos · ${label} · por ${dimLabel}`;
+  document.getElementById('drill-thead').innerHTML = `<tr>
+    <th style="text-align:left;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">${dimLabel.toUpperCase()}</th>
+    <th style="text-align:right;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">HOTELES</th>
+    <th style="text-align:right;padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-muted);">% DEL TOTAL</th>
+  </tr>`;
+
+  document.getElementById('drill-tbody').innerHTML = sorted.map(([k,v], i) => `
+    <tr style="border-top:1px solid var(--rule);background:${i%2===0?'var(--paper)':'var(--paper-soft)'}">
+      <td style="padding:6px 14px;font-weight:${i===0?'700':'400'}">${k}</td>
+      <td style="padding:6px 14px;text-align:right;font-weight:700;color:var(--accent);">${v.toLocaleString('es-MX')}</td>
+      <td style="padding:6px 14px;text-align:right;color:var(--ink-muted);">${((v/total)*100).toFixed(1)}%</td>
+    </tr>`).join('') + `
+    <tr style="border-top:2px solid var(--rule);background:var(--paper-soft)">
+      <td style="padding:6px 14px;font-weight:700;">TOTAL</td>
+      <td style="padding:6px 14px;text-align:right;font-weight:700;color:var(--accent);">${total.toLocaleString('es-MX')}</td>
+      <td style="padding:6px 14px;text-align:right;color:var(--ink-muted);">100%</td>
+    </tr>`;
+
+  document.getElementById('drill-wrap').style.display = 'block';
+  document.getElementById('drill-wrap').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function hCloseDrill() {
+  document.getElementById('drill-wrap').style.display = 'none';
+}
+
+// Asignar onClick al chart
+window._hDrillReady = true;
+</script>
+
 <!-- ── TABLA: Distribución y Exploración ── -->
 <div style="margin-bottom:36px;">
   <!-- Contenido -->
@@ -2072,7 +2139,13 @@ function hRender() {
   const ctx = document.getElementById('canvas-hist').getContext('2d');
 
   const filtered = hIsFiltered();
-  let labels, acum, netnew, title, onClickFn = null;
+  let labels, acum, netnew, title, onClickFn = function(evt, elements, chart) {
+    if (!elements || !elements.length) return;
+    const idx = elements[0].index;
+    const labels = chart.data.labels;
+    const yw = chart.data.datasets[0]._ywKeys ? chart.data.datasets[0]._ywKeys[idx] : null;
+    if (yw && window.hOpenDrill) hOpenDrill(yw, labels[idx]);
+  };
 
   // Helper: compute true global cumulative acum for a series of rows
   // For filtered data, we must compute a running sum starting from 0
