@@ -556,7 +556,10 @@ for r in dim_hotel_rows:
         if hasattr(v, 'item'): r[k] = v.item()
 
 # Índice por tipo solamente (sin duplicar por corp/región) — para filtro solo-tipo
-dim_tipo_idx = (df_hist.groupby(['yw','ym','ch_tipo'])
+_df_tipo = df_hist.copy()
+_df_tipo['ch_tipo'] = _df_tipo['TipoHotel'].map(
+    {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('Third Party')
+dim_tipo_idx = (_df_tipo.groupby(['yw','ym','ch_tipo'])
                 .size().reset_index(name='n').sort_values('yw'))
 dim_tipo_rows = dim_tipo_idx.to_dict('records')
 for r in dim_tipo_rows:
