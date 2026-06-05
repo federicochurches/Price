@@ -563,6 +563,7 @@ function hCloseDrill() {
 
 // Asignar onClick al chart
 window._hDrillReady = true;
+window._activeDim = window._activeDim || 'region';
 </script>
 
 <!-- ── TABLA: Distribución y Exploración ── -->
@@ -1314,6 +1315,7 @@ function udShowActiveFilterBadge(value) {
 }
 
 function udSetDim(dim, btn) {
+  window._activeDim = dim;
   // Don't clear active filters when switching dimension — preserve cross-dim context
   // Only reset hFRegion/hFCorp from current udActiveFilters
   const lastReg  = udActiveFilters.filter(f=>f.type==='region').map(f=>f.value);
@@ -2296,7 +2298,7 @@ function hRender() {
     data:{
       labels,
       datasets:[
-        {label:'Hoteles acumulados', data:acum, type:'line',
+        {label:'Hoteles acumulados', data:acum, type:'line', _ywKeys: hLevel==='sem' ? labels : null,
           fill:true, backgroundColor:_grad,
           borderColor:'#5C469C', borderWidth:2.5,
           pointRadius: acum.map((_,i) => i===acum.length-1 ? 6 : 0),
