@@ -1661,14 +1661,21 @@ function hGetDim() {
   }
 
   // No channel filter: use dim_hotel (one row per hotel, no channel duplication)
-  return HIST.dim_hotel.filter(r => {
-    const tipoOk = !activeTipo
-      || r.ch_tipo === activeTipo
-      || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
-    return (!activeRegions.length || activeRegions.includes(r.region)) &&
-           (!activeCorps.length   || activeCorps.includes(r.corp))     &&
-           tipoOk;
-  });
+  // When only tipo filter is active (no region/corp), use by_week_tipo to avoid duplicate counting
+  const tipoMatch = (r) => !activeTipo
+    || r.ch_tipo === activeTipo
+    || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
+
+  if (!activeRegions.length && !activeCorps.length && activeTipo) {
+    // Solo filtro de tipo — usar dim_tipo que es único por hotel × semana
+    return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
+  }
+
+  return HIST.dim_hotel.filter(r =>
+    (!activeRegions.length || activeRegions.includes(r.region)) &&
+    (!activeCorps.length   || activeCorps.includes(r.corp))     &&
+    tipoMatch(r)
+  );
 }
 
 // Aggregate dim rows to weekly netnew, then compute running acum within window
