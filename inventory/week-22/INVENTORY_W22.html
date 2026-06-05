@@ -1672,7 +1672,10 @@ function hGetDim() {
 
   // Solo filtro de tipo sin región/corp → usar dim_tipo (sin duplicados por corp)
   if (!activeRegions.length && !activeCorps.length && activeTipo) {
-    return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
+    const _dimTipoRows = (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
+    console.log('[hGetDim] dim_tipo rows:', _dimTipoRows.length, 'activeTipo:', activeTipo);
+    return _dimTipoRows;
+    // return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
   }
 
   return HIST.dim_hotel.filter(r =>
@@ -2086,6 +2089,7 @@ function hRender() {
   const ctx = document.getElementById('canvas-hist').getContext('2d');
 
   const filtered = hIsFiltered();
+  console.log('[hRender] filtered:', filtered, 'hFTipo:', hFTipo, 'hFRegion:', hFRegion);
   let labels, acum, netnew, title, onClickFn = function(evt, elements, chart) {
     let elems = elements;
     if (!elems || !elems.length) {
