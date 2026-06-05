@@ -87,6 +87,12 @@ if NUEVO_FORMATO:
     # Renombrar columna Región para compatibilidad
     if 'Región' in df_raw.columns and 'RegionDestino' not in df_raw.columns:
         df_raw = df_raw.rename(columns={'Región': 'RegionDestino'})
+    # Renombrar columnas de channels para compatibilidad
+    col_rename = {}
+    if 'Expedia.1' in df_raw.columns:     col_rename['Expedia.1']    = 'Expedia_tercero'
+    if 'Hotel Unico' in df_raw.columns:   col_rename['Hotel Unico']  = 'Hotel_Unico_propio'
+    if 'HotelBeds' in df_raw.columns:     col_rename['HotelBeds']    = 'HotelBeds_propio'
+    if col_rename: df_raw = df_raw.rename(columns=col_rename)
 else:
     # Dataset viejo — normalizar columnas
     col_map = {}
