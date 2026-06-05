@@ -77,9 +77,11 @@ if NUEVO_FORMATO:
         'Propio_con_tercero':'Propio_con_tercero',
         'solo_terceros':'sólo terceros',
         'sólo terceros':'sólo terceros',
+        'solo_propios':'sólo propio',
         'sólo propio':'sólo propio',
         'solo propio':'sólo propio',
         'sincontrato':'sincontrato',
+        'sin_contrato_valido':'sincontrato',
     }
     df_raw['TipoHotel'] = df_raw['TipoHotel'].map(TIPO_NORM_RAW).fillna(df_raw['TipoHotel'])
     df_raw['Prpios']   = df_raw['TipoHotel'].isin(['sólo propio','Propio_con_tercero']).astype(int)
