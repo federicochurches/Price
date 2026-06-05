@@ -75,12 +75,20 @@ df_raw['Terceros'] = pd.to_numeric(df_raw['Terceros'], errors='coerce').fillna(0
 
 df_sistema = df_raw[df_raw['HtActive'] == 1].copy()
 
+# Compatibilidad: si el dataset usa tipo_Ht_contrato_2 en lugar de TipoHotel
+if 'TipoHotel' not in df_sistema.columns and 'tipo_Ht_contrato_2' in df_sistema.columns:
+    df_sistema = df_sistema.rename(columns={'tipo_Ht_contrato_2': 'TipoHotel'})
+elif 'tipo_Ht_contrato_2' in df_sistema.columns:
+    # Si ambas existen, usar tipo_Ht_contrato_2 como fuente de verdad
+    df_sistema['TipoHotel'] = df_sistema['tipo_Ht_contrato_2']
+
 # Normalize TipoHotel — handle accented/unaccented and singular/plural variants
 TIPO_NORM = {
     'sólo propio':'sólo propio', 'solo propio':'sólo propio',
     'sólo terceros':'sólo terceros', 'solo terceros':'sólo terceros',
     'solo tercero':'sólo terceros',
     'Propio_con_tercero':'Propio_con_tercero',
+    'propio_con_tercero':'Propio_con_tercero',
     'sincontrato':'sincontrato',
 }
 df_sistema['TipoHotel'] = df_sistema['TipoHotel'].map(TIPO_NORM).fillna(df_sistema['TipoHotel'])
