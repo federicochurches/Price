@@ -466,6 +466,14 @@ for r in all_weeks:
     cum += r['netnew']
     acum_weeks.append({'yw': r['yw'], 'ym': r['ym'], 'netnew': r['netnew'], 'acum': cum})
 
+# Opción B — ajustar último punto para que coincida con el total real de PP (card)
+# pp = total hoteles PP activos (con y sin FechaCreación)
+if acum_weeks and pp > 0:
+    diff = pp - acum_weeks[-1]['acum']
+    if diff != 0:
+        acum_weeks[-1]['netnew'] += diff
+        acum_weeks[-1]['acum']   = pp
+
 # Sets de años y meses — from acum_weeks (includes fill weeks)
 years_available = sorted(set(int(r['yw'][:4]) for r in acum_weeks))
 months_by_year  = {}
