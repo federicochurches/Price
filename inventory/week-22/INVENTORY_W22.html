@@ -516,8 +516,20 @@ canvas{display:block;}
 // ── Drill-down: hoteles nuevos por semana ──
 function hOpenDrill(yw, label) {
   const dim = window._activeDim || 'region';
-  const rows = HIST.dim.filter(r => r.yw === yw);
-  if (!rows.length) return;
+  window._lastDrillYw = yw;
+  console.log('[drill] yw:', yw, 'label:', label, 'dim:', dim);
+  console.log('[drill] HIST.dim sample:', HIST.dim.slice(0,3));
+  // Intentar match exacto primero, luego por label
+  let rows = HIST.dim.filter(r => r.yw === yw);
+  if (!rows.length && label) {
+    // El label puede ser "W22" o "2026-W22" — buscar match parcial
+    rows = HIST.dim.filter(r => r.yw && r.yw.endsWith(label.replace('W','W')));
+  }
+  if (!rows.length) {
+    console.log('[drill] No rows found for yw:', yw, '— available sample:', HIST.dim.slice(0,5).map(r=>r.yw));
+    return;
+  }
+  console.log('[drill] rows found:', rows.length);
 
   // Agrupar por dimensión activa
   const key = dim === 'region' ? 'region' : dim === 'corp' ? 'corp' : dim === 'channel' ? 'channel' : 'region';
