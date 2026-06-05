@@ -93,6 +93,9 @@ if NUEVO_FORMATO:
     if 'Hotel Unico' in df_raw.columns:   col_rename['Hotel Unico']  = 'Hotel_Unico_propio'
     if 'HotelBeds' in df_raw.columns:     col_rename['HotelBeds']    = 'HotelBeds_propio'
     if col_rename: df_raw = df_raw.rename(columns=col_rename)
+    # Normalizar FechaCreacion con/sin tilde
+    if 'FechaCreacion' in df_raw.columns and 'FechaCreación' not in df_raw.columns:
+        df_raw = df_raw.rename(columns={'FechaCreacion': 'FechaCreación'})
 else:
     # Dataset viejo — normalizar columnas
     col_map = {}
