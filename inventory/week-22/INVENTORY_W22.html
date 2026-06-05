@@ -458,7 +458,7 @@ canvas{display:block;}
   <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap;row-gap:6px;margin-bottom:6px;">
     <span style="display:inline-flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#5C469C;border:1.5px solid #5C469C;border-radius:20px;padding:3px 10px;margin-right:8px;flex-shrink:0;">Contratación</span>
     <div class="pills-wrap distrib-pills" id="ud-metric-pills" style="border:none;padding:0;gap:4px;">
-      <button class="pill metric-pill" data-col="pp"
+      <button class="pill metric-pill on" data-col="pp"
         style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
         onclick="udToggleContent('pp',this)">Prod. Propio</button>
       <button class="pill metric-pill" data-col="sp"
@@ -2448,6 +2448,9 @@ function hResetDrill() {
   if (pill) pill.remove();
 }
 window._activeDim = window._activeDim || 'region';
+// Activar Prod. Propio por defecto
+hFTipo = 'Prod. Propio';
+udActiveFilters.push({type:'tipo', value:'Prod. Propio', el: document.querySelector('.metric-pill[data-col="pp"]')});
 </script>
 </body>
 </html>
