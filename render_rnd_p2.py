@@ -194,12 +194,12 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
         return [build_hotel_row_rnd(r) for _, r in df.iterrows()]
 
     # Demanda NC: mayor NoDispo (con o sin bookings)
-    df_dnc  = df_hotel.sort_values('%NoDispo', ascending=False).head(100)
+    df_dnc  = df_hotel.sort_values('%NoDispo', ascending=False).head(1000)
     # Bajo Rendimiento: Bookings > 0, NoDispo Revisar o Crítica/SC
     df_bkgs = df_hotel[df_hotel.get('Bookings', pd.Series([0]*len(df_hotel))) > 0] if 'Bookings' in df_hotel.columns else df_hotel
-    df_br   = df_bkgs[df_bkgs['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(100)
+    df_br   = df_bkgs[df_bkgs['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(1000)
     # Sin Conversión: Bookings = 0
-    df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(100) if 'Bookings' in df_hotel.columns else pd.DataFrame()
+    df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(1000) if 'Bookings' in df_hotel.columns else pd.DataFrame()
 
     hotel_rows       = rnd_hotel_rows_from(df_dnc)
     hotels_dnc_rows  = rnd_hotel_rows_from(df_dnc)
@@ -208,7 +208,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
 
     # Dim rows (por corp, peor NoDispo)
     dim_rows = []
-    g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(100) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(100)
+    g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(1000) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(1000)
     for _, row in g_c_sort.iterrows():
         name   = str(row.get('CorpName', '?'))[:45]
         nd_r   = row.get('%NoDispo', 0)
@@ -250,7 +250,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     dest_rows = []
     g_d_src = g_dest.copy() if g_dest is not None and len(g_dest) > 0 else None
     if g_d_src is not None and '%NoDispo' in g_d_src.columns:
-        for _, row in g_d_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
+        for _, row in g_d_src.sort_values('%NoDispo', ascending=False).head(1000).iterrows():
             dest_name = str(row.get('Destino','?')).replace(' Area','').replace(' area','')[:55]
             nd_r  = row.get('%NoDispo', 0)
             ipm_r = row.get('IPM', row.get('RPM', 0))
@@ -278,7 +278,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     pais_rows = []
     g_p_src = g_pais_global.copy() if g_pais_global is not None and len(g_pais_global) > 0 else None
     if g_p_src is not None and '%NoDispo' in g_p_src.columns:
-        for _, row in g_p_src.sort_values('%NoDispo', ascending=False).head(100).iterrows():
+        for _, row in g_p_src.sort_values('%NoDispo', ascending=False).head(1000).iterrows():
             pais_name = str(row.get('PaisDestino','?'))[:55]
             nd_r  = row.get('%NoDispo', 0)
             ipm_r = row.get('IPM', row.get('RPM', 0))
