@@ -540,6 +540,8 @@ df_dim_raw = pd.concat(rows_with_ch, ignore_index=True)
 df_dim_raw['corp']    = df_dim_raw['Corporativo'].where(df_dim_raw['Corporativo'].isin(top_corps), 'Otros')
 df_dim_raw['ch_tipo'] = df_dim_raw['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
+# Aplicar overrides de negocio corp+channel
+df_dim_raw['ch_tipo'] = df_dim_raw.apply(apply_tipo_override, axis=1)
 
 _grp_cols_dim = ['yw','ym','Region_display','corp','ch_tipo','channel']
 if _dest_col: _grp_cols_dim.append(_dest_col)
@@ -597,6 +599,16 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, (np.floating,)): return float(obj)
         return super().default(obj)
 
+# Reglas de negocio: corp+channel → override de ch_tipo
+# Marriott + Expedia = Producto Propio (Hybrid), independientemente del TipoHotel del dataset
+CORP_CHANNEL_TIPO_OVERRIDE = {
+    ('Marriott', 'Expedia'): 'Hybrid',
+}
+
+def apply_tipo_override(row):
+    key = (row['corp'], row['channel'])
+    return CORP_CHANNEL_TIPO_OVERRIDE.get(key, row['ch_tipo'])
+
 # Snapshot actual: conteo de hoteles por corp × channel × dest × tipo (desde df completo)
 # Permite mostrar totales actuales incluso para hoteles sin FechaCreación
 _snap_rows = []
@@ -608,6 +620,7 @@ for _ch_col, _ch_label in CHANNEL_LABELS.items():
     _sub['ch_tipo'] = _sub['TipoHotel'].map(
         {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
     _sub['channel'] = _ch_label
+    _sub['ch_tipo'] = _sub.apply(apply_tipo_override, axis=1)
     _grp = (_sub.groupby(['Region_display','corp','ch_tipo','channel','Destino'])
             ['IdHotel'].nunique().reset_index(name='n'))
     for _, _r in _grp.iterrows():
