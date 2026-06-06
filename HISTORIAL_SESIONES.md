@@ -2323,3 +2323,45 @@ Pipeline Inventory W22 con nuevo dataset (tipo_Ht_contrato_2). Múltiples fixes 
 - Commitear INVENTORY_W22.html con todos los fixes (el HTML local tiene los cambios pero no se pudo subir)
 - Verificar sort columnas funciona correctamente
 - Verificar filtros channel + región funcionan correctamente
+
+---
+
+## Sesión Inventory bugs · 06 Jun 2026
+
+### Contexto
+Validación de fixes aplicados en sesión anterior. Bug reportado: filtro Región México + Corp Marriott + Destino Riviera Maya + Channel Expedia no mostraba hoteles en el gráfico histórico.
+
+### Root cause (cadena de bugs)
+1. **B31** — `HIST.dim` no tenía campo `dest` → groupby de `dim_index` no incluía `Destino`
+2. **B32** — `hGetDim()` no filtraba por `dest` en rama channel activo
+3. **B33** — Hoteles sin `FechaCreación` no aparecen en `HIST.dim` (solo en snapshot) → gráfico vacío aunque existan
+4. **B34** — `hGetCurrentTotal()` usaba `HIST.dim` (último snapshot por yw) para calcular total actual → devolvía 0 para hoteles sin historia
+5. **B35** — `apply_tipo_override` definida en línea 608 pero usada en línea 544 → NameError silencioso
+6. **B36** — Columna `Expedia` (propio) no estaba en `ALL_CHANNELS` ni `CHANNEL_LABELS` → hoteles con esa columna activa ignorados en snapshot
+
+### Fixes aplicados en calc_inv.py
+- `dim_index` groupby incluye `Destino` → renombrado a `dest` en `HIST.dim`
+- `hGetDim()`: resuelve `activeDests` desde `udActiveFilters` y filtra en ambas ramas (con/sin channel)
+- `hGetCurrentTotal()`: nueva función que consulta `HIST.snapshot` (dataset completo, sin depender de FechaCreación)
+- `HIST.snapshot`: nuevo array en hist_data con conteo actual por `region×corp×ch_tipo×channel×dest` desde `df` completo
+- Gráfico histórico rama semanal: si `totalInSubset === 0` y hay hoteles actuales → línea plana con `hGetCurrentTotal()`
+- `CORP_CHANNEL_TIPO_OVERRIDE = {('Marriott','Expedia'): 'Hybrid'}` — regla de negocio canónica
+- `apply_tipo_override` movida antes de su primer uso (línea ~528)
+- Columna `Expedia` agregada a `CHANNELS_PROPIO` y `CHANNEL_LABELS`
+
+### Pendiente validar
+- Marriott+Expedia+Riviera Maya: los hoteles específicos no tienen columna Expedia activa en el dataset (tienen Internal, HotelBeds, etc.) → el escenario de prueba original no aplica para ese destino
+- Validar con otro destino donde Marriott sí tenga Expedia como canal propio
+
+### Pendiente técnico
+- `HIST.snapshot` genera 80K rows → HTML de 40.9MB → excede capacidad de Git Tree API
+- Optimizar snapshot: agrupar por región en lugar de dest×corp×channel, o comprimir
+- Commitear INVENTORY_W22.html pendiente (hacerlo desde GitHub Desktop)
+
+### Regla de negocio documentada
+- `CORP_CHANNEL_TIPO_OVERRIDE` en `calc_inv.py` es el lugar canónico para overrides de clasificación corp+channel
+- Marriott+Expedia = Hybrid (Producto Propio), independientemente del TipoHotel del dataset
+
+### Archivos modificados
+- `inventory/calc_inv.py` — 5 commits (3819e7b → 02c4b57)
+- `inventory/week-22/INVENTORY_W22.html` — pendiente commit desde GitHub Desktop

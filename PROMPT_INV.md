@@ -316,6 +316,12 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 | B28 | GLOBAL row tenía `pp` en columna Total — orden de columnas corregido | W23 |
 | B29 | Placeholder searchbox decía "hotel" — no hay dim hotel | W23 |
 | B30 | `soloSinContrat` oculta destinos con `con_directo > 0` pero primeros 10 del DOM eran todos PP → two-pass fix | W23 |
+| B31 | `HIST.dim` sin campo `dest` — groupby no incluía `Destino` | W22-fix |
+| B32 | `hGetDim()` no filtraba por `dest` en rama channel activo | W22-fix |
+| B33 | Hoteles sin `FechaCreación` no aparecen en `HIST.dim` → gráfico vacío aunque existan | W22-fix |
+| B34 | `hGetCurrentTotal()` usaba `HIST.dim` último snapshot → devolvía 0 para hoteles sin historia | W22-fix |
+| B35 | `apply_tipo_override` definida después de su primer uso → NameError silencioso | W22-fix |
+| B36 | Columna `Expedia` (propio) no estaba en `ALL_CHANNELS` → hoteles ignorados en snapshot | W22-fix |
 
 ---
 
@@ -362,7 +368,7 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 
 ---
 
-**Última actualización:** v13.0 · W23 · Junio 2026
+**Última actualización:** v14.0 · W22-fix · 06 Jun 2026
 
 **Cambios v13:**
 - Masthead idéntico al Supply (shell padding-top, masthead-inner, border-bottom rule, logo 40px)
@@ -386,7 +392,24 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 - Default al cargar: PROD. PROPIO activo (`hFTipo = 'Prod. Propio'` en `_tryInit`)
 - Git Tree API obligatorio para HTML > 1MB
 
+## 🏢 Reglas de negocio — Clasificación corp+channel
+
+`CORP_CHANNEL_TIPO_OVERRIDE` en `calc_inv.py` — lugar canónico para overrides:
+```python
+CORP_CHANNEL_TIPO_OVERRIDE = {
+    ('Marriott', 'Expedia'): 'Hybrid',  # Marriott+Expedia = Producto Propio
+}
+```
+Aplica sobre `HIST.dim` y `HIST.snapshot`. Agregar aquí cualquier nueva excepción.
+
+## ⚠️ Nota técnica — HIST.snapshot
+`HIST.snapshot` tiene ~80K rows → HTML ~40MB → excede Git Tree API.
+- Commitear HTML desde GitHub Desktop (no via API)
+- Pendiente: optimizar agrupación del snapshot para reducir tamaño
+
 ## Pendientes próxima sesión
 - P6: Channel View — columna % Gap junto a Hoteles en tabla Third Party
 - P7: Columnas tabla — resaltar header columna activa según pill (parcialmente resuelto)
 - Hotel Unico V2 sin datos en gráfico histórico
+- Validar Marriott+Expedia en destino donde sí exista esa combinación en el dataset
+- Optimizar HIST.snapshot para reducir tamaño del HTML
