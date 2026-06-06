@@ -124,14 +124,80 @@ tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:
 /* Column visibility by active pill — table gets col-show-XX class */
 /* col-show-pp no longer hides other columns — all columns always visible */
 .col-show-pp-DISABLED .th-sp,
+/* Por defecto, ocultar columnas individuales */
+.th-pp,.td-pp,.th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,.th-pct,.td-pct{display:none;}
+
+/* col-show-all: mostrar todas */
 .col-show-all .th-pp,.col-show-all .td-pp,
 .col-show-all .th-sp,.col-show-all .td-sp,
 .col-show-all .th-hy,.col-show-all .td-hy,
-.col-show-all .th-tp,.col-show-all .td-tp{display:table-cell;}
+.col-show-all .th-tp,.col-show-all .td-tp,
+.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell;}
+
+/* col-show-pp: Total + PP + SP + HY + TP + %PP */
+.col-show-pp .th-pp,.col-show-pp .td-pp,
+.col-show-pp .th-sp,.col-show-pp .td-sp,
+.col-show-pp .th-hy,.col-show-pp .td-hy,
+.col-show-pp .th-tp,.col-show-pp .td-tp,
+.col-show-pp .th-pct,.col-show-pp .td-pct{display:table-cell;}
+.col-show-pp .th-pp,.col-show-pp .td-pp{font-weight:800;color:#4FC3F4;}
+
+/* col-show-sp: Total + SP + %SP */
+.col-show-sp .th-sp,.col-show-sp .td-sp,
+.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell;}
+.col-show-sp .th-sp,.col-show-sp .td-sp{font-weight:800;}
+
+/* col-show-hy: Total + HY + %HY */
+.col-show-hy .th-hy,.col-show-hy .td-hy,
+.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell;}
+.col-show-hy .th-hy,.col-show-hy .td-hy{font-weight:800;}
+
+/* col-show-tp: Total + TP + %TP */
+.col-show-tp .th-tp,.col-show-tp .td-tp,
+.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell;}
+.col-show-tp .th-tp,.col-show-tp .td-tp{font-weight:800;}
+
+/* col-show-gap: Total + SinDirecto + ConDirecto + Penetración */
+.col-show-gap .th-sindir,.col-show-gap .td-sindir,
+.col-show-gap .th-condir,.col-show-gap .td-condir,
+.col-show-gap .th-pen,.col-show-gap .td-pen{display:table-cell;}
+/* Por defecto, ocultar columnas individuales */
+.th-pp,.td-pp,.th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,.th-pct,.td-pct{display:none;}
+
+/* col-show-all: mostrar todas */
 .col-show-all .th-pp,.col-show-all .td-pp,
 .col-show-all .th-sp,.col-show-all .td-sp,
 .col-show-all .th-hy,.col-show-all .td-hy,
-.col-show-all .th-tp,.col-show-all .td-tp{display:table-cell;}
+.col-show-all .th-tp,.col-show-all .td-tp,
+.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell;}
+
+/* col-show-pp: Total + PP + SP + HY + TP + %PP */
+.col-show-pp .th-pp,.col-show-pp .td-pp,
+.col-show-pp .th-sp,.col-show-pp .td-sp,
+.col-show-pp .th-hy,.col-show-pp .td-hy,
+.col-show-pp .th-tp,.col-show-pp .td-tp,
+.col-show-pp .th-pct,.col-show-pp .td-pct{display:table-cell;}
+.col-show-pp .th-pp,.col-show-pp .td-pp{font-weight:800;color:#4FC3F4;}
+
+/* col-show-sp: Total + SP + %SP */
+.col-show-sp .th-sp,.col-show-sp .td-sp,
+.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell;}
+.col-show-sp .th-sp,.col-show-sp .td-sp{font-weight:800;}
+
+/* col-show-hy: Total + HY + %HY */
+.col-show-hy .th-hy,.col-show-hy .td-hy,
+.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell;}
+.col-show-hy .th-hy,.col-show-hy .td-hy{font-weight:800;}
+
+/* col-show-tp: Total + TP + %TP */
+.col-show-tp .th-tp,.col-show-tp .td-tp,
+.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell;}
+.col-show-tp .th-tp,.col-show-tp .td-tp{font-weight:800;}
+
+/* col-show-gap: Total + SinDirecto + ConDirecto + Penetración */
+.col-show-gap .th-sindir,.col-show-gap .td-sindir,
+.col-show-gap .th-condir,.col-show-gap .td-condir,
+.col-show-gap .th-pen,.col-show-gap .td-pen{display:table-cell;}
 /* tp always visible */
 /* col-show-sp no longer hides columns */
 /* col-show-hy no longer hides columns */
@@ -279,12 +345,6 @@ tr.sel > td:first-child{border-left:3px solid var(--accent,#4FC3F4);}
 canvas{display:block;}
 
   .th-vs,.td-vs{display:none!important;} /* VS GLOBAL eliminado */
-
-  /* Sincronización tabla-pills: resaltar columna activa */
-  table.col-show-pp .td-pp, table.col-show-pp .th-pp { font-weight:800; }
-  table.col-show-sp .td-sp, table.col-show-sp .th-sp { font-weight:800; }
-  table.col-show-hy .td-hy, table.col-show-hy .th-hy { font-weight:800; }
-  table.col-show-tp .td-tp, table.col-show-tp .th-tp { font-weight:800; }
 </style>
 </head>
 <body>
