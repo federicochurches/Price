@@ -1660,44 +1660,70 @@ function udToggleDest(btn) {{
 
 /* ── TABLE SORT ── */
 let udSortDir = -1;
-function udSortCol(colClass) {{
+let udSortActive = 'total'; // columna activa
+
+function udSortCol(colClass, thEl) {{
   const tbody = document.getElementById('ud-tbody');
   if (!tbody) return;
-  const rows = Array.from(tbody.querySelectorAll('tr.ud-reg-row,tr.ud-corp-row[data-row-idx],tr.ud-dest-row[data-row-idx]'));
-  const asc = tbody.dataset['sort_'+colClass] === 'asc';
+  // Solo filas de la dimensión activa
+  const selector = udDim==='reg' ? '.ud-reg-row' : udDim==='corp' ? '.ud-corp-row[data-row-idx]' : '.ud-dest-row[data-row-idx]';
+  const rows = Array.from(tbody.querySelectorAll(selector));
+  const key = 'sort_'+colClass;
+  const asc = tbody.dataset[key] === 'asc';
   rows.sort((a,b) => {{
     const getVal = r => {{
       const td = r.querySelector('.'+colClass);
-      return parseInt((td?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+      return parseFloat((td?.textContent||'0').replace(/[^0-9,\.]/g,'').replace(',','.')) || 0;
     }};
     return asc ? getVal(a)-getVal(b) : getVal(b)-getVal(a);
   }});
-  rows.forEach(r => tbody.appendChild(r));
-  tbody.dataset['sort_'+colClass] = asc ? 'desc' : 'asc';
+  rows.forEach((r,i) => {{
+    tbody.appendChild(r);
+    if (udDim !== 'reg') r.style.display = i < 10 ? '' : 'none';
+  }});
+  const verMas = tbody.querySelector('#ud-corp-ver-mas, #ud-dest-ver-mas');
+  if (verMas) tbody.appendChild(verMas);
+  tbody.dataset[key] = asc ? 'desc' : 'asc';
+  udSortActive = colClass;
+  // Actualizar indicadores visuales en headers
+  document.querySelectorAll('#ud-tbody').forEach(tb => {{
+    tb.closest('table')?.querySelectorAll('th[data-sort-col]').forEach(th => {{
+      const label = th.dataset.sortLabel || th.textContent.replace(/[↑↓↕]/g,'').trim();
+      th.dataset.sortLabel = label;
+      th.textContent = label + (th.dataset.sortCol === colClass ? (asc ? ' ↑' : ' ↓') : ' ↕');
+    }});
+  }});
+  // Reset sort-total indicator
+  const thTot = document.getElementById('ud-sort-total');
+  if (thTot) thTot.textContent = 'Total ↕';
 }}
 
 function udSortTotal() {{
   udSortDir *= -1;
+  udSortActive = 'total';
   const tbody = document.getElementById('ud-tbody');
-  // Only sort rows of the ACTIVE dimension
   const selector = udDim==='reg' ? '.ud-reg-row' : udDim==='corp' ? '.ud-corp-row[data-row-idx]' : '.ud-dest-row[data-row-idx]';
   const rows = Array.from(tbody.querySelectorAll(selector));
   rows.sort((a,b) => {{
-    const av = parseInt((a.cells[1]?.textContent||'0').replace(/[\.\s]/g,'').replace(',','')) || 0;
-    const bv = parseInt((b.cells[1]?.textContent||'0').replace(/[\.\s]/g,'').replace(',','')) || 0;
+    const av = parseFloat((a.cells[1]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+    const bv = parseFloat((b.cells[1]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
     return udSortDir * (bv - av);
   }});
-  // Re-insert sorted rows, keeping visibility rules
   rows.forEach((r,i) => {{
     r.dataset.rowIdx = i;
     tbody.appendChild(r);
     if (udDim !== 'reg') r.style.display = i < 10 ? '' : 'none';
   }});
-  // Move ver-mas after sorted rows
   const verMas = tbody.querySelector('#ud-corp-ver-mas, #ud-dest-ver-mas');
   if (verMas) tbody.appendChild(verMas);
   const th = document.getElementById('ud-sort-total');
   if (th) th.textContent = 'Total ' + (udSortDir === -1 ? '↓' : '↑');
+  // Reset otros headers
+  document.querySelectorAll('th[data-sort-col]').forEach(th => {{
+    const label = th.dataset.sortLabel || th.textContent.replace(/[↑↓↕]/g,'').trim();
+    th.dataset.sortLabel = label;
+    th.textContent = label + ' ↕';
+  }});
 }}
 
 /* ── DEST TABLE SEARCH (unified table) ── */
@@ -2689,10 +2715,10 @@ def build_unified_distrib():
       <thead><tr>
         <th id="ud-dim-th" style="text-align:left;width:220px;">Región</th>
         <th id="ud-sort-total" onclick="udSortTotal()" style="cursor:pointer;user-select:none;" title="Ordenar por total">Total ↓</th>
-        <th class="th-pp" onclick="udSortCol('td-pp')" style="cursor:pointer;user-select:none;" title="Ordenar">P. Propio ↕</th>
-        <th class="th-sp" onclick="udSortCol('td-sp')" style="font-size:8px;cursor:pointer;user-select:none;" title="Ordenar">Solo P. ↕</th>
-        <th class="th-hy" onclick="udSortCol('td-hy')" style="font-size:8px;cursor:pointer;user-select:none;" title="Ordenar">Hybrid ↕</th>
-        <th class="th-tp">Third P.</th>
+        <th class="th-pp" data-sort-col="td-pp" data-sort-label="P. Propio" onclick="udSortCol('td-pp',this)" style="cursor:pointer;user-select:none;">P. Propio ↕</th>
+        <th class="th-sp" data-sort-col="td-sp" data-sort-label="Solo P." onclick="udSortCol('td-sp',this)" style="font-size:8px;cursor:pointer;user-select:none;">Solo P. ↕</th>
+        <th class="th-hy" data-sort-col="td-hy" data-sort-label="Hybrid" onclick="udSortCol('td-hy',this)" style="font-size:8px;cursor:pointer;user-select:none;">Hybrid ↕</th>
+        <th class="th-tp" data-sort-col="td-tp" data-sort-label="Third P." onclick="udSortCol('td-tp',this)" style="cursor:pointer;user-select:none;">Third P. ↕</th>
         <th class="th-pct th-pct-label" style="min-width:120px;">% Propio</th>
         <th class="th-vs">vs Global</th>
       </tr></thead>
