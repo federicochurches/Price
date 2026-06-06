@@ -1949,15 +1949,14 @@ function hGetDim() {{
   const activeTipo     = hFTipo;
 
   if (activeChannels.length > 0) {{
-    // Channel filter: use dim (hotel×channel rows)
-    // If corp is also active: find hoteles of that corp first, then filter by channel
-    // This avoids the "Iberostar has no DerbySoft" empty result — it shows
-    // the hotels of that corp/region that DO have that channel
+    const tipoMatchCh = (r) => !activeTipo
+      || r.ch_tipo === activeTipo
+      || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
     return HIST.dim.filter(r =>
       (!activeRegions.length  || activeRegions.includes(r.region))   &&
       (!activeCorps.length    || activeCorps.includes(r.corp))       &&
       activeChannels.includes(r.channel)                             &&
-      (!activeTipo            || r.ch_tipo === activeTipo)
+      tipoMatchCh(r)
     );
   }}
 
