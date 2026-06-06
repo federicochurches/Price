@@ -2528,9 +2528,11 @@ function hRender() {{
             boxWidth:8, padding:16, color:'#5F5E5A',
             usePointStyle:true, pointStyle:'circle'}}
         }},
-        tooltip:{{mode:'index',intersect:false,padding:8,
-          backgroundColor:'rgba(26,25,23,0.88)',titleColor:'#fff',bodyColor:'#E2DDD6',
-          titleFont:{{size:11,weight:'700'}},bodyFont:{{size:10}},
+        tooltip:{{mode:'index',intersect:false,padding:6,
+          backgroundColor:'rgba(253,252,249,0.92)',titleColor:'#333132',bodyColor:'#5F5E5A',
+          borderColor:'rgba(138,131,119,0.3)',borderWidth:1,
+          titleFont:{{size:10,weight:'700'}},bodyFont:{{size:10}},
+          boxWidth:0,boxHeight:0,usePointStyle:false,
           callbacks:{{label:c=>c.dataset.label+': '+c.parsed.y.toLocaleString('es-MX')}}}}
       }},
       scales:{{
