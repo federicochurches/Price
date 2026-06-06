@@ -115,7 +115,7 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 /* TABS */
 .distrib-tab{display:none;}
 .distrib-tab.on{display:block;}
-.gap-pill.active{background:#FEE2E2!important;color:#FF3B30!important;border-color:#FF3B30!important;}
+.gap-pill.active{background:#EDE8F7!important;color:#3D2B7A!important;border-color:#5C469C!important;}
 /* Metric pills use their own accent color when active */
 .metric-pill.on{background:var(--pill-on-bg,#E0F4FD);color:var(--pill-on-fg,#1A6B8A);border-color:var(--pill-on-bd,#4FC3F4);}
 /* Active row filter */
@@ -277,6 +277,14 @@ tr.sel > td:first-child{border-left:3px solid var(--accent,#4FC3F4);}
 .leg-amber{background:#FCB000;}
 .leg-dashed{background:repeating-linear-gradient(90deg,#FCB000 0,#FCB000 4px,transparent 4px,transparent 7px);height:1.5px;}
 canvas{display:block;}
+
+  .th-vs,.td-vs{display:none!important;} /* VS GLOBAL eliminado */
+
+  /* Sincronización tabla-pills: resaltar columna activa */
+  table.col-show-pp .td-pp, table.col-show-pp .th-pp { font-weight:800; }
+  table.col-show-sp .td-sp, table.col-show-sp .th-sp { font-weight:800; }
+  table.col-show-hy .td-hy, table.col-show-hy .th-hy { font-weight:800; }
+  table.col-show-tp .td-tp, table.col-show-tp .th-tp { font-weight:800; }
 </style>
 </head>
 <body>
@@ -546,7 +554,7 @@ canvas{display:block;}
         <th style="color:#6A6A6A;">Sin Directo</th>
         <th class="th-pp">Con Directo</th>
         <th style="min-width:120px;">Penetración</th>
-        <th>vs Global</th>
+        <th style="display:none">vs Global</th>
       </tr></thead>
       <tbody id="gap-tbody">
         <tr class="global-row">
