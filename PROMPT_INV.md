@@ -378,7 +378,15 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 - B23–B30 cerrados
 
 
+## Decisiones UI (W22 final)
+- Pills contratación: solo **PROD. PROPIO** y **SIN CONTRAT.** — Solo Propio y Hybrid eliminadas (detalle visible en columnas de tabla)
+- Tooltip gráfico histórico: fondo `rgba(253,252,249,0.92)` (beige tenue), texto `#333132`, sin color boxes
+- VS GLOBAL: columna eliminada permanentemente — `th-vs, td-vs { display:none!important }`
+- col-show CSS: solo resaltado del header con `rgba(79,195,244,.12)` — no oculta columnas
+- Default al cargar: PROD. PROPIO activo (`hFTipo = 'Prod. Propio'` en `_tryInit`)
+- Git Tree API obligatorio para HTML > 1MB
+
 ## Pendientes próxima sesión
-- P7: Columnas tabla — resaltar header columna activa según pill
-- P8: Tooltip gráfico — fondo menos contrastante que negro
-- P6: Channel View — columna % Gap junto a Hoteles
+- P6: Channel View — columna % Gap junto a Hoteles en tabla Third Party
+- P7: Columnas tabla — resaltar header columna activa según pill (parcialmente resuelto)
+- Hotel Unico V2 sin datos en gráfico histórico
