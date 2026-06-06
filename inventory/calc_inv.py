@@ -500,12 +500,12 @@ for r in acum_weeks:
 # ── ÍNDICE DIMENSIONAL para filtros combinables ──────────────────────────────
 top_corps = df_hist['Corporativo'].value_counts().head(50).index.tolist()
 
-CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
+CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick','Expedia']
 CHANNELS_TERCERO = ['Expedia_tercero','HotelBeds Apitude','Hotel Unico V2','Travelgate']
 CHANNEL_LABELS   = {
     'DerbySoft':'DerbySoft','HBSI':'HBSI','Internal':'Internal',
     'Omnibees':'Omnibees','Siteminder':'Siteminder','SynXis':'SynXis','Travelclick':'Travelclick',
-    'Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
+    'Expedia':'Expedia','Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
     'Hotel Unico V2':'Hotel Unico','Travelgate':'Travelgate'
 }
 ALL_CHANNELS = CHANNELS_PROPIO + CHANNELS_TERCERO
@@ -524,6 +524,16 @@ df_dim_hotel['ch_tipo'] = df_dim_hotel['TipoHotel'].map(
 dim_hotel_idx = (df_dim_hotel.groupby(['yw','ym','Region_display','corp','ch_tipo'])
                  .size().reset_index(name='n').sort_values('yw'))
 dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region'})
+
+# Reglas de negocio: corp+channel → override de ch_tipo
+# Marriott + Expedia = Producto Propio (Hybrid), independientemente del TipoHotel del dataset
+CORP_CHANNEL_TIPO_OVERRIDE = {
+    ('Marriott', 'Expedia'): 'Hybrid',
+}
+
+def apply_tipo_override(row):
+    key = (row['corp'], row['channel'])
+    return CORP_CHANNEL_TIPO_OVERRIDE.get(key, row['ch_tipo'])
 
 # Índice dimensional nivel channel (para filtro de channel específico)
 rows_with_ch = []
@@ -598,16 +608,6 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, (np.integer,)): return int(obj)
         if isinstance(obj, (np.floating,)): return float(obj)
         return super().default(obj)
-
-# Reglas de negocio: corp+channel → override de ch_tipo
-# Marriott + Expedia = Producto Propio (Hybrid), independientemente del TipoHotel del dataset
-CORP_CHANNEL_TIPO_OVERRIDE = {
-    ('Marriott', 'Expedia'): 'Hybrid',
-}
-
-def apply_tipo_override(row):
-    key = (row['corp'], row['channel'])
-    return CORP_CHANNEL_TIPO_OVERRIDE.get(key, row['ch_tipo'])
 
 # Snapshot actual: conteo de hoteles por corp × channel × dest × tipo (desde df completo)
 # Permite mostrar totales actuales incluso para hoteles sin FechaCreación
