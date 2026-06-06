@@ -527,10 +527,12 @@ dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region'})
 
 # Índice dimensional nivel channel (para filtro de channel específico)
 rows_with_ch = []
+_dest_col = 'Destino' if 'Destino' in df_hist.columns else None
 for ch_col in ALL_CHANNELS:
     if ch_col not in df_hist.columns: continue
-    sub = df_hist[df_hist[ch_col].apply(ch_active)][
-        ['yw','ym','Region_display','Corporativo','TipoHotel','Hotel']].copy()
+    cols = ['yw','ym','Region_display','Corporativo','TipoHotel','Hotel']
+    if _dest_col: cols.append(_dest_col)
+    sub = df_hist[df_hist[ch_col].apply(ch_active)][cols].copy()
     sub['channel'] = CHANNEL_LABELS[ch_col]
     rows_with_ch.append(sub)
 
@@ -539,9 +541,13 @@ df_dim_raw['corp']    = df_dim_raw['Corporativo'].where(df_dim_raw['Corporativo'
 df_dim_raw['ch_tipo'] = df_dim_raw['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
 
-dim_index = (df_dim_raw.groupby(['yw','ym','Region_display','corp','ch_tipo','channel'])
+_grp_cols_dim = ['yw','ym','Region_display','corp','ch_tipo','channel']
+if _dest_col: _grp_cols_dim.append(_dest_col)
+dim_index = (df_dim_raw.groupby(_grp_cols_dim)
              .size().reset_index(name='n').sort_values('yw'))
-dim_index = dim_index.rename(columns={'Region_display':'region'})
+_rename_dim = {'Region_display':'region'}
+if _dest_col: _rename_dim[_dest_col] = 'dest'
+dim_index = dim_index.rename(columns=_rename_dim)
 
 hist_regions          = sorted(df_hist['Region_display'].unique().tolist())
 hist_corps            = sorted(top_corps)
@@ -1946,6 +1952,7 @@ function hGetDim() {{
   const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
   const activeChannels = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
+  const activeDests    = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value);
   const activeTipo     = hFTipo;
 
   if (activeChannels.length > 0) {{
@@ -1955,6 +1962,7 @@ function hGetDim() {{
     return HIST.dim.filter(r =>
       (!activeRegions.length  || activeRegions.includes(r.region))   &&
       (!activeCorps.length    || activeCorps.includes(r.corp))       &&
+      (!activeDests.length    || activeDests.includes(r.dest))       &&
       activeChannels.includes(r.channel)                             &&
       tipoMatchCh(r)
     );
@@ -1965,8 +1973,8 @@ function hGetDim() {{
     || r.ch_tipo === activeTipo
     || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
 
-  // Solo filtro de tipo sin región/corp → usar dim_tipo (sin duplicados por corp)
-  if (!activeRegions.length && !activeCorps.length && activeTipo) {{
+  // Solo filtro de tipo sin región/corp/dest → usar dim_tipo (sin duplicados por corp)
+  if (!activeRegions.length && !activeCorps.length && !activeDests.length && activeTipo) {{
     return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
   }}
 
