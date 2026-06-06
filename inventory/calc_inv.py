@@ -597,6 +597,29 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, (np.floating,)): return float(obj)
         return super().default(obj)
 
+# Snapshot actual: conteo de hoteles por corp × channel × dest × tipo (desde df completo)
+# Permite mostrar totales actuales incluso para hoteles sin FechaCreación
+_snap_rows = []
+for _ch_col, _ch_label in CHANNEL_LABELS.items():
+    if _ch_col not in df.columns: continue
+    _sub = df[df[_ch_col].apply(ch_active)][['Region_display','Corporativo','TipoHotel','Destino','IdHotel']].copy()
+    if _sub.empty: continue
+    _sub['corp']    = _sub['Corporativo'].where(_sub['Corporativo'].isin(top_corps), 'Otros')
+    _sub['ch_tipo'] = _sub['TipoHotel'].map(
+        {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
+    _sub['channel'] = _ch_label
+    _grp = (_sub.groupby(['Region_display','corp','ch_tipo','channel','Destino'])
+            ['IdHotel'].nunique().reset_index(name='n'))
+    for _, _r in _grp.iterrows():
+        _snap_rows.append({
+            'region':   _r['Region_display'],
+            'corp':     _r['corp'],
+            'ch_tipo':  _r['ch_tipo'],
+            'channel':  _r['channel'],
+            'dest':     _r['Destino'],
+            'n':        int(_r['n']),
+        })
+
 hist_data = {
     'by_year':  acum_years,
     'by_month': acum_months,
@@ -616,6 +639,7 @@ hist_data = {
     'ritmo_semanal': int(ritmo_nec),
     'target': int(TARGET_PROPIO),
     'actual': int(pp),
+    'snapshot': _snap_rows,
 }
 
 print(f"    Universo: {fmt_n(N)} | PP: {fmt_n(pp)} ({fmt_pct(pct_avance)} avance) | Gap: {fmt_n(gap)} | Ritmo: ~{fmt_n(ritmo_nec)}/sem")
@@ -2384,7 +2408,7 @@ function hSelMonth(m) {{
   hGoLevel('sem');
 }}
 
-// Returns current hotel count matching active filters (for hotels pre-dating historical window)
+// Returns current hotel count matching active filters using snapshot (dataset completo, sin FechaCreación)
 function hGetCurrentTotal() {{
   const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
@@ -2394,25 +2418,14 @@ function hGetCurrentTotal() {{
   const tipoMatch = (r) => !activeTipo
     || r.ch_tipo === activeTipo
     || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
-  if (activeChannels.length > 0) {{
-    const rows = HIST.dim.filter(r =>
-      (!activeRegions.length || activeRegions.includes(r.region)) &&
-      (!activeCorps.length   || activeCorps.includes(r.corp))     &&
-      (!activeDests.length   || activeDests.includes(r.dest))     &&
-      activeChannels.includes(r.channel) && tipoMatch(r)
-    );
-    if (!rows.length) return 0;
-    const lastYw = rows.reduce((a,r) => r.yw > a ? r.yw : a, '');
-    return rows.filter(r=>r.yw===lastYw).reduce((s,r)=>s+r.n, 0);
-  }}
-  const rows = HIST.dim_hotel.filter(r =>
-    (!activeRegions.length || activeRegions.includes(r.region)) &&
-    (!activeCorps.length   || activeCorps.includes(r.corp))     &&
+  const snap = HIST.snapshot || [];
+  return snap.filter(r =>
+    (!activeRegions.length  || activeRegions.includes(r.region))  &&
+    (!activeCorps.length    || activeCorps.includes(r.corp))      &&
+    (!activeDests.length    || activeDests.includes(r.dest))      &&
+    (!activeChannels.length || activeChannels.includes(r.channel))&&
     tipoMatch(r)
-  );
-  if (!rows.length) return 0;
-  const lastYw = rows.reduce((a,r) => r.yw > a ? r.yw : a, '');
-  return rows.filter(r=>r.yw===lastYw).reduce((s,r)=>s+r.n, 0);
+  ).reduce((s,r)=>s+r.n, 0);
 }}
 
 function hRender() {{
