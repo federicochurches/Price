@@ -124,60 +124,16 @@ tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:
 /* Column visibility by active pill — table gets col-show-XX class */
 /* col-show-pp no longer hides other columns — all columns always visible */
 .col-show-pp-DISABLED .th-sp,
-/* col-show-all: mostrar todas las columnas (default) */
-.col-show-all .th-pp,.col-show-all .td-pp,
-.col-show-all .th-sp,.col-show-all .td-sp,
-.col-show-all .th-hy,.col-show-all .td-hy,
-.col-show-all .th-tp,.col-show-all .td-tp,
-.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell!important;}
-
-/* col-show-sp: ocultar PP,HY,TP — mostrar solo SP + % */
-.col-show-sp .th-pp,.col-show-sp .td-pp,
-.col-show-sp .th-hy,.col-show-sp .td-hy,
-.col-show-sp .th-tp,.col-show-sp .td-tp{display:none!important;}
-.col-show-sp .th-sp,.col-show-sp .td-sp,
-.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell!important;font-weight:700;}
-
-/* col-show-hy: ocultar PP,SP,TP — mostrar solo HY + % */
-.col-show-hy .th-pp,.col-show-hy .td-pp,
-.col-show-hy .th-sp,.col-show-hy .td-sp,
-.col-show-hy .th-tp,.col-show-hy .td-tp{display:none!important;}
-.col-show-hy .th-hy,.col-show-hy .td-hy,
-.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell!important;font-weight:700;}
-
-/* col-show-tp: ocultar PP,SP,HY — mostrar solo TP + % */
-.col-show-tp .th-pp,.col-show-tp .td-pp,
-.col-show-tp .th-sp,.col-show-tp .td-sp,
-.col-show-tp .th-hy,.col-show-tp .td-hy{display:none!important;}
-.col-show-tp .th-tp,.col-show-tp .td-tp,
-.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell!important;font-weight:700;}
-/* col-show-all: mostrar todas las columnas (default) */
-.col-show-all .th-pp,.col-show-all .td-pp,
-.col-show-all .th-sp,.col-show-all .td-sp,
-.col-show-all .th-hy,.col-show-all .td-hy,
-.col-show-all .th-tp,.col-show-all .td-tp,
-.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell!important;}
-
-/* col-show-sp: ocultar PP,HY,TP — mostrar solo SP + % */
-.col-show-sp .th-pp,.col-show-sp .td-pp,
-.col-show-sp .th-hy,.col-show-sp .td-hy,
-.col-show-sp .th-tp,.col-show-sp .td-tp{display:none!important;}
-.col-show-sp .th-sp,.col-show-sp .td-sp,
-.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell!important;font-weight:700;}
-
-/* col-show-hy: ocultar PP,SP,TP — mostrar solo HY + % */
-.col-show-hy .th-pp,.col-show-hy .td-pp,
-.col-show-hy .th-sp,.col-show-hy .td-sp,
-.col-show-hy .th-tp,.col-show-hy .td-tp{display:none!important;}
-.col-show-hy .th-hy,.col-show-hy .td-hy,
-.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell!important;font-weight:700;}
-
-/* col-show-tp: ocultar PP,SP,HY — mostrar solo TP + % */
-.col-show-tp .th-pp,.col-show-tp .td-pp,
-.col-show-tp .th-sp,.col-show-tp .td-sp,
-.col-show-tp .th-hy,.col-show-tp .td-hy{display:none!important;}
-.col-show-tp .th-tp,.col-show-tp .td-tp,
-.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell!important;font-weight:700;}
+/* Todas las columnas siempre visibles — solo resaltar la activa */
+.col-show-pp .th-pp,.col-show-pp .td-pp { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-sp .th-sp,.col-show-sp .td-sp { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-hy .th-hy,.col-show-hy .td-hy { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-gap .th-sindir,.col-show-gap .td-sindir { background:rgba(79,195,244,.08); font-weight:700; }
+/* Todas las columnas siempre visibles — solo resaltar la activa */
+.col-show-pp .th-pp,.col-show-pp .td-pp { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-sp .th-sp,.col-show-sp .td-sp { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-hy .th-hy,.col-show-hy .td-hy { background:rgba(79,195,244,.08); font-weight:700; }
+.col-show-gap .th-sindir,.col-show-gap .td-sindir { background:rgba(79,195,244,.08); font-weight:700; }
 /* tp always visible */
 /* col-show-sp no longer hides columns */
 /* col-show-hy no longer hides columns */
@@ -1123,7 +1079,7 @@ function udContent(id, btn) {
   const metricLabels = {pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'};
   udRenderMetricPill(id, metricLabels[id] || null);
   // Highlight active column header
-  const colColors = {pp:'#1A6B4A', sp:'#1A6B4A', hy:'#1A6B4A'};
+  const colColors = {pp:'#4FC3F4', sp:'#4FC3F4', hy:'#4FC3F4', gap:'#4FC3F4'};
   document.querySelectorAll('#ud-tbody').forEach(tb => {
     const tbl = tb.closest('table');
     if (!tbl) return;
@@ -1131,7 +1087,7 @@ function udContent(id, btn) {
       th.classList.remove('ud-th-active');
       th.style.color = '';
     });
-    const thMap = {pp:'.th-pp', sp:'.th-sp', hy:'.th-hy', tp:'.th-tp'};
+    const thMap = {pp:'.th-pp', sp:'.th-sp', hy:'.th-hy', tp:'.th-tp', gap:'.th-sindir'};
     const sel = thMap[id];
     if (sel && colColors[id]) {
       const th = tbl.querySelector(sel);
