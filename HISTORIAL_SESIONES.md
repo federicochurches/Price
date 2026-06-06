@@ -2259,57 +2259,6 @@ Cambio: todos los puntos con `alpha=1.0`, color sólido `ACCENT_HEX`, radio `2.5
 
 ---
 
-## Panel AR CR/RND — searchbox + 1000 rows + fixes JS · 05 Jun 2026
-
-### Contexto
-Bug detectado por Federico: Excel CR/RND cargaba los mismos hoteles en todas las pestañas.
-Panel AR de CR sin searchbox, rows 6-10 no clickeables, selección se perdía al cambiar pestaña.
-
-### Bug cerrado — Excel CR/RND pestañas repetidas (P12)
-- **Causa:** `TAB_NoDispo`/`TAB_RPM` son estructuras globales en `excel_rnd.py`. El loop de
-  canastas las usaba sin filtrar → País/Dest/Corp/Dim mostraban datos globales en B2C, Opaco y CUG.
-- **Fix (`excel_rnd.py`):** En cada iteración, detectar `can_id is None` (Global) vs canasta
-  específica. Para canastas: usar `can.get('agg_pais')`, `can.get('agg_dest')`, `can.get('agg_corp')`
-  del pickle (ya calculados por canasta en `calc_rnd.py`). Las hojas Dim también corregidas.
-- **CR no tenía el bug** — `TAB_EF_BY_CANASTA`/`TAB_CV_BY_CANASTA` ya filtraban por `can_key`.
-
-### 1.000 rows por pestaña (antes 100)
-Todos los `head(100)` subidos a `head(1000)` en:
-- `render_cr_p2.py` — tabs Críticos, BR, Sin Conv, Menor CV + dims Corp y Dest
-- `render_rnd_p2.py` — todos los tabs del panel AR
-- `render_rnd_p3.py` — cards KPI de canastas (dest, corp, hotel, pais, rpm)
-- `excel_cr.py` — función `write_combined`
-- `excel_rnd.py` — funciones `write_nd` y `write_ipm`
-
-### Fix 1 — Searchbox panel AR (`render_cr_p2.py` + `js_override.js`)
-- HTML del searchbox (dos pills: `sb-panel-th` y `sb-panel-td`) inyectado directamente
-  en `render_analisis_rendimiento()`, encima de cada tabla `w22-th` y `w22-td`.
-- Handler JS propio `initPanelSearch()` en `js_override.js` — no usa `attachPill` de
-  `asset_shared_head.html` (requiere `.kpi-card`/`.canasta-block` que el panel AR no tiene).
-- Filtra por `[data-hist-label]` en el tbody activo. Se limpia al cambiar tab.
-- Se re-inicializa al cambiar canasta o modo CR↔RND.
-
-### Fix 2 — Rows 6-1000 clickeables (`js_override.js`)
-- `_injectHistAttrs` solo inyectaba `data-hist-w21` en el render inicial.
-  Rows con clase `rows-more` no tenían el atributo → click listener no disparaba.
-- Fix: patch de `_moreBtn` que agrega inyección de attrs al expandir, usando
-  `_lastRows` guardado en cada `w22_renderTable`.
-
-### Fix 3 — Persistencia selección entre pestañas (`js_override.js`)
-- Al cambiar de pestaña (Críticos → Bajo Rendimiento), `w22_renderTable` re-escribe
-  el tbody y perdía el highlight del hotel seleccionado.
-- Fix: `_selectedPanelLabel` guarda el label seleccionado. Cada `w22_renderTable` re-aplica
-  el highlight si el label existe en los nuevos rows. Segundo click o cambio de canasta/modo limpia.
-
-### Archivos modificados
-`excel_rnd.py` · `excel_cr.py` · `render_cr_p2.py` · `render_rnd_p2.py` · `render_rnd_p3.py` · `js_override.js`
-
-### Pendientes W23
-- Aplicar mismos fixes de searchbox + 1000 rows al panel AR de RND (si lo tiene)
-- `extract_hist_data.py` sigue pendiente (P5)
-
----
-
 ## Fix pipeline local · calc_supply.py · 03 Jun 2026
 
 ### Problema resuelto
@@ -2324,3 +2273,33 @@ Todos los `head(100)` subidos a `head(1000)` en:
 
 ### Dependencias verificadas en PC local
 - Python 3.14.5 · pandas 3.0.3 · openpyxl 3.1.5 · xlsxwriter 3.2.9 · numpy 2.4.6
+
+---
+
+## Sesión Inventory fixes · 05 Jun 2026
+
+### Contexto
+Pipeline Inventory W22 con nuevo dataset (tipo_Ht_contrato_2). Múltiples fixes de clasificación, gráfico histórico y UI interactiva.
+
+### Cambios en calc_inv.py
+- Compatibilidad nuevo dataset: tipo_Ht_contrato_2 → TipoHotel, solo_propios, sin_contrato_valido, FechaCreacion sin tilde, Expedia.1→Expedia_tercero
+- df_hist filtrado hasta fin de W22 (date.fromisocalendar(YEAR, WEEK, 7))
+- df_hist_pp para gráfico histórico default (Solo Propio + Hybrid)
+- dim_tipo_idx: índice por tipo sin duplicar por corp/región
+- hGetDim: fix para Prod. Propio (filtra Solo Propio + Hybrid), usa dim_tipo cuando solo hay filtro de tipo
+- CSS: gap-pill.active → violet, th-vs/td-vs display:none (VS GLOBAL eliminado), col-show resaltado
+- udToggleContent: hFTipo correcto + _fromToggle flag
+- udContent: _fromToggle, hFTipo correcto para todos los tipos, regex fix className, gap→Third Party, sindir resaltado
+- _tryInit: default PROD. PROPIO activo al cargar
+- Penetración → % Propio en tabla gap
+
+### Pendientes documentados
+- P7: Columnas tabla — resaltar header columna activa según pill (sin cambiar visibilidad)
+- P8: Tooltip gráfico histórico — fondo menos contrastante que negro
+- P6: Channel View — columna % Gap junto a Hoteles en tabla Third Party
+- Hotel Unico V2 sin datos en gráfico histórico — investigar FechaCreación
+
+### Lección aprendida
+- Nunca parchar el HTML manualmente — siempre llevar los fixes al calc_inv.py
+- Git Tree API para archivos > 1MB (SUPPLY_W22.html 7MB, INVENTORY_W22.html 6.7MB)
+- Los fixes de JS/CSS complejos requieren sesión dedicada con foco

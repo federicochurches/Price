@@ -376,3 +376,9 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 - `hGetDim()` fuente condicional: HIST.dim si channel activo, HIST.dim_hotel si no
 - Searchbox fallback por `data-dest-name` + delay dinámico
 - B23–B30 cerrados
+
+
+## Pendientes próxima sesión
+- P7: Columnas tabla — resaltar header columna activa según pill
+- P8: Tooltip gráfico — fondo menos contrastante que negro
+- P6: Channel View — columna % Gap junto a Hoteles
