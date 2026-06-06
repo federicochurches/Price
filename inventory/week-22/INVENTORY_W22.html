@@ -969,6 +969,7 @@ function udToggleContent(id, btn) {
     btn.classList.add('on');
     hFTipo = id==='sp' ? 'Solo Propio' : id==='hy' ? 'Hybrid' : id==='pp' ? 'Prod. Propio' : '';
     udActiveFilters.push({type:'tipo', value:btn.textContent.trim(), el:btn});
+    window._fromToggle = true;
     udContent(id, btn);
   }
   hRenderActivePills();
@@ -1004,10 +1005,13 @@ function udGlobalSearch(q) {
 
 function udContent(id, btn) {
   // Second click on active metric pill → reset to Todos
-  if (id !== 'all' && id !== 'gap' && btn && btn.classList.contains('on')) {
+  // Solo resetear si es un click directo (no viene de udToggleContent que ya maneja el toggle)
+  // Detectar si viene de udToggleContent vía flag
+  if (id !== 'all' && id !== 'gap' && btn && btn.classList.contains('on') && !window._fromToggle) {
     udContent('all', document.querySelector('.distrib-pills .pill[data-col="all"]'));
     return;
   }
+  window._fromToggle = false;
   if (id === 'all') {
     document.querySelectorAll('.distrib-pills .pill').forEach(p=>p.classList.remove('on'));
     if (btn) btn.classList.add('on');
