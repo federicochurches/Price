@@ -740,6 +740,8 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 /* Active row filter */
 tr.ud-filter-active td{font-weight:700;}
 tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:10px;cursor:pointer;}
+/* VS GLOBAL — eliminado permanentemente */
+.th-vs,.td-vs{display:none!important;}
 /* Column visibility by active pill — all columns always visible, only highlight active */
 .col-show-pp .th-pp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
 .col-show-sp .th-sp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
@@ -1931,10 +1933,19 @@ function hGetDim() {{
   }}
 
   // No channel filter: use dim_hotel (one row per hotel, no channel duplication)
+  const tipoMatch = (r) => !activeTipo
+    || r.ch_tipo === activeTipo
+    || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
+
+  // Solo filtro de tipo sin región/corp → usar dim_tipo (sin duplicados por corp)
+  if (!activeRegions.length && !activeCorps.length && activeTipo) {{
+    return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
+  }}
+
   return HIST.dim_hotel.filter(r =>
     (!activeRegions.length || activeRegions.includes(r.region)) &&
     (!activeCorps.length   || activeCorps.includes(r.corp))     &&
-    (!activeTipo           || r.ch_tipo === activeTipo)
+    tipoMatch(r)
   );
 }}
 
@@ -3343,9 +3354,14 @@ function _tryInit() {{
       const regBtn = document.querySelector('#ud-dim-pills .pill');
       const ppBtn  = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
       if (regBtn) udSetDim('reg', regBtn);
-      // Default to showing all columns
-      const allBtn = document.querySelector('.distrib-pills .pill[data-col="all"]');
-      if (allBtn) udContent('all', allBtn);
+      // Default: activar PROD. PROPIO
+      const ppBtn2 = document.querySelector('.distrib-pills .pill[data-col="pp"]');
+      if (ppBtn2) {{
+        window._fromToggle = true;
+        hFTipo = 'Prod. Propio';
+        ppBtn2.classList.add('on');
+        udContent('pp', ppBtn2);
+      }}
     }});
   }});
 }}
