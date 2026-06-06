@@ -505,8 +505,8 @@ SECTION_DIVIDER = ''  # W21+ — sin divisor
 
 SWITCHER = f'''<div style="padding-top:10px;">
 <div class="w22-seg">
-  <button class="w22-seg-btn on" id="mode-cr" onclick="w22_setMode('cr',this)">CheckRates</button>
-  <button class="w22-seg-btn" id="mode-rnd" onclick="w22_setMode('rnd',this)">Rates No Dispo</button>
+  <button class="w22-seg-btn on" id="mode-cr" onclick="w22_setMode('cr',this)">Connectivities</button>
+  <button class="w22-seg-btn" id="mode-rnd" onclick="w22_setMode('rnd',this)">Availability</button>
 </div>
 </div>
 <div id="w22-filter-wrap" style="margin-top:8px;">
@@ -550,9 +550,9 @@ SHARED_CONTAINERS = f'''
 <div style="margin-bottom:4px;">
   <div class="w22-seg" id="ar-seg">
     <button class="w22-seg-btn on" id="ar-btn-cr"
-      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">CheckRates</button>
+      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Connectivities</button>
     <button class="w22-seg-btn" id="ar-btn-rnd"
-      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Rates No Dispo</button>
+      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Availability</button>
   </div>
 </div>
 <!-- Barra de canastas — misma .cfb que la barra de cards, con IDs ar-* -->
@@ -874,3 +874,4 @@ print(f'✅ SUPPLY_{WK} ensamblado: {out}')
 print(f'   Tamaño: {size_kb:.0f} KB · {len(final):,} chars')
 print(f'   CR: {len(p1_cr)+len(p2_cr)+len(p3_cr):,} chars')
 print(f'   RND: {len(p1_rnd)+len(p2_rnd)+len(p3_rnd):,} chars')
+
