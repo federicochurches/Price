@@ -2384,6 +2384,37 @@ function hSelMonth(m) {{
   hGoLevel('sem');
 }}
 
+// Returns current hotel count matching active filters (for hotels pre-dating historical window)
+function hGetCurrentTotal() {{
+  const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
+  const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
+  const activeChannels = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
+  const activeDests    = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value);
+  const activeTipo     = hFTipo;
+  const tipoMatch = (r) => !activeTipo
+    || r.ch_tipo === activeTipo
+    || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
+  if (activeChannels.length > 0) {{
+    const rows = HIST.dim.filter(r =>
+      (!activeRegions.length || activeRegions.includes(r.region)) &&
+      (!activeCorps.length   || activeCorps.includes(r.corp))     &&
+      (!activeDests.length   || activeDests.includes(r.dest))     &&
+      activeChannels.includes(r.channel) && tipoMatch(r)
+    );
+    if (!rows.length) return 0;
+    const lastYw = rows.reduce((a,r) => r.yw > a ? r.yw : a, '');
+    return rows.filter(r=>r.yw===lastYw).reduce((s,r)=>s+r.n, 0);
+  }}
+  const rows = HIST.dim_hotel.filter(r =>
+    (!activeRegions.length || activeRegions.includes(r.region)) &&
+    (!activeCorps.length   || activeCorps.includes(r.corp))     &&
+    tipoMatch(r)
+  );
+  if (!rows.length) return 0;
+  const lastYw = rows.reduce((a,r) => r.yw > a ? r.yw : a, '');
+  return rows.filter(r=>r.yw===lastYw).reduce((s,r)=>s+r.n, 0);
+}}
+
 function hRender() {{
   hDestroyChart();
   const ctx = document.getElementById('canvas-hist').getContext('2d');
@@ -2493,14 +2524,19 @@ function hRender() {{
       const firstYw = refWeeks.length ? refWeeks[0].yw : '';
       const allDim = hAggrByYw(dimRows);
       const before = allDim.filter(r=>r.yw < firstYw);
-      // Si no hay historia antes del rango, el acum arranca en 0 para netnew relativo
-      // El acumulado absoluto lo obtenemos sumando todo el dim_hotel del subconjunto
+      // Acum total del subconjunto filtrado
       const totalInSubset = allDim.length ? allDim[allDim.length-1].acum : 0;
       const inRange = allDim.filter(r=>r.yw >= firstYw).reduce((s,r)=>s+r.netnew,0);
-      // Base = total acumulado - lo que cae dentro del rango visible
       let c = before.length ? before[before.length-1].acum : (totalInSubset - inRange);
-      // Fill todas las semanas de referencia con netnew=0 donde no hay datos
-      d = refWeeks.map(w=>{{ const n=sparseMap[w.yw]||0; c+=n; return {{yw:w.yw,ym:w.ym,netnew:n,acum:c}}; }});
+
+      // Si no hay netnew histórico pero hay hoteles actuales → línea plana con total actual
+      if (totalInSubset === 0 && refWeeks.length > 0) {{
+        const currentTotal = hGetCurrentTotal();
+        d = refWeeks.map(w=>{{ return {{yw:w.yw,ym:w.ym,netnew:0,acum:currentTotal}}; }});
+      }} else {{
+        // Fill todas las semanas de referencia con netnew=0 donde no hay datos
+        d = refWeeks.map(w=>{{ const n=sparseMap[w.yw]||0; c+=n; return {{yw:w.yw,ym:w.ym,netnew:n,acum:c}}; }});
+      }}
     }} else {{
       d = refWeeks; // ya tiene fill completo y acum global
     }}
