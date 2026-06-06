@@ -1668,7 +1668,7 @@ function udSortCol(colClass, thEl) {{
   // Solo filas de la dimensión activa
   const selector = udDim==='reg' ? '.ud-reg-row' : udDim==='corp' ? '.ud-corp-row[data-row-idx]' : '.ud-dest-row[data-row-idx]';
   const rows = Array.from(tbody.querySelectorAll(selector));
-  const key = 'sort_'+colClass;
+  const key = 'sort_'+colClass.replace(/-/g,'_');
   const asc = tbody.dataset[key] === 'asc';
   rows.sort((a,b) => {{
     const getVal = r => {{
