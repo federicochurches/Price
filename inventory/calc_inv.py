@@ -3290,14 +3290,8 @@ def build_html():
       <button class="pill metric-pill" data-col="pp"
         style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
         onclick="udToggleContent('pp',this)">Prod. Propio</button>
-      <button class="pill metric-pill" data-col="sp"
-        style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
-        onclick="udToggleContent('sp',this)">Solo Propio</button>
-      <button class="pill metric-pill" data-col="hy"
-        style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
-        onclick="udToggleContent('hy',this)">Hybrid</button>
       <button class="pill metric-pill gap-pill" data-col="gap" id="btn-gap"
-        style="font-size:9px;--pill-on-bg:#FEE2E2;--pill-on-fg:#FF3B30;--pill-on-bd:#FF3B30;border-color:#FF3B30;color:#FF3B30;"
+        style="font-size:9px;--pill-on-bg:#EDE8F7;--pill-on-fg:#3D2B7A;--pill-on-bd:#5C469C;"
         onclick="udToggleContent('gap',this)">Sin Contrat.</button>
     </div>
   </div>
