@@ -124,80 +124,60 @@ tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:
 /* Column visibility by active pill — table gets col-show-XX class */
 /* col-show-pp no longer hides other columns — all columns always visible */
 .col-show-pp-DISABLED .th-sp,
-/* Por defecto, ocultar columnas individuales */
-.th-pp,.td-pp,.th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,.th-pct,.td-pct{display:none;}
-
-/* col-show-all: mostrar todas */
+/* col-show-all: mostrar todas las columnas (default) */
 .col-show-all .th-pp,.col-show-all .td-pp,
 .col-show-all .th-sp,.col-show-all .td-sp,
 .col-show-all .th-hy,.col-show-all .td-hy,
 .col-show-all .th-tp,.col-show-all .td-tp,
-.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell;}
+.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell!important;}
 
-/* col-show-pp: Total + PP + SP + HY + TP + %PP */
-.col-show-pp .th-pp,.col-show-pp .td-pp,
-.col-show-pp .th-sp,.col-show-pp .td-sp,
-.col-show-pp .th-hy,.col-show-pp .td-hy,
-.col-show-pp .th-tp,.col-show-pp .td-tp,
-.col-show-pp .th-pct,.col-show-pp .td-pct{display:table-cell;}
-.col-show-pp .th-pp,.col-show-pp .td-pp{font-weight:800;color:#4FC3F4;}
-
-/* col-show-sp: Total + SP + %SP */
+/* col-show-sp: ocultar PP,HY,TP — mostrar solo SP + % */
+.col-show-sp .th-pp,.col-show-sp .td-pp,
+.col-show-sp .th-hy,.col-show-sp .td-hy,
+.col-show-sp .th-tp,.col-show-sp .td-tp{display:none!important;}
 .col-show-sp .th-sp,.col-show-sp .td-sp,
-.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell;}
-.col-show-sp .th-sp,.col-show-sp .td-sp{font-weight:800;}
+.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell!important;font-weight:700;}
 
-/* col-show-hy: Total + HY + %HY */
+/* col-show-hy: ocultar PP,SP,TP — mostrar solo HY + % */
+.col-show-hy .th-pp,.col-show-hy .td-pp,
+.col-show-hy .th-sp,.col-show-hy .td-sp,
+.col-show-hy .th-tp,.col-show-hy .td-tp{display:none!important;}
 .col-show-hy .th-hy,.col-show-hy .td-hy,
-.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell;}
-.col-show-hy .th-hy,.col-show-hy .td-hy{font-weight:800;}
+.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell!important;font-weight:700;}
 
-/* col-show-tp: Total + TP + %TP */
+/* col-show-tp: ocultar PP,SP,HY — mostrar solo TP + % */
+.col-show-tp .th-pp,.col-show-tp .td-pp,
+.col-show-tp .th-sp,.col-show-tp .td-sp,
+.col-show-tp .th-hy,.col-show-tp .td-hy{display:none!important;}
 .col-show-tp .th-tp,.col-show-tp .td-tp,
-.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell;}
-.col-show-tp .th-tp,.col-show-tp .td-tp{font-weight:800;}
-
-/* col-show-gap: Total + SinDirecto + ConDirecto + Penetración */
-.col-show-gap .th-sindir,.col-show-gap .td-sindir,
-.col-show-gap .th-condir,.col-show-gap .td-condir,
-.col-show-gap .th-pen,.col-show-gap .td-pen{display:table-cell;}
-/* Por defecto, ocultar columnas individuales */
-.th-pp,.td-pp,.th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,.th-pct,.td-pct{display:none;}
-
-/* col-show-all: mostrar todas */
+.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell!important;font-weight:700;}
+/* col-show-all: mostrar todas las columnas (default) */
 .col-show-all .th-pp,.col-show-all .td-pp,
 .col-show-all .th-sp,.col-show-all .td-sp,
 .col-show-all .th-hy,.col-show-all .td-hy,
 .col-show-all .th-tp,.col-show-all .td-tp,
-.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell;}
+.col-show-all .th-pct,.col-show-all .td-pct{display:table-cell!important;}
 
-/* col-show-pp: Total + PP + SP + HY + TP + %PP */
-.col-show-pp .th-pp,.col-show-pp .td-pp,
-.col-show-pp .th-sp,.col-show-pp .td-sp,
-.col-show-pp .th-hy,.col-show-pp .td-hy,
-.col-show-pp .th-tp,.col-show-pp .td-tp,
-.col-show-pp .th-pct,.col-show-pp .td-pct{display:table-cell;}
-.col-show-pp .th-pp,.col-show-pp .td-pp{font-weight:800;color:#4FC3F4;}
-
-/* col-show-sp: Total + SP + %SP */
+/* col-show-sp: ocultar PP,HY,TP — mostrar solo SP + % */
+.col-show-sp .th-pp,.col-show-sp .td-pp,
+.col-show-sp .th-hy,.col-show-sp .td-hy,
+.col-show-sp .th-tp,.col-show-sp .td-tp{display:none!important;}
 .col-show-sp .th-sp,.col-show-sp .td-sp,
-.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell;}
-.col-show-sp .th-sp,.col-show-sp .td-sp{font-weight:800;}
+.col-show-sp .th-pct,.col-show-sp .td-pct{display:table-cell!important;font-weight:700;}
 
-/* col-show-hy: Total + HY + %HY */
+/* col-show-hy: ocultar PP,SP,TP — mostrar solo HY + % */
+.col-show-hy .th-pp,.col-show-hy .td-pp,
+.col-show-hy .th-sp,.col-show-hy .td-sp,
+.col-show-hy .th-tp,.col-show-hy .td-tp{display:none!important;}
 .col-show-hy .th-hy,.col-show-hy .td-hy,
-.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell;}
-.col-show-hy .th-hy,.col-show-hy .td-hy{font-weight:800;}
+.col-show-hy .th-pct,.col-show-hy .td-pct{display:table-cell!important;font-weight:700;}
 
-/* col-show-tp: Total + TP + %TP */
+/* col-show-tp: ocultar PP,SP,HY — mostrar solo TP + % */
+.col-show-tp .th-pp,.col-show-tp .td-pp,
+.col-show-tp .th-sp,.col-show-tp .td-sp,
+.col-show-tp .th-hy,.col-show-tp .td-hy{display:none!important;}
 .col-show-tp .th-tp,.col-show-tp .td-tp,
-.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell;}
-.col-show-tp .th-tp,.col-show-tp .td-tp{font-weight:800;}
-
-/* col-show-gap: Total + SinDirecto + ConDirecto + Penetración */
-.col-show-gap .th-sindir,.col-show-gap .td-sindir,
-.col-show-gap .th-condir,.col-show-gap .td-condir,
-.col-show-gap .th-pen,.col-show-gap .td-pen{display:table-cell;}
+.col-show-tp .th-pct,.col-show-tp .td-pct{display:table-cell!important;font-weight:700;}
 /* tp always visible */
 /* col-show-sp no longer hides columns */
 /* col-show-hy no longer hides columns */
