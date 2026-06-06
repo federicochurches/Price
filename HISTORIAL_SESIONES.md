@@ -2303,3 +2303,23 @@ Pipeline Inventory W22 con nuevo dataset (tipo_Ht_contrato_2). Múltiples fixes 
 - Nunca parchar el HTML manualmente — siempre llevar los fixes al calc_inv.py
 - Git Tree API para archivos > 1MB (SUPPLY_W22.html 7MB, INVENTORY_W22.html 6.7MB)
 - Los fixes de JS/CSS complejos requieren sesión dedicada con foco
+
+---
+
+## Cierre sesión · 05 Jun 2026 (continuación)
+
+### Fixes calc_inv.py aplicados
+- FF3B30 → #6A6A6A en todas las cards
+- Sort todas las columnas con indicador ↑↓ + dataset key fix (guiones→underscore)
+- hFChannel limpiado al salir de vista channel
+- hGetDim · tipoMatch en bloque channel (Prod.Propio = Solo Propio + Hybrid)
+- Pills contratación: solo PROD. PROPIO + SIN CONTRAT.
+- Tooltip beige tenue
+
+### Pendientes próxima sesión
+- P6: Channel View · % Gap junto a Hoteles
+- P7: Resaltar header columna activa según pill
+- P8: (resuelto — tooltip beige)
+- Commitear INVENTORY_W22.html con todos los fixes (el HTML local tiene los cambios pero no se pudo subir)
+- Verificar sort columnas funciona correctamente
+- Verificar filtros channel + región funcionan correctamente
