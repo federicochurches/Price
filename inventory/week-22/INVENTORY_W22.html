@@ -1072,7 +1072,7 @@ function udContent(id, btn) {
     });
     const tbl = document.querySelector('#ud-tbody')?.closest('table');
     if (tbl) {
-      tbl.className = tbl.className.replace(/col-show-\S+/g,'').trim();
+      tbl.className = tbl.className = className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ').trim();
       tbl.classList.add('col-show-all');
     }
     const gb = document.getElementById('btn-gap');
@@ -1116,7 +1116,7 @@ function udContent(id, btn) {
   // Apply a class to the table so CSS can hide columns
   const tbl = document.querySelector('#ud-tbody')?.closest('table');
   if (tbl) {
-    tbl.className = tbl.className.replace(/col-show-\S+/g, '').trim();
+    tbl.className = tbl.className = className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ').trim();
     tbl.classList.add('col-show-' + (id||'all'));
   }
   // Render metric pill badge
@@ -1378,7 +1378,7 @@ function udSetDim(dim, btn) {
   // For Destino: no Solo P./Hybrid breakdown — auto-switch to PP and hide those cols
   const tbl = document.querySelector('#ud-tbody')?.closest('table');
   if (tbl && dim==='dest') {
-    tbl.className = tbl.className.replace(/col-show-\S+/g,'').trim();
+    tbl.className = tbl.className = className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ').trim();
     tbl.classList.add('col-show-pp');
     document.querySelectorAll('.distrib-pills .pill:not(.gap-pill)').forEach(p=>p.classList.remove('on'));
     const ppBtn = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
