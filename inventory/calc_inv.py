@@ -734,27 +734,21 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 /* TABS */
 .distrib-tab{display:none;}
 .distrib-tab.on{display:block;}
-.gap-pill.active{background:#FEE2E2!important;color:#FF3B30!important;border-color:#FF3B30!important;}
+.gap-pill.active{background:#EDE8F7!important;color:#3D2B7A!important;border-color:#5C469C!important;}
 /* Metric pills use their own accent color when active */
 .metric-pill.on{background:var(--pill-on-bg,#E0F4FD);color:var(--pill-on-fg,#1A6B8A);border-color:var(--pill-on-bd,#4FC3F4);}
 /* Active row filter */
 tr.ud-filter-active td{font-weight:700;}
 tr.ud-filter-active td:first-child::after{content:' ×';color:#FF3B30;font-size:10px;cursor:pointer;}
-/* Column visibility by active pill — table gets col-show-XX class */
-/* col-show-pp no longer hides other columns — all columns always visible */
-.col-show-pp-DISABLED .th-sp,
+/* Column visibility by active pill — all columns always visible, only highlight active */
+.col-show-pp .th-pp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
+.col-show-sp .th-sp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
+.col-show-hy .th-hy { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
+.col-show-gap .th-sindir { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
 .col-show-all .th-pp,.col-show-all .td-pp,
 .col-show-all .th-sp,.col-show-all .td-sp,
 .col-show-all .th-hy,.col-show-all .td-hy,
 .col-show-all .th-tp,.col-show-all .td-tp{display:table-cell;}
-.col-show-all .th-pp,.col-show-all .td-pp,
-.col-show-all .th-sp,.col-show-all .td-sp,
-.col-show-all .th-hy,.col-show-all .td-hy,
-.col-show-all .th-tp,.col-show-all .td-tp{display:table-cell;}
-/* tp always visible */
-/* col-show-sp no longer hides columns */
-/* col-show-hy no longer hides columns */
-/* col-show-tp no longer hides columns */
 /* Active/selected row */
 tr.ud-filter-active > td { background:var(--accent-soft,#E0F4FD) !important; }
 tr.ud-filter-active > td:first-child { border-left:3px solid var(--accent,#4FC3F4); }
@@ -1228,16 +1222,15 @@ function udToggleDim(dim, btn) {{
 function udToggleContent(id, btn) {{
   const isOn = btn.classList.contains('on');
   document.querySelectorAll('#ud-metric-pills .pill').forEach(p=>p.classList.remove('on'));
-  // Remove existing tipo filter
   udActiveFilters = udActiveFilters.filter(f=>f.type!=='tipo');
   if (isOn || id==='all') {{
-    // Deselect — show all
     hFTipo = '';
     udContent('all', document.querySelector('#ud-metric-pills .pill[data-col="all"]'));
   }} else {{
     btn.classList.add('on');
-    hFTipo = id==='sp' ? 'Solo Propio' : id==='hy' ? 'Hybrid' : id==='pp' ? 'Prod. Propio' : '';
+    hFTipo = id==='sp' ? 'Solo Propio' : id==='hy' ? 'Hybrid' : id==='pp' ? 'Prod. Propio' : id==='gap' ? 'Third Party' : '';
     udActiveFilters.push({{type:'tipo', value:btn.textContent.trim(), el:btn}});
+    window._fromToggle = true;
     udContent(id, btn);
   }}
   hRenderActivePills();
@@ -1272,11 +1265,12 @@ function udGlobalSearch(q) {{
 }}
 
 function udContent(id, btn) {{
-  // Second click on active metric pill → reset to Todos
-  if (id !== 'all' && id !== 'gap' && btn && btn.classList.contains('on')) {{
+  // Second click on active metric pill → reset (solo si no viene de udToggleContent)
+  if (id !== 'all' && id !== 'gap' && btn && btn.classList.contains('on') && !window._fromToggle) {{
     udContent('all', document.querySelector('.distrib-pills .pill[data-col="all"]'));
     return;
   }}
+  window._fromToggle = false;
   if (id === 'all') {{
     document.querySelectorAll('.distrib-pills .pill').forEach(p=>p.classList.remove('on'));
     if (btn) btn.classList.add('on');
@@ -1285,11 +1279,11 @@ function udContent(id, btn) {{
     udRenderMetricPill(null, null);
     document.querySelectorAll('#ud-tbody').forEach(tb => {{
       const tbl = tb.closest('table');
-      if (tbl) tbl.querySelectorAll('th').forEach(th => {{ th.classList.remove('ud-th-active'); th.style.color=''; }});
+      if (tbl) tbl.querySelectorAll('th').forEach(th => {{ th.classList.remove('ud-th-active'); th.style.color=''; th.style.background=''; }});
     }});
     const tbl = document.querySelector('#ud-tbody')?.closest('table');
     if (tbl) {{
-      tbl.className = tbl.className.replace(/\bcol-show-\S+/g,'').trim();
+      tbl.className = tbl.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
       tbl.classList.add('col-show-all');
     }}
     const gb = document.getElementById('btn-gap');
@@ -1305,14 +1299,20 @@ function udContent(id, btn) {{
     document.querySelectorAll('.distrib-pills .pill').forEach(p=>p.classList.remove('on'));
     if (btn) btn.classList.add('on');
     udToggleGap(btn);
-    hFTipo = ''; if (typeof hRender === 'function') hRender();
+    hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
+    // Resaltar SIN DIRECTO en tabla gap
+    const tbl2 = document.querySelector('#gap-tbody')?.closest('table');
+    if (tbl2) {{
+      tbl2.className = tbl2.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
+      tbl2.classList.add('col-show-gap');
+    }}
     return;
   }}
   // Sync tipo filter to historical chart
-  if (id === 'sp') {{ hFTipo = 'Solo Propio'; }}
-  else if (id === 'hy') {{ hFTipo = 'Hybrid'; }}
-  else if (id === 'pp') {{ hFTipo = 'Solo Propio'; }} // PP = Solo Propio + Hybrid, chart shows SP as proxy
-  else {{ hFTipo = ''; }}
+  if (id === 'sp')          hFTipo = 'Solo Propio';
+  else if (id === 'hy')     hFTipo = 'Hybrid';
+  else if (id === 'pp')     hFTipo = 'Prod. Propio';
+  else                      hFTipo = '';
   // Update section title
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
@@ -1329,25 +1329,26 @@ function udContent(id, btn) {{
     document.getElementById('ud-gap-content').style.display = 'none';
     document.getElementById('ud-main-content').style.display = '';
   }}
-  // Apply a class to the table so CSS can hide columns
+  // Apply col-show class — limpiar correctamente antes
   const tbl = document.querySelector('#ud-tbody')?.closest('table');
   if (tbl) {{
-    tbl.className = tbl.className.replace(/\bcol-show-\S+/g, '').trim();
+    tbl.className = tbl.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
     tbl.classList.add('col-show-' + (id||'all'));
   }}
   // Render metric pill badge
   const metricLabels = {{pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'}};
   udRenderMetricPill(id, metricLabels[id] || null);
   // Highlight active column header
-  const colColors = {{pp:'#1A6B4A', sp:'#1A6B4A', hy:'#1A6B4A'}};
+  const colColors = {{pp:'#4FC3F4', sp:'#4FC3F4', hy:'#4FC3F4', gap:'#4FC3F4'}};
   document.querySelectorAll('#ud-tbody').forEach(tb => {{
     const tbl = tb.closest('table');
     if (!tbl) return;
     tbl.querySelectorAll('th').forEach(th => {{
       th.classList.remove('ud-th-active');
       th.style.color = '';
+      th.style.background = '';
     }});
-    const thMap = {{pp:'.th-pp', sp:'.th-sp', hy:'.th-hy', tp:'.th-tp'}};
+    const thMap = {{pp:'.th-pp', sp:'.th-sp', hy:'.th-hy', tp:'.th-tp', gap:'.th-sindir'}};
     const sel = thMap[id];
     if (sel && colColors[id]) {{
       const th = tbl.querySelector(sel);
@@ -2976,7 +2977,7 @@ def build_gap_tab():
         <th>Total</th>
         <th style="color:#FF3B30;">Sin Directo</th>
         <th class="th-pp">Con Directo</th>
-        <th style="min-width:120px;">Penetración</th>
+        <th style="min-width:120px;">% Propio</th>
         <th>vs Global</th>
       </tr></thead>
       <tbody id="gap-tbody">
