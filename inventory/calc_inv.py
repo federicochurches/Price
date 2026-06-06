@@ -1562,6 +1562,9 @@ function udSetDim(dim, btn) {{
   document.getElementById('ud-main-content').style.display='';
   document.getElementById('ud-gap-content').style.display='none';
   document.getElementById('ud-ch-content').style.display='none';
+  // Al salir de channel, limpiar hFChannel para que hGetDim no siga filtrando por canal
+  hFChannel = '';
+  udActiveFilters = udActiveFilters.filter(f=>f.type!=='channel');
   // contratacion row always visible
   const ar=document.getElementById('ud-active-row');   if(ar) ar.style.display='flex';
   const gs=document.getElementById('ud-global-search'); if(gs) {{ gs.value=''; udGlobalSearch(''); }}
