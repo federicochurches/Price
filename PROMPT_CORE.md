@@ -482,6 +482,11 @@ Price/
   └── 📁 rates-nodispo/week-NN/Excels + Dataset
 ```
 
+### GitHub API — archivos grandes
+- **Archivos > 1MB:** usar siempre Git Tree API (`POST /git/blobs` → `POST /git/trees` → `POST /git/commits` → `PATCH /git/refs/heads/main`)
+- La Contents API (`PUT /contents/`) falla silenciosamente — commit aparece pero contenido queda vacío
+- Afecta: `SUPPLY_WNN.html` (~7MB), `INVENTORY_WNN.html` (~6.7MB)
+
 ### Ejecución local desde PowerShell
 Tanto el pipeline PRICE como el de Inventory se pueden correr localmente:
 ```powershell
