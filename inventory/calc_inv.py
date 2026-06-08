@@ -17,11 +17,11 @@ import json, sys
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W22"
-WEEK_NUM      = 22
-VOL_NUM       = "22"
+WEEK          = "W23"
+WEEK_NUM      = 23
+VOL_NUM       = "23"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "2 de Junio de 2026"
+SNAPSHOT_DATE = "9 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -711,7 +711,7 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
   .kpi-triple{grid-template-columns:1fr 1fr!important;}
   /* Distribution table — hide secondary cols, keep Name+Total+P.Propio */
   .th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,
-  .th-pct,.td-pct,.th-vs,.td-vs{display:none!important;}
+  .th-pct,.td-pct{display:none!important;}
   #ud-main-content table{min-width:0;width:100%;}
   /* Searchbox */
   #ud-global-search{width:100%!important;box-sizing:border-box;}
@@ -748,7 +748,7 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 tr.ud-filter-active td{font-weight:700;}
 tr.ud-filter-active td:first-child::after{content:' ×';color:#6A6A6A;font-size:10px;cursor:pointer;}
 /* VS GLOBAL — eliminado permanentemente */
-.th-vs,.td-vs{display:none!important;}
+.th-pct,.td-pct{display:none!important;}
 /* Column visibility by active pill — all columns always visible, only highlight active */
 .col-show-pp .th-pp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
 .col-show-sp .th-sp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
@@ -2026,9 +2026,60 @@ function hAggrByYm(rows) {{
 
 function hIsFiltered() {{
   if (hFRegion || hFCorp || hFChannel || hFTipo) return true;
-  // Also check udActiveFilters for corp/region/channel selections made via autocomplete or table click
   if (udActiveFilters && udActiveFilters.some(f=>f.type==='region'||f.type==='corp'||f.type==='channel'||f.type==='tipo')) return true;
   return false;
+}}
+
+// Drill semanal: muestra resumen de hoteles nuevos esa semana desde dim_hotel/dim_ch
+let hActiveDrillYw = null;
+function hDrillWeek(yw) {{
+  if (!yw) return;
+  hActiveDrillYw = yw;
+  const panel = document.getElementById('hist-week-drill');
+  const title  = document.getElementById('hist-week-drill-title');
+  const body   = document.getElementById('hist-week-drill-body');
+  if (!panel) return;
+
+  // Contar hoteles de esa semana desde dim_hotel (agrupado por tipo)
+  const rows = HIST.dim_hotel.filter(r => (r.w||r.yw) === yw);
+  const byTipo = {{}};
+  rows.forEach(r => {{
+    const t = r.t || r.ch_tipo || '—';
+    byTipo[t] = (byTipo[t] || 0) + r.n;
+  }});
+  const total = Object.values(byTipo).reduce((s,n)=>s+n, 0);
+
+  // Formatear semana label
+  const wn = yw.split('-W')[1];
+  const yr = yw.split('-W')[0];
+  title.textContent = 'Hoteles nuevos — W' + wn + ' · ' + yr + ' (' + total.toLocaleString('es-MX') + ' contratos)';
+
+  if (total === 0) {{
+    body.innerHTML = '<span style="color:var(--ink-muted);">Sin contratos nuevos esta semana.</span>';
+  }} else {{
+    const TIPO_COLOR = {{'Solo Propio':'var(--green)','Hybrid':'var(--violet,#5C469C)','Third Party':'var(--dgrey,#333132)'}};
+    const order = ['Solo Propio','Hybrid','Third Party'];
+    const pills = order
+      .filter(t => byTipo[t])
+      .map(t => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:11px;font-weight:600;color:${{TIPO_COLOR[t]||'#333'}};">
+        <span style="width:6px;height:6px;border-radius:50%;background:${{TIPO_COLOR[t]||'#333'}};display:inline-block;"></span>
+        ${{t}}: ${{byTipo[t].toLocaleString('es-MX')}}
+      </span>`)
+      .join('');
+    body.innerHTML = pills || '<span>Sin datos</span>';
+  }}
+
+  panel.style.display = 'block';
+
+  // Highlight barra activa en el chart
+  if (hChart) hChart.update();
+}}
+
+function hDrillWeekReset() {{
+  hActiveDrillYw = null;
+  const panel = document.getElementById('hist-week-drill');
+  if (panel) panel.style.display = 'none';
+  if (hChart) hChart.update();
 }}
 
 // Called when any filter changes
@@ -2533,6 +2584,13 @@ function hRender() {{
       ? 'Acumulado — '+MN_HIST[hMonth]+' '+hYear
       : hYear ? 'Acumulado — Semanas '+hYear
       : 'Acumulado — Todas las semanas';
+    onClickFn = (_,els)=>{{
+      if (!els.length) return;
+      const idx = els[0].index;
+      const yw = d[idx]?.yw;
+      if (!yw || d[idx]?.netnew === 0) return;
+      hDrillWeek(yw);
+    }};
   }}
 
   const filterTag = filtered
@@ -2679,7 +2737,6 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(hy)}</td>'
             f'<td class="td-tp">{fmt_n(tp)}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
 
@@ -2700,7 +2757,6 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(hy)}</td>'
             f'<td class="td-tp">{fmt_n(tp)}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_corp = ('<tr class="ud-corp-row" style="display:none" id="ud-corp-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
@@ -2725,7 +2781,6 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(int(r["hybrid"])) if int(r["hybrid"])>0 else "—"}</td>'
             f'<td class="td-tp">{fmt_n(int(tp))}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_dest = ('<tr class="ud-dest-row" style="display:none" id="ud-dest-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
@@ -2746,7 +2801,6 @@ def build_unified_distrib():
         <th class="th-hy" data-sort-col="td-hy" data-sort-label="Hybrid" onclick="udSortCol('td-hy',this)" style="font-size:8px;cursor:pointer;user-select:none;">Hybrid ↕</th>
         <th class="th-tp" data-sort-col="td-tp" data-sort-label="Third P." onclick="udSortCol('td-tp',this)" style="cursor:pointer;user-select:none;">Third P. ↕</th>
         <th class="th-pct th-pct-label" style="min-width:120px;">% Propio</th>
-        <th class="th-vs">vs Global</th>
       </tr></thead>
       <tbody id="ud-tbody">
         <tr class="global-row">
@@ -2968,10 +3022,9 @@ def build_gap_tab():
             f' onclick="udRowClick(\'region\',\'{reg}\',this)">'
             f'<td><strong>{reg}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(sin_d)}</td>'
-            f'<td class="td-pp">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
 
@@ -2988,10 +3041,9 @@ def build_gap_tab():
             f' onclick="udRowClick(\'corp\',\'{corp}\',this)">'
             f'<td><strong>{r["Corporativo"]}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(sin_d)}</td>'
-            f'<td class="td-pp">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_corp = ('<tr class="gap-corp-row" style="display:none" id="gap-corp-ver-mas2">'
@@ -3013,10 +3065,9 @@ def build_gap_tab():
             f'<td><strong>{r["Destino"]}</strong>'
             f'<div style="font-size:10px;color:var(--ink-muted);line-height:1.3;margin-top:1px;">{r["Region_display"]}</div></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(sin_d)}</td>'
-            f'<td class="td-pp">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
-            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_dest = ('<tr class="gap-dest-row" style="display:none" id="gap-dest-ver-mas2">'
@@ -3040,19 +3091,17 @@ def build_gap_tab():
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th style="color:#6A6A6A;">Sin Directo</th>
-        <th class="th-pp">Con Directo</th>
+        <th class="th-pp">Sin Directo</th>
+        <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
-        <th>vs Global</th>
       </tr></thead>
       <tbody id="gap-tbody">
         <tr class="global-row">
           <td>GLOBAL</td>
           <td>{fmt_n(N)}</td>
-          <td style="color:#6A6A6A;font-weight:700;">{fmt_n(int(market_tp))}</td>
-          <td class="td-pp">{fmt_n(pp)}</td>
+          <td class="td-pp">{fmt_n(int(market_tp))}</td>
+          <td style="color:#6A6A6A;font-weight:700;">{fmt_n(pp)}</td>
           <td>{pct_bar_html(pp/N*100,"var(--green)")}</td>
-          <td>—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
@@ -3373,6 +3422,15 @@ def build_html():
 <div class="breadcrumb" id="drill-bc"></div>
 <div class="chart-area" style="background:transparent;border:1px solid var(--rule);border-radius:2px;padding:16px 12px 8px;margin-bottom:24px;">
   <div style="position:relative;height:220px;width:100%;"><canvas id="canvas-hist"></canvas></div>
+</div>
+
+<!-- ── DRILL SEMANA (oculto hasta click en barra) ── -->
+<div id="hist-week-drill" style="display:none;margin:-16px 0 24px;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-radius:2px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span id="hist-week-drill-title" style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);"></span>
+    <button onclick="hDrillWeekReset()" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);padding:3px 10px;cursor:pointer;border-radius:2px;">× Cerrar</button>
+  </div>
+  <div id="hist-week-drill-body" style="font-size:11px;color:var(--ink-muted);"></div>
 </div>
 
 <!-- ── TABLA: Distribución y Exploración ── -->
