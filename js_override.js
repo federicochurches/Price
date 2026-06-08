@@ -1503,6 +1503,7 @@ function _moreBtn(containerEl, tbodyId) {
       '  Array.prototype.forEach.call(rows,function(r){',
       '    var show=exp?(r.tagName==="TR"?"table-row":"grid"):"none";',
       '    r.style.setProperty("display",show,"important");',
+      '    if(exp&&r.tagName==="TR"){r.style.borderBottom="1px solid var(--rule-soft)";r.style.cursor="pointer";}',
       '  });',
       '  btn.textContent=exp?"Ver menos ▴":"Ver más ▾";',
       '})(this)'
@@ -1527,6 +1528,7 @@ function _moreBtn(containerEl, tbodyId) {
     '  Array.prototype.forEach.call(rows,function(r){',
     '    var d=exp?(r.tagName==="TR"?"table-row":"grid"):"none";',
     '    r.style.setProperty("display",d,"important");',
+      '    if(exp&&r.tagName==="TR"){r.style.borderBottom="1px solid var(--rule-soft)";r.style.cursor="pointer";}',
     '  });',
     '  btn.textContent=exp?"Ver menos ▴":"Ver más ▾";',
     '})(this)'
