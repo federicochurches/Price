@@ -37,6 +37,7 @@ PICKLE_RND  = os.getenv('PICKLE_RND', f'rnd_w{WEEK}_data.pkl')
 PICKLE_CR   = os.getenv('PICKLE_CR', f'cr_w{WEEK}_data.pkl')
 
 OUTPUTS     = Path(os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs'))
+SCRIPT_DIR  = Path(__file__).parent
 PROJECT     = Path(os.getenv('PROJECT_DIR', '/mnt/project'))
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -437,55 +438,36 @@ rnd_dataset = rnd_dataset_uploads if rnd_dataset_uploads.exists() else rnd_datas
 
 files = {
     # ── index.html (raíz) ──────────────────────────────────────────────────
-    OUTPUTS / 'index.html':
+    SCRIPT_DIR / 'index.html':
         ZIP_ROOT / 'index.html',
 
     # ── _email ──────────────────────────────────────────────────────────────
-    OUTPUTS / f'Mail_W{WEEK}.html':
+    SCRIPT_DIR / '_email' / WEEK_STR / f'Mail_W{WEEK}.html':
         ZIP_ROOT / '_email' / WEEK_STR / f'Mail_W{WEEK}.html',
 
-    # ── _seguimiento (carryover semanal) ────────────────────────────────────
-    OUTPUTS / f'plan_seguimiento_W{WEEK}.md':
+    # ── _seguimiento ────────────────────────────────────────────────────────
+    OUTPUTS / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md':
         ZIP_ROOT / '_seguimiento' / f'plan_seguimiento_W{WEEK}.md',
 
     # ── reports/week-NN · HTML unificado (W21+) ───────────────────────────
     OUTPUTS / f'SUPPLY_W{WEEK}.html':
         ZIP_ROOT / 'reports' / WEEK_STR / f'SUPPLY_W{WEEK}.html',
 
-    # ── checkrates/week-NN · Excel consolidado + Dataset ──────────────────
+    # ── checkrates/week-NN · Excel consolidado ────────────────────────────
     OUTPUTS / f'Analisis_CheckRates_W{WEEK}.xlsx':
         ZIP_ROOT / 'checkrates' / WEEK_STR / f'Analisis_CheckRates_W{WEEK}.xlsx',
 
-    # ── rates-nodispo/week-NN · Excel consolidado + Dataset ───────────────
+    # ── rates-nodispo/week-NN · Excel consolidado ─────────────────────────
     OUTPUTS / f'Analisis_RatesNoDispo_W{WEEK}.xlsx':
         ZIP_ROOT / 'rates-nodispo' / WEEK_STR / f'Analisis_RatesNoDispo_W{WEEK}.xlsx',
-    # ── inventory/week-NN · script + HTML + Excel ──────────────────────────
-    Path('inventory/calc_inv.py'):
+
+    # ── inventory/week-NN · script + HTML + Excel ─────────────────────────
+    SCRIPT_DIR / 'inventory' / 'calc_inv.py':
         ZIP_ROOT / 'inventory' / 'calc_inv.py',
     OUTPUTS / f'INVENTORY_W{WEEK}.html':
         ZIP_ROOT / 'inventory' / WEEK_STR / f'INVENTORY_W{WEEK}.html',
     OUTPUTS / f'Analisis_Inventory_W{WEEK}.xlsx':
         ZIP_ROOT / 'inventory' / WEEK_STR / f'Analisis_Inventory_W{WEEK}.xlsx',
-
-    # ── _docs (governance + docs canónicas) ─────────────────────────────────
-    Path('/mnt/project/CHANGELOG.md'):
-        ZIP_ROOT / '_docs' / 'CHANGELOG.md',
-    Path('/mnt/project/COMMIT_GUIDE.md'):
-        ZIP_ROOT / '_docs' / 'COMMIT_GUIDE.md',
-    
-    # ── Documentación YAML (raíz) ───────────────────────────────────────────
-    Path('/mnt/project/YAML_PIPELINE_GUIDE.md'):
-        ZIP_ROOT / 'YAML_PIPELINE_GUIDE.md',
-    Path('/mnt/project/IMPLEMENTACION_YAML_COMPLETADA.md'):
-        ZIP_ROOT / 'IMPLEMENTACION_YAML_COMPLETADA.md',
-    Path('/mnt/project/QUICK_REFERENCE_YAML.md'):
-        ZIP_ROOT / 'QUICK_REFERENCE_YAML.md',
-    
-    # ── Scripts YAML (raíz) ─────────────────────────────────────────────────
-    Path('/mnt/project/run_pipeline.py'):
-        ZIP_ROOT / 'run_pipeline.py',
-    Path('/mnt/project/WEEK_CONFIG_W21.yml'):
-        ZIP_ROOT / 'WEEK_CONFIG_W21.yml',
 }
 
 # Agregar datasets crudos si están disponibles
