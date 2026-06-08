@@ -2584,12 +2584,14 @@ function hRender() {{
       ? 'Acumulado — '+MN_HIST[hMonth]+' '+hYear
       : hYear ? 'Acumulado — Semanas '+hYear
       : 'Acumulado — Todas las semanas';
-    onClickFn = (_,els)=>{{
+    onClickFn = (evt,els)=>{{
       if (!els.length) return;
-      const idx = els[0].index;
-      const yw = d[idx]?.yw;
-      if (!yw || d[idx]?.netnew === 0) return;
-      hDrillWeek(yw);
+      // Preferir el elemento de tipo barra (datasetIndex 1) si está disponible
+      const el = els.find(e=>e.datasetIndex===1) || els[0];
+      const idx = el.index;
+      const row = d[idx];
+      if (!row || !row.yw) return;
+      hDrillWeek(row.yw);
     }};
   }}
 
@@ -2811,7 +2813,6 @@ def build_unified_distrib():
           <td class="td-hy" style="opacity:.55;">{fmt_n(hybrid)}</td>
           <td class="td-tp">{fmt_n(solo_terc)}</td>
           <td>{pct_bar_html(pp/N*100,"#4FC3F4")}</td>
-          <td>—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
