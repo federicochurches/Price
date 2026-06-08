@@ -25,11 +25,11 @@ from pathlib import Path
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK        = 'W22'
-VOL_NUM     = '22'
-PERIODO     = '26 may – 1 jun 2026'
+WEEK        = 'W23'
+VOL_NUM     = '23'
+PERIODO     = '2 – 8 jun 2026'
 MES_ANO     = 'Junio 2026'
-FECHA_PUB   = 'LUNES 02 de Junio de 2026'
+FECHA_PUB   = 'LUNES 09 de Junio de 2026'
 
 # Outputs — por defecto misma carpeta del script
 OUTPUT_DIR  = str(Path(__file__).parent)
