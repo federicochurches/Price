@@ -349,6 +349,7 @@ Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
 | W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
 | W22 | 94,21% | 1,00% | 2,61% | $653 |
+| W23 | — | — | — | — |
 
 ### Canvas IDs · Módulo Histórico
 
@@ -448,8 +449,9 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
 | P6 | Inventory Channel View · columna `% Gap` junto a `Hoteles` en tabla Third Party | `calc_inv.py` |
+| P12 | Filtro cruzado con pills: Corp+Dest+Channel en AND · pills eliminables · aplica en todas las tabs y cards AR | `js_override.js` · `render_cr_p2.py` · `render_rnd_p2.py` |
 
-> Bugs P1–P4, P6–P11 cerrados. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
+> Bugs P1–P4, P6–P11 cerrados. B37-B38 cerrados en W23. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
 > 
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
@@ -511,9 +513,10 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W22 · Junio 2026 · 03-06-2026
+**Última actualización:** W23 · Junio 2026 · 08-06-2026
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
+**Pipeline W23:** histórico W16–W23 (8pts) · fix display:table-row filas 6-10 · fix border-bottom rows-more · calc_supply.py pipeline completo 8 pasos
 **Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities magenta + Availability magenta · footer unificado beige · State of PriceTravel Product · Evolución Histórica del Producto · rojo `#FF3B30`
 
 ---
