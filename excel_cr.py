@@ -158,11 +158,16 @@ def write_severity(ws, df, can_label, m_curr, m_prev):
 COLS_COMBINED = ['Nombre','Sev Eficacia','Sev Conv Rate','CR Únicos','Bookings',
                  'Eficacia','WoW Ef','Conv Rate','WoW CV']
 
-def write_combined(ws, df_ef, df_name_col, title_str, extra_cols=None):
+def write_combined(ws, df_ef, df_name_col, title_str, extra_cols=None, df_cv=None):
     """Top 100 ordenado por Eficacia ASC con ambas métricas + severity coloreada."""
     title(ws, title_str, 'Ordenado por Eficacia ASC (peor primero) · Top 100')
     if df_ef is None or len(df_ef)==0: ws.cell(4,1,'Sin datos'); return
-    df_s = df_ef.sort_values('Eficacia', ascending=True).head(1000).copy()
+    df_s = df_ef.sort_values('Eficacia', ascending=True).head(100).copy()
+    # Mergear ConvRate_WoW_pp desde df_cv si no está en df_ef
+    if df_cv is not None and 'ConvRate_WoW_pp' not in df_s.columns and 'ConvRate_WoW_pp' in df_cv.columns:
+        key_col = df_name_col
+        if key_col in df_cv.columns:
+            df_s = df_s.merge(df_cv[[key_col,'ConvRate_WoW_pp']], on=key_col, how='left')
     all_cols = COLS_COMBINED + (list(extra_cols.keys()) if extra_cols else [])
     r = mk_hdr(ws, 4, all_cols)
     for _, row in df_s.iterrows():
@@ -247,8 +252,8 @@ wb = Workbook(); wb.remove(wb.active)
 
 for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
     can    = CANASTA.get(can_id, CANASTA.get(can_key, {}))
-    tab_ef = TAB_EF.get(can_key, TAB_EF.get('global',{}))
-    tab_cv = TAB_CV.get(can_key, TAB_CV.get('global',{}))
+    tab_ef = TAB_EF.get(can_key, TAB_EF.get('global', {}))
+    tab_cv = TAB_CV.get(can_key, TAB_CV.get('global', {}))
     m_curr = M.get(m_curr_key, M.get(f'global_w{VOL_NUM}', {}))
     m_prev = M.get(m_prev_key, M.get(f'global_w{int(VOL_NUM)-1}', {}))
     px     = can_label[:3]
@@ -273,11 +278,11 @@ for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
 
     # 2. Top Destinos (EF+CV combinado)
     ws=wb.create_sheet(f'{px}-Destinos'); ws.sheet_properties.tabColor=CR
-    write_combined(ws, tab_ef.get('destino'), 'Destino', f'{can_label} · Top Destinos W{VOL_NUM}')
+    write_combined(ws, tab_ef.get('destino'), 'Destino', f'{can_label} · Top Destinos W{VOL_NUM}', df_cv=tab_cv.get('destino'))
 
     # 3. Top Corp
     ws=wb.create_sheet(f'{px}-Corp'); ws.sheet_properties.tabColor=CR
-    write_combined(ws, tab_ef.get('corp'), 'CorpName', f'{can_label} · Top Corporativos W{VOL_NUM}')
+    write_combined(ws, tab_ef.get('corp'), 'CorpName', f'{can_label} · Top Corporativos W{VOL_NUM}', df_cv=tab_cv.get('corp'))
 
     # 4-7. Hotel por categoría (EF+CV+Channel)
     extra = {'Channel':'Channel','Destino':'Destino','Corp':'CorpName'}
@@ -292,7 +297,7 @@ for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
         df_cat = add_ch(df_cat)
         ws=wb.create_sheet(f'{px}-{tab_name}'); ws.sheet_properties.tabColor=CR
         write_combined(ws, df_cat, 'Hotel',
-                       f'{can_label} · Hotel {cat_label} W{VOL_NUM}', extra_cols=extra)
+                       f'{can_label} · Hotel {cat_label} W{VOL_NUM}', extra_cols=extra, df_cv=tab_cv.get('hotel'))
 
     # 8. Channel unificado
     ws=wb.create_sheet(f'{px}-Channel'); ws.sheet_properties.tabColor=CR
@@ -301,12 +306,12 @@ for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
     # 9. Dim Corp (EF+CV)
     ws=wb.create_sheet(f'{px}-Dim Corp'); ws.sheet_properties.tabColor=CR
     write_combined(ws, tab_ef.get('corp'), 'CorpName',
-                   f'{can_label} · AR Dim Corporativo W{VOL_NUM}')
+                   f'{can_label} · AR Dim Corporativo W{VOL_NUM}', df_cv=tab_cv.get('corp'))
 
     # 10. Dim Destino (EF+CV)
     ws=wb.create_sheet(f'{px}-Dim Dest'); ws.sheet_properties.tabColor=CR
     write_combined(ws, tab_ef.get('destino'), 'Destino',
-                   f'{can_label} · AR Dim Destino W{VOL_NUM}')
+                   f'{can_label} · AR Dim Destino W{VOL_NUM}', df_cv=tab_cv.get('destino'))
 
 out = f'{OUTPUTS}/Analisis_CheckRates_W{VOL_NUM}.xlsx'
 wb.save(out)
