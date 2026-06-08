@@ -156,7 +156,7 @@ if __name__ == '__main__':
         (script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html',                    'SUPPLY_W{}.html'.format(VOL_NUM)),
         (script_dir / f'checkrates/week-{wn}/Analisis_CheckRates_W{VOL_NUM}.xlsx',     'Analisis_CheckRates_W{}.xlsx'.format(VOL_NUM)),
         (script_dir / f'rates-nodispo/week-{wn}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx','Analisis_RatesNoDispo_W{}.xlsx'.format(VOL_NUM)),
-        (script_dir / f'_email/week-{wn}/Mail_W{VOL_NUM}.html',                       'Mail_W{}.html'.format(VOL_NUM)),
+        (script_dir / f'_email' / f'week-{wn}' / f'Mail_W{VOL_NUM}.html',              'Mail_W{}.html'.format(VOL_NUM)),
         (script_dir / 'index.html',                                                     'index.html'),
         (script_dir / f'Price_W{VOL_NUM}.zip',                                         'Price_W{}.zip'.format(VOL_NUM)),
     ]
