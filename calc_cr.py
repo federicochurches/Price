@@ -252,15 +252,18 @@ def tab_eficacia():
     df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
-    # Merge WoW — Eficacia + CR_Unicos (tráfico)
-    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','CR_Unicos_W17']], on='Destino', how='left')
-    df_d['Eficacia_WoW_pp'] = (df_d['Eficacia'] - df_d['Eficacia_W17']) * 100
+    # Merge WoW — Eficacia + ConvRate + CR_Unicos (tráfico)
+    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
+    df_d['Eficacia_WoW_pp']  = (df_d['Eficacia']  - df_d['Eficacia_W17'])  * 100
+    df_d['ConvRate_WoW_pp']  = (df_d['ConvRate']  - df_d['ConvRate_W17'])  * 100
     df_d['CR_Unicos_WoW_pp'] = (df_d['CR_Unicos'] - df_d['CR_Unicos_W17']) * 100
-    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17','CR_Unicos_W17']], on='CorpName', how='left')
-    df_c['Eficacia_WoW_pp'] = (df_c['Eficacia'] - df_c['Eficacia_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='CorpName', how='left')
+    df_c['Eficacia_WoW_pp']  = (df_c['Eficacia']  - df_c['Eficacia_W17'])  * 100
+    df_c['ConvRate_WoW_pp']  = (df_c['ConvRate']  - df_c['ConvRate_W17'])  * 100
     df_c['CR_Unicos_WoW_pp'] = (df_c['CR_Unicos'] - df_c['CR_Unicos_W17']) * 100
-    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17','CR_Unicos_W17']], on='Hotel', how='left')
-    df_h['Eficacia_WoW_pp'] = (df_h['Eficacia'] - df_h['Eficacia_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Hotel', how='left')
+    df_h['Eficacia_WoW_pp']  = (df_h['Eficacia']  - df_h['Eficacia_W17'])  * 100
+    df_h['ConvRate_WoW_pp']  = (df_h['ConvRate']  - df_h['ConvRate_W17'])  * 100
     df_h['CR_Unicos_WoW_pp'] = (df_h['CR_Unicos'] - df_h['CR_Unicos_W17']) * 100
     return {
         'destino': df_d,
@@ -337,14 +340,17 @@ def tab_eficacia_for(dist_cat):
     df_d = g_d[g_d['CR_Unicos'] >= p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
     df_h = g_h[g_h['CR_Unicos'] >= p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
-    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','CR_Unicos_W17']], on='Destino', how='left')
-    df_d['Eficacia_WoW_pp'] = (df_d['Eficacia'] - df_d['Eficacia_W17']) * 100
+    df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
+    df_d['Eficacia_WoW_pp']  = (df_d['Eficacia']  - df_d['Eficacia_W17'])  * 100
+    df_d['ConvRate_WoW_pp']  = (df_d['ConvRate']  - df_d['ConvRate_W17'])  * 100
     df_d['CR_Unicos_WoW_pp'] = (df_d['CR_Unicos'] - df_d['CR_Unicos_W17']) * 100
-    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17','CR_Unicos_W17']], on='CorpName', how='left')
-    df_c['Eficacia_WoW_pp'] = (df_c['Eficacia'] - df_c['Eficacia_W17']) * 100
+    df_c = df_c.merge(g_corp_w17[['CorpName','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='CorpName', how='left')
+    df_c['Eficacia_WoW_pp']  = (df_c['Eficacia']  - df_c['Eficacia_W17'])  * 100
+    df_c['ConvRate_WoW_pp']  = (df_c['ConvRate']  - df_c['ConvRate_W17'])  * 100
     df_c['CR_Unicos_WoW_pp'] = (df_c['CR_Unicos'] - df_c['CR_Unicos_W17']) * 100
-    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17','CR_Unicos_W17']], on='Hotel', how='left')
-    df_h['Eficacia_WoW_pp'] = (df_h['Eficacia'] - df_h['Eficacia_W17']) * 100
+    df_h = df_h.merge(g_hotel_w17[['Hotel','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Hotel', how='left')
+    df_h['Eficacia_WoW_pp']  = (df_h['Eficacia']  - df_h['Eficacia_W17'])  * 100
+    df_h['ConvRate_WoW_pp']  = (df_h['ConvRate']  - df_h['ConvRate_W17'])  * 100
     df_h['CR_Unicos_WoW_pp'] = (df_h['CR_Unicos'] - df_h['CR_Unicos_W17']) * 100
     return {'destino': df_d, 'corp': df_c, 'hotel': df_h,
             'channel': _add_wow_channel(g_ch, 'Eficacia'), 'canasta': pd.DataFrame()}
