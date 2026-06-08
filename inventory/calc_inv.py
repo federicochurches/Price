@@ -17,11 +17,11 @@ import json, sys
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W22"
-WEEK_NUM      = 22
-VOL_NUM       = "22"
+WEEK          = "W23"
+WEEK_NUM      = 23
+VOL_NUM       = "23"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "2 de Junio de 2026"
+SNAPSHOT_DATE = "9 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
