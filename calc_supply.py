@@ -147,20 +147,22 @@ if __name__ == '__main__':
 
     # ── Resumen ──
     print('\n' + '=' * 60)
-    output_path = Path(OUTPUT_DIR)
+    script_dir = Path(__file__).parent
+    wn = VOL_NUM.zfill(2)
     outputs = [
-        output_path / f'SUPPLY_W{VOL_NUM}.html',
-        output_path / f'Analisis_RatesNoDispo_W{VOL_NUM}.xlsx',
-        output_path / f'Analisis_CheckRates_W{VOL_NUM}.xlsx',
-        output_path / f'Mail_W{VOL_NUM}.html',
-        Path(__file__).parent / 'index.html',
+        (script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html',                    'SUPPLY_W{}.html'.format(VOL_NUM)),
+        (script_dir / f'checkrates/week-{wn}/Analisis_CheckRates_W{VOL_NUM}.xlsx',     'Analisis_CheckRates_W{}.xlsx'.format(VOL_NUM)),
+        (script_dir / f'rates-nodispo/week-{wn}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx','Analisis_RatesNoDispo_W{}.xlsx'.format(VOL_NUM)),
+        (script_dir / f'_email/week-{wn}/Mail_W{VOL_NUM}.html',                       'Mail_W{}.html'.format(VOL_NUM)),
+        (script_dir / 'index.html',                                                     'index.html'),
+        (script_dir / f'Price_W{VOL_NUM}.zip',                                         'Price_W{}.zip'.format(VOL_NUM)),
     ]
     print(f'\n✅ Pipeline completado · {WEEK} · {PERIODO}')
-    print(f'\nOutputs en: {OUTPUT_DIR}')
-    for f in outputs:
-        if f.exists():
-            size_kb = f.stat().st_size / 1024
-            print(f'  ✓ {f.name} · {size_kb:.0f} KB')
+    print(f'\nOutputs en: {script_dir}')
+    for path, name in outputs:
+        if path.exists():
+            size_kb = path.stat().st_size / 1024
+            print(f'  ✓ {name} · {size_kb:.0f} KB')
         else:
-            print(f'  ✗ {f.name} · NO GENERADO')
+            print(f'  ✗ {name} · NO GENERADO')
     print()
