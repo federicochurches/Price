@@ -2365,3 +2365,64 @@ Validación de fixes aplicados en sesión anterior. Bug reportado: filtro Regió
 ### Archivos modificados
 - `inventory/calc_inv.py` — 5 commits (3819e7b → 02c4b57)
 - `inventory/week-22/INVENTORY_W22.html` — pendiente commit desde GitHub Desktop
+
+---
+
+## Pipeline W23 · Supply Analytics · 08 Jun 2026
+
+### Contexto
+Pipeline semanal W23 (2–8 jun 2026). Primera corrida completa desde PC local con `calc_supply.py`. Múltiples fixes de infraestructura detectados en el proceso.
+
+### Cambios en scripts
+
+#### `historico_data.py`
+- Agregados valores W22 a todos los arrays por scope (global, op, cug, b2c)
+- `SEMANAS` actualizado a 8 semanas: `['W16','W17','W18','W19','W20','W21','W22','W23']`
+- Valores W22 calculados desde datasets W22 y Excel Analisis_CR_W22:
+  - CR Eficacia: global=94.13, op=94.16, cug=94.94, b2c=92.80
+  - CR ConvRate: global=1.04, op=1.00, cug=1.64, b2c=0.24
+  - RND %NoDispo: global=2.63, op=2.33, cug=2.88, b2c=3.10
+  - RND IPM: global=653.0, op=1312.8, cug=2042.5, b2c=1319.2
+
+#### `calc_supply.py`
+- CONFIG actualizado a W23 (commiteado en repo — no editar manualmente cada semana)
+- **Pipeline completo en 8 pasos** — agregados pasos 7 (`render_mail_v3.py`) y 8 (`build_package.py`)
+- Output summary ahora incluye `Mail_W{NN}.html` e `index.html`
+- Desde W23: correr solo `python calc_supply.py` genera TODO
+
+#### `asset_shared_head.html` — fix display:table-row
+- 7 ocurrencias de `r.tagName==='TR'?'':'grid'` → `r.tagName==='TR'?'table-row':'grid'`
+- Bug causaba que filas 6-10 se mostraran sin layout de tabla al expandir
+
+#### `js_override.js` — fix border-bottom + cursor en rows-more
+- `_moreBtn` onclick: después de `setProperty('display','table-row','important')`, restaura `borderBottom` y `cursor` en TRs
+- Bug: `setProperty` con `!important` pisaba los estilos inline del `<tr>` generado por `trow_ar`
+- Aplicado en ambas ramas (static btn y fallback createElement)
+
+### Bugs cerrados
+- **B37** — Filas 6-10 no clickeables: `display:''` no válido para `<tr>` en `asset_shared_head.html` → fix `table-row`
+- **B38** — Filas 6-10 sin border-bottom: `setProperty('display',...,'important')` pisaba estilos inline del TR → fix restauración post-expand
+
+### Bug documentado (no implementado)
+- **P12** — Filtro cruzado con pills: selección múltiple Corp+Dest+Channel en AND, pills eliminables, aplica en todas las tabs y cards. Requiere sesión dedicada.
+
+### Lección aprendida
+- `git reset --hard origin/main` pisa cambios locales — nunca editar CONFIG localmente; commitear al repo antes
+- El CONFIG de `calc_supply.py` debe vivir en el repo, no editarse manualmente cada semana
+- `setProperty(prop, val, 'important')` en style inline reemplaza TODO el style inline del elemento — nunca usarlo en TRs que tienen otros estilos inline
+
+### Archivos commiteados
+- `historico_data.py` — valores W22 por scope
+- `calc_supply.py` — CONFIG W23 + pasos 7-8
+- `asset_shared_head.html` — fix display:table-row (7 ocurrencias)
+- `js_override.js` — fix border-bottom+cursor en rows-more
+- `reports/week-23/SUPPLY_W23.html` — 13.7MB via Git Tree API
+- `checkrates/week-23/Analisis_CheckRates_W23.xlsx`
+- `rates-nodispo/week-23/Analisis_RatesNoDispo_W23.xlsx`
+
+### Pendientes W24
+- **P12** — Filtro cruzado con pills (sesión dedicada)
+- Commit datasets W23 a sus carpetas en el repo
+- INVENTORY_W23 pipeline (pendiente dataset)
+- INVENTORY_W22.html commit desde GitHub Desktop (pendiente)
+- `HIST.snapshot` optimización (HTML ~40.9MB)

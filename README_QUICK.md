@@ -1,5 +1,5 @@
 # 📋 README · Proyecto PRICE · Supply Analytics
-**W21+ · Mayo 2026**
+**W23+ · Junio 2026**
 
 ---
 
@@ -40,16 +40,16 @@ Price/
 
 ## 📌 Última semana publicada
 
-**W21 · 19-25 mayo 2026 · May 2026**
+**W23 · 2-8 jun 2026 · Junio 2026**
 
 | Métrica | Valor | WoW |
 |---|---|---|
-| RND %NoDispo | 2,63% | -0,17pp |
-| RND IPM | $834 | -34,1% |
-| CR Eficacia | 93,15% | -0,19pp |
-| CR ConvRate | 1,57% | -0,07pp |
+| RND %NoDispo | — | — |
+| RND IPM | — | — |
+| CR Eficacia | — | — |
+| CR ConvRate | — | — |
 
-🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W21](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html) · [CR](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-21/SUPPLY_W21.html#section-rnd)
+🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W23](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html) · [CR](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-rnd)
 
 
 ## 🗂️ Inventario de scripts (raíz del repo)
@@ -106,7 +106,7 @@ Price/
 
 ---
 
-**Última actualización:** Mayo 2026 · W21-post3
+**Última actualización:** Junio 2026 · W23
 
 ---
 
