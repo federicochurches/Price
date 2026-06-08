@@ -2426,3 +2426,37 @@ Pipeline semanal W23 (2–8 jun 2026). Primera corrida completa desde PC local c
 - INVENTORY_W23 pipeline (pendiente dataset)
 - INVENTORY_W22.html commit desde GitHub Desktop (pendiente)
 - `HIST.snapshot` optimización (HTML ~40.9MB)
+
+---
+
+## Pipeline W23 · Fixes post-pipeline · 08 Jun 2026
+
+### Problemas detectados y resueltos
+
+#### `calc_supply.py` — OUTPUTS_DIR incorrecto en Windows
+- Todos los scripts usan `OUTPUTS_DIR` con default `/mnt/user-data/outputs` — path Linux que no existe en Windows
+- Fix: `calc_supply.py` ahora setea `OUTPUTS_DIR`, `OUTPUT_DIR`, `UPLOADS_DIR` y `PROJECT_DIR` a `Path(__file__).parent` antes de correr cada paso
+- Afecta: `render_mail_v3.py`, `build_package.py`, `excel_rnd.py`, `excel_cr.py`, `assemble_unified.py`
+
+#### `calc_supply.py` — pipeline completo 8 pasos
+- Pasos 7 (`render_mail_v3.py`) y 8 (`build_package.py`) agregados
+- Resumen final corregido: apunta a rutas reales de outputs (subcarpetas) en lugar de raíz
+
+#### `render_mail_v3.py` — v3.2 reemplazada por v4.0
+- La v4.0 (rediseño visual completo W23-pre) estaba en `_scripts/` del commit `9e90080a`
+- Al reorganizar el repo quedó la v3.2 en la raíz — restaurada v4.0
+
+#### `calc_supply.py` — git reset pisaba CONFIG local
+- El CONFIG de `calc_supply.py` ahora vive en el repo (commiteado cada semana)
+- No editar manualmente después de `git reset` — el repo ya tiene el CONFIG correcto
+
+### Lección aprendida
+- Siempre commitear el CONFIG de `calc_supply.py` al repo antes de hacer `git reset`
+- Verificar que todos los scripts del pipeline usen `OUTPUTS_DIR` desde env var y no hardcodeado
+- Al reorganizar carpetas del repo, verificar que la versión correcta de cada script quede en la raíz
+
+### Archivos commiteados
+- `calc_supply.py` — OUTPUTS_DIR Windows + pasos 7-8 + resumen corregido
+- `render_mail_v3.py` — v4.0 restaurada
+- `asset_shared_head.html` — fix display:table-row
+- `js_override.js` — fix border-bottom+cursor rows-more
