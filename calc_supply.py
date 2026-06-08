@@ -136,8 +136,14 @@ if __name__ == '__main__':
     run_step('5/6', 'assemble_unified.py')
 
     # 6. Generar Excels
-    run_step('6a/6', 'excel_rnd.py')
-    run_step('6b/6', 'excel_cr.py')
+    run_step('6a/7', 'excel_rnd.py')
+    run_step('6b/7', 'excel_cr.py')
+
+    # 7. Generar Mail
+    run_step('7/7', 'render_mail_v3.py')
+
+    # 8. Build package (index.html)
+    run_step('8/7', 'build_package.py')
 
     # ── Resumen ──
     print('\n' + '=' * 60)
@@ -146,6 +152,8 @@ if __name__ == '__main__':
         output_path / f'SUPPLY_W{VOL_NUM}.html',
         output_path / f'Analisis_RatesNoDispo_W{VOL_NUM}.xlsx',
         output_path / f'Analisis_CheckRates_W{VOL_NUM}.xlsx',
+        output_path / f'Mail_W{VOL_NUM}.html',
+        Path(__file__).parent / 'index.html',
     ]
     print(f'\n✅ Pipeline completado · {WEEK} · {PERIODO}')
     print(f'\nOutputs en: {OUTPUT_DIR}')
