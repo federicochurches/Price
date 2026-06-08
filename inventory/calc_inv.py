@@ -17,11 +17,11 @@ import json, sys
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W23"
-WEEK_NUM      = 23
-VOL_NUM       = "23"
+WEEK          = "W22"
+WEEK_NUM      = 22
+VOL_NUM       = "22"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "9 de Junio de 2026"
+SNAPSHOT_DATE = "2 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -500,12 +500,12 @@ for r in acum_weeks:
 # ── ÍNDICE DIMENSIONAL para filtros combinables ──────────────────────────────
 top_corps = df_hist['Corporativo'].value_counts().head(50).index.tolist()
 
-CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick','Expedia']
+CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
 CHANNELS_TERCERO = ['Expedia_tercero','HotelBeds Apitude','Hotel Unico V2','Travelgate']
 CHANNEL_LABELS   = {
     'DerbySoft':'DerbySoft','HBSI':'HBSI','Internal':'Internal',
     'Omnibees':'Omnibees','Siteminder':'Siteminder','SynXis':'SynXis','Travelclick':'Travelclick',
-    'Expedia':'Expedia','Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
+    'Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
     'Hotel Unico V2':'Hotel Unico','Travelgate':'Travelgate'
 }
 ALL_CHANNELS = CHANNELS_PROPIO + CHANNELS_TERCERO
@@ -525,41 +525,24 @@ dim_hotel_idx = (df_dim_hotel.groupby(['yw','ym','Region_display','corp','ch_tip
                  .size().reset_index(name='n').sort_values('yw'))
 dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region'})
 
-# Reglas de negocio: corp+channel → override de ch_tipo
-# Marriott + Expedia = Producto Propio (Hybrid), independientemente del TipoHotel del dataset
-CORP_CHANNEL_TIPO_OVERRIDE = {
-    ('Marriott', 'Expedia'): 'Hybrid',
-}
-
-def apply_tipo_override(row):
-    key = (row['corp'], row['channel'])
-    return CORP_CHANNEL_TIPO_OVERRIDE.get(key, row['ch_tipo'])
-
-# Índice dimensional nivel channel (para filtro de channel específico)
+# Índice dimensional nivel channel — COMPACTO (solo yw×ym×ch_tipo×channel, sin región/corp)
+# Reemplaza el antiguo dim_index completo que era O(semanas×regiones×corps×tipos×channels) = gigante
+# Cuando hay filtro de región/corp+channel combinado, el JS cruza dim_ch con dim_hotel en runtime
 rows_with_ch = []
-_dest_col = 'Destino' if 'Destino' in df_hist.columns else None
 for ch_col in ALL_CHANNELS:
     if ch_col not in df_hist.columns: continue
-    cols = ['yw','ym','Region_display','Corporativo','TipoHotel','Hotel']
-    if _dest_col: cols.append(_dest_col)
-    sub = df_hist[df_hist[ch_col].apply(ch_active)][cols].copy()
+    sub = df_hist[df_hist[ch_col].apply(ch_active)][
+        ['yw','ym','TipoHotel','Hotel']].copy()
     sub['channel'] = CHANNEL_LABELS[ch_col]
     rows_with_ch.append(sub)
 
-df_dim_raw = pd.concat(rows_with_ch, ignore_index=True)
-df_dim_raw['corp']    = df_dim_raw['Corporativo'].where(df_dim_raw['Corporativo'].isin(top_corps), 'Otros')
-df_dim_raw['ch_tipo'] = df_dim_raw['TipoHotel'].map(
+df_dim_ch = pd.concat(rows_with_ch, ignore_index=True)
+df_dim_ch['ch_tipo'] = df_dim_ch['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
-# Aplicar overrides de negocio corp+channel
-df_dim_raw['ch_tipo'] = df_dim_raw.apply(apply_tipo_override, axis=1)
 
-_grp_cols_dim = ['yw','ym','Region_display','corp','ch_tipo','channel']
-if _dest_col: _grp_cols_dim.append(_dest_col)
-dim_index = (df_dim_raw.groupby(_grp_cols_dim)
-             .size().reset_index(name='n').sort_values('yw'))
-_rename_dim = {'Region_display':'region'}
-if _dest_col: _rename_dim[_dest_col] = 'dest'
-dim_index = dim_index.rename(columns=_rename_dim)
+# Agrupar: una fila por (yw, ym, ch_tipo, channel) — sin región ni corp
+dim_ch_idx = (df_dim_ch.groupby(['yw','ym','ch_tipo','channel'])
+              .size().reset_index(name='n').sort_values('yw'))
 
 hist_regions          = sorted(df_hist['Region_display'].unique().tolist())
 hist_corps            = sorted(top_corps)
@@ -567,17 +550,22 @@ hist_channels_propio  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','
 hist_channels_tercero = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
 hist_tipos            = ['Solo Propio','Hybrid']
 
-dim_rows = dim_index.to_dict('records')
-for r in dim_rows:
+# Serializar dim_ch con keys cortas: w=yw, m=ym, t=ch_tipo, ch=channel, n=n
+dim_ch_rows = dim_ch_idx.to_dict('records')
+for r in dim_ch_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
+dim_ch_compact = [{'w':r['yw'],'m':r['ym'],'t':r['ch_tipo'],'ch':r['channel'],'n':r['n']} for r in dim_ch_rows]
 
+# Índice hotel con keys cortas: w=yw, m=ym, r=region, c=corp, t=ch_tipo, n=n
 dim_hotel_rows = dim_hotel_idx.to_dict('records')
 for r in dim_hotel_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
+dim_hotel_compact = [{'w':r['yw'],'m':r['ym'],'r':r['region'],'c':r['corp'],'t':r['ch_tipo'],'n':r['n']} for r in dim_hotel_rows]
 
 # Índice por tipo solamente (sin duplicar por corp/región) — para filtro solo-tipo
+# Keys cortas: w=yw, m=ym, t=ch_tipo, n=n
 _df_tipo = df_hist.copy()
 _df_tipo['ch_tipo'] = _df_tipo['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('Third Party')
@@ -587,6 +575,7 @@ dim_tipo_rows = dim_tipo_idx.to_dict('records')
 for r in dim_tipo_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
+dim_tipo_compact = [{'w':r['yw'],'m':r['ym'],'t':r['ch_tipo'],'n':r['n']} for r in dim_tipo_rows]
 
 # Build ch_corp_map from full universe
 ch_corp_map = {}
@@ -609,30 +598,6 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, (np.floating,)): return float(obj)
         return super().default(obj)
 
-# Snapshot actual: conteo de hoteles por corp × channel × dest × tipo (desde df completo)
-# Permite mostrar totales actuales incluso para hoteles sin FechaCreación
-_snap_rows = []
-for _ch_col, _ch_label in CHANNEL_LABELS.items():
-    if _ch_col not in df.columns: continue
-    _sub = df[df[_ch_col].apply(ch_active)][['Region_display','Corporativo','TipoHotel','Destino','IdHotel']].copy()
-    if _sub.empty: continue
-    _sub['corp']    = _sub['Corporativo'].where(_sub['Corporativo'].isin(top_corps), 'Otros')
-    _sub['ch_tipo'] = _sub['TipoHotel'].map(
-        {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
-    _sub['channel'] = _ch_label
-    _sub['ch_tipo'] = _sub.apply(apply_tipo_override, axis=1)
-    _grp = (_sub.groupby(['Region_display','corp','ch_tipo','channel','Destino'])
-            ['IdHotel'].nunique().reset_index(name='n'))
-    for _, _r in _grp.iterrows():
-        _snap_rows.append({
-            'region':   _r['Region_display'],
-            'corp':     _r['corp'],
-            'ch_tipo':  _r['ch_tipo'],
-            'channel':  _r['channel'],
-            'dest':     _r['Destino'],
-            'n':        int(_r['n']),
-        })
-
 hist_data = {
     'by_year':  acum_years,
     'by_month': acum_months,
@@ -640,9 +605,9 @@ hist_data = {
     'weeks_by_ym': weeks_by_ym,
     'years':    years_available,
     'months_by_year': months_by_year,
-    'dim':        dim_rows,
-    'dim_tipo':   dim_tipo_rows,
-    'dim_hotel':  dim_hotel_rows,
+    'dim_ch':     dim_ch_compact,      # COMPACT: w,m,t,ch,n (sin región/corp) — reemplaza dim completo
+    'dim_tipo':   dim_tipo_compact,    # COMPACT: w,m,t,n
+    'dim_hotel':  dim_hotel_compact,   # COMPACT: w,m,r,c,t,n
     'hist_regions':          hist_regions,
     'hist_corps':            hist_corps,
     'hist_channels_propio':  hist_channels_propio,
@@ -652,7 +617,6 @@ hist_data = {
     'ritmo_semanal': int(ritmo_nec),
     'target': int(TARGET_PROPIO),
     'actual': int(pp),
-    'snapshot': _snap_rows,
 }
 
 print(f"    Universo: {fmt_n(N)} | PP: {fmt_n(pp)} ({fmt_pct(pct_avance)} avance) | Gap: {fmt_n(gap)} | Ritmo: ~{fmt_n(ritmo_nec)}/sem")
@@ -1984,50 +1948,64 @@ function hDestroyChart() {{ if(hChart){{ hChart.destroy(); hChart=null; }} }}
 
 // Returns filtered + aggregated data array — uses hotel-level index to avoid
 // double-counting hotels with multiple channels (unless channel filter is active)
+// Keys compactas: w=yw, m=ym, r=region, c=corp, t=ch_tipo, ch=channel, n=n
 function hGetDim() {{
-  // Resolve active filters
   const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
   const activeChannels = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
-  const activeDests    = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value);
   const activeTipo     = hFTipo;
 
+  const tipoMatch = (t) => !activeTipo
+    || t === activeTipo
+    || (activeTipo === 'Prod. Propio' && (t === 'Solo Propio' || t === 'Hybrid'));
+
   if (activeChannels.length > 0) {{
-    const tipoMatchCh = (r) => !activeTipo
-      || r.ch_tipo === activeTipo
-      || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
-    return HIST.dim.filter(r =>
-      (!activeRegions.length  || activeRegions.includes(r.region))   &&
-      (!activeCorps.length    || activeCorps.includes(r.corp))       &&
-      (!activeDests.length    || activeDests.includes(r.dest))       &&
-      activeChannels.includes(r.channel)                             &&
-      tipoMatchCh(r)
+    // dim_ch es compacto: solo yw×ym×tipo×channel (sin región ni corp)
+    // Para filtro solo-channel (sin región/corp): usar dim_ch directo — O(semanas×tipos×channels)
+    // Para filtro channel+región/corp combinado: cruzar dim_ch con dim_hotel por semana
+    const chRows = HIST.dim_ch.filter(r =>
+      activeChannels.includes(r.ch) && tipoMatch(r.t)
     );
+    if (!activeRegions.length && !activeCorps.length) {{
+      // Solo channel (caso más frecuente) — directo desde dim_ch
+      return chRows.map(r => ({{w:r.w, m:r.m, n:r.n}}));
+    }}
+    // Channel + región/corp: calcular intersección por semana via dim_hotel
+    // dim_hotel sabe qué hoteles (agregados) hay por (yw,región,corp,tipo)
+    // dim_ch sabe cuántos hoteles hay por (yw,tipo,channel)
+    // Aproximación: filtrar dim_hotel por región/corp/tipo y usar esas semanas/n
+    // (el filtro channel ya redujo el universo via pills → este path es raro)
+    const hotelRows = HIST.dim_hotel.filter(r =>
+      (!activeRegions.length || activeRegions.includes(r.r)) &&
+      (!activeCorps.length   || activeCorps.includes(r.c))  &&
+      tipoMatch(r.t)
+    );
+    // Intersectar: solo semanas donde ambos tienen datos
+    const chwSet = new Set(chRows.map(r=>r.w));
+    return hotelRows.filter(r => chwSet.has(r.w)).map(r => ({{w:r.w, m:r.m, n:r.n}}));
   }}
 
   // No channel filter: use dim_hotel (one row per hotel, no channel duplication)
-  const tipoMatch = (r) => !activeTipo
-    || r.ch_tipo === activeTipo
-    || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
-
-  // Solo filtro de tipo sin región/corp/dest → usar dim_tipo (sin duplicados por corp)
-  if (!activeRegions.length && !activeCorps.length && !activeDests.length && activeTipo) {{
-    return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r));
+  // Solo filtro de tipo sin región/corp → usar dim_tipo (sin duplicados por corp)
+  if (!activeRegions.length && !activeCorps.length && activeTipo) {{
+    return (HIST.dim_tipo || HIST.dim_hotel).filter(r => tipoMatch(r.t||r.ch_tipo));
   }}
 
   return HIST.dim_hotel.filter(r =>
-    (!activeRegions.length || activeRegions.includes(r.region)) &&
-    (!activeCorps.length   || activeCorps.includes(r.corp))     &&
-    tipoMatch(r)
+    (!activeRegions.length || activeRegions.includes(r.r)) &&
+    (!activeCorps.length   || activeCorps.includes(r.c))  &&
+    tipoMatch(r.t)
   );
 }}
 
 // Aggregate dim rows to weekly netnew, then compute running acum within window
+// Soporta tanto keys largas (yw/ym) como cortas (w/m)
 function hAggrByYw(rows) {{
   const map = {{}};
   rows.forEach(r => {{
-    if (!map[r.yw]) map[r.yw] = {{yw:r.yw, ym:r.ym, netnew:0}};
-    map[r.yw].netnew += r.n;
+    const yw = r.w || r.yw; const ym = r.m || r.ym;
+    if (!map[yw]) map[yw] = {{yw:yw, ym:ym, netnew:0}};
+    map[yw].netnew += r.n;
   }});
   const arr = Object.values(map).sort((a,b)=>a.yw.localeCompare(b.yw));
   let c=0; arr.forEach(r=>{{ c+=r.netnew; r.acum=c; }});
@@ -2037,8 +2015,9 @@ function hAggrByYw(rows) {{
 function hAggrByYm(rows) {{
   const map = {{}};
   rows.forEach(r => {{
-    if (!map[r.ym]) map[r.ym] = {{ym:r.ym, netnew:0}};
-    map[r.ym].netnew += r.n;
+    const ym = r.m || r.ym;
+    if (!map[ym]) map[ym] = {{ym:ym, netnew:0}};
+    map[ym].netnew += r.n;
   }});
   const arr = Object.values(map).sort((a,b)=>a.ym.localeCompare(b.ym));
   let c=0; arr.forEach(r=>{{ c+=r.netnew; r.acum=c; }});
@@ -2421,26 +2400,6 @@ function hSelMonth(m) {{
   hGoLevel('sem');
 }}
 
-// Returns current hotel count matching active filters using snapshot (dataset completo, sin FechaCreación)
-function hGetCurrentTotal() {{
-  const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
-  const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
-  const activeChannels = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
-  const activeDests    = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value);
-  const activeTipo     = hFTipo;
-  const tipoMatch = (r) => !activeTipo
-    || r.ch_tipo === activeTipo
-    || (activeTipo === 'Prod. Propio' && (r.ch_tipo === 'Solo Propio' || r.ch_tipo === 'Hybrid'));
-  const snap = HIST.snapshot || [];
-  return snap.filter(r =>
-    (!activeRegions.length  || activeRegions.includes(r.region))  &&
-    (!activeCorps.length    || activeCorps.includes(r.corp))      &&
-    (!activeDests.length    || activeDests.includes(r.dest))      &&
-    (!activeChannels.length || activeChannels.includes(r.channel))&&
-    tipoMatch(r)
-  ).reduce((s,r)=>s+r.n, 0);
-}}
-
 function hRender() {{
   hDestroyChart();
   const ctx = document.getElementById('canvas-hist').getContext('2d');
@@ -2545,24 +2504,19 @@ function hRender() {{
       // Mapa sparse de netnew filtrado (solo hoteles con FechaCreación)
       const dimRows = hGetDim();
       const sparseMap = {{}};
-      dimRows.forEach(r=>{{ sparseMap[r.yw]=(sparseMap[r.yw]||0)+r.n; }});
+      dimRows.forEach(r=>{{ const k=r.w||r.yw; sparseMap[k]=(sparseMap[k]||0)+r.n; }});
       // Acum base = hoteles del subconjunto antes del rango de semanas visible
       const firstYw = refWeeks.length ? refWeeks[0].yw : '';
       const allDim = hAggrByYw(dimRows);
       const before = allDim.filter(r=>r.yw < firstYw);
-      // Acum total del subconjunto filtrado
+      // Si no hay historia antes del rango, el acum arranca en 0 para netnew relativo
+      // El acumulado absoluto lo obtenemos sumando todo el dim_hotel del subconjunto
       const totalInSubset = allDim.length ? allDim[allDim.length-1].acum : 0;
       const inRange = allDim.filter(r=>r.yw >= firstYw).reduce((s,r)=>s+r.netnew,0);
+      // Base = total acumulado - lo que cae dentro del rango visible
       let c = before.length ? before[before.length-1].acum : (totalInSubset - inRange);
-
-      // Si no hay netnew histórico pero hay hoteles actuales → línea plana con total actual
-      if (totalInSubset === 0 && refWeeks.length > 0) {{
-        const currentTotal = hGetCurrentTotal();
-        d = refWeeks.map(w=>{{ return {{yw:w.yw,ym:w.ym,netnew:0,acum:currentTotal}}; }});
-      }} else {{
-        // Fill todas las semanas de referencia con netnew=0 donde no hay datos
-        d = refWeeks.map(w=>{{ const n=sparseMap[w.yw]||0; c+=n; return {{yw:w.yw,ym:w.ym,netnew:n,acum:c}}; }});
-      }}
+      // Fill todas las semanas de referencia con netnew=0 donde no hay datos
+      d = refWeeks.map(w=>{{ const n=sparseMap[w.yw]||0; c+=n; return {{yw:w.yw,ym:w.ym,netnew:n,acum:c}}; }});
     }} else {{
       d = refWeeks; // ya tiene fill completo y acum global
     }}
