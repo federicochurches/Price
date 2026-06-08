@@ -81,7 +81,10 @@ def run_step(label, script_name, extra_env=None):
         'PERIODO':    PERIODO,
         'MES_ANO':    MES_ANO,
         'FECHA_PUB':  FECHA_PUB,
-        'OUTPUTS_DIR': OUTPUT_DIR,
+        'OUTPUTS_DIR': str(Path(__file__).parent),
+        'OUTPUT_DIR':  str(Path(__file__).parent),
+        'UPLOADS_DIR': str(Path(__file__).parent),
+        'PROJECT_DIR': str(Path(__file__).parent),
         'PICKLE_RND': str(Path(__file__).parent / f'rnd_w{VOL_NUM}_data.pkl'),
         'PICKLE_CR':  str(Path(__file__).parent / f'cr_w{VOL_NUM}_data.pkl'),
     }
