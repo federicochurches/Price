@@ -2326,137 +2326,23 @@ Pipeline Inventory W22 con nuevo dataset (tipo_Ht_contrato_2). Múltiples fixes 
 
 ---
 
-## Sesión Inventory bugs · 06 Jun 2026
+## Sesión W23 inicio · 08 Jun 2026
 
 ### Contexto
-Validación de fixes aplicados en sesión anterior. Bug reportado: filtro Región México + Corp Marriott + Destino Riviera Maya + Channel Expedia no mostraba hoteles en el gráfico histórico.
+Inicio pipeline W23 Inventory. Dataset W23 disponible localmente en `inventory/`.
 
-### Root cause (cadena de bugs)
-1. **B31** — `HIST.dim` no tenía campo `dest` → groupby de `dim_index` no incluía `Destino`
-2. **B32** — `hGetDim()` no filtraba por `dest` en rama channel activo
-3. **B33** — Hoteles sin `FechaCreación` no aparecen en `HIST.dim` (solo en snapshot) → gráfico vacío aunque existan
-4. **B34** — `hGetCurrentTotal()` usaba `HIST.dim` (último snapshot por yw) para calcular total actual → devolvía 0 para hoteles sin historia
-5. **B35** — `apply_tipo_override` definida en línea 608 pero usada en línea 544 → NameError silencioso
-6. **B36** — Columna `Expedia` (propio) no estaba en `ALL_CHANNELS` ni `CHANNEL_LABELS` → hoteles con esa columna activa ignorados en snapshot
+### Issue
+- Al editar el CONFIG en calc_inv.py localmente se rompió una línea del HTML
+- Solución: `git fetch origin && git reset --hard origin/main` y re-editar solo el CONFIG
+- SNAPSHOT_DATE_UPPER debe estar en el CONFIG (ya está en el repo desde W22)
 
-### Fixes aplicados en calc_inv.py
-- `dim_index` groupby incluye `Destino` → renombrado a `dest` en `HIST.dim`
-- `hGetDim()`: resuelve `activeDests` desde `udActiveFilters` y filtra en ambas ramas (con/sin channel)
-- `hGetCurrentTotal()`: nueva función que consulta `HIST.snapshot` (dataset completo, sin depender de FechaCreación)
-- `HIST.snapshot`: nuevo array en hist_data con conteo actual por `region×corp×ch_tipo×channel×dest` desde `df` completo
-- Gráfico histórico rama semanal: si `totalInSubset === 0` y hay hoteles actuales → línea plana con `hGetCurrentTotal()`
-- `CORP_CHANNEL_TIPO_OVERRIDE = {('Marriott','Expedia'): 'Hybrid'}` — regla de negocio canónica
-- `apply_tipo_override` movida antes de su primer uso (línea ~528)
-- Columna `Expedia` agregada a `CHANNELS_PROPIO` y `CHANNEL_LABELS`
-
-### Pendiente validar
-- Marriott+Expedia+Riviera Maya: los hoteles específicos no tienen columna Expedia activa en el dataset (tienen Internal, HotelBeds, etc.) → el escenario de prueba original no aplica para ese destino
-- Validar con otro destino donde Marriott sí tenga Expedia como canal propio
-
-### Pendiente técnico
-- `HIST.snapshot` genera 80K rows → HTML de 40.9MB → excede capacidad de Git Tree API
-- Optimizar snapshot: agrupar por región en lugar de dest×corp×channel, o comprimir
-- Commitear INVENTORY_W22.html pendiente (hacerlo desde GitHub Desktop)
-
-### Regla de negocio documentada
-- `CORP_CHANNEL_TIPO_OVERRIDE` en `calc_inv.py` es el lugar canónico para overrides de clasificación corp+channel
-- Marriott+Expedia = Hybrid (Producto Propio), independientemente del TipoHotel del dataset
-
-### Archivos modificados
-- `inventory/calc_inv.py` — 5 commits (3819e7b → 02c4b57)
-- `inventory/week-22/INVENTORY_W22.html` — pendiente commit desde GitHub Desktop
-
----
-
-## Pipeline W23 · Supply Analytics · 08 Jun 2026
-
-### Contexto
-Pipeline semanal W23 (2–8 jun 2026). Primera corrida completa desde PC local con `calc_supply.py`. Múltiples fixes de infraestructura detectados en el proceso.
-
-### Cambios en scripts
-
-#### `historico_data.py`
-- Agregados valores W22 a todos los arrays por scope (global, op, cug, b2c)
-- `SEMANAS` actualizado a 8 semanas: `['W16','W17','W18','W19','W20','W21','W22','W23']`
-- Valores W22 calculados desde datasets W22 y Excel Analisis_CR_W22:
-  - CR Eficacia: global=94.13, op=94.16, cug=94.94, b2c=92.80
-  - CR ConvRate: global=1.04, op=1.00, cug=1.64, b2c=0.24
-  - RND %NoDispo: global=2.63, op=2.33, cug=2.88, b2c=3.10
-  - RND IPM: global=653.0, op=1312.8, cug=2042.5, b2c=1319.2
-
-#### `calc_supply.py`
-- CONFIG actualizado a W23 (commiteado en repo — no editar manualmente cada semana)
-- **Pipeline completo en 8 pasos** — agregados pasos 7 (`render_mail_v3.py`) y 8 (`build_package.py`)
-- Output summary ahora incluye `Mail_W{NN}.html` e `index.html`
-- Desde W23: correr solo `python calc_supply.py` genera TODO
-
-#### `asset_shared_head.html` — fix display:table-row
-- 7 ocurrencias de `r.tagName==='TR'?'':'grid'` → `r.tagName==='TR'?'table-row':'grid'`
-- Bug causaba que filas 6-10 se mostraran sin layout de tabla al expandir
-
-#### `js_override.js` — fix border-bottom + cursor en rows-more
-- `_moreBtn` onclick: después de `setProperty('display','table-row','important')`, restaura `borderBottom` y `cursor` en TRs
-- Bug: `setProperty` con `!important` pisaba los estilos inline del `<tr>` generado por `trow_ar`
-- Aplicado en ambas ramas (static btn y fallback createElement)
-
-### Bugs cerrados
-- **B37** — Filas 6-10 no clickeables: `display:''` no válido para `<tr>` en `asset_shared_head.html` → fix `table-row`
-- **B38** — Filas 6-10 sin border-bottom: `setProperty('display',...,'important')` pisaba estilos inline del TR → fix restauración post-expand
-
-### Bug documentado (no implementado)
-- **P12** — Filtro cruzado con pills: selección múltiple Corp+Dest+Channel en AND, pills eliminables, aplica en todas las tabs y cards. Requiere sesión dedicada.
-
-### Lección aprendida
-- `git reset --hard origin/main` pisa cambios locales — nunca editar CONFIG localmente; commitear al repo antes
-- El CONFIG de `calc_supply.py` debe vivir en el repo, no editarse manualmente cada semana
-- `setProperty(prop, val, 'important')` en style inline reemplaza TODO el style inline del elemento — nunca usarlo en TRs que tienen otros estilos inline
-
-### Archivos commiteados
-- `historico_data.py` — valores W22 por scope
-- `calc_supply.py` — CONFIG W23 + pasos 7-8
-- `asset_shared_head.html` — fix display:table-row (7 ocurrencias)
-- `js_override.js` — fix border-bottom+cursor en rows-more
-- `reports/week-23/SUPPLY_W23.html` — 13.7MB via Git Tree API
-- `checkrates/week-23/Analisis_CheckRates_W23.xlsx`
-- `rates-nodispo/week-23/Analisis_RatesNoDispo_W23.xlsx`
-
-### Pendientes W24
-- **P12** — Filtro cruzado con pills (sesión dedicada)
-- Commit datasets W23 a sus carpetas en el repo
-- INVENTORY_W23 pipeline (pendiente dataset)
-- INVENTORY_W22.html commit desde GitHub Desktop (pendiente)
-- `HIST.snapshot` optimización (HTML ~40.9MB)
-
----
-
-## Pipeline W23 · Fixes post-pipeline · 08 Jun 2026
-
-### Problemas detectados y resueltos
-
-#### `calc_supply.py` — OUTPUTS_DIR incorrecto en Windows
-- Todos los scripts usan `OUTPUTS_DIR` con default `/mnt/user-data/outputs` — path Linux que no existe en Windows
-- Fix: `calc_supply.py` ahora setea `OUTPUTS_DIR`, `OUTPUT_DIR`, `UPLOADS_DIR` y `PROJECT_DIR` a `Path(__file__).parent` antes de correr cada paso
-- Afecta: `render_mail_v3.py`, `build_package.py`, `excel_rnd.py`, `excel_cr.py`, `assemble_unified.py`
-
-#### `calc_supply.py` — pipeline completo 8 pasos
-- Pasos 7 (`render_mail_v3.py`) y 8 (`build_package.py`) agregados
-- Resumen final corregido: apunta a rutas reales de outputs (subcarpetas) en lugar de raíz
-
-#### `render_mail_v3.py` — v3.2 reemplazada por v4.0
-- La v4.0 (rediseño visual completo W23-pre) estaba en `_scripts/` del commit `9e90080a`
-- Al reorganizar el repo quedó la v3.2 en la raíz — restaurada v4.0
-
-#### `calc_supply.py` — git reset pisaba CONFIG local
-- El CONFIG de `calc_supply.py` ahora vive en el repo (commiteado cada semana)
-- No editar manualmente después de `git reset` — el repo ya tiene el CONFIG correcto
-
-### Lección aprendida
-- Siempre commitear el CONFIG de `calc_supply.py` al repo antes de hacer `git reset`
-- Verificar que todos los scripts del pipeline usen `OUTPUTS_DIR` desde env var y no hardcodeado
-- Al reorganizar carpetas del repo, verificar que la versión correcta de cada script quede en la raíz
-
-### Archivos commiteados
-- `calc_supply.py` — OUTPUTS_DIR Windows + pasos 7-8 + resumen corregido
-- `render_mail_v3.py` — v4.0 restaurada
-- `asset_shared_head.html` — fix display:table-row
-- `js_override.js` — fix border-bottom+cursor rows-more
+### CONFIG W23
+```python
+WEEK          = "W23"
+WEEK_NUM      = 23
+VOL_NUM       = "23"
+YEAR_ACTUAL   = 2026
+SNAPSHOT_DATE = "9 de Junio de 2026"
+SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
+INPUT_FILE    = "dataHoteles_contratos.xlsx"
+```
