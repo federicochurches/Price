@@ -2631,7 +2631,11 @@ function hRender() {{
     }},
     options:{{
       responsive:true, maintainAspectRatio:false,
-      onClick: onClickFn || undefined,
+      onClick: (evt) => {{
+        if (!onClickFn) return;
+        const els = hChart.getElementsAtEventForMode(evt, 'index', {{intersect:false}}, true);
+        onClickFn(evt, els);
+      }},
       plugins:{{
         title:{{display:false}},
         legend:{{
@@ -2761,7 +2765,7 @@ def build_unified_distrib():
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
             f'</tr>'
         )
-    ver_mas_corp = ('<tr class="ud-corp-row" style="display:none" id="ud-corp-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
+    ver_mas_corp = ('<tr class="ud-corp-row" style="display:none" id="ud-corp-ver-mas"><td colspan="7" style="text-align:center;padding:10px;">'
                     '<button onclick="udToggleCorp(this)" style="font-family:inherit;font-size:10px;font-weight:700;'
                     'letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);background:var(--paper);'
                     'color:var(--ink-muted);padding:6px 18px;cursor:pointer;border-radius:3px;" data-open="0">'
@@ -2785,7 +2789,7 @@ def build_unified_distrib():
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
             f'</tr>'
         )
-    ver_mas_dest = ('<tr class="ud-dest-row" style="display:none" id="ud-dest-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
+    ver_mas_dest = ('<tr class="ud-dest-row" style="display:none" id="ud-dest-ver-mas"><td colspan="7" style="text-align:center;padding:10px;">'
                     '<button onclick="udToggleDest(this)" style="font-family:inherit;font-size:10px;font-weight:700;'
                     'letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);background:var(--paper);'
                     'color:var(--ink-muted);padding:6px 18px;cursor:pointer;border-radius:3px;" data-open="0">'
