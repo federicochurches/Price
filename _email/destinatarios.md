@@ -5,7 +5,7 @@
 ```
 rafael.durand@pricetravel.com
 bellanira.hernandez@pricetravel.com
-maria.alejandra.rico@pricetravel.com
+maria.rico@pricetravel.com
 javier.parra@pricetravel.com
 alonso.mis@pricetravel.com
 ingrid.kuhnne@pricetravel.com
@@ -31,6 +31,7 @@ stivalis.alcantara@pricetravel.com
 ariana.caldelas@pricetravel.com
 daniela.chino@pricetravel.com
 christians.ortiz@pricetravel.com
+carlos.geroy@pricetravel.com 
 ```
 
 ## Convención
