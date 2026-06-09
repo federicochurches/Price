@@ -6,6 +6,71 @@
 
 ---
 
+## 📝 Sesión W23 · 08 Jun 2026 · Hotel Inventory — drill semanal + optimización de tamaño
+
+### Contexto
+Fusión de los fixes de W22 con la optimización de tamaño de W23 sobre `calc_inv.py`. El problema raíz: al subir los cambios de peso (W23) se pisaron features de W22. Sesión larga de debugging con múltiples iteraciones. Descubrimiento clave: el "drill por semana que actualiza la tabla de distribución" que se creía perdido **nunca existió** en el `calc_inv.py` de W22fix ni en el HTML de producción W22 — la rama semanal siempre dejaba `onClickFn=null`. El drill real estaba solo en `INVENTORY_W22_FINAL_1.html` (versión que no se había portado al script).
+
+### Cambios aplicados a `calc_inv.py`
+
+**Optimización de tamaño (43MB → 12.4MB):**
+- `HIST.snapshot` (región×corp×dest×tipo×channel×semana, ~80K rows) **eliminado** — era la causa de los 40MB
+- Reemplazado por 3 índices compactos con keys cortas:
+  - `dim_ch` (`w,m,t,ch,n`) — filtrado a últimos 2 años (`df_hist_dim = df_hist[df_hist['year'] >= YEAR_ACTUAL-1]`)
+  - `dim_tipo` (`w,m,t,n`) — para filtro solo-tipo
+  - `dim_hotel` (`w,m,r,c,d,t,n`) — incluye destino, para filtros región/corp/dest + drill
+- `dim_hotel` NO se filtra por año (necesita histórico completo para el acumulado, si no la línea queda plana)
+
+**Drill por semana → tabla de distribución (recuperado de W22_FINAL y portado a keys compactas):**
+- `hDrillWeek(yw)`, `_snapTbody()`, `_renderDrillTable(rows,label,dim)`, `_renderDrillPill(label)`, `hDrillWeekReset()`
+- Click en barra de semana → reescribe `ud-tbody` con hoteles nuevos de esa semana, agrupados por `udDim` (reg/corp/dest), columnas Total/PP/SP/HY/TP
+- Pill "Nuevos WNN ×" en `hf-active-pills`; click en × o re-click en la barra → reset
+- keyMap compacto: `{reg:'r', corp:'c', dest:'d'}`
+
+**Bugs cerrados (B37–B45):**
+- B37: línea plana — `sparseMap[r.yw]` daba undefined (dim compacto usa `w`) → `r.w||r.yw`
+- B38: acum arrancaba en 0 con PROD. PROPIO → `HIST.actual_by_tipo` como base
+- B39: `evt.stopPropagation is not a function` → `evt.native.stopPropagation()`
+- B40: `activeRegions`/`activeTipo` not defined en `hRender` → redefinir local `_activeR/_activeC/_activeCh/_activeTipo`
+- B41: drill semanal a tabla (desarrollo nuevo, no recuperación)
+- B42: `dim_hotel` sin destino → agregado `d`
+- B43: tabla GAP destacaba Con Directo → swap a Sin Directo (cyan)
+- B44: pill PROD. PROPIO verde (`#E1F5EE`/`#1A6B4A`) + activación `_tryInit`
+- B45: tamaño 43→12.4MB
+- B46: pills activas en una fila, verde uniforme; botón menú mantiene color categoría
+- B47: drill-pill verde (era violeta)
+- B48: drill funciona en SIN CONTRAT (`_gapMode`/`_drillTbody` → `gap-tbody`)
+- B49: VS GLOBAL eliminada en TODAS las celdas — header/celda GAP, fila GLOBAL principal, celdas drill (normal+GAP). Regla: toda celda última columna lleva `td-vs`
+- B50/P6: Channel View — columna % Gap junto a Hoteles (barra cyan), ambas columnas % Gap mismo formato
+
+**Limpieza W24:**
+- `_ppRatio` hardcodeado (`53097/309591`) → dinámico `{pp}/{N}`
+- Verificado: ningún `W23` hardcodeado fuera del bloque CONFIG. Para W24 solo cambiar CONFIG (L20-29)
+
+### Aprendizajes
+- **Fixes sobre HTML se pierden al regenerar**: durante la sesión se aplicaron varios fixes directo sobre el HTML que luego no estaban en el script. Regla: todo fix va al `calc_inv.py`, nunca solo al HTML.
+- **El script no regenera si el HTML existe**: hay que `Remove-Item week-NN\INVENTORY_WNN.html` antes de correr.
+- **Verificar versión antes de correr**: `Get-Content calc_inv.py | Select-String "_ppRatio"` — confirma que el archivo reemplazado es el correcto (descargas con mismo nombre pueden quedar cacheadas).
+- **`calc_inv.py` no commitea** — genera HTML local; commit manual via GitHub Desktop (>1MB).
+
+### Archivos modificados
+- `calc_inv.py` (drill + optimización + 9 bugs + _ppRatio dinámico)
+- `PROMPT_INV.md` → v15.0
+- `PROMPT_CORE.md` (tamaño INVENTORY, duplicado eliminado)
+
+### Pendientes
+- Validar drill en ambos modos (normal + SIN CONTRAT) tras última corrida
+- Commit `INVENTORY_W23.html` + `calc_inv.py` via GitHub Desktop
+- Actualizar `README_QUICK.md` con métricas W23 publicadas
+
+### Resueltos en la sesión (detalles visuales finales)
+- Pill PROD. PROPIO: chip verde al cargar (botón menú queda violeta)
+- Pills activas unificadas en una fila, color verde
+- Columna VS GLOBAL eliminada en ambas tablas (principal + GAP)
+- Drill por semana operativo también en modo SIN CONTRAT
+
+---
+
 ## 📝 Sesión W22-pre · Junio 2026 · Hub v2 visual — ajustes finales
 
 ### Contexto
