@@ -1,5 +1,5 @@
 # 🏨 PROMPT INV · Hotel Inventory · Supply Analytics HUB
-**Versión v13.0 · Junio 2026 · calc_inv.py → INVENTORY_WNN.html + Analisis_Inventory_WNN.xlsx**
+**Versión v15.0 · Junio 2026 · calc_inv.py → INVENTORY_WNN.html + Analisis_Inventory_WNN.xlsx**
 
 ---
 
@@ -15,15 +15,15 @@ Dataset: `dataHoteles_contratos.xlsx` (header=1, 571K+ rows)
 
 | Métrica | Valor W23 |
 |---|---|
-| Sistema (HtActive=1) | 314.719 |
-| Sin contrato (sincontrato) | 5.128 — **excluidos siempre** |
-| **Universo con contrato** | **309.591** |
-| Producto Propio (SP+H) | 53.097 · 17.2% |
-| Solo Propio | 4.746 · Hybrid | 48.351 |
-| Third Party | 256.494 · Target 2026 | 70.000 |
-| Gap | 16.903 · Avance | 75.9% |
-| Ritmo necesario | ~583 / sem |
-| Independientes sin directo | 246.275 · Destinos | 11.698 |
+| Sistema | 318.005 |
+| Sin contrato | 837 — **excluidos siempre** |
+| **Universo con contrato** | **317.168** |
+| Producto Propio (SP+H) | 58.966 · 18.6% |
+| Solo Propio | 4.794 · Hybrid | 54.172 |
+| Third Party | 258.202 · Target 2026 | 70.000 |
+| Gap | 11.034 · Avance | 84.2% |
+| Ritmo necesario | ~380 / sem |
+| Independientes sin directo | 248.290 · Destinos | 11.672 |
 
 **Variables Python canónicas:** `N` · `pp` · `solo_propio` · `hybrid` · `solo_terc` · `gap` · `SEMANAS_RESTANTES` · `ritmo_nec`
 
@@ -196,6 +196,26 @@ Antes tenía `pp` en posición de total — corregido en W23.
 - `corp_grp.head(200)` · `dest_grp.head(1000)` · `dest_mkt.head(1000)`
 - Acapulco está en posición ~564 en dest_mkt — por eso el límite mínimo es 1000
 
+### Drill por semana → tabla de distribución (W23 — NUEVO)
+
+Click en una barra de semana del gráfico histórico reescribe la **tabla de distribución** con los hoteles nuevos de esa semana.
+
+**Funciones (en `calc_inv.py`, scope global, script final):**
+| Función | Rol |
+|---|---|
+| `hDrillWeek(yw)` | Entry point. Si ya hay drill en esa semana → reset. Filtra `dim_hotel` por `(r.w\|\|r.yw)===yw`, agrupa por `udDim` activa |
+| `_snapTbody()` | Guarda `ud-tbody.innerHTML` original en `window._tbodyOrig` antes del primer drill |
+| `_renderDrillTable(rows, label, dim)` | Reescribe `ud-tbody`. keyMap `{reg:'r', corp:'c', dest:'d'}`. Columnas: Total/PP/SP/HY/TP + %barra cyan |
+| `_renderDrillPill(label)` | Pone pill "Nuevos WNN ×" en `hf-active-pills`. Click en × → `hDrillWeekReset()` |
+| `hDrillWeekReset()` | Restaura `_tbodyOrig`, limpia `_drillYw`, quita pill |
+
+**onClick del chart:** `onClickFn = (evt,els)=>{...hDrillWeek(row.yw)}` en la rama semanal de `hRender`.
+El `onClick` del chart usa `if (evt.native) evt.native.stopPropagation()` (Chart.js no pasa evento DOM nativo).
+
+**Soporte modo GAP (SIN CONTRAT):** `_gapMode()` detecta si `ud-gap-content` está visible. `_drillTbody()` devuelve `gap-tbody` o `ud-tbody` según el modo. En GAP las columnas son Sin Directo (=Third Party) / Con Directo (=Prod Propio). `hDrillWeekReset()` restaura `_tbodyOrig` o `_gapTbodyOrig` según corresponda.
+
+**Recuperado de:** `INVENTORY_W22_FINAL_1.html` — el drill nunca estuvo en `calc_inv.py` de W22fix (rama sem dejaba `onClickFn=null`). Portado a keys compactas en W23.
+
 ### Headers ordenables
 - Total: `udSortTotal()`
 - PP/SP/Hybrid: `udSortCol('td-pp')` / `('td-sp')` / `('td-hy')`
@@ -322,6 +342,20 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 | B34 | `hGetCurrentTotal()` usaba `HIST.dim` último snapshot → devolvía 0 para hoteles sin historia | W22-fix |
 | B35 | `apply_tipo_override` definida después de su primer uso → NameError silencioso | W22-fix |
 | B36 | Columna `Expedia` (propio) no estaba en `ALL_CHANNELS` → hoteles ignorados en snapshot | W22-fix |
+| B37 | Línea histórica plana con filtro de tipo — `sparseMap[r.yw]` daba undefined (dim compacto usa key `w`) → fix `r.w||r.yw` | W23 |
+| B38 | Acum filtrado arrancaba en 0 con PROD. PROPIO — `before` vacío y `totalInSubset-inRange=0` → `HIST.actual_by_tipo` como base | W23 |
+| B39 | `evt.stopPropagation is not a function` — Chart.js pasa su propio evento → fix `evt.native.stopPropagation()` | W23 |
+| B40 | `activeRegions`/`activeTipo` not defined en `hRender` — vars solo existían en `hGetDim` → redefinir local con `_activeR/_activeC/_activeCh/_activeTipo` | W23 |
+| B41 | Drill por semana no actualizaba tabla de distribución — nunca existió en W22fix ni HTML W22 (rama sem dejaba `onClickFn=null`); recuperado de `INVENTORY_W22_FINAL_1.html` y portado a keys compactas | W23 |
+| B42 | `dim_hotel` sin destino — drill por destino imposible → agregado `d` (Destino) al groupby y compact | W23 |
+| B43 | Tabla GAP destacaba Con Directo en cyan — debía ser Sin Directo (el gap) → swap th-pp/td-pp | W23 |
+| B44 | Pill PROD. PROPIO no se veía activa al cargar / color violeta → `--pill-on-bg:#E1F5EE` verde + activación en `_tryInit` | W23 |
+| B45 | HTML 43MB → 12.4MB — `dim_ch` filtrado a 2 años, snapshot eliminado, índices compactos | W23 |
+| B46 | Pills activas mezcladas/desalineadas — todas las pills seleccionadas van en una fila, color verde uniforme (`#E1F5EE`/`#1A6B4A`); botón de menú mantiene color de categoría | W23 |
+| B47 | Pill del drill (`_renderDrillPill`) salía violeta → cambiada a verde como las demás pills activas | W23 |
+| B48 | Drill no actualizaba tabla en SIN CONTRAT — escribía en `ud-tbody` (oculto en modo GAP) → `_gapMode()`/`_drillTbody()` detectan modo y escriben en `gap-tbody` con columnas Sin Directo/Con Directo | W23 |
+| B49 | Columna VS GLOBAL visible — faltaba clase `td-vs` en: header/celda GAP, fila GLOBAL de tabla principal, y celdas del drill (normal + GAP). Regla: TODA celda de la última columna debe llevar `td-vs` (el CSS `display:none` ya existe) | W23 |
+| B50/P6 | Channel View Third Party — agregada columna `% Gap` junto a Hoteles (% de hoteles solo-terceros vs total inventario), con barra cyan; ambas columnas % Gap mismo formato | W23 |
 
 ---
 
@@ -368,7 +402,7 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 
 ---
 
-**Última actualización:** v14.0 · W22-fix · 06 Jun 2026
+**Última actualización:** v15.0 · W23 · 08 Jun 2026
 
 **Cambios v13:**
 - Masthead idéntico al Supply (shell padding-top, masthead-inner, border-bottom rule, logo 40px)
@@ -383,13 +417,29 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 - Searchbox fallback por `data-dest-name` + delay dinámico
 - B23–B30 cerrados
 
+**Cambios v15 (W23):**
+- **Optimización de tamaño 43MB → 12.4MB**: snapshot eliminado, índices compactos (`dim_ch`/`dim_tipo`/`dim_hotel`) con keys cortas, `dim_ch` filtrado a 2 años
+- **Drill por semana → tabla de distribución** (NUEVO, recuperado de W22_FINAL y portado): `hDrillWeek` + `_snapTbody`/`_renderDrillTable`/`_renderDrillPill`/`hDrillWeekReset`
+- `dim_hotel` ahora incluye destino (`d`) — habilita drill por destino
+- `HIST.actual_by_tipo` — base real del acum para filtro solo-tipo (línea no plana)
+- Fix `sparseMap` con `r.w||r.yw` (keys compactas)
+- Fix `evt.native.stopPropagation()` para Chart.js
+- Pill PROD. PROPIO verde (`#E1F5EE`/`#1A6B4A`) + activación en `_tryInit`
+- Tabla GAP: destacar Sin Directo en cyan (era Con Directo)
+- Pills activas en una fila, verde uniforme; drill-pill verde; botón menú mantiene color categoría
+- Drill funciona en modo SIN CONTRAT (`_gapMode`/`_drillTbody`, escribe en `gap-tbody`)
+- Columna VS GLOBAL eliminada también en tabla GAP (`th-vs`/`td-vs`)
+- `_ppRatio` dinámico (`{pp}/{N}`) — limpieza para W24
+- B37–B49 cerrados
+
 
 ## Decisiones UI (W22 final)
 - Pills contratación: solo **PROD. PROPIO** y **SIN CONTRAT.** — Solo Propio y Hybrid eliminadas (detalle visible en columnas de tabla)
 - Tooltip gráfico histórico: fondo `rgba(253,252,249,0.92)` (beige tenue), texto `#333132`, sin color boxes
 - VS GLOBAL: columna eliminada permanentemente — `th-vs, td-vs { display:none!important }`
 - col-show CSS: solo resaltado del header con `rgba(79,195,244,.12)` — no oculta columnas
-- Default al cargar: PROD. PROPIO activo (`hFTipo = 'Prod. Propio'` en `_tryInit`)
+- Default al cargar: PROD. PROPIO activo (`hFTipo = 'Prod. Propio'` en `_tryInit`) + agregado a `udActiveFilters` + `hRenderActivePills()` para mostrar el chip verde
+- **Pills activas (W23)**: todas en una sola fila (`hf-active-pills`), color verde uniforme (`border #1A6B4A`, `bg #E1F5EE`). Los botones del menú mantienen su color de categoría (contratación violeta `#EDE8F7`). La pill del drill también es verde.
 - Git Tree API obligatorio para HTML > 1MB
 
 ## 🏢 Reglas de negocio — Clasificación corp+channel
@@ -400,15 +450,26 @@ CORP_CHANNEL_TIPO_OVERRIDE = {
     ('Marriott', 'Expedia'): 'Hybrid',  # Marriott+Expedia = Producto Propio
 }
 ```
-Aplica sobre `HIST.dim` y `HIST.snapshot`. Agregar aquí cualquier nueva excepción.
+Aplica sobre `dim_ch`, `dim_tipo` y `dim_hotel`. Agregar aquí cualquier nueva excepción.
 
-## ⚠️ Nota técnica — HIST.snapshot
-`HIST.snapshot` tiene ~80K rows → HTML ~40MB → excede Git Tree API.
-- Commitear HTML desde GitHub Desktop (no via API)
-- Pendiente: optimizar agrupación del snapshot para reducir tamaño
+## ⚠️ Arquitectura de optimización de tamaño (W23 — CANÓNICO)
+
+El `HIST.snapshot` original (región×corp×dest×tipo×channel×semana, ~80K rows → HTML 40-43MB) fue **eliminado**.
+Reemplazado por 3 índices compactos con keys cortas:
+
+| Índice | Keys compactas | Agrupación | Uso |
+|---|---|---|---|
+| `dim_ch` | `w,m,t,ch,n` | yw×ym×ch_tipo×channel (sin región/corp) | filtro channel — filtrado a últimos 2 años |
+| `dim_tipo` | `w,m,t,n` | yw×ym×ch_tipo | filtro solo-tipo (sin región/corp) |
+| `dim_hotel` | `w,m,r,c,d,t,n` | yw×ym×region×corp×dest×ch_tipo | filtro región/corp/dest + **drill por semana** |
+
+Donde: `w`=yw, `m`=ym, `r`=region, `c`=corp, `d`=dest, `t`=ch_tipo, `ch`=channel, `n`=count.
+
+**Tamaño resultante:** ~12.4MB (con destino en dim_hotel) — vs 40-43MB del snapshot. Sigue requiriendo GitHub Desktop (>1MB).
+
+**Regla crítica:** el JS lee keys compactas. Siempre usar `r.w||r.yw` (nunca solo `r.yw`) al construir `sparseMap` o agregar — el dim compacto usa `w`, no `yw`. Olvidar esto produce línea histórica plana (sparseMap vacío).
 
 ## Pendientes próxima sesión
-- P6: Channel View — columna % Gap junto a Hoteles en tabla Third Party
 - P7: Columnas tabla — resaltar header columna activa según pill (parcialmente resuelto)
 - Hotel Unico V2 sin datos en gráfico histórico
 - Validar Marriott+Expedia en destino donde sí exista esa combinación en el dataset
