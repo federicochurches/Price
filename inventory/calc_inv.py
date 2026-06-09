@@ -21,7 +21,7 @@ WEEK          = "W23"
 WEEK_NUM      = 23
 VOL_NUM       = "23"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "9 de Junio de 2026"
+SNAPSHOT_DATE = "7 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -500,12 +500,12 @@ for r in acum_weeks:
 # ── ÍNDICE DIMENSIONAL para filtros combinables ──────────────────────────────
 top_corps = df_hist['Corporativo'].value_counts().head(50).index.tolist()
 
-CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
+CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick','Expedia']
 CHANNELS_TERCERO = ['Expedia_tercero','HotelBeds Apitude','Hotel Unico V2','Travelgate']
 CHANNEL_LABELS   = {
     'DerbySoft':'DerbySoft','HBSI':'HBSI','Internal':'Internal',
     'Omnibees':'Omnibees','Siteminder':'Siteminder','SynXis':'SynXis','Travelclick':'Travelclick',
-    'Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
+    'Expedia':'Expedia','Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
     'Hotel Unico V2':'Hotel Unico','Travelgate':'Travelgate'
 }
 ALL_CHANNELS = CHANNELS_PROPIO + CHANNELS_TERCERO
@@ -528,10 +528,11 @@ dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region'})
 # Índice dimensional nivel channel — COMPACTO (solo yw×ym×ch_tipo×channel, sin región/corp)
 # Reemplaza el antiguo dim_index completo que era O(semanas×regiones×corps×tipos×channels) = gigante
 # Cuando hay filtro de región/corp+channel combinado, el JS cruza dim_ch con dim_hotel en runtime
+df_hist_dim = df_hist[df_hist['year'] >= YEAR_ACTUAL - 1].copy()  # dim_ch: solo 2 años
 rows_with_ch = []
 for ch_col in ALL_CHANNELS:
     if ch_col not in df_hist.columns: continue
-    sub = df_hist[df_hist[ch_col].apply(ch_active)][
+    sub = df_hist_dim[df_hist_dim[ch_col].apply(ch_active)][
         ['yw','ym','TipoHotel','Hotel']].copy()
     sub['channel'] = CHANNEL_LABELS[ch_col]
     rows_with_ch.append(sub)
@@ -711,7 +712,7 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
   .kpi-triple{grid-template-columns:1fr 1fr!important;}
   /* Distribution table — hide secondary cols, keep Name+Total+P.Propio */
   .th-sp,.td-sp,.th-hy,.td-hy,.th-tp,.td-tp,
-  .th-pct,.td-pct{display:none!important;}
+  .th-pct,.td-pct,.th-vs,.td-vs{display:none!important;}
   #ud-main-content table{min-width:0;width:100%;}
   /* Searchbox */
   #ud-global-search{width:100%!important;box-sizing:border-box;}
@@ -748,7 +749,7 @@ body{font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.55;
 tr.ud-filter-active td{font-weight:700;}
 tr.ud-filter-active td:first-child::after{content:' ×';color:#6A6A6A;font-size:10px;cursor:pointer;}
 /* VS GLOBAL — eliminado permanentemente */
-.th-pct,.td-pct{display:none!important;}
+.th-vs,.td-vs{display:none!important;}
 /* Column visibility by active pill — all columns always visible, only highlight active */
 .col-show-pp .th-pp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
 .col-show-sp .th-sp { background:rgba(79,195,244,.12)!important; font-weight:700!important; }
@@ -1948,7 +1949,6 @@ function hDestroyChart() {{ if(hChart){{ hChart.destroy(); hChart=null; }} }}
 
 // Returns filtered + aggregated data array — uses hotel-level index to avoid
 // double-counting hotels with multiple channels (unless channel filter is active)
-// Keys compactas: w=yw, m=ym, r=region, c=corp, t=ch_tipo, ch=channel, n=n
 function hGetDim() {{
   const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
@@ -2025,8 +2025,8 @@ function hAggrByYm(rows) {{
 }}
 
 function hIsFiltered() {{
-  if (hFRegion || hFCorp || hFChannel || hFTipo) return true;
-  if (udActiveFilters && udActiveFilters.some(f=>f.type==='region'||f.type==='corp'||f.type==='channel'||f.type==='tipo')) return true;
+  if (hFRegion || hFCorp || hFChannel) return true;
+  if (udActiveFilters && udActiveFilters.some(f=>f.type==='region'||f.type==='corp'||f.type==='channel')) return true;
   return false;
 }}
 
@@ -2555,17 +2555,17 @@ function hRender() {{
       // Mapa sparse de netnew filtrado (solo hoteles con FechaCreación)
       const dimRows = hGetDim();
       const sparseMap = {{}};
-      dimRows.forEach(r=>{{ const k=r.w||r.yw; sparseMap[k]=(sparseMap[k]||0)+r.n; }});
+      dimRows.forEach(r=>{{ sparseMap[r.yw]=(sparseMap[r.yw]||0)+r.n; }});
       // Acum base = hoteles del subconjunto antes del rango de semanas visible
       const firstYw = refWeeks.length ? refWeeks[0].yw : '';
       const allDim = hAggrByYw(dimRows);
       const before = allDim.filter(r=>r.yw < firstYw);
-      // Si no hay historia antes del rango, el acum arranca en 0 para netnew relativo
-      // El acumulado absoluto lo obtenemos sumando todo el dim_hotel del subconjunto
+      // Acum total del subconjunto filtrado
       const totalInSubset = allDim.length ? allDim[allDim.length-1].acum : 0;
       const inRange = allDim.filter(r=>r.yw >= firstYw).reduce((s,r)=>s+r.netnew,0);
-      // Base = total acumulado - lo que cae dentro del rango visible
       let c = before.length ? before[before.length-1].acum : (totalInSubset - inRange);
+
+      // Si no hay netnew histórico pero hay hoteles actuales → línea plana con total actual
       // Fill todas las semanas de referencia con netnew=0 donde no hay datos
       d = refWeeks.map(w=>{{ const n=sparseMap[w.yw]||0; c+=n; return {{yw:w.yw,ym:w.ym,netnew:n,acum:c}}; }});
     }} else {{
@@ -2633,6 +2633,7 @@ function hRender() {{
       responsive:true, maintainAspectRatio:false,
       onClick: (evt) => {{
         if (!onClickFn) return;
+        evt.stopPropagation();
         const els = hChart.getElementsAtEventForMode(evt, 'index', {{intersect:false}}, true);
         onClickFn(evt, els);
       }},
@@ -2743,6 +2744,7 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(hy)}</td>'
             f'<td class="td-tp">{fmt_n(tp)}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
 
@@ -2763,9 +2765,10 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(hy)}</td>'
             f'<td class="td-tp">{fmt_n(tp)}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
-    ver_mas_corp = ('<tr class="ud-corp-row" style="display:none" id="ud-corp-ver-mas"><td colspan="7" style="text-align:center;padding:10px;">'
+    ver_mas_corp = ('<tr class="ud-corp-row" style="display:none" id="ud-corp-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
                     '<button onclick="udToggleCorp(this)" style="font-family:inherit;font-size:10px;font-weight:700;'
                     'letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);background:var(--paper);'
                     'color:var(--ink-muted);padding:6px 18px;cursor:pointer;border-radius:3px;" data-open="0">'
@@ -2787,9 +2790,10 @@ def build_unified_distrib():
             f'<td class="td-hy" style="color:var(--violet,#5C469C);font-size:11px;">{fmt_n(int(r["hybrid"])) if int(r["hybrid"])>0 else "—"}</td>'
             f'<td class="td-tp">{fmt_n(int(tp))}</td>'
             f'<td class="td-pct">{pct_bar_html(pct_pp,"#4FC3F4")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
-    ver_mas_dest = ('<tr class="ud-dest-row" style="display:none" id="ud-dest-ver-mas"><td colspan="7" style="text-align:center;padding:10px;">'
+    ver_mas_dest = ('<tr class="ud-dest-row" style="display:none" id="ud-dest-ver-mas"><td colspan="8" style="text-align:center;padding:10px;">'
                     '<button onclick="udToggleDest(this)" style="font-family:inherit;font-size:10px;font-weight:700;'
                     'letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);background:var(--paper);'
                     'color:var(--ink-muted);padding:6px 18px;cursor:pointer;border-radius:3px;" data-open="0">'
@@ -2807,6 +2811,7 @@ def build_unified_distrib():
         <th class="th-hy" data-sort-col="td-hy" data-sort-label="Hybrid" onclick="udSortCol('td-hy',this)" style="font-size:8px;cursor:pointer;user-select:none;">Hybrid ↕</th>
         <th class="th-tp" data-sort-col="td-tp" data-sort-label="Third P." onclick="udSortCol('td-tp',this)" style="cursor:pointer;user-select:none;">Third P. ↕</th>
         <th class="th-pct th-pct-label" style="min-width:120px;">% Propio</th>
+        <th class="th-vs">vs Global</th>
       </tr></thead>
       <tbody id="ud-tbody">
         <tr class="global-row">
@@ -2817,6 +2822,7 @@ def build_unified_distrib():
           <td class="td-hy" style="opacity:.55;">{fmt_n(hybrid)}</td>
           <td class="td-tp">{fmt_n(solo_terc)}</td>
           <td>{pct_bar_html(pp/N*100,"#4FC3F4")}</td>
+          <td>—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
@@ -3027,9 +3033,10 @@ def build_gap_tab():
             f' onclick="udRowClick(\'region\',\'{reg}\',this)">'
             f'<td><strong>{reg}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp" style="color:#4FC3F4;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
 
@@ -3046,9 +3053,10 @@ def build_gap_tab():
             f' onclick="udRowClick(\'corp\',\'{corp}\',this)">'
             f'<td><strong>{r["Corporativo"]}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp" style="color:#4FC3F4;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_corp = ('<tr class="gap-corp-row" style="display:none" id="gap-corp-ver-mas2">'
@@ -3070,9 +3078,10 @@ def build_gap_tab():
             f'<td><strong>{r["Destino"]}</strong>'
             f'<div style="font-size:10px;color:var(--ink-muted);line-height:1.3;margin-top:1px;">{r["Region_display"]}</div></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
-            f'<td class="td-pp">{fmt_n(sin_d)}</td>'
-            f'<td style="color:#6A6A6A;font-weight:700;">{fmt_n(con_d)}</td>'
+            f'<td class="td-pp" style="color:#4FC3F4;font-weight:700;">{fmt_n(sin_d)}</td>'
+            f'<td style="color:#6A6A6A;">{fmt_n(con_d)}</td>'
             f'<td>{pct_bar_html(pct,"var(--green)")}</td>'
+            f'<td class="td-vs">{vs_bar_html(vs)}</td>'
             f'</tr>'
         )
     ver_mas_dest = ('<tr class="gap-dest-row" style="display:none" id="gap-dest-ver-mas2">'
@@ -3096,17 +3105,19 @@ def build_gap_tab():
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th class="th-pp">Sin Directo</th>
+        <th class="th-pp" style="color:#4FC3F4;">Sin Directo</th>
         <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
+        <th>vs Global</th>
       </tr></thead>
       <tbody id="gap-tbody">
         <tr class="global-row">
           <td>GLOBAL</td>
           <td>{fmt_n(N)}</td>
-          <td class="td-pp">{fmt_n(int(market_tp))}</td>
-          <td style="color:#6A6A6A;font-weight:700;">{fmt_n(pp)}</td>
+          <td class="td-pp" style="color:#4FC3F4;font-weight:700;">{fmt_n(int(market_tp))}</td>
+          <td style="color:#6A6A6A;">{fmt_n(pp)}</td>
           <td>{pct_bar_html(pp/N*100,"var(--green)")}</td>
+          <td>—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
@@ -3427,15 +3438,6 @@ def build_html():
 <div class="breadcrumb" id="drill-bc"></div>
 <div class="chart-area" style="background:transparent;border:1px solid var(--rule);border-radius:2px;padding:16px 12px 8px;margin-bottom:24px;">
   <div style="position:relative;height:220px;width:100%;"><canvas id="canvas-hist"></canvas></div>
-</div>
-
-<!-- ── DRILL SEMANA (oculto hasta click en barra) ── -->
-<div id="hist-week-drill" style="display:none;margin:-16px 0 24px;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-radius:2px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span id="hist-week-drill-title" style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);"></span>
-    <button onclick="hDrillWeekReset()" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);padding:3px 10px;cursor:pointer;border-radius:2px;">× Cerrar</button>
-  </div>
-  <div id="hist-week-drill-body" style="font-size:11px;color:var(--ink-muted);"></div>
 </div>
 
 <!-- ── TABLA: Distribución y Exploración ── -->
