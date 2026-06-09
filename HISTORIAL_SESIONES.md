@@ -69,6 +69,18 @@ Fusión de los fixes de W22 con la optimización de tamaño de W23 sobre `calc_i
 - Columna VS GLOBAL eliminada en ambas tablas (principal + GAP)
 - Drill por semana operativo también en modo SIN CONTRAT
 
+### Cierre y limpieza de repo (W23)
+- **Bug de GitHub Desktop con archivos grandes:** el push del `INVENTORY_W23.html` (12MB) falló silenciosamente — el commit aparecía pero el repo seguía sirviendo la versión vieja de 44MB en Netlify (loading page lenta). Resuelto subiendo el HTML por Git Tree API directo (blob → tree → commit → patch ref).
+- **Última celda VS GLOBAL:** la fila GLOBAL de la tabla principal (`pct_bar_html(pp/N*100,"#4FC3F4")`) tenía `<td>—</td>` sin clase `td-vs`. Corregida. Regla reforzada: TODA celda de la última columna lleva `td-vs`.
+- **Limpieza de repo:** borrados 11 archivos versionados por error (ya en `.gitignore`): `Price_W23_extracted/`, `__pycache__/`, `cr_w21_data.pkl`, `rnd_w21_data.pkl`, `Dataset_CheckRates_W19.xlsx`. Repo de 157 → 144 archivos.
+- **`run_inv.py` (nuevo):** wrapper transparente del pipeline Inventory. 6 pasos verificados (valida CWD/dataset/token → verifica versión calc_inv.py → borra HTML viejo → corre → verifica tamaño → commit Git Tree API). Resuelve todos los puntos de fricción de W23. Subido a `inventory/run_inv.py`. Uso: `python run_inv.py [--commit]`.
+
+### Aprendizajes W23 (workflow)
+- GitHub Desktop NO es confiable para archivos >~10MB → usar siempre Git Tree API (vía `run_inv.py --commit` o manual).
+- El `calc_inv.py` no regenera el HTML si ya existe → borrar antes de correr (run_inv.py lo hace solo).
+- Correr siempre desde `inventory/` (run_inv.py valida el CWD).
+- Verificar versión del script antes de correr (run_inv.py chequea 4 fixes canónicos).
+
 ---
 
 ## 📝 Sesión W22-pre · Junio 2026 · Hub v2 visual — ajustes finales

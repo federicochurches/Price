@@ -377,11 +377,32 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 
 ## 💻 Ejecución local desde PowerShell
 
+**Método recomendado (W24+): `run_inv.py`** — wrapper que valida entorno, versión del script,
+tamaño del HTML, y commitea por Git Tree API (no GitHub Desktop). Resuelve todos los puntos
+de fricción de W23.
+
 ```powershell
-cd C:\ruta\al\repo\Price\inventory
-# Poner dataHoteles_contratos.xlsx en esta carpeta
+cd C:\Users\federico.iglesias\Price\inventory
+# 1. Editar CONFIG en calc_inv.py (WEEK, WEEK_NUM, VOL_NUM, SNAPSHOT_DATE, INPUT_FILE)
+# 2. Copiar el nuevo dataset de contratos a esta carpeta
+python run_inv.py            # corre + verifica (NO commitea — default seguro)
+python run_inv.py --commit   # corre + verifica + commitea HTML por Git Tree API
+```
+
+`run_inv.py` hace 6 pasos verificados:
+1. Valida CWD (falla si estás en la carpeta equivocada), dataset de input, token
+2. Verifica que calc_inv.py tenga los 4 fixes canónicos (VS GLOBAL, % Gap, _ppRatio, optimización) — evita correr versión vieja
+3. Borra el HTML viejo (calc_inv.py no regenera si existe)
+4. Corre calc_inv.py
+5. Verifica tamaño del HTML (alerta >15MB, error >25MB) + sin celdas VS GLOBAL sueltas
+6. Commit por Git Tree API + verifica tamaño en el repo (lo que Netlify sirve)
+
+**Método manual (alternativa):**
+```powershell
+cd C:\Users\federico.iglesias\Price\inventory
+Remove-Item week-NN\INVENTORY_WNN.html   # IMPRESCINDIBLE: no regenera si existe
 python calc_inv.py
-# Genera: week-NN/INVENTORY_WNN.html + week-NN/Analisis_Inventory_WNN.xlsx
+# Commit del HTML: SIEMPRE por Git Tree API, NUNCA GitHub Desktop (ver abajo)
 ```
 
 **Config semanal en `calc_inv.py`:**
@@ -392,6 +413,15 @@ VOL_NUM       = "23"
 SNAPSHOT_DATE = "9 de Junio de 2026"
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 ```
+
+### ⚠️ GitHub Desktop falla con archivos grandes (aprendizaje W23)
+- GitHub Desktop **falla silenciosamente** al pushear el `INVENTORY_WNN.html` (~12MB): el commit
+  aparece en el historial pero sube la versión vieja o un puntero vacío. En W23 el repo quedó
+  sirviendo el HTML de 44MB sin optimizar pese a que el commit "existía".
+- **Solución:** commitear el HTML grande SIEMPRE por Git Tree API (`run_inv.py --commit` lo hace solo).
+- Síntoma a vigilar: loading page lenta en Netlify → verificar tamaño real en el repo:
+  `curl -sI https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-NN/INVENTORY_WNN.html | grep content-length`
+  (debe dar ~12-13MB, no ~44MB).
 
 ## 🎨 Decisiones visuales (W22+)
 

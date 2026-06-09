@@ -486,6 +486,8 @@ Price/
 ### GitHub API — archivos grandes
 - **Archivos > 1MB:** usar siempre Git Tree API (`POST /git/blobs` → `POST /git/trees` → `POST /git/commits` → `PATCH /git/refs/heads/main`)
 - La Contents API (`PUT /contents/`) falla silenciosamente — commit aparece pero contenido queda vacío
+- **GitHub Desktop también falla silenciosamente con archivos grandes** (aprendizaje W23): el commit aparece en el historial pero sube la versión vieja o un puntero vacío. En W23 el repo quedó sirviendo `INVENTORY_W23.html` de 44MB pese a que el commit "existía". Síntoma: loading page lenta en Netlify. Verificar tamaño real: `curl -sI raw.githubusercontent.com/.../INVENTORY_WNN.html | grep content-length`
+- **Para Inventory:** usar `inventory/run_inv.py --commit` — wrapper que valida entorno/versión/tamaño y commitea el HTML por Git Tree API automáticamente. Resuelve los puntos de fricción de W23 (carpeta equivocada, versión vieja, HTML no borrado, push fallido).
 - Afecta: `SUPPLY_WNN.html` (~10MB desde W23), `INVENTORY_WNN.html` (~12MB desde W23, optimizado de 43MB)
 - **Archivos `.xlsx`:** Netlify devuelve 403 — usar siempre `raw.githubusercontent.com` para links de descarga (ya corregido en `assemble_unified.py` desde W23)
 
