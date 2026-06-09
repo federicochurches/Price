@@ -6,6 +6,41 @@
 
 ---
 
+## 📝 Sesión W24-pre · 09 Jun 2026 · Mail — sección Inventory
+
+### Contexto
+Sesión corta de mejora puntual al template del mail semanal (`render_mail_v3.py`). Sin cambios al pipeline de CR/RND ni a Inventory.
+
+### Cambios aplicados
+
+**`render_mail_v3.py`** — único archivo modificado:
+- Añadida sección **State of PriceTravel Product · Inventory** con la misma jerarquía visual que Availability y Connectivities: `section-title` con dot cyan `#4FC3F4` + grid 2 cards.
+  - Card 1: Producto Propio (`inv-color` cyan) + gauge de avance % + WoW pill opcional
+  - Card 2: Gap al Target (`inv-red` `#FF3B30`) + ritmo necesario + semanas restantes
+- CSS añadido: `.dot-inv`, `.kpi-card.inv::before`, `.kpi-value.inv-color`, `.kpi-value.inv-red`
+- Subject actualizado: `…& Inventory` cuando `HAS_INV`
+- Preheader incluye `PP X.XXX hoteles` cuando `HAS_INV`
+- Lede condicional incluye `+ State of PriceTravel Product`
+- CTA secundario `→ State of PriceTravel Product WNN` (oscuro, `display:block`) cuando `HAS_INV`
+- **Estrategia de datos: Camino B** — CONFIG manual en el script (igual que `PERIODO`/`VOL_NUM`). Sin tocar `calc_inv.py`.
+  - Si `INV_PP = 0` (default), `HAS_INV = False` → mail se genera igual que antes. Retrocompatible.
+  - Los valores se copian del output de consola de `calc_inv.py` cada semana.
+
+### Archivos modificados
+| Archivo | Tipo de cambio |
+|---------|---------------|
+| `render_mail_v3.py` | Añadida sección Inventory + CONFIG manual + CSS |
+
+### Archivos NO modificados
+- `calc_inv.py` — sin cambios (Camino B no lo requiere)
+- `assemble_unified.py`, `build_package.py`, etc. — sin cambios
+
+### Decisiones de diseño
+- Se evaluaron 3 opciones visuales (A: 2 cards mismo grid; B: 4 cards compactas; C: progress bar). Se eligió **Opción A** — máxima consistencia con RND/CR.
+- Se evaluaron 3 estrategias de datos. Se eligió **Camino B** (config manual) por simplicidad — un solo archivo.
+
+---
+
 ## 📝 Sesión W23 · 08 Jun 2026 · Hotel Inventory — drill semanal + optimización de tamaño
 
 ### Contexto
