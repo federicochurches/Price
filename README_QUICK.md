@@ -208,3 +208,19 @@ for k, v in d['TOP'].items():
 
 Si el resultado es `0/N` → el pickle fue generado con un orden incorrecto.  
 **Fix:** correr el bloque de enriquecimiento manual (ver `calc_rnd.py` sección `Enriquecer TOP[]`).
+
+### W23 · 2–8 Jun 2026 · publicado 09-06-2026
+| Métrica | Valor |
+|---|---|
+| SUPPLY_W23.html | 9.56 MB (fix: -4.2 MB vs W23 original) |
+| CR Eficacia | 94.53% |
+| CR Conv Rate | 0.84% |
+| RND %NoDispo | 2.87% (WoW: +0.28pp) |
+| RND IPM | $534 |
+| Hoteles P80 CR | 2,742 |
+| Hoteles P80 RND | 22,271 |
+
+**Fixes en este release:**
+- `assemble_unified.py`: `_strip_last_script()` elimina duplicación de scripts CR_CV/RND_CV
+- Links footer Excel → `raw.githubusercontent.com` (Netlify 403 resuelto)
+
