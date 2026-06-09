@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W22 · Junio 2026 · HTML unificado + Hub v2 visual**
+**Versión W23 · Junio 2026 · HTML unificado + Hub v2 visual**
 
 ---
 
@@ -487,7 +487,8 @@ Price/
 ### GitHub API — archivos grandes
 - **Archivos > 1MB:** usar siempre Git Tree API (`POST /git/blobs` → `POST /git/trees` → `POST /git/commits` → `PATCH /git/refs/heads/main`)
 - La Contents API (`PUT /contents/`) falla silenciosamente — commit aparece pero contenido queda vacío
-- Afecta: `SUPPLY_WNN.html` (~7MB), `INVENTORY_WNN.html` (~6.7MB)
+- Afecta: `SUPPLY_WNN.html` (~10MB desde W23), `INVENTORY_WNN.html` (~40MB)
+- **Archivos `.xlsx`:** Netlify devuelve 403 — usar siempre `raw.githubusercontent.com` para links de descarga (ya corregido en `assemble_unified.py` desde W23)
 
 ### Ejecución local desde PowerShell
 Tanto el pipeline PRICE como el de Inventory se pueden correr localmente:
@@ -500,6 +501,13 @@ python calc_supply.py
 cd inventory
 python calc_inv.py
 ```
+
+### Re-pipeline en Claude sin pickles W(N-1)
+
+Si Claude no tiene los pickles de la semana anterior:
+1. Los datasets W(N-1) están en el repo: `checkrates/week-NN/` y `rates-nodispo/week-NN/`
+2. Copiarlos a la raíz y correr `calc_cr.py` + `calc_rnd.py` con env vars de W(N-1)
+3. Luego correr `calc_supply.py` normal con W(N)
 
 ### ZIP del proyecto (pre-W23, deprecado)
 ~~`ProyectoClaude_PRICE_WNN.zip`~~ — ya no se genera. Los scripts viven en el repo.
