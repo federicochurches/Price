@@ -2346,3 +2346,64 @@ SNAPSHOT_DATE = "9 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 ```
+---
+
+## Sesión W23 Supply · 08–09 Jun 2026
+
+### Contexto
+Commit de outputs W23 generados localmente. Diagnóstico de peso excesivo del HTML y fix de links de descarga en el footer.
+
+### Archivos commiteados
+- `reports/week-23/SUPPLY_W23.html` — 9.56 MB (corregido desde 13.75 MB)
+- `checkrates/week-23/Analisis_CheckRates_W23.xlsx` — 239 KB
+- `rates-nodispo/week-23/Analisis_RatesNoDispo_W23.xlsx` — 1.16 MB
+
+### Bug cerrado · Scripts de datos duplicados en SUPPLY_WNN.html
+
+**Síntoma:** HTML de W23 pesaba 13.75 MB (W22 pesaba ~7 MB).
+
+**Causa:** `assemble_unified.py` embebía `CR_CV` / `RND_CV` / `CR_D` / `CR_AL` dos veces:
+1. En `p2_cr` y `p2_rnd` incluidos directamente en el body (scripts ~1.9MB y ~2.3MB)
+2. En `FOOTER_JS` vía `_extract_last_script(p2_cr)` y `_extract_last_script(p2_rnd)` (re-emite los mismos datos junto con `demo_js_main.js` + `js_override.js`)
+
+**Fix en `assemble_unified.py`:**
+- Agregada función `_strip_last_script(html)` que elimina el último `<script>…</script>` de un HTML parcial
+- Al incluir `p2_cr` y `p2_rnd` en el body se usa `_strip_last_script()` para no duplicar
+- El script de datos sigue en `FOOTER_JS` (único lugar correcto)
+
+**Ahorro:** ~4.2 MB por semana. W23: 13.75 MB → 9.56 MB.
+
+### Bug cerrado · Links footer Excel devuelven 403 en Netlify
+
+**Síntoma:** Botones "⬇ Excel CheckRates" y "⬇ Excel Rates No Dispo" no descargaban.
+
+**Causa:** Links usaban rutas relativas (`../../checkrates/week-NN/...`). Netlify devuelve **403** al servir `.xlsx` directamente aunque el `netlify.toml` tiene la config correcta.
+
+**Fix en `assemble_unified.py`:**
+```python
+# Antes (ruta relativa → Netlify 403)
+href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx"
+
+# Después (raw.githubusercontent.com → 200 OK)
+href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx"
+```
+Aplica igual para `rates-nodispo`. El fix es permanente — W24+ sale correcto de fábrica.
+
+### Proceso de re-pipeline en Claude (sin datasets locales)
+
+Cuando se corre el pipeline en Claude y no están los pickles W(N-1):
+1. Copiar datasets W(N-1) desde las carpetas del repo (`checkrates/week-NN/`, `rates-nodispo/week-NN/`)
+2. Correr `calc_cr.py` y `calc_rnd.py` con env vars W(N-1) para generar los pickles previos
+3. Luego correr `calc_supply.py` normalmente con los datasets W(N)
+
+Los datasets W21 y W22 están en el repo en sus respectivas carpetas week-NN.
+
+### Lecciones aprendidas
+- `assemble_unified.py` usa `_extract_last_script()` para sacar datos de p2 → siempre stripear p2 antes de incluirlo en el body para no duplicar
+- Netlify 403 en xlsx es estructural — usar siempre `raw.githubusercontent.com` para links de descarga
+- Después de commitear `assemble_unified.py`, verificar que el HTML generado tiene los links correctos antes de asumir que el fix aplicó (el repo clonado puede estar desactualizado)
+- `present_files()` es necesario para que el usuario vea el HTML — no basta con generarlo en outputs
+
+### Scripts modificados
+- `assemble_unified.py` — `_strip_last_script()` + links footer raw.githubusercontent.com
+
