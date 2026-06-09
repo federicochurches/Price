@@ -448,10 +448,10 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P6 | Inventory Channel View · columna `% Gap` junto a `Hoteles` en tabla Third Party | `calc_inv.py` |
+
 | P12 | Filtro cruzado con pills: Corp+Dest+Channel en AND · pills eliminables · aplica en todas las tabs y cards AR | `js_override.js` · `render_cr_p2.py` · `render_rnd_p2.py` |
 
-> Bugs P1–P4, P6–P11 cerrados. B37-B38 cerrados en W23. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
+> Bugs P1–P11 cerrados (P6 cerrado W23: % Gap hoteles en Channel View). B37-B38 cerrados en W23. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
 > 
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
@@ -466,7 +466,6 @@ El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline 
 |---|---|
 | `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
 | `PROMPT_INV.md` | Instrucciones pipeline Inventory |
-| `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
 | `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
 
@@ -487,7 +486,7 @@ Price/
 ### GitHub API — archivos grandes
 - **Archivos > 1MB:** usar siempre Git Tree API (`POST /git/blobs` → `POST /git/trees` → `POST /git/commits` → `PATCH /git/refs/heads/main`)
 - La Contents API (`PUT /contents/`) falla silenciosamente — commit aparece pero contenido queda vacío
-- Afecta: `SUPPLY_WNN.html` (~10MB desde W23), `INVENTORY_WNN.html` (~40MB)
+- Afecta: `SUPPLY_WNN.html` (~10MB desde W23), `INVENTORY_WNN.html` (~12MB desde W23, optimizado de 43MB)
 - **Archivos `.xlsx`:** Netlify devuelve 403 — usar siempre `raw.githubusercontent.com` para links de descarga (ya corregido en `assemble_unified.py` desde W23)
 
 ### Ejecución local desde PowerShell
@@ -521,7 +520,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 08-06-2026
+**Última actualización:** W23 · Junio 2026 · 08-06-2026 (sesión Inventory: drill semanal + optimización 43→12MB)
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 **Pipeline W23:** histórico W16–W23 (8pts) · fix display:table-row filas 6-10 · fix border-bottom rows-more · calc_supply.py pipeline completo 8 pasos
