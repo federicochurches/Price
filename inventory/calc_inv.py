@@ -516,14 +516,14 @@ def ch_active(val):
     except: return False
 
 # Índice dimensional nivel hotel (para filtros de región/corp/tipo — sin duplicar por channel)
-df_dim_hotel = df_hist[['yw','ym','Region_display','Corporativo','TipoHotel','Hotel']].copy()
+df_dim_hotel = df_hist[['yw','ym','Region_display','Corporativo','Destino','TipoHotel','Hotel']].copy()
 df_dim_hotel['corp']    = df_dim_hotel['Corporativo'].where(df_dim_hotel['Corporativo'].isin(top_corps), 'Otros')
 df_dim_hotel['ch_tipo'] = df_dim_hotel['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
 
-dim_hotel_idx = (df_dim_hotel.groupby(['yw','ym','Region_display','corp','ch_tipo'])
+dim_hotel_idx = (df_dim_hotel.groupby(['yw','ym','Region_display','corp','Destino','ch_tipo'])
                  .size().reset_index(name='n').sort_values('yw'))
-dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region'})
+dim_hotel_idx = dim_hotel_idx.rename(columns={'Region_display':'region','Destino':'dest'})
 
 # Índice dimensional nivel channel — COMPACTO (solo yw×ym×ch_tipo×channel, sin región/corp)
 # Reemplaza el antiguo dim_index completo que era O(semanas×regiones×corps×tipos×channels) = gigante
@@ -563,7 +563,7 @@ dim_hotel_rows = dim_hotel_idx.to_dict('records')
 for r in dim_hotel_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
-dim_hotel_compact = [{'w':r['yw'],'m':r['ym'],'r':r['region'],'c':r['corp'],'t':r['ch_tipo'],'n':r['n']} for r in dim_hotel_rows]
+dim_hotel_compact = [{'w':r['yw'],'m':r['ym'],'r':r['region'],'c':r['corp'],'d':r['dest'],'t':r['ch_tipo'],'n':r['n']} for r in dim_hotel_rows]
 
 # Índice por tipo solamente (sin duplicar por corp/región) — para filtro solo-tipo
 # Keys cortas: w=yw, m=ym, t=ch_tipo, n=n
@@ -618,6 +618,12 @@ hist_data = {
     'ritmo_semanal': int(ritmo_nec),
     'target': int(TARGET_PROPIO),
     'actual': int(pp),
+    'actual_by_tipo': {
+        'Solo Propio': int(solo_propio),
+        'Hybrid': int(hybrid),
+        'Third Party': int(solo_terc),
+        'Prod. Propio': int(pp),
+    },
 }
 
 print(f"    Universo: {fmt_n(N)} | PP: {fmt_n(pp)} ({fmt_pct(pct_avance)} avance) | Gap: {fmt_n(gap)} | Ritmo: ~{fmt_n(ritmo_nec)}/sem")
@@ -2025,8 +2031,8 @@ function hAggrByYm(rows) {{
 }}
 
 function hIsFiltered() {{
-  if (hFRegion || hFCorp || hFChannel) return true;
-  if (udActiveFilters && udActiveFilters.some(f=>f.type==='region'||f.type==='corp'||f.type==='channel')) return true;
+  if (hFRegion || hFCorp || hFChannel || hFTipo) return true;
+  if (udActiveFilters && udActiveFilters.some(f=>f.type==='region'||f.type==='corp'||f.type==='channel'||f.type==='tipo')) return true;
   return false;
 }}
 
@@ -2034,51 +2040,112 @@ function hIsFiltered() {{
 let hActiveDrillYw = null;
 function hDrillWeek(yw) {{
   if (!yw) return;
+  _snapTbody();
+  if (hActiveDrillYw === yw) {{ hDrillWeekReset(); return; }}
   hActiveDrillYw = yw;
-  const panel = document.getElementById('hist-week-drill');
-  const title  = document.getElementById('hist-week-drill-title');
-  const body   = document.getElementById('hist-week-drill-body');
-  if (!panel) return;
-
-  // Contar hoteles de esa semana desde dim_hotel (agrupado por tipo)
-  const rows = HIST.dim_hotel.filter(r => (r.w||r.yw) === yw);
-  const byTipo = {{}};
-  rows.forEach(r => {{
-    const t = r.t || r.ch_tipo || '—';
-    byTipo[t] = (byTipo[t] || 0) + r.n;
-  }});
-  const total = Object.values(byTipo).reduce((s,n)=>s+n, 0);
-
-  // Formatear semana label
+  // dim activa actual de la tabla de distribución: 'reg' | 'corp' | 'dest'
+  const dim = (typeof udDim !== 'undefined' && udDim) ? udDim : 'reg';
+  // Filtrar dim_hotel por la semana clickeada (keys compactas: w/m/r/c/d/t/n)
+  const rows = (HIST.dim_hotel || []).filter(r => (r.w||r.yw) === yw);
   const wn = yw.split('-W')[1];
   const yr = yw.split('-W')[0];
-  title.textContent = 'Hoteles nuevos — W' + wn + ' · ' + yr + ' (' + total.toLocaleString('es-MX') + ' contratos)';
+  const label = 'W' + wn + ' · ' + yr;
+  if (!rows.length) {{ hDrillWeekReset(); return; }}
+  _renderDrillTable(rows, label, dim);
+  _renderDrillPill(label);
+  if (hChart) hChart.update();
+}}
 
-  if (total === 0) {{
-    body.innerHTML = '<span style="color:var(--ink-muted);">Sin contratos nuevos esta semana.</span>';
-  }} else {{
-    const TIPO_COLOR = {{'Solo Propio':'var(--green)','Hybrid':'var(--violet,#5C469C)','Third Party':'var(--dgrey,#333132)'}};
-    const order = ['Solo Propio','Hybrid','Third Party'];
-    const pills = order
-      .filter(t => byTipo[t])
-      .map(t => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:11px;font-weight:600;color:${{TIPO_COLOR[t]||'#333'}};">
-        <span style="width:6px;height:6px;border-radius:50%;background:${{TIPO_COLOR[t]||'#333'}};display:inline-block;"></span>
-        ${{t}}: ${{byTipo[t].toLocaleString('es-MX')}}
-      </span>`)
-      .join('');
-    body.innerHTML = pills || '<span>Sin datos</span>';
+function _gapMode() {{
+  // True si la vista SIN CONTRAT (GAP) está activa
+  const gapDiv = document.getElementById('ud-gap-content');
+  return gapDiv && gapDiv.style.display !== 'none';
+}}
+function _drillTbody() {{
+  // Devuelve el tbody visible según el modo
+  return document.getElementById(_gapMode() ? 'gap-tbody' : 'ud-tbody');
+}}
+function _snapTbody() {{
+  const tb = _drillTbody();
+  if (!tb) return;
+  const gm = _gapMode();
+  if (gm && !window._gapTbodyOrig) {{ window._gapTbodyOrig = tb.innerHTML; }}
+  if (!gm && !window._tbodyOrig)    {{ window._tbodyOrig = tb.innerHTML; }}
+}}
+
+function _renderDrillTable(rows, label, dim) {{
+  // Agrupar por la dimensión activa — keys compactas: r=region, c=corp, d=dest, t=ch_tipo
+  const keyMap = {{reg:'r', corp:'c', dest:'d'}};
+  const key = keyMap[dim] || 'r';
+  const agg = {{}};
+  rows.forEach(r => {{
+    const k = r[key] || '—';
+    if (!agg[k]) agg[k] = {{total:0, pp:0, sp:0, hy:0, tp:0}};
+    const t = r.t || r.ch_tipo || '';
+    agg[k].total += r.n;
+    if (t === 'Solo Propio')  {{ agg[k].sp += r.n; agg[k].pp += r.n; }}
+    if (t === 'Hybrid')       {{ agg[k].hy += r.n; agg[k].pp += r.n; }}
+    if (t === 'Third Party')  agg[k].tp += r.n;
+  }});
+  const sorted = Object.entries(agg).sort((a,b) => b[1].total - a[1].total);
+  const tot = {{total:0,pp:0,sp:0,hy:0,tp:0}};
+  sorted.forEach(([,v]) => {{ tot.total+=v.total; tot.pp+=v.pp; tot.sp+=v.sp; tot.hy+=v.hy; tot.tp+=v.tp; }});
+  const fmt = n => n.toLocaleString('es-MX');
+  const pctBar = (n, t) => {{
+    const p = t ? (n/t*100) : 0;
+    return '<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:'+p.toFixed(1)+'%;background:#4FC3F4"></div></div><span class="pct-val" style="color:#4FC3F4">'+p.toFixed(1)+'%</span></div>';
+  }};
+
+  if (_gapMode()) {{
+    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Sin Directo | Con Directo | % Propio | vs Global
+    const tbody = document.getElementById('gap-tbody');
+    if (!tbody) return;
+    // En GAP: Sin Directo = Third Party (tp), Con Directo = Prod Propio (pp)
+    const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td>'
+      + '<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.tp)+'</td>'
+      + '<td style="color:#6A6A6A;">'+fmt(tot.pp)+'</td>'
+      + '<td>'+pctBar(tot.pp,tot.total)+'</td><td class="td-vs">—</td></tr>';
+    const dataRows = sorted.map(([k,v]) => '<tr><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td>'
+      + '<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.tp)+'</td>'
+      + '<td style="color:#6A6A6A;">'+fmt(v.pp)+'</td>'
+      + '<td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>').join('');
+    tbody.innerHTML = globalRow + dataRows;
+    return;
   }}
 
-  panel.style.display = 'block';
+  // Modo normal: tabla principal → Dimensión | Total | PP | SP | HY | TP | % | vs
+  const tbody = document.getElementById('ud-tbody');
+  if (!tbody) return;
+  const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(tot.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(tot.hy)+'</td><td class="td-tp">'+fmt(tot.tp)+'</td><td>'+pctBar(tot.pp,tot.total)+'</td><td class="td-vs">—</td></tr>';
+  const dataRows = sorted.map(([k,v]) => '<tr><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>').join('');
+  tbody.innerHTML = globalRow + dataRows;
+}}
 
-  // Highlight barra activa en el chart
-  if (hChart) hChart.update();
+function _renderDrillPill(label) {{
+  let container = document.getElementById('hf-active-pills');
+  if (!container) container = document.getElementById('ud-active-pills');
+  if (!container) return;
+  const old = container.querySelector('.drill-pill');
+  if (old) old.remove();
+  const pill = document.createElement('span');
+  pill.className = 'drill-pill';
+  pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1.5px solid #1A6B4A;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1A6B4A;background:#E1F5EE;white-space:nowrap;cursor:pointer;';
+  pill.innerHTML = 'Nuevos '+label+' <span style="cursor:pointer;font-size:11px;margin-left:2px;">×</span>';
+  pill.querySelector('span').addEventListener('click', hDrillWeekReset);
+  container.appendChild(pill);
 }}
 
 function hDrillWeekReset() {{
   hActiveDrillYw = null;
-  const panel = document.getElementById('hist-week-drill');
-  if (panel) panel.style.display = 'none';
+  window._drillYw = null;
+  // Restaurar la tabla principal si fue modificada
+  const tb = document.getElementById('ud-tbody');
+  if (tb && window._tbodyOrig) {{ tb.innerHTML = window._tbodyOrig; window._tbodyOrig = null; }}
+  // Restaurar la tabla GAP si fue modificada
+  const gtb = document.getElementById('gap-tbody');
+  if (gtb && window._gapTbodyOrig) {{ gtb.innerHTML = window._gapTbodyOrig; window._gapTbodyOrig = null; }}
+  const pill = document.querySelector('.drill-pill');
+  if (pill) pill.remove();
   if (hChart) hChart.update();
 }}
 
@@ -2555,7 +2622,7 @@ function hRender() {{
       // Mapa sparse de netnew filtrado (solo hoteles con FechaCreación)
       const dimRows = hGetDim();
       const sparseMap = {{}};
-      dimRows.forEach(r=>{{ sparseMap[r.yw]=(sparseMap[r.yw]||0)+r.n; }});
+      dimRows.forEach(r=>{{ const _k=r.w||r.yw; sparseMap[_k]=(sparseMap[_k]||0)+r.n; }});
       // Acum base = hoteles del subconjunto antes del rango de semanas visible
       const firstYw = refWeeks.length ? refWeeks[0].yw : '';
       const allDim = hAggrByYw(dimRows);
@@ -2563,7 +2630,15 @@ function hRender() {{
       // Acum total del subconjunto filtrado
       const totalInSubset = allDim.length ? allDim[allDim.length-1].acum : 0;
       const inRange = allDim.filter(r=>r.yw >= firstYw).reduce((s,r)=>s+r.netnew,0);
-      let c = before.length ? before[before.length-1].acum : (totalInSubset - inRange);
+      // Si solo hay filtro de tipo (sin región/corp/channel), ajustar base al total real del tipo
+      const _activeR = hFRegion ? [hFRegion] : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
+      const _activeC = hFCorp   ? [hFCorp]   : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
+      const _activeCh = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
+      const _activeTipo = hFTipo;
+      const _onlyTipo = !_activeR.length && !_activeC.length && !_activeCh.length && _activeTipo;
+      const _tipoBase = _onlyTipo && HIST.actual_by_tipo ? (HIST.actual_by_tipo[_activeTipo] || 0) : 0;
+      const _acumBase = _onlyTipo && _tipoBase > 0 ? _tipoBase - inRange : (totalInSubset - inRange);
+      let c = before.length ? before[before.length-1].acum : _acumBase;
 
       // Si no hay netnew histórico pero hay hoteles actuales → línea plana con total actual
       // Fill todas las semanas de referencia con netnew=0 donde no hay datos
@@ -2603,7 +2678,7 @@ function hRender() {{
   const yMax = Math.ceil(Math.max(...acum) * 1.005 / 10) * 10;
 
   // Dynamic gradient — area opacity scales with PP penetration ratio
-  const _ppRatio = 53097 / 309591;
+  const _ppRatio = {pp} / {N};
   const _alphaTop = Math.min(0.42, 0.10 + _ppRatio * 1.6);
   const _grad = ctx.createLinearGradient(0, 0, 0, ctx.canvas.parentElement.offsetHeight || 220);
   const _rgb = '92,70,156'; // violet #5C469C
@@ -2633,7 +2708,7 @@ function hRender() {{
       responsive:true, maintainAspectRatio:false,
       onClick: (evt) => {{
         if (!onClickFn) return;
-        evt.stopPropagation();
+        if (evt.native) evt.native.stopPropagation();
         const els = hChart.getElementsAtEventForMode(evt, 'index', {{intersect:false}}, true);
         onClickFn(evt, els);
       }},
@@ -2822,7 +2897,7 @@ def build_unified_distrib():
           <td class="td-hy" style="opacity:.55;">{fmt_n(hybrid)}</td>
           <td class="td-tp">{fmt_n(solo_terc)}</td>
           <td>{pct_bar_html(pp/N*100,"#4FC3F4")}</td>
-          <td>—</td>
+          <td class="td-vs">—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
@@ -2939,13 +3014,20 @@ def build_channel_tab():
     for r in ch_tercero:
         cls = ' class="residual"' if r['residual'] else ''
         badge = ' <span style="font-size:9px;color:var(--ink-muted)">Residual</span>' if r['residual'] else ''
-        pct_str = f'{r["hoteles"]/N*100:.1f}%' if r["hoteles"] > 0 else '—'
+        pct_h = r["hoteles"]/N*100 if r["hoteles"] > 0 else 0
+        pct_str = f'{pct_h:.1f}%' if r["hoteles"] > 0 else '—'
+        # Barra de % gap de hoteles (mismo patrón visual que destinos)
+        gap_bar = (f'<div style="display:flex;align-items:center;gap:6px;">'
+                   f'<div style="flex:1;height:3px;background:var(--rule,#E8E4DF);border-radius:2px;max-width:60px;">'
+                   f'<div style="height:100%;width:{min(100,pct_h):.0f}%;background:#4FC3F4;border-radius:2px;"></div></div>'
+                   f'<span class="int-val" style="color:#6A6A6A;font-weight:700;">{pct_str}</span></div>')
         ch_safe = r['channel'].replace("'", "\\'")
         t_rows += (f'<tr{cls} style="cursor:pointer" data-channel="{r["channel"]}" onclick="chDrill(\'{ch_safe}\',this)">'
                    f'<td><strong>{r["channel"]}</strong>{badge}</td>'
                    f'<td>{fmt_n(r["hoteles"])}</td>'
+                   f'<td>{gap_bar}</td>'
                    f'<td>{fmt_n(r["destinos"])}</td>'
-                   f'<td style="color:#6A6A6A;font-weight:700;">{pct_str}</td></tr>')
+                   f'<td>{gap_bar}</td></tr>')
 
     return f'''
       <!-- Canal overview: dos columnas lado a lado -->
@@ -2971,7 +3053,7 @@ def build_channel_tab():
             <table class="ch-table" style="width:100%;">
               <thead><tr>
                 <th style="text-align:left;">Channel</th>
-                <th>Hoteles</th><th>Destinos</th><th>% Gap</th>
+                <th>Hoteles</th><th>% Gap</th><th>Destinos</th><th>% Gap</th>
               </tr></thead>
               <tbody id="ch-tercero-tbody">{t_rows}</tbody>
             </table>
@@ -3108,7 +3190,7 @@ def build_gap_tab():
         <th class="th-pp" style="color:#4FC3F4;">Sin Directo</th>
         <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
-        <th>vs Global</th>
+        <th class="th-vs">vs Global</th>
       </tr></thead>
       <tbody id="gap-tbody">
         <tr class="global-row">
@@ -3117,7 +3199,7 @@ def build_gap_tab():
           <td class="td-pp" style="color:#4FC3F4;font-weight:700;">{fmt_n(int(market_tp))}</td>
           <td style="color:#6A6A6A;">{fmt_n(pp)}</td>
           <td>{pct_bar_html(pp/N*100,"var(--green)")}</td>
-          <td>—</td>
+          <td class="td-vs">—</td>
         </tr>
         {reg_rows}
         {corp_rows}{ver_mas_corp}
@@ -3474,6 +3556,11 @@ function _tryInit() {{
         hFTipo = 'Prod. Propio';
         ppBtn2.classList.add('on');
         udContent('pp', ppBtn2);
+        // Registrar en udActiveFilters para que aparezca el chip verde
+        if (udActiveFilters && !udActiveFilters.some(f=>f.type==='tipo')) {{
+          udActiveFilters.push({{type:'tipo', value:'Prod. Propio', el:ppBtn2}});
+        }}
+        if (typeof hRenderActivePills === 'function') hRenderActivePills();
       }}
     }});
   }});
