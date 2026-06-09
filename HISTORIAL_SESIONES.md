@@ -6,6 +6,71 @@
 
 ---
 
+## 📝 Sesión W23 · 08 Jun 2026 · Hotel Inventory — drill semanal + optimización de tamaño
+
+### Contexto
+Fusión de los fixes de W22 con la optimización de tamaño de W23 sobre `calc_inv.py`. El problema raíz: al subir los cambios de peso (W23) se pisaron features de W22. Sesión larga de debugging con múltiples iteraciones. Descubrimiento clave: el "drill por semana que actualiza la tabla de distribución" que se creía perdido **nunca existió** en el `calc_inv.py` de W22fix ni en el HTML de producción W22 — la rama semanal siempre dejaba `onClickFn=null`. El drill real estaba solo en `INVENTORY_W22_FINAL_1.html` (versión que no se había portado al script).
+
+### Cambios aplicados a `calc_inv.py`
+
+**Optimización de tamaño (43MB → 12.4MB):**
+- `HIST.snapshot` (región×corp×dest×tipo×channel×semana, ~80K rows) **eliminado** — era la causa de los 40MB
+- Reemplazado por 3 índices compactos con keys cortas:
+  - `dim_ch` (`w,m,t,ch,n`) — filtrado a últimos 2 años (`df_hist_dim = df_hist[df_hist['year'] >= YEAR_ACTUAL-1]`)
+  - `dim_tipo` (`w,m,t,n`) — para filtro solo-tipo
+  - `dim_hotel` (`w,m,r,c,d,t,n`) — incluye destino, para filtros región/corp/dest + drill
+- `dim_hotel` NO se filtra por año (necesita histórico completo para el acumulado, si no la línea queda plana)
+
+**Drill por semana → tabla de distribución (recuperado de W22_FINAL y portado a keys compactas):**
+- `hDrillWeek(yw)`, `_snapTbody()`, `_renderDrillTable(rows,label,dim)`, `_renderDrillPill(label)`, `hDrillWeekReset()`
+- Click en barra de semana → reescribe `ud-tbody` con hoteles nuevos de esa semana, agrupados por `udDim` (reg/corp/dest), columnas Total/PP/SP/HY/TP
+- Pill "Nuevos WNN ×" en `hf-active-pills`; click en × o re-click en la barra → reset
+- keyMap compacto: `{reg:'r', corp:'c', dest:'d'}`
+
+**Bugs cerrados (B37–B45):**
+- B37: línea plana — `sparseMap[r.yw]` daba undefined (dim compacto usa `w`) → `r.w||r.yw`
+- B38: acum arrancaba en 0 con PROD. PROPIO → `HIST.actual_by_tipo` como base
+- B39: `evt.stopPropagation is not a function` → `evt.native.stopPropagation()`
+- B40: `activeRegions`/`activeTipo` not defined en `hRender` → redefinir local `_activeR/_activeC/_activeCh/_activeTipo`
+- B41: drill semanal a tabla (desarrollo nuevo, no recuperación)
+- B42: `dim_hotel` sin destino → agregado `d`
+- B43: tabla GAP destacaba Con Directo → swap a Sin Directo (cyan)
+- B44: pill PROD. PROPIO verde (`#E1F5EE`/`#1A6B4A`) + activación `_tryInit`
+- B45: tamaño 43→12.4MB
+- B46: pills activas en una fila, verde uniforme; botón menú mantiene color categoría
+- B47: drill-pill verde (era violeta)
+- B48: drill funciona en SIN CONTRAT (`_gapMode`/`_drillTbody` → `gap-tbody`)
+- B49: VS GLOBAL eliminada en TODAS las celdas — header/celda GAP, fila GLOBAL principal, celdas drill (normal+GAP). Regla: toda celda última columna lleva `td-vs`
+- B50/P6: Channel View — columna % Gap junto a Hoteles (barra cyan), ambas columnas % Gap mismo formato
+
+**Limpieza W24:**
+- `_ppRatio` hardcodeado (`53097/309591`) → dinámico `{pp}/{N}`
+- Verificado: ningún `W23` hardcodeado fuera del bloque CONFIG. Para W24 solo cambiar CONFIG (L20-29)
+
+### Aprendizajes
+- **Fixes sobre HTML se pierden al regenerar**: durante la sesión se aplicaron varios fixes directo sobre el HTML que luego no estaban en el script. Regla: todo fix va al `calc_inv.py`, nunca solo al HTML.
+- **El script no regenera si el HTML existe**: hay que `Remove-Item week-NN\INVENTORY_WNN.html` antes de correr.
+- **Verificar versión antes de correr**: `Get-Content calc_inv.py | Select-String "_ppRatio"` — confirma que el archivo reemplazado es el correcto (descargas con mismo nombre pueden quedar cacheadas).
+- **`calc_inv.py` no commitea** — genera HTML local; commit manual via GitHub Desktop (>1MB).
+
+### Archivos modificados
+- `calc_inv.py` (drill + optimización + 9 bugs + _ppRatio dinámico)
+- `PROMPT_INV.md` → v15.0
+- `PROMPT_CORE.md` (tamaño INVENTORY, duplicado eliminado)
+
+### Pendientes
+- Validar drill en ambos modos (normal + SIN CONTRAT) tras última corrida
+- Commit `INVENTORY_W23.html` + `calc_inv.py` via GitHub Desktop
+- Actualizar `README_QUICK.md` con métricas W23 publicadas
+
+### Resueltos en la sesión (detalles visuales finales)
+- Pill PROD. PROPIO: chip verde al cargar (botón menú queda violeta)
+- Pills activas unificadas en una fila, color verde
+- Columna VS GLOBAL eliminada en ambas tablas (principal + GAP)
+- Drill por semana operativo también en modo SIN CONTRAT
+
+---
+
 ## 📝 Sesión W22-pre · Junio 2026 · Hub v2 visual — ajustes finales
 
 ### Contexto
@@ -2346,3 +2411,64 @@ SNAPSHOT_DATE = "9 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 ```
+---
+
+## Sesión W23 Supply · 08–09 Jun 2026
+
+### Contexto
+Commit de outputs W23 generados localmente. Diagnóstico de peso excesivo del HTML y fix de links de descarga en el footer.
+
+### Archivos commiteados
+- `reports/week-23/SUPPLY_W23.html` — 9.56 MB (corregido desde 13.75 MB)
+- `checkrates/week-23/Analisis_CheckRates_W23.xlsx` — 239 KB
+- `rates-nodispo/week-23/Analisis_RatesNoDispo_W23.xlsx` — 1.16 MB
+
+### Bug cerrado · Scripts de datos duplicados en SUPPLY_WNN.html
+
+**Síntoma:** HTML de W23 pesaba 13.75 MB (W22 pesaba ~7 MB).
+
+**Causa:** `assemble_unified.py` embebía `CR_CV` / `RND_CV` / `CR_D` / `CR_AL` dos veces:
+1. En `p2_cr` y `p2_rnd` incluidos directamente en el body (scripts ~1.9MB y ~2.3MB)
+2. En `FOOTER_JS` vía `_extract_last_script(p2_cr)` y `_extract_last_script(p2_rnd)` (re-emite los mismos datos junto con `demo_js_main.js` + `js_override.js`)
+
+**Fix en `assemble_unified.py`:**
+- Agregada función `_strip_last_script(html)` que elimina el último `<script>…</script>` de un HTML parcial
+- Al incluir `p2_cr` y `p2_rnd` en el body se usa `_strip_last_script()` para no duplicar
+- El script de datos sigue en `FOOTER_JS` (único lugar correcto)
+
+**Ahorro:** ~4.2 MB por semana. W23: 13.75 MB → 9.56 MB.
+
+### Bug cerrado · Links footer Excel devuelven 403 en Netlify
+
+**Síntoma:** Botones "⬇ Excel CheckRates" y "⬇ Excel Rates No Dispo" no descargaban.
+
+**Causa:** Links usaban rutas relativas (`../../checkrates/week-NN/...`). Netlify devuelve **403** al servir `.xlsx` directamente aunque el `netlify.toml` tiene la config correcta.
+
+**Fix en `assemble_unified.py`:**
+```python
+# Antes (ruta relativa → Netlify 403)
+href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx"
+
+# Después (raw.githubusercontent.com → 200 OK)
+href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx"
+```
+Aplica igual para `rates-nodispo`. El fix es permanente — W24+ sale correcto de fábrica.
+
+### Proceso de re-pipeline en Claude (sin datasets locales)
+
+Cuando se corre el pipeline en Claude y no están los pickles W(N-1):
+1. Copiar datasets W(N-1) desde las carpetas del repo (`checkrates/week-NN/`, `rates-nodispo/week-NN/`)
+2. Correr `calc_cr.py` y `calc_rnd.py` con env vars W(N-1) para generar los pickles previos
+3. Luego correr `calc_supply.py` normalmente con los datasets W(N)
+
+Los datasets W21 y W22 están en el repo en sus respectivas carpetas week-NN.
+
+### Lecciones aprendidas
+- `assemble_unified.py` usa `_extract_last_script()` para sacar datos de p2 → siempre stripear p2 antes de incluirlo en el body para no duplicar
+- Netlify 403 en xlsx es estructural — usar siempre `raw.githubusercontent.com` para links de descarga
+- Después de commitear `assemble_unified.py`, verificar que el HTML generado tiene los links correctos antes de asumir que el fix aplicó (el repo clonado puede estar desactualizado)
+- `present_files()` es necesario para que el usuario vea el HTML — no basta con generarlo en outputs
+
+### Scripts modificados
+- `assemble_unified.py` — `_strip_last_script()` + links footer raw.githubusercontent.com
+
