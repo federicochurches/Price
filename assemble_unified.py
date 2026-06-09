@@ -105,6 +105,14 @@ def _extract_last_script(html):
     matches = list(_re.finditer(r'<script>(.*?)</script>', html, _re.DOTALL))
     return matches[-1].group(1) if matches else ''
 
+def _strip_last_script(html):
+    """Elimina el último <script>…</script> del HTML (ya embebido en FOOTER_JS)."""
+    matches = list(_re.finditer(r'<script>(.*?)</script>', html, _re.DOTALL))
+    if not matches:
+        return html
+    last = matches[-1]
+    return html[:last.start()] + html[last.end():]
+
 _cr_data_js  = _extract_last_script(p2_cr)
 _rnd_data_js = _extract_last_script(p2_rnd)
 
@@ -802,13 +810,13 @@ final = (
     # ── KPI heroes (se muestran/ocultan con el modo) ──
     + '<div id="w22-kpis-cr">\n'
     + p1_cr + '\n'
-    + p2_cr + '\n'   # severity CR + JSON CR
+    + _strip_last_script(p2_cr) + '\n'   # severity CR (script datos ya en FOOTER_JS)
     + p3_cr + '\n'
     + '</section>\n'  # cierra section-cr (abierta por p1_cr)
     + '</div>\n'      # cierra w22-kpis-cr
     + '<div id="w22-kpis-rnd" style="display:none;">\n'
     + p1_rnd + '\n'
-    + p2_rnd + '\n'  # severity RND + JSON RND
+    + _strip_last_script(p2_rnd) + '\n'  # severity RND (script datos ya en FOOTER_JS)
     + p3_rnd + '\n'
     + '</section>\n'  # cierra section-rnd (abierta por p1_rnd)
     + '</div>\n'      # cierra w22-kpis-rnd
