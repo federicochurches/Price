@@ -44,10 +44,12 @@ Price/
 
 | Métrica | Valor | WoW |
 |---|---|---|
-| RND %NoDispo | — | — |
-| RND IPM | — | — |
-| CR Eficacia | — | — |
-| CR ConvRate | — | — |
+| RND %NoDispo | 2.87% | +0.28pp |
+| RND IPM | $534 | — |
+| CR Eficacia | 94.53% | — |
+| CR ConvRate | 0.84% | — |
+| INV Producto Propio | 58.966 (18.6%) | — |
+| INV Gap 2026 | 11.034 | avance 84.2% |
 
 🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W23](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html) · [CR](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-rnd)
 
@@ -106,7 +108,7 @@ Price/
 
 ---
 
-**Última actualización:** Junio 2026 · W23
+**Última actualización:** 09-06-2026 · W23 (sesión Inventory + run_inv.py)
 
 ---
 
@@ -223,4 +225,28 @@ Si el resultado es `0/N` → el pickle fue generado con un orden incorrecto.
 **Fixes en este release:**
 - `assemble_unified.py`: `_strip_last_script()` elimina duplicación de scripts CR_CV/RND_CV
 - Links footer Excel → `raw.githubusercontent.com` (Netlify 403 resuelto)
+
+---
+
+### W23 · Hotel Inventory · publicado 09-06-2026
+| Métrica | Valor |
+|---|---|
+| INVENTORY_W23.html | 12.1 MB (optimizado de 44 MB) |
+| Universo con contrato | 317.168 |
+| Producto Propio | 58.966 (18.6%) — Solo Propio 4.794 · Hybrid 54.172 |
+| Third Party | 258.202 |
+| Gap 2026 | 11.034 (avance 84.2%, ritmo ~380/sem) |
+| Destinos | 11.672 |
+
+🔗 [Inventory W23](https://federicochurches.github.io/Price/inventory/week-23/INVENTORY_W23.html)
+
+**Fixes/cambios en este release:**
+- Optimización 44→12 MB: `HIST.snapshot` eliminado, reemplazado por 3 índices compactos (`dim_ch`, `dim_tipo`, `dim_hotel`)
+- Drill por semana → tabla de distribución (funciona en modo normal y SIN CONTRAT)
+- Columna `% Gap` junto a Hoteles en Channel View (cierra P6)
+- Columna VS GLOBAL eliminada en todas las tablas
+- Pills activas unificadas en una fila (verde)
+- **`run_inv.py` (nuevo):** wrapper que valida entorno/versión/tamaño y commitea por Git Tree API. Uso: `cd inventory && python run_inv.py --commit`
+
+**⚠️ Aprendizaje W23:** GitHub Desktop falla silenciosamente con archivos grandes (subió 44 MB en vez de 12 MB). Para `INVENTORY_WNN.html` usar siempre `run_inv.py --commit` (Git Tree API).
 
