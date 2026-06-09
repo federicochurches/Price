@@ -21,6 +21,15 @@ VOL_NUM   = os.getenv('VOL_NUM', '23')
 PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
 PICKLE_CR  = os.getenv('PICKLE_CR',  f'cr_w{VOL_NUM}_data.pkl')
 
+# ── Inventory — completar cada semana (igual que PERIODO/VOL_NUM) ──────────
+INV_PP         = 0        # Producto Propio esta semana
+INV_PP_PREV    = 0        # PP semana anterior (0 = omitir WoW)
+INV_GAP        = 0        # Gap al target
+INV_PCT_AVANCE = 0.0      # % avance, ej. 75.9
+INV_RITMO      = 0        # hoteles/sem necesarios
+INV_SEMANAS    = 0        # semanas restantes en 2026
+INV_TARGET     = 70_000   # target anual fijo
+
 # Derivar número de semana
 WEEK_NUM      = WEEK.replace('W','').zfill(2)
 WEEK_NUM_INT  = int(VOL_NUM)
@@ -32,6 +41,8 @@ OUT_FILE    = f'{OUTPUTS_DIR}/Mail_{WEEK}.html'
 
 URL_BASE    = 'https://analytics-desk.netlify.app'
 URL_REPORT  = f'{URL_BASE}/reports/week-{WEEK_NUM}/supply_w{WEEK_NUM}'
+URL_INV     = f'{URL_BASE}/inventory/week-{WEEK_NUM}/INVENTORY_{WEEK}.html'
+HAS_INV     = INV_PP > 0   # False si no se completó el bloque Inventory
 # ─────────────────────────────────────────────────────────────────────────────
 
 with open(PICKLE_RND, 'rb') as f:
@@ -160,6 +171,36 @@ ef_label = _ef_label(cr_ef)
 cv_color, cv_pct_gauge = _cv_banda(cr_cv)
 cv_label = _cv_label(cr_cv)
 
+# ── Pre-cálculo INV ───────────────────────────────────────────────────────────
+if HAS_INV:
+    inv_pct_gauge = min(int(INV_PCT_AVANCE), 100)
+    inv_wow_html  = wow_str(INV_PP - INV_PP_PREV, decimals=0, suffix='') if INV_PP_PREV > 0 else ''
+    inv_section   = f'''
+    <!-- State of PriceTravel Product · Inventory -->
+    <div class="kpi-section">
+      <div class="section-title">
+        <span class="dot dot-inv"></span>
+        State of PriceTravel Product · Inventory
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card inv">
+          <div class="kpi-label">Producto Propio</div>
+          <div class="kpi-value inv-color">{es(INV_PP, 0)}</div>
+          {inv_wow_html}
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{inv_pct_gauge}%;background:#1A6B4A;"></div></div>
+          <div class="kpi-sub">{es(INV_PCT_AVANCE, 1)}% de avance · Target {es(INV_TARGET, 0)} · 2026</div>
+        </div>
+        <div class="kpi-card inv">
+          <div class="kpi-label">Gap al Target</div>
+          <div class="kpi-value inv-red">{es(INV_GAP, 0)}</div>
+          <div class="kpi-sub" style="margin-top:10px;">Ritmo necesario: ~{es(INV_RITMO, 0)} / sem · <strong>{INV_SEMANAS}</strong> sem. restantes</div>
+        </div>
+      </div>
+    </div>'''
+    inv_cta = f'\n      <a href="{URL_INV}" class="cta" style="display:block;margin-top:8px;background:#333132;">→ State of PriceTravel Product {WEEK}</a>'
+else:
+    inv_section = ''
+    inv_cta     = ''
 # ─────────────────────────────────────────────────────────────────────────────
 
 mail_html = f'''<!DOCTYPE html>
@@ -195,6 +236,7 @@ mail_html = f'''<!DOCTYPE html>
   .dot {{ width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }}
   .dot-rnd {{ background: #EA0074; }}
   .dot-cr  {{ background: #5C469C; }}
+  .dot-inv {{ background: #4FC3F4; }}
 
   .kpi-section {{ margin-bottom: 28px; }}
   .kpi-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
@@ -202,10 +244,13 @@ mail_html = f'''<!DOCTYPE html>
   .kpi-card::before {{ content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }}
   .kpi-card.rnd::before {{ background: #EA0074; }}
   .kpi-card.cr::before  {{ background: #5C469C; }}
+  .kpi-card.inv::before {{ background: #4FC3F4; }}
   .kpi-label {{ font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #8A8377; margin-bottom: 5px; }}
   .kpi-value {{ font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: #161616; margin-bottom: 5px; }}
   .kpi-value.rnd-color {{ color: #EA0074; }}
   .kpi-value.cr-color  {{ color: #5C469C; }}
+  .kpi-value.inv-color {{ color: #4FC3F4; }}
+  .kpi-value.inv-red   {{ color: #FF3B30; }}
   .kpi-wow {{ display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 2px; }}
   .wow-down {{ background: #FDE8E8; color: #C0392B; }}
   .wow-up   {{ background: #E2F5E9; color: #1A6B4A; }}
@@ -250,10 +295,10 @@ mail_html = f'''<!DOCTYPE html>
 </div>
 
 <div class="field-label">Asunto</div>
-<div class="field-box subject">Weekly KPIs Supply · {WEEK} · Connectivities &amp; Hotel Availability</div>
+<div class="field-box subject">Weekly KPIs Supply · {WEEK} · Connectivities &amp; Hotel Availability{" &amp; Inventory" if HAS_INV else ""}</div>
 
 <div class="field-label">Preheader</div>
-<div class="field-box">Availability {es(rnd_pct,2)}% NoDispo · IPM ${es(rnd_ipm_w18,0)} · Connectivities Eficacia {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}%</div>
+<div class="field-box">Availability {es(rnd_pct,2)}% NoDispo · IPM ${es(rnd_ipm_w18,0)} · Connectivities Eficacia {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}%{f" · PP {es(INV_PP,0)} hoteles" if HAS_INV else ""}</div>
 
 <hr class="divider">
 
@@ -275,7 +320,7 @@ mail_html = f'''<!DOCTYPE html>
   <div class="mail-body">
 
     <p class="mail-lede">
-      Resumen de KPIs Connectivities + Availability + Conv Rate {WEEK}.
+      Resumen de KPIs Connectivities + Availability + Conv Rate{" + State of PriceTravel Product" if HAS_INV else ""} {WEEK}.
       El detalle completo — incluyendo descarga del Excel con el Top 500 de hoteles — está disponible en el Hub de Supply Optimization.
     </p>
 
@@ -326,12 +371,12 @@ mail_html = f'''<!DOCTYPE html>
         </div>
       </div>
     </div>
-
+    {inv_section}
     <!-- CTA -->
     <div class="cta-section">
       <p>Findings completos, Hoteles, Corporativos, Destinos y Análisis por Canasta en el Hub.
       Desde el reporte podés descargar el <strong>Excel con el Top 500 de hoteles</strong> para cada métrica.</p>
-      <a href="{URL_REPORT}" class="cta">→ Connectivities &amp; Hotel Availability {WEEK}</a>
+      <a href="{URL_REPORT}" class="cta">→ Connectivities &amp; Hotel Availability {WEEK}</a>{inv_cta}
     </div>
 
   </div>
