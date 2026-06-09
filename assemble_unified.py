@@ -105,6 +105,14 @@ def _extract_last_script(html):
     matches = list(_re.finditer(r'<script>(.*?)</script>', html, _re.DOTALL))
     return matches[-1].group(1) if matches else ''
 
+def _strip_last_script(html):
+    """Elimina el último <script>…</script> del HTML (ya embebido en FOOTER_JS)."""
+    matches = list(_re.finditer(r'<script>(.*?)</script>', html, _re.DOTALL))
+    if not matches:
+        return html
+    last = matches[-1]
+    return html[:last.start()] + html[last.end():]
+
 _cr_data_js  = _extract_last_script(p2_cr)
 _rnd_data_js = _extract_last_script(p2_rnd)
 
@@ -802,13 +810,13 @@ final = (
     # ── KPI heroes (se muestran/ocultan con el modo) ──
     + '<div id="w22-kpis-cr">\n'
     + p1_cr + '\n'
-    + p2_cr + '\n'   # severity CR + JSON CR
+    + _strip_last_script(p2_cr) + '\n'   # severity CR (script datos ya en FOOTER_JS)
     + p3_cr + '\n'
     + '</section>\n'  # cierra section-cr (abierta por p1_cr)
     + '</div>\n'      # cierra w22-kpis-cr
     + '<div id="w22-kpis-rnd" style="display:none;">\n'
     + p1_rnd + '\n'
-    + p2_rnd + '\n'  # severity RND + JSON RND
+    + _strip_last_script(p2_rnd) + '\n'  # severity RND (script datos ya en FOOTER_JS)
     + p3_rnd + '\n'
     + '</section>\n'  # cierra section-rnd (abierta por p1_rnd)
     + '</div>\n'      # cierra w22-kpis-rnd
@@ -856,8 +864,8 @@ if (typeof HIST_DATA !== 'undefined') {
 <div class="footer-bar" style="width:100%;margin:40px 0 0;padding:20px 24px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-sizing:border-box;">
   <div class="footer-downloads" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-muted);">Descargas W{VOL_NUM}</span>
-    <a href="../../checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel CheckRates</a>
-    <a href="../../rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel Rates No Dispo</a>
+    <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/Analisis_CheckRates_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel CheckRates</a>
+    <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx" style="font-size:11px;font-weight:700;color:#fff;text-decoration:none;padding:7px 16px;background:var(--ink);border-radius:3px;">⬇ Excel Rates No Dispo</a>
   </div>
   <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
