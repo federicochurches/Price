@@ -95,14 +95,14 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650', 'bookability': '≥ 97%'}.get(metrica, 'Target')
     is_inverted_str = 'true' if is_inverted else 'false'
     
-    return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+    return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica · <span id="hist-{canvas_id}-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
     </span>
   </div>
-  <div style="width:100%;height:88px;"><canvas id="{canvas_id}" style="display:block;width:100%;height:88px;"></canvas></div>
+  <div style="width:100%;height:100px;"><canvas id="{canvas_id}" style="display:block;width:100%;height:100px;"></canvas></div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
@@ -129,7 +129,8 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     <div id="hist-{canvas_id}-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;">{spark_html}</div>
     <div style="position:relative;height:14px;margin-top:2px;">
       {''.join(
-        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:{700 if i==len(semanas)-1 else 400};color:{'var(--ink)' if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
+        f'<span style="position:absolute;left:{i/(len(semanas)-1)*100:.1f}%;transform:translateX(-50%);font-size:7px;font-weight:700;color:{'var(--ink)' if i==len(semanas)-1 else 'var(--ink-muted)'};">{s}</span>'
+        if i == 0 or i == len(semanas)-1 else ''
         for i, s in enumerate(semanas)
       )}
     </div>
@@ -207,7 +208,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (!ctx) return;
     /* W23: fallback de ancho si offsetWidth es 0 (canvas en tab oculto o no medido aún) */
     var _ow = el.offsetWidth || (el.parentElement ? el.parentElement.offsetWidth : 0) || 360;
-    var _oh = el.offsetHeight || 88;
+    var _oh = el.offsetHeight || 100;
     el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
     var W = el.width, H = el.height, n = vals.length;
     var pL=6, pR=30, pT=8, pB=18;  /* padding izq/der/arr/aba — W23: reducido para más ancho útil con 3 cards */
