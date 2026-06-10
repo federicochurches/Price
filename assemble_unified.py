@@ -305,16 +305,64 @@ window._injectHistAttrs = function(tbodyId, rows) {
   };
 })();
 
+/* W23+: Manejar click en filas de cards KPI (EF/CV/BK) para actualizar su histórico global */
+function _handleKpiCardHistClick(e, row, kpiRows) {
+  /* Determinar a qué card pertenece la fila */
+  var card = row.closest('.kpi-card');
+  if (!card) return;
+  var cardId = card.id || '';
+
+  /* Mapear card → canvas histórico global */
+  var cid;
+  if (cardId === 'kpicard-ef') cid = 'hcr-global-ef';
+  else if (cardId === 'kpicard-cv') cid = 'hcr-global-cv';
+  else if (cardId === 'kpicard-bk') cid = 'h-bk-global';
+  else return;
+
+  var label = row.getAttribute('data-hist-label') || '';
+  var w_curr = parseFloat(row.getAttribute('data-hist-w21'));
+  var w_prev = parseFloat(row.getAttribute('data-hist-w20'));
+  if (isNaN(w_curr)) return;
+  if (isNaN(w_prev)) w_prev = w_curr;
+
+  /* Toggle: segundo click en la misma fila → volver a Global */
+  var isSelected = row.getAttribute('data-selected') === '1';
+  kpiRows.querySelectorAll('[data-hist-w21]').forEach(function(r){
+    r.style.background = ''; r.removeAttribute('data-selected');
+  });
+
+  if (isSelected) {
+    document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}}));
+    return;
+  }
+
+  /* Color de acento según card */
+  var accent = cardId === 'kpicard-bk' ? '#333132'
+             : cardId === 'kpicard-cv' ? '#5C469C'
+             : '#5C469C';
+  var accentAlpha = accent === '#333132' ? 'rgba(51,49,50,0.07)' : 'rgba(92,70,156,0.07)';
+
+  row.setAttribute('data-selected', '1');
+  row.style.background = accentAlpha;
+}
+
 /* Listener del panel — captura clicks en w22-th/w22-td, cards AR y channel divs */
 document.addEventListener('click', function(e) {
   var row = e.target.closest ? e.target.closest('[data-hist-w21]') : null;
   if (!row) return;
 
-  /* Determinar contenedor: tbody (tablas) o div canal (ar{n}-chan-div) */
+  /* Determinar contenedor: tbody (tablas), div canal, o .kpi-tab-rows (cards KPI W23+) */
   var tbody = row.closest('tbody');
   var chanDiv = row.closest('[id$="-chan-div"]');
-  var container = tbody || chanDiv;
+  var kpiRows = row.closest('.kpi-tab-rows');
+  var container = tbody || chanDiv || kpiRows;
   if (!container) return;
+
+  /* W23+: Si la fila está en una card KPI (.kpi-tab-rows), manejar aparte */
+  if (kpiRows && !tbody && !chanDiv) {
+    _handleKpiCardHistClick(e, row, kpiRows);
+    return;
+  }
 
   var validIds = ['w22-th','w22-td','ar1-th','ar1-td','ar2-th','ar2-td',
                   'ar1-chan-div','ar2-chan-div'];
@@ -1068,6 +1116,131 @@ if (typeof HIST_DATA !== 'undefined') {
 </script>
 '''
     + GLOBAL_PANEL_SCRIPT
+    + '''
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   OVERRIDE DEFINITIVO DEL TOOLTIP HISTÓRICO (W23+)
+   Reemplaza TODOS los onmousemove de los canvas históricos con una
+   única función que calcula la semana correctamente desde el número
+   real de puntos en VALS_DEF. Corre al final, después de todos los
+   demás bindings, así que gana.
+   ═══════════════════════════════════════════════════════════════════ */
+(function() {
+  /* Semanas base — la última semana es la actual */
+  var SEMANAS_FULL = (typeof _SEMANAS_HIST !== 'undefined' && _SEMANAS_HIST.length)
+    ? _SEMANAS_HIST
+    : ["W16","W17","W18","W19","W20","W21","W22","W23"];
+
+  function _tip() {
+    var t = document.getElementById('w22-canvas-tip');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'w22-canvas-tip';
+      t.style.cssText = 'position:fixed;pointer-events:none;display:none;background:#333132;color:#fff;font-size:10px;font-weight:700;padding:4px 8px;border-radius:3px;z-index:99999;white-space:nowrap;';
+      document.body.appendChild(t);
+    }
+    return t;
+  }
+
+  /* Obtener los valores (vals) de un canvas desde su registro */
+  function _getVals(cid) {
+    /* Prioridad: W22_CANVAS_CFG (tiene los vals actuales tras redibujado) */
+    if (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].vals) {
+      return W22_CANVAS_CFG[cid].vals;
+    }
+    if (typeof HIST_CR !== 'undefined' && HIST_CR[cid] && HIST_CR[cid].vals) return HIST_CR[cid].vals;
+    if (typeof HIST_RND !== 'undefined' && HIST_RND[cid] && HIST_RND[cid].vals) return HIST_RND[cid].vals;
+    return null;
+  }
+
+  function _getMetric(cid) {
+    if (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].metric) {
+      return W22_CANVAS_CFG[cid].metric;
+    }
+    if (cid.indexOf('ipm') > -1) return 'ipm';
+    if (cid.indexOf('cv') > -1 || cid.indexOf('convrate') > -1) return 'convrate';
+    if (cid.indexOf('nd') > -1 || cid.indexOf('nodispo') > -1) return 'nodispo';
+    if (cid.indexOf('bk') > -1) return 'bookability';
+    return 'eficacia';
+  }
+
+  /* Mapear índice de punto → etiqueta de semana.
+     CLAVE: la última semana de SEMANAS_FULL corresponde al ÚLTIMO punto (vals.length-1).
+     Entonces alineamos por la derecha: el punto i corresponde a
+     SEMANAS_FULL[SEMANAS_FULL.length - vals.length + i] */
+  function _semForIndex(i, n) {
+    var offset = SEMANAS_FULL.length - n;
+    var idx = offset + i;
+    if (idx >= 0 && idx < SEMANAS_FULL.length) return SEMANAS_FULL[idx];
+    /* Fallback: contar desde W16 */
+    return 'W' + (16 + i);
+  }
+
+  function _fmtVal(val, metric) {
+    if (metric === 'ipm') {
+      return '$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    return val.toFixed(2) + '%';
+  }
+
+  function _bindCanvas(el) {
+    if (!el || el._tipOverride) return;
+    el._tipOverride = true;
+    var cid = el.id;
+
+    el.addEventListener('mousemove', function(e) {
+      var vals = _getVals(cid);
+      if (!vals || !vals.length) return;
+      var rect = el.getBoundingClientRect();
+      var mx = e.clientX - rect.left;
+      var w = rect.width;
+      var n = vals.length;
+      /* Encontrar el punto más cercano */
+      var best = -1, bestDx = 9999;
+      for (var i = 0; i < n; i++) {
+        var px = (i / (n - 1)) * w;
+        var dx = Math.abs(px - mx);
+        if (dx < bestDx) { bestDx = dx; best = i; }
+      }
+      if (best < 0 || bestDx > 40) { _tip().style.display = 'none'; return; }
+      var metric = _getMetric(cid);
+      var sem = _semForIndex(best, n);
+      var t = _tip();
+      t.textContent = sem + ': ' + _fmtVal(vals[best], metric);
+      t.style.display = 'block';
+      t.style.left = (e.clientX + 12) + 'px';
+      t.style.top = (e.clientY - 30) + 'px';
+      /* Detener otros listeners (los viejos con semanas incorrectas) */
+      e.stopImmediatePropagation();
+    }, true);  /* capture = corre PRIMERO, antes que otros listeners */
+
+    el.addEventListener('mouseleave', function() {
+      var t = document.getElementById('w22-canvas-tip');
+      if (t) t.style.display = 'none';
+    }, true);
+  }
+
+  function _bindAll() {
+    /* Todos los canvas históricos conocidos */
+    var ids = ['hcr-global-ef','hcr-global-cv','h-bk-global','hrnd-global-nd','hrnd-global-ipm',
+               'hcr-panel-ef','hcr-panel-cv','hrnd-panel-nd','hrnd-panel-ipm',
+               'h-bk-panel','h-bk-dim','hcr-dim-ef','hcr-dim-cv'];
+    ids.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) _bindCanvas(el);
+    });
+    /* También cualquier canvas dentro de un módulo histórico */
+    document.querySelectorAll('canvas[id^="h-"], canvas[id^="hcr-"], canvas[id^="hrnd-"]').forEach(_bindCanvas);
+  }
+
+  /* Bind repetido para capturar canvas que se crean tarde */
+  [200, 600, 1200, 2500, 4000].forEach(function(d) { setTimeout(_bindAll, d); });
+  window.addEventListener('load', function() { setTimeout(_bindAll, 300); });
+  if (document.readyState !== 'loading') _bindAll();
+  else document.addEventListener('DOMContentLoaded', _bindAll);
+})();
+</script>
+'''
     + f'''
 <div class="footer-bar" style="width:100%;margin:40px 0 0;padding:20px 24px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-sizing:border-box;">
   <div class="footer-downloads" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">

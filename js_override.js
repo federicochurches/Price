@@ -510,7 +510,90 @@ window.addEventListener('load', function(){
   setTimeout(function(){ var col=cv().col; w22_redrawCanvas(col); }, 500);
 });
 
-/* ── Event delegation para histórico del panel ─────────────────────────── */
+/* ── Event delegation para histórico de las CARDS KPI (EF/CV) ───────────────
+   Las filas de las cards KPI están en .kpi-tab-rows (divs, no tbody).
+   Click en una fila → actualiza el canvas histórico GLOBAL de esa card con
+   la serie de ese destino/corp/hotel. */
+document.addEventListener('click', function(e) {
+  var row = e.target.closest('[data-row-idx][data-hist-label]');
+  if (!row) return;
+  /* La fila debe estar en una kpi-tab-rows (no en tbody AR) */
+  var kpiRows = row.closest('.kpi-tab-rows');
+  if (!kpiRows) return;
+  /* Encontrar la card contenedora (kpicard-ef / kpicard-cv) */
+  var card = row.closest('.kpi-card');
+  if (!card || !card.id) return;
+  var cardId = card.id;
+  if (cardId !== 'kpicard-ef' && cardId !== 'kpicard-cv') return;
+
+  var label  = row.getAttribute('data-hist-label') || '';
+  var w21str = row.getAttribute('data-hist-w21') || '';
+  var w20str = row.getAttribute('data-hist-w20') || '';
+
+  /* Highlight de la fila seleccionada */
+  kpiRows.querySelectorAll('[data-row-idx]').forEach(function(r){ r.style.background = ''; });
+  row.style.background = 'var(--accent-soft)';
+
+  /* Canvas global de esta card */
+  var canvasId = (cardId === 'kpicard-cv') ? 'hcr-global-cv' : 'hcr-global-ef';
+  var cfg = (typeof HIST_CR !== 'undefined') ? HIST_CR[canvasId] : null;
+  if (!cfg) return;
+
+  function parseVal(s) {
+    if (!s || s === '—') return null;
+    var n = parseFloat(String(s).replace(/[^\d,.\-]/g,'').replace(',','.'));
+    return isNaN(n) ? null : n;
+  }
+  var vCur = parseVal(w21str);  /* data-hist-w21 = valor de la semana actual de ese item */
+  if (vCur === null) return;
+
+  /* Nueva serie: histórico base + valor del item como último punto */
+  var baseVals = cfg.vals.slice();
+  var newVals = baseVals.slice(0, -1).concat([vCur]);
+
+  /* Disparar evento hist-update para que historico_module redibuje */
+  document.dispatchEvent(new CustomEvent('hist-update', {
+    detail: { cid: canvasId, w_curr: vCur, w_prev: parseVal(w20str), label: label }
+  }));
+
+  /* También actualizar el label visible */
+  var labelEl = document.getElementById('hist-' + canvasId + '-label');
+  if (labelEl) labelEl.textContent = label;
+});
+
+/* ── Event delegation para histórico de la card BOOKABILITY ────────────────
+   Las filas BK (.bk-row) tienen data-lbl, data-bk (fracción 0-1), data-bk-wow.
+   Click → actualiza el canvas h-bk-global con el BK% de ese item. */
+document.addEventListener('click', function(e) {
+  /* No disparar si el click fue en un header de sort */
+  if (e.target.closest('[data-sort-key]')) return;
+  var row = e.target.closest('.bk-row');
+  if (!row) return;
+  var bkCard = document.getElementById('kpicard-bk');
+  if (!bkCard || !bkCard.contains(row)) return;
+
+  var label = row.getAttribute('data-lbl') || '';
+  var bkFrac = parseFloat(row.getAttribute('data-bk') || '0');  /* fracción 0-1 */
+  var bkWow = parseFloat(row.getAttribute('data-bk-wow') || '0');  /* delta pp en fracción */
+  if (isNaN(bkFrac)) return;
+
+  var bkPct = bkFrac * 100;  /* convertir a % */
+  var bkPrev = bkPct - (bkWow * 100);  /* valor de la semana anterior */
+
+  /* Highlight */
+  bkCard.querySelectorAll('.bk-row').forEach(function(r){ r.style.background = ''; });
+  row.style.background = 'var(--accent-soft)';
+
+  /* Disparar hist-update para el canvas BK */
+  document.dispatchEvent(new CustomEvent('hist-update', {
+    detail: { cid: 'h-bk-global', w_curr: bkPct, w_prev: bkPrev, label: label }
+  }));
+
+  var labelEl = document.getElementById('hist-h-bk-global-label');
+  if (labelEl) labelEl.textContent = label;
+});
+
+/* ── Event delegation para histórico del panel (cards AR — tbody) ──────────── */
 document.addEventListener('click', function(e) {
   var tr = e.target.closest('tr[data-hist-label]');
   if (!tr) return;

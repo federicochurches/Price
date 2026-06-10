@@ -647,7 +647,7 @@ def render_kpi_card_bookability():
                 f'data-trx-wow="{_trx_wow_v:.4f}" '
                 f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
                 f'style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
-                f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
+                f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                 f'<div style="min-width:0;overflow:hidden;">'
                 f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
                 f'font-weight:600;font-size:11px;color:var(--ink);display:block;">{lbl}</span>'
