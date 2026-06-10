@@ -279,7 +279,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
@@ -428,7 +428,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''
@@ -747,7 +747,7 @@ def render_kpi_card_bookability():
         f'{gauge}'
         f'{wow_block}'
         f'<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_lbl}</div>'
-        f'<div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{_sb}</div>'
+        f'<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{_sb}</div>'
         f'<div id="kpi-bk-panels" class="tab-panels">{panels}</div>'
         f'{hist_bk}'
         f'</div>'

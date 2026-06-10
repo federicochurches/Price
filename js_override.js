@@ -899,6 +899,20 @@ function w22_renderCardTabs(canasta){
       +'</div>';
     if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
   });
+  
+  /* W23+: Attach sort listeners después de renderizar tabs */
+  ['ef','cv'].forEach(function(metric){
+    var suffix = metric==='ef' ? '-ef-' : '-cv-';
+    ['destino','corp','hotel'].forEach(function(tkey){
+      var radioEl = document.getElementById('tab'+suffix+tkey);
+      if (!radioEl) return;
+      var card = radioEl.closest('.kpi-card');
+      if (!card) return;
+      var allRows = (tabs[metric]||{})[tkey]||[];
+      if (!allRows.length) return;
+      _kpiSortAttach(card, tkey, metric, allRows);
+    });
+  });
 }
 
 /* ═══ Función unificada de fila de canal — usada en KPI cards y AR cards (P10) ═══
@@ -2263,5 +2277,71 @@ function ar3_showMore() {
   var stripBK = document.getElementById('w22-strip-bk'); if (stripBK) stripBK.textContent = d.bk;
   var arStripBK = document.getElementById('ar-strip-bk'); if (arStripBK) arStripBK.textContent = d.bk;
 
+  /* W23+: actualizar badges de severidad individuales para cada métrica */
+  function _updateBandBadge(badgeId, val, metric) {
+    var el = document.getElementById(badgeId);
+    if (!el) return;
+    /* getBanda devuelve banda según métrica */
+    var banda = _getBandaForMetric(val, metric);
+    var colors = {
+      'Exitosa': {bg:'#E1F5EE', fg:'#1A6B4A'},
+      'Aceptable': {bg:'#FEF9C3', fg:'#7B6F00'},
+      'Revisar': {bg:'#FED7AA', fg:'#C2410C'},
+      'Crítica': {bg:'#FCCDD9', fg:'#99162B'},
+      'Súper Crítica': {bg:'#FFCCCC', fg:'#D32F2F'},
+      'Sin Conversión': {bg:'#F5F5F5', fg:'#666'},
+    };
+    var c = colors[banda] || {bg:'#F5F5F5', fg:'#666'};
+    el.textContent = banda;
+    el.style.background = c.bg;
+    el.style.color = c.fg;
+  }
+
+  function _getBandaForMetric(val, metric) {
+    var pct = val / 100;
+    if (metric === 'eficacia' || metric === 'bookability') {
+      if (pct >= 0.97) return 'Exitosa';
+      if (pct >= 0.93) return 'Aceptable';
+      if (pct >= 0.85) return 'Revisar';
+      if (pct >= 0.60) return 'Crítica';
+      return 'Súper Crítica';
+    }
+    if (metric === 'convrate') {
+      if (pct === 0) return 'Sin Conversión';
+      if (pct < 0.008) return 'Crítica';
+      if (pct < 0.015) return 'Revisar';
+      if (pct <= 0.025) return 'Aceptable';
+      return 'Exitosa';
+    }
+    if (metric === 'nodispo') {
+      pct = val / 100;
+      if (pct < 0.03) return 'Exitosa';
+      if (pct <= 0.05) return 'Aceptable';
+      if (pct <= 0.20) return 'Revisar';
+      if (pct <= 0.60) return 'Crítica';
+      return 'Súper Crítica';
+    }
+    return 'Aceptable';
+  }
+
+  /* Actualizar badges individuales */
+  _updateBandBadge('w22-strip-ef-band', d.ef, 'eficacia');
+  _updateBandBadge('w22-strip-cv-band', d.cv, 'convrate');
+  _updateBandBadge('w22-strip-bk-band', d.bk, 'bookability');
+  _updateBandBadge('ar-strip-ef-band', d.ef, 'eficacia');
+  _updateBandBadge('ar-strip-cv-band', d.cv, 'convrate');
+  _updateBandBadge('ar-strip-bk-band', d.bk, 'bookability');
+
   ar3_renderTable('prov', 'crit');
+  
+  /* W23+: Listeners para tabs BK — redibujar histórico al cambiar */
+  ['destino', 'corp', 'hotel', 'channel'].forEach(function(t) {
+    var radio = document.getElementById('tab-bk-' + t);
+    if (radio) {
+      radio.addEventListener('change', function() {
+        /* El canvas del histórico se dibuja dinámicamente via historico_module.js */
+        /* No hay acción necesaria aquí — el HTML ya tiene el canvas correcto */
+      });
+    }
+  });
 })();

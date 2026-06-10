@@ -145,35 +145,35 @@ _M_cr  = _D_cr.get('M', {})
 _M_rnd = _D_rnd.get('M', {})
 
 _HIST_CR_PY = {
-    'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-panel-cv':  {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'hcr-dim-cv':    {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get('global_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get('global_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get('B2B (OP)_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-op-cv':       {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get('B2B (OP)_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-cug-ef':      {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get('CUG (UOP)_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-cug-cv':      {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get('CUG (UOP)_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
-    'h-b2c-ef':      {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get('B2C_w22',{}).get('eficacia',0)*100,2)), 'target': 97.0},
-    'h-b2c-cv':      {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get('B2C_w22',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-global-ef': {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-global-cv': {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-panel-ef':  {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-panel-cv':  {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'hcr-dim-ef':    {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'hcr-dim-cv':    {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-global-ef':   {'vals': _hist_vals('cr','eficacia','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-global-cv':   {'vals': _hist_vals('cr','convrate','global', round(_M_cr.get(f'global_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-op-ef':       {'vals': _hist_vals('cr','eficacia','op',     round(_M_cr.get(f'B2B (OP)_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-op-cv':       {'vals': _hist_vals('cr','convrate','op',     round(_M_cr.get(f'B2B (OP)_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-cug-ef':      {'vals': _hist_vals('cr','eficacia','cug',    round(_M_cr.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-cug-cv':      {'vals': _hist_vals('cr','convrate','cug',    round(_M_cr.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
+    'h-b2c-ef':      {'vals': _hist_vals('cr','eficacia','b2c',    round(_M_cr.get(f'B2C_w{VOL_NUM}',{}).get('eficacia',0)*100,2)), 'target': 97.0},
+    'h-b2c-cv':      {'vals': _hist_vals('cr','convrate','b2c',    round(_M_cr.get(f'B2C_w{VOL_NUM}',{}).get('conv_rate',0)*100,2)), 'target': 2.5},
 }
 
 _HIST_RND_PY = {
-    'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get('global_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get('global_w22',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get('B2B (OP)_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get('B2B (OP)_w22',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get('CUG (UOP)_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get('CUG (UOP)_w22',{}).get('rpm',0),0)), 'target': 650.0},
-    'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get('B2C_w22',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get('B2C_w22',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get(f'B2B (OP)_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get(f'B2B (OP)_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
+    'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get(f'B2C_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
+    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get(f'B2C_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
 }
 
 _HIST_CR_BY_CANASTA_PY = {
@@ -668,25 +668,24 @@ SWITCHER = f'''<div style="padding-top:10px;">
     <div class="c-chip" id="chip-cug"    onclick="w22_setC('cug',this)">Ultra Opaco</div>
   </div>
   <div class="cfb-kpi">
-    <div class="cfb-kpi-item">
+    <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl1">Eficacia</div>
       <div class="cfb-kpi-val" id="w22-strip-ef" style="color:#5C469C;">—</div>
+      <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item">
+    <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl2">Conv Rate</div>
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
+      <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item" id="w22-strip-bk-item">
+    <div class="cfb-kpi-item" id="w22-strip-bk-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl">Bookability</div>
       <div class="cfb-kpi-val" id="w22-strip-bk" style="color:#333132;">—</div>
+      <span class="sev-badge" id="w22-strip-bk-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
     </div>
     <div class="cfb-sep" id="w22-strip-bk-sep"></div>
-    <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl" id="w22-strip-sev-lbl">Severity Eficacia</div>
-      <span class="sev-badge" id="w22-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
-    </div>
   </div>
 </div>
 </div>'''
