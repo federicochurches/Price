@@ -325,19 +325,16 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   function buildSerie(w_c, w_p) {{ var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }}
   
   function attachListeners() {{
+    /* Solo maneja click en el label del histórico para volver a Global.
+       La selección de filas la maneja js_override document-level listener
+       que dispara hist-update/hist-reset correctamente. */
     var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
     if (!card) return;
-    function resetToGlobal() {{ card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background = ''; r.removeAttribute('data-selected'); }}); drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); }}
-    card.addEventListener('click', function(e) {{
-      if (e.target.id === 'hist-'+CID+'-label') {{ resetToGlobal(); return; }}
-      var row = e.target.closest('[data-hist-w21]');
-      if (!row) return;
-      if (row.getAttribute('data-selected') === '1') {{ resetToGlobal(); return; }}
-      var w21 = parseFloat(row.getAttribute('data-hist-w21')), w20 = parseFloat(row.getAttribute('data-hist-w20') || w21), lbl = row.getAttribute('data-hist-label') || '';
-      if (isNaN(w21)) return;
-      card.querySelectorAll('[data-hist-w21]').forEach(function(r) {{ r.style.background = ''; r.removeAttribute('data-selected'); }});
-      row.setAttribute('data-selected','1'); row.style.background = 'var(--accent-soft)';
-      var s = buildSerie(w21, isNaN(w20) ? w21 : w20); drawCanvas(s); updateMetrics(s, lbl);
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl) lblEl.addEventListener('click', function() {{
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) {{ r.style.background = ''; r.removeAttribute('data-selected'); }});
+      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
+      lblEl.textContent = 'Global';
     }});
   }}
   
