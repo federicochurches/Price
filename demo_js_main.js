@@ -497,7 +497,7 @@ function w22_redrawCanvas(accent){
    ctx.beginPath();ctx.arc(pts[i].x,pts[i].y,last?3.5:2.5,0,2*Math.PI);ctx.fill();
   }
   /* Bind tooltip */
-  var tipCfg={vals:cfg.vals,semanas:['W17','W18','W19','W20','W21'],metric:cid.indexOf('cv')>-1?'convrate':cid.indexOf('ipm')>-1?'ipm':cid.indexOf('nd')>-1?'nodispo':'eficacia'};
+  var tipCfg={vals:cfg.vals,semanas:(typeof _SEMANAS_HIST!=='undefined'?_SEMANAS_HIST:cfg.vals.map(function(_,i){return 'W'+(16+i);})),metric:cid.indexOf('cv')>-1?'convrate':cid.indexOf('ipm')>-1?'ipm':cid.indexOf('nd')>-1?'nodispo':'eficacia'};
   w22_bindCanvasTip(el,cid,tipCfg,pts);
  });
 }
@@ -510,7 +510,7 @@ setTimeout(function(){
  Object.keys(HIST_CR).forEach(function(cid){
   var el=document.getElementById(cid);if(!el)return;
   var cfg=HIST_CR[cid];
-  var tipCfg={vals:cfg.vals,semanas:['W17','W18','W19','W20','W21'],
+  var tipCfg={vals:cfg.vals,semanas:(typeof _SEMANAS_HIST!=='undefined'?_SEMANAS_HIST:cfg.vals.map(function(_,i){return 'W'+(16+i);})),
    metric:cid.indexOf('cv')>-1?'convrate':'eficacia'};
   function rebind(){
    var w=el.offsetWidth||400,hh=76,lh=hh-10;
