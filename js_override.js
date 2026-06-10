@@ -476,12 +476,16 @@ function _patchCanvasTooltips() {
         if (dx < bestDx) { bestDx = dx; best = i; }
       });
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
-      var sems = cfg.semanas || _SEMANAS_HIST;
+      /* SIEMPRE usar _SEMANAS_HIST — todos los canvas comparten las mismas 8 semanas (W16-W23).
+         cfg.semanas puede estar desfasado por timing de registro, así que lo ignoramos. */
+      var sems = (_SEMANAS_HIST && _SEMANAS_HIST.length === vals.length) ? _SEMANAS_HIST
+               : (cfg.semanas && cfg.semanas.length === vals.length ? cfg.semanas : _SEMANAS_HIST);
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
         : val.toFixed(2) + '%';
-      tip.textContent = (sems[best] || ('W' + (17 + best))) + ': ' + fmtVal;
+      var semLabel = sems[best] || ('W' + (16 + best));
+      tip.textContent = semLabel + ': ' + fmtVal;
       tip.style.display = 'block';
       tip.style.left = (e.clientX + 10) + 'px';
       tip.style.top = (e.clientY - 28) + 'px';

@@ -288,7 +288,7 @@ window._injectHistAttrs = function(tbodyId, rows) {
       var best = -1, bestDx = 9999;
       livePts.forEach(function(p,i){ var dx=Math.abs(p.x-mx); if(dx<bestDx){bestDx=dx;best=i;} });
       if (best < 0 || bestDx > 60) { tip.style.display='none'; return; }
-      var sem = tipCfg.semanas ? tipCfg.semanas[best] : ('W'+(17+best));
+      var sem = (tipCfg.semanas && tipCfg.semanas.length === vals.length) ? tipCfg.semanas[best] : (_SEMANAS_HIST[best] || ('W'+(16+best)));
       var val = vals[best];
       var fmtVal = tipCfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
@@ -416,7 +416,7 @@ document.addEventListener('click', function(e) {
         var fmtVal = cfg.metric==='ipm'
           ? ('$'+Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','))
           : val.toFixed(2)+'%';
-        tip.textContent = (sems[best]||('W'+(17+best)))+': '+fmtVal;
+        tip.textContent = (sems[best]||_SEMANAS_HIST[best]||('W'+(16+best)))+': '+fmtVal;
         tip.style.display='block';
         tip.style.left=(e.clientX+10)+'px';
         tip.style.top=(e.clientY-28)+'px';

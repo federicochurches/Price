@@ -441,7 +441,7 @@ function w22_bindCanvasTip(el,cid,cfg,pts){
   var best=-1,bestDx=9999;
   livePts.forEach(function(p,i){var dx=Math.abs(p.x-mx);if(dx<bestDx){bestDx=dx;best=i;}});
   if(best<0||bestDx>40){tip.style.display='none';return;}
-  var sem=liveCfg.semanas?liveCfg.semanas[best]:('W'+(17+best));
+  var sem=(liveCfg.semanas&&liveCfg.semanas.length===vals.length)?liveCfg.semanas[best]:((typeof _SEMANAS_HIST!=='undefined'&&_SEMANAS_HIST[best])||('W'+(16+best)));
   var val=vals[best];
   var fmtVal=liveCfg.metric==='ipm'?('$'+val.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')):val.toFixed(2)+'%';
   tip.textContent=sem+': '+fmtVal;

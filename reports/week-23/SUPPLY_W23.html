@@ -4472,7 +4472,7 @@ function w22_bindCanvasTip(el,cid,cfg,pts){
   var best=-1,bestDx=9999;
   livePts.forEach(function(p,i){var dx=Math.abs(p.x-mx);if(dx<bestDx){bestDx=dx;best=i;}});
   if(best<0||bestDx>40){tip.style.display='none';return;}
-  var sem=liveCfg.semanas?liveCfg.semanas[best]:('W'+(17+best));
+  var sem=(liveCfg.semanas&&liveCfg.semanas.length===vals.length)?liveCfg.semanas[best]:((typeof _SEMANAS_HIST!=='undefined'&&_SEMANAS_HIST[best])||('W'+(16+best)));
   var val=vals[best];
   var fmtVal=liveCfg.metric==='ipm'?('$'+val.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')):val.toFixed(2)+'%';
   tip.textContent=sem+': '+fmtVal;
@@ -5031,12 +5031,16 @@ function _patchCanvasTooltips() {
         if (dx < bestDx) { bestDx = dx; best = i; }
       });
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
-      var sems = cfg.semanas || _SEMANAS_HIST;
+      /* SIEMPRE usar _SEMANAS_HIST — todos los canvas comparten las mismas 8 semanas (W16-W23).
+         cfg.semanas puede estar desfasado por timing de registro, así que lo ignoramos. */
+      var sems = (_SEMANAS_HIST && _SEMANAS_HIST.length === vals.length) ? _SEMANAS_HIST
+               : (cfg.semanas && cfg.semanas.length === vals.length ? cfg.semanas : _SEMANAS_HIST);
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
         : val.toFixed(2) + '%';
-      tip.textContent = (sems[best] || ('W' + (17 + best))) + ': ' + fmtVal;
+      var semLabel = sems[best] || ('W' + (16 + best));
+      tip.textContent = semLabel + ': ' + fmtVal;
       tip.style.display = 'block';
       tip.style.left = (e.clientX + 10) + 'px';
       tip.style.top = (e.clientY - 28) + 'px';
@@ -7121,7 +7125,7 @@ window._injectHistAttrs = function(tbodyId, rows) {
       var best = -1, bestDx = 9999;
       livePts.forEach(function(p,i){ var dx=Math.abs(p.x-mx); if(dx<bestDx){bestDx=dx;best=i;} });
       if (best < 0 || bestDx > 60) { tip.style.display='none'; return; }
-      var sem = tipCfg.semanas ? tipCfg.semanas[best] : ('W'+(17+best));
+      var sem = (tipCfg.semanas && tipCfg.semanas.length === vals.length) ? tipCfg.semanas[best] : (_SEMANAS_HIST[best] || ('W'+(16+best)));
       var val = vals[best];
       var fmtVal = tipCfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
@@ -7249,7 +7253,7 @@ document.addEventListener('click', function(e) {
         var fmtVal = cfg.metric==='ipm'
           ? ('$'+Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','))
           : val.toFixed(2)+'%';
-        tip.textContent = (sems[best]||('W'+(17+best)))+': '+fmtVal;
+        tip.textContent = (sems[best]||_SEMANAS_HIST[best]||('W'+(16+best)))+': '+fmtVal;
         tip.style.display='block';
         tip.style.left=(e.clientX+10)+'px';
         tip.style.top=(e.clientY-28)+'px';
