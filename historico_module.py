@@ -347,18 +347,29 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (el) {{
       var det = el.closest('details');
       if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }});
+      /* Fallback siempre activo: el canvas puede estar en display:none (tab oculto)
+         y el IntersectionObserver nunca dispara en ese caso. Los setTimeout
+         garantizan que se dibuje cuando el usuario abre el tab. */
+      [100, 400, 900].forEach(function(d) {{ setTimeout(function() {{
+        if (!drawn) {{ drawn = true; drawCanvas(currentVals); }}
+      }}, d); }});
       if (typeof IntersectionObserver !== 'undefined') {{
-        var drawn = false;
-        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{ if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }} }}); }}, {{threshold: 0.01}}).observe(el);
-      }} else {{
-        [50, 200, 500, 1000].forEach(function(d) {{ setTimeout(function() {{ drawCanvas(currentVals); }}, d); }});
+        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{
+          if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
+          else if (entry.isIntersecting) {{ requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
+        }}); }}, {{threshold: 0.01}}).observe(el);
       }}
     }}
     document.addEventListener('change', function(e) {{
       if (e.target.type !== 'radio') return;
       var el2 = document.getElementById(CID);
       if (!el2) return;
-      requestAnimationFrame(function() {{ if ((el2.parentElement || {{}}).offsetWidth > 10) drawCanvas(currentVals); }});
+      /* Doble rAF + setTimeout para garantizar layout completo tras cambio de tab */
+      requestAnimationFrame(function() {{ requestAnimationFrame(function() {{
+        var ow = el2.offsetWidth || (el2.parentElement ? el2.parentElement.offsetWidth : 0);
+        if (ow > 10) {{ _lastWidth = ow; drawCanvas(currentVals); }}
+        else {{ setTimeout(function() {{ drawCanvas(currentVals); }}, 80); }}
+      }}); }});
     }});
   }}
   
