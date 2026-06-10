@@ -1065,6 +1065,12 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 (function(){
   var CID = 'hcr-global-ef', IS_INVERTED = false, METRIC = 'eficacia', TARGET = 97.0, BAR_CEIL = 97.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [93.27, 93.58, 93.71, 93.3, 93.34, 93.15, 94.21, 94.53], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
   
   function getBanda(v) {
@@ -1198,6 +1204,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1351,6 +1361,12 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 (function(){
   var CID = 'hcr-global-cv', IS_INVERTED = false, METRIC = 'convrate', TARGET = 2.5, BAR_CEIL = 2.5;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [1.29, 1.15, 1.02, 1.14, 1.63, 1.57, 1.0, 0.84], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
   
   function getBanda(v) {
@@ -1484,6 +1500,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1617,6 +1637,12 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 (function(){
   var CID = 'h-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.4, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#333132', ACCENT_RGB = '51,49,50';
   
   function getBanda(v) {
@@ -1750,6 +1776,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -1841,20 +1871,21 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
 </section>
 
 <script>
-// HIST_DATA: datos históricos CR W17-W21
+// HIST_DATA: datos históricos CR W16-W23 (8 puntos) — sincronizado con historico_data.py
+// El último valor (W23) se agrega dinámicamente; estos son W16-W22 base.
 const HIST_DATA = {
     'cr': {
         'eficacia': {
-            'global': [93.58, 93.71, 93.3,  93.34, 93.15],
-            'op':     [94.03, 94.25, 93.87, 93.96, 93.12],
-            'cug':    [92.69, 92.65, 92.54, 92.28, 92.67],
-            'b2c':    [92.12, 92.18, 91.49, 92.01, 91.89],
+            'global': [93.27, 93.58, 93.71, 93.30, 93.34, 93.15, 94.21],
+            'op':     [93.72, 94.03, 94.25, 93.87, 93.96, 93.81, 94.68],
+            'cug':    [92.38, 92.69, 92.65, 92.54, 92.28, 92.11, 92.74],
+            'b2c':    [91.82, 92.12, 92.18, 91.49, 92.01, 91.88, 92.41],
         },
         'convrate': {
-            'global': [1.15, 1.02, 1.14, 1.63, 1.57],
-            'op':     [1.0,  0.94, 1.06, 1.59, 1.51],
-            'cug':    [2.38, 1.82, 2.07, 2.90, 2.84],
-            'b2c':    [0.3,  0.27, 0.25, 0.39, 0.36],
+            'global': [1.29, 1.15, 1.02, 1.14, 1.63, 1.57, 1.00],
+            'op':     [1.12, 1.00, 0.94, 1.06, 1.59, 1.52, 0.92],
+            'cug':    [2.65, 2.38, 1.82, 2.07, 2.90, 2.74, 2.12],
+            'b2c':    [0.33, 0.30, 0.27, 0.25, 0.39, 0.36, 0.28],
         },
     },
 };
@@ -2696,6 +2727,12 @@ window.HIST_DATA['rnd'] = {
 (function(){
   var CID = 'hcr-panel-ef', IS_INVERTED = false, METRIC = 'eficacia', TARGET = 97.0, BAR_CEIL = 97.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [93.27, 93.58, 93.71, 93.3, 93.34, 93.15, 94.21, 94.53], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
   
   function getBanda(v) {
@@ -2766,7 +2803,7 @@ window.HIST_DATA['rnd'] = {
     var anchor_min = i_min, anchor_max = i_max;
     if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
     if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.25;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
     var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
     var dR = canvas_max - canvas_min + 0.0001;
     var xOf = function(i) { return pL + (i/(n-1))*cw; };
@@ -2829,6 +2866,10 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -2961,6 +3002,12 @@ window.HIST_DATA['rnd'] = {
 (function(){
   var CID = 'hrnd-panel-nd', IS_INVERTED = true, METRIC = 'nodispo', TARGET = 0.05, BAR_CEIL = 0.6;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [3.69, 3.63, 2.84, 2.31, 2.59, 2.63, 2.61, 2.87], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#EA0074', ACCENT_RGB = '234,0,116';
   
   function getBanda(v) {
@@ -3031,7 +3078,7 @@ window.HIST_DATA['rnd'] = {
     var anchor_min = i_min, anchor_max = i_max;
     if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
     if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.25;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
     var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
     var dR = canvas_max - canvas_min + 0.0001;
     var xOf = function(i) { return pL + (i/(n-1))*cw; };
@@ -3094,6 +3141,10 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3301,6 +3352,12 @@ window.HIST_DATA['rnd'] = {
 (function(){
   var CID = 'hcr-panel-cv', IS_INVERTED = false, METRIC = 'convrate', TARGET = 2.5, BAR_CEIL = 2.5;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [1.29, 1.15, 1.02, 1.14, 1.63, 1.57, 1.0, 0.84], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
   
   function getBanda(v) {
@@ -3371,7 +3428,7 @@ window.HIST_DATA['rnd'] = {
     var anchor_min = i_min, anchor_max = i_max;
     if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
     if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.25;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
     var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
     var dR = canvas_max - canvas_min + 0.0001;
     var xOf = function(i) { return pL + (i/(n-1))*cw; };
@@ -3434,6 +3491,10 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -3566,6 +3627,12 @@ window.HIST_DATA['rnd'] = {
 (function(){
   var CID = 'hrnd-panel-ipm', IS_INVERTED = false, METRIC = 'ipm', TARGET = 650.0, BAR_CEIL = 3000.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [661.0, 574.0, 524.0, 499.0, 677.0, 834.0, 653.0, 534.7], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
   var ACCENT_HEX = '#4FC3F4', ACCENT_RGB = '79,195,244';
   
   function getBanda(v) {
@@ -3636,7 +3703,7 @@ window.HIST_DATA['rnd'] = {
     var anchor_min = i_min, anchor_max = i_max;
     if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
     if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.25;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
     var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
     var dR = canvas_max - canvas_min + 0.0001;
     var xOf = function(i) { return pL + (i/(n-1))*cw; };
@@ -3699,6 +3766,10 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
   
   function updateMetrics(vals, lbl) {
@@ -7530,14 +7601,26 @@ window.bkSort = function(el) {
     return t;
   }
 
-  /* Obtener los valores (vals) de un canvas desde su registro */
+  /* Obtener los valores (vals) de un canvas. PRIORIDAD MÁXIMA: _HIST_CANON
+     (registrado por historico_module con los VALS_DEF correctos de 8 puntos).
+     W22_CANVAS_CFG puede tener datos viejos de 5-7 puntos por demo_js_main. */
   function _getVals(cid) {
-    /* Prioridad: W22_CANVAS_CFG (tiene los vals actuales tras redibujado) */
+    if (typeof window._HIST_CANON !== 'undefined' && window._HIST_CANON[cid] && window._HIST_CANON[cid].vals) {
+      return window._HIST_CANON[cid].vals;
+    }
     if (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].vals) {
       return W22_CANVAS_CFG[cid].vals;
     }
     if (typeof HIST_CR !== 'undefined' && HIST_CR[cid] && HIST_CR[cid].vals) return HIST_CR[cid].vals;
     if (typeof HIST_RND !== 'undefined' && HIST_RND[cid] && HIST_RND[cid].vals) return HIST_RND[cid].vals;
+    return null;
+  }
+
+  /* Obtener las semanas canónicas de un canvas desde _HIST_CANON */
+  function _getSemanas(cid) {
+    if (typeof window._HIST_CANON !== 'undefined' && window._HIST_CANON[cid] && window._HIST_CANON[cid].semanas) {
+      return window._HIST_CANON[cid].semanas;
+    }
     return null;
   }
 
@@ -7556,11 +7639,16 @@ window.bkSort = function(el) {
      CLAVE: la última semana de SEMANAS_FULL corresponde al ÚLTIMO punto (vals.length-1).
      Entonces alineamos por la derecha: el punto i corresponde a
      SEMANAS_FULL[SEMANAS_FULL.length - vals.length + i] */
-  function _semForIndex(i, n) {
+  function _semForIndex(i, n, cid) {
+    /* Si el canvas tiene sus propias semanas registradas y coinciden en longitud, usarlas */
+    var canonSems = cid ? _getSemanas(cid) : null;
+    if (canonSems && canonSems.length === n) {
+      return canonSems[i] || ('W' + (16 + i));
+    }
+    /* Sino, alinear por la derecha: último punto = última semana */
     var offset = SEMANAS_FULL.length - n;
     var idx = offset + i;
     if (idx >= 0 && idx < SEMANAS_FULL.length) return SEMANAS_FULL[idx];
-    /* Fallback: contar desde W16 */
     return 'W' + (16 + i);
   }
 
@@ -7592,12 +7680,22 @@ window.bkSort = function(el) {
       }
       if (best < 0 || bestDx > 40) { _tip().style.display = 'none'; return; }
       var metric = _getMetric(cid);
-      var sem = _semForIndex(best, n);
+      var sem = _semForIndex(best, n, cid);
       var t = _tip();
       t.textContent = sem + ': ' + _fmtVal(vals[best], metric);
       t.style.display = 'block';
-      t.style.left = (e.clientX + 12) + 'px';
-      t.style.top = (e.clientY - 30) + 'px';
+      /* Posicionar el tooltip SOBRE el punto del canvas (no en el cursor) para que
+         siempre quede dentro/cerca de la gráfica, no flotando lejos */
+      var pointX = rect.left + (best / (n - 1)) * w;
+      var pointY = rect.top;  /* arriba del canvas */
+      /* Medir el ancho del tooltip para centrarlo sobre el punto */
+      var tipW = t.offsetWidth || 70;
+      var leftPx = pointX - (tipW / 2);
+      /* Clamp horizontal para no salirse de la pantalla */
+      if (leftPx < 4) leftPx = 4;
+      if (leftPx + tipW > window.innerWidth - 4) leftPx = window.innerWidth - tipW - 4;
+      t.style.left = leftPx + 'px';
+      t.style.top = (pointY - 30) + 'px';
       /* Detener otros listeners (los viejos con semanas incorrectas) */
       e.stopImmediatePropagation();
     }, true);  /* capture = corre PRIMERO, antes que otros listeners */

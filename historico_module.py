@@ -144,6 +144,12 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
 (function(){{
   var CID = '{canvas_id}', IS_INVERTED = {is_inverted_str}, METRIC = '{metrica}', TARGET = {target}, BAR_CEIL = {bar_ceil};
   var SEMANAS = {semanas_json}, VALS_DEF = {vals_json}, BC = {banda_colors_js};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {{
+    if (!window._HIST_CANON) window._HIST_CANON = {{}};
+    window._HIST_CANON[CID] = {{ semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC }};
+  }}
   var ACCENT_HEX = '{accent}', ACCENT_RGB = {f"'{accent_rgb}'" if accent_rgb else 'null'};
   
   function getBanda(v) {{
@@ -214,7 +220,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var anchor_min = i_min, anchor_max = i_max;
     if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
     if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.25;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
     var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
     var dR = canvas_max - canvas_min + 0.0001;
     var xOf = function(i) {{ return pL + (i/(n-1))*cw; }};
@@ -277,6 +283,10 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     }}
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {{vals: vals, semanas: SEMANAS, metric: METRIC}};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {{
+      window._HIST_CANON[CID].vals = vals.slice();
+    }}
   }}
   
   function updateMetrics(vals, lbl) {{

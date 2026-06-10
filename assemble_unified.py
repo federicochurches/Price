@@ -1142,14 +1142,26 @@ if (typeof HIST_DATA !== 'undefined') {
     return t;
   }
 
-  /* Obtener los valores (vals) de un canvas desde su registro */
+  /* Obtener los valores (vals) de un canvas. PRIORIDAD MÁXIMA: _HIST_CANON
+     (registrado por historico_module con los VALS_DEF correctos de 8 puntos).
+     W22_CANVAS_CFG puede tener datos viejos de 5-7 puntos por demo_js_main. */
   function _getVals(cid) {
-    /* Prioridad: W22_CANVAS_CFG (tiene los vals actuales tras redibujado) */
+    if (typeof window._HIST_CANON !== 'undefined' && window._HIST_CANON[cid] && window._HIST_CANON[cid].vals) {
+      return window._HIST_CANON[cid].vals;
+    }
     if (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].vals) {
       return W22_CANVAS_CFG[cid].vals;
     }
     if (typeof HIST_CR !== 'undefined' && HIST_CR[cid] && HIST_CR[cid].vals) return HIST_CR[cid].vals;
     if (typeof HIST_RND !== 'undefined' && HIST_RND[cid] && HIST_RND[cid].vals) return HIST_RND[cid].vals;
+    return null;
+  }
+
+  /* Obtener las semanas canónicas de un canvas desde _HIST_CANON */
+  function _getSemanas(cid) {
+    if (typeof window._HIST_CANON !== 'undefined' && window._HIST_CANON[cid] && window._HIST_CANON[cid].semanas) {
+      return window._HIST_CANON[cid].semanas;
+    }
     return null;
   }
 
@@ -1168,11 +1180,16 @@ if (typeof HIST_DATA !== 'undefined') {
      CLAVE: la última semana de SEMANAS_FULL corresponde al ÚLTIMO punto (vals.length-1).
      Entonces alineamos por la derecha: el punto i corresponde a
      SEMANAS_FULL[SEMANAS_FULL.length - vals.length + i] */
-  function _semForIndex(i, n) {
+  function _semForIndex(i, n, cid) {
+    /* Si el canvas tiene sus propias semanas registradas y coinciden en longitud, usarlas */
+    var canonSems = cid ? _getSemanas(cid) : null;
+    if (canonSems && canonSems.length === n) {
+      return canonSems[i] || ('W' + (16 + i));
+    }
+    /* Sino, alinear por la derecha: último punto = última semana */
     var offset = SEMANAS_FULL.length - n;
     var idx = offset + i;
     if (idx >= 0 && idx < SEMANAS_FULL.length) return SEMANAS_FULL[idx];
-    /* Fallback: contar desde W16 */
     return 'W' + (16 + i);
   }
 
@@ -1204,12 +1221,22 @@ if (typeof HIST_DATA !== 'undefined') {
       }
       if (best < 0 || bestDx > 40) { _tip().style.display = 'none'; return; }
       var metric = _getMetric(cid);
-      var sem = _semForIndex(best, n);
+      var sem = _semForIndex(best, n, cid);
       var t = _tip();
       t.textContent = sem + ': ' + _fmtVal(vals[best], metric);
       t.style.display = 'block';
-      t.style.left = (e.clientX + 12) + 'px';
-      t.style.top = (e.clientY - 30) + 'px';
+      /* Posicionar el tooltip SOBRE el punto del canvas (no en el cursor) para que
+         siempre quede dentro/cerca de la gráfica, no flotando lejos */
+      var pointX = rect.left + (best / (n - 1)) * w;
+      var pointY = rect.top;  /* arriba del canvas */
+      /* Medir el ancho del tooltip para centrarlo sobre el punto */
+      var tipW = t.offsetWidth || 70;
+      var leftPx = pointX - (tipW / 2);
+      /* Clamp horizontal para no salirse de la pantalla */
+      if (leftPx < 4) leftPx = 4;
+      if (leftPx + tipW > window.innerWidth - 4) leftPx = window.innerWidth - tipW - 4;
+      t.style.left = leftPx + 'px';
+      t.style.top = (pointY - 30) + 'px';
       /* Detener otros listeners (los viejos con semanas incorrectas) */
       e.stopImmediatePropagation();
     }, true);  /* capture = corre PRIMERO, antes que otros listeners */
