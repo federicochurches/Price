@@ -1642,50 +1642,65 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
   var isEf = (metricKey === 'ef' || metricKey === 'nd');
   var grid  = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
   var key   = (card.id||'c')+'_'+metricKey+'_'+tkey;
-  /* Si ya tiene listener activo, solo re-renderizar con datos actuales y salir */
+  /* Guardar SIEMPRE las filas actuales para que el listener las use */
+  panel._kpiSortRows = allRows100;
+  panel._kpiSortKey  = key;
+  panel._kpiSortIsEf = isEf;
+  panel._kpiSortGrid = grid;
+  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
+
+  /* Función que aplica el sort activo (o el orden original) y renderiza */
+  function _applySort() {
+    var st = _SS[key];
+    var sorted = allRows100.slice().map(function(r, origIdx){ return {r:r, origPos:origIdx+1}; });
+    if (st.col != null && st.dir && st.dir !== 'orig') {
+      var ri = _KPI_RCOLS_CR[st.col];
+      if (ri != null) {
+        sorted.sort(function(a,b){
+          var va = a.r[ri], vb = b.r[ri];
+          if (ri === 0) {
+            var sa = (va||'').toString(), sb = (vb||'').toString();
+            return st.dir === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
+          }
+          va = _sv(va); vb = _sv(vb);
+          if(va==null&&vb==null) return 0;
+          if(va==null) return 1; if(vb==null) return -1;
+          return st.dir==='asc' ? va-vb : vb-va;
+        });
+      }
+    }
+    _kpiSortRender(panel, sorted, st.col, st.dir, isEf, grid, key, allRows100);
+  }
+  panel._kpiApplySort = _applySort;
+
+  /* Si ya tiene listener activo, solo re-renderizar manteniendo el sort activo */
   if (panel._kpiSortActive) {
-    panel._kpiSortRows = allRows100;
-    _kpiSortRender(panel, allRows100.map(function(r,i){return{r:r,origPos:i+1};}), _SS[key]&&_SS[key].col, _SS[key]&&_SS[key].dir, isEf, grid, key, allRows100);
+    _applySort();
     return;
   }
   panel._kpiSortActive = true;
-  if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
 
   /* Render inicial */
-  var initSorted = allRows100.map(function(r,i){ return {r:r, origPos:i+1}; });
-  _kpiSortRender(panel, initSorted, _SS[key].col, _SS[key].dir, isEf, grid, key, allRows100);
+  _applySort();
 
   /* Event delegation en el panel — UN solo listener permanente */
-  panel.addEventListener('click', function(e) {
-    var sp = e.target.closest('[data-sort-col]');
-    if (!sp) return;
-    /* Asegurar que el click viene de un header de este panel */
-    var rc = panel.querySelector('.kpi-tab-rows');
-    if (!rc || !rc.contains(sp)) return;
-    var i = parseInt(sp.getAttribute('data-sort-col'));
-    var rows = panel._kpiSortRows || allRows100;
-    var rcols = _KPI_RCOLS_CR;
-    if (rcols[i] == null) return;
-    var ri = rcols[i];
-    var st = _SS[key];
-    var dir = (st.col === i) ? _nd(st.dir) : 'asc';
-    _SS[key] = {col:i, dir:dir};
-    var sorted = rows.slice().map(function(r, origIdx){ return {r:r, origPos:origIdx+1}; });
-    if (dir !== 'orig') {
-      sorted.sort(function(a,b){
-        var va = a.r[ri], vb = b.r[ri];
-        if (ri === 0) {
-          var sa = (va||'').toString(), sb = (vb||'').toString();
-          return dir === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
-        }
-        va = _sv(va); vb = _sv(vb);
-        if(va==null&&vb==null) return 0;
-        if(va==null) return 1; if(vb==null) return -1;
-        return dir==='asc' ? va-vb : vb-va;
-      });
-    }
-    _kpiSortRender(panel, sorted, i, dir, isEf, grid, key, rows);
-  });
+  if (!panel._kpiSortListenerAttached) {
+    panel._kpiSortListenerAttached = true;
+    panel.addEventListener('click', function(e) {
+      var sp = e.target.closest('[data-sort-col]');
+      if (!sp) return;
+      var rc = panel.querySelector('.kpi-tab-rows');
+      if (!rc || !rc.contains(sp)) return;
+      var i = parseInt(sp.getAttribute('data-sort-col'));
+      if (_KPI_RCOLS_CR[i] == null) return;
+      var k = panel._kpiSortKey;
+      var st = _SS[k] || {col:null, dir:'orig'};
+      var dir = (st.col === i) ? _nd(st.dir) : 'asc';
+      _SS[k] = {col:i, dir:dir};
+      /* Re-aplicar sort usando la función guardada (siempre usa allRows100 actuales) */
+      if (typeof panel._kpiApplySort === 'function') panel._kpiApplySort();
+    });
+  }
 }
 
 /* Función standalone de render para KPI sort — reutilizable */
