@@ -249,7 +249,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
       ctx.font = '6.5px Geist,system-ui,sans-serif';
       ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), w-2, ty); ctx.textAlign = 'left';
+      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
       ctx.restore();
     }});
     /* Línea target verde */
@@ -262,7 +262,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     ctx.font = 'bold 7px Geist,system-ui,sans-serif';
     ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), w-2, tY); ctx.textAlign = 'left';
+    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
     ctx.restore();
     /* Area fill gradiente en color de la serie */
     ctx.save();
