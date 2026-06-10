@@ -216,7 +216,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var _oh = el.offsetHeight || 100;
     el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
     var W = el.width, H = el.height, n = vals.length;
-    var pL=6, pR=30, pT=8, pB=18;  /* padding izq/der/arr/aba — W23: reducido para más ancho útil con 3 cards */
+    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
     var i_min = Math.min(Math.min.apply(null, vals), TARGET);
@@ -249,7 +249,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
       ctx.font = '6.5px Geist,system-ui,sans-serif';
       ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText(fmtThLabel(t), pL+cw+4, ty);
+      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), w-2, ty); ctx.textAlign = 'left';
       ctx.restore();
     }});
     /* Línea target verde */
@@ -262,7 +262,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     ctx.font = 'bold 7px Geist,system-ui,sans-serif';
     ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(fmtTarget(), pL+cw+4, tY);
+    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), w-2, tY); ctx.textAlign = 'left';
     ctx.restore();
     /* Area fill gradiente en color de la serie */
     ctx.save();
