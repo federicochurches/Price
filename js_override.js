@@ -2397,5 +2397,17 @@ function ar3_showMore() {
 
     /* Estado inicial: mostrar solo destino */
     _activateBKTab('destino');
+
+    /* Event delegation robusto para sort BK — captura clicks en headers [data-sort-key]
+       aunque el onclick inline falle por cualquier razón */
+    bkCard.addEventListener('click', function(e) {
+      var sp = e.target.closest('[data-sort-key]');
+      if (!sp) return;
+      if (!bkCard.contains(sp)) return;
+      /* Llamar bkSort si existe (la función global de assemble_unified) */
+      if (typeof window.bkSort === 'function') {
+        window.bkSort(sp);
+      }
+    });
   })();
 })();
