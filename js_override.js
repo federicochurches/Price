@@ -568,8 +568,8 @@ document.addEventListener('click', function(e) {
 document.addEventListener('click', function(e) {
   var row = e.target.closest('[data-hist-w21]');
   if (!row) return;
-  /* Solo filas dentro de .kpi-tab-rows (no tbody de AR) */
-  if (!row.closest('.kpi-tab-rows')) return;
+  /* Excluir filas de cards AR (tienen data-hist-label en tbody) */
+  if (row.closest('tbody')) return;
   var card = row.closest('.kpi-card');
   if (!card || (card.id !== 'kpicard-ef' && card.id !== 'kpicard-cv')) return;
 

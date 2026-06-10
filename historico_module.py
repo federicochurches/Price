@@ -347,16 +347,14 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (el) {{
       var det = el.closest('details');
       if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }});
+      var drawn = false;
       /* Fallback siempre activo: el canvas puede estar en display:none (tab oculto)
-         y el IntersectionObserver nunca dispara en ese caso. Los setTimeout
-         garantizan que se dibuje cuando el usuario abre el tab. */
+         y el IntersectionObserver nunca dispara en ese caso. */
       [100, 400, 900].forEach(function(d) {{ setTimeout(function() {{
         if (!drawn) {{ drawn = true; drawCanvas(currentVals); }}
       }}, d); }});
       if (typeof IntersectionObserver !== 'undefined') {{
         new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{
-          /* Solo dibujar la primera vez que se hace visible — el else if
-             pisaba la selección activa al re-intersectar tras un click */
           if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
         }}); }}, {{threshold: 0.01}}).observe(el);
       }}
