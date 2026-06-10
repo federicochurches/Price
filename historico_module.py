@@ -341,33 +341,52 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     }});
   }}
   
+  function _tryDraw() {{
+    /* Intentar dibujar — funciona aunque el canvas esté en display:none
+       usando _lastWidth como ancho de referencia si offsetWidth=0 */
+    var el = document.getElementById(CID);
+    if (!el) return false;
+    var ow = el.offsetWidth;
+    if (!ow && el.parentElement) ow = el.parentElement.offsetWidth;
+    if (!ow) ow = _lastWidth;
+    if (!ow) {{
+      /* Subir por el DOM buscando un ancestro con ancho */
+      var p = el.parentElement;
+      while (p && !ow) {{ ow = p.offsetWidth; p = p.parentElement; }}
+    }}
+    if (ow > 10) {{ _lastWidth = ow; drawCanvas(currentVals); return true; }}
+    return false;
+  }}
+
   function init() {{
-    drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); attachListeners();
+    updateMetrics(VALS_DEF, 'Global'); attachListeners();
     var el = document.getElementById(CID);
     if (el) {{
       var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }});
-      var drawn = false;
-      /* Fallback siempre activo: el canvas puede estar en display:none (tab oculto)
-         y el IntersectionObserver nunca dispara en ese caso. */
-      [100, 400, 900].forEach(function(d) {{ setTimeout(function() {{
-        if (!drawn) {{ drawn = true; drawCanvas(currentVals); }}
-      }}, d); }});
+      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ _tryDraw(); }}); }});
+      /* Reintentos crecientes hasta que el canvas tenga ancho real.
+         El canvas está en display:none al inicio — necesitamos esperar
+         a que el usuario lo haga visible o a que el layout esté listo. */
+      var attempts = 0;
+      var delays = [0, 50, 150, 400, 800, 1500, 3000];
+      function _attempt() {{
+        if (_tryDraw()) return;  /* éxito — parar */
+        attempts++;
+        if (attempts < delays.length) setTimeout(_attempt, delays[attempts]);
+      }}
+      setTimeout(_attempt, delays[0]);
+      /* IntersectionObserver como respaldo cuando el canvas se hace visible */
       if (typeof IntersectionObserver !== 'undefined') {{
-        new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{
-          if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
+        new IntersectionObserver(function(entries) {{ entries.forEach(function(entry) {{
+          if (entry.isIntersecting) {{ requestAnimationFrame(function() {{ _tryDraw(); }}); }}
         }}); }}, {{threshold: 0.01}}).observe(el);
       }}
     }}
     document.addEventListener('change', function(e) {{
       if (e.target.type !== 'radio') return;
-      var el2 = document.getElementById(CID);
-      if (!el2) return;
-      /* Doble rAF + setTimeout para garantizar layout completo tras cambio de tab */
+      /* Redibujar al cambiar de tab — usar _tryDraw con doble rAF */
       requestAnimationFrame(function() {{ requestAnimationFrame(function() {{
-        var ow = el2.offsetWidth || (el2.parentElement ? el2.parentElement.offsetWidth : 0);
-        if (ow > 10) {{ _lastWidth = ow; drawCanvas(currentVals); }}
-        else {{ setTimeout(function() {{ drawCanvas(currentVals); }}, 80); }}
+        _tryDraw();
       }}); }});
     }});
   }}
