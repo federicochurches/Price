@@ -202,12 +202,17 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
            (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
   }}
   
+  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
   function drawCanvas(vals) {{
     currentVals = vals;  /* recordar último estado para re-draws automáticos */
-    var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
+    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {{willReadFrequently: false}}) : null;
     if (!ctx) return;
-    /* W23: fallback de ancho si offsetWidth es 0 (canvas en tab oculto o no medido aún) */
-    var _ow = el.offsetWidth || (el.parentElement ? el.parentElement.offsetWidth : 0) || 360;
+    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
+    var _ow = el.offsetWidth;
+    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
+    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
+    if (!_ow) _ow = 360;          /* fallback absoluto */
+    _lastWidth = _ow;             /* guardar para próxima vez */
     var _oh = el.offsetHeight || 100;
     el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
     var W = el.width, H = el.height, n = vals.length;
@@ -361,16 +366,12 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     if (e.detail.cid !== CID) return;
     var s = buildSerie(e.detail.w_curr, e.detail.w_prev);
     var lbl = e.detail.label || '';
-    /* requestAnimationFrame garantiza que el canvas esté en el layout antes de dibujar */
+    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
     requestAnimationFrame(function() {{
-      var el = document.getElementById(CID);
-      /* Si offsetWidth es 0, el canvas no está medido — forzar el ancho del padre */
-      if (el && el.offsetWidth === 0 && el.parentElement) {{
-        el.width = el.parentElement.offsetWidth || 360;
-        el.height = 88;
-      }}
-      drawCanvas(s);
-      updateMetrics(s, lbl);
+      requestAnimationFrame(function() {{
+        drawCanvas(s);
+        updateMetrics(s, lbl);
+      }});
     }});
   }});
   document.addEventListener('hist-reset', function(e) {{
