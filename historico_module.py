@@ -341,20 +341,20 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     }});
   }}
   
+  function _cardWidth() {{
+    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
+    var el = document.getElementById(CID);
+    if (!el) return 0;
+    var p = el.parentElement;
+    while (p) {{ if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }}
+    return 0;
+  }}
+
   function _tryDraw() {{
-    /* Intentar dibujar — funciona aunque el canvas esté en display:none
-       usando _lastWidth como ancho de referencia si offsetWidth=0 */
     var el = document.getElementById(CID);
     if (!el) return false;
-    var ow = el.offsetWidth;
-    if (!ow && el.parentElement) ow = el.parentElement.offsetWidth;
-    if (!ow) ow = _lastWidth;
-    if (!ow) {{
-      /* Subir por el DOM buscando un ancestro con ancho */
-      var p = el.parentElement;
-      while (p && !ow) {{ ow = p.offsetWidth; p = p.parentElement; }}
-    }}
-    if (ow > 10) {{ _lastWidth = ow; drawCanvas(currentVals); return true; }}
+    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
+    if (ow > 50) {{ _lastWidth = ow; drawCanvas(currentVals); return true; }}
     return false;
   }}
 
@@ -363,31 +363,23 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var el = document.getElementById(CID);
     if (el) {{
       var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(function() {{ _tryDraw(); }}); }});
-      /* Reintentos crecientes hasta que el canvas tenga ancho real.
-         El canvas está en display:none al inicio — necesitamos esperar
-         a que el usuario lo haga visible o a que el layout esté listo. */
-      var attempts = 0;
-      var delays = [0, 50, 150, 400, 800, 1500, 3000];
-      function _attempt() {{
-        if (_tryDraw()) return;  /* éxito — parar */
-        attempts++;
-        if (attempts < delays.length) setTimeout(_attempt, delays[attempts]);
-      }}
-      setTimeout(_attempt, delays[0]);
-      /* IntersectionObserver como respaldo cuando el canvas se hace visible */
-      if (typeof IntersectionObserver !== 'undefined') {{
+      if (det) det.addEventListener('toggle', function() {{ if (det.open) requestAnimationFrame(_tryDraw); }});
+      var drawn = false;
+      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
+      var anchor = el.closest('.kpi-card') || el.parentElement;
+      if (typeof IntersectionObserver !== 'undefined' && anchor) {{
         new IntersectionObserver(function(entries) {{ entries.forEach(function(entry) {{
-          if (entry.isIntersecting) {{ requestAnimationFrame(function() {{ _tryDraw(); }}); }}
-        }}); }}, {{threshold: 0.01}}).observe(el);
+          if (entry.isIntersecting) {{ requestAnimationFrame(function() {{ if(_tryDraw()) drawn=true; }}); }}
+        }}); }}, {{threshold: 0.01}}).observe(anchor);
       }}
+      /* Fallback por si el observer no dispara */
+      [300, 800, 2000].forEach(function(d) {{
+        setTimeout(function() {{ if (!drawn && _tryDraw()) drawn = true; }}, d);
+      }});
     }}
     document.addEventListener('change', function(e) {{
       if (e.target.type !== 'radio') return;
-      /* Redibujar al cambiar de tab — usar _tryDraw con doble rAF */
-      requestAnimationFrame(function() {{ requestAnimationFrame(function() {{
-        _tryDraw();
-      }}); }});
+      requestAnimationFrame(function() {{ requestAnimationFrame(_tryDraw); }});
     }});
   }}
   
