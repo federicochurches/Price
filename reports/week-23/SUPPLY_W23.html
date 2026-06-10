@@ -4589,7 +4589,7 @@ w22_redrawCanvas = function(accent){
       /* Bind tooltip RND */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_rnd = cid.indexOf('ipm')>-1?'ipm':'nodispo';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_rnd}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:metric_rnd}, pts);
       }
     });
   }
@@ -4624,7 +4624,7 @@ w22_redrawCanvas = function(accent){
       /* Bind tooltip CR panel */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_cr = cid.indexOf('cv')>-1?'convrate':'eficacia';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_cr}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:metric_cr}, pts);
       }
     });
   }
@@ -5028,7 +5028,7 @@ function _patchCanvasTooltips() {
         if (dx < bestDx) { bestDx = dx; best = i; }
       });
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
-      var sems = cfg.semanas || ['W16','W17','W18','W19','W20','W21','W22'];
+      var sems = cfg.semanas || _SEMANAS_HIST;
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
@@ -7082,6 +7082,9 @@ window._injectHistAttrs = function(tbodyId, rows) {
 };
 
 /* Patch w22_bindCanvasTip — recalcular pts con ancho real en cada mousemove */
+/* Variables globales de semanas históricas — W16..W{VOL_NUM} */
+var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
+
 /* Esto debe estar en script global para acceder a W22_CANVAS_CFG y w22_getTooltip */
 (function patchBindCanvasTip(){
   if (typeof w22_bindCanvasTip !== 'function') {
@@ -7207,7 +7210,7 @@ document.addEventListener('click', function(e) {
     var nv = oc.vals.slice();
     nv[nv.length-1] = w21;
     nv[nv.length-2] = w20;
-    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W16','W17','W18','W19','W20','W21','W22'], metric: oc.metric};
+    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || _SEMANAS_HIST, metric: oc.metric};
   }
   _updateCfg(cid);
 
@@ -7216,7 +7219,7 @@ document.addEventListener('click', function(e) {
     var canvasEl = document.getElementById(id);
     if (!canvasEl) return;
     (function(capturedId, capturedW21, capturedW20){
-      var sems = ['W16','W17','W18','W19','W20','W21','W22'];
+      var sems = _SEMANAS_HIST;
       canvasEl.onmousemove = function(e) {
         var cfg = W22_CANVAS_CFG[capturedId];
         if (!cfg) return;

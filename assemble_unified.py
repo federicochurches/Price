@@ -260,6 +260,9 @@ window._injectHistAttrs = function(tbodyId, rows) {
 };
 
 /* Patch w22_bindCanvasTip — recalcular pts con ancho real en cada mousemove */
+/* Variables globales de semanas históricas — W16..W{VOL_NUM} */
+var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
+
 /* Esto debe estar en script global para acceder a W22_CANVAS_CFG y w22_getTooltip */
 (function patchBindCanvasTip(){
   if (typeof w22_bindCanvasTip !== 'function') {
@@ -385,7 +388,7 @@ document.addEventListener('click', function(e) {
     var nv = oc.vals.slice();
     nv[nv.length-1] = w21;
     nv[nv.length-2] = w20;
-    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || ['W16','W17','W18','W19','W20','W21','W22'], metric: oc.metric};
+    W22_CANVAS_CFG[id] = {vals: nv, semanas: oc.semanas || _SEMANAS_HIST, metric: oc.metric};
   }
   _updateCfg(cid);
 
@@ -394,7 +397,7 @@ document.addEventListener('click', function(e) {
     var canvasEl = document.getElementById(id);
     if (!canvasEl) return;
     (function(capturedId, capturedW21, capturedW20){
-      var sems = ['W16','W17','W18','W19','W20','W21','W22'];
+      var sems = _SEMANAS_HIST;
       canvasEl.onmousemove = function(e) {
         var cfg = W22_CANVAS_CFG[capturedId];
         if (!cfg) return;

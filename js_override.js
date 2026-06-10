@@ -34,7 +34,7 @@ w22_redrawCanvas = function(accent){
       /* Bind tooltip RND */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_rnd = cid.indexOf('ipm')>-1?'ipm':'nodispo';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_rnd}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:metric_rnd}, pts);
       }
     });
   }
@@ -69,7 +69,7 @@ w22_redrawCanvas = function(accent){
       /* Bind tooltip CR panel */
       if (typeof w22_bindCanvasTip === 'function') {
         var metric_cr = cid.indexOf('cv')>-1?'convrate':'eficacia';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:['W16','W17','W18','W19','W20','W21','W22'], metric:metric_cr}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:metric_cr}, pts);
       }
     });
   }
@@ -473,7 +473,7 @@ function _patchCanvasTooltips() {
         if (dx < bestDx) { bestDx = dx; best = i; }
       });
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
-      var sems = cfg.semanas || ['W16','W17','W18','W19','W20','W21','W22'];
+      var sems = cfg.semanas || _SEMANAS_HIST;
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
