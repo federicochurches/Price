@@ -6149,9 +6149,12 @@ function _renderAllRows(rows, renderFn) {
 
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
 /* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
-/* W23+: todas las cols sorteables — 5 cols sin severity */
-var _KPI_RCOLS_CR  = {1:0, 2:5, 3:6, 4:7, 5:8};
-var _KPI_RCOLS_RND = {1:0, 2:5, 3:6, 4:7, 5:8};
+/* W23+: mapeo col header → índice en array r.
+   Header EF/CV: [<span vacío=nombre>, Tráfico(col1), WoW(col2), Métrica(col3), WoW(col4)]
+   Array r: [nombre(0), sub(1), bbg(2), bfg(3), banda(4), traf(5), traf_wow(6), val(7), val_wow(8), ...]
+   El nombre (span vacío) NO tiene data-sort-col, así que col1 = primera columna visible = Tráfico = r[5] */
+var _KPI_RCOLS_CR  = {1:5, 2:6, 3:7, 4:8};
+var _KPI_RCOLS_RND = {1:5, 2:6, 3:7, 4:8};
 var _KPI_RCOLS = _KPI_RCOLS_CR;
 
 /* Grid CSS por métrica — para que _cardRow use el correcto según la card */
