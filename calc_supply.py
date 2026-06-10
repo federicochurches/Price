@@ -57,6 +57,7 @@ def validate_datasets():
         f'Dataset_RatesNoDispo_W{WEEK_NUM - 1}.xlsx',
         f'Dataset_CheckRates_W{WEEK_NUM}.xlsx',
         f'Dataset_CheckRates_W{WEEK_NUM - 1}.xlsx',
+        f'Dataset_Bookability_W{WEEK_NUM}.xlsx',  # acumulado W16-WNN (primer pipeline)
     ]
     search_dirs = [SCRIPT_DIR, PROJECT_DIR, Path('/mnt/user-data/uploads')]
     missing = []
@@ -87,6 +88,7 @@ def run_step(label, script_name, extra_env=None):
         'PROJECT_DIR': str(Path(__file__).parent),
         'PICKLE_RND': str(Path(__file__).parent / f'rnd_w{VOL_NUM}_data.pkl'),
         'PICKLE_CR':  str(Path(__file__).parent / f'cr_w{VOL_NUM}_data.pkl'),
+        'PICKLE_BK':  str(Path(__file__).parent / f'bk_w{VOL_NUM}_data.pkl'),
     }
     if extra_env:
         env.update(extra_env)
@@ -122,31 +124,34 @@ if __name__ == '__main__':
     Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
     # 1. Calcular RND → pickle
-    run_step('1/6', 'calc_rnd.py')
+    run_step('1/7', 'calc_rnd.py')
 
     # 2. Calcular CR → pickle
-    run_step('2/6', 'calc_cr.py')
+    run_step('2/7', 'calc_cr.py')
 
-    # 3. Render RND parciales
+    # 3. Calcular Bookability → pickle
+    run_step('3/7', 'calc_bk.py')
+
+    # 4. Render RND parciales
     for i, script in enumerate(['render_rnd_p1.py', 'render_rnd_p2.py', 'render_rnd_p3.py'], 1):
-        run_step(f'3.{i}/6', script)
+        run_step(f'4.{i}/7', script)
 
-    # 4. Render CR parciales
+    # 5. Render CR parciales
     for i, script in enumerate(['render_cr_p1.py', 'render_cr_p2.py', 'render_cr_p3.py'], 1):
-        run_step(f'4.{i}/6', script)
+        run_step(f'5.{i}/7', script)
 
-    # 5. Ensamblar HTML unificado
-    run_step('5/6', 'assemble_unified.py')
+    # 6. Ensamblar HTML unificado
+    run_step('6/7', 'assemble_unified.py')
 
-    # 6. Generar Excels
-    run_step('6a/7', 'excel_rnd.py')
-    run_step('6b/7', 'excel_cr.py')
+    # 7. Generar Excels
+    run_step('7a/8', 'excel_rnd.py')
+    run_step('7b/8', 'excel_cr.py')
 
-    # 7. Generar Mail
-    run_step('7/7', 'render_mail_v3.py')
+    # 8. Generar Mail
+    run_step('8/8', 'render_mail_v3.py')
 
-    # 8. Build package (index.html)
-    run_step('8/7', 'build_package.py')
+    # 9. Build package (index.html)
+    run_step('9/8', 'build_package.py')
 
     # ── Resumen ──
     print('\n' + '=' * 60)

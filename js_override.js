@@ -2036,3 +2036,184 @@ setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
     _origSC_sel(c, el);
   };
 })();
+
+/* ══════════════════════════════════════════════════
+   CARD 3 — BOOKABILITY
+   ar3_renderTable(view, htab)
+   ar3_setView(view)
+   ar3_setHotelTab(htab)
+   ══════════════════════════════════════════════════ */
+
+var _ar3_view  = 'prov';
+var _ar3_htab  = 'crit';
+
+function ar3_fmt(v) {
+  return typeof v === 'number' ? (v * 100).toFixed(2) + '%' : String(v || '—');
+}
+
+function ar3_bandColors(banda) {
+  var map = {
+    exitosa:   ['#E1F5EE','#1A6B4A'],
+    aceptable: ['#FEF9C3','#713F12'],
+    revisar:   ['#FED7AA','#C2410C'],
+    critica:   ['#FCE4F1','#99162B'],
+    sc:        ['#E8E6E3','#2D2828'],
+    sinconv:   ['#F2EEE6','#5F5E5A'],
+  };
+  return map[banda] || ['#F2EEE6','#5F5E5A'];
+}
+
+function ar3_bandLabel(banda) {
+  var map = {exitosa:'Exitosa',aceptable:'Aceptable',revisar:'Revisar',
+             critica:'Crítica',sc:'Súper Crítica',sinconv:'Sin Conv.'};
+  return map[banda] || banda;
+}
+
+function ar3_renderTable(view, htab) {
+  if (typeof BK_DATA === 'undefined' || !BK_DATA) return;
+  _ar3_view = view || _ar3_view;
+  _ar3_htab = htab || _ar3_htab;
+
+  var rows = BK_DATA[_ar3_view] || [];
+  var tbody = document.getElementById('ar3-tbody');
+  var thDim = document.getElementById('ar3-th-dim');
+  if (!tbody) return;
+
+  // Actualizar header de columna
+  var dimLabels = {prov:'Provider', dest:'Destino', corp:'Corporativo', hotel:'Hotel'};
+  if (thDim) thDim.textContent = dimLabels[_ar3_view] || _ar3_view;
+
+  // Filtrar por banda según htab
+  var bandMap = {crit: ['critica','sc'], br: ['revisar','aceptable'], sc: ['sinconv']};
+  var activeBands = bandMap[_ar3_htab] || [];
+
+  // Ordenar: peor primero (Bookability asc)
+  rows = rows.slice().sort(function(a,b){ return parseFloat(a.val) - parseFloat(b.val); });
+
+  // Filtrar
+  var filtered = rows.filter(function(r){ return activeBands.indexOf(r.banda) >= 0; });
+  // Si no hay filas en la banda, mostrar todos ordenados
+  if (filtered.length === 0) filtered = rows;
+
+  var html = '';
+  filtered.slice(0, 10).forEach(function(r, i) {
+    var bc = ar3_bandColors(r.banda);
+    var wowC = (r.wow && r.wow.charAt(0) === '+') ? '#1A6B4A' : (r.wow && r.wow !== '—' ? '#C0392B' : 'var(--ink-muted)');
+    html += '<tr class="' + (i >= 5 ? 'ar3-more' : '') + '" style="border-bottom:1px solid var(--rule);' + (i >= 5 ? 'display:none;' : '') + '">' +
+      '<td style="padding:5px 0;font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
+        '<span style="font-size:9px;color:var(--ink-muted);">' + String(i+1).padStart(2,'0') + '. </span>' + r.lab +
+      '</td>' +
+      '<td style="text-align:right;padding:5px 4px;font-size:11px;color:var(--ink-muted);">' + r.books + '</td>' +
+      '<td style="text-align:right;padding:5px 4px;font-size:11px;font-weight:700;color:#333132;">' + r.val + '</td>' +
+      '<td style="text-align:right;padding:5px 0 5px 2px;font-size:9px;font-weight:700;color:' + wowC + ';">' + (r.wow || '—') + '</td>' +
+    '</tr>';
+  });
+
+  tbody.innerHTML = html;
+
+  // Mostrar botón "Ver más" si hay más de 5
+  var moreBtn = document.getElementById('ar3-more-btn');
+  if (moreBtn) moreBtn.style.display = filtered.length > 5 ? 'inline-block' : 'none';
+
+  // Searchbox
+  var sb = document.getElementById('ar3-sb');
+  if (sb) {
+    sb.oninput = function() {
+      var q = sb.value.toLowerCase();
+      Array.from(tbody.querySelectorAll('tr')).forEach(function(tr){
+        tr.style.display = tr.textContent.toLowerCase().indexOf(q) >= 0 ? 'table-row' : 'none';
+      });
+    };
+  }
+}
+
+function ar3_setView(view) {
+  _ar3_view = view;
+  // Actualizar pills Vista
+  ['prov','dest','corp','hotel'].forEach(function(v) {
+    var btn = document.getElementById('ar3-vbk-' + v);
+    if (!btn) return;
+    if (v === view) {
+      btn.style.background = '#333132'; btn.style.color = '#fff'; btn.style.borderColor = '#333132';
+    } else {
+      btn.style.background = 'transparent'; btn.style.color = 'var(--ink-muted)'; btn.style.borderColor = 'var(--rule)';
+    }
+  });
+  ar3_renderTable(_ar3_view, _ar3_htab);
+}
+
+function ar3_setHotelTab(htab) {
+  _ar3_htab = htab;
+  // Actualizar pills Hoteles
+  ['crit','br','sc'].forEach(function(t) {
+    var btn = document.getElementById('ar3-htab-' + t);
+    if (!btn) return;
+    if (t === htab) {
+      btn.style.background = 'var(--ink)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--ink)';
+    } else {
+      btn.style.background = 'transparent'; btn.style.color = 'var(--ink-muted)'; btn.style.borderColor = 'var(--rule)';
+    }
+  });
+  ar3_renderTable(_ar3_view, _ar3_htab);
+}
+
+function ar3_showMore() {
+  var hidden = document.querySelectorAll('#ar3-tbody tr.ar3-more');
+  hidden.forEach(function(tr){ tr.style.display = 'table-row'; });
+  var btn = document.getElementById('ar3-more-btn');
+  if (btn) btn.style.display = 'none';
+}
+
+/* Inicializar card BK cuando el DOM esté listo */
+(function tryInitBK() {
+  if (typeof BK_DATA === 'undefined' || !BK_DATA) {
+    setTimeout(tryInitBK, 100); return;
+  }
+  var d = BK_DATA.global;
+  var k3 = document.getElementById('ar-kpi-3');
+  if (!k3) { setTimeout(tryInitBK, 100); return; }
+
+  k3.textContent = d.bk;
+
+  var v3 = document.getElementById('ar3-vol'); if (v3) v3.textContent = d.books;
+  var b3 = document.getElementById('ar3-books'); if (b3) b3.textContent = d.books;
+
+  var bc = ar3_bandColors(d.banda);
+  var badge3 = document.getElementById('ar3-badge');
+  if (badge3) {
+    badge3.textContent = ar3_bandLabel(d.banda) + ' · Target ≥ 97%';
+    badge3.style.background = bc[0]; badge3.style.color = bc[1];
+    badge3.style.border = '1px solid ' + bc[1] + '44';
+  }
+
+  var GAUGE = ['#8A8377','#DC2626','#C0392B','#F97316','#FCD34D','#1A6B4A'];
+  var bandOrder = ['sinconv','sc','critica','revisar','aceptable','exitosa'];
+  var activeIdx = bandOrder.indexOf(d.banda);
+  var g3 = document.getElementById('ar3-gauge');
+  if (g3) {
+    g3.innerHTML = GAUGE.map(function(c,i){
+      return '<div style="flex:1;background:'+c+';height:6px;border-radius:1px;opacity:'+(i<=activeIdx?'1':'0.18')+'"></div>';
+    }).join('');
+  }
+
+  var wp3 = document.getElementById('ar3-wow-pill');
+  if (wp3) {
+    var isUp = d.bk_wow >= 0;
+    wp3.innerHTML = '<em class="wow-pill '+(isUp?'up':'dn')+'" style="margin-left:0;">'+(isUp?'&uarr;':'&darr;')+' '+Math.abs(d.bk_wow).toFixed(2)+'pp</em>';
+  }
+
+  var wb3 = document.getElementById('ar3-wowbox');
+  if (wb3) {
+    var isUp = d.bk_wow >= 0;
+    var wowFmt = (isUp ? '+' : '') + d.bk_wow.toFixed(2) + 'pp';
+    wb3.innerHTML =
+      '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W22</div><div style="font-size:15px;font-weight:700;margin-top:2px;color:var(--ink-soft);">'+d.bk_prev+'</div></div>'+
+      '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W23</div><div style="font-size:15px;font-weight:700;margin-top:2px;color:#333132;">'+d.bk+'</div></div>'+
+      '<div style="flex:1;text-align:center;background:'+(isUp?'#E0F0E2':'#FCE4F1')+';padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+(isUp?'#2F6C34':'#99162B')+';font-weight:700;">WoW</div><div style="font-size:15px;font-weight:700;margin-top:2px;color:'+(isUp?'#2F6C34':'#99162B')+';">'+wowFmt+'</div></div>';
+  }
+
+  var stripBK = document.getElementById('w22-strip-bk'); if (stripBK) stripBK.textContent = d.bk;
+  var arStripBK = document.getElementById('ar-strip-bk'); if (arStripBK) arStripBK.textContent = d.bk;
+
+  ar3_renderTable('prov', 'crit');
+})();

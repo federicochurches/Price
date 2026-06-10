@@ -20,6 +20,13 @@ with open(os.getenv('PICKLE_CR', f'cr_w{VOL_NUM}_data.pkl'), 'rb') as _f:
     DC = pickle.load(_f)
 with open(os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl'), 'rb') as _f:
     DR = pickle.load(_f)
+# Bookability pickle — opcional (puede no existir en pipelines anteriores)
+_bk_path = os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+if os.path.exists(_bk_path):
+    with open(_bk_path, 'rb') as _f:
+        DB = pickle.load(_f)
+else:
+    DB = None
 
 WK      = f'W{VOL_NUM}'
 
@@ -507,7 +514,71 @@ TAB_BINDING_JS = '''
 })();
 '''
 
-GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n'
+
+# ── Datos JS para card 3 Bookability ──────────────────────────────────────
+def _bk_rows(top_df, col_name, n=5):
+    """Genera rows JS para la tabla de la card 3 BK."""
+    import json as _j
+    rows = []
+    for _, r in top_df.head(n).iterrows():
+        bk_val  = r['Bookability']
+        bk_fmt  = f"{bk_val*100:.2f}%"
+        books   = int(r.get('Books', 0))
+        wow_pp  = r.get('BK_WoW_pp', None)
+        wow_fmt = f"{wow_pp*100:+.2f}pp" if wow_pp is not None and not _np.isnan(wow_pp) else '—'
+        from engine import banda_eficacia as _bef
+        banda   = _bef(bk_val)
+        rows.append({
+            'lab':   str(r[col_name]),
+            'books': books,
+            'val':   bk_fmt,
+            'wow':   wow_fmt,
+            'banda': banda,
+        })
+    return rows
+
+import numpy as _np
+
+if DB is not None:
+    _bk_global = DB.get('bk_global', 0)
+    _bk_prev   = DB.get('bk_prev',   0)
+    _bk_wow    = DB.get('bk_wow',    0)
+    _bk_books  = DB.get('books_global', 0)
+    _bk_banda  = DB.get('banda_global', 'exitosa')
+
+    _bk_prov_rows  = _bk_rows(DB['TOP_PROVIDER'], 'Provider')
+    _bk_dest_rows  = _bk_rows(DB['TOP_DEST'],     'Destino')
+    _bk_corp_rows  = _bk_rows(DB['TOP_CORP'],     'CorpName')
+    _bk_hotel_rows = _bk_rows(DB['TOP_HOTEL'],    'Hotel')
+
+    import json as _json2
+    BK_JS_DATA = f"""
+var BK_DATA = {{
+  global: {{
+    bk:    '{_bk_global*100:.2f}%',
+    bk_prev: '{_bk_prev*100:.2f}%',
+    bk_wow:  {_bk_wow*100:.4f},
+    books: '{_bk_books:,}'.replace(',','.'),
+    banda: '{_bk_banda}',
+  }},
+  prov:  {_json2.dumps(_bk_prov_rows,  ensure_ascii=False)},
+  dest:  {_json2.dumps(_bk_dest_rows,  ensure_ascii=False)},
+  corp:  {_json2.dumps(_bk_corp_rows,  ensure_ascii=False)},
+  hotel: {_json2.dumps(_bk_hotel_rows, ensure_ascii=False)},
+  banda_colors: {{
+    'exitosa':   ['#E1F5EE','#1A6B4A'],
+    'aceptable': ['#FEF9C3','#713F12'],
+    'revisar':   ['#FED7AA','#C2410C'],
+    'critica':   ['#FCE4F1','#99162B'],
+    'sc':        ['#E8E6E3','#2D2828'],
+    'sinconv':   ['#F2EEE6','#5F5E5A'],
+  }},
+}};
+"""
+else:
+    BK_JS_DATA = "var BK_DATA = null;\n"
+
+GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
@@ -535,6 +606,11 @@ SWITCHER = f'''<div style="padding-top:10px;">
     <div class="cfb-kpi-item">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl2">Conv Rate</div>
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
+    </div>
+    <div class="cfb-sep"></div>
+    <div class="cfb-kpi-item">
+      <div class="cfb-kpi-lbl">Bookability</div>
+      <div class="cfb-kpi-val" id="w22-strip-bk" style="color:#333132;">—</div>
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item">
@@ -585,6 +661,11 @@ SHARED_CONTAINERS = f'''
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item">
+      <div class="cfb-kpi-lbl">Bookability</div>
+      <div class="cfb-kpi-val" id="ar-strip-bk" style="color:#333132;">—</div>
+    </div>
+    <div class="cfb-sep"></div>
+    <div class="cfb-kpi-item">
       <div class="cfb-kpi-lbl">Severity</div>
       <span class="sev-badge" id="ar-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
     </div>
@@ -592,8 +673,8 @@ SHARED_CONTAINERS = f'''
 </div>
 </div>
 
-<!-- Grid 2 cards: Métrica 1 (Ef/ND) + Métrica 2 (CV/IPM) -->
-<div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;">
+<!-- Grid 3 cards: Eficacia · Conv Rate · Bookability -->
+<div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;">
 
   <!-- ── CARD 1: Eficacia / NoDispo ── -->
   <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
@@ -749,7 +830,64 @@ SHARED_CONTAINERS = f'''
     </div>
   </div>
 
-</div><!-- /grid 2 cards -->
+  <!-- ── CARD 3: Bookability ── -->
+  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+    <!-- Header título -->
+    <div style="padding:12px 16px 0;">
+      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card3-lbl">Bookability</div>
+      <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+        <div>
+          <div id="ar-kpi-3" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
+          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Books: <span id="ar3-vol">—</span> · vs sem. ant. <span id="ar3-wow-pill"></span></div>
+          <div style="margin-top:4px;font-size:10px;color:var(--ink-muted);"><strong style="color:var(--ink-soft);">Books:</strong> <span id="ar3-books">—</span></div>
+        </div>
+        <div style="padding-top:4px;"><span id="ar3-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
+      </div>
+      <div id="ar3-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
+      <div id="ar3-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
+    </div>
+    <!-- Pill row Vista: Provider / Destino / Corp / Hotel -->
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--paper-soft);">
+      <div style="display:flex;align-items:center;gap:4px;padding:7px 12px 5px;">
+        <span style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);white-space:nowrap;min-width:46px;flex-shrink:0;">Vista</span>
+        <button id="ar3-vbk-prov" class="ar3-vbk-pill ar3-vbk-on" onclick="ar3_setView('prov')" style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid #333132;border-radius:20px;padding:3px 10px;cursor:pointer;background:#333132;color:#fff;white-space:nowrap;">Provider</button>
+        <button id="ar3-vbk-dest" class="ar3-vbk-pill" onclick="ar3_setView('dest')" style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--rule);border-radius:20px;padding:3px 10px;cursor:pointer;background:transparent;color:var(--ink-muted);white-space:nowrap;">Destino</button>
+        <button id="ar3-vbk-corp" class="ar3-vbk-pill" onclick="ar3_setView('corp')" style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--rule);border-radius:20px;padding:3px 10px;cursor:pointer;background:transparent;color:var(--ink-muted);white-space:nowrap;">Corporativo</button>
+        <button id="ar3-vbk-hotel" class="ar3-vbk-pill" onclick="ar3_setView('hotel')" style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--rule);border-radius:20px;padding:3px 10px;cursor:pointer;background:transparent;color:var(--ink-muted);white-space:nowrap;">Hotel</button>
+      </div>
+      <div style="height:1px;background:var(--rule-soft);margin:0 12px;"></div>
+      <!-- Pill row Hoteles: Críticos / Bajo Rend. / Sin Conv. -->
+      <div style="display:flex;align-items:center;gap:4px;padding:5px 12px 7px;">
+        <span style="font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);white-space:nowrap;min-width:46px;flex-shrink:0;">Hoteles</span>
+        <button id="ar3-htab-crit" class="ar3-htab-pill ar3-htab-on" onclick="ar3_setHotelTab('crit')" style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--ink);border-radius:20px;padding:3px 10px;cursor:pointer;background:var(--ink);color:#fff;white-space:nowrap;">Críticos</button>
+        <button id="ar3-htab-br"   class="ar3-htab-pill" onclick="ar3_setHotelTab('br')"   style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--rule);border-radius:20px;padding:3px 10px;cursor:pointer;background:transparent;color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</button>
+        <button id="ar3-htab-sc"   class="ar3-htab-pill" onclick="ar3_setHotelTab('sc')"   style="font-family:'Geist',system-ui,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--rule);border-radius:20px;padding:3px 10px;cursor:pointer;background:transparent;color:var(--ink-muted);white-space:nowrap;">Sin Conv.</button>
+      </div>
+    </div>
+    <!-- Panel tabla Bookability -->
+    <div id="ar3-panel" style="padding:8px 16px 12px;">
+      <div style="margin-bottom:6px;" id="ar3-sb-wrap">
+        <input id="ar3-sb" type="text" placeholder="🔍 Buscar..." autocomplete="off"
+          style="width:100%;box-sizing:border-box;font-size:12px;padding:6px 10px;border:1px solid var(--rule);border-radius:20px;background:var(--paper-soft);color:var(--ink);outline:none;" />
+      </div>
+      <table id="ar3-table" style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        <colgroup><col/><col style="width:58px"/><col style="width:82px"/><col style="width:40px"/></colgroup>
+        <thead><tr id="ar3-thead" style="border-bottom:2px solid #333132;">
+          <th id="ar3-th-dim" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 0 5px 0;">Provider</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Books</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#333132;text-align:right;padding:5px 4px;">Bookability</th>
+          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 0 5px 2px;">WoW</th>
+        </tr></thead>
+        <tbody id="ar3-tbody"></tbody>
+      </table>
+      <div style="text-align:center;margin-top:10px;border-top:1px solid var(--rule-soft);padding-top:10px;">
+        <button id="ar3-more-btn" onclick="ar3_showMore()" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;display:none;">VER MÁS ▾</button>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /grid 3 cards -->
 </section>
 
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
