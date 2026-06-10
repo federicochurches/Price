@@ -355,8 +355,9 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
       }}, d); }});
       if (typeof IntersectionObserver !== 'undefined') {{
         new IntersectionObserver(function(e) {{ e.forEach(function(entry) {{
+          /* Solo dibujar la primera vez que se hace visible — el else if
+             pisaba la selección activa al re-intersectar tras un click */
           if (entry.isIntersecting && !drawn) {{ drawn = true; requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
-          else if (entry.isIntersecting) {{ requestAnimationFrame(function() {{ drawCanvas(currentVals); }}); }}
         }}); }}, {{threshold: 0.01}}).observe(el);
       }}
     }}
