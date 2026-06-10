@@ -344,6 +344,13 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
 
   row.setAttribute('data-selected', '1');
   row.style.background = accentAlpha;
+
+  /* Disparar hist-update para que historico_module redibuje el canvas global */
+  document.dispatchEvent(new CustomEvent('hist-update', {
+    detail: {cid: cid, w_curr: w_curr, w_prev: w_prev, label: label}
+  }));
+  var lblEl = document.getElementById('hist-' + cid + '-label');
+  if (lblEl) lblEl.textContent = label;
 }
 
 /* Listener del panel — captura clicks en w22-th/w22-td, cards AR y channel divs */
