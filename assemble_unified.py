@@ -573,7 +573,7 @@ def _bk_rows(top_df, col_name, n=5):
         bk_fmt  = f"{bk_val*100:.2f}%"
         books   = int(r.get('Books', 0))
         wow_pp  = r.get('BK_WoW_pp', None)
-        wow_fmt = f"{wow_pp*100:+.2f}pp" if wow_pp is not None and not _np.isnan(wow_pp) else '—'
+        wow_fmt = f"{wow_pp*100:+.2f}" if wow_pp is not None and not _np.isnan(wow_pp) else '—'
         from engine import banda_eficacia as _bef
         banda   = _bef(bk_val)
         rows.append({

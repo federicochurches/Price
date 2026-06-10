@@ -221,7 +221,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}pp'.replace('.', ',') + '</em>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
@@ -371,7 +371,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}pp'.replace('.', ',') + '</em>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
@@ -622,7 +622,7 @@ def render_kpi_card_bookability():
         bkr  = float(r['Bookability'])
         trx  = fmt_int_es(int(r.get('Books', 0)))
         wpp  = r.get('BK_WoW_pp', None)
-        wf   = f'{wpp*100:+.2f}pp'.replace('.',',') if (wpp is not None and not _pd.isna(wpp)) else '—'
+        wf   = f'{wpp*100:+.2f}'.replace('.',',') if (wpp is not None and not _pd.isna(wpp)) else '—'
         wc   = '#1A6B4A' if (wpp or 0) >= 0 else '#C0392B'
         lbl  = str(r.get(dim_col, '—'))
         # Limpieza de sufijos comunes en Destino
