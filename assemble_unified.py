@@ -260,10 +260,8 @@ window._injectHistAttrs = function(tbodyId, rows) {
 };
 
 /* Patch w22_bindCanvasTip — recalcular pts con ancho real en cada mousemove */
-/* Variables globales de semanas históricas — W16..W{VOL_NUM} */
-var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
-
 /* Esto debe estar en script global para acceder a W22_CANVAS_CFG y w22_getTooltip */
+/* _SEMANAS_HIST definida en js_override.js (embebida antes de este script) */
 (function patchBindCanvasTip(){
   if (typeof w22_bindCanvasTip !== 'function') {
     setTimeout(patchBindCanvasTip, 50); return;

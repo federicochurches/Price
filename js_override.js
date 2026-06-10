@@ -1,3 +1,6 @@
+/* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
+var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
+
 /* Parchear w22_redrawCanvas para incluir HIST_RND */
 var _origRedraw = w22_redrawCanvas;
 w22_redrawCanvas = function(accent){
@@ -775,6 +778,14 @@ function w22_renderRNDCardTabs(canasta) {
 }
 
 function _fmtInt(n){ if(n==null) return '—'; return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function _fmtCompact(n){
+  if(n==null||isNaN(n)) return '—';
+  n = Math.abs(Number(n));
+  if(n>=1e9) return (n/1e9).toFixed(1).replace('.',',')+' B';
+  if(n>=1e6) return (n/1e6).toFixed(1).replace('.',',')+' M';
+  if(n>=1e3) return (n/1e3).toFixed(1).replace('.',',')+' K';
+  return Math.round(n).toString();
+}
 function _fmtPct(n){ if(n==null) return '—'; return n.toFixed(2).replace('.',',')+'%'; }
 function _pill(v, bg, fg){ return v==null?'<span style="color:var(--ink-muted);font-size:10px;">—</span>':'<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+v+'</em>'; }
 function _wowInt(delta){ if(delta==null) return null; var abs=Math.round(Math.abs(delta)); return (delta>0?'▲':'▼')+_fmtInt(abs); }
@@ -789,7 +800,7 @@ function _cardRow(r, idx, isEf, grid){
   var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 54px 48px'
                                 : 'minmax(0,1fr) 80px 56px 68px 40px');
   /* badge sev removido — la card no muestra severity en filas */
-  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtInt(cr_u);
+  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtCompact(cr_u);
   /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
   var tw, tw_bg, tw_fg, tw_pill;
   if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
@@ -798,7 +809,7 @@ function _cardRow(r, idx, isEf, grid){
     tw_fg = tw_up ? '#2F6C34' : '#C0392B';
     /* Si el valor es pequeño (< 100) es un % → mostrar con signo; si es grande es int delta */
     var tw_abs = Math.abs(cr_wow_delta);
-    tw = (tw_up?'▲':'▼') + (tw_abs < 1000 ? tw_abs.toFixed(1).replace('.',',')+'%' : _fmtInt(tw_abs));
+    tw = (tw_up?'▲':'▼') + _fmtCompact(tw_abs);
     tw_pill = _pill(tw, tw_bg, tw_fg);
   } else {
     tw_pill = _pill(null, '', '');
@@ -930,7 +941,7 @@ function _buildChanRow(r, i, opts) {
     ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
   /* TRX formateado */
   var trxStr = (cr_u!=null && cr_u!=='—' && cr_u!=='')
-    ? (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u) ? cr_u : _fmtInt(cr_u))
+    ? (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u) ? cr_u : _fmtCompact(cr_u))
     : '—';
   /* WoW métrica pill */
   var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
