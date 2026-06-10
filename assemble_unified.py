@@ -136,11 +136,10 @@ def _hist_vals(mode, metric, canasta, actual_val=None):
     return base
 
 # Cargar valores actuales del pickle para el 5° punto
+# DC y DR ya cargados arriba desde los pickles correctos
 import pickle as _pkl
-with open(f'cr_w22_data.pkl', 'rb') as _f:
-    _D_cr = _pkl.load(_f)
-with open(f'rnd_w22_data.pkl', 'rb') as _f:
-    _D_rnd = _pkl.load(_f)
+_D_cr  = DC
+_D_rnd = DR
 
 _M_cr  = _D_cr.get('M', {})
 _M_rnd = _D_rnd.get('M', {})
@@ -578,7 +577,78 @@ var BK_DATA = {{
 else:
     BK_JS_DATA = "var BK_DATA = null;\n"
 
-GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n'
+BK_SORT_JS = """
+/* bkSort — ordenamiento clickeable de la card BK */
+window.bkSort = function(el) {
+    var key = el.getAttribute('data-sort-key');
+    var hdr = el.parentNode;
+    var curDir = el.getAttribute('data-sort-dir') || '';
+    var newDir = curDir === 'desc' ? 'asc' : 'desc';
+    hdr.querySelectorAll('[data-sort-key]').forEach(function(h) {
+        h.removeAttribute('data-sort-dir');
+        var arr = h.querySelector('.bk-arrow');
+        if (arr) { arr.textContent = '↕'; arr.style.opacity = '.4'; }
+    });
+    el.setAttribute('data-sort-dir', newDir);
+    var arrow = el.querySelector('.bk-arrow');
+    if (arrow) { arrow.textContent = newDir === 'desc' ? '↓' : '↑'; arrow.style.opacity = '1'; }
+    var panel = hdr.closest('[data-tab]');
+    if (!panel) return;
+    var sortFn = function(a, b) {
+        var av, bv;
+        if (key === 'lbl') {
+            av = a.getAttribute('data-lbl') || '';
+            bv = b.getAttribute('data-lbl') || '';
+            return newDir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+        }
+        av = parseFloat(a.getAttribute('data-' + key) || '0');
+        bv = parseFloat(b.getAttribute('data-' + key) || '0');
+        return newDir === 'desc' ? bv - av : av - bv;
+    };
+    /* Agrupar por contenedor (PP/TP en channel) usando el parent inmediato del primer row */
+    /* Identificar los "container" parents — son los <div> que contienen rows directamente o bk-more wrappers */
+    var allRowEls = Array.prototype.slice.call(panel.querySelectorAll('.bk-row'));
+    /* Mapear cada row a su "container final" (no bk-more wrapper, sino el contenedor de seccion PP/TP/general) */
+    function _container(row) {
+        var w = row.closest('.bk-more');
+        return w ? w.parentNode : row.parentNode;
+    }
+    var groups = []; /* {container, rows} */
+    allRowEls.forEach(function(r) {
+        var c = _container(r);
+        var g = groups.find(function(x){ return x.container === c; });
+        if (!g) { g = { container: c, rows: [] }; groups.push(g); }
+        g.rows.push(r);
+    });
+    /* Para cada grupo, ordenar y re-armar manteniendo top 5 visibles y 6-10 ocultas */
+    groups.forEach(function(grp) {
+        grp.rows.sort(sortFn);
+        /* Buscar el botón Ver más dentro del container (puede no existir si len<=5) */
+        var moreBtn = grp.container.querySelector(':scope > .kpi-more-btn');
+        var isExpanded = moreBtn && moreBtn.getAttribute('data-exp') === '1';
+        /* Quitar todas las filas y wrappers bk-more del container */
+        var oldWrappers = Array.prototype.slice.call(grp.container.querySelectorAll(':scope > .bk-more'));
+        oldWrappers.forEach(function(w){ w.parentNode.removeChild(w); });
+        grp.rows.forEach(function(r){ if(r.parentNode) r.parentNode.removeChild(r); });
+        /* Re-insertar antes del botón Ver más */
+        var beforeEl = moreBtn;
+        grp.rows.forEach(function(r, i) {
+            if (i < 5 || isExpanded) {
+                if (beforeEl) grp.container.insertBefore(r, beforeEl);
+                else grp.container.appendChild(r);
+            } else {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'bk-more';
+                wrapper.style.display = 'none';
+                wrapper.appendChild(r);
+                if (beforeEl) grp.container.insertBefore(wrapper, beforeEl);
+                else grp.container.appendChild(wrapper);
+            }
+        });
+    });
+};
+"""
+GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
@@ -608,13 +678,13 @@ SWITCHER = f'''<div style="padding-top:10px;">
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
     </div>
     <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item">
+    <div class="cfb-kpi-item" id="w22-strip-bk-item">
       <div class="cfb-kpi-lbl">Bookability</div>
       <div class="cfb-kpi-val" id="w22-strip-bk" style="color:#333132;">—</div>
     </div>
-    <div class="cfb-sep"></div>
+    <div class="cfb-sep" id="w22-strip-bk-sep"></div>
     <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl">Severity</div>
+      <div class="cfb-kpi-lbl" id="w22-strip-sev-lbl">Severity Eficacia</div>
       <span class="sev-badge" id="w22-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
     </div>
   </div>
@@ -660,13 +730,13 @@ SHARED_CONTAINERS = f'''
       <div class="cfb-kpi-val" id="ar-strip-cv" style="color:#5C469C;">—</div>
     </div>
     <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item">
+    <div class="cfb-kpi-item" id="ar-strip-bk-item">
       <div class="cfb-kpi-lbl">Bookability</div>
       <div class="cfb-kpi-val" id="ar-strip-bk" style="color:#333132;">—</div>
     </div>
-    <div class="cfb-sep"></div>
+    <div class="cfb-sep" id="ar-strip-bk-sep"></div>
     <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl">Severity</div>
+      <div class="cfb-kpi-lbl" id="ar-strip-sev-lbl">Severity Eficacia</div>
       <span class="sev-badge" id="ar-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
     </div>
   </div>

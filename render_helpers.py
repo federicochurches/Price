@@ -417,7 +417,7 @@ def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Buscar…
     clear_id = input_id + '-clear'
     return (
         f'<div class="sb-pill-wrap" style="margin-left:auto;display:flex;align-items:center;'
-        f'gap:7px;padding:0 8px 5px 12px;border-left:1px solid var(--rule-soft);">'
+        f'gap:7px;padding:0 4px 0 0;">'
         f'<div class="sb-pill" style="display:flex;align-items:center;gap:5px;'
         f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
         f'padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;">'
@@ -633,8 +633,9 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
     traf_wow_t = cfg.get('traf_wow_type', 'pct')   # 'abs' | 'pct'
     wow_col    = cfg.get('wow_col', '')
     wow_is_pos = cfg.get('wow_is_pos', True)
-    grid_cols  = cfg['grid_cols']
-    val_prefix = cfg.get('val_prefix', '')
+    grid_cols    = cfg['grid_cols']
+    val_prefix   = cfg.get('val_prefix', '')
+    show_severity = cfg.get('show_severity', True)
 
     top_html = rest_html = ''
 
@@ -736,9 +737,10 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
                f'overflow:hidden;text-overflow:ellipsis;display:block;">{corp_sub}</span>'
                if corp_sub else '')
             + f'</div>'
-            f'<div style="display:flex;align-items:center;justify-content:flex-start;'
-            f'min-width:0;overflow:hidden;">{badge}</div>'
-            f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
+            + (f'<div style="display:flex;align-items:center;justify-content:flex-start;'
+               f'min-width:0;overflow:hidden;">{badge}</div>'
+               if show_severity else '')
+            + f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
             f'font-variant-numeric:tabular-nums;white-space:nowrap;">{traf_str}</span>'
             f'<div style="text-align:right;white-space:nowrap;">{traf_wow_pill}</div>'
             f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'

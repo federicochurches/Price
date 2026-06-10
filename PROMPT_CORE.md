@@ -166,6 +166,39 @@ Excel single-sheet · una fila por Hotel × Canasta × Channel.
 
 ---
 
+## 📊 Reporte 3 · Bookability (BK) — W23+
+
+### Input
+Excel acumulado · `Dataset_Bookability_WNN.xlsx`. Una fila por Provider × Hotel × Semana.
+
+**Columnas obligatorias:** `Provider` · `LOB` · `SourceMarket` · `Destination` · `Corporate` · `Hotel` · `Semana` · `Bookability` · `Books`
+
+### Métricas clave
+- `Bookability` ponderada = `sum(Bookability × Books) / sum(Books)`
+- **Cross-canasta:** no aplica filtro de canasta (es la salud de cada interface)
+- Filtro: `MIN_BOOKS = 5` por fila
+- **Color fijo:** `#333132`
+- **Bandas:** mismas que Eficacia CR (≥97% Exitosa, 93-97% Aceptable, etc.)
+
+### Tabs canónicos
+`Destino · Corp · Hotel · Channel` (default: Destino)
+
+### Columnas tabla BK
+`Channel/Hotel/etc · Trx (bold) · WoW · BK% · WoW` (5 cols)
+- Header abreviado: **"BK%"** en lugar de "Bookability"
+- Sub-label corporativo en tab Hotel
+
+### Channel split
+Mismo catálogo que CR: `PRODUCTO_PROPIO` + `THIRD_PARTY = ['Expedia','HotelBeds','Hotel Unico','Travelgate']`
+- `_CHANNEL_RENAME = {'HotelBeds Apitude': 'HotelBeds', 'Hotel Unico V2': 'Hotel Unico'}`
+- Aplicado en `calc_bk.py` después de cargar el dataset
+
+### Ubicación
+- Solo visible en **Connectivities** (CR). En Availability se oculta automáticamente
+- Severity de la barra superior: **"Severity Eficacia"** en CR / **"Severity NoDispo"** en RND
+
+---
+
 ## 🏗️ Arquitectura HTML Unificada (W21+)
 
 ### Estructura del SUPPLY_WNN.html
@@ -431,9 +464,9 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 30. Duplicar `_chanRow`/`chanRowAR` — usar `_buildChanRow(r, i, opts)` en `js_override.js`
 31. Calcular `BandaConvRate` en `tab_convrate()` sin Bookings reales — `banda_convrate(val, bookings)` con los Bookings del row, no hardcodeado a 0
 32. Mergear `ConvRate_WoW_pp` dos veces en `render_cr_p2.py` — desde W22 viene directo en `p80_hotel` del pickle
-33. Omitir WoW de Corp/Dest en las cards AR — `g_corp_w17` y `g_dest_w17` están en el pickle y deben mergearse en `render_cr_p2.py` y `render_rnd_p2.py`
-34. Renumerar elementos al ordenar — la numeración refleja la posición original en el ranking
-35. Leer `ef_prev`/`cv_prev` de `HIST_CR` en `ar_updateKPIs` — estos valores vienen de `CR_CV`/`RND_CV`
+33. Modificar filas EF/CV sin tocar `_cardRow` en `js_override.js` — el JS re-renderiza con grid 6 cols + badge sev en runtime. Los cambios visuales requieren editar `_cardRow`, `_KPI_GRID` y `hdrLabels`
+34. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
+35. Crear layout Channel distinto al canónico — Channel en cards KPI y AR usa flex-column (PP arriba, TP abajo) + header con columnas + sin badge severity. Aplicar en Python (`render_cr_p1.py`) y en JS (`_buildChanRow`, `_arRenderChan`)
 
 ---
 
@@ -522,7 +555,8 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 08-06-2026 (sesión Inventory: drill semanal + optimización 43→12MB)
+**Última actualización:** W23 · Junio 2026 · 10-06-2026 (sesión Bookability: card 3 + sort unificado + alineación históricos)
+**Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 **Pipeline W23:** histórico W16–W23 (8pts) · fix display:table-row filas 6-10 · fix border-bottom rows-more · calc_supply.py pipeline completo 8 pasos

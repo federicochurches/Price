@@ -14,6 +14,7 @@ METRIC_CONFIGS = {
     ('cr', 'convrate'): {'target': 2.5, 'unit': '%', 'invert': False, 'accent': '#5C469C', 'accent_rgb': '92,70,156', 'bar_ceil': 2.5},
     ('rnd', 'nodispo'): {'target': 0.05, 'unit': '%', 'invert': True, 'accent': '#EA0074', 'accent_rgb': '234,0,116', 'bar_ceil': 0.60},
     ('rnd', 'ipm'): {'target': 650.0, 'unit': ' USD/M', 'invert': False, 'accent': '#4FC3F4', 'accent_rgb': '79,195,244', 'bar_ceil': 3000.0},
+    ('bk',  'bookability'): {'target': 97.0, 'unit': '%', 'invert': False, 'accent': '#333132', 'accent_rgb': '51,49,50', 'bar_ceil': 100.0},
 }
 
 _BANDA_COLORS = {
@@ -51,12 +52,12 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     # val_actual viene como fracción (0.0263) del pickle → convertir a % (2.63)
     # Los valores históricos en HIST_DATA están en % para comparar en misma escala
     # IPM ya viene en $ directamente (no necesita conversión)
-    if metrica in ('eficacia', 'convrate', 'nodispo'):
+    if metrica in ('eficacia', 'convrate', 'nodispo', 'bookability'):
         w_current_val = round(val_actual * 100, 2)
     else:
         w_current_val = round(val_actual, 1)
     vals_default = get_serie(reporte, metrica, scope, w_current_val)
-    vals_default = [round(v, 2 if metrica in ('eficacia', 'convrate', 'nodispo') else 1) for v in vals_default]
+    vals_default = [round(v, 2 if metrica in ('eficacia', 'convrate', 'nodispo', 'bookability') else 1) for v in vals_default]
     
     fmt_val = (lambda v: f'{v:.2f}%') if unit == '%' else (lambda v: f'${v:,.0f}')
     
@@ -91,10 +92,11 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     best_val = v_min if is_inverted else v_max
     worst_val = v_max if is_inverted else v_min
     
-    target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650'}.get(metrica, 'Target')
+    target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650', 'bookability': '≥ 97%'}.get(metrica, 'Target')
     is_inverted_str = 'true' if is_inverted else 'false'
     
-    return f'''<div id="hist-{canvas_id}" style="margin-top:8px;padding:10px 12px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+    return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 12px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+  <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
       Evolución Histórica · <span id="hist-{canvas_id}-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
@@ -145,7 +147,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   var ACCENT_HEX = '{accent}', ACCENT_RGB = {f"'{accent_rgb}'" if accent_rgb else 'null'};
   
   function getBanda(v) {{
-    if (METRIC === 'eficacia') {{ var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }}
+    if (METRIC === 'eficacia' || METRIC === 'bookability') {{ var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }}
     if (METRIC === 'convrate') {{ var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }}
     if (METRIC === 'nodispo') {{ var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }}
     if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';

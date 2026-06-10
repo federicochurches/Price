@@ -2519,3 +2519,107 @@ Los datasets W21 y W22 están en el repo en sus respectivas carpetas week-NN.
 ### Scripts modificados
 - `assemble_unified.py` — `_strip_last_script()` + links footer raw.githubusercontent.com
 
+
+---
+
+## Sesión W23 Bookability · 10 Jun 2026
+
+### Contexto
+Incorporar **Bookability** como 3ª card KPI cross-canasta en el reporte Connectivities. Sesión extendida de iteración visual con múltiples regeneraciones, fix de severity persistente vía JS, refactor del layout de Channel en las 3 cards, ordenamiento clickable unificado, y agregado del módulo Bookability en la sección Severity.
+
+### Dataset
+- `Dataset_Bookability_W23.xlsx` (acumulado W16-W24, 157.910 filas)
+- Columnas: Provider, LOB, SourceMarket, Destination, Corporate, Hotel, Semana, Bookability, Books
+- **Bookability ponderada:** `sum(Bookability × Books) / sum(Books)`
+- **W23 global:** 98.43% · WoW +0.03pp · Banda Exitosa
+- **Histórico W16-W23:** [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43]
+- W24 (volumen parcial 6172 books) excluido del histórico
+
+### Archivos modificados
+- `calc_bk.py` — NUEVO. Genera `bk_w23_data.pkl` con:
+  - `bk_global`, `bk_prev`, `bk_wow`, `books_global`, `books_global_prev`
+  - `g_provider`, `g_dest`, `g_corp`, `g_hotel` (con `BK_WoW_pp`, `Books_WoW_abs`, `Books_WoW_pct`, `CorpName` mergeado en hoteles)
+  - `TOP_PROVIDER`, `TOP_DEST`, `TOP_CORP`, `TOP_HOTEL`
+  - `hist_by_week` (W16-W24 desde dataset acumulado)
+  - `sev_bk_p80` (conteos por banda)
+  - Usa mismo `_CHANNEL_RENAME` que CR (`HotelBeds Apitude → HotelBeds`, `Hotel Unico V2 → Hotel Unico`)
+- `render_cr_p1.py` — `render_kpi_card_bookability()` con todas las pestañas (Destino/Corp/Hotel/Channel), ordenamiento clickable, helpers compartidos
+- `render_cr_p2.py` — `render_severity()` con tercera columna Bookability
+- `historico_module.py` — `bookability` en `getBanda` (rama de eficacia) + `target_disp` + `metric in ('eficacia','convrate','nodispo','bookability')` para conversión %; `margin-top:auto` en el wrapper para alinear los 3 históricos al fondo
+- `historico_data.py` — `'bk': {'bookability': {'global': [W16..W22]}}` (W23 dinámico desde pickle)
+- `assemble_unified.py` — Carga DB BK, agrega card 3 en HERO + en AR, `BK_JS_DATA` + `BK_SORT_JS` en GLOBAL_PANEL_SCRIPT, IDs `w22-strip-bk-item`/`w22-strip-bk-sep`, label `Severity Eficacia`/`Severity NoDispo`
+- `render_helpers.py` — `searchbox_pill_html()` sin `border-left`/`margin-left:auto` agresivo
+- `js_override.js` — `_cardRow` grid 5 cols sin badge sev, `_KPI_GRID` actualizado, `hdrLabels` sin Severity en EF/CV, `_KPI_RCOLS` expandido a todas las columnas, flechas `↕/↑/↓`, `_buildChanRow` sin badge + con TRX, `_arRenderChan` flex column + header con columnas, `w22_setMode` oculta BK item en RND y cambia label Severity, `CATALOG_TP` unificado, `h-bk-global` en lista de tooltip patch
+- `asset_supply_head.html` — Reglas CSS tabs BK (channel/destino/corp/hotel)
+
+### Bugs cerrados
+
+**Severity persistente en cards 1 y 2 — diagnóstico clave**
+
+El HTML estático generado por Python no incluía `sev-badge` ni columna Severity. PERO en el browser seguía apareciendo. Causa raíz:
+
+- La función `_cardRow` en `js_override.js` **re-renderiza** las filas KPI cards en runtime (al cambiar canasta, sortear, etc.) con un grid de 6 columnas e inyecta el `sev-badge`.
+- Fix: cambiar `_cardRow` a grid 5 cols, quitar la generación del badge.
+- También arreglar `_KPI_GRID`, `hdrLabels` y limpiar el "<span></span>" extra del header.
+
+**Lección:** Cuando un fix visual no se ve en runtime, buscar funciones JS que re-rendericen el elemento (no solo HTML estático).
+
+**Histórico BK mostraba "CRÍTICA" con valor 98.43%**
+
+`getBanda` en `historico_module.py` no tenía caso explícito para `METRIC === 'bookability'`. Caía en la rama por defecto (IPM) donde `v < 200 → 'Crítica'`. Fix: agregar `bookability` a la rama de Eficacia.
+
+**Histórico BK no traía W23 (mostraba solo hasta W22)**
+
+`historico_module.py` convierte `val_actual` (fracción del pickle) a % solo si `metrica in ('eficacia','convrate','nodispo')`. Bookability caía en el `else` con `round(val_actual, 1)` → 0.9843 → 1.0 → display incorrecto.
+
+Fix: agregar 'bookability' a la lista de conversión a %.
+
+**Botón "Ver más" arriba en card BK después de sort**
+
+El `bkSort` usaba `appendChild` que mueve las filas al final del contenedor, dejando el botón "Ver más" arriba. Fix: usar `insertBefore` con el botón como referencia, mantener wrapper `bk-more` para filas 6-10 ocultas, preservar estado expandido del botón.
+
+**Banda Eficacia 94,53% mostraba "ACEPTABLE" en barra superior sin contexto**
+
+Causa: el badge `w22-strip-band` muestra una sola banda pero el label decía solo "Severity" — no especificaba qué métrica era la referencia. Fix: label dinámico "Severity Eficacia" (CR) / "Severity NoDispo" (RND).
+
+**Bookability visible en modo Availability (debería ser CR-only)**
+
+Bookability solo aplica a Connectivities (CR). Fix: IDs en `w22-strip-bk-item`/`-sep` + lógica en `w22_setMode` para `display:none` en modo RND. Misma lógica para `ar-strip-bk-*`.
+
+### Decisiones de diseño
+
+- **Bookability como 3ª card** (no reemplaza ninguna)
+- **Color BK fijo:** `#333132`
+- **Cross-canasta:** no aplica filtro de canasta
+- **Tabs orden BK:** `Destino · Corp · Hotel · Channel` (Channel a la derecha, Destino default — mismo que EF/CV)
+- **Sin columna Severity en filas de las 3 cards** (cards KPI)
+- **Columnas BK:** Channel/Hotel/etc · Trx (bold) · WoW · BK% · WoW (5 cols)
+- **Header abreviado:** "BK%" en lugar de "Bookability"
+- **Sub-label corporativo** debajo del nombre del hotel en tab Hotel
+- **Sin palabra "Area"** en nombres de destinos (display)
+- **Histórico BK W16-W23** (excluye W24 con volumen parcial)
+- **Searchbox** en línea separada (debajo de tabs, alineado derecha)
+- **Channel unificado en las 3 cards:** flex-column (PP arriba, TP abajo) + header con columnas + sin badge severity
+- **Ordenamiento clickable unificado:** flechas `↕/↑/↓` en todas las cards KPI, todas las columnas sorteables
+- **Alineación de los 3 históricos:** `kpi-card` con `display:flex; flex-direction:column` + histórico con `margin-top:auto` para que se empujen todos al fondo de la card
+
+### Reglas nuevas en PROMPT_CORE
+
+1. La función `_cardRow` en `js_override.js` re-renderiza las filas EF/CV en runtime con grid 5 cols sin severity. **Cambios visuales en filas KPI requieren tocar también `_cardRow`.**
+2. Para alinear los 3 históricos al fondo: `kpi-card` debe tener `display:flex; flex-direction:column;` y el histórico `margin-top:auto`.
+3. Bookability solo aplica a Connectivities — ocultar via JS en w22_setMode cuando `m === 'rnd'`.
+4. `getBanda` en `historico_module.py` debe tener caso para cada métrica nueva. Bookability usa bandas de Eficacia (≥97% Exitosa).
+5. `target_disp` en `historico_module.py` debe tener entrada para cada métrica nueva.
+6. Cuando se agrega métrica nueva al pipeline (ej. Bookability), agregarla a la condición de conversión a % en `historico_module.py`: `if metrica in ('eficacia','convrate','nodispo','bookability')`.
+7. Channel layout canónico (cards 1, 2 y 3 + AR): flex-column con PP arriba, TP abajo, header con columnas (Channel/Trx/Métrica/WoW), sin badge severity.
+
+### Scripts modificados
+- `calc_bk.py` (nuevo)
+- `render_cr_p1.py`
+- `render_cr_p2.py`
+- `historico_module.py`
+- `historico_data.py`
+- `assemble_unified.py`
+- `render_helpers.py`
+- `js_override.js`
+- `asset_supply_head.html`

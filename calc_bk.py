@@ -40,8 +40,9 @@ FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 09 de Junio de 2026')
 
 # Clasificación de providers
 PRODUCTO_PROPIO = ['DerbySoft', 'Internal', 'HBSI', 'SynXis', 'Siteminder', 'Travelclick', 'Omnibees']
-THIRD_PARTY     = ['Expedia', 'HotelBeds Apitude', 'Hotel Unico', 'Hotel Unico V2', 'Travelgate',
-                   'HyperGuest', 'OnVacation', 'RateFox']
+THIRD_PARTY     = ['Expedia', 'HotelBeds', 'Hotel Unico', 'Travelgate']
+# Rename para mostrar nombres canónicos (igual que CR)
+_CHANNEL_RENAME = {'HotelBeds Apitude': 'HotelBeds', 'Hotel Unico V2': 'Hotel Unico'}
 
 MIN_BOOKS = 5  # mínimo de books para incluir en rankings
 
@@ -110,11 +111,19 @@ except FileNotFoundError:
 print(f"   W{WEEK_NUM}: {len(df_cur):,} filas · {df_cur['Books'].sum():,} books")
 print(f"   W{VOL_NUM_PREV}: {len(df_prev):,} filas · {df_prev['Books'].sum():,} books")
 
+# Normalizar nombre de canales para display (igual que CR)
+df_cur['Provider']  = df_cur['Provider'].replace(_CHANNEL_RENAME)
+df_prev['Provider'] = df_prev['Provider'].replace(_CHANNEL_RENAME)
+# Re-clasificar TipoProvider después del rename
+df_cur['TipoProvider']  = df_cur['Provider'].apply(grupo_provider)
+df_prev['TipoProvider'] = df_prev['Provider'].apply(grupo_provider)
+
 # ── MÉTRICAS GLOBALES ─────────────────────────────────────────────────────────
 bk_global     = bk_weighted(df_cur)
 bk_global_prev = bk_weighted(df_prev)
 bk_global_wow  = bk_global - bk_global_prev
 books_global   = int(df_cur['Books'].sum())
+books_global_prev = int(df_prev['Books'].sum())
 hoteles_global = df_cur['Hotel'].nunique()
 
 banda_global = banda_bk(bk_global)
@@ -149,6 +158,9 @@ def agg_dim_wow(df_cur, df_prev, col, min_books=MIN_BOOKS):
         on=col, how='left'
     )
     g['BK_WoW_pp'] = g['Bookability'] - g['Bookability_prev'].fillna(g['Bookability'])
+    # Books WoW absoluto y porcentual
+    g['Books_WoW_abs'] = g['Books'] - g['Books_prev'].fillna(g['Books'])
+    g['Books_WoW_pct'] = ((g['Books'] - g['Books_prev']) / g['Books_prev'].replace(0, pd.NA) * 100).fillna(0)
     g = g[g['Books'] >= min_books].copy()
     g['BandaBK'] = g['Bookability'].apply(banda_bk)
     return g.sort_values('Bookability')
@@ -165,6 +177,17 @@ g_corp = agg_dim_wow(df_cur, df_prev, 'CorpName')
 
 # Por Hotel
 g_hotel = agg_dim_wow(df_cur, df_prev, 'Hotel', min_books=MIN_BOOKS)
+# Arrastrar CorpName principal por hotel (el corp con más books en la semana actual)
+_hotel_corp = (df_cur.groupby('Hotel', as_index=False)
+                     .apply(lambda x: x.loc[x['Books'].idxmax(), 'CorpName'] if 'CorpName' in x.columns and len(x) > 0 else '')
+                     .reset_index())
+_hotel_corp.columns = ['idx_drop', 'Hotel', 'CorpName'] if len(_hotel_corp.columns) == 3 else _hotel_corp.columns
+# Forma alternativa más robusta
+if 'CorpName' in df_cur.columns:
+    _hc = df_cur.groupby('Hotel').apply(lambda x: x.loc[x['Books'].idxmax(), 'CorpName']).reset_index()
+    _hc.columns = ['Hotel', 'CorpName']
+    g_hotel = g_hotel.merge(_hc, on='Hotel', how='left')
+    g_hotel['CorpName'] = g_hotel['CorpName'].fillna('')
 
 print(f"\n   Providers: {len(g_provider)}")
 print(f"   Destinos:  {len(g_dest)}")
@@ -185,6 +208,15 @@ TOP_PROVIDER = make_top(g_provider, 'Provider')
 TOP_DEST     = make_top(g_dest,     'Destino')
 TOP_CORP     = make_top(g_corp,     'CorpName')
 TOP_HOTEL    = make_top(g_hotel,    'Hotel')
+
+# ── Severity counts (sobre todos los hoteles con MIN_BOOKS) ──────────────────
+# Igual lógica que CR: contar hoteles por banda
+sev_bk_p80 = g_hotel['BandaBK'].value_counts().to_dict()
+# Asegurar todas las bandas
+for _b in ['Súper Crítica', 'Crítica', 'Revisar', 'Aceptable', 'Exitosa']:
+    sev_bk_p80.setdefault(_b, 0)
+p80_hoteles_bk = int(g_hotel['Hotel'].nunique())
+print(f'\n   Severity BK (P80): {sev_bk_p80}')
 
 # ── MÉTRICAS PARA CFB (strip de métricas en la barra de canasta) ──────────────
 # Bookability no tiene canastas, pero sí se muestra en el CFB con valor fijo
@@ -232,6 +264,7 @@ D = {
     'bk_prev':     bk_global_prev,
     'bk_wow':      bk_global_wow,
     'books_global': books_global,
+    'books_global_prev': books_global_prev,
     'hoteles_global': hoteles_global,
     'banda_global': banda_global,
     # Agregados por dimensión (con WoW)
@@ -244,6 +277,8 @@ D = {
     'TOP_DEST':    TOP_DEST,
     'TOP_CORP':    TOP_CORP,
     'TOP_HOTEL':   TOP_HOTEL,
+    'sev_bk_p80':  sev_bk_p80,
+    'p80_hoteles_bk': p80_hoteles_bk,
     # DataFrames originales
     'df_cur':      df_cur,
     'df_prev':     df_prev,

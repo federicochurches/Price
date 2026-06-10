@@ -286,6 +286,21 @@ w22_setMode = function(m, el) {
     ? 'Peor Eficacia + Peor ConvRate \u00b7 canasta activa'
     : 'Mayor NoDispo + Menor IPM \u00b7 canasta activa';
 
+  /* Bookability — solo visible en CR (Connectivities), oculto en RND (Availability) */
+  var bkItemDisplay = (m === 'cr') ? '' : 'none';
+  ['w22-strip-bk-item', 'w22-strip-bk-sep', 'ar-strip-bk-item', 'ar-strip-bk-sep'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = bkItemDisplay;
+  });
+
+  /* Severity label — cambiar según métrica de referencia */
+  var sevLbl = (m === 'cr') ? 'Severity Eficacia' : 'Severity NoDispo';
+  var sevLblEls = ['w22-strip-sev-lbl', 'ar-strip-sev-lbl'];
+  sevLblEls.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.textContent = sevLbl;
+  });
+
   /* Tab labels análisis de rendimiento */
   var t1=document.getElementById('w22-tab-lbl-1');
   var t2=document.getElementById('w22-tab-lbl-2');
@@ -432,7 +447,8 @@ window.addEventListener('load', function() { setTimeout(_hookTooltip, 100); });
 var _patchedCanvases = {};
 function _patchCanvasTooltips() {
   var canvasIds = ['hcr-global-ef','hcr-global-cv','hrnd-global-nd','hrnd-global-ipm',
-                   'hcr-panel-ef','hrnd-panel-nd','hcr-dim-ef','hrnd-dim-nd'];
+                   'hcr-panel-ef','hrnd-panel-nd','hcr-dim-ef','hrnd-dim-nd',
+                   'h-bk-global','h-bk-panel','h-bk-dim'];
   canvasIds.forEach(function(cid) {
     if (_patchedCanvases[cid]) return;
     var el = document.getElementById(cid);
@@ -769,10 +785,10 @@ function _cardRow(r, idx, isEf, grid){
   var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
   var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
   var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
-  /* Grid por métrica: Eficacia usa 54px+48px, ConvRate usa 68px+40px */
-  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 52px 54px 48px'
-                                : 'minmax(0,1fr) 80px 56px 52px 68px 40px');
-  var badge='<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+  /* W23+: sin columna severity — grid de 5 cols (sin la columna del badge) */
+  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 54px 48px'
+                                : 'minmax(0,1fr) 80px 56px 68px 40px');
+  /* badge sev removido — la card no muestra severity en filas */
   var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtInt(cr_u);
   /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
   var tw, tw_bg, tw_fg, tw_pill;
@@ -801,7 +817,6 @@ function _cardRow(r, idx, isEf, grid){
     +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
-    +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+badge+'</div>'
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
     +'<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>'
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+_fmtPct(val_pct)+'</span>'
@@ -861,7 +876,7 @@ function w22_renderCardTabs(canasta){
 
     /* Completar con catálogo canónico — channels sin datos = Sin Actividad */
     var CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'];
-    var CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate'];
+    var CATALOG_TP = ['Expedia','HotelBeds','Hotel Unico','Travelgate'];
     function _inactive(name){ return [name,'#F2EEE6','#8A8377','Sin Actividad','—','—',null]; }
     var pp_names = pp.map(function(r){ return r[0]; });
     var tp_names = tp.map(function(r){ return r[0]; });
@@ -874,9 +889,13 @@ function w22_renderCardTabs(canasta){
     var acc = (typeof cv==='function') ? cv().col : '#5C469C';
     var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
-    panel.innerHTML = '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-      +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+pp_html+'</div>'
-      +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+tp_html+'</div>'
+    var _mkHdr = function(label){return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;">'+label+'</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'+'</div>';};
+    /* Label de métrica según card (Eficacia / Conv Rate) */
+    var metricLbl = (card && card.id && card.id.indexOf('cv')>=0) ? 'Conv Rate' : 'Eficacia';
+    /* Layout BK style: PP arriba, TP abajo (flex column) */
+    panel.innerHTML = '<div style="display:flex;flex-direction:column;gap:14px;">'
+      +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+_mkHdr(metricLbl)+pp_html+'</div>'
+      +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+_mkHdr(metricLbl)+tp_html+'</div>'
       +'</div>';
     if(typeof window._injectHistAttrs==='function') window._injectHistAttrs(card);
   });
@@ -891,34 +910,43 @@ function w22_renderCardTabs(canasta){
 */
 function _buildChanRow(r, i, opts) {
   opts = opts || {};
-  var nombre=r[0], bbg=r[1], bfg=r[2], banda=r[3], val_pct=r[5], wow_pp_raw=r[6];
+  var nombre=r[0], banda=r[3], cr_u=r[4], val_pct=r[5], wow_pp_raw=r[6];
   var isInactive = banda === 'Sin Actividad';
   var wow_pp = (wow_pp_raw!=null && wow_pp_raw!=='—' && wow_pp_raw!=='')
     ? parseFloat(String(wow_pp_raw).replace(/[^0-9,.\-]/g,'').replace(',','.')) : null;
-  var badge = isInactive
-    ? '<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>'
-    : '<span class="sev-badge" style="background:'+bbg+';color:'+bfg+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+banda+'</span>';
+  /* TRX formateado */
+  var trxStr = (cr_u!=null && cr_u!=='—' && cr_u!=='')
+    ? (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u) ? cr_u : _fmtInt(cr_u))
+    : '—';
+  /* WoW métrica pill */
   var mw_up = wow_pp!=null&&!isNaN(wow_pp)&&wow_pp>0;
   var mw = (wow_pp!=null&&!isNaN(wow_pp))
-    ? _pill((wow_pp>0?'▲':'▼')+Math.abs(wow_pp).toFixed(2).replace('.',','), mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
-    : '<span style="color:var(--ink-muted)">—</span>';
+    ? _pill((wow_pp>0?'+':'')+wow_pp.toFixed(2).replace('.',',')+'pp', mw_up?'#EAF3DE':'#FCE8E6', mw_up?'#2F6C34':'#C0392B')
+    : '<span style="color:var(--ink-muted);font-size:10px;">—</span>';
   var displayVal = val_pct || '—';
   var metNum = parseFloat(String(val_pct).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
   var wowNum = (wow_pp!=null&&!isNaN(wow_pp)) ? Math.abs(wow_pp) : 0;
   var w20num = (wow_pp!=null&&!isNaN(wow_pp)) ? (mw_up ? metNum-wowNum : metNum+wowNum) : metNum;
-  var num = (i<10?'0'+(i+1):(i+1))+'. ';
-  /* data-hist attrs: AR cards incluyen w20 y card number */
+  /* data-hist attrs */
   var histAttrs = 'data-hist-w21="'+metNum+'" data-hist-label="'+nombre+'"';
   if (opts.w20)   histAttrs += ' data-hist-w20="'+w20num+'"';
   if (opts.cardN) histAttrs += ' data-hist-card="'+opts.cardN+'"';
+  /* Grid 4 cols como BK: nombre · TRX · valor · WoW (sin WoW Trx, no disponible aquí) */
   var rowStyle = isInactive
-    ? 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-    : 'display:grid;grid-template-columns:minmax(0,1fr) 72px 52px 36px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+    ? 'display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+    : 'display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
   var nameStyle = 'font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;';
+  var trxStyle  = 'text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';font-variant-numeric:tabular-nums;';
   var valStyle  = 'text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;';
+  if (isInactive) {
+    return '<div '+histAttrs+' style="'+rowStyle+'">'
+      +'<span style="'+nameStyle+'">'+nombre+'</span>'
+      +'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;grid-column:2/-1;text-align:right;">sin actividad</span>'
+      +'</div>';
+  }
   return '<div '+histAttrs+' style="'+rowStyle+'">'
-    +'<span style="'+nameStyle+'">'+num+nombre+'</span>'
-    +'<div style="display:flex;align-items:center;justify-content:flex-start;">'+(isInactive?'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;">sin actividad</span>':badge)+'</div>'
+    +'<span style="'+nameStyle+'">'+nombre+'</span>'
+    +'<span style="'+trxStyle+'">'+trxStr+'</span>'
     +'<span style="'+valStyle+'">'+displayVal+'</span>'
     +'<div style="text-align:right;">'+mw+'</div>'
     +'</div>';
@@ -961,12 +989,24 @@ function _arRenderChan(n) {
   var cyan = '#4FC3F4';
   var isCR = W.mode === 'cr';
 
-  /* chanRowAR reemplazada por _buildChanRow(r, i, {cardN:n, w20:true}) — P10 */
+  /* W23+: Layout vertical (PP arriba, TP abajo) + header con columnas — mismo estilo cards KPI */
   var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
   var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0;">'
-    +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+pp_html+'</div>'
-    +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+tp_html+'</div>'
+  var metricLbl;
+  if (isCR) metricLbl = (n === 1) ? 'Eficacia' : 'Conv Rate';
+  else      metricLbl = (n === 1) ? '%NoDispo' : 'IPM';
+  var _mkHdr = function(lbl){
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;'
+      +'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'
+      +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
+      +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
+      +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;">'+lbl+'</span>'
+      +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+      +'</div>';
+  };
+  var html = '<div style="display:flex;flex-direction:column;gap:14px;padding:8px 0;">'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83C\uDFE0 Producto Propio</div>'+_mkHdr(metricLbl)+pp_html+'</div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+_mkHdr(metricLbl)+tp_html+'</div>'
     +'</div>';
 
   /* Ocultar la tabla y mostrar el div de canal */
@@ -1553,14 +1593,15 @@ function _renderAllRows(rows, renderFn) {
 
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
 /* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
-var _KPI_RCOLS_CR  = {2:5, 4:7};
-var _KPI_RCOLS_RND = {2:5, 4:7}; /* misma estructura desde W21-post5 */
+/* W23+: todas las cols sorteables — 5 cols sin severity */
+var _KPI_RCOLS_CR  = {1:0, 2:5, 3:6, 4:7, 5:8};
+var _KPI_RCOLS_RND = {1:0, 2:5, 3:6, 4:7, 5:8};
 var _KPI_RCOLS = _KPI_RCOLS_CR;
 
 /* Grid CSS por métrica — para que _cardRow use el correcto según la card */
 var _KPI_GRID = {
-  ef:  'minmax(0,1fr) 80px 56px 52px 54px 48px',
-  cv:  'minmax(0,1fr) 80px 56px 52px 68px 40px',
+  ef:  'minmax(0,1fr) 80px 56px 54px 48px',
+  cv:  'minmax(0,1fr) 80px 56px 68px 40px',
   nd:  'minmax(0,1fr) 76px 52px 44px 54px 36px',
   ipm: 'minmax(0,1fr) 76px 52px 44px 54px 36px',
 };
@@ -1585,8 +1626,8 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
     var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
     var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
     var hdrLabels = {
-      ef:  ['Severity','Tráfico','WoW','Eficacia','WoW'],
-      cv:  ['Severity','Tráfico','WoW','Conv Rate','WoW'],
+      ef:  ['Tráfico','WoW','Eficacia','WoW'],
+      cv:  ['Tráfico','WoW','Conv Rate','WoW'],
       nd:  ['Severity','Tráfico','WoW','%NoDispo','WoW'],
       ipm: ['Severity','Tráfico','WoW','IPM','WoW'],
     };
@@ -1594,8 +1635,15 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
     var hdrSpans = '<span></span>' + labels.map(function(h, i){
       var isActive = (i+1 === activeCol) && dir && dir !== 'orig';
       var baseStyle = h === 'Severity' ? _ll : _lr;
-      var extra = isActive ? 'color:var(--accent);text-decoration:underline;' : '';
-      return '<span style="'+baseStyle+extra+'cursor:pointer;" data-sort-col="'+(i+1)+'">'+h+'</span>';
+      var extra = isActive ? 'color:var(--accent);' : '';
+      /* Flecha de ordenamiento ↕/↑/↓ unificada con BK */
+      var arrow;
+      if (isActive) {
+        arrow = ' <em class="kpi-sort-arrow" style="font-style:normal;opacity:1;color:var(--accent);">' + (dir === 'desc' ? '↓' : '↑') + '</em>';
+      } else {
+        arrow = ' <em class="kpi-sort-arrow" style="font-style:normal;opacity:.4;">↕</em>';
+      }
+      return '<span style="'+baseStyle+extra+'cursor:pointer;user-select:none;" data-sort-col="'+(i+1)+'">'+h+arrow+'</span>';
     }).join('');
     var hdrHtml = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;" data-sort-hdr="1">'+hdrSpans+'</div>';
         var rowsHtml = sorted10.map(function(item,i){

@@ -169,10 +169,11 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         'traf_wow_type': 'abs',     # viene escalado ×100, reescalamos /100 → abs delta
         'wow_col':       'Eficacia_WoW_pp',
         'wow_is_pos':    True,
-        'grid_cols':     'minmax(0,1fr) 80px 56px 52px 54px 48px',
+        'grid_cols':     'minmax(0,1fr) 80px 56px 54px 48px',
+        'show_severity': False,
     }
-    _EF_HDR = {'headers': ['Severity','Tráfico','WoW','Eficacia','WoW'],
-               'widths':  'minmax(0,1fr) 80px 56px 52px 54px 48px'}
+    _EF_HDR = {'headers': ['Tráfico','WoW','Eficacia','WoW'],
+               'widths':  'minmax(0,1fr) 80px 56px 54px 48px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''
@@ -210,10 +211,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     val_str = '—'
                 else:
                     val_str = fmt_pct2(raw_val)
-                bnd = banda_eficacia(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 'Sin Conversión'
-                bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
-                badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
-                         f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
+                # TRX (CR_Unicos)
+                cr_u = r.get('CR_Unicos', 0)
+                trx_str = fmt_int_es(int(cr_u)) if cr_u and cr_u == cr_u else '—'
                 wow_col_k = val_col + '_WoW_pp'
                 try:
                     wow_v = r[wow_col_k]
@@ -221,27 +221,38 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"▲" if wow_v>0 else "▼"}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}pp'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
                     wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
+                # Grid de 4 cols (BK style): nombre · TRX · valor · WoW
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
-                        f'<div style="display:flex;align-items:center;justify-content:flex-start;">{badge}</div>'
+                        f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'<div style="text-align:right;">{wow_pill}</div>'
                         f'</div>')
 
             rows_pp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_pp_sorted))
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
+            _metric_lbl = 'Eficacia'
+            _hdr_chan = lambda lbl, acc: (
+                f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;'
+                f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;">{lbl}</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                f'</div>'
+            )
             chan_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
-                f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{rows_tp}</div>'
+                f'<div style="display:flex;flex-direction:column;gap:14px;">'
+                f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_pp}</div>'
+                f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_tp}</div>'
                 f'</div>'
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
@@ -250,7 +261,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         # ── Filas generadas por helper centralizado ───────────────────────────
         panels += build_kpi_tab_panel(df_t, t_key, _EF_CFG, _EF_HDR)
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
+    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-corp" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-hotel" name="tabs-ef" style="display:none;" type="radio"/>
@@ -268,7 +279,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
@@ -312,10 +323,11 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         'traf_wow_type': 'abs',
         'wow_col':       'ConvRate_WoW_pp',
         'wow_is_pos':    True,
-        'grid_cols':     'minmax(0,1fr) 80px 56px 52px 68px 40px',
+        'grid_cols':     'minmax(0,1fr) 80px 56px 68px 40px',
+        'show_severity': False,
     }
-    _CV_HDR = {'headers': ['Severity','Tráfico','WoW','Conv Rate','WoW'],
-               'widths':  'minmax(0,1fr) 80px 56px 52px 68px 40px'}
+    _CV_HDR = {'headers': ['Tráfico','WoW','Conv Rate','WoW'],
+               'widths':  'minmax(0,1fr) 80px 56px 68px 40px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''
@@ -349,10 +361,9 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                 if r is None: return ''
                 raw_val = r[val_col] if val_col in r.index else float('nan')
                 val_str = fmt_pct2(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isinf(raw_val)) else '—'
-                bnd = banda_convrate(raw_val, int(r.get('Bookings',0))) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 'Sin Conversión'
-                bc = BANDA_COLORS.get(bnd, {}); bbg = bc.get('bg','#F2EEE6'); bfg = bc.get('fg','#5F5E5A')
-                badge = (f'<span class="sev-badge" style="background:{bbg};color:{bfg};font-size:7px;font-weight:700;'
-                         f'padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">{bnd}</span>')
+                # TRX
+                cr_u = r.get('CR_Unicos', 0)
+                trx_str = fmt_int_es(int(cr_u)) if cr_u and cr_u == cr_u else '—'
                 wow_col_k = val_col + '_WoW_pp'
                 try:
                     wow_v = r[wow_col_k]
@@ -360,7 +371,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                     if abs(wow_v) >= 0.005:
                         mejora = wow_v > 0
                         wc = '#2F6C34' if mejora else '#C0392B'; wb = '#EAF3DE' if mejora else '#FCE8E6'
-                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"▲" if wow_v>0 else "▼"}{abs(wow_v):.2f}'.replace('.', ',') + '</em>'
+                        wow_pill = f'<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:{wb};color:{wc};white-space:nowrap;">{"+" if wow_v>0 else ""}{wow_v:.2f}pp'.replace('.', ',') + '</em>'
                     else:
                         wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 except:
@@ -368,19 +379,29 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
                 return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 44px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
-                        f'<div style="display:flex;align-items:center;justify-content:flex-start;">{badge}</div>'
+                        f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
                         f'<div style="text-align:right;">{wow_pill}</div>'
                         f'</div>')
 
             rows_pp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_pp_sorted_cv))
             rows_tp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_tp_sorted_cv))
+            _metric_lbl = 'Eficacia'
+            _hdr_chan = lambda lbl, acc: (
+                f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;'
+                f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;">{lbl}</span>'
+                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                f'</div>'
+            )
             chan_html = (
-                f'<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:18px;">'
-                f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{rows_pp}</div>'
-                f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{rows_tp}</div>'
+                f'<div style="display:flex;flex-direction:column;gap:14px;">'
+                f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_pp}</div>'
+                f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_tp}</div>'
                 f'</div>'
             )
             panels += f'<div class="tab-panel" data-tab="{t_key}">{chan_html}</div>'
@@ -389,7 +410,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         # ── Filas generadas por helper centralizado ───────────────────────────
         panels += build_kpi_tab_panel(df_t, t_key, _CV_CFG, _CV_HDR)
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
+    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
 <input checked="" id="tab-cv-destino" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-corp" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-hotel" name="tabs-cv" style="display:none;" type="radio"/>
@@ -407,7 +428,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''
@@ -487,12 +508,259 @@ def render_alerts_block():
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:14px;">{cards}</div>
 </div>'''
 
+# ── Card 3: Bookability ────────────────────────────────────────────────────────
+def render_kpi_card_bookability():
+    import pickle as _pk, os as _os, pandas as _pd
+    BK_COLOR = '#333132'
+    bk_path = _os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+    if not _os.path.exists(bk_path):
+        return ''
+    with open(bk_path, 'rb') as _f:
+        DB = _pk.load(_f)
+
+    bk_val    = DB.get('bk_global', 0)
+    bk_prev   = DB.get('bk_prev',   0)
+    bk_wow    = DB.get('bk_wow',    0)
+    books     = DB.get('books_global', 0)
+    banda_key = DB.get('banda_global', 'exitosa')
+
+    from render_helpers import (wow_box, fmt_pct2, fmt_int_es, BANDA_COLORS,
+                                banda_pill, target_caption, gauge_5levels,
+                                wow_pill_html, searchbox_pill_html)
+    def _fmt_compact(n):
+        n = int(n)
+        if n >= 1_000_000: return f'{n/1_000_000:.1f}M'.replace('.',',')
+        if n >= 1_000:     return f'{n/1_000:.1f}K'.replace('.',',')
+        return str(n)
+    from engine import banda_eficacia as _bef
+    from historico_module import render_historico as _rh
+
+    _lbl = {'exitosa':'Exitosa','aceptable':'Aceptable','revisar':'Revisar',
+            'critica':'Crítica','sc':'Súper Crítica','sinconv':'Sin Conversión'}
+    banda = _lbl.get(banda_key, 'Exitosa')
+
+    bk_fmt  = fmt_pct2(bk_val)
+    bp_fmt  = fmt_pct2(bk_prev)
+    wow_c   = '#2F6C34' if bk_wow > 0 else '#C0392B'
+    wow_arr = '↑' if bk_wow > 0 else ('↓' if bk_wow < 0 else '=')
+    if bk_wow > 0:   wow_s = f'{wow_arr} +{bk_wow*100:.2f}'.replace('.', ',')
+    elif bk_wow < 0: wow_s = f'{wow_arr} {bk_wow*100:.2f}'.replace('.', ',')
+    else:            wow_s = '= 0,00'
+
+    pill          = banda_pill(banda, target='≥ 97%')
+    pill_tgt      = pill + target_caption('≥ 97%')
+    gauge         = gauge_5levels(banda, 'eficacia')
+    _bk_wow_pp  = bk_wow * 100
+    if abs(_bk_wow_pp) < 0.005:
+        wow_pill_bk = ('<span style="display:inline-flex;align-items:center;gap:2px;'
+                       'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
+                       'background:#F2EEE6;color:#8A8377;">— 0,00pp</span>')
+    elif _bk_wow_pp > 0:
+        wow_pill_bk = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                       f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
+                       f'background:#EAF3DE;color:#2F6C34;">↑ +{_bk_wow_pp:.2f}pp</span>'.replace('.',','))
+    else:
+        wow_pill_bk = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                       f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
+                       f'background:#FCE8E6;color:#C0392B;">↓ {_bk_wow_pp:.2f}pp</span>'.replace('.',','))
+
+    # WoW de Books (Trx total) — comparar books_global vs books_global_prev
+    books_prev = DB.get('books_global_prev', books)
+    if books_prev and books_prev > 0:
+        books_wow_pct = (books - books_prev) / books_prev * 100
+    else:
+        books_wow_pct = 0
+    if abs(books_wow_pct) < 0.05:
+        wow_books_pill = ('<span style="display:inline-flex;align-items:center;gap:2px;'
+                          'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                          'background:#F2EEE6;color:#8A8377;">— 0,0%</span>')
+    elif books_wow_pct > 0:
+        wow_books_pill = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                          f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                          f'background:#EAF3DE;color:#2F6C34;">↑ +{books_wow_pct:.1f}%</span>'.replace('.', ','))
+    else:
+        wow_books_pill = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
+                          f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
+                          f'background:#FCE8E6;color:#C0392B;">↓ {books_wow_pct:.1f}%</span>'.replace('.', ','))
+    wow_block     = wow_box(bp_fmt, bk_fmt, wow_s, wow_c, BK_COLOR,
+                            week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}')
+    # trx_line se ensambla más abajo con wow_books_pill ya calculado
+
+    # ── Tabs labels ───────────────────────────────────────────────────────────
+    tabs_lbl = ''
+    for tk, tl in [('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]:
+        tabs_lbl += f'<label class="tab-label" for="tab-bk-{tk}">{tl}</label>'
+
+    # ── Helpers de fila ───────────────────────────────────────────────────────
+    _PROPIO  = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
+    _TERCERO = {'Expedia','HotelBeds','Hotel Unico','Travelgate'}
+
+    def _hdr(col):
+        # Headers clickeables con data-sort-key
+        return (f'<div class="bk-sort-hdr" '
+                f'style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
+                f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {BK_COLOR};">'
+                f'<span data-sort-key="lbl" onclick="bkSort(this)" '
+                f'style="font-size:9px;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">{col} <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="trx" onclick="bkSort(this)" '
+                f'style="font-size:9px;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Trx <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="trx-wow" onclick="bkSort(this)" '
+                f'style="font-size:9px;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk" onclick="bkSort(this)" '
+                f'style="font-size:9px;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:.08em;color:{BK_COLOR};text-align:right;cursor:pointer;user-select:none;">BK% <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk-wow" onclick="bkSort(this)" '
+                f'style="font-size:9px;font-weight:700;text-transform:uppercase;'
+                f'letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'</div>')
+
+    def _row(r, dim_col, sub_col=None):
+        bkr  = float(r['Bookability'])
+        trx  = fmt_int_es(int(r.get('Books', 0)))
+        wpp  = r.get('BK_WoW_pp', None)
+        wf   = f'{wpp*100:+.2f}pp'.replace('.',',') if (wpp is not None and not _pd.isna(wpp)) else '—'
+        wc   = '#1A6B4A' if (wpp or 0) >= 0 else '#C0392B'
+        lbl  = str(r.get(dim_col, '—'))
+        # Limpieza de sufijos comunes en Destino
+        if dim_col == 'Destino':
+            lbl = lbl.replace(' Area', '').replace(' area', '')
+        sub  = str(r.get(sub_col, '')) if sub_col and r.get(sub_col) else ''
+        sub_html = (f'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;'
+                    f'overflow:hidden;text-overflow:ellipsis;display:block;">{sub}</span>'
+                    if sub else '')
+        # WoW de Trx (Books_WoW_pct)
+        bwp = r.get('Books_WoW_pct', None)
+        if bwp is not None and not _pd.isna(bwp):
+            twf = f'{bwp:+.1f}%'.replace('.', ',')
+            twc = '#1A6B4A' if bwp >= 0 else '#C0392B'
+        else:
+            twf, twc = '—', 'var(--ink-muted)'
+        # data attrs para sort
+        _trx_int = int(r.get('Books', 0))
+        _trx_wow_v = bwp if (bwp is not None and not _pd.isna(bwp)) else 0
+        _bk_wow_v  = wpp if (wpp is not None and not _pd.isna(wpp)) else 0
+        return (f'<div class="bk-row" '
+                f'data-lbl="{lbl}" data-trx="{_trx_int}" '
+                f'data-trx-wow="{_trx_wow_v:.4f}" '
+                f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
+                f'style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
+                f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
+                f'<div style="min-width:0;overflow:hidden;">'
+                f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
+                f'font-weight:600;font-size:11px;color:var(--ink);display:block;">{lbl}</span>'
+                f'{sub_html}</div>'
+                f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);">{trx}</span>'
+                f'<span style="text-align:right;font-size:9px;font-weight:700;color:{twc};">{twf}</span>'
+                f'<span style="text-align:right;font-size:11px;font-weight:700;color:{BK_COLOR};">{fmt_pct2(bkr)}</span>'
+                f'<span style="text-align:right;font-size:9px;font-weight:700;color:{wc};">{wf}</span>'
+                f'</div>')
+
+    def _ver_mas_btn():
+        # Mismo estilo que EF/CV — div con border-top
+        return ('<div class="kpi-more-btn" '
+                'style="display:block;width:100%;margin:8px 0 2px;border-top:1px solid var(--rule-soft);'
+                'color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;'
+                'text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;'
+                'user-select:none;" '
+                'onclick="(function(el){'
+                'var exp=el.getAttribute(\'data-exp\')!==\'1\';'
+                'el.setAttribute(\'data-exp\',exp?\'1\':\'0\');'
+                'var p=el.closest(\'[data-tab]\');'
+                'p.querySelectorAll(\'.bk-more\').forEach(function(r){'
+                'r.style.display=exp?\'contents\':\'none\';'
+                '});'
+                'el.textContent=exp?\'Ver menos ▴\':\'Ver más ▾\';'
+                '})(this)">'
+                'Ver más ▾</div>')
+
+    def _panel(t_key, df, dim_col, col_lbl):
+        if df is None or len(df) == 0:
+            return f'<div class="tab-panel" data-tab="{t_key}"><p style="font-size:11px;color:var(--ink-muted);">Sin datos</p></div>'
+        _sub = 'CorpName' if dim_col == 'Hotel' else None
+        rows5 = ''.join(_row(r, dim_col, sub_col=_sub) for _, r in df.head(5).iterrows())
+        rows_m = ''.join(
+            f'<div class="bk-more" style="display:none;">{_row(r, dim_col, sub_col=_sub)}</div>'
+            for _, r in df.iloc[5:10].iterrows())
+        show_btn = _ver_mas_btn() if len(df) > 5 else ''
+        return (f'<div class="tab-panel" data-tab="{t_key}">'
+                f'{_hdr(col_lbl)}{rows5}{rows_m}{show_btn}</div>')
+
+    # ── Paneles ───────────────────────────────────────────────────────────────
+    panels = ''
+
+    # Channel — split Producto Propio / Third Party
+    top_prov = DB.get('TOP_PROVIDER', DB.get('g_provider', None))
+    if top_prov is not None:
+        pp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _PROPIO)
+        tp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _TERCERO)
+        _no_data = '<p style="font-size:11px;color:var(--ink-muted)">Sin datos</p>'
+        _pp_body = pp_rows if pp_rows else _no_data
+        _tp_body = tp_rows if tp_rows else _no_data
+        chan_html = (
+            f'<div style="display:flex;flex-direction:column;gap:14px;">'
+            f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;'
+            f'letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'
+            f'{_hdr("Channel")}{_pp_body}</div>'
+            f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;'
+            f'letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'
+            f'{_hdr("Channel")}{_tp_body}</div>'
+            f'</div>'
+        )
+        panels += f'<div class="tab-panel" data-tab="channel">{chan_html}</div>'
+    else:
+        panels += '<div class="tab-panel" data-tab="channel"><p>Sin datos</p></div>'
+
+    panels += _panel('destino', DB.get('TOP_DEST',  DB.get('g_dest',  None)), 'Destino',  'Destino')
+    panels += _panel('corp',    DB.get('TOP_CORP',  DB.get('g_corp',  None)), 'CorpName', 'Corporativo')
+    panels += _panel('hotel',   DB.get('TOP_HOTEL', DB.get('g_hotel', None)), 'Hotel',    'Hotel')
+
+    # ── Histórico ─────────────────────────────────────────────────────────────
+    hist_bk = _rh('bk', 'bookability', banda, bk_val, 'h-bk-global')
+
+    # ── HTML final ────────────────────────────────────────────────────────────
+    _sb = searchbox_pill_html('sb-kpi-bk', accent_color=BK_COLOR,
+                              placeholder='Buscar…', count_id='cnt-kpi-bk')
+    return (
+        f'<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">'
+        f'<input checked="" id="tab-bk-destino" name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<input id="tab-bk-corp"    name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<input id="tab-bk-hotel"   name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<input id="tab-bk-channel" name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<div>'
+        f'<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Bookability</div>'
+        f'<div style="margin-top:4px;display:flex;align-items:flex-start;gap:10px;">'
+        f'<div>'
+        f'<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:{BK_COLOR};line-height:1;">{bk_fmt}</div>'
+        f'<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);flex-wrap:wrap;">'
+        f'<span>Vol. {_fmt_compact(books)}</span>'
+        f'<span>· vs sem. ant. </span>{wow_pill_bk}</div>'
+        f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
+        f'<span><strong style="color:var(--ink-soft);">Trx:</strong> {fmt_int_es(books)}</span>{wow_books_pill}'
+        f'</div>'
+        f'</div>'
+        f'<div style="padding-top:4px;flex-shrink:0;align-self:flex-start;">{pill_tgt}</div>'
+        f'</div>'
+        f'</div>'
+        f'{gauge}'
+        f'{wow_block}'
+        f'<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs_lbl}</div>'
+        f'<div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px;">{_sb}</div>'
+        f'<div id="kpi-bk-panels" class="tab-panels">{panels}</div>'
+        f'{hist_bk}'
+        f'</div>'
+    )
+
+
 # Build hero
 h1, subhead, ef18, cv18, ef17, cv17, ef_wow, cv_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin:6px 0 12px;">
 {render_kpi_card_eficacia(ef18, ef17, ef_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
 {render_kpi_card_convrate(cv18, cv17, cv_wow, f'W{WEEK_NUM_INT}', f'W{WEEK_PREV_INT}')}
+{render_kpi_card_bookability()}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 </section>

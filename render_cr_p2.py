@@ -29,6 +29,17 @@ g_channel= D['g_channel']
 g_hotel  = D['g_hotel']
 sev_ef   = dict(D['sev_ef_p80'])
 sev_cv   = dict(D['sev_cv_p80'])
+# Cargar severity BK desde el pickle de Bookability
+import os as _os_bk_p2, pickle as _pk_bk_p2
+_bk_path = _os_bk_p2.getenv('PICKLE_BK', f'bk_w{int(os.getenv("VOL_NUM", "23"))}_data.pkl')
+if _os_bk_p2.path.exists(_bk_path):
+    with open(_bk_path, 'rb') as _fbk:
+        _DBK = _pk_bk_p2.load(_fbk)
+    sev_bk = dict(_DBK.get('sev_bk_p80', {}))
+    p80_hoteles_bk = int(_DBK.get('p80_hoteles_bk', 0))
+else:
+    sev_bk = {}
+    p80_hoteles_bk = 0
 
 # WoW lookups
 g_hotel_w17 = D.get('g_hotel_w17')
@@ -350,7 +361,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
 
     # Catálogo canónico — channels que siempre deben aparecer
     CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    CATALOG_TP = ['Expedia','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+    CATALOG_TP = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
     
     # Row vacío para channels sin actividad esta semana
     def _inactive_row(name):
@@ -533,6 +544,12 @@ def render_severity():
                         ('Revisar','0,8–1,5%'),('Aceptable','1,5–2,5%'),('Exitosa','≥2,5%')]:
         rows_cv += sev_row(banda, rng, int(sev_cv.get(banda,0)), total_cv)
 
+    total_bk = sum(sev_bk.values())
+    rows_bk = ''
+    for banda, rng in [('Súper Crítica','<60%'),('Crítica','60–85%'),
+                        ('Revisar','85–93%'),('Aceptable','93–97%'),('Exitosa','≥97%')]:
+        rows_bk += sev_row(banda, rng, int(sev_bk.get(banda,0)), total_bk)
+
     return f'''<section id="severity-combinada" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Severity</h2>
@@ -547,6 +564,10 @@ def render_severity():
 <div>
 <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#5C469C;margin:0 0 12px;">Conv Rate</h3>
 {rows_cv}
+</div>
+<div>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#333132;margin:0 0 12px;">Bookability</h3>
+{rows_bk}
 </div>
 </div>
 </section>'''
