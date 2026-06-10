@@ -570,18 +570,19 @@ def render_kpi_card_bookability():
         books_wow_pct = (books - books_prev) / books_prev * 100
     else:
         books_wow_pct = 0
+    # Badge TRX: MISMO estilo que el badge de Tráfico de las cards EF/CV
+    # (em, font-size:8px, padding:1px 4px, border-radius:3px, flecha ▲/▼, solo valor%)
     if abs(books_wow_pct) < 0.05:
-        wow_books_pill = ('<span style="display:inline-flex;align-items:center;gap:2px;'
-                          'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
-                          'background:#F2EEE6;color:#8A8377;">— 0,0%</span>')
-    elif books_wow_pct > 0:
-        wow_books_pill = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
-                          f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
-                          f'background:#EAF3DE;color:#2F6C34;">↑ +{books_wow_pct:.1f}%</span>'.replace('.', ','))
+        wow_books_pill = ('<em style="font-style:normal;font-size:8px;font-weight:700;'
+                          'padding:1px 4px;border-radius:3px;background:#F2EEE6;color:#8A8377;'
+                          'white-space:nowrap;">— 0,0%</em>')
     else:
-        wow_books_pill = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
-                          f'font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;'
-                          f'background:#FCE8E6;color:#C0392B;">↓ {books_wow_pct:.1f}%</span>'.replace('.', ','))
+        _arrow = '▲' if books_wow_pct > 0 else '▼'
+        _bg = '#EAF3DE' if books_wow_pct > 0 else '#FCE8E6'
+        _fg = '#2F6C34' if books_wow_pct > 0 else '#C0392B'
+        wow_books_pill = (f'<em style="font-style:normal;font-size:8px;font-weight:700;'
+                          f'padding:1px 4px;border-radius:3px;background:{_bg};color:{_fg};'
+                          f'white-space:nowrap;">{_arrow}{abs(books_wow_pct):.1f}%</em>'.replace('.', ','))
     wow_block     = wow_box(bp_fmt, bk_fmt, wow_s, wow_c, BK_COLOR,
                             week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}')
     # trx_line se ensambla más abajo con wow_books_pill ya calculado

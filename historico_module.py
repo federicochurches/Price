@@ -102,7 +102,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
       Evolución Histórica · <span id="hist-{canvas_id}-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
     </span>
   </div>
-  <div style="width:100%;height:76px;"><canvas id="{canvas_id}" style="display:block;width:100%;height:76px;"></canvas></div>
+  <div style="width:100%;height:88px;"><canvas id="{canvas_id}" style="display:block;width:100%;height:88px;"></canvas></div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
@@ -204,9 +204,13 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   function drawCanvas(vals) {{
     currentVals = vals;  /* recordar último estado para re-draws automáticos */
     var el = document.getElementById(CID), ctx = el ? el.getContext('2d') : null;
-    if (!ctx) return; el.width = el.offsetWidth; el.height = el.offsetHeight; ctx.clearRect(0, 0, el.width, el.height);
+    if (!ctx) return;
+    /* W23: fallback de ancho si offsetWidth es 0 (canvas en tab oculto o no medido aún) */
+    var _ow = el.offsetWidth || (el.parentElement ? el.parentElement.offsetWidth : 0) || 360;
+    var _oh = el.offsetHeight || 88;
+    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
     var W = el.width, H = el.height, n = vals.length;
-    var pL=10, pR=40, pT=8, pB=18;  /* padding izq/der/arr/aba */
+    var pL=8, pR=34, pT=8, pB=18;  /* padding izq/der/arr/aba — W23: pR reducido para más ancho útil con 3 cards */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
     var i_min = Math.min(Math.min.apply(null, vals), TARGET);
