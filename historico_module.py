@@ -95,7 +95,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650', 'bookability': '≥ 97%'}.get(metrica, 'Target')
     is_inverted_str = 'true' if is_inverted else 'false'
     
-    return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 12px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
+    return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
@@ -198,7 +198,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   /* Formato de label de target */
   function fmtTarget() {{
     return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\\B(?=(\\d{{3}})+(?!\\d))/g, ',') :
-           METRIC === 'eficacia' ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
+           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
   }}
   
   function drawCanvas(vals) {{
@@ -210,7 +210,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var _oh = el.offsetHeight || 88;
     el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
     var W = el.width, H = el.height, n = vals.length;
-    var pL=8, pR=34, pT=8, pB=18;  /* padding izq/der/arr/aba — W23: pR reducido para más ancho útil con 3 cards */
+    var pL=6, pR=30, pT=8, pB=18;  /* padding izq/der/arr/aba — W23: reducido para más ancho útil con 3 cards */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
     var i_min = Math.min(Math.min.apply(null, vals), TARGET);

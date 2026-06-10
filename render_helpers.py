@@ -416,7 +416,7 @@ def searchbox_pill_html(input_id, accent_color='#5C469C', placeholder='Buscar…
                       f'white-space:nowrap;transition:all .15s;"></span>')
     clear_id = input_id + '-clear'
     return (
-        f'<div class="sb-pill-wrap" style="margin-left:auto;display:flex;align-items:center;'
+        f'<div class="sb-pill-wrap" style="display:flex;align-items:center;'
         f'gap:7px;padding:0 4px 0 0;">'
         f'<div class="sb-pill" style="display:flex;align-items:center;gap:5px;'
         f'background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;'
