@@ -250,7 +250,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                 f'</div>'
             )
             chan_html = (
-                f'<div style="display:flex;flex-direction:column;gap:14px;width:100%;">'
+                f'<div class="chan-wrap" style="display:flex;flex-direction:column;gap:14px;width:100%;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_pp}</div>'
                 f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_tp}</div>'
                 f'</div>'
@@ -399,7 +399,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                 f'</div>'
             )
             chan_html = (
-                f'<div style="display:flex;flex-direction:column;gap:14px;width:100%;">'
+                f'<div class="chan-wrap" style="display:flex;flex-direction:column;gap:14px;width:100%;">'
                 f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_pp}</div>'
                 f'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>{_hdr_chan(_metric_lbl, "#5C469C")}{rows_tp}</div>'
                 f'</div>'
@@ -708,7 +708,7 @@ def render_kpi_card_bookability():
         _pp_body = pp_rows if pp_rows else _no_data
         _tp_body = tp_rows if tp_rows else _no_data
         chan_html = (
-            f'<div style="display:flex;flex-direction:column;gap:14px;width:100%;">'
+            f'<div class="chan-wrap" style="display:flex;flex-direction:column;gap:14px;width:100%;">'
             f'<div><div style="font-size:9px;font-weight:700;color:#5C469C;'
             f'letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'
             f'{_hdr("Channel")}{_pp_body}</div>'

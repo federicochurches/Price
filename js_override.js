@@ -977,7 +977,7 @@ function w22_renderCardTabs(canasta){
     /* Label de métrica según card (Eficacia / Conv Rate) */
     var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Eficacia';
     /* Layout BK style: PP arriba, TP abajo (flex column) */
-    panel.innerHTML = '<div style="display:flex;flex-direction:column;gap:14px;width:100%;">'
+    panel.innerHTML = '<div class="chan-wrap" style="display:flex;flex-direction:column;gap:14px;width:100%;">'
       +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+_mkHdr(metricLbl)+pp_html+'</div>'
       +'<div><div style="font-size:9px;font-weight:700;color:#4FC3F4;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+_mkHdr(metricLbl)+tp_html+'</div>'
       +'</div>';
