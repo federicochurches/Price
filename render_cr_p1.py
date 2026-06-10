@@ -618,7 +618,7 @@ def render_kpi_card_bookability():
                 f'letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
                 f'</div>')
 
-    def _row(r, dim_col, sub_col=None):
+    def _row(r, dim_col, sub_col=None, extra_cls='', extra_style=''):
         bkr  = float(r['Bookability'])
         trx  = fmt_int_es(int(r.get('Books', 0)))
         wpp  = r.get('BK_WoW_pp', None)
@@ -643,12 +643,12 @@ def render_kpi_card_bookability():
         _trx_int = int(r.get('Books', 0))
         _trx_wow_v = bwp if (bwp is not None and not _pd.isna(bwp)) else 0
         _bk_wow_v  = wpp if (wpp is not None and not _pd.isna(wpp)) else 0
-        return (f'<div class="bk-row" '
+        return (f'<div class="bk-row{extra_cls}" '
                 f'data-lbl="{lbl}" data-trx="{_trx_int}" '
                 f'data-trx-wow="{_trx_wow_v:.4f}" '
                 f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
                 f'style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
-                f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+                f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;{extra_style}">'
                 f'<div style="min-width:0;overflow:hidden;">'
                 f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
                 f'font-weight:600;font-size:11px;color:var(--ink);display:block;">{lbl}</span>'
@@ -671,7 +671,7 @@ def render_kpi_card_bookability():
                 'el.setAttribute(\'data-exp\',exp?\'1\':\'0\');'
                 'var p=el.closest(\'[data-tab]\');'
                 'p.querySelectorAll(\'.bk-more\').forEach(function(r){'
-                'r.style.display=exp?\'contents\':\'none\';'
+                'r.style.display=exp?\'grid\':\'none\';'
                 '});'
                 'el.textContent=exp?\'Ver menos ▴\':\'Ver más ▾\';'
                 '})(this)">'
@@ -681,13 +681,20 @@ def render_kpi_card_bookability():
         if df is None or len(df) == 0:
             return f'<div class="tab-panel" data-tab="{t_key}"><p style="font-size:11px;color:var(--ink-muted);">Sin datos</p></div>'
         _sub = 'CorpName' if dim_col == 'Hotel' else None
+        # 5 visibles
         rows5 = ''.join(_row(r, dim_col, sub_col=_sub) for _, r in df.head(5).iterrows())
+        # 6-10: expandibles con "Ver más" (clase bk-more, display:none hasta expandir)
         rows_m = ''.join(
-            f'<div class="bk-more" style="display:none;">{_row(r, dim_col, sub_col=_sub)}</div>'
+            _row(r, dim_col, sub_col=_sub, extra_cls=' bk-more', extra_style='display:none;')
             for _, r in df.iloc[5:10].iterrows())
+        # 11+: buscables pero ocultas (clase bk-sb-hidden) — clase directa en bk-row, sin wrapper,
+        # para que el searchbox las encuentre por [data-lbl] y pueda mostrarlas
+        rows_sb = ''.join(
+            _row(r, dim_col, sub_col=_sub, extra_cls=' bk-sb-hidden', extra_style='display:none;')
+            for _, r in df.iloc[10:].iterrows())
         show_btn = _ver_mas_btn() if len(df) > 5 else ''
         return (f'<div class="tab-panel" data-tab="{t_key}">'
-                f'{_hdr(col_lbl)}{rows5}{rows_m}{show_btn}</div>')
+                f'{_hdr(col_lbl)}{rows5}{rows_m}{rows_sb}{show_btn}</div>')
 
     # ── Paneles ───────────────────────────────────────────────────────────────
     panels = ''

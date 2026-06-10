@@ -654,45 +654,42 @@ window.bkSort = function(el) {
         bv = parseFloat(b.getAttribute('data-' + key) || '0');
         return newDir === 'desc' ? bv - av : av - bv;
     };
-    /* Agrupar por contenedor (PP/TP en channel) usando el parent inmediato del primer row */
-    /* Identificar los "container" parents — son los <div> que contienen rows directamente o bk-more wrappers */
+    /* W23: estructura nueva — filas .bk-row directas (sin wrappers), con clases
+       bk-more (filas 6-10) y bk-sb-hidden (11+). Agrupar por parent directo (PP/TP en channel). */
     var allRowEls = Array.prototype.slice.call(panel.querySelectorAll('.bk-row'));
-    /* Mapear cada row a su "container final" (no bk-more wrapper, sino el contenedor de seccion PP/TP/general) */
-    function _container(row) {
-        var w = row.closest('.bk-more');
-        return w ? w.parentNode : row.parentNode;
-    }
     var groups = []; /* {container, rows} */
     allRowEls.forEach(function(r) {
-        var c = _container(r);
+        var c = r.parentNode;
         var g = groups.find(function(x){ return x.container === c; });
         if (!g) { g = { container: c, rows: [] }; groups.push(g); }
         g.rows.push(r);
     });
-    /* Para cada grupo, ordenar y re-armar manteniendo top 5 visibles y 6-10 ocultas */
+    /* Para cada grupo, ordenar y re-asignar clases/visibilidad según posición */
     groups.forEach(function(grp) {
         grp.rows.sort(sortFn);
-        /* Buscar el botón Ver más dentro del container (puede no existir si len<=5) */
         var moreBtn = grp.container.querySelector(':scope > .kpi-more-btn');
         var isExpanded = moreBtn && moreBtn.getAttribute('data-exp') === '1';
-        /* Quitar todas las filas y wrappers bk-more del container */
-        var oldWrappers = Array.prototype.slice.call(grp.container.querySelectorAll(':scope > .bk-more'));
-        oldWrappers.forEach(function(w){ w.parentNode.removeChild(w); });
+        /* Quitar todas las filas del container */
         grp.rows.forEach(function(r){ if(r.parentNode) r.parentNode.removeChild(r); });
-        /* Re-insertar antes del botón Ver más */
         var beforeEl = moreBtn;
         grp.rows.forEach(function(r, i) {
-            if (i < 5 || isExpanded) {
-                if (beforeEl) grp.container.insertBefore(r, beforeEl);
-                else grp.container.appendChild(r);
+            /* Resetear clases de posición */
+            r.classList.remove('bk-more');
+            r.classList.remove('bk-sb-hidden');
+            if (i < 5) {
+                /* Top 5 — visible */
+                r.style.display = 'grid';
+            } else if (i < 10) {
+                /* 6-10 — expandible con Ver más */
+                r.classList.add('bk-more');
+                r.style.display = isExpanded ? 'grid' : 'none';
             } else {
-                var wrapper = document.createElement('div');
-                wrapper.className = 'bk-more';
-                wrapper.style.display = 'none';
-                wrapper.appendChild(r);
-                if (beforeEl) grp.container.insertBefore(wrapper, beforeEl);
-                else grp.container.appendChild(wrapper);
+                /* 11+ — buscable pero oculta */
+                r.classList.add('bk-sb-hidden');
+                r.style.display = 'none';
             }
+            if (beforeEl) grp.container.insertBefore(r, beforeEl);
+            else grp.container.appendChild(r);
         });
     });
 };
