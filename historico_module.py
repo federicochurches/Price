@@ -356,8 +356,26 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     }});
   }}
   
-  document.addEventListener('hist-update', function(e) {{ if (e.detail.cid !== CID) return; var s = buildSerie(e.detail.w_curr, e.detail.w_prev); drawCanvas(s); updateMetrics(s, e.detail.label || ''); }});
-  document.addEventListener('hist-reset', function(e) {{ if (e.detail.cid !== CID) return; drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); }});
+  document.addEventListener('hist-update', function(e) {{
+    if (e.detail.cid !== CID) return;
+    var s = buildSerie(e.detail.w_curr, e.detail.w_prev);
+    var lbl = e.detail.label || '';
+    /* requestAnimationFrame garantiza que el canvas esté en el layout antes de dibujar */
+    requestAnimationFrame(function() {{
+      var el = document.getElementById(CID);
+      /* Si offsetWidth es 0, el canvas no está medido — forzar el ancho del padre */
+      if (el && el.offsetWidth === 0 && el.parentElement) {{
+        el.width = el.parentElement.offsetWidth || 360;
+        el.height = 88;
+      }}
+      drawCanvas(s);
+      updateMetrics(s, lbl);
+    }});
+  }});
+  document.addEventListener('hist-reset', function(e) {{
+    if (e.detail.cid !== CID) return;
+    requestAnimationFrame(function() {{ drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); }});
+  }});
   
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else requestAnimationFrame(init);
