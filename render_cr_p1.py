@@ -554,15 +554,15 @@ def render_kpi_card_bookability():
     if abs(_bk_wow_pp) < 0.005:
         wow_pill_bk = ('<span style="display:inline-flex;align-items:center;gap:2px;'
                        'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
-                       'background:#F2EEE6;color:#8A8377;">— 0,00pp</span>')
+                       'background:#F2EEE6;color:#8A8377;">— 0,00</span>')
     elif _bk_wow_pp > 0:
         wow_pill_bk = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
                        f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
-                       f'background:#EAF3DE;color:#2F6C34;">↑ +{_bk_wow_pp:.2f}pp</span>'.replace('.',','))
+                       f'background:#EAF3DE;color:#2F6C34;">↑ +{_bk_wow_pp:.2f}</span>'.replace('.',','))
     else:
         wow_pill_bk = (f'<span style="display:inline-flex;align-items:center;gap:2px;'
                        f'font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;'
-                       f'background:#FCE8E6;color:#C0392B;">↓ {_bk_wow_pp:.2f}pp</span>'.replace('.',','))
+                       f'background:#FCE8E6;color:#C0392B;">↓ {_bk_wow_pp:.2f}</span>'.replace('.',','))
 
     # WoW de Books (Trx total) — comparar books_global vs books_global_prev
     books_prev = DB.get('books_global_prev', books)

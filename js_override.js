@@ -2327,13 +2327,13 @@ function ar3_showMore() {
   var wp3 = document.getElementById('ar3-wow-pill');
   if (wp3) {
     var isUp = d.bk_wow >= 0;
-    wp3.innerHTML = '<em class="wow-pill '+(isUp?'up':'dn')+'" style="margin-left:0;">'+(isUp?'&uarr;':'&darr;')+' '+Math.abs(d.bk_wow).toFixed(2)+'pp</em>';
+    wp3.innerHTML = '<em class="wow-pill '+(isUp?'up':'dn')+'" style="margin-left:0;">'+(isUp?'&uarr;':'&darr;')+' '+Math.abs(d.bk_wow).toFixed(2).replace('.',',')+'</em>';
   }
 
   var wb3 = document.getElementById('ar3-wowbox');
   if (wb3) {
     var isUp = d.bk_wow >= 0;
-    var wowFmt = (isUp ? '+' : '') + d.bk_wow.toFixed(2) + 'pp';
+    var wowFmt = (isUp ? '+' : '') + d.bk_wow.toFixed(2).replace('.',',');
     wb3.innerHTML =
       '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W22</div><div style="font-size:15px;font-weight:700;margin-top:2px;color:var(--ink-soft);">'+d.bk_prev+'</div></div>'+
       '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W23</div><div style="font-size:15px;font-weight:700;margin-top:2px;color:#333132;">'+d.bk+'</div></div>'+
@@ -2390,13 +2390,23 @@ function ar3_showMore() {
     return 'Aceptable';
   }
 
-  /* Actualizar badges individuales */
-  _updateBandBadge('w22-strip-ef-band', d.ef, 'eficacia');
-  _updateBandBadge('w22-strip-cv-band', d.cv, 'convrate');
-  _updateBandBadge('w22-strip-bk-band', d.bk, 'bookability');
-  _updateBandBadge('ar-strip-ef-band', d.ef, 'eficacia');
-  _updateBandBadge('ar-strip-cv-band', d.cv, 'convrate');
-  _updateBandBadge('ar-strip-bk-band', d.bk, 'bookability');
+  /* Actualizar badges individuales.
+     d = BK_DATA[canasta] (no tiene .ef/.cv) → usar CR_CV para EF/CV.
+     Los valores en CR_CV son strings ('94,53%') — parsear a float para la banda. */
+  function _parseKpiPct(s) {
+    if (typeof s === 'number') return s;
+    if (!s) return NaN;
+    /* '94,53%' → 94.53 */
+    return parseFloat(String(s).replace('%','').replace(',','.'));
+  }
+  var _crCv = (typeof CR_CV !== 'undefined' && CR_CV[W.canasta]) ? CR_CV[W.canasta] : {};
+  var _bkCanasta = (typeof BK_DATA !== 'undefined' && BK_DATA[W.canasta]) ? BK_DATA[W.canasta] : d;
+  _updateBandBadge('w22-strip-ef-band', _parseKpiPct(_crCv.ef), 'eficacia');
+  _updateBandBadge('w22-strip-cv-band', _parseKpiPct(_crCv.cv), 'convrate');
+  _updateBandBadge('w22-strip-bk-band', _parseKpiPct(_bkCanasta.bk), 'bookability');
+  _updateBandBadge('ar-strip-ef-band', _parseKpiPct(_crCv.ef), 'eficacia');
+  _updateBandBadge('ar-strip-cv-band', _parseKpiPct(_crCv.cv), 'convrate');
+  _updateBandBadge('ar-strip-bk-band', _parseKpiPct(_bkCanasta.bk), 'bookability');
 
   ar3_renderTable('prov', 'crit');
   
