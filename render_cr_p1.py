@@ -261,7 +261,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         # ── Filas generadas por helper centralizado ───────────────────────────
         panels += build_kpi_tab_panel(df_t, t_key, _EF_CFG, _EF_HDR)
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
+    return f'''<div class="kpi-card" id="kpicard-ef" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
 <input checked="" id="tab-ef-destino" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-corp" name="tabs-ef" style="display:none;" type="radio"/>
 <input id="tab-ef-hotel" name="tabs-ef" style="display:none;" type="radio"/>
@@ -410,7 +410,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         # ── Filas generadas por helper centralizado ───────────────────────────
         panels += build_kpi_tab_panel(df_t, t_key, _CV_CFG, _CV_HDR)
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
+    return f'''<div class="kpi-card" id="kpicard-cv" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
 <input checked="" id="tab-cv-destino" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-corp" name="tabs-cv" style="display:none;" type="radio"/>
 <input id="tab-cv-hotel" name="tabs-cv" style="display:none;" type="radio"/>
@@ -724,7 +724,7 @@ def render_kpi_card_bookability():
     _sb = searchbox_pill_html('sb-kpi-bk', accent_color=BK_COLOR,
                               placeholder='Buscar…', count_id='cnt-kpi-bk')
     return (
-        f'<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">'
+        f'<div class="kpi-card" id="kpicard-bk" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">'
         f'<input checked="" id="tab-bk-destino" name="tabs-bk" style="display:none;" type="radio"/>'
         f'<input id="tab-bk-corp"    name="tabs-bk" style="display:none;" type="radio"/>'
         f'<input id="tab-bk-hotel"   name="tabs-bk" style="display:none;" type="radio"/>'

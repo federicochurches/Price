@@ -844,36 +844,8 @@ function w22_renderCardTabs(canasta){
   var tabs = CR_CARD_TABS[canasta] || CR_CARD_TABS['global'];
   if(!tabs) return;
   
-  /* destino / corp / hotel */
-  ['ef','cv'].forEach(function(metric){
-    var isEf = metric==='ef';
-    var suffix = isEf ? '-ef-' : '-cv-';
-    var grid = _KPI_GRID[metric] || _KPI_GRID['ef'];
-    ['destino','corp','hotel'].forEach(function(tkey){
-      var rows = (tabs[metric]||{})[tkey]||[];
-      var radioEl = document.getElementById('tab'+suffix+tkey);
-      if(!radioEl) return;
-      var card = radioEl.closest('.kpi-card');
-      if(!card) return;
-      var panel = card.querySelector('[data-tab="'+tkey+'"]');
-      if(!panel) return;
-      var rowsHtml = rows.map(function(r,i){
-        var disp = i>=_KPI_EXPAND_N ? 'none' : i>=_KPI_TOP_N ? 'none' : 'grid';
-        var cls  = i>=_KPI_EXPAND_N ? 'sb-hidden' : i>=_KPI_TOP_N ? 'rows-more' : '';
-        return _cardRow(r,i,isEf,grid,disp,cls);
-      }).join('');
-      var kpiRows = panel.querySelector('.kpi-tab-rows');
-      if(kpiRows){
-        var header = kpiRows.querySelector('div:first-child');
-        /* Solo preservar el header si NO es un row de datos */
-        var hdrHtml = (header && !header.hasAttribute('data-row-idx') && !header.hasAttribute('data-hist-label'))
-          ? header.outerHTML : '';
-        kpiRows.innerHTML = hdrHtml + rowsHtml;
-      } else {
-        panel.innerHTML = rowsHtml;
-      }
-    });
-  });
+  /* destino / corp / hotel — el render completo (filas + header con sort) lo hace _kpiSortAttach
+     al final de esta función. Aquí NO renderizamos para evitar doble-render y reset del sort. */
   
   /* channel — layout especial: PP / TP en dos columnas */
   ['ef','cv'].forEach(function(metric){
@@ -906,7 +878,7 @@ function w22_renderCardTabs(canasta){
     var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     var _mkHdr = function(label){return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;">'+label+'</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'+'</div>';};
     /* Label de métrica según card (Eficacia / Conv Rate) */
-    var metricLbl = (card && card.id && card.id.indexOf('cv')>=0) ? 'Conv Rate' : 'Eficacia';
+    var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Eficacia';
     /* Layout BK style: PP arriba, TP abajo (flex column) */
     panel.innerHTML = '<div style="display:flex;flex-direction:column;gap:14px;width:100%;">'
       +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+_mkHdr(metricLbl)+pp_html+'</div>'
@@ -2377,9 +2349,11 @@ function ar3_showMore() {
   (function() {
     var BK_TABS = ['destino', 'corp', 'hotel', 'channel'];
     /* Encontrar la kpi-card de BK — la que contiene tab-bk-destino */
-    var bkCard = null;
-    var r0 = document.getElementById('tab-bk-destino');
-    if (r0) bkCard = r0.closest('.kpi-card');
+    var bkCard = document.getElementById('kpicard-bk');
+    if (!bkCard) {
+      var r0 = document.getElementById('tab-bk-destino');
+      if (r0) bkCard = r0.closest('.kpi-card');
+    }
     if (!bkCard) return;
 
     var panels = bkCard.querySelector('#kpi-bk-panels');
@@ -2391,35 +2365,32 @@ function ar3_showMore() {
         var p = panels.querySelector('[data-tab="' + t + '"]');
         if (p) p.style.display = (t === tabKey) ? '' : 'none';
       });
-      /* Actualizar estilo de labels */
-      var tabsRow = bkCard.querySelector('.tabs-row');
-      if (tabsRow) {
-        tabsRow.querySelectorAll('label').forEach(function(lbl) {
-          var forAttr = lbl.getAttribute('for') || '';
-          var isActive = forAttr === 'tab-bk-' + tabKey;
+      /* Actualizar estilo de TODOS los labels tab-bk-* en la card */
+      BK_TABS.forEach(function(t) {
+        var lbls = bkCard.querySelectorAll('label[for="tab-bk-' + t + '"]');
+        lbls.forEach(function(lbl) {
+          var isActive = (t === tabKey);
           lbl.style.color = isActive ? 'var(--accent)' : '';
           lbl.style.borderBottom = isActive ? '2px solid var(--accent)' : '';
           lbl.style.fontWeight = isActive ? '700' : '';
         });
-      }
+      });
       /* Marcar radio para compatibilidad con CSS */
       var radio = document.getElementById('tab-bk-' + tabKey);
       if (radio) radio.checked = true;
     }
 
-    /* Attach click en labels */
-    var tabsRow = bkCard.querySelector('.tabs-row');
-    if (tabsRow) {
-      tabsRow.querySelectorAll('label').forEach(function(lbl) {
-        lbl.addEventListener('click', function() {
-          var forAttr = lbl.getAttribute('for') || '';
-          var tabKey = forAttr.replace('tab-bk-', '');
-          if (BK_TABS.indexOf(tabKey) >= 0) {
-            _activateBKTab(tabKey);
-          }
+    /* Attach click en TODOS los labels con for=tab-bk-* (sin importar en qué tabs-row están) */
+    BK_TABS.forEach(function(tabKey) {
+      var lbls = bkCard.querySelectorAll('label[for="tab-bk-' + tabKey + '"]');
+      lbls.forEach(function(lbl) {
+        lbl.style.cursor = 'pointer';
+        lbl.addEventListener('click', function(e) {
+          e.preventDefault();
+          _activateBKTab(tabKey);
         });
       });
-    }
+    });
 
     /* Estado inicial: mostrar solo destino */
     _activateBKTab('destino');
