@@ -562,6 +562,51 @@ document.addEventListener('click', function(e) {
   if (labelEl) labelEl.textContent = label;
 });
 
+/* ── Event delegation DIRECTO para filas KPI (EF/CV) con data-hist-w21 ─────────
+   Complementa attachListeners de historico_module. Usa document-level para
+   capturar eventos aunque el panel esté en estado display:none transitorio. */
+document.addEventListener('click', function(e) {
+  var row = e.target.closest('[data-hist-w21]');
+  if (!row) return;
+  /* Solo filas dentro de .kpi-tab-rows (no tbody de AR) */
+  if (!row.closest('.kpi-tab-rows')) return;
+  var card = row.closest('.kpi-card');
+  if (!card || (card.id !== 'kpicard-ef' && card.id !== 'kpicard-cv')) return;
+
+  var isEf = (card.id === 'kpicard-ef');
+  var cid = isEf ? 'hcr-global-ef' : 'hcr-global-cv';
+  var w21 = parseFloat(row.getAttribute('data-hist-w21') || 'NaN');
+  var w20 = parseFloat(row.getAttribute('data-hist-w20') || 'NaN');
+  var lbl = row.getAttribute('data-hist-label') || '';
+
+  /* Deselección: segundo click en la misma fila → volver a Global */
+  if (row.getAttribute('data-selected') === '1') {
+    card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
+      r.style.background = ''; r.removeAttribute('data-selected');
+    });
+    document.dispatchEvent(new CustomEvent('hist-reset', { detail: { cid: cid } }));
+    var lblEl = document.getElementById('hist-' + cid + '-label');
+    if (lblEl) lblEl.textContent = 'Global';
+    return;
+  }
+
+  /* Highlight + marcar */
+  card.querySelectorAll('[data-hist-w21]').forEach(function(r) {
+    r.style.background = ''; r.removeAttribute('data-selected');
+  });
+  row.setAttribute('data-selected', '1');
+  row.style.background = 'var(--accent-soft)';
+
+  /* Disparar hist-update — historico_module escucha y redibuja */
+  if (!isNaN(w21)) {
+    document.dispatchEvent(new CustomEvent('hist-update', {
+      detail: { cid: cid, w_curr: w21, w_prev: isNaN(w20) ? w21 : w20, label: lbl }
+    }));
+    var lblEl2 = document.getElementById('hist-' + cid + '-label');
+    if (lblEl2) lblEl2.textContent = lbl;
+  }
+});
+
 /* ── Event delegation para histórico del panel (cards AR — tbody) ──────────── */
 document.addEventListener('click', function(e) {
   var tr = e.target.closest('tr[data-hist-label]');
