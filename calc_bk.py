@@ -198,16 +198,19 @@ print(f"   Hoteles:   {len(g_hotel)}")
 
 TOP_N = 100  # Para tablas del reporte
 
-def make_top(df, col, sort_asc=True, n=TOP_N):
-    """Top N filas ordenadas por Bookability."""
+def make_top(df, col, sort_asc=True, n=TOP_N, min_books=None):
+    """Top N filas ordenadas por Bookability, con umbral de volumen opcional."""
     df2 = df.copy()
+    if min_books is not None:
+        df2 = df2[df2['Books'] >= min_books]
     df2 = df2.sort_values('Bookability', ascending=sort_asc).head(n)
     return df2
 
-TOP_PROVIDER = make_top(g_provider, 'Provider')
-TOP_DEST     = make_top(g_dest,     'Destino')
-TOP_CORP     = make_top(g_corp,     'CorpName')
-TOP_HOTEL    = make_top(g_hotel,    'Hotel')
+# Umbrales de volumen por dimensión: evitar destinos/corps con 5-10 trx que dominan el top
+TOP_PROVIDER = make_top(g_provider, 'Provider',   min_books=50)
+TOP_DEST     = make_top(g_dest,     'Destino',     min_books=50)
+TOP_CORP     = make_top(g_corp,     'CorpName',    min_books=20)
+TOP_HOTEL    = make_top(g_hotel,    'Hotel',       min_books=20)
 
 # ── Severity counts (sobre todos los hoteles con MIN_BOOKS) ──────────────────
 # Igual lógica que CR: contar hoteles por banda

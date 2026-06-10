@@ -1621,16 +1621,16 @@ var _KPI_GRID = {
 };
 
 function _kpiSortAttach(card, tkey, metricKey, allRows100) {
-  /* Evitar doble registro — usar flag en el panel */
   var panel = card.querySelector('[data-tab="'+tkey+'"]');
   if (!panel) return;
-  if (panel._sortKey === (metricKey+'_'+tkey)) return; /* ya enganchado */
-  panel._sortKey = metricKey+'_'+tkey;
+  /* Limpiar listeners anteriores clonando el panel (previene duplicados) */
+  var newPanel = panel.cloneNode(true);
+  panel.parentNode.replaceChild(newPanel, panel);
+  panel = newPanel;
 
   var isEf = (metricKey === 'ef' || metricKey === 'nd');
   var grid  = _KPI_GRID[metricKey] || _KPI_GRID['ef'];
-  var rcols = _KPI_RCOLS_CR; /* {2:5, 4:7} */
-  var key   = (card.id||tkey)+'_'+metricKey+'_'+tkey;
+  var key   = (card.id||'c')+'_'+metricKey+'_'+tkey;
   if (!_SS[key]) _SS[key] = {col:null, dir:'orig'};
 
   /* Re-renderizar el panel completo desde allRows100 */
@@ -1687,7 +1687,13 @@ function _kpiSortAttach(card, tkey, metricKey, allRows100) {
     });
     if (dir !== 'orig') {
       sorted.sort(function(a,b){
-        var va=_sv(a.r[ri]), vb=_sv(b.r[ri]);
+        var va = a.r[ri], vb = b.r[ri];
+        /* Col 1 = nombre (string) */
+        if (ri === 0) {
+          var sa = (va||'').toString(), sb = (vb||'').toString();
+          return dir === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
+        }
+        va = _sv(va); vb = _sv(vb);
         if(va==null&&vb==null) return 0;
         if(va==null) return 1; if(vb==null) return -1;
         return dir==='asc' ? va-vb : vb-va;
@@ -2243,7 +2249,7 @@ function ar3_showMore() {
   var bc = ar3_bandColors(d.banda);
   var badge3 = document.getElementById('ar3-badge');
   if (badge3) {
-    badge3.textContent = ar3_bandLabel(d.banda) + ' · Target ≥ 97%';
+    badge3.textContent = ar3_bandLabel(d.banda);
     badge3.style.background = bc[0]; badge3.style.color = bc[1];
     badge3.style.border = '1px solid ' + bc[1] + '44';
   }

@@ -548,7 +548,7 @@ def render_kpi_card_bookability():
     else:            wow_s = '= 0,00'
 
     pill          = banda_pill(banda, target='≥ 97%')
-    pill_tgt      = pill + target_caption('≥ 97%')
+    pill_tgt      = pill
     gauge         = gauge_5levels(banda, 'eficacia')
     _bk_wow_pp  = bk_wow * 100
     if abs(_bk_wow_pp) < 0.005:
