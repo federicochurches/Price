@@ -1111,7 +1111,32 @@ AR_SB_PATCH_JS = '''
 })();
 '''
 
-GLOBAL_PANEL_SCRIPT = '<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
+AR3_MODE_JS = '''
+/* ── Ocultar card 3 (BK) en modo RND y ajustar grid ── */
+(function() {
+  function _syncCard3(mode) {
+    var card3 = document.getElementById('kpicard-ar3');
+    var grid  = document.querySelector('.ar-cards-grid');
+    if (!card3 || !grid) return;
+    if (mode === 'rnd') {
+      card3.style.display = 'none';
+      grid.style.gridTemplateColumns = '1fr 1fr';
+    } else {
+      card3.style.display = '';
+      grid.style.gridTemplateColumns = 'repeat(3,1fr)';
+    }
+  }
+  document.addEventListener('mode-changed', function(e) {
+    _syncCard3(e.detail && e.detail.mode);
+  });
+  /* Estado inicial */
+  setTimeout(function() {
+    var mode = (typeof W !== 'undefined') ? W.mode : 'cr';
+    _syncCard3(mode);
+  }, 100);
+})();
+'''
+GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
