@@ -4253,19 +4253,54 @@ window.HIST_DATA['rnd'] = {
         </div>
       </div>
       <table id="ar3-table" style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:58px"/><col style="width:82px"/><col style="width:40px"/></colgroup>
-        <thead><tr id="ar3-thead" style="border-bottom:2px solid #333132;">
-          <th id="ar3-th-dim" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 0 5px 0;">Provider</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Books</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#333132;text-align:right;padding:5px 4px;">Bookability</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 0 5px 2px;">WoW</th>
-        </tr></thead>
-        <tbody id="ar3-tbody"></tbody>
-      </table>
-      <div style="text-align:center;margin-top:10px;border-top:1px solid var(--rule-soft);padding-top:10px;">
-        <button id="ar3-more-btn" onclick="ar3_showMore()" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;display:none;">VER MÁS ▾</button>
+        <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
+        <div style="text-align:center;margin-top:4px;">
+          <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+        </div>
       </div>
     </div>
+    <!-- Histórico BK — igual a cards 1 y 2 -->
+    <div id="hist-h-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
+  <div style="height:8px;"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
+      Evolución Histórica · <span id="hist-h-bk-global-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
+    </span>
+  </div>
+  <div style="width:100%;height:100px;"><canvas id="h-bk-global" style="display:block;width:100%;height:100px;"></canvas></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
+      <div id="hist-h-bk-global-actual" style="font-size:13px;font-weight:700;color:#333132;margin-top:2px;">98.43%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
+      <div id="hist-h-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.44%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
+      <div id="hist-h-bk-global-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">98.17%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
+      <div id="hist-h-bk-global-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">98.31%</div>
+    </div>
+    <div id="hist-h-bk-global-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
+      <div id="hist-h-bk-global-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;">
+    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
+    <div id="hist-h-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(51,49,50,0.54);height:9px;border-radius:1px 1px 0 0;" title="W16: 98.28%"></div><div style="flex:1;background:rgba(51,49,50,0.95);height:18px;border-radius:1px 1px 0 0;" title="W17: 98.44%"></div><div style="flex:1;background:rgba(51,49,50,0.38);height:6px;border-radius:1px 1px 0 0;" title="W18: 98.22%"></div><div style="flex:1;background:rgba(51,49,50,0.48);height:8px;border-radius:1px 1px 0 0;" title="W19: 98.26%"></div><div style="flex:1;background:rgba(51,49,50,0.25);height:4px;border-radius:1px 1px 0 0;" title="W20: 98.17%"></div><div style="flex:1;background:rgba(51,49,50,0.46);height:8px;border-radius:1px 1px 0 0;" title="W21: 98.25%"></div><div style="flex:1;background:rgba(51,49,50,0.85);height:15px;border-radius:1px 1px 0 0;" title="W22: 98.40%"></div><div style="flex:1;background:#333132;height:17px;border-radius:1px 1px 0 0;" title="W23: 98.43%"></div></div>
+    <div style="position:relative;height:14px;margin-top:2px;">
+      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
+    <span id="hist-h-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#E1F5EE;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
+    <span id="hist-h-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
+  </div>
+</div>
   </div>
 
 
@@ -7229,33 +7264,60 @@ function ar3_renderTable(view, htab) {
   // Si no hay filas en la banda, mostrar todos ordenados
   if (filtered.length === 0) filtered = rows;
 
-  var html = '';
-  filtered.slice(0, 10).forEach(function(r, i) {
-    var bc = ar3_bandColors(r.banda);
-    var wowC = (r.wow && r.wow.charAt(0) === '+') ? '#1A6B4A' : (r.wow && r.wow !== '—' ? '#C0392B' : 'var(--ink-muted)');
-    html += '<tr class="' + (i >= 5 ? 'ar3-more' : '') + '" style="border-bottom:1px solid var(--rule);' + (i >= 5 ? 'display:none;' : '') + '">' +
-      '<td style="padding:5px 0;font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
-        '<span style="font-size:9px;color:var(--ink-muted);">' + String(i+1).padStart(2,'0') + '. </span>' + r.lab +
-      '</td>' +
-      '<td style="text-align:right;padding:5px 4px;font-size:11px;color:var(--ink-muted);">' + r.books + '</td>' +
-      '<td style="text-align:right;padding:5px 4px;font-size:11px;font-weight:700;color:#333132;">' + r.val + '</td>' +
-      '<td style="text-align:right;padding:5px 0 5px 2px;font-size:9px;font-weight:700;color:' + wowC + ';">' + (r.wow || '—') + '</td>' +
-    '</tr>';
+  /* Grid igual a cards 1/2: nombre · Books · WoW · BK% · WoW */
+  var grid = 'minmax(0,1fr) 56px 44px 72px 48px';
+  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
+  var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+    +'<span></span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">Trx</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">BK%</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+    +'</div>';
+
+  function wPill(v) {
+    if (!v || v === '—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
+    var up = v.charAt(0) === '+';
+    return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(up?'#EAF3DE':'#FCE8E6')+';color:'+(up?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+v+'</em>';
+  }
+
+  var html = hdr;
+  filtered.forEach(function(r, i) {
+    var cls = i >= _KPI_EXPAND_N ? 'sb-hidden' : i >= _KPI_TOP_N ? 'ar3-more' : '';
+    var disp = (i >= _KPI_TOP_N) ? 'display:none;' : '';
+    html += '<div class="'+cls+'" data-lbl="'+r.lab+'" style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;'+disp+'">'
+      +'<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'
+        +(String(i+1).padStart(2,'0'))+'. '+r.lab
+      +'</span></div>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r.books+'</span>'
+      +wPill(r.trx_wow||'—')
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:#333132;font-variant-numeric:tabular-nums;">'+r.val+'</span>'
+      +wPill(r.wow||'—')
+      +'</div>';
   });
 
   tbody.innerHTML = html;
 
-  // Mostrar botón "Ver más" si hay más de 5
+  // Ver más — toggle filas ar3-more
   var moreBtn = document.getElementById('ar3-more-btn');
-  if (moreBtn) moreBtn.style.display = filtered.length > 5 ? 'inline-block' : 'none';
+  if (moreBtn) {
+    moreBtn.style.display = filtered.length > _KPI_TOP_N ? '' : 'none';
+    moreBtn.onclick = function() {
+      tbody.querySelectorAll('.ar3-more').forEach(function(r){ r.style.display = 'grid'; });
+      moreBtn.style.display = 'none';
+    };
+  }
 
   // Searchbox
   var sb = document.getElementById('ar3-sb');
   if (sb) {
     sb.oninput = function() {
       var q = sb.value.toLowerCase();
-      Array.from(tbody.querySelectorAll('tr')).forEach(function(tr){
-        tr.style.display = tr.textContent.toLowerCase().indexOf(q) >= 0 ? 'table-row' : 'none';
+      tbody.querySelectorAll('[data-lbl]').forEach(function(row){
+        var match = (row.getAttribute('data-lbl')||'').toLowerCase().indexOf(q) >= 0;
+        if (!row.classList.contains('sb-hidden') || match) {
+          row.style.display = match ? 'grid' : 'none';
+        }
       });
     };
   }

@@ -2250,33 +2250,60 @@ function ar3_renderTable(view, htab) {
   // Si no hay filas en la banda, mostrar todos ordenados
   if (filtered.length === 0) filtered = rows;
 
-  var html = '';
-  filtered.slice(0, 10).forEach(function(r, i) {
-    var bc = ar3_bandColors(r.banda);
-    var wowC = (r.wow && r.wow.charAt(0) === '+') ? '#1A6B4A' : (r.wow && r.wow !== '—' ? '#C0392B' : 'var(--ink-muted)');
-    html += '<tr class="' + (i >= 5 ? 'ar3-more' : '') + '" style="border-bottom:1px solid var(--rule);' + (i >= 5 ? 'display:none;' : '') + '">' +
-      '<td style="padding:5px 0;font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
-        '<span style="font-size:9px;color:var(--ink-muted);">' + String(i+1).padStart(2,'0') + '. </span>' + r.lab +
-      '</td>' +
-      '<td style="text-align:right;padding:5px 4px;font-size:11px;color:var(--ink-muted);">' + r.books + '</td>' +
-      '<td style="text-align:right;padding:5px 4px;font-size:11px;font-weight:700;color:#333132;">' + r.val + '</td>' +
-      '<td style="text-align:right;padding:5px 0 5px 2px;font-size:9px;font-weight:700;color:' + wowC + ';">' + (r.wow || '—') + '</td>' +
-    '</tr>';
+  /* Grid igual a cards 1/2: nombre · Books · WoW · BK% · WoW */
+  var grid = 'minmax(0,1fr) 56px 44px 72px 48px';
+  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
+  var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+    +'<span></span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">Trx</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">BK%</span>'
+    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+    +'</div>';
+
+  function wPill(v) {
+    if (!v || v === '—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
+    var up = v.charAt(0) === '+';
+    return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(up?'#EAF3DE':'#FCE8E6')+';color:'+(up?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+v+'</em>';
+  }
+
+  var html = hdr;
+  filtered.forEach(function(r, i) {
+    var cls = i >= _KPI_EXPAND_N ? 'sb-hidden' : i >= _KPI_TOP_N ? 'ar3-more' : '';
+    var disp = (i >= _KPI_TOP_N) ? 'display:none;' : '';
+    html += '<div class="'+cls+'" data-lbl="'+r.lab+'" style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;'+disp+'">'
+      +'<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'
+        +(String(i+1).padStart(2,'0'))+'. '+r.lab
+      +'</span></div>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r.books+'</span>'
+      +wPill(r.trx_wow||'—')
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:#333132;font-variant-numeric:tabular-nums;">'+r.val+'</span>'
+      +wPill(r.wow||'—')
+      +'</div>';
   });
 
   tbody.innerHTML = html;
 
-  // Mostrar botón "Ver más" si hay más de 5
+  // Ver más — toggle filas ar3-more
   var moreBtn = document.getElementById('ar3-more-btn');
-  if (moreBtn) moreBtn.style.display = filtered.length > 5 ? 'inline-block' : 'none';
+  if (moreBtn) {
+    moreBtn.style.display = filtered.length > _KPI_TOP_N ? '' : 'none';
+    moreBtn.onclick = function() {
+      tbody.querySelectorAll('.ar3-more').forEach(function(r){ r.style.display = 'grid'; });
+      moreBtn.style.display = 'none';
+    };
+  }
 
   // Searchbox
   var sb = document.getElementById('ar3-sb');
   if (sb) {
     sb.oninput = function() {
       var q = sb.value.toLowerCase();
-      Array.from(tbody.querySelectorAll('tr')).forEach(function(tr){
-        tr.style.display = tr.textContent.toLowerCase().indexOf(q) >= 0 ? 'table-row' : 'none';
+      tbody.querySelectorAll('[data-lbl]').forEach(function(row){
+        var match = (row.getAttribute('data-lbl')||'').toLowerCase().indexOf(q) >= 0;
+        if (!row.classList.contains('sb-hidden') || match) {
+          row.style.display = match ? 'grid' : 'none';
+        }
       });
     };
   }

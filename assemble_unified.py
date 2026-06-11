@@ -1015,19 +1015,54 @@ SHARED_CONTAINERS = f'''
         </div>
       </div>
       <table id="ar3-table" style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:58px"/><col style="width:82px"/><col style="width:40px"/></colgroup>
-        <thead><tr id="ar3-thead" style="border-bottom:2px solid #333132;">
-          <th id="ar3-th-dim" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 0 5px 0;">Provider</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Books</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#333132;text-align:right;padding:5px 4px;">Bookability</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 0 5px 2px;">WoW</th>
-        </tr></thead>
-        <tbody id="ar3-tbody"></tbody>
-      </table>
-      <div style="text-align:center;margin-top:10px;border-top:1px solid var(--rule-soft);padding-top:10px;">
-        <button id="ar3-more-btn" onclick="ar3_showMore()" style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;display:none;">VER MÁS ▾</button>
+        <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
+        <div style="text-align:center;margin-top:4px;">
+          <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+        </div>
       </div>
     </div>
+    <!-- Histórico BK — igual a cards 1 y 2 -->
+    <div id="hist-h-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
+  <div style="height:8px;"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
+      Evolución Histórica · <span id="hist-h-bk-global-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
+    </span>
+  </div>
+  <div style="width:100%;height:100px;"><canvas id="h-bk-global" style="display:block;width:100%;height:100px;"></canvas></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
+      <div id="hist-h-bk-global-actual" style="font-size:13px;font-weight:700;color:#333132;margin-top:2px;">98.43%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
+      <div id="hist-h-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.44%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
+      <div id="hist-h-bk-global-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">98.17%</div>
+    </div>
+    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
+      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
+      <div id="hist-h-bk-global-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">98.31%</div>
+    </div>
+    <div id="hist-h-bk-global-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
+      <div id="hist-h-bk-global-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;">
+    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
+    <div id="hist-h-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(51,49,50,0.54);height:9px;border-radius:1px 1px 0 0;" title="W16: 98.28%"></div><div style="flex:1;background:rgba(51,49,50,0.95);height:18px;border-radius:1px 1px 0 0;" title="W17: 98.44%"></div><div style="flex:1;background:rgba(51,49,50,0.38);height:6px;border-radius:1px 1px 0 0;" title="W18: 98.22%"></div><div style="flex:1;background:rgba(51,49,50,0.48);height:8px;border-radius:1px 1px 0 0;" title="W19: 98.26%"></div><div style="flex:1;background:rgba(51,49,50,0.25);height:4px;border-radius:1px 1px 0 0;" title="W20: 98.17%"></div><div style="flex:1;background:rgba(51,49,50,0.46);height:8px;border-radius:1px 1px 0 0;" title="W21: 98.25%"></div><div style="flex:1;background:rgba(51,49,50,0.85);height:15px;border-radius:1px 1px 0 0;" title="W22: 98.40%"></div><div style="flex:1;background:#333132;height:17px;border-radius:1px 1px 0 0;" title="W23: 98.43%"></div></div>
+    <div style="position:relative;height:14px;margin-top:2px;">
+      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
+    <span id="hist-h-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#E1F5EE;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
+    <span id="hist-h-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
+  </div>
+</div>
   </div>
 
 
