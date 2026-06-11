@@ -481,8 +481,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-| P12 | Filtro cruzado con pills: Corp+Dest+Channel en AND · pills eliminables · aplica en todas las tabs y cards AR | `js_override.js` · `render_cr_p2.py` · `render_rnd_p2.py` |
-> Bugs P1–P11 cerrados. P6 cerrado W23. B37-B38 cerrados W23. W23-bk-s2: cerrados BK_DATA completo, _normBanda, origPos local, Sin Conv, sort 3 estados, badge sin target, ar3-th-more, pills card3. W23-bk-s3: cerrado P14 (card BK en Availability — 2a def w22_setMode), switcher AR en negro. W23-P13: cerrado ConvRate WoW en Críticos/Bajo Rend. (faltaba ConvRate_W17 en merge p80_hotel).
+> Bugs P1–P11 cerrados. P12 cerrado W23 (filtro cruzado Corp+Dest en AR cards). P6 cerrado W23. B37-B38 cerrados W23. W23-bk-s2: cerrados BK_DATA completo, _normBanda, origPos local, Sin Conv, sort 3 estados, badge sin target, ar3-th-more, pills card3. W23-bk-s3: cerrado P14 (card BK en Availability — 2a def w22_setMode), switcher AR en negro. W23-P13: cerrado ConvRate WoW en Críticos/Bajo Rend. (faltaba ConvRate_W17 en merge p80_hotel).
 > 
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
@@ -557,7 +556,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 11-06-2026 (P13 cerrado: ConvRate WoW en Críticos/Bajo Rend.)
+**Última actualización:** W23 · Junio 2026 · 11-06-2026 (P12 cerrado: filtro cruzado Corp+Dest en AR cards)
 **Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
