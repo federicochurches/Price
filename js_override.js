@@ -2366,18 +2366,28 @@ function ar3_renderTable(view, htab) {
 
 function ar3_setView(view) {
   _ar3_view = view;
+  var acc = '#4FC3F4';
   ['prov','dest','corp','hotel'].forEach(function(v) {
     var btn = document.getElementById('ar3-vbk-' + v);
-    if (btn) btn.classList.toggle('tab-label-active', v === view);
+    if (!btn) return;
+    var active = (v === view);
+    btn.style.background  = active ? acc : 'transparent';
+    btn.style.color       = active ? '#fff' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? acc : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
 
 function ar3_setHotelTab(htab) {
   _ar3_htab = htab;
+  var acc = '#4FC3F4';
   ['crit','br','sc'].forEach(function(t) {
     var btn = document.getElementById('ar3-htab-' + t);
-    if (btn) btn.classList.toggle('tab-label-active', t === htab);
+    if (!btn) return;
+    var active = (t === htab);
+    btn.style.background  = active ? acc : 'transparent';
+    btn.style.color       = active ? '#fff' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? acc : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }

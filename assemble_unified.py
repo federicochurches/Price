@@ -359,27 +359,31 @@ var _arPillFilt = {1: 'crit',  2: 'crit'};
 
 function ar_setPillView(n, view, el) {
   _arPillView[n] = view;
-  /* Actualizar tab-labels — igual que KPI */
+  var acc = (typeof W !== 'undefined' && W.mode === 'rnd') ? '#EA0074' : 'var(--accent)';
   ['hotel','corp','dest','chan'].forEach(function(v) {
-    var lbl = document.getElementById('ar'+n+'-v-'+v);
-    if (!lbl) return;
+    var pill = document.getElementById('ar'+n+'-v-'+v);
+    if (!pill) return;
     var active = (v === view);
-    lbl.classList.toggle('tab-label-active', active);
+    pill.style.background  = active ? acc : 'transparent';
+    pill.style.color       = active ? '#fff' : 'var(--ink-muted)';
+    pill.style.borderColor = active ? acc : 'var(--rule)';
   });
   /* Fila de filtro: solo visible en vista Hotel */
   var hfilt = document.getElementById('ar'+n+'-hfilt');
   if (hfilt) hfilt.style.display = (view === 'hotel') ? 'flex' : 'none';
-  /* Re-renderizar */
   _arPillRender(n);
 }
 
 function ar_setPillFilt(n, filt, el) {
   _arPillFilt[n] = filt;
-  /* Actualizar tab-labels de filtro */
+  var acc = (typeof W !== 'undefined' && W.mode === 'rnd') ? '#EA0074' : 'var(--accent)';
   ['crit','br','sc'].forEach(function(f) {
-    var lbl = document.getElementById('ar'+n+'-f-'+f);
-    if (!lbl) return;
-    lbl.classList.toggle('tab-label-active', f === filt);
+    var pill = document.getElementById('ar'+n+'-f-'+f);
+    if (!pill) return;
+    var active = (f === filt);
+    pill.style.background  = active ? acc : 'transparent';
+    pill.style.color       = active ? '#fff' : 'var(--ink-muted)';
+    pill.style.borderColor = active ? acc : 'var(--rule)';
   });
   _arPillRender(n);
 }
@@ -857,38 +861,20 @@ SHARED_CONTAINERS = f'''
     </div>
 
 
-    <!-- Navegación AR card 1 — sistema radio CSS igual a KPI -->
-    <input checked id="tab-ar1-hotel"   name="tabs-ar1" style="display:none;" type="radio"/>
-    <input id="tab-ar1-corp"    name="tabs-ar1" style="display:none;" type="radio"/>
-    <input id="tab-ar1-dest"    name="tabs-ar1" style="display:none;" type="radio"/>
-    <input id="tab-ar1-chan"    name="tabs-ar1" style="display:none;" type="radio"/>
-    <div style="margin-top:14px;">
-      <!-- Fila 1: Vista -->
-      <div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-        <label class="tab-label tab-label-active" id="ar1-v-hotel" onclick="ar_setPillView(1,'hotel',this)">Hotel</label>
-        <label class="tab-label" id="ar1-v-corp"  onclick="ar_setPillView(1,'corp',this)">Corp</label>
-        <label class="tab-label" id="ar1-v-dest"  onclick="ar_setPillView(1,'dest',this)">Destino</label>
-        <label class="tab-label" id="ar1-v-chan"  onclick="ar_setPillView(1,'chan',this)">Channel</label>
-      </div>
-      <!-- Fila 2: Filtro (solo vista Hotel) -->
-      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
-        <span id="ar1-f-crit" class="ar1-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'crit',this)">Críticos</span>
-        <span id="ar1-f-br"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'br',this)">Bajo Rend.</span>
-        <span id="ar1-f-sc"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'sc',this)">Sin Conv.</span>
-      </div>
-    </div>
-    <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;padding:0 16px;">
-      <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
-        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
+    <!-- Pills + searchbox card 1 -->
+    <div style="padding:10px 16px 0;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar1-v-hotel" class="ar1-vpill" onclick="ar_setPillView(1,'hotel',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--accent);background:var(--accent);color:#fff;">Hotel</span><span id="ar1-v-corp" class="ar1-vpill" onclick="ar_setPillView(1,'corp',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar1-v-dest" class="ar1-vpill" onclick="ar_setPillView(1,'dest',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar1-v-chan" class="ar1-vpill" onclick="ar_setPillView(1,'chan',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
+      <div id="ar1-hfilt" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar1-f-crit" class="ar1-fpill" onclick="ar_setPillFilt(1,'crit',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--accent);background:var(--accent);color:#fff;">Críticos</span><span id="ar1-f-br" class="ar1-fpill" onclick="ar_setPillFilt(1,'br',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar1-f-sc" class="ar1-fpill" onclick="ar_setPillFilt(1,'sc',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;">
+        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="sb-ar1" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" />
-          <button id="sb-ar1-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar">×</button>
+          <input type="text" id="sb-ar1" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <button id="sb-ar1-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>
     </div>
     <!-- Filas -->
-    <div id="ar1-rows-wrap" style="padding:4px 16px 0;">
+    <div id="ar1-rows-wrap" style="padding:0 16px 0;">
       <div id="ar1-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"></div>
     </div>
@@ -917,38 +903,20 @@ SHARED_CONTAINERS = f'''
     </div>
 
 
-    <!-- Navegación AR card 2 — sistema radio CSS igual a KPI -->
-    <input checked id="tab-ar2-hotel"   name="tabs-ar2" style="display:none;" type="radio"/>
-    <input id="tab-ar2-corp"    name="tabs-ar2" style="display:none;" type="radio"/>
-    <input id="tab-ar2-dest"    name="tabs-ar2" style="display:none;" type="radio"/>
-    <input id="tab-ar2-chan"    name="tabs-ar2" style="display:none;" type="radio"/>
-    <div style="margin-top:14px;">
-      <!-- Fila 1: Vista -->
-      <div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-        <label class="tab-label tab-label-active" id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)">Hotel</label>
-        <label class="tab-label" id="ar2-v-corp"  onclick="ar_setPillView(2,'corp',this)">Corp</label>
-        <label class="tab-label" id="ar2-v-dest"  onclick="ar_setPillView(2,'dest',this)">Destino</label>
-        <label class="tab-label" id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)">Channel</label>
-      </div>
-      <!-- Fila 2: Filtro (solo vista Hotel) -->
-      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
-        <span id="ar2-f-crit" class="ar2-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'crit',this)">Críticos</span>
-        <span id="ar2-f-br"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'br',this)">Bajo Rend.</span>
-        <span id="ar2-f-sc"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'sc',this)">Sin Conv.</span>
-      </div>
-    </div>
-    <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;padding:0 16px;">
-      <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
-        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
+    <!-- Pills + searchbox card 2 -->
+    <div style="padding:10px 16px 0;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar2-v-hotel" class="ar2-vpill" onclick="ar_setPillView(2,'hotel',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--accent);background:var(--accent);color:#fff;">Hotel</span><span id="ar2-v-corp" class="ar2-vpill" onclick="ar_setPillView(2,'corp',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar2-v-dest" class="ar2-vpill" onclick="ar_setPillView(2,'dest',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar2-v-chan" class="ar2-vpill" onclick="ar_setPillView(2,'chan',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
+      <div id="ar2-hfilt" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar2-f-crit" class="ar2-fpill" onclick="ar_setPillFilt(2,'crit',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--accent);background:var(--accent);color:#fff;">Críticos</span><span id="ar2-f-br" class="ar2-fpill" onclick="ar_setPillFilt(2,'br',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar2-f-sc" class="ar2-fpill" onclick="ar_setPillFilt(2,'sc',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;">
+        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="sb-ar2" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" />
-          <button id="sb-ar2-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar">×</button>
+          <input type="text" id="sb-ar2" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <button id="sb-ar2-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>
     </div>
     <!-- Filas -->
-    <div id="ar2-rows-wrap" style="padding:4px 16px 0;">
+    <div id="ar2-rows-wrap" style="padding:0 16px 0;">
       <div id="ar2-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar2-more-wrap"></div>
     </div>
@@ -975,37 +943,26 @@ SHARED_CONTAINERS = f'''
       <div id="ar3-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
       <div id="ar3-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
-    <!-- Navegación BK — tabs underline igual a cards 1 y 2 -->
-    <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-      <label id="ar3-vbk-hotel" class="ar3-vbk-pill tab-label tab-label-active" onclick="ar3_setView('hotel')">Hotel</label>
-      <label id="ar3-vbk-dest"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('dest')">Destino</label>
-      <label id="ar3-vbk-corp"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('corp')">Corp</label>
-      <label id="ar3-vbk-prov"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('prov')">Channel</label>
-    </div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
-      <span id="ar3-htab-crit" class="ar3-htab-pill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('crit')">Críticos</span>
-      <span id="ar3-htab-br"   class="ar3-htab-pill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('br')">Bajo Rend.</span>
-      <span id="ar3-htab-sc"   class="ar3-htab-pill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('sc')">Sin Conv.</span>
-    </div>
-    <!-- Panel tabla Bookability -->
-    <div id="ar3-panel" style="padding:4px 16px 0;">
-      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap" style="padding:0 16px;">
-        <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
-          <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="ar3-sb" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" />
-            <button id="ar3-sb-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar">×</button>
-          </div>
-        </div>
-      </div>
-      <table id="ar3-table" style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
-        <div style="text-align:center;margin-top:4px;">
-          <button id="ar3-more-btn" style="margin:4px 16px 0;" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+    <!-- Pills + searchbox card 3 BK -->
+    <div style="padding:10px 16px 0;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar3-vbk-hotel" class="ar3-vbk-pill" onclick="ar3_setView('hotel')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #4FC3F4;background:#4FC3F4;color:#fff;">Hotel</span><span id="ar3-vbk-dest" class="ar3-vbk-pill" onclick="ar3_setView('dest')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar3-vbk-corp" class="ar3-vbk-pill" onclick="ar3_setView('corp')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar3-vbk-prov" class="ar3-vbk-pill" onclick="ar3_setView('prov')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar3-htab-crit" class="ar3-htab-pill" onclick="ar3_setHotelTab('crit')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #4FC3F4;background:#4FC3F4;color:#fff;">Críticos</span><span id="ar3-htab-br" class="ar3-htab-pill" onclick="ar3_setHotelTab('br')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar3-htab-sc" class="ar3-htab-pill" onclick="ar3_setHotelTab('sc')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
+        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="ar3-sb" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <button id="ar3-sb-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>
     </div>
-    <!-- Histórico BK — igual a cards 1 y 2 -->
+    <!-- Panel tabla -->
+    <div id="ar3-panel" style="padding:0 16px 0;">
+      <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
+      <div style="text-align:center;margin-top:4px;">
+        <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+      </div>
+    </div>
+        <!-- Histórico BK — igual a cards 1 y 2 -->
     <div id="hist-h-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
