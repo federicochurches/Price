@@ -4179,7 +4179,7 @@ window.HIST_DATA['rnd'] = {
     </div>
     <!-- Pills + searchbox card 3 BK -->
     <div style="padding:10px 16px 0;">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar3-vbk-hotel" class="ar3-vbk-pill" onclick="ar3_setView('hotel')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #4FC3F4;background:#E0F5FC;color:#0288A7;">Hotel</span><span id="ar3-vbk-dest" class="ar3-vbk-pill" onclick="ar3_setView('dest')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar3-vbk-corp" class="ar3-vbk-pill" onclick="ar3_setView('corp')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar3-vbk-prov" class="ar3-vbk-pill" onclick="ar3_setView('prov')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar3-vbk-hotel" class="ar3-vbk-pill" onclick="ar3_setView('hotel')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;">Hotel</span><span id="ar3-vbk-dest" class="ar3-vbk-pill" onclick="ar3_setView('dest')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar3-vbk-corp" class="ar3-vbk-pill" onclick="ar3_setView('corp')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar3-vbk-prov" class="ar3-vbk-pill" onclick="ar3_setView('prov')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar3-htab-crit" class="ar3-htab-pill" onclick="ar3_setHotelTab('crit')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #8A8377;background:#E8E6E3;color:#333132;">Críticos</span><span id="ar3-htab-br" class="ar3-htab-pill" onclick="ar3_setHotelTab('br')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar3-htab-sc" class="ar3-htab-pill" onclick="ar3_setHotelTab('sc')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
@@ -6243,7 +6243,7 @@ function trow_ar(r, card, idx) {
   if(!str||str==='—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
   var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
   var good = good_if_up ? up : !up;
-  var lbl = str.replace(/^[▲▼]/,'').replace(/pp$/,'').trim();
+  var lbl = str.replace(/pp$/,'').trim(); /* mantener ▲/▼ */
   return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
  }
  /* WoW tráfico — r[10] ya viene formateado con ▲/▼ */
@@ -7332,9 +7332,9 @@ function ar3_setView(view) {
     var btn = document.getElementById('ar3-vbk-' + v);
     if (!btn) return;
     var active = (v === view);
-    btn.style.background  = active ? '#E0F5FC' : 'transparent';
-    btn.style.color       = active ? '#0288A7' : 'var(--ink-muted)';
-    btn.style.borderColor = active ? '#4FC3F4' : 'var(--rule)';
+    btn.style.background  = active ? '#EDE8F7' : 'transparent';
+    btn.style.color       = active ? '#5C469C' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? '#5C469C' : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }

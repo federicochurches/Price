@@ -1292,7 +1292,7 @@ function trow_ar(r, card, idx) {
   if(!str||str==='—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
   var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
   var good = good_if_up ? up : !up;
-  var lbl = str.replace(/^[▲▼]/,'').replace(/pp$/,'').trim();
+  var lbl = str.replace(/pp$/,'').trim(); /* mantener ▲/▼ */
   return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
  }
  /* WoW tráfico — r[10] ya viene formateado con ▲/▼ */
@@ -2381,9 +2381,9 @@ function ar3_setView(view) {
     var btn = document.getElementById('ar3-vbk-' + v);
     if (!btn) return;
     var active = (v === view);
-    btn.style.background  = active ? '#E0F5FC' : 'transparent';
-    btn.style.color       = active ? '#0288A7' : 'var(--ink-muted)';
-    btn.style.borderColor = active ? '#4FC3F4' : 'var(--rule)';
+    btn.style.background  = active ? '#EDE8F7' : 'transparent';
+    btn.style.color       = active ? '#5C469C' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? '#5C469C' : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
