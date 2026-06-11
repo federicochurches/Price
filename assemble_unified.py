@@ -834,39 +834,7 @@ SHARED_CONTAINERS = f'''
       onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Availability</button>
   </div>
 </div>
-<!-- Barra de canastas — misma .cfb que la barra de cards, con IDs ar-* -->
-<div id="ar-filter-wrap" style="margin-bottom:16px;">
-<div class="cfb">
-  <div class="cfb-lbl">Canasta</div>
-  <div class="cfb-chips">
-    <div class="c-chip active" id="ar-chip-global" onclick="w22_setC('global',document.getElementById('chip-global'))">Global</div>
-    <div class="c-chip"        id="ar-chip-b2c"    onclick="w22_setC('b2c',document.getElementById('chip-b2c'))">B2C</div>
-    <div class="c-chip"        id="ar-chip-op"     onclick="w22_setC('op',document.getElementById('chip-op'))">Opaco</div>
-    <div class="c-chip"        id="ar-chip-cug"    onclick="w22_setC('cug',document.getElementById('chip-cug'))">Ultra Opaco</div>
-  </div>
-  <div class="cfb-kpi">
-    <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl" id="ar-strip-lbl1">Eficacia</div>
-      <div class="cfb-kpi-val" id="ar-strip-ef" style="color:#5C469C;">—</div>
-    </div>
-    <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl" id="ar-strip-lbl2">Conv Rate</div>
-      <div class="cfb-kpi-val" id="ar-strip-cv" style="color:#5C469C;">—</div>
-    </div>
-    <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item" id="ar-strip-bk-item">
-      <div class="cfb-kpi-lbl">Bookability</div>
-      <div class="cfb-kpi-val" id="ar-strip-bk" style="color:#333132;">—</div>
-    </div>
-    <div class="cfb-sep" id="ar-strip-bk-sep"></div>
-    <div class="cfb-kpi-item">
-      <div class="cfb-kpi-lbl" id="ar-strip-sev-lbl">Severity Eficacia</div>
-      <span class="sev-badge" id="ar-strip-band" style="font-size:9px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;margin-top:3px;">—</span>
-    </div>
-  </div>
-</div>
-</div>
+
 
 <!-- Grid 3 cards: Eficacia · Conv Rate · Bookability -->
 <div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;">
