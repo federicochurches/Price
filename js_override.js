@@ -1345,10 +1345,27 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
    if (rows.length > _KPI_TOP_N) _moreBtn(moreWrap, 'ar'+n+'-th');
  }
 
- /* Searchbox en sb-wrap si no existe */
- var sbWrap = document.getElementById('ar'+n+'-sb-wrap');
- if (sbWrap && !sbWrap.querySelector('input')) {
-   /* Usar el searchbox ya insertado en el HTML */
+ /* Conectar searchbox sb-ar{n} */
+ var sbN = document.getElementById('sb-ar'+n);
+ if (sbN && !sbN._connected) {
+   sbN._connected = true;
+   sbN.oninput = function() {
+     var q = sbN.value.toLowerCase();
+     container.querySelectorAll('[data-hist-label]').forEach(function(row) {
+       var lbl = (row.getAttribute('data-hist-label')||'').toLowerCase();
+       var match = lbl.indexOf(q) >= 0;
+       if (row.classList.contains('sb-hidden')) {
+         row.style.display = (match && q) ? 'grid' : 'none';
+       } else if (!row.classList.contains('rows-more')) {
+         row.style.display = (match || !q) ? 'grid' : 'none';
+       }
+     });
+   };
+   var clrN = document.getElementById('sb-ar'+n+'-clear');
+   if (clrN) {
+     clrN.onclick = function() { sbN.value = ''; sbN.oninput(); clrN.style.display='none'; };
+     sbN.addEventListener('input', function() { clrN.style.display = sbN.value ? 'inline' : 'none'; });
+   }
  }
 }
 
@@ -1508,7 +1525,7 @@ function ar_updateKPIs() {
  var tw1 = document.getElementById('ar1-trafico-wow');
  if (tw1) tw1.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
  var b1 = document.getElementById('ar1-badge');
- if (b1) { b1.textContent = efBanda + ' ' + efTarget; b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
+ if (b1) { b1.textContent = (efBanda && efBanda!=='—' ? efBanda : '') + (efTarget ? ' '+efTarget : ''); b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
  var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
  var wb1 = document.getElementById('ar1-wowbox'); if (wb1) wb1.innerHTML = wowBox(ef20, ef21.replace(' %','%'), efWow, !isCR ? false : true, acc);
 
@@ -2199,7 +2216,7 @@ setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
    ar3_setHotelTab(htab)
    ══════════════════════════════════════════════════ */
 
-var _ar3_view  = 'prov';
+var _ar3_view  = 'hotel';
 var _ar3_htab  = 'crit';
 
 function ar3_fmt(v) {
@@ -2207,6 +2224,7 @@ function ar3_fmt(v) {
 }
 
 function ar3_bandColors(banda) {
+  var k = (banda||'').toLowerCase().replace(/[áàä]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i').replace(/[ó]/g,'o').replace(/[ú]/g,'u').replace(/\s+/g,'').replace('crítica','critica').replace('superc','sc').replace('súperc','sc').replace('sincon','sinconv').replace('sinconv.','sinconv');
   var map = {
     exitosa:   ['#E1F5EE','#1A6B4A'],
     aceptable: ['#FEF9C3','#713F12'],
@@ -2215,13 +2233,14 @@ function ar3_bandColors(banda) {
     sc:        ['#E8E6E3','#2D2828'],
     sinconv:   ['#F2EEE6','#5F5E5A'],
   };
-  return map[banda] || ['#F2EEE6','#5F5E5A'];
+  return map[k] || map[(banda||'').toLowerCase()] || ['#F2EEE6','#5F5E5A'];
 }
 
 function ar3_bandLabel(banda) {
+  var k = (banda||'').toLowerCase();
   var map = {exitosa:'Exitosa',aceptable:'Aceptable',revisar:'Revisar',
-             critica:'Crítica',sc:'Súper Crítica',sinconv:'Sin Conv.'};
-  return map[banda] || banda;
+             crítica:'Crítica',critica:'Crítica',sc:'Súper Crítica','súper crítica':'Súper Crítica','super critica':'Súper Crítica',sinconv:'Sin Conv.','sin conversión':'Sin Conv.'};
+  return map[k] || banda || '—';
 }
 
 function ar3_renderTable(view, htab) {
@@ -2345,8 +2364,23 @@ function ar3_showMore() {
 
   k3.textContent = d.bk;
 
-  var v3 = document.getElementById('ar3-vol'); if (v3) v3.textContent = d.books;
-  var b3 = document.getElementById('ar3-books'); if (b3) b3.textContent = d.books;
+  /* Vol compacto (mismo formato que cards 1/2) */
+  var v3 = document.getElementById('ar3-vol');
+  if (v3) {
+    var bk_compact = d.books >= 1000000 ? (d.books/1000000).toFixed(1).replace('.',',')+'M'
+                   : d.books >= 1000 ? (d.books/1000).toFixed(1).replace('.',',')+'K'
+                   : String(d.books);
+    v3.textContent = bk_compact;
+  }
+  /* Trx con formato entero */
+  var b3 = document.getElementById('ar3-books');
+  if (b3) b3.textContent = String(d.books).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  /* WoW de books en pill */
+  var bw3 = document.getElementById('ar3-books-wow');
+  if (bw3 && d.bk_wow !== undefined) {
+    var isUp = d.bk_wow >= 0;
+    bw3.innerHTML = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(isUp?'#EAF3DE':'#FCE8E6')+';color:'+(isUp?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(isUp?'▲':'▼')+Math.abs(d.bk_wow*100).toFixed(1).replace('.',',')+'%</em>';
+  }
 
   var bc = ar3_bandColors(d.banda);
   var badge3 = document.getElementById('ar3-badge');

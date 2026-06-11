@@ -897,21 +897,29 @@ SHARED_CONTAINERS = f'''
     <div style="margin-top:14px;">
       <!-- Fila 1: Vista -->
       <div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-        <label class="tab-label tab-label-active" for="tab-ar1-hotel" id="ar1-v-hotel" onclick="ar_setPillView(1,'hotel',this)">Hotel</label>
-        <label class="tab-label" for="tab-ar1-corp"  id="ar1-v-corp"  onclick="ar_setPillView(1,'corp',this)">Corp</label>
-        <label class="tab-label" for="tab-ar1-dest"  id="ar1-v-dest"  onclick="ar_setPillView(1,'dest',this)">Destino</label>
-        <label class="tab-label" for="tab-ar1-chan"  id="ar1-v-chan"  onclick="ar_setPillView(1,'chan',this)">Channel</label>
+        <label class="tab-label tab-label-active" id="ar1-v-hotel" onclick="ar_setPillView(1,'hotel',this)">Hotel</label>
+        <label class="tab-label" id="ar1-v-corp"  onclick="ar_setPillView(1,'corp',this)">Corp</label>
+        <label class="tab-label" id="ar1-v-dest"  onclick="ar_setPillView(1,'dest',this)">Destino</label>
+        <label class="tab-label" id="ar1-v-chan"  onclick="ar_setPillView(1,'chan',this)">Channel</label>
       </div>
-      <!-- Fila 2: Filtro (solo en vista Hotel) -->
+      <!-- Fila 2: Filtro (solo vista Hotel) -->
       <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
-        <span id="ar1-f-crit" onclick="ar_setPillFilt(1,'crit',this)" class="ar1-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;">Críticos</span>
-        <span id="ar1-f-br"   onclick="ar_setPillFilt(1,'br',this)"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;">Bajo Rend.</span>
-        <span id="ar1-f-sc"   onclick="ar_setPillFilt(1,'sc',this)"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;">Sin Conv.</span>
+        <span id="ar1-f-crit" class="ar1-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'crit',this)">Críticos</span>
+        <span id="ar1-f-br"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'br',this)">Bajo Rend.</span>
+        <span id="ar1-f-sc"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'sc',this)">Sin Conv.</span>
       </div>
     </div>
     <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;" id="ar1-sb-wrap"></div>
-    <!-- Tabla de filas — mismo sistema que KPI (grid div, no table) -->
+    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">
+      <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
+        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="sb-ar1" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" />
+          <button id="sb-ar1-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar">×</button>
+        </div>
+      </div>
+    </div>
+    <!-- Filas -->
     <div id="ar1-rows-wrap" style="padding-top:4px;">
       <div id="ar1-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;" id="ar1-more-wrap"></div>
@@ -949,21 +957,29 @@ SHARED_CONTAINERS = f'''
     <div style="margin-top:14px;">
       <!-- Fila 1: Vista -->
       <div class="tabs-row" style="display:flex;gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-        <label class="tab-label tab-label-active" for="tab-ar2-hotel" id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)">Hotel</label>
-        <label class="tab-label" for="tab-ar2-corp"  id="ar2-v-corp"  onclick="ar_setPillView(2,'corp',this)">Corp</label>
-        <label class="tab-label" for="tab-ar2-dest"  id="ar2-v-dest"  onclick="ar_setPillView(2,'dest',this)">Destino</label>
-        <label class="tab-label" for="tab-ar2-chan"  id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)">Channel</label>
+        <label class="tab-label tab-label-active" id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)">Hotel</label>
+        <label class="tab-label" id="ar2-v-corp"  onclick="ar_setPillView(2,'corp',this)">Corp</label>
+        <label class="tab-label" id="ar2-v-dest"  onclick="ar_setPillView(2,'dest',this)">Destino</label>
+        <label class="tab-label" id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)">Channel</label>
       </div>
-      <!-- Fila 2: Filtro (solo en vista Hotel) -->
+      <!-- Fila 2: Filtro (solo vista Hotel) -->
       <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
-        <span id="ar2-f-crit" onclick="ar_setPillFilt(2,'crit',this)" class="ar2-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;">Críticos</span>
-        <span id="ar2-f-br"   onclick="ar_setPillFilt(2,'br',this)"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;">Bajo Rend.</span>
-        <span id="ar2-f-sc"   onclick="ar_setPillFilt(2,'sc',this)"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;">Sin Conv.</span>
+        <span id="ar2-f-crit" class="ar2-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'crit',this)">Críticos</span>
+        <span id="ar2-f-br"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'br',this)">Bajo Rend.</span>
+        <span id="ar2-f-sc"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'sc',this)">Sin Conv.</span>
       </div>
     </div>
     <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;" id="ar2-sb-wrap"></div>
-    <!-- Tabla de filas — mismo sistema que KPI (grid div, no table) -->
+    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">
+      <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
+        <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="sb-ar2" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" />
+          <button id="sb-ar2-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar">×</button>
+        </div>
+      </div>
+    </div>
+    <!-- Filas -->
     <div id="ar2-rows-wrap" style="padding-top:4px;">
       <div id="ar2-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;" id="ar2-more-wrap"></div>
@@ -983,8 +999,8 @@ SHARED_CONTAINERS = f'''
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
           <div id="ar-kpi-3" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
-          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Books: <span id="ar3-vol">—</span> · vs sem. ant. <span id="ar3-wow-pill"></span></div>
-          <div style="margin-top:4px;font-size:10px;color:var(--ink-muted);"><strong style="color:var(--ink-soft);">Books:</strong> <span id="ar3-books">—</span></div>
+          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar3-vol">—</span><span>· vs sem. ant. </span><span id="ar3-wow-pill"></span></div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span><strong style="color:var(--ink-soft);">Trx:</strong> <span id="ar3-books">—</span></span><span id="ar3-books-wow"></span></div>
         </div>
         <div style="padding-top:4px;"><span id="ar3-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
       </div>
@@ -993,10 +1009,10 @@ SHARED_CONTAINERS = f'''
     </div>
     <!-- Navegación BK — tabs underline igual a cards 1 y 2 -->
     <div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">
-      <label id="ar3-vbk-prov"  class="ar3-vbk-pill tab-label tab-label-active" onclick="ar3_setView('prov')">Provider</label>
+      <label id="ar3-vbk-hotel" class="ar3-vbk-pill tab-label tab-label-active" onclick="ar3_setView('hotel')">Hotel</label>
       <label id="ar3-vbk-dest"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('dest')">Destino</label>
       <label id="ar3-vbk-corp"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('corp')">Corp</label>
-      <label id="ar3-vbk-hotel" class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('hotel')">Hotel</label>
+      <label id="ar3-vbk-prov"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('prov')">Channel</label>
     </div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
       <span id="ar3-htab-crit" class="ar3-htab-pill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('crit')">Críticos</span>
