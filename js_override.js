@@ -1052,6 +1052,16 @@ function _arRows(n, tab) {
                tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
                tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
                (dd.hotels_crit || dd.hotels);
+    /* Ampliar con pool extendido (_sb) para el searchbox — hoteles fuera del P80 */
+    var sbKey = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
+    var sbRows = dd[sbKey];
+    if (sbRows && sbRows.length > rows.length) {
+      /* Índices de nombres ya presentes en el pool P80 */
+      var p80Names = {};
+      rows.forEach(function(r){ p80Names[r[0]] = true; });
+      var extras = sbRows.filter(function(r){ return !p80Names[r[0]]; });
+      rows = rows.concat(extras);
+    }
     return _arFilterApply(rows || [], n);
   } else {
     /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
@@ -1072,9 +1082,19 @@ function _arRows(n, tab) {
               tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
               (dd.hotels_dnc || dd.hotels_crit || dd.hotels);
     }
+    /* Ampliar card 2 con pool _sb */
+    var sbKey2 = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
+    var sbRows2 = dd[sbKey2];
+    if (sbRows2 && sbRows2.length > (rows2 || []).length) {
+      var p80Names2 = {};
+      (rows2 || []).forEach(function(r){ p80Names2[r[0]] = true; });
+      var extras2 = sbRows2.filter(function(r){ return !p80Names2[r[0]]; });
+      rows2 = (rows2 || []).concat(extras2);
+    }
     return _arFilterApply(rows2 || [], n);
   }
 }
+
 
 /* Render canal con split PP/TP en 2 columnas para las cards AR */
 function _arRenderChan(n) {
