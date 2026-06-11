@@ -731,10 +731,10 @@ def render_kpi_card_bookability():
                               placeholder='Buscar…', count_id='cnt-kpi-bk')
     return (
         f'<div class="kpi-card" id="kpicard-bk" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">'
-        f'<input checked="" id="tab-bk-destino" name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<input id="tab-bk-destino" name="tabs-bk" style="display:none;" type="radio"/>'
         f'<input id="tab-bk-corp"    name="tabs-bk" style="display:none;" type="radio"/>'
         f'<input id="tab-bk-hotel"   name="tabs-bk" style="display:none;" type="radio"/>'
-        f'<input id="tab-bk-channel" name="tabs-bk" style="display:none;" type="radio"/>'
+        f'<input checked="" id="tab-bk-channel" name="tabs-bk" style="display:none;" type="radio"/>'
         f'<div>'
         f'<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Bookability</div>'
         f'<div style="margin-top:4px;display:flex;align-items:flex-start;gap:10px;">'
