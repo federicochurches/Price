@@ -7644,7 +7644,17 @@ if (typeof HIST_DATA !== 'undefined') {
   }
   document.addEventListener('hist-update',function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(e.detail.vals||VALS);}});
   document.addEventListener('hist-reset', function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(VALS);}});
-  setTimeout(function(){tryDraw(1);},600);
+  /* Intentar dibujar inmediatamente y con retry */
+  function doInit() {
+    var el = document.getElementById(CID);
+    if (el && el.offsetWidth > 0) { draw(VALS); return; }
+    setTimeout(function(){tryDraw(1);}, 300);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(doInit, 200); });
+  } else {
+    setTimeout(doInit, 200);
+  }
 })();
 </script>
 <script>
@@ -7700,7 +7710,7 @@ if (typeof HIST_DATA !== 'undefined') {
       if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
 
       dd.innerHTML = matches.map(function(l) {
-        var hi = l.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\]/g,'\$&') + ')', 'gi'), '<strong>$1</strong>');
+        var hi = l; /* highlight simple */  var hi = l.split(q).join('<strong>'+q+'</strong>');
         return '<div class="sb-suggestion" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + hi + '</div>';
       }).join('');
 
