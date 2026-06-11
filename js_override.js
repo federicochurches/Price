@@ -1270,7 +1270,7 @@ w22_update = function() {
 
 /* ── trow para cards AR: 6 cols, solo la métrica de la card ── */
 function trow_ar(r, card, idx) {
- /* data-hist para canvas histórico */
+ /* Genera div grid igual que _cardRow de las KPI */
  var isCR = W.mode === 'cr';
  var metVal = card === 1 ? r[5] : r[6];
  var metNum = parseFloat(String(metVal).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
@@ -1279,49 +1279,76 @@ function trow_ar(r, card, idx) {
  var delta = parseFloat(wowStr.replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
  var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
- var num = idx != null ? '<span style="font-size:10px;font-weight:700;color:var(--ink);min-width:18px;margin-right:4px;">'+(idx<10?'0'+idx:idx)+'.</span>' : '';
- var nameCell = '<td style="padding:7px 0 7px 8px;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+r[0]+'">'+num+r[0]+'</td>';
- var badgeCell = '<td style="padding:7px 4px;text-align:left;white-space:nowrap;"><span class="sev-badge" style="background:'+r[1]+';color:'+r[2]+';font-size:7px;font-weight:700;padding:2px 5px;text-transform:uppercase;outline:1px solid rgba(0,0,0,.12);white-space:nowrap;">'+r[3]+'</span></td>';
- var tdR = function(v){ return '<td style="padding:7px 4px;text-align:right;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;">'+v+'</td>'; };
- function pill(str, isGood){
-  if(!str||str==='—') return '<td style="padding:7px 2px;text-align:right;"><span style="color:var(--ink-muted);font-size:10px;">—</span></td>';
+ /* Grid 5 cols: nombre · tráfico · wow · métrica · wow — igual KPI */
+ var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
+ var num = idx != null ? (idx<10?'0':'')+idx+'. ' : '';
+ /* Nombre */
+ var nameSpan = '<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+num+r[0]+'</span>'
+   +(r[13]?'<span style="font-size:9px;color:var(--ink-muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r[13]+'</span>':'')+'</div>';
+ /* Tráfico */
+ var trafSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r[4]+'</span>';
+ /* WoW tráfico */
+ function wPill(str, good_if_up) {
+  if(!str||str==='—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
   var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
-  var good = isGood ? up : !up;
-  var label = str.replace(/pp$/,'').replace(/,00$/,'').trim();
-  return '<td style="padding:7px 2px;text-align:right;"><em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+label+'</em></td>';
+  var good = good_if_up ? up : !up;
+  var lbl = str.replace(/^[▲▼]/,'').replace(/pp$/,'').trim();
+  return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
  }
- var cells;
- if (isCR) {
-  cells = card===1
-   ? nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)
-   : nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
- } else {
-  cells = card===1
-   ? nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)
-   : nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
- }
- return '<tr '+histAttr+' style="border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'+cells+'</tr>';
+ var wowTraf = wPill(r[10]||'—', true);
+ /* Métrica */
+ var metSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+metVal+'</span>';
+ /* WoW métrica */
+ var wowMet = isCR
+   ? (card===1 ? wPill(r[8]||'—',true) : wPill(r[9]||'—',true))
+   : (card===1 ? wPill(r[8]||'—',false): wPill(r[9]||'—',true));
+ return '<div '+histAttr+' style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
+   +nameSpan+trafSpan+wowTraf+metSpan+wowMet+'</div>';
 }
 
 /* Render tabla AR con trow_ar */
 function ar_renderTable(n, tbodyId, btnId, rows) {
- var tbody = document.getElementById(tbodyId);
- if (!tbody) return;
- tbody.innerHTML = rows.map(function(r,i){
-    var html = trow_ar(r, n, i+1);
-    if(i >= _KPI_EXPAND_N) {
-      html = html.replace(/^(<tr)/, '$1 class="sb-hidden" style="display:none;"');
-    } else if(i >= _KPI_TOP_N) {
-      html = html.replace(/^(<tr)/, '$1 class="rows-more" style="display:none;"');
-    }
-    return html;
-  }).join('');
- /* Botón Ver más — insertar después de la tabla, eliminar el anterior */
- var table = tbody.closest('table');
- if (table && table.parentNode) {
-   var existing = table.parentNode.querySelector('.kpi-more-btn');
-   if (existing) existing.remove();
-   _moreBtn(table.parentNode, tbodyId);
+ /* Escribir en div.kpi-tab-rows — igual que las cards KPI */
+ var wrap = document.getElementById('ar'+n+'-rows-wrap');
+ var container = wrap ? wrap.querySelector('#ar'+n+'-th') : document.getElementById(tbodyId);
+ if (!container) return;
+
+ /* Header de columnas — igual al de KPI */
+ var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+ var metLbl = n===1 ? (isCR?'Eficacia':'%NoDispo') : (isCR?'Conv Rate':'IPM');
+ var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
+ var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
+ var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+   +'<span></span>'
+   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">Tráfico</span>'
+   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;" id="ar'+n+'-col-m">'+metLbl+'</span>'
+   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
+   +'</div>';
+
+ var rowsHtml = rows.map(function(r,i){
+   var html = trow_ar(r, n, i+1);
+   if(i >= _KPI_EXPAND_N) {
+     html = html.replace(/^<div/, '<div class="sb-hidden" style="display:none;"');
+   } else if(i >= _KPI_TOP_N) {
+     html = html.replace(/^<div/, '<div class="rows-more" style="display:none;"');
+   }
+   return html;
+ }).join('');
+
+ container.innerHTML = hdr + rowsHtml;
+
+ /* Botón Ver más */
+ var moreWrap = document.getElementById('ar'+n+'-more-wrap');
+ if (moreWrap) {
+   moreWrap.innerHTML = '';
+   if (rows.length > _KPI_TOP_N) _moreBtn(moreWrap, 'ar'+n+'-th');
+ }
+
+ /* Searchbox en sb-wrap si no existe */
+ var sbWrap = document.getElementById('ar'+n+'-sb-wrap');
+ if (sbWrap && !sbWrap.querySelector('input')) {
+   /* Usar el searchbox ya insertado en el HTML */
  }
 }
 
