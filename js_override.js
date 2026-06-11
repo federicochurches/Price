@@ -2377,14 +2377,13 @@ function ar3_renderTable(view, htab) {
 
 function ar3_setView(view) {
   _ar3_view = view;
-  var acc = '#4FC3F4';
   ['prov','dest','corp','hotel'].forEach(function(v) {
     var btn = document.getElementById('ar3-vbk-' + v);
     if (!btn) return;
     var active = (v === view);
-    btn.style.background  = active ? acc : 'transparent';
-    btn.style.color       = active ? '#fff' : 'var(--ink-muted)';
-    btn.style.borderColor = active ? acc : 'var(--rule)';
+    btn.style.background  = active ? '#E0F5FC' : 'transparent';
+    btn.style.color       = active ? '#0288A7' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? '#4FC3F4' : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
@@ -2395,9 +2394,9 @@ function ar3_setHotelTab(htab) {
     var btn = document.getElementById('ar3-htab-' + t);
     if (!btn) return;
     var active = (t === htab);
-    btn.style.background  = active ? 'var(--ink)' : 'transparent';
-    btn.style.color       = active ? '#fff' : 'var(--ink-muted)';
-    btn.style.borderColor = active ? 'var(--ink)' : 'var(--rule)';
+    btn.style.background  = active ? '#E8E6E3' : 'transparent';
+    btn.style.color       = active ? '#333132' : 'var(--ink-muted)';
+    btn.style.borderColor = active ? '#8A8377' : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
