@@ -8122,11 +8122,11 @@ if (typeof HIST_DATA !== 'undefined') {
       grid.style.gridTemplateColumns = 'repeat(3,1fr)';
     }
     /* Sincronizar el switcher local del Análisis de Rendimiento */
+    /* Solo clase .on — el CSS .w22-seg-btn.on maneja background:var(--ink) negro */
     var arBtnCr  = document.getElementById('ar-btn-cr');
     var arBtnRnd = document.getElementById('ar-btn-rnd');
-    var modeCol  = mode === 'rnd' ? '#EA0074' : '#5C469C';
-    if (arBtnCr)  { arBtnCr.classList.toggle('on',  mode !== 'rnd'); arBtnCr.style.background  = mode !== 'rnd' ? modeCol : ''; arBtnCr.style.color  = mode !== 'rnd' ? '#fff' : ''; }
-    if (arBtnRnd) { arBtnRnd.classList.toggle('on', mode === 'rnd'); arBtnRnd.style.background = mode === 'rnd' ? modeCol : ''; arBtnRnd.style.color = mode === 'rnd' ? '#fff' : ''; }
+    if (arBtnCr)  { arBtnCr.classList.toggle('on',  mode !== 'rnd'); arBtnCr.style.background  = ''; arBtnCr.style.color  = ''; }
+    if (arBtnRnd) { arBtnRnd.classList.toggle('on', mode === 'rnd'); arBtnRnd.style.background = ''; arBtnRnd.style.color = ''; }
   }
   document.addEventListener('mode-changed', function(e) {
     _syncCard3(e.detail && e.detail.mode);
