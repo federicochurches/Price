@@ -6,6 +6,85 @@
 
 ---
 
+## Sesión W23-bk-s2 · 10-06-2026 · Cards AR Bookability — fixes masivos
+
+### Contexto
+Segunda sesión de bugs post-W23 enfocada en la card 3 (Bookability) y en bugs
+transversales a las 3 cards de Análisis de Rendimiento.
+
+### Cambios aplicados
+
+**BK_DATA completo (assemble_unified.py)**
+- `_bk_rows` ahora usa `n=100` para dest/corp/hotel y `g_provider` completo para prov
+- `BK_DATA.prov` pasa de 5 a 11 canales (Internal, DerbySoft, etc. con datos reales)
+- `BK_DATA.hotel` pasa de 5 a 100 items → Ver más funciona en Hotel/Críticos
+
+**_BK_TRX_WOW (assemble_unified.py + js_override.js)**
+- Nuevo lookup generado desde `g_dest/g_corp/g_hotel` del pickle BK
+- Normaliza key `dest` → `destino` para acceso correcto en JS
+- WoW TRX ahora visible en Destino, Corp, Hotel
+
+**_normBanda case-insensitive (js_override.js)**
+- `_normBanda()` normaliza acentos y mayúsculas antes de comparar con bandMap
+- Crítica → critica ✓, Revisar → revisar ✓
+- Sin esta fix, filteredWithPos siempre vacío → fallback mostraba todos
+
+**origPos local post-filtro (js_override.js)**
+- `origPos = i+1` ahora se asigna dentro del subset filtrado, no sobre el dataset completo
+- Bajo Rend. en card 3 numera 01,02,03... en lugar de 16,17,18...
+
+**Sin Conv sin fallback (js_override.js)**
+- BK_DATA no tiene hoteles con banda sinconv (todos tienen ≥5 books)
+- El fallback se elimina para `_ar3_htab === 'sc'`
+- Tab Sin Conv oculto en card 3 (`display:none`)
+
+**Sort 3 estados en las 3 cards (js_override.js)**
+- `_nd()` aplicado a `_arSort` y `_ar3Sort`: orig→asc→desc→orig
+- Reset automático al cambiar pill/view: `_arPillRender`, `ar3_setView`, `ar3_setHotelTab`
+- Indicadores `↑↓↕` leen `dir` en lugar de `asc:bool`
+
+**origPos en ar_renderTable (js_override.js)**
+- `ar_renderTable` acepta arrays planos y `{r, origPos}`
+- `_arSort` pasa `{r, origPos}` para preservar ranking original
+- `trow_ar(r, n, origPos)` recibe la posición correcta
+
+**badge sin target (js_override.js)**
+- `b1.textContent = efBanda` (sin `efTarget`)
+- `cdata.band` y `cdata.band_cv` en lugar de `cdata.banda_ef`/`cdata.banda_cv` (inexistentes)
+
+**Sin Conv card2 ordena por Tráfico DESC (js_override.js)**
+- Para `hotels_sc` en card 2, sort por `r[4]` tráfico DESC
+- Cards 1 y 2 muestran hoteles distintos en Sin Conv
+
+**_syncCard3 + CSS data-ar-mode (assemble_unified.py)**
+- `window._syncCard3` expuesto globalmente
+- `w22_setMode` llama `_syncCard3` directamente + `data-ar-mode` en body
+- CSS `body[data-ar-mode='rnd'] #kpicard-ar3 { display:none !important }` como fallback
+- Card BK oculta en Availability (pendiente confirmar W24)
+
+**UX card 3**
+- Pills orden: Hotel → Corp → Destino → Channel
+- Tab por defecto kpicard-bk: Channel (no Destino)
+- Badges de severity: solo nombre, sin target
+- ar3-th-more unificado con ar1/ar2 (mismo mecanismo `_moreBtn`)
+
+**Bug pendiente de pipeline (P_NEW)**
+- `r[9]` (ConvRate_WoW) siempre `'—'` en hotels_crit/br/sc → fix requiere `render_cr_p2.py`
+
+### Archivos modificados
+`assemble_unified.py` · `js_override.js` · `render_cr_p1.py`
+
+### Bugs cerrados
+BK_DATA completo · _normBanda · origPos local · Sin Conv · Sort 3 estados ·
+badge sin target · Sin Conv card2 tráfico · ar3-th-more · pills orden card3
+
+### Bug abierto
+P_NEW: ConvRate_WoW en hotels_crit/br/sc arrays (pipeline Python)
+P_BK_AVAIL: Card BK persiste en Availability (CSS fix pendiente confirmar)
+
+
+---
+
 ## 📝 Sesión W24-pre · 09 Jun 2026 · Mail — sección Inventory
 
 ### Contexto
