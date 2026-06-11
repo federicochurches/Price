@@ -382,7 +382,7 @@ Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
 | W20 | 93,34% | 1,63% | 2,59% | $677 |
 | W21 | 93,15% | 1,57% | 2,63% | $834 |
 | W22 | 94,21% | 1,00% | 2,61% | $653 |
-| W23 | — | — | — | — |
+| W23 | 94,53% | 0,84% | 2,87% | $534 |
 
 ### Canvas IDs · Módulo Histórico
 
@@ -481,10 +481,11 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 | # | Descripción | Archivo probable |
 |---|---|---|
 | P5 | `extract_hist_data.py` pendiente de crear | nuevo archivo |
-
 | P12 | Filtro cruzado con pills: Corp+Dest+Channel en AND · pills eliminables · aplica en todas las tabs y cards AR | `js_override.js` · `render_cr_p2.py` · `render_rnd_p2.py` |
+| P13 | `ConvRate_WoW_pp` ausente en `hotels_crit/br/sc` arrays (r[9]='—') | `render_cr_p2.py` |
+| P14 | Card BK persiste en Availability (CSS `data-ar-mode` pendiente confirmar en producción) | `assemble_unified.py` |
 
-> Bugs P1–P11 cerrados (P6 cerrado W23: % Gap hoteles en Channel View). B37-B38 cerrados en W23. P11 resuelto: `ConvRate_WoW_pp` calculado en `calc_cr.py` para todos los hoteles P80. `BandaConvRate` con Bookings reales. WoW Corp/Dest/IPM en cards AR. `_moreBtn` con `display:table-row`.
+> Bugs P1–P11 cerrados. P6 cerrado W23. B37-B38 cerrados W23. W23-bk-s2: cerrados BK_DATA completo, _normBanda, origPos local, Sin Conv, sort 3 estados, badge sin target, ar3-th-more, pills card3.
 > 
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente desde `Efectividad en CheckRates × CR_Unicos` (compatibilidad permanente).
 
@@ -555,7 +556,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 10-06-2026 (sesión Bookability: card 3 + sort unificado + alineación históricos)
+**Última actualización:** W23 · Junio 2026 · 10-06-2026 (sesión W23-bk-s2: BK_DATA completo, _normBanda, origPos local, sort 3 estados, badges, CSS data-ar-mode)
 **Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
