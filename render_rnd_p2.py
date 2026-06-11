@@ -63,7 +63,10 @@ def build_hotel_row_rnd(row):
     else:
         sign = '▲' if wow_traf >= 0 else '▼'
         wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.', ',') + '%'
-    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str]
+    # r[11]=CorpName, r[12]=Destino — para filtro cruzado en JS
+    corp_name = str(row.get('CorpName', '') or '')
+    dest_name = str(row.get('Destino',  '') or '')
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str, corp_name, dest_name]
 
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
