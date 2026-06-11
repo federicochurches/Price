@@ -6281,9 +6281,12 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var rowsHtml = rows.map(function(r,i){
    var html = trow_ar(r, n, i+1);
    if(i >= _KPI_EXPAND_N) {
-     html = html.replace(/^<div/, '<div class="sb-hidden" style="display:none;"');
+     /* Reemplazar display:grid por display:none y agregar clase sb-hidden */
+     html = html.replace(/^(<div)/, '$1 class="sb-hidden"')
+                .replace('display:grid', 'display:none');
    } else if(i >= _KPI_TOP_N) {
-     html = html.replace(/^<div/, '<div class="rows-more" style="display:none;"');
+     html = html.replace(/^(<div)/, '$1 class="rows-more"')
+                .replace('display:grid', 'display:none');
    }
    return html;
  }).join('');
