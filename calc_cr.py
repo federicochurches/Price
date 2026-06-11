@@ -496,12 +496,13 @@ sev_cv_p80_b2c  = CANASTA['B2C']['sev_cv']
 # ── ENRIQUECER p80_hotel CON COLUMNAS WoW ────────────────────────────────────
 # Agregar WoW de Eficacia y tráfico (CR_Unicos) a p80_hotel para render_cr_p2
 p80_hotel = p80_hotel.merge(
-    g_hotel_w17[['Hotel', 'Eficacia_W17', 'CR_Unicos_W17']], 
+    g_hotel_w17[['Hotel', 'Eficacia_W17', 'ConvRate_W17', 'CR_Unicos_W17']], 
     on='Hotel', 
     how='left'
 )
-p80_hotel['Eficacia_WoW_pp'] = (p80_hotel['Eficacia'] - p80_hotel.get('Eficacia_W17', 0)) * 100
-p80_hotel['CR_Unicos_WoW_pp'] = (p80_hotel['CR_Unicos'] - p80_hotel.get('CR_Unicos_W17', 0)) * 100
+p80_hotel['Eficacia_WoW_pp']   = (p80_hotel['Eficacia']   - p80_hotel.get('Eficacia_W17',   0)) * 100
+p80_hotel['ConvRate_WoW_pp']   = (p80_hotel['ConvRate']   - p80_hotel.get('ConvRate_W17',   0)) * 100
+p80_hotel['CR_Unicos_WoW_pp']  = (p80_hotel['CR_Unicos']  - p80_hotel.get('CR_Unicos_W17',  0)) * 100
 
 # ── GUARDAR PICKLE ────────────────────────────────────────────────────────────
 D = {
