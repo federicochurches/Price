@@ -4993,9 +4993,12 @@ function w22_setMode(m, el){
  if(typeof window._reinitTabs==='function') setTimeout(window._reinitTabs, 80);
  document.dispatchEvent(new CustomEvent('mode-changed', {detail:{mode:m}}));
  /* Forzar sync de card3 después de todos los monkey-patches */
- if (typeof window._syncCard3 === 'function') window._syncCard3(m);
- /* CSS fallback: data-ar-mode en body */
- document.body.setAttribute('data-ar-mode', m);
+ /* Sync card3 después de todos los renders y timeouts (incl. 200ms de w22_update) */
+ var _m = m;
+ setTimeout(function() {
+   if (typeof window._syncCard3 === 'function') window._syncCard3(_m);
+   document.body.setAttribute('data-ar-mode', _m);
+ }, 250);
 }
 
 function w22_setC(c,el){
