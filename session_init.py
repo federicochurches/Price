@@ -11,8 +11,8 @@ Uso:
 El script:
     1. Lee el token de GitHub
     2. Clona federicochurches/Price → /home/claude/pipeline/
-    3. Copia los scripts al directorio de trabajo /home/claude/
-    4. Verifica que todos los archivos clave estén presentes
+    3. Copia los scripts al directorio de trabajo /home/claude/ (raíz + inventory/)
+    4. Verifica que todos los archivos clave estén presentes (incluyendo calc_inv.py, run_inv.py)
     5. Imprime resumen listo para el pipeline
 """
 
@@ -34,6 +34,8 @@ KEY_FILES = [
     'build_package.py', 'github_commit.py',
     'historico_data.py', 'historico_module.py',
     'js_override.js', 'demo_js_main.js',
+    # Inventory (subcarpeta)
+    'calc_inv.py', 'run_inv.py',
 ]
 
 def read_token(args):
@@ -82,8 +84,22 @@ def copy_scripts():
         shutil.copy2(f, dest)
         copied += 1
 
-    print(f"  ✅ {copied} archivos copiados a /home/claude/")
-    return copied
+    # Copiar scripts de inventory/ directamente al directorio de trabajo
+    # (calc_inv.py y run_inv.py viven en subcarpeta pero Claude los necesita en raíz)
+    inv_dir = CLONE_DIR / 'inventory'
+    inv_scripts = ['calc_inv.py', 'run_inv.py']
+    inv_copied = 0
+    if inv_dir.exists():
+        for fname in inv_scripts:
+            src = inv_dir / fname
+            if src.exists():
+                shutil.copy2(src, WORK_DIR / fname)
+                inv_copied += 1
+        if inv_copied:
+            print(f"  ✅ {inv_copied} script(s) de inventory/ copiados a /home/claude/")
+
+    print(f"  ✅ {copied + inv_copied} archivos copiados en total a /home/claude/")
+    return copied + inv_copied
 
 def verify():
     missing = [f for f in KEY_FILES if not (WORK_DIR / f).exists()]
