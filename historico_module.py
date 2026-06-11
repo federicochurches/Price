@@ -93,7 +93,17 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     worst_val = v_max if is_inverted else v_min
     
     target_disp = {'eficacia': '≥ 97%', 'convrate': '≥ 2,5%', 'nodispo': '< 5%', 'ipm': '≥ $650', 'bookability': '≥ 97%'}.get(metrica, 'Target')
+    # SCALE_FLOOR: piso fijo para métricas de alta precisión (evita zoom excesivo)
+    scale_floor_map = {
+        'eficacia':    90.0,
+        'convrate':     0.0,
+        'nodispo':      0.0,
+        'ipm':          0.0,
+        'bookability': 93.0,  # BK varía en rango estrecho — piso da contexto visual
+    }
+    scale_floor = scale_floor_map.get(metrica, 0.0)
     is_inverted_str = 'true' if is_inverted else 'false'
+    scale_floor_js = str(scale_floor)
     
     return f'''<div id="hist-{canvas_id}" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
@@ -143,7 +153,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
 
 <script>
 (function(){{
-  var CID = '{canvas_id}', IS_INVERTED = {is_inverted_str}, METRIC = '{metrica}', TARGET = {target}, BAR_CEIL = {bar_ceil};
+  var CID = '{canvas_id}', IS_INVERTED = {is_inverted_str}, METRIC = '{metrica}', TARGET = {target}, BAR_CEIL = {bar_ceil}, SCALE_FLOOR = {scale_floor_js};
   var SEMANAS = {semanas_json}, VALS_DEF = {vals_json}, BC = {banda_colors_js};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -219,7 +229,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */

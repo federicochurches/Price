@@ -2895,7 +2895,7 @@ window.HIST_DATA['rnd'] = {
 
 <script>
 (function(){
-  var CID = 'hcr-panel-ef', IS_INVERTED = false, METRIC = 'eficacia', TARGET = 97.0, BAR_CEIL = 97.0;
+  var CID = 'hcr-panel-ef', IS_INVERTED = false, METRIC = 'eficacia', TARGET = 97.0, BAR_CEIL = 97.0, SCALE_FLOOR = 90.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [93.27, 93.58, 93.71, 93.3, 93.34, 93.15, 94.21, 94.53], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -2971,7 +2971,7 @@ window.HIST_DATA['rnd'] = {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
@@ -3211,7 +3211,7 @@ window.HIST_DATA['rnd'] = {
 
 <script>
 (function(){
-  var CID = 'hrnd-panel-nd', IS_INVERTED = true, METRIC = 'nodispo', TARGET = 0.05, BAR_CEIL = 0.6;
+  var CID = 'hrnd-panel-nd', IS_INVERTED = true, METRIC = 'nodispo', TARGET = 0.05, BAR_CEIL = 0.6, SCALE_FLOOR = 0.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [3.69, 3.63, 2.84, 2.31, 2.59, 2.63, 2.61, 2.87], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -3287,7 +3287,7 @@ window.HIST_DATA['rnd'] = {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
@@ -3566,7 +3566,7 @@ window.HIST_DATA['rnd'] = {
 
 <script>
 (function(){
-  var CID = 'hcr-panel-cv', IS_INVERTED = false, METRIC = 'convrate', TARGET = 2.5, BAR_CEIL = 2.5;
+  var CID = 'hcr-panel-cv', IS_INVERTED = false, METRIC = 'convrate', TARGET = 2.5, BAR_CEIL = 2.5, SCALE_FLOOR = 0.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [1.29, 1.15, 1.02, 1.14, 1.63, 1.57, 1.0, 0.84], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -3642,7 +3642,7 @@ window.HIST_DATA['rnd'] = {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
@@ -3882,7 +3882,7 @@ window.HIST_DATA['rnd'] = {
 
 <script>
 (function(){
-  var CID = 'hrnd-panel-ipm', IS_INVERTED = false, METRIC = 'ipm', TARGET = 650.0, BAR_CEIL = 3000.0;
+  var CID = 'hrnd-panel-ipm', IS_INVERTED = false, METRIC = 'ipm', TARGET = 650.0, BAR_CEIL = 3000.0, SCALE_FLOOR = 0.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [661.0, 574.0, 524.0, 499.0, 677.0, 834.0, 653.0, 534.7], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -3958,7 +3958,7 @@ window.HIST_DATA['rnd'] = {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
@@ -4236,7 +4236,7 @@ window.HIST_DATA['rnd'] = {
 
 <script>
 (function(){
-  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0;
+  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0, SCALE_FLOOR = 93.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.4, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -4312,7 +4312,7 @@ window.HIST_DATA['rnd'] = {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
@@ -8031,7 +8031,7 @@ if (typeof HIST_DATA !== 'undefined') {
 </script>
 <script>
 (function(){
-  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0;
+  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0, SCALE_FLOOR = 93.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Crítica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "Súper Crítica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversión": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -8107,7 +8107,7 @@ if (typeof HIST_DATA !== 'undefined') {
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */

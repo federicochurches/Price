@@ -794,7 +794,7 @@ window.bkSort = function(el) {
 
 AR3_CANVAS_JS = '''
 (function(){
-  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0;
+  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0, SCALE_FLOOR = 93.0;
   var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
@@ -870,7 +870,7 @@ AR3_CANVAS_JS = '''
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
     var i_max = Math.max(Math.max.apply(null, vals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
