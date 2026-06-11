@@ -1169,9 +1169,13 @@ AR3_MODE_JS = '''
     var _orig = window.w22_setMode;
     window.w22_setMode = function(m, el) {
       _orig.apply(this, arguments);
-      document.body.setAttribute('data-ar-mode', m);
-    
-      if (typeof window._syncCard3 === 'function') window._syncCard3(m);};
+      /* Sync card3 en setTimeout(250ms) — después del 200ms de w22_update */
+      var _m = m;
+      setTimeout(function() {
+        document.body.setAttribute('data-ar-mode', _m);
+        if (typeof window._syncCard3 === 'function') window._syncCard3(_m);
+      }, 250);
+    };
     /* Estado inicial */
     setTimeout(function(){
       document.body.setAttribute('data-ar-mode', (typeof W!=='undefined')?W.mode:'cr');
