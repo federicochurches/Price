@@ -1159,6 +1159,7 @@ AR3_MODE_JS = '''
     var mode = (typeof W !== 'undefined') ? W.mode : 'cr';
     _syncCard3(mode);
   }, 100);
+  window._syncCard3 = _syncCard3;
 })();
 
 /* Patch w22_setMode → data-ar-mode body attr (W23+) */
@@ -1169,7 +1170,8 @@ AR3_MODE_JS = '''
     window.w22_setMode = function(m, el) {
       _orig.apply(this, arguments);
       document.body.setAttribute('data-ar-mode', m);
-    };
+    
+      if (typeof window._syncCard3 === 'function') window._syncCard3(m);};
     /* Estado inicial */
     setTimeout(function(){
       document.body.setAttribute('data-ar-mode', (typeof W!=='undefined')?W.mode:'cr');
