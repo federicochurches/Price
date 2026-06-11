@@ -1,4 +1,10 @@
-/* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
+/
+  /* Reset filtros cruzados al cambiar canasta */
+  if (typeof _arCrossFilter !== 'undefined') {
+    _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
+    if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
+  }
+* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
 var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
 
 /* Parchear w22_redrawCanvas para incluir HIST_RND */
@@ -365,6 +371,11 @@ w22_setMode = function(m, el) {
   /* Side-effects adicionales — consolidados desde monkey-patches previos */
   /* Reset sort state */
   if (typeof _SS !== 'undefined') _SS = {};
+  /* Reset filtros cruzados al cambiar modo CR↔RND */
+  if (typeof _arCrossFilter !== 'undefined') {
+    _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
+    if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
+  }
   /* Reset panel selection */
   if (typeof _selectedPanelLabel !== 'undefined') _selectedPanelLabel = null;
   if (typeof _selectedPanelTbody !== 'undefined') _selectedPanelTbody = null;
@@ -1041,7 +1052,7 @@ function _arRows(n, tab) {
                tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
                tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
                (dd.hotels_crit || dd.hotels);
-    return rows || [];
+    return _arFilterApply(rows || [], n);
   } else {
     /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
     var rows2;
@@ -1061,7 +1072,7 @@ function _arRows(n, tab) {
               tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
               (dd.hotels_dnc || dd.hotels_crit || dd.hotels);
     }
-    return rows2 || [];
+    return _arFilterApply(rows2 || [], n);
   }
 }
 
@@ -1665,6 +1676,95 @@ function ar_updateKPIs() {
   _applyBand('w22-strip-cv-band', _parsePct(d.cv21), 'cv');
   /* BK badge se maneja en tryInitBK */
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   FILTRO CRUZADO — AR cards (P12)
+   Estado independiente por card. Corp y Dest en AND.
+   r[11]=CorpName, r[12]=Destino en rows de hotel (desde W24).
+   Activar: click en fila Corp/Dest mientras view=corp/dest.
+   Desactivar: click en × del pill activo.
+   Reset: cambio de modo CR↔RND o de canasta.
+   ══════════════════════════════════════════════════════════════ */
+
+var _arCrossFilter = {1: {corp:null, dest:null}, 2: {corp:null, dest:null}};
+
+function _arNormCF(s) {
+  return String(s||'').trim().toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e')
+    .replace(/[íìï]/g,'i').replace(/[óòö]/g,'o')
+    .replace(/[úùü]/g,'u').replace(/ñ/g,'n');
+}
+
+function _arFilterApply(rows, n) {
+  var f = _arCrossFilter[n];
+  if (!f || (!f.corp && !f.dest)) return rows;
+  return rows.filter(function(r) {
+    if (f.corp && _arNormCF(r[11]||'').indexOf(_arNormCF(f.corp)) < 0) return false;
+    if (f.dest && _arNormCF(r[12]||'').indexOf(_arNormCF(f.dest)) < 0) return false;
+    return true;
+  });
+}
+
+function _arCrossFilterPillsRender(n) {
+  var container = document.getElementById('ar'+n+'-cross-pills');
+  if (!container) return;
+  var f = _arCrossFilter[n];
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  var acc = isCR ? '#5C469C' : '#EA0074';
+  var accBg = isCR ? '#EDE8F7' : '#FCE4F1';
+  var html = '';
+  var _pill = function(type, label, bg, fg, border) {
+    return '<span class="ar-cross-pill" data-cross-n="'+n+'" data-cross-type="'+type+'"'
+      +' style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 10px;'
+      +'border-radius:20px;font-size:9px;font-weight:700;background:'+bg+';color:'+fg+';'
+      +'border:1px solid '+border+';white-space:nowrap;cursor:pointer;">'
+      +label+' <span style="font-size:11px;opacity:.65;">&#x00D7;</span></span>';
+  };
+  if (f.corp) html += _pill('corp', 'Corp: '+f.corp, accBg, acc, acc);
+  if (f.dest) html += _pill('dest', 'Dest: '+f.dest, '#E1F5EE', '#2F6C34', '#2F6C34');
+  container.innerHTML = html;
+  container.style.display = html ? 'flex' : 'none';
+}
+
+/* Limpiar un filtro */
+function _arCrossFilterClear(n, type) {
+  if (type) { _arCrossFilter[n][type] = null; }
+  else       { _arCrossFilter[n] = {corp:null, dest:null}; }
+  _arCrossFilterPillsRender(n);
+  _arPillRender(n);
+}
+
+/* Event delegation: pills × y clicks en filas Corp/Dest */
+document.addEventListener('click', function(e) {
+  /* Click en pill × — eliminar ese filtro */
+  var pill = e.target.closest('.ar-cross-pill');
+  if (pill) {
+    var cn = parseInt(pill.getAttribute('data-cross-n'));
+    var ct = pill.getAttribute('data-cross-type');
+    if (cn && ct) _arCrossFilterClear(cn, ct);
+    return;
+  }
+  /* Click en fila de dim — activar filtro si vista es corp o dest */
+  var dimRow = e.target.closest('[data-hist-label]');
+  if (!dimRow) return;
+  /* ¿En qué card está el div? */
+  var cn = 0;
+  for (var ni = 1; ni <= 2; ni++) {
+    var _c = document.getElementById('ar'+ni+'-th');
+    if (_c && _c.contains(dimRow)) { cn = ni; break; }
+  }
+  if (!cn) return;
+  /* Solo actuar si la vista activa es corp o dest */
+  var view = (typeof _arPillView !== 'undefined') ? (_arPillView[cn] || 'hotel') : 'hotel';
+  if (view !== 'corp' && view !== 'dest') return;
+  var val = dimRow.getAttribute('data-hist-label') || '';
+  if (!val) return;
+  /* Toggle: si ya está activo con ese valor, quitar */
+  _arCrossFilter[cn][view] = (_arCrossFilter[cn][view] === val) ? null : val;
+  _arCrossFilterPillsRender(cn);
+  _arPillRender(cn);
+});
 
 /* ══════════════════════════════════════════════════
    ORDENAMIENTO POR COLUMNA
