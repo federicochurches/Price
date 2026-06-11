@@ -1293,12 +1293,12 @@ function trow_ar(r, card, idx) {
  var cells;
  if (isCR) {
   cells = card===1
-   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)
-   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
+   ? nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',true)
+   : nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
  } else {
   cells = card===1
-   ? nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)
-   : nameCell+badgeCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
+   ? nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[5])+pill(r[8]||'—',false)
+   : nameCell+tdR(r[4])+pill(r[10]||'—',true)+tdR(r[6])+pill(r[9]||'—',true);
  }
  return '<tr '+histAttr+' style="border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'+cells+'</tr>';
 }

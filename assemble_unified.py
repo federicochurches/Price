@@ -892,25 +892,25 @@ SHARED_CONTAINERS = f'''
       <div id="ar1-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
 
-    <!-- Pills navegación card 1 — modelo BK -->
+
+    <!-- Pills navegación card 1 — modelo unificado -->
     <div style="padding:10px 16px 0;">
-      <div style="font-size:8px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.10em;margin-bottom:5px;">Vista</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
-        <span id="ar1-v-hotel"  onclick="ar_setPillView(1,'hotel',this)"  class="ar1-vpill ar-vpill-active"  style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
-        <span id="ar1-v-corp"   onclick="ar_setPillView(1,'corp',this)"   class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Corp</span>
-        <span id="ar1-v-dest"   onclick="ar_setPillView(1,'dest',this)"   class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Destino</span>
-        <span id="ar1-v-chan"   onclick="ar_setPillView(1,'chan',this)"    class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Channel</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;">
+        <span id="ar1-v-hotel" onclick="ar_setPillView(1,'hotel',this)" class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
+        <span id="ar1-v-corp"  onclick="ar_setPillView(1,'corp',this)"  class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Corp</span>
+        <span id="ar1-v-dest"  onclick="ar_setPillView(1,'dest',this)"  class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Destino</span>
+        <span id="ar1-v-chan"  onclick="ar_setPillView(1,'chan',this)"   class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Channel</span>
       </div>
-      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
-        <span id="ar1-f-crit"   onclick="ar_setPillFilt(1,'crit',this)"   class="ar1-fpill ar-fpill-active"  style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
-        <span id="ar1-f-br"     onclick="ar_setPillFilt(1,'br',this)"     class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</span>
-        <span id="ar1-f-sc"     onclick="ar_setPillFilt(1,'sc',this)"     class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Sin Conv.</span>
+      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;">
+        <span id="ar1-f-crit" onclick="ar_setPillFilt(1,'crit',this)" class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
+        <span id="ar1-f-br"   onclick="ar_setPillFilt(1,'br',this)"   class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</span>
+        <span id="ar1-f-sc"   onclick="ar_setPillFilt(1,'sc',this)"   class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Sin Conv.</span>
       </div>
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;"><div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;"><div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="sb-ar1" placeholder="Buscar…" data-sb-pill="true" data-sb-pill-accent="#5C469C" data-sb-count-id="cnt-ar1" data-sb-clear-id="sb-ar1-clear" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" /><button id="sb-ar1-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">×</button></div></div></div>
       <table id="ar1-tbl" style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr id="ar1-thead" style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-th-lbl">Hotel</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar1-col-m">Eficacia</th>
@@ -922,7 +922,7 @@ SHARED_CONTAINERS = f'''
         <button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
       </div>
     </div>
-    <!-- Canvas histórico card 1 -->
+        <!-- Canvas histórico card 1 -->
     <div style="padding:0 16px 16px;">
       <div id="ar1-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL}</div>
       <div id="ar1-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL}</div>
@@ -946,25 +946,25 @@ SHARED_CONTAINERS = f'''
       <div id="ar2-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
 
-    <!-- Pills navegación card 2 — modelo BK -->
+
+    <!-- Pills navegación card 2 — modelo unificado -->
     <div style="padding:10px 16px 0;">
-      <div style="font-size:8px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.10em;margin-bottom:5px;">Vista</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
-        <span id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)" class="ar2-vpill ar-vpill-active" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;">
+        <span id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)" class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
         <span id="ar2-v-corp"  onclick="ar_setPillView(2,'corp',this)"  class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Corp</span>
         <span id="ar2-v-dest"  onclick="ar_setPillView(2,'dest',this)"  class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Destino</span>
         <span id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)"   class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Channel</span>
       </div>
-      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
-        <span id="ar2-f-crit" onclick="ar_setPillFilt(2,'crit',this)" class="ar2-fpill ar-fpill-active" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
+      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;">
+        <span id="ar2-f-crit" onclick="ar_setPillFilt(2,'crit',this)" class="ar2-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
         <span id="ar2-f-br"   onclick="ar_setPillFilt(2,'br',this)"   class="ar2-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</span>
         <span id="ar2-f-sc"   onclick="ar_setPillFilt(2,'sc',this)"   class="ar2-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Sin Conv.</span>
       </div>
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;"><div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;"><div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;transition:border-color .15s,box-shadow .15s;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="sb-ar2" placeholder="Buscar…" data-sb-pill="true" data-sb-pill-accent="#5C469C" data-sb-count-id="cnt-ar2" data-sb-clear-id="sb-ar2-clear" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:90px;font-family:'Geist',sans-serif;" /><button id="sb-ar2-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;color:var(--ink-muted);font-size:13px;flex-shrink:0;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">×</button></div></div></div>
       <table id="ar2-tbl" style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
+        <colgroup><col/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
         <thead><tr id="ar2-thead" style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-th-lbl">Hotel</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar2-col-m">Conv Rate</th>
@@ -976,7 +976,7 @@ SHARED_CONTAINERS = f'''
         <button id="ar2-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
       </div>
     </div>
-    <!-- Canvas histórico card 2 -->
+        <!-- Canvas histórico card 2 -->
     <div style="padding:0 16px 16px;">
       <div id="ar2-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL_CV}</div>
       <div id="ar2-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL_IPM}</div>
