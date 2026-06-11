@@ -40,6 +40,59 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-refactor-1 · 11-06-2026 · Refactor transparencia de cards
+
+### Contexto
+Refactor estructural para que los cambios en cards 1, 2 y 3 sean transparentes.
+Se abordan las dos prioridades de mayor impacto/esfuerzo.
+
+### Cambios aplicados
+
+**Refactor 1: ar_updateKPIs → config + reader + apply**
+
+Antes (10,728 chars): un bloque `if (isCR) {...} else {...}` de 150 líneas donde
+CR y RND eran paralelos. Un bug en `cdata.banda_ef` había que corregirlo en dos sitios.
+
+Después (3 objetos + 2 funciones + 1 orquestador):
+- `_AR_MODE_CFG` — objeto de config por modo: qué canvas leer, targets, dirección WoW
+- `_AR_BANDA_C` — paleta de bandas compartida (antes duplicada en 2 bloques)
+- `_arReadKpiData(cdata, cfg)` — lee y normaliza datos UNA VEZ para cualquier modo
+- `_arApplyCard(n, ...)` — aplica al DOM de la card n (parametrizado)
+- `ar_updateKPIs()` — orquestador: config + read + apply(1) + apply(2)
+
+Beneficio: un bug como `cdata.banda_ef` se corrige UNA VEZ en `_arReadKpiData`
+y aplica automáticamente a CR y RND.
+
+**Refactor 2: w22_setMode → una sola definición**
+
+Antes: 4 redefiniciones encadenadas (`js_override.js` × 1 + monkey-patches × 3).
+La DEF 1 nunca ejecutaba directamente. Cada monkey-patch añadía side-effects
+invisibles desde los otros. Este fue el bug raíz de P14 (card BK en Availability).
+
+Después: 1 sola función con todas las responsabilidades explícitas y ordenadas:
+1. Estado (W.mode, W.canasta)
+2. UI del segmented control
+3. CSS accent global
+4. Visibilidad de bloques KPI y Severity
+5. Labels y headers según modo
+6. Reset chips
+7. Render (w22_update)
+8. Side-effects nombrados: reset _SS, reset panel selection, init search (150ms), init sort (400ms)
+9. Sync card3 (250ms)
+
+`_patchMode` eliminado de `assemble_unified.py` — ya no es necesario.
+
+### Archivos modificados
+`js_override.js` · `assemble_unified.py`
+
+### Beneficio inmediato
+- Añadir un side-effect al cambio de modo → 1 línea en la sección correcta de `w22_setMode`
+- Cambiar el comportamiento de KPIs para CR y RND → 1 línea en `_AR_MODE_CFG`
+- Bug en lectura de datos KPI → 1 fix en `_arReadKpiData`, aplica a ambos modos
+
+
+---
+
 ## Sesión W23-bk-s3 · 11-06-2026 · Fixes de Availability y UI
 
 ### Contexto
