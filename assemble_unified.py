@@ -1008,7 +1008,7 @@ SHARED_CONTAINERS = f'''
         <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
       </div>
     </div>
-        <!-- Histórico BK — igual a cards 1 y 2 -->
+        <!-- Histórico BK — igual estructura que cards 1 y 2 -->
     <div id="hist-ar3-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -1040,17 +1040,18 @@ SHARED_CONTAINERS = f'''
   </div>
   <div style="margin-top:10px;">
     <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(51,49,50,0.54);height:9px;border-radius:1px 1px 0 0;" title="W16: 98.28%"></div><div style="flex:1;background:rgba(51,49,50,0.95);height:18px;border-radius:1px 1px 0 0;" title="W17: 98.44%"></div><div style="flex:1;background:rgba(51,49,50,0.38);height:6px;border-radius:1px 1px 0 0;" title="W18: 98.22%"></div><div style="flex:1;background:rgba(51,49,50,0.48);height:8px;border-radius:1px 1px 0 0;" title="W19: 98.26%"></div><div style="flex:1;background:rgba(51,49,50,0.25);height:4px;border-radius:1px 1px 0 0;" title="W20: 98.17%"></div><div style="flex:1;background:rgba(51,49,50,0.46);height:8px;border-radius:1px 1px 0 0;" title="W21: 98.25%"></div><div style="flex:1;background:rgba(51,49,50,0.85);height:15px;border-radius:1px 1px 0 0;" title="W22: 98.40%"></div><div style="flex:1;background:#333132;height:17px;border-radius:1px 1px 0 0;" title="W23: 98.43%"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
+    <div id="hist-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:20px;width:100%;"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:2px;">
+      <span style="font-size:8px;color:var(--ink-muted);">W16</span>
+      <span style="font-size:8px;color:var(--ink-muted);">W23</span>
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#E1F5EE;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
+    <span id="hist-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1A6B4A;">EXITOSA</span>
     <span id="hist-ar3-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
   </div>
 </div>
-</div><!-- /grid 3 cards -->
+  </div><!-- /grid 3 cards -->
 </section>
 
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
