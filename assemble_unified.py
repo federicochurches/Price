@@ -691,10 +691,13 @@ if DB is not None:
     _bk_books  = DB.get('books_global', 0)
     _bk_banda  = DB.get('banda_global', 'exitosa')
 
-    _bk_prov_rows  = _bk_rows(DB['TOP_PROVIDER'], 'Provider')
-    _bk_dest_rows  = _bk_rows(DB['TOP_DEST'],     'Destino')
-    _bk_corp_rows  = _bk_rows(DB['TOP_CORP'],     'CorpName')
-    _bk_hotel_rows = _bk_rows(DB['TOP_HOTEL'],    'Hotel')
+    # Prov: usar g_provider completo (todos los canales con MIN_BOOKS >= 5)
+    # sin filtro min_books=50 que excluye canales con pocos bookings BK
+    _bk_prov_df    = DB.get('g_provider', DB['TOP_PROVIDER'])
+    _bk_prov_rows  = _bk_rows(_bk_prov_df, 'Provider', n=len(_bk_prov_df))
+    _bk_dest_rows  = _bk_rows(DB['TOP_DEST'],     'Destino',  n=100)
+    _bk_corp_rows  = _bk_rows(DB['TOP_CORP'],     'CorpName', n=100)
+    _bk_hotel_rows = _bk_rows(DB['TOP_HOTEL'],    'Hotel',    n=100)
 
     import json as _json2
     BK_JS_DATA = f"""
