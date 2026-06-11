@@ -311,12 +311,17 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var card = row.closest('.kpi-card');
   if (!card) return;
   var cardId = card.id || '';
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
 
   /* Mapear card → canvas histórico global */
   var cid;
-  if (cardId === 'kpicard-ef') cid = 'hcr-global-ef';
-  else if (cardId === 'kpicard-cv') cid = 'hcr-global-cv';
-  else if (cardId === 'kpicard-bk') cid = 'h-bk-global';
+  if      (cardId === 'kpicard-ef')  cid = 'hcr-global-ef';
+  else if (cardId === 'kpicard-cv')  cid = 'hcr-global-cv';
+  else if (cardId === 'kpicard-bk')  cid = 'h-bk-global';
+  /* Cards AR de Rendimiento */
+  else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
+  else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
+  else if (cardId === 'kpicard-ar3') cid = 'h-bk-global';
   else return;
 
   var label = row.getAttribute('data-hist-label') || '';
@@ -337,9 +342,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   }
 
   /* Color de acento según card */
-  var accent = cardId === 'kpicard-bk' ? '#333132'
-             : cardId === 'kpicard-cv' ? '#5C469C'
-             : '#5C469C';
+  var accent = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? '#333132' : '#5C469C';
   var accentAlpha = accent === '#333132' ? 'rgba(51,49,50,0.07)' : 'rgba(92,70,156,0.07)';
 
   row.setAttribute('data-selected', '1');
@@ -846,7 +849,7 @@ SHARED_CONTAINERS = f'''
 <div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;">
 
   <!-- ── CARD 1: Eficacia / NoDispo ── -->
-  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+  <div class="kpi-card" id="kpicard-ar1" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
@@ -888,7 +891,7 @@ SHARED_CONTAINERS = f'''
   </div>
 
   <!-- ── CARD 2: Conv Rate / IPM ── -->
-  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+  <div class="kpi-card" id="kpicard-ar2" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
@@ -930,7 +933,7 @@ SHARED_CONTAINERS = f'''
   </div>
 
   <!-- ── CARD 3: Bookability ── -->
-  <div class="kpi-card" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
+  <div class="kpi-card" id="kpicard-ar3" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card3-lbl">Bookability</div>
