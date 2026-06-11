@@ -866,7 +866,7 @@ AR_SB_PATCH_JS = '''
       if (!dd) {
         dd = document.createElement('div');
         dd.id = inputId + '-dd';
-        dd.style.cssText = 'position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;font-family:\'Geist\',sans-serif;';
+        dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;font-family:Geist,sans-serif;";
         document.body.appendChild(dd);
       }
       if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
