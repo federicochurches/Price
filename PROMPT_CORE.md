@@ -500,10 +500,13 @@ El proyecto Claude solo necesita **4 archivos**. Todos los scripts del pipeline 
 |---|---|
 | `PROMPT_CORE.md` | Contexto inicial — Claude lo lee antes del clone |
 | `PROMPT_INV.md` | Instrucciones pipeline Inventory |
-| `calc_inv.py` | Pipeline INV — Claude lo necesita para correr el pipeline |
-| `text2.txt` | Token GitHub — leído automáticamente por `session_init.py` |
+| `text3.txt` | Token GitHub — leído automáticamente por `session_init.py` |
+
+> `calc_inv.py` y `run_inv.py` **ya no van en el proyecto Claude**. `session_init.py` los copia automáticamente desde `inventory/` del repo al directorio de trabajo. Todo el código vive exclusivamente en el repo.
 
 **Docs** (`HISTORIAL_SESIONES.md`, `NOTA_REFACTOR_PENDIENTE.md`, `BANDAS.md`, `README_QUICK.md`, `COMMIT_GUIDE.md`) — están en el repo, se clonan solos. No subirlos al proyecto.
+
+**Scripts del pipeline** (`calc_inv.py`, `run_inv.py`, `calc_supply.py`, `render_*.py`, etc.) — todos en el repo. `session_init.py` los clona. No subirlos al proyecto.
 
 ### Estructura del repo GitHub (W22+)
 ```
