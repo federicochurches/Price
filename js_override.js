@@ -2434,13 +2434,12 @@ function ar3_showMore() {
     _bkBandEl.style.outline = '1px solid ' + bc[1] + '55';
   }
 
-  var GAUGE = ['#8A8377','#DC2626','#C0392B','#F97316','#FCD34D','#1A6B4A'];
-  var bandOrder = ['sinconv','sc','critica','revisar','aceptable','exitosa'];
-  var activeIdx = bandOrder.indexOf(d.banda);
+  /* Mismo gauge que cards 1/2: 5 niveles, todos opacity:1 */
+  var GAUGE_BK = ['#8A8377','#C0392B','#F97316','#FCD34D','#1A6B4A'];
   var g3 = document.getElementById('ar3-gauge');
   if (g3) {
-    g3.innerHTML = GAUGE.map(function(c,i){
-      return '<div style="flex:1;background:'+c+';height:6px;border-radius:1px;opacity:'+(i<=activeIdx?'1':'0.18')+'"></div>';
+    g3.innerHTML = GAUGE_BK.map(function(c){
+      return '<div style="flex:1;background:'+c+';height:6px;opacity:1;"></div>';
     }).join('');
   }
 

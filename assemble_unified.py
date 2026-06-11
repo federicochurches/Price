@@ -903,14 +903,14 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" id="ar1-v-chan"  onclick="ar_setPillView(1,'chan',this)">Channel</label>
       </div>
       <!-- Fila 2: Filtro (solo vista Hotel) -->
-      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
+      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
         <span id="ar1-f-crit" class="ar1-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'crit',this)">Críticos</span>
         <span id="ar1-f-br"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'br',this)">Bajo Rend.</span>
         <span id="ar1-f-sc"   class="ar1-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(1,'sc',this)">Sin Conv.</span>
       </div>
     </div>
     <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">
+    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;padding:0 16px;">
       <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -920,9 +920,9 @@ SHARED_CONTAINERS = f'''
       </div>
     </div>
     <!-- Filas -->
-    <div id="ar1-rows-wrap" style="padding-top:4px;">
+    <div id="ar1-rows-wrap" style="padding:4px 16px 0;">
       <div id="ar1-th" class="kpi-tab-rows"></div>
-      <div style="text-align:center;margin-top:4px;" id="ar1-more-wrap"></div>
+      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"></div>
     </div>
         <!-- Canvas histórico card 1 -->
     <div style="padding:0 16px 16px;">
@@ -963,14 +963,14 @@ SHARED_CONTAINERS = f'''
         <label class="tab-label" id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)">Channel</label>
       </div>
       <!-- Fila 2: Filtro (solo vista Hotel) -->
-      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
+      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
         <span id="ar2-f-crit" class="ar2-fpill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'crit',this)">Críticos</span>
         <span id="ar2-f-br"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'br',this)">Bajo Rend.</span>
         <span id="ar2-f-sc"   class="ar2-fpill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;cursor:pointer;" onclick="ar_setPillFilt(2,'sc',this)">Sin Conv.</span>
       </div>
     </div>
     <!-- Searchbox -->
-    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">
+    <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;padding:0 16px;">
       <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -980,9 +980,9 @@ SHARED_CONTAINERS = f'''
       </div>
     </div>
     <!-- Filas -->
-    <div id="ar2-rows-wrap" style="padding-top:4px;">
+    <div id="ar2-rows-wrap" style="padding:4px 16px 0;">
       <div id="ar2-th" class="kpi-tab-rows"></div>
-      <div style="text-align:center;margin-top:4px;" id="ar2-more-wrap"></div>
+      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar2-more-wrap"></div>
     </div>
         <!-- Canvas histórico card 2 -->
     <div style="padding:0 16px 16px;">
@@ -1000,7 +1000,7 @@ SHARED_CONTAINERS = f'''
         <div>
           <div id="ar-kpi-3" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
           <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar3-vol">—</span><span>· vs sem. ant. </span><span id="ar3-wow-pill"></span></div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span><strong style="color:var(--ink-soft);">Trx:</strong> <span id="ar3-books">—</span></span><span id="ar3-books-wow"></span></div>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span><strong style="color:var(--ink-soft);">Transacciones:</strong> <span id="ar3-books">—</span></span><span id="ar3-books-wow"></span></div>
         </div>
         <div style="padding-top:4px;"><span id="ar3-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
       </div>
@@ -1020,7 +1020,7 @@ SHARED_CONTAINERS = f'''
       <span id="ar3-htab-sc"   class="ar3-htab-pill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('sc')">Sin Conv.</span>
     </div>
     <!-- Panel tabla Bookability -->
-    <div id="ar3-panel" style="padding:8px 16px 12px;">
+    <div id="ar3-panel" style="padding:4px 0 0;">
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
         <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
           <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
