@@ -21,6 +21,8 @@ WEEK_PREV = WEEK_NUM - 1
 M        = D['M']
 CANASTA  = D['CANASTA']
 p80      = D['p80_hotel'].copy()
+g_hotel_rnd   = D.get('g_hotel')          # todos los hoteles (sin filtro P80) para searchbox
+g_hotel_w17   = D.get('g_hotel_w17')      # para WoW en pool extendido
 g_corp        = D['g_corp']
 g_dest        = D['g_dest']
 g_pais_global = D['g_pais']   # alias para evitar colisión con variable local g_pais
@@ -209,6 +211,30 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     hotels_br_rows   = rnd_hotel_rows_from(df_br)
     hotels_sc_rows   = rnd_hotel_rows_from(df_sc)
 
+    # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
+    SB_N = 500
+    try:
+        _gh_rnd = g_hotel_rnd.copy() if g_hotel_rnd is not None else None
+        if g_hotel_w17 is not None and 'Hotel' in _gh_rnd.columns:
+            _w17_rnd = [c for c in ['Hotel','%NoDispo_W17','Trafico_W17'] if c in g_hotel_w17.columns]
+            _gh_rnd = _gh_rnd.merge(g_hotel_w17[_w17_rnd] if _w17_rnd else g_hotel_w17[['Hotel']], on='Hotel', how='left')
+        if _gh_rnd is not None and 'BandaNoDispo' in _gh_rnd.columns:
+            _gh_rnd_w = _gh_rnd[_gh_rnd.get('Bookings', 1) > 0] if 'Bookings' in _gh_rnd.columns else _gh_rnd
+            df_dnc_sb = _gh_rnd.sort_values('%NoDispo', ascending=False).head(SB_N)
+            df_br_sb  = _gh_rnd_w[_gh_rnd_w['BandaNoDispo'].isin(['Revisar','Crítica','Súper Crítica'])].sort_values('%NoDispo', ascending=False).head(SB_N)
+            df_sc_sb  = _gh_rnd[_gh_rnd.get('Bookings', 1) == 0].sort_values('Trafico', ascending=False).head(SB_N) if 'Bookings' in _gh_rnd.columns else _gh_rnd.head(0)
+            hotels_dnc_sb = rnd_hotel_rows_from(df_dnc_sb)
+            hotels_br_sb  = rnd_hotel_rows_from(df_br_sb)
+            hotels_sc_sb  = rnd_hotel_rows_from(df_sc_sb)
+        else:
+            hotels_dnc_sb = hotels_dnc_rows
+            hotels_br_sb  = hotels_br_rows
+            hotels_sc_sb  = hotels_sc_rows
+    except Exception:
+        hotels_dnc_sb = hotels_dnc_rows
+        hotels_br_sb  = hotels_br_rows
+        hotels_sc_sb  = hotels_sc_rows
+
     # Dim rows (por corp, peor NoDispo)
     dim_rows = []
     g_c_sort = g_corp_c.sort_values('%NoDispo', ascending=False).head(1000) if '%NoDispo' in g_corp_c.columns else g_corp_c.head(1000)
@@ -322,7 +348,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
                  'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
                  't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
 
 
 def build_rnd_d():
