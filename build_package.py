@@ -163,7 +163,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 .rpt-card.card-inactive{{background:#F0EBE2;cursor:default;}}
 .rpt-card.card-inactive .rpt-card-top,.rpt-card.card-inactive .rpt-pills{{position:relative;z-index:0;}}
 .dim-overlay{{position:absolute;inset:0;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);background:rgba(240,235,226,0.35);z-index:1;pointer-events:none;}}
-.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;background:#FCB000;color:#333132;border:none;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}}
+.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;border:none;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#FAEEDA;color:#633806;}}.lock-chip-gray{{background:#F1EFE8;color:#444441;}}
 .rpt-card-top{{padding:18px 18px 14px;flex:1;}}
 .rpt-accent{{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;border-radius:3px;}}
 .rpt-kpis{{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}}
@@ -230,7 +230,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(234,0,116,.1);color:var(--rnd);">ACTIVO</span>
+        <span class="rpt-accent" style="background:#E1F5EE;color:#085041;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-right:5px;vertical-align:middle;"></span>Activo</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
         <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
@@ -248,7 +248,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" onclick="location.href='inventory/{WEEK_STR}/INVENTORY_W{WEEK}.html'" style="cursor:pointer;">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(79,195,244,.1);color:#1A7FA8;">BETA</span>
+        <span class="rpt-accent" style="background:#EAF3DE;color:#27500A;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#639922;margin-right:5px;vertical-align:middle;"></span>Beta</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">State of PriceTravel Product</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
@@ -272,9 +272,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">EN CONSTRUCCIÓN</div>
+      <div class="lock-chip"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#BA7517;margin-right:4px;vertical-align:middle;"></span>En construcción</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(239,159,39,.1);color:#854F0B;">En construcción &nbsp;·&nbsp; RateCode Inventory</span>
+        <span class="rpt-accent" style="background:#FAEEDA;color:#633806;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#BA7517;margin-right:5px;vertical-align:middle;"></span>En construcción &nbsp;·&nbsp; RateCode Inventory</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">RateCode Inventory</div>
         <div class="rpt-desc">Inventario de rate codes por hotel y channel. Paridad y cobertura tarifaria.</div>
         <div class="rpt-progress">
@@ -287,9 +287,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">EN CONSTRUCCIÓN</div>
+      <div class="lock-chip"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#BA7517;margin-right:4px;vertical-align:middle;"></span>En construcción</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(239,159,39,.1);color:#854F0B;">En construcción &nbsp;·&nbsp; Troubleshooting</span>
+        <span class="rpt-accent" style="background:#FAEEDA;color:#633806;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#BA7517;margin-right:5px;vertical-align:middle;"></span>En construcción &nbsp;·&nbsp; Troubleshooting</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Supply Troubleshooting</div>
         <div class="rpt-desc">Dashboard tickets Rocket Chat · 75 tickets · Feb–May 2026 · 4 tipos de cuenta · 8 tipos de consulta.</div>
         <div class="rpt-progress">
@@ -304,9 +304,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">BACKLOG</div>
+      <div class="lock-chip lock-chip-gray"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#888780;margin-right:4px;vertical-align:middle;"></span>Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Strategy</span>
+        <span class="rpt-accent" style="background:#F1EFE8;color:#444441;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#888780;margin-right:5px;vertical-align:middle;"></span>Backlog · Strategy</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Optimization Strategy Layer</div>
         <div class="rpt-desc">Síntesis cross-módulo · recomendaciones priorizadas · cruza CR, RND e Inventory.</div>
       </div>
@@ -315,9 +315,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip">BACKLOG</div>
+      <div class="lock-chip lock-chip-gray"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#888780;margin-right:4px;vertical-align:middle;"></span>Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:rgba(127,119,221,.1);color:#3C3489;">BACKLOG · Alertas</span>
+        <span class="rpt-accent" style="background:#F1EFE8;color:#444441;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#888780;margin-right:5px;vertical-align:middle;"></span>Backlog · Alertas</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Alertas</div>
         <div class="rpt-desc">Alertas proactivas automáticas · hoteles bajo threshold · flags por canal y corporativo.</div>
       </div>
