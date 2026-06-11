@@ -982,14 +982,14 @@ SHARED_CONTAINERS = f'''
       <label id="ar3-vbk-corp"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('corp')">Corp</label>
       <label id="ar3-vbk-prov"  class="ar3-vbk-pill tab-label"                  onclick="ar3_setView('prov')">Channel</label>
     </div>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 4px 0;">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 16px 0;">
       <span id="ar3-htab-crit" class="ar3-htab-pill tab-label tab-label-active" style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('crit')">Críticos</span>
       <span id="ar3-htab-br"   class="ar3-htab-pill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('br')">Bajo Rend.</span>
       <span id="ar3-htab-sc"   class="ar3-htab-pill tab-label"                  style="border-radius:3px;padding:4px 10px;font-size:9px;" onclick="ar3_setHotelTab('sc')">Sin Conv.</span>
     </div>
     <!-- Panel tabla Bookability -->
-    <div id="ar3-panel" style="padding:4px 0 0;">
-      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
+    <div id="ar3-panel" style="padding:4px 16px 0;">
+      <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap" style="padding:0 16px;">
         <div class="sb-pill-wrap" style="display:flex;align-items:center;gap:7px;padding:0 4px 0 0;">
           <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 8px 3px 8px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1001,7 +1001,7 @@ SHARED_CONTAINERS = f'''
       <table id="ar3-table" style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
         <div style="text-align:center;margin-top:4px;">
-          <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+          <button id="ar3-more-btn" style="margin:4px 16px 0;" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
         </div>
       </div>
     </div>
