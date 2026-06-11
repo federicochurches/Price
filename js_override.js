@@ -2364,8 +2364,11 @@ function ar3_renderTable(view, htab) {
     moreBtn.onclick = function() {
       var exp = moreBtn.getAttribute('data-exp') !== '1';
       moreBtn.setAttribute('data-exp', exp ? '1' : '0');
-      tbody.querySelectorAll('.rows-more').forEach(function(r){
-        r.style.display = exp ? 'grid' : 'none';
+      var allRows = tbody.querySelectorAll('[data-hist-label]');
+      allRows.forEach(function(r, i){
+        if (i >= _KPI_TOP_N) {
+          r.style.setProperty('display', exp ? 'grid' : 'none', 'important');
+        }
       });
       moreBtn.textContent = exp ? 'Ver menos ▴' : 'Ver más ▾';
     };

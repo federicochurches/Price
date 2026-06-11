@@ -52,6 +52,14 @@ HIST_CR_DIM       = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
 HIST_CR_DIM_CV    = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-dim-cv')
 HIST_RND_DIM      = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
 HIST_RND_DIM_IPM  = _rh('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-dim-ipm')
+# Histórico Bookability para card AR3
+if DB is not None:
+    _bk_vals = [DB['hist_by_week'][w]['bk'] * 100 for w in ['W16','W17','W18','W19','W20','W21','W22','W23'] if w in DB['hist_by_week']]
+    _bk_val_curr = _bk_vals[-1] if _bk_vals else 98.43
+    _bk_banda_str = DB.get('banda_global', 'Exitosa').capitalize()
+    HIST_BK_PANEL = _rh('bk', 'bookability', _bk_banda_str, DB.get('bk_global', 0), 'h-ar3-bk-global')
+else:
+    HIST_BK_PANEL = ''
 
 SB_PANEL_TH = _sbph('sb-panel-th', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-panel-th')
 SB_PANEL_TD = _sbph('sb-panel-td', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-panel-td')
@@ -1284,49 +1292,10 @@ SHARED_CONTAINERS = f'''
         <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
       </div>
     </div>
-        <div id="ar3-hist-bk" style="margin-top:12px;display:block;"><div id="hist-h-ar3-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
-  <div style="height:8px;"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-h-ar3-bk-global-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
-    </span>
-  </div>
-  <div style="width:100%;height:100px;"><canvas id="h-ar3-bk-global" style="display:block;width:100%;height:100px;"></canvas></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-h-ar3-bk-global-actual" style="font-size:13px;font-weight:700;color:#333132;margin-top:2px;">98.43%</div>
+    <div style="padding:0 16px 16px;">
+      <div id="ar3-hist-bk" style="margin-top:12px;display:block;">{HIST_BK_PANEL}</div>
     </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-h-ar3-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.43%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-h-ar3-bk-global-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">98.17%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-h-ar3-bk-global-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">98.31%</div>
-    </div>
-    <div id="hist-h-ar3-bk-global-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-h-ar3-bk-global-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;">
-    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-h-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(92,70,156,0.31);height:5px;border-radius:1px 1px 0 0;" title="W16: 93.27%"></div><div style="flex:1;background:rgba(92,70,156,0.47);height:8px;border-radius:1px 1px 0 0;" title="W17: 93.58%"></div><div style="flex:1;background:rgba(92,70,156,0.53);height:9px;border-radius:1px 1px 0 0;" title="W18: 93.71%"></div><div style="flex:1;background:rgba(92,70,156,0.33);height:5px;border-radius:1px 1px 0 0;" title="W19: 93.30%"></div><div style="flex:1;background:rgba(92,70,156,0.35);height:5px;border-radius:1px 1px 0 0;" title="W20: 93.34%"></div><div style="flex:1;background:rgba(92,70,156,0.25);height:4px;border-radius:1px 1px 0 0;" title="W21: 93.15%"></div><div style="flex:1;background:rgba(92,70,156,0.79);height:14px;border-radius:1px 1px 0 0;" title="W22: 94.21%"></div><div style="flex:1;background:#5C469C;height:18px;border-radius:1px 1px 0 0;" title="W23: 94.53%"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-h-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#FEF9C3;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
-    <span id="hist-h-ar3-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
-  </div>
-</div>
-
-  </div><!-- /grid 3 cards -->
+    </div><!-- /grid 3 cards -->
 </section>
 
 <section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
