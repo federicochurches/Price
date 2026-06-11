@@ -40,6 +40,31 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-P13 · 11-06-2026 · Fix ConvRate WoW en Críticos/Bajo Rend.
+
+### Causa raíz
+`calc_cr.py` mergeaba `p80_hotel` con `g_hotel_w17` incluyendo `Eficacia_W17` y
+`CR_Unicos_W17` pero **omitiendo `ConvRate_W17`**. Sin ese campo, `ConvRate_WoW_pp`
+nunca se calculaba para `p80_hotel` → `df_hotel` → `df_crit/df_br/df_sc` →
+`hotels_crit_rows/br/sc` → siempre `r[9] = '—'` en el HTML.
+
+`g_hotel_w17` sí tenía `ConvRate_W17` (lo usa en otros merges dentro de las
+canastas). Solo faltaba incluirlo en el merge de `p80_hotel` que alimenta
+`render_cr_p2.py`.
+
+### Fix
+`calc_cr.py`: un solo cambio — añadir `'ConvRate_W17'` a la lista del merge y
+calcular `p80_hotel['ConvRate_WoW_pp']`.
+
+### Archivos modificados
+`calc_cr.py`
+
+### Bugs cerrados
+P13: ConvRate WoW siempre `—` en Críticos/Bajo Rend./Sin Conv.
+
+
+---
+
 ## Sesión W23-refactor-1 · 11-06-2026 · Refactor transparencia de cards
 
 ### Contexto
