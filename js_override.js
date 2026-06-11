@@ -362,7 +362,20 @@ w22_setMode = function(m, el) {
 
   /* Render */
   w22_update();
-  /* Sync card3 AR — setTimeout(250ms) para que corra después de todos los renders */
+  /* Side-effects adicionales — consolidados desde monkey-patches previos */
+  /* Reset sort state */
+  if (typeof _SS !== 'undefined') _SS = {};
+  /* Reset panel selection */
+  if (typeof _selectedPanelLabel !== 'undefined') _selectedPanelLabel = null;
+  if (typeof _selectedPanelTbody !== 'undefined') _selectedPanelTbody = null;
+  /* Re-init panel search (150ms) */
+  setTimeout(function(){ if (typeof _initPanelSearch === 'function') _initPanelSearch(); }, 150);
+  /* Re-init sort (400ms) */
+  setTimeout(function(){
+    if (typeof _initAllSort === 'function') _initAllSort();
+    if (typeof _arSortInit  === 'function') _arSortInit();
+  }, 400);
+  /* Sync card3 AR (250ms) — después de todos los renders */
   var _m2 = m;
   setTimeout(function() {
     if (typeof window._syncCard3 === 'function') window._syncCard3(_m2);
@@ -1426,218 +1439,231 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
 }
 
 /* KPI headers completos de las cards AR */
-function ar_updateKPIs() {
- var isCR = W.mode === 'cr';
- var canasta = W.canasta || 'global';
- var acc = (typeof cv === 'function') ? cv().col : '#5C469C';
- var cdata = (typeof cv === 'function') ? cv() : {};
+/* ══════════════════════════════════════════════════════════════
+   ar_updateKPIs — refactorizado W23-bk-s3
+   Un solo flujo para CR y RND — los modos difieren solo en config
+   ══════════════════════════════════════════════════════════════ */
 
- /* Función helper: pill WoW */
- function wPill(val, isMejoraSiPositivo) {
-  if (val == null || isNaN(val)) return '';
-  var up = val > 0;
-  var good = isMejoraSiPositivo ? up : !up;
-  var bg = good ? '#EAF3DE' : '#FCE8E6';
-  var fg = good ? '#2F6C34' : '#C0392B';
-  var arrow = up ? '↑' : '↓';
-  var txt = arrow + ' ' + Math.abs(val).toFixed(2).replace('.',',');
-  return '<span style="display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+bg+';color:'+fg+';">'+txt+'</span>';
- }
-
- /* Función helper: pill % WoW pequeño */
- function wPillSm(val, isMejoraSiPositivo) {
-  if (val == null || isNaN(val)) return '';
-  var up = val > 0;
-  var good = isMejoraSiPositivo ? up : !up;
-  var bg = good ? '#EAF3DE' : '#FCE8E6';
-  var fg = good ? '#2F6C34' : '#C0392B';
-  var arrow = up ? '↑' : '↓';
-  var txt = arrow + ' ' + Math.abs(val).toFixed(1).replace('.',',') + '%';
-  return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+txt+'</em>';
- }
-
- /* Función helper: gauge 5 barras */
- function gauge(colors) {
-  return colors.map(function(c){ return '<div style="flex:1;background:'+c+';height:6px;opacity:1;"></div>'; }).join('');
- }
-
- /* Función helper: wow box W20/W21/WoW */
- function wowBox(w20, w21, wow, wowIsGood, acc) {
-  var wowGood = wowIsGood ? (parseFloat(wow) > 0) : (parseFloat(wow) < 0);
-  var wBg = wowGood ? '#E0F0E2' : '#FCE8E6';
-  var wFg = wowGood ? '#2F6C34' : '#C0392B';
-  var wPrev = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'21':'21')-1) : 'W20';
-  var wCurr = 'W21';
-  var wowTxt = (parseFloat(wow) > 0 ? '↑ +' : '↓ ') + parseFloat(wow).toFixed(2).replace('.',',');
-  return '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
-   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wPrev+'</div>'
-   +'<div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+w20+'</div></div>'
-   +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;">'
-   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wCurr+'</div>'
-   +'<div style="font-size:14px;font-weight:700;margin-top:2px;" style="color:'+acc+'">'+w21+'</div></div>'
-   +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;">'
-   +'<div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div>'
-   +'<div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
- }
-
- var GAUGE_COLORS = ['#8A8377','#C0392B','#F97316','#FCD34D','#1A6B4A'];
-
- /* Leer datos de HIST_CR / HIST_RND */
- var ef21='—', ef20='—', efWow=null, efBanda='—', efBandaBg='#F2EEE6', efBandaFg='#5F5E5A', efTarget='';
- var cv21='—', cv20='—', cvWow=null, cvBanda='—', cvBandaBg='#F2EEE6', cvBandaFg='#5F5E5A', cvTarget='';
- var vol='—', trafico='—', trafWow=null;
-
- if (isCR && typeof HIST_CR !== 'undefined') {
-  /* Fuente primaria: ef_prev/ef_wow desde CR_CV (calculado en Python) */
-  if (cdata.ef_prev != null) {
-   ef20  = cdata.ef_prev;
-   ef21  = cdata.ef;
-   efWow = cdata.ef_wow;
-  } else {
-   /* Fallback: HIST_CR global */
-   var ef_g = HIST_CR['hcr-global-ef'] || {};
-   if (ef_g.vals && ef_g.vals.length >= 2) {
-    var ev = ef_g.vals;
-    ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
-    ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
-    efWow = ev[ev.length-1] - ev[ev.length-2];
-   }
-   if (cdata.ef) { ef21 = cdata.ef; }
+/* Config por modo: qué canvas leer, qué targets mostrar, dirección del WoW */
+var _AR_MODE_CFG = {
+  cr: {
+    hist_ef:     'hcr-global-ef',
+    hist_cv:     'hcr-global-cv',
+    ef_target:   '· Target ≥ 97%',
+    cv_target:   '· Target ≥ 2,5%',
+    ef_good_up:  true,   /* eficacia: más alto = mejor */
+    cv_good_up:  true,   /* conv rate: más alto = mejor */
+    cv_is_ipm:   false,
+  },
+  rnd: {
+    hist_ef:     'hrnd-global-nd',
+    hist_cv:     'hrnd-global-ipm',
+    ef_target:   '· Target < 3%',
+    cv_target:   '· Target ≥ $650',
+    ef_good_up:  false,  /* NoDispo: más bajo = mejor */
+    cv_good_up:  true,   /* IPM: más alto = mejor */
+    cv_is_ipm:   true,
   }
-  if (cdata.cv_prev != null) {
-   cv20  = cdata.cv_prev;
-   cv21  = cdata.cv;
-   cvWow = cdata.cv_wow;
-  } else {
-   var cv_g = HIST_CR['hcr-global-cv'] || {};
-   if (cv_g.vals && cv_g.vals.length >= 2) {
-    var cv_v = cv_g.vals;
-    cv21 = cv_v[cv_v.length-1].toFixed(2).replace('.',',')+' %';
-    cv20 = cv_v[cv_v.length-2].toFixed(2).replace('.',',')+' %';
-    cvWow = cv_v[cv_v.length-1] - cv_v[cv_v.length-2];
-   }
-   if (cdata.cv) { cv21 = cdata.cv; }
-  }
-  if (cdata.band)    { efBanda = cdata.band;    efBandaBg = cdata.bbg || efBandaBg; efBandaFg = cdata.bfg || efBandaFg; }
-  if (cdata.band_cv) { cvBanda = cdata.band_cv; cvBandaBg = cdata.bbg_cv || cvBandaBg; cvBandaFg = cdata.bfg_cv || cvBandaFg; }
-  if (cdata.vol)      { vol = cdata.vol; }
-  if (cdata.trafico)  { trafico = cdata.trafico; }
-  if (cdata.traf_wow) { trafWow = cdata.traf_wow; }
-  efTarget = '· Target ≥ 97%'; cvTarget = '· Target ≥ 2,5%';
-  /* Colores banda Eficacia */
-  var BANDA_C = {
-   'Exitosa':      {bg:'#E1F5EE',fg:'#1A6B4A'},
-   'Aceptable':    {bg:'#FEF9C3',fg:'#713F12'},
-   'Revisar':      {bg:'#FED7AA',fg:'#C2410C'},
-   'Crítica':      {bg:'#FCE4F1',fg:'#99162B'},
-   'Súper Crítica':{bg:'#E8E6E3',fg:'#2D2828'},
-   'Sin Conversión':{bg:'#F2EEE6',fg:'#5F5E5A'}
+};
+
+/* Paleta de bandas compartida */
+var _AR_BANDA_C = {
+  'Exitosa':       {bg:'#E1F5EE', fg:'#1A6B4A'},
+  'Aceptable':     {bg:'#FEF9C3', fg:'#713F12'},
+  'Revisar':       {bg:'#FED7AA', fg:'#C2410C'},
+  'Crítica':       {bg:'#FCE4F1', fg:'#99162B'},
+  'Súper Crítica': {bg:'#E8E6E3', fg:'#2D2828'},
+  'Sin Conversión':{bg:'#F2EEE6', fg:'#5F5E5A'},
+};
+
+/* Leer y normalizar los datos de KPI para el modo activo */
+function _arReadKpiData(cdata, cfg) {
+  var HIST = W.mode === 'cr' ? (typeof HIST_CR !== 'undefined' ? HIST_CR : {})
+                              : (typeof HIST_RND !== 'undefined' ? HIST_RND : {});
+  var d = {
+    ef21:'—', ef20:'—', efWow:null, efBanda:'—',
+    efBandaBg:'#F2EEE6', efBandaFg:'#5F5E5A',
+    cv21:'—', cv20:'—', cvWow:null, cvBanda:'—',
+    cvBandaBg:'#F2EEE6', cvBandaFg:'#5F5E5A',
+    vol:'—', trafico:'—', trafWow:null,
   };
-  var bc1 = BANDA_C[efBanda] || BANDA_C['Sin Conversión'];
-  efBandaBg = bc1.bg; efBandaFg = bc1.fg;
-  var bc2 = BANDA_C[cvBanda] || BANDA_C['Sin Conversión'];
-  cvBandaBg = bc2.bg; cvBandaFg = bc2.fg;
- } else if (!isCR && typeof HIST_RND !== 'undefined') {
+
+  /* EF (Eficacia o NoDispo) */
   if (cdata.ef_prev != null) {
-   ef20  = cdata.ef_prev;
-   ef21  = cdata.ef;
-   efWow = cdata.ef_wow;
+    d.ef20 = cdata.ef_prev; d.ef21 = cdata.ef; d.efWow = cdata.ef_wow;
   } else {
-   var nd_g = HIST_RND['hrnd-global-nd'] || {};
-   if (nd_g.vals && nd_g.vals.length >= 2) {
-    var nv = nd_g.vals;
-    ef21 = nv[nv.length-1].toFixed(2).replace('.',',')+' %';
-    ef20 = nv[nv.length-2].toFixed(2).replace('.',',')+' %';
-    efWow = nv[nv.length-1] - nv[nv.length-2];
-   }
-   if (cdata.ef) { ef21 = cdata.ef; }
+    var ef_g = HIST[cfg.hist_ef] || {};
+    if (ef_g.vals && ef_g.vals.length >= 2) {
+      var ev = ef_g.vals;
+      d.ef21 = ev[ev.length-1].toFixed(2).replace('.',',')+' %';
+      d.ef20 = ev[ev.length-2].toFixed(2).replace('.',',')+' %';
+      d.efWow = ev[ev.length-1] - ev[ev.length-2];
+    }
+    if (cdata.ef) d.ef21 = cdata.ef;
   }
+
+  /* CV (ConvRate o IPM) */
   if (cdata.cv_prev != null) {
-   cv20  = cdata.cv_prev;
-   cv21  = cdata.cv;
-   cvWow = cdata.cv_wow;
+    d.cv20 = cdata.cv_prev; d.cv21 = cdata.cv; d.cvWow = cdata.cv_wow;
   } else {
-   var ipm_g = HIST_RND['hrnd-global-ipm'] || {};
-   if (ipm_g.vals && ipm_g.vals.length >= 2) {
-    var iv = ipm_g.vals;
-    cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-    cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-    cvWow = iv[iv.length-1] - iv[iv.length-2];
-   }
-   if (cdata.cv) { cv21 = cdata.cv; }
+    var cv_g = HIST[cfg.hist_cv] || {};
+    if (cv_g.vals && cv_g.vals.length >= 2) {
+      var iv = cv_g.vals;
+      if (cfg.cv_is_ipm) {
+        d.cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        d.cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+      } else {
+        d.cv21 = iv[iv.length-1].toFixed(2).replace('.',',')+' %';
+        d.cv20 = iv[iv.length-2].toFixed(2).replace('.',',')+' %';
+      }
+      d.cvWow = iv[iv.length-1] - iv[iv.length-2];
+    }
+    if (cdata.cv) d.cv21 = cdata.cv;
   }
-  if (cdata.band)    { efBanda = cdata.band;    efBandaBg = cdata.bbg || efBandaBg; efBandaFg = cdata.bfg || efBandaFg; }
-  if (cdata.band_cv) { cvBanda = cdata.band_cv; cvBandaBg = cdata.bbg_cv || cvBandaBg; cvBandaFg = cdata.bfg_cv || cvBandaFg; }
-  if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
-  efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
- }
 
- /* Aplicar a card 1 */
- var k1 = document.getElementById('ar-kpi-1');
- if (k1) { k1.textContent = ef21.replace(' %','%'); k1.style.color = acc; }
- var v1 = document.getElementById('ar1-vol'); if (v1) v1.textContent = vol;
- var wp1 = document.getElementById('ar1-wow-pill'); if (wp1) wp1.innerHTML = wPill(efWow, !isCR ? false : true);
- var tr1 = document.getElementById('ar1-trafico');
- if (tr1) tr1.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
- var tw1 = document.getElementById('ar1-trafico-wow');
- if (tw1) tw1.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
- var b1 = document.getElementById('ar1-badge');
- if (b1) { b1.textContent = (efBanda && efBanda!=='—' ? efBanda : ''); b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
- var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
- var wb1 = document.getElementById('ar1-wowbox'); if (wb1) wb1.innerHTML = wowBox(ef20, ef21.replace(' %','%'), efWow, !isCR ? false : true, acc);
-
- /* Aplicar a card 2 */
- var k2 = document.getElementById('ar-kpi-2');
- if (k2) { k2.textContent = cv21.replace(' %','%'); k2.style.color = acc; }
- var v2 = document.getElementById('ar2-vol'); if (v2) v2.textContent = vol;
- var wp2 = document.getElementById('ar2-wow-pill'); if (wp2) wp2.innerHTML = wPill(cvWow, true);
- var tr2 = document.getElementById('ar2-trafico');
- if (tr2) tr2.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
- var tw2 = document.getElementById('ar2-trafico-wow');
- if (tw2) tw2.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
- var b2 = document.getElementById('ar2-badge');
- var cvBanda2 = cdata.band_cv || cvBanda;
- var cvBandaBg2 = cdata.bbg_cv || cvBandaBg;
- var cvBandaFg2 = cdata.bfg_cv || cvBandaFg;
- if (b2) { b2.textContent = cvBanda2; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
- var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
- var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
-
- /* Actualizar badges de severity en la barra de KPIs */
- function _parsePct(s) {
-  if (typeof s === 'number') return s;
-  return parseFloat(String(s||'').replace('%','').replace(',','.'));
- }
- function _banda(val, metric) {
-  var p = val / 100;
-  if (metric === 'ef' || metric === 'bk') {
-   if (p >= 0.97) return {lbl:'Exitosa',    bg:'#E1F5EE', fg:'#1A6B4A'};
-   if (p >= 0.93) return {lbl:'Aceptable',  bg:'#FEF9C3', fg:'#7B6F00'};
-   if (p >= 0.85) return {lbl:'Revisar',    bg:'#FED7AA', fg:'#C2410C'};
-   if (p >= 0.60) return {lbl:'Crítica',    bg:'#FCCDD9', fg:'#99162B'};
-   return              {lbl:'Súper Crítica',bg:'#E8E6E3', fg:'#2D2828'};
+  /* Bandas — fuente de verdad: cdata.band / cdata.band_cv (del pickle) */
+  if (cdata.band) {
+    d.efBanda   = cdata.band;
+    d.efBandaBg = cdata.bbg || d.efBandaBg;
+    d.efBandaFg = cdata.bfg || d.efBandaFg;
+  } else {
+    var bc1 = _AR_BANDA_C[d.efBanda] || _AR_BANDA_C['Sin Conversión'];
+    d.efBandaBg = bc1.bg; d.efBandaFg = bc1.fg;
   }
-  if (metric === 'cv') {
-   if (p <= 0)    return {lbl:'Sin Conv.',  bg:'#F2EEE6', fg:'#5F5E5A'};
-   if (p < 0.008) return {lbl:'Crítica',    bg:'#FCCDD9', fg:'#99162B'};
-   if (p < 0.015) return {lbl:'Revisar',    bg:'#FED7AA', fg:'#C2410C'};
-   if (p <= 0.025)return {lbl:'Aceptable',  bg:'#FEF9C3', fg:'#7B6F00'};
-   return              {lbl:'Exitosa',    bg:'#E1F5EE', fg:'#1A6B4A'};
+  if (cdata.band_cv) {
+    d.cvBanda   = cdata.band_cv;
+    d.cvBandaBg = cdata.bbg_cv || d.cvBandaBg;
+    d.cvBandaFg = cdata.bfg_cv || d.cvBandaFg;
+  } else {
+    var bc2 = _AR_BANDA_C[d.cvBanda] || _AR_BANDA_C['Sin Conversión'];
+    d.cvBandaBg = bc2.bg; d.cvBandaFg = bc2.fg;
   }
-  return {lbl:'—', bg:'#F2EEE6', fg:'#5F5E5A'};
- }
- function _applyBand(id, val, metric) {
-  var el = document.getElementById(id); if (!el || isNaN(val)) return;
-  var b = _banda(val, metric);
-  el.textContent = b.lbl;
-  el.style.background = b.bg; el.style.color = b.fg;
-  el.style.outline = '1px solid ' + b.fg + '55';
- }
- var _ef  = _parsePct(ef21);
- var _cv  = _parsePct(cv21);
- _applyBand('w22-strip-ef-band', _ef,  'ef');
- _applyBand('w22-strip-cv-band', _cv,  'cv');
- /* BK badge se maneja en tryInitBK — solo actualizamos EF/CV aquí */
+
+  /* Vol, tráfico */
+  if (cdata.vol)      d.vol      = cdata.vol;
+  if (cdata.trafico)  d.trafico  = cdata.trafico;
+  if (cdata.traf_wow) d.trafWow  = cdata.traf_wow;
+
+  return d;
+}
+
+/* Aplicar datos al DOM de una card AR (n=1 o n=2) */
+function _arApplyCard(n, kpiId, badgeId, gaugeId, wowBoxId,
+                      kpiVal, badgeVal, badgeBg, badgeFg,
+                      w20, w21, wow, wowGoodUp, acc,
+                      vol, trafico, trafWow, GAUGE_COLORS,
+                      wPill, wPillSm, gauge, wowBox) {
+  var k = document.getElementById(kpiId);
+  if (k) { k.textContent = kpiVal.replace(' %','%'); k.style.color = acc; }
+  var v = document.getElementById('ar'+n+'-vol'); if (v) v.textContent = vol;
+  var wp = document.getElementById('ar'+n+'-wow-pill');
+  if (wp) wp.innerHTML = wPill(wow, wowGoodUp);
+  var tr = document.getElementById('ar'+n+'-trafico');
+  if (tr) tr.innerHTML = '<strong style="color:var(--ink);">Tráfico:</strong> ' + trafico;
+  var tw = document.getElementById('ar'+n+'-trafico-wow');
+  if (tw) tw.innerHTML = trafWow != null ? wPillSm(trafWow, true) : '';
+  var b = document.getElementById(badgeId);
+  if (b) { b.textContent = (badgeVal && badgeVal!=='—' ? badgeVal : '');
+           b.style.background = badgeBg; b.style.color = badgeFg;
+           b.style.border = '1px solid '+badgeFg+'44'; }
+  var g = document.getElementById(gaugeId);
+  if (g) g.innerHTML = gauge(GAUGE_COLORS);
+  var wb = document.getElementById(wowBoxId);
+  if (wb) wb.innerHTML = wowBox(w20, kpiVal.replace(' %','%'), wow, wowGoodUp, acc);
+}
+
+/* Orquestador principal */
+function ar_updateKPIs() {
+  var isCR = W.mode === 'cr';
+  var acc  = (typeof cv === 'function') ? cv().col : '#5C469C';
+  var cdata = (typeof cv === 'function') ? cv() : {};
+  var cfg  = _AR_MODE_CFG[W.mode] || _AR_MODE_CFG.cr;
+  var d    = _arReadKpiData(cdata, cfg);
+
+  var GAUGE_COLORS = ['#8A8377','#C0392B','#F97316','#FCD34D','#1A6B4A'];
+
+  /* Helpers inline */
+  function wPill(val, goodIfUp) {
+    if (val == null || isNaN(val)) return '';
+    var up = val > 0;
+    var good = goodIfUp ? up : !up;
+    var bg = good ? '#EAF3DE' : '#FCE8E6';
+    var fg = good ? '#2F6C34' : '#C0392B';
+    return '<span style="display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+bg+';color:'+fg+';">'+(up?'↑':'↓')+' '+Math.abs(val).toFixed(2).replace('.',',')+'</span>';
+  }
+  function wPillSm(val, goodIfUp) {
+    if (val == null || isNaN(val)) return '';
+    var up = val > 0;
+    var good = goodIfUp ? up : !up;
+    var bg = good ? '#EAF3DE' : '#FCE8E6';
+    var fg = good ? '#2F6C34' : '#C0392B';
+    return '<em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+bg+';color:'+fg+';white-space:nowrap;">'+(up?'↑':'↓')+' '+Math.abs(val).toFixed(1).replace('.',',')+'%</em>';
+  }
+  function gauge(colors) {
+    return colors.map(function(c){ return '<div style="flex:1;background:'+c+';height:6px;opacity:1;"></div>'; }).join('');
+  }
+  function wowBox(w20, w21, wow, goodIfUp, acc) {
+    var wowGood = goodIfUp ? (parseFloat(wow) > 0) : (parseFloat(wow) < 0);
+    var wBg = wowGood ? '#E0F0E2' : '#FCE8E6';
+    var wFg = wowGood ? '#2F6C34' : '#C0392B';
+    var wowTxt = (parseFloat(wow) > 0 ? '↑ +' : '↓ ') + parseFloat(wow).toFixed(2).replace('.',',');
+    var wPrev = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'22':'22')) : 'W22';
+    var wCurr = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'23':'23')) : 'W23';
+    return '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wPrev+'</div><div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+w20+'</div></div>'
+      +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wCurr+'</div><div style="font-size:14px;font-weight:700;margin-top:2px;color:'+acc+';">'+w21+'</div></div>'
+      +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div><div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
+  }
+
+  /* Card 1: EF / NoDispo */
+  _arApplyCard(1,'ar-kpi-1','ar1-badge','ar1-gauge','ar1-wowbox',
+    d.ef21, d.efBanda, d.efBandaBg, d.efBandaFg,
+    d.ef20, d.ef21, d.efWow, cfg.ef_good_up, acc,
+    d.vol, d.trafico, d.trafWow, GAUGE_COLORS,
+    wPill, wPillSm, gauge, wowBox);
+
+  /* Card 2: CV / IPM */
+  var cvBanda2   = cdata.band_cv   || d.cvBanda;
+  var cvBandaBg2 = cdata.bbg_cv    || d.cvBandaBg;
+  var cvBandaFg2 = cdata.bfg_cv    || d.cvBandaFg;
+  _arApplyCard(2,'ar-kpi-2','ar2-badge','ar2-gauge','ar2-wowbox',
+    d.cv21, cvBanda2, cvBandaBg2, cvBandaFg2,
+    d.cv20, d.cv21, d.cvWow, cfg.cv_good_up, acc,
+    d.vol, d.trafico, d.trafWow, GAUGE_COLORS,
+    wPill, wPillSm, gauge, wowBox);
+
+  /* Badges del strip de KPIs */
+  function _parsePct(s) {
+    if (typeof s === 'number') return s;
+    return parseFloat(String(s||'').replace('%','').replace(',','.'));
+  }
+  function _banda(val, metric) {
+    var p = val / 100;
+    if (metric === 'ef' || metric === 'bk') {
+      if (p >= 0.97) return {lbl:'Exitosa',     bg:'#E1F5EE',fg:'#1A6B4A'};
+      if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FEF9C3',fg:'#7B6F00'};
+      if (p >= 0.85) return {lbl:'Revisar',     bg:'#FED7AA',fg:'#C2410C'};
+      if (p >= 0.60) return {lbl:'Crítica',     bg:'#FCCDD9',fg:'#99162B'};
+      return               {lbl:'Súper Crítica',bg:'#E8E6E3',fg:'#2D2828'};
+    }
+    if (metric === 'cv') {
+      if (p <= 0)     return {lbl:'Sin Conv.',  bg:'#F2EEE6',fg:'#5F5E5A'};
+      if (p < 0.008)  return {lbl:'Crítica',    bg:'#FCCDD9',fg:'#99162B'};
+      if (p < 0.015)  return {lbl:'Revisar',    bg:'#FED7AA',fg:'#C2410C'};
+      if (p <= 0.025) return {lbl:'Aceptable',  bg:'#FEF9C3',fg:'#7B6F00'};
+      return               {lbl:'Exitosa',    bg:'#E1F5EE',fg:'#1A6B4A'};
+    }
+    return {lbl:'—',bg:'#F2EEE6',fg:'#5F5E5A'};
+  }
+  function _applyBand(id, val, metric) {
+    var el = document.getElementById(id); if (!el || isNaN(val)) return;
+    var b = _banda(val, metric);
+    el.textContent = b.lbl;
+    el.style.background = b.bg; el.style.color = b.fg;
+    el.style.outline = '1px solid '+b.fg+'55';
+  }
+  _applyBand('w22-strip-ef-band', _parsePct(d.ef21), 'ef');
+  _applyBand('w22-strip-cv-band', _parsePct(d.cv21), 'cv');
+  /* BK badge se maneja en tryInitBK */
 }
 
 /* ══════════════════════════════════════════════════
@@ -2116,12 +2142,6 @@ w22_setC = function(c,el){
   _SS = {};
   setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
 };
-var _origSM_s = w22_setMode;
-w22_setMode = function(m,el){
-  _origSM_s(m,el);
-  _SS = {};
-  setTimeout(function(){ _initAllSort(); _arSortInit(); }, 400);
-};
 
 /* Render inicial aquí para garantizar que _cardRow ya existe */
 w22_update();
@@ -2228,9 +2248,7 @@ setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
   })();
 
   /* Re-init al cambiar modo CR↔RND o canasta */
-  var _origSM_sb = w22_setMode;
-  w22_setMode = function(m, el) { _origSM_sb(m, el); setTimeout(_initPanelSearch, 150); };
-  var _origSC_sb = w22_setC;
+    var _origSC_sb = w22_setC;
   w22_setC = function(c, el) { _origSC_sb(c, el); setTimeout(_initPanelSearch, 150); };
 })();
 
@@ -2347,12 +2365,7 @@ setTimeout(function(){ _initAllSort(); _arSortInit(); }, 200);
   };
 
   /* Limpiar selección al cambiar canasta o modo */
-  var _origSM_sel = w22_setMode;
-  w22_setMode = function(m, el) {
-    _selectedPanelLabel = null; _selectedPanelTbody = null;
-    _origSM_sel(m, el);
-  };
-  var _origSC_sel = w22_setC;
+    var _origSC_sel = w22_setC;
   w22_setC = function(c, el) {
     _selectedPanelLabel = null; _selectedPanelTbody = null;
     _origSC_sel(c, el);
