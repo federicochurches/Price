@@ -286,6 +286,31 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
         wow_cv_str = wow_arrow(wow_cv_pp)
         dim_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, wow_cv_str, cr_wow_str])
 
+    # Corps ordenados por ConvRate ASC (para card 2)
+    corps_cv_rows = []
+    g_sort_cv = g_corp_c.sort_values('ConvRate', ascending=True).head(1000)
+    for _, row in g_sort_cv.iterrows():
+        name  = str(row['CorpName'])[:60]
+        banda = row.get('BandaConvRate', 'Revisar')
+        bbg, bfg = banda_colors(banda)
+        cr_v  = row.get('CR_Unicos',0)
+        cr    = fmt_big(float(cr_v)) if cr_v and not (isinstance(cr_v,float) and np.isnan(cr_v)) else '0'
+        ef    = es_pct(row['Eficacia'])
+        cv    = es_pct(row['ConvRate'])
+        wow_pp = None; cr_wow_str = '—'; wow_cv_pp = None
+        if g_corp_w17 is not None and 'CorpName' in g_corp_w17.columns:
+            match = g_corp_w17[g_corp_w17['CorpName'] == row['CorpName']]
+            if len(match):
+                m0 = match.iloc[0]
+                wow_pp    = (row['Eficacia'] - m0['Eficacia_W17']) * 100
+                wow_cv_pp = (row['ConvRate'] - m0['ConvRate_W17']) * 100 if 'ConvRate_W17' in m0.index else None
+                cr_delta  = row.get('CR_Unicos', 0) - m0.get('CR_Unicos_W17', row.get('CR_Unicos', 0))
+                cr_wow_str = wow_arrow_abs(cr_delta)
+        wow_up     = None if wow_pp is None else bool(wow_pp >= 0)
+        wow_str    = wow_arrow(wow_pp)
+        wow_cv_str = wow_arrow(wow_cv_pp)
+        corps_cv_rows.append([name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_str, wow_cv_str, cr_wow_str])
+
     # Dims rows por Destino (top 10 Eficacia ASC) — con WoW de tráfico
     dest_rows = []
     g_dest = None
@@ -324,6 +349,25 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
             wow_cr = row.get('CR_Unicos_WoW_pp')
             wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
             dest_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
+                              fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
+                              es_pct(row['ConvRate']), None if wow_ef_pp is None else bool(wow_ef_pp >= 0),
+                              wow_ef_str, wow_cv_str, wow_cr_str])
+
+    # Dests ordenados por ConvRate ASC (para card 2)
+    dests_cv_rows = []
+    if g_dest is not None and len(g_dest) > 0:
+        for _, row in g_dest.sort_values('ConvRate', ascending=True).head(1000).iterrows():
+            banda = banda_convrate(row['ConvRate'], int(row.get('Bookings', 0)))
+            bbg, bfg = banda_colors(banda)
+            ef_w17 = row.get('Eficacia_W17')
+            wow_ef_pp = (row['Eficacia'] - ef_w17) * 100 if ef_w17 is not None and not (isinstance(ef_w17, float) and np.isnan(ef_w17)) else None
+            wow_ef_str = wow_arrow(wow_ef_pp)
+            cv_w17 = row.get('ConvRate_W17')
+            wow_cv_pp = (row['ConvRate'] - cv_w17) * 100 if cv_w17 is not None and not (isinstance(cv_w17, float) and np.isnan(cv_w17)) else None
+            wow_cv_str = wow_arrow(wow_cv_pp)
+            wow_cr = row.get('CR_Unicos_WoW_pp')
+            wow_cr_str = wow_arrow_abs(wow_cr / 100) if wow_cr is not None and not (isinstance(wow_cr, float) and np.isnan(wow_cr)) else '—'
+            dests_cv_rows.append([str(row['Destino']).replace(' Area','').replace(' area','')[:55], bbg, bfg, banda,
                               fmt_big(float(row['CR_Unicos'])) if row['CR_Unicos'] else '0', es_pct(row['Eficacia']),
                               es_pct(row['ConvRate']), None if wow_ef_pp is None else bool(wow_ef_pp >= 0),
                               wow_ef_str, wow_cv_str, wow_cr_str])
@@ -411,7 +455,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     # Carryover (vacío por defecto)
     co = []
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'dims': dim_rows, 'corps': dim_rows, 'dests': dest_rows, 'chans': chan_rows, 'chans_pp': chans_pp, 'chans_tp': chans_tp, 'plan': plan, 'co': co}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'dims': dim_rows, 'corps': dim_rows, 'corps_cv': corps_cv_rows, 'dests': dest_rows, 'dests_cv': dests_cv_rows, 'chans': chan_rows, 'chans_pp': chans_pp, 'chans_tp': chans_tp, 'plan': plan, 'co': co}
 
 
 def build_cr_d():

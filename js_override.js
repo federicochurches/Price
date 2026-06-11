@@ -1080,8 +1080,15 @@ function _arRenderChan(n) {
 
 function _arDimRows(n, dim) {
   var dd = data();
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
   if (dim === 'chan') return dd.chans || dd.dims || [];
-  if (dim === 'dest') return dd.dests || dd.dims || [];
+  if (dim === 'dest') {
+    /* Card 2 en CR: destinos por ConvRate ASC */
+    if (n === 2 && isCR && dd.dests_cv) return dd.dests_cv;
+    return dd.dests || dd.dims || [];
+  }
+  /* Corp */
+  if (n === 2 && isCR && dd.corps_cv) return dd.corps_cv;
   return dd.corps || dd.dims || [];
 }
 
@@ -1326,11 +1333,17 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var metLbl = n===1 ? (isCR?'Eficacia':'%NoDispo') : (isCR?'Conv Rate':'IPM');
  var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
+ var _mkSH = function(lbl, col, acc) {
+   var state = _arSortState[n] || {};
+   var ico = state.col===col ? (state.asc?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
+   var colStyle = acc ? 'color:var(--accent);' : '';
+   return '<span onclick="_arSort('+n+',\''+col+'\')" style="'+_s+'text-align:right;padding:2px 0 4px;cursor:pointer;user-select:none;'+colStyle+'">'+lbl+ico+'</span>';
+ };
  var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
    +'<span></span>'
-   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">Tráfico</span>'
+   +_mkSH('Tráfico','traf',false)
    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
-   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;" id="ar'+n+'-col-m">'+metLbl+'</span>'
+   +_mkSH(metLbl,'met',true)
    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
    +'</div>';
 
@@ -1913,6 +1926,31 @@ function _initAllSort() {
 var _AR_SORT_MAP = {2:4}; /* tráfico: th[2] → r[4] */
 /* métrica: th[4] → r[5] (card1) o r[6] (card2) — se calcula al enganchar */
 
+/* ── Sort clickeable para cards AR 1/2 (sistema div-grid W23+) ── */
+var _arSortState = {};
+function _arSort(n, col) {
+  var prev = _arSortState[n] || {col:null, asc:true};
+  var asc  = (prev.col === col) ? !prev.asc : true;
+  _arSortState[n] = {col:col, asc:asc};
+  /* Obtener filas actuales según view/filt */
+  var view = _arPillView[n] || 'hotel';
+  var filt = _arPillFilt[n] || 'crit';
+  var rows;
+  if (view === 'hotel') {
+    var tabMap = {crit:'crit', br:'br', sc:'sc'};
+    rows = _arRows(n, tabMap[filt] || 'crit');
+  } else if (view === 'chan') { return; }
+  else { rows = _arDimRows(n, view); }
+  /* r[4]=tráfico(str), r[5]=ef_val(str%), r[6]=cv_val(str%) */
+  var colIdx = col === 'traf' ? 4 : (n===1 ? 5 : 6);
+  rows = rows.slice().sort(function(a, b) {
+    var va = parseFloat(String(a[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
+    var vb = parseFloat(String(b[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
+    return asc ? va-vb : vb-va;
+  });
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+}
+
 function _arSortAttach(n, tbodyId, btnId) {
   var tbody = document.getElementById(tbodyId); if (!tbody) return;
   var table = tbody.closest('table'); if (!table) return;
@@ -2290,10 +2328,23 @@ function ar3_bandLabel(banda) {
   return map[k] || banda || '—';
 }
 
+
+/* Sort para card 3 (BK) */
+var _ar3SortState = {col:null, asc:true};
+function _ar3Sort(col) {
+  var prev = _ar3SortState;
+  var asc = (prev.col === col) ? !prev.asc : true;
+  _ar3SortState = {col:col, asc:asc};
+  ar3_renderTable(_ar3_view, _ar3_htab, _ar3SortState);
+}
+
 function ar3_renderTable(view, htab) {
   if (typeof BK_DATA === 'undefined' || !BK_DATA) return;
   _ar3_view = view || _ar3_view;
   _ar3_htab = htab || _ar3_htab;
+
+  /* Channel (prov): usar render con split PP/TP */
+  if (_ar3_view === 'prov') { _ar3_renderChan(); return; }
 
   var rows = BK_DATA[_ar3_view] || [];
   var tbody = document.getElementById('ar3-tbody');
@@ -2308,8 +2359,18 @@ function ar3_renderTable(view, htab) {
   var bandMap = {crit: ['critica','sc'], br: ['revisar','aceptable'], sc: ['sinconv']};
   var activeBands = bandMap[_ar3_htab] || [];
 
-  // Ordenar: peor primero (Bookability asc)
-  rows = rows.slice().sort(function(a,b){ return parseFloat(a.val) - parseFloat(b.val); });
+  // Ordenar según sortState o peor BK primero por defecto
+  var _ss3 = arguments[2] || _ar3SortState || {col:null, asc:true};
+  rows = rows.slice().sort(function(a,b){
+    var va, vb;
+    if (_ss3.col === 'trx') {
+      va = a.books || 0; vb = b.books || 0;
+    } else {
+      va = parseFloat(String(a.val||'0').replace('%','').replace(',','.')) || 0;
+      vb = parseFloat(String(b.val||'0').replace('%','').replace(',','.')) || 0;
+    }
+    return _ss3.asc ? va-vb : vb-va;
+  });
 
   // Filtrar
   var filtered = rows.filter(function(r){ return activeBands.indexOf(r.banda) >= 0; });
@@ -2319,11 +2380,17 @@ function ar3_renderTable(view, htab) {
   /* Grid igual a cards 1/2: nombre · Books · WoW · BK% · WoW */
   var grid = 'minmax(0,1fr) 56px 44px 72px 48px';
   var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
+  var _mk3SH = function(lbl, col, acc) {
+    var state = _ar3SortState || {};
+    var ico = state.col===col ? (state.asc?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
+    var cStyle = acc ? 'color:#333132;' : '';
+    return '<span onclick="_ar3Sort(\''+col+'\')" style="'+_s+'text-align:right;padding:2px 0 4px;cursor:pointer;user-select:none;'+cStyle+'">'+lbl+ico+'</span>';
+  };
   var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
     +'<span></span>'
-    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">Trx</span>'
+    +_mk3SH('Trx','trx',false)
     +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
-    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">BK%</span>'
+    +_mk3SH('BK%','bk',true)
     +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
     +'</div>';
 
@@ -2346,7 +2413,7 @@ function ar3_renderTable(view, htab) {
         +(String(i+1).padStart(2,'0'))+'. '+r.lab
       +'</span></div>'
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r.books+'</span>'
-      +wPill(r.trx_wow||'—')
+      +wPill('—')
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:#333132;font-variant-numeric:tabular-nums;">'+r.val+'</span>'
       +wPill(r.wow||'—')
       +'</div>';
@@ -2399,6 +2466,51 @@ function ar3_renderTable(view, htab) {
   }
 }
 
+
+function _ar3_renderChan() {
+  if (typeof BK_DATA === 'undefined' || !BK_DATA) return;
+  var provs = BK_DATA.prov || [];
+  var PROPIO = ['SynXis','HBSI','DerbySoft','Internal','Siteminder','Travelclick','Omnibees'];
+  var THIRD  = ['Expedia','HotelBeds','Hotel Unico','Travelgate','HotelBeds Apitude','Hotel Unico V2'];
+  var pp = provs.filter(function(r){ return PROPIO.indexOf(r.lab) >= 0; });
+  var tp = provs.filter(function(r){ return THIRD.indexOf(r.lab) >= 0; });
+
+  var acc  = '#333132', cyan = '#4FC3F4';
+  var grid = 'minmax(0,1fr) 56px 72px 48px';
+  var _s   = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);';
+
+  function mkHdr(lbl) {
+    return '<div style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+lbl+';margin-bottom:2px;">'
+      +'<span style="'+_s+'">Channel</span>'
+      +'<span style="'+_s+'text-align:right;">TRX</span>'
+      +'<span style="'+_s+'text-align:right;color:'+lbl+';">BK%</span>'
+      +'<span style="'+_s+'text-align:right;">WoW</span>'
+      +'</div>';
+  }
+
+  function mkRow(r) {
+    var up = parseFloat(r.wow||'0') >= 0;
+    var wpill = '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(up?'#EAF3DE':'#FCE8E6')+';color:'+(up?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+(up?'▲':'▼')+Math.abs(parseFloat(r.wow||0)).toFixed(2)+'</em>';
+    return '<div style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--rule-soft);">'
+      +'<span style="font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.lab+'</span>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);">'+r.books+'</span>'
+      +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);">'+r.val+'</span>'
+      +wpill
+      +'</div>';
+  }
+
+  var html = '<div style="display:flex;flex-direction:column;gap:14px;padding:8px 0;width:100%;">'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+mkHdr(acc)+pp.map(mkRow).join('')+'</div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🔌 Third Party</div>'+mkHdr(cyan)+tp.map(mkRow).join('')+'</div>'
+    +'</div>';
+
+  var container = document.getElementById('ar3-tbody');
+  if (!container) return;
+  container.innerHTML = html;
+  var moreBtn = document.getElementById('ar3-more-btn');
+  if (moreBtn) moreBtn.style.display = 'none';
+}
+
 function ar3_setView(view) {
   _ar3_view = view;
   ['prov','dest','corp','hotel'].forEach(function(v) {
@@ -2409,6 +2521,9 @@ function ar3_setView(view) {
     btn.style.color       = active ? '#5C469C' : 'var(--ink-muted)';
     btn.style.borderColor = active ? '#5C469C' : 'var(--rule)';
   });
+  /* Mostrar fila de htab (Críticos/Bajo Rend/Sin Conv) solo en vista hotel */
+  var htabRow = document.getElementById('ar3-htab-row');
+  if (htabRow) htabRow.style.display = (view === 'hotel') ? '' : 'none';
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
 

@@ -1174,7 +1174,7 @@ SHARED_CONTAINERS = f'''
 
 
 <!-- Grid 3 cards: Eficacia · Conv Rate · Bookability -->
-<div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px;">
+<div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
 
   <!-- ── CARD 1: Eficacia / NoDispo ── -->
   <div class="kpi-card" id="kpicard-ar1" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
@@ -1208,7 +1208,7 @@ SHARED_CONTAINERS = f'''
     <!-- Filas -->
     <div id="ar1-rows-wrap" style="padding:0 16px 0;">
       <div id="ar1-th" class="kpi-tab-rows"></div>
-      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"></div>
+      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"><button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button></div>
     </div>
         <!-- Canvas histórico card 1 -->
     <div style="padding:0 16px 16px;">
@@ -1249,7 +1249,7 @@ SHARED_CONTAINERS = f'''
     <!-- Filas -->
     <div id="ar2-rows-wrap" style="padding:0 16px 0;">
       <div id="ar2-th" class="kpi-tab-rows"></div>
-      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar2-more-wrap"></div>
+      <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar2-more-wrap"><button id="ar2-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button></div>
     </div>
         <!-- Canvas histórico card 2 -->
     <div style="padding:0 16px 16px;">
@@ -1276,7 +1276,7 @@ SHARED_CONTAINERS = f'''
     <!-- Pills + searchbox card 3 BK -->
     <div style="padding:10px 16px 0;">
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"><span id="ar3-vbk-hotel" class="ar3-vbk-pill" onclick="ar3_setView('hotel')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;">Hotel</span><span id="ar3-vbk-dest" class="ar3-vbk-pill" onclick="ar3_setView('dest')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Destino</span><span id="ar3-vbk-corp" class="ar3-vbk-pill" onclick="ar3_setView('corp')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Corp</span><span id="ar3-vbk-prov" class="ar3-vbk-pill" onclick="ar3_setView('prov')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Channel</span></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar3-htab-crit" class="ar3-htab-pill" onclick="ar3_setHotelTab('crit')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #8A8377;background:#E8E6E3;color:#333132;">Críticos</span><span id="ar3-htab-br" class="ar3-htab-pill" onclick="ar3_setHotelTab('br')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar3-htab-sc" class="ar3-htab-pill" onclick="ar3_setHotelTab('sc')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+      <div id="ar3-htab-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span id="ar3-htab-crit" class="ar3-htab-pill" onclick="ar3_setHotelTab('crit')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #8A8377;background:#E8E6E3;color:#333132;">Críticos</span><span id="ar3-htab-br" class="ar3-htab-pill" onclick="ar3_setHotelTab('br')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="ar3-htab-sc" class="ar3-htab-pill" onclick="ar3_setHotelTab('sc')" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
