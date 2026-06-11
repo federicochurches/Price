@@ -356,6 +356,18 @@ Headers: bold blanco sobre `#333132`. Auto-width columnas (max 45 chars).
 | B48 | Drill no actualizaba tabla en SIN CONTRAT — escribía en `ud-tbody` (oculto en modo GAP) → `_gapMode()`/`_drillTbody()` detectan modo y escriben en `gap-tbody` con columnas Sin Directo/Con Directo | W23 |
 | B49 | Columna VS GLOBAL visible — faltaba clase `td-vs` en: header/celda GAP, fila GLOBAL de tabla principal, y celdas del drill (normal + GAP). Regla: TODA celda de la última columna debe llevar `td-vs` (el CSS `display:none` ya existe) | W23 |
 | B50/P6 | Channel View Third Party — agregada columna `% Gap` junto a Hoteles (% de hoteles solo-terceros vs total inventario), con barra cyan; ambas columnas % Gap mismo formato | W23 |
+| B51 | Sort Destino/Corp con filtro activo ignoraba el filtro | W23-inv-bugs |
+| B52 | Orden pills dimensión incorrecto (Región→Corp→Dest→Channel) | W23-inv-bugs |
+| B53 | Pill corp persiste al limpiar / card PP muestra valor incorrecto | W23-inv-bugs |
+| B54 | Gráfico channel mostraba acumulado histórico en lugar de total real | W23-inv-bugs |
+| B55 | Pico artificial en gráfico al filtrar región/corp | W23-inv-bugs |
+| B56 | "Ver 10 más" aparecía dentro de la lista con filtro activo | W23-inv-bugs |
+| B57 | Third Party no clickeable en Channel View JS | W23-inv-bugs |
+| B58 | Hotel Unico V2 sin datos en gráfico — mismatch nombre tabla↔dim_ch | W23-inv-bugs |
+| B59 | RateFox sin datos en gráfico — no estaba en CHANNELS_TERCERO | W23-inv-bugs |
+| B60–B62 | Third Party sin destinos / % Gap vacío / Avg Dest vacío al cambiar pill | W23-inv-bugs |
+| B63 | Tabla Channel no sincroniza con pill PP/SP/HY — CH_DATA["pp"] faltaba | W23-inv-bugs |
+| B64 | Card PP muestra valor filtrado tras limpiar — updateCards no llamado | W23-inv-bugs |
 
 ---
 
@@ -432,7 +444,7 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 
 ---
 
-**Última actualización:** v15.0 · W23 · 08 Jun 2026
+**Última actualización:** v15.1 · W23 · 11 Jun 2026
 
 **Cambios v13:**
 - Masthead idéntico al Supply (shell padding-top, masthead-inner, border-bottom rule, logo 40px)

@@ -4,6 +4,42 @@
 > Este archivo NO se necesita para ejecutar el pipeline semanal.
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
+
+## Sesión W23-inv-bugs · 11 Jun 2026 · Hotel Inventory — bugs UI interactivo
+
+### Contexto
+Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos ni pipeline PRICE. Todos los fixes van a `calc_inv.py`.
+
+### Bugs cerrados (B51–B64)
+
+| # | Descripción | Fix |
+|---|---|---|
+| B51 | Sort Destino/Corp con filtro activo ignoraba el filtro | `udSortCol`/`udSortTotal`: reasignar `rowIdx` + `hApplyFilter()` al final |
+| B52 | Orden pills: Región→Corp→Dest→Channel | HTML + nth-child autocomplete reordenados: Región→Destino→Corporativo→Channel |
+| B53 | Pill corp persiste al limpiar / card PP muestra 11.286 | `corpSel.value=''` ANTES de `hFilterCorpByChannel('')` — evita re-asignación de hFCorp |
+| B54 | Gráfico DerbySoft 16K en lugar de 36K | `actual_by_channel` en hist_data + base ajustada `= chActual - totalHistAll` |
+| B55 | Pico artificial al filtrar región/corp | `actual_by_region`, `actual_by_corp`, `actual_by_dest` en hist_data |
+| B56 | "Ver 10 más" dentro de lista al sortear con filtro activo | `hApplyFilter`: ocultar ver-más cuando hay filtro que muestra todas las filas |
+| B57 | Third Party no clickeable en Channel View | `chRenderOverview`: filas TP sin onclick/cursor — agregados |
+| B58 | Hotel Unico V2 sin datos en gráfico | `_CH_NORM` en `hGetDim()`: normaliza `Hotel Unico V2` → `Hotel Unico` |
+| B59 | RateFox sin datos en gráfico | Agregado a `CHANNELS_TERCERO`, `CHANNEL_LABELS`, `hist_channels_tercero` |
+| B60 | Third Party sin destinos al cambiar pill de tipo | `chRenderOverview`: 3 celdas → 5 columnas completas |
+| B61 | % Gap vacío en Third Party al cambiar pill | `chRenderOverview`: calcula `hoteles/N*100` igual que HTML estático |
+| B62 | Avg Dest vacío en Prod. Propio al cambiar pill | `chRenderOverview`: 4 celdas → 5 columnas con barra visual |
+| B63 | Tabla Channel no sincroniza con pill PP/SP/HY | `CH_DATA["pp"]` creado desde `df_pp`; `_chTipoMap`: `pp:"todos"` → `pp:"pp"` |
+| B64 | Card PP mostraba 11.286 tras limpiar filtros | `hClearFilters`/`hClearFilter`: agregar `updateCards({type:"all"})` |
+
+### Archivos modificados
+`calc_inv.py`
+
+### Reglas nuevas
+- `hClearFilters`: limpiar `corpSel.value` ANTES de `hFilterCorpByChannel('')`
+- `chRenderOverview`: JS debe generar las mismas columnas que el HTML estático Python
+- `_CH_NORM` en `hGetDim()`: mapa canónico para resolver mismatch nombre tabla↔dim_ch
+- Al sortear: reasignar `rowIdx` y llamar `hApplyFilter()`, nunca setear `display` directamente
+
+---
+
 ---
 
 ## Sesión W23-bk-s2 · 10-06-2026 · Cards AR Bookability — fixes masivos

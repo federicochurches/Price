@@ -358,10 +358,13 @@ df_sp = df[df['TipoHotel'] == 'sólo propio'].copy()
 df_hy = df[df['TipoHotel'] == 'Propio_con_tercero'].copy()
 ch_propio_sp = channel_stats_propio(df_sp)
 ch_propio_hy = channel_stats_propio(df_hy)
+ch_propio_pp = channel_stats_propio(df_pp)
 ch_tercero_sp = channel_stats_tercero(df_sp)
 ch_tercero_hy = channel_stats_tercero(df_hy)
+ch_tercero_pp = channel_stats_tercero(df_pp)
 max_avg_ctr_sp = max((r['avg_contratos'] for r in ch_propio_sp), default=1) or 1
 max_avg_ctr_hy = max((r['avg_contratos'] for r in ch_propio_hy), default=1) or 1
+max_avg_ctr_pp = max((r['avg_contratos'] for r in ch_propio_pp), default=1) or 1
 
 # Datos a nivel hotel por channel para drill
 CHANNEL_COL_MAP = {
@@ -501,12 +504,12 @@ for r in acum_weeks:
 top_corps = df_hist['Corporativo'].value_counts().head(50).index.tolist()
 
 CHANNELS_PROPIO  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick','Expedia']
-CHANNELS_TERCERO = ['Expedia_tercero','HotelBeds Apitude','Hotel Unico V2','Travelgate']
+CHANNELS_TERCERO = ['Expedia_tercero','HotelBeds Apitude','Hotel Unico V2','Travelgate','RateFox']
 CHANNEL_LABELS   = {
     'DerbySoft':'DerbySoft','HBSI':'HBSI','Internal':'Internal',
     'Omnibees':'Omnibees','Siteminder':'Siteminder','SynXis':'SynXis','Travelclick':'Travelclick',
     'Expedia':'Expedia','Expedia_tercero':'Expedia','HotelBeds Apitude':'HotelBeds',
-    'Hotel Unico V2':'Hotel Unico','Travelgate':'Travelgate'
+    'Hotel Unico V2':'Hotel Unico','Travelgate':'Travelgate','RateFox':'RateFox'
 }
 ALL_CHANNELS = CHANNELS_PROPIO + CHANNELS_TERCERO
 
@@ -548,7 +551,7 @@ dim_ch_idx = (df_dim_ch.groupby(['yw','ym','ch_tipo','channel'])
 hist_regions          = sorted(df_hist['Region_display'].unique().tolist())
 hist_corps            = sorted(top_corps)
 hist_channels_propio  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
-hist_channels_tercero = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
+hist_channels_tercero = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
 hist_tipos            = ['Solo Propio','Hybrid']
 
 # Serializar dim_ch con keys cortas: w=yw, m=ym, t=ch_tipo, ch=channel, n=n
@@ -623,6 +626,16 @@ hist_data = {
         'Hybrid': int(hybrid),
         'Third Party': int(solo_terc),
         'Prod. Propio': int(pp),
+    },
+    'actual_by_channel': {
+        CHANNEL_LABELS[ch_col]: int(df[df[ch_col].apply(channel_active)].shape[0])
+        for ch_col in ALL_CHANNELS if ch_col in df.columns
+    },
+    'actual_by_region': dict(zip(reg_total_mkt['Region_display'], reg_total_mkt['total'].astype(int))),
+    'actual_by_corp': dict(zip(corp_grp['Corporativo'], corp_grp['total'].astype(int))),
+    'actual_by_dest': {
+        r['Destino']: int(r['total'])
+        for _, r in dest_grp.iterrows()
     },
 }
 
@@ -917,6 +930,7 @@ const CH_DRILL_DATA = {json.dumps(ch_drill_data, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
 const CH_DATA = {{
   'todos': {{ propio:{json.dumps(ch_propio, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero, cls=NpEncoder)}, maxAvg:{max_avg_ctr} }},
+  'pp':    {{ propio:{json.dumps(ch_propio_pp, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero_pp, cls=NpEncoder)}, maxAvg:{max_avg_ctr_pp} }},
   'sp':    {{ propio:{json.dumps(ch_propio_sp, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero_sp, cls=NpEncoder)}, maxAvg:{max_avg_ctr_sp} }},
   'hy':    {{ propio:{json.dumps(ch_propio_hy, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero_hy, cls=NpEncoder)}, maxAvg:{max_avg_ctr_hy} }},
 }};
@@ -1120,7 +1134,7 @@ function _applyAutocompleteSelection(it) {{
   if (it.type === 'corp') {{
     // Switch dim only if needed
     if (udDim !== 'corp') {{
-      const corpBtn = document.querySelector('#ud-dim-pills button:nth-child(2)');
+      const corpBtn = document.querySelector('#ud-dim-pills button:nth-child(3)');
       if (corpBtn) udToggleDim('corp', corpBtn);
     }}
     setTimeout(() => {{
@@ -1141,7 +1155,7 @@ function _applyAutocompleteSelection(it) {{
     const alreadyDest = udDim === 'dest';
     // Switch dim only if needed
     if (!alreadyDest) {{
-      const destBtn = document.querySelector('#ud-dim-pills button:nth-child(3)');
+      const destBtn = document.querySelector('#ud-dim-pills button:nth-child(2)');
       if (destBtn) udToggleDim('dest', destBtn);
     }}
     // Use longer delay when switching dims (udSetDim + hApplyFilter need to settle)
@@ -1291,6 +1305,8 @@ function udContent(id, btn) {{
     document.querySelectorAll('.distrib-pills .pill').forEach(p=>p.classList.remove('on'));
     if (btn) btn.classList.add('on');
     hFTipo = ''; if (typeof hRender === 'function') hRender();
+    // Sync Channel view table
+    chTipo = 'todos'; chRenderOverview();
     udCurrentContent = 'all';
     udRenderMetricPill(null, null);
     document.querySelectorAll('#ud-tbody').forEach(tb => {{
@@ -1329,6 +1345,10 @@ function udContent(id, btn) {{
   else if (id === 'hy')     hFTipo = 'Hybrid';
   else if (id === 'pp')     hFTipo = 'Prod. Propio';
   else                      hFTipo = '';
+  // Sync Channel view table to show same subset
+  const _chTipoMap = {{pp:'pp', sp:'sp', hy:'hy'}};
+  chTipo = _chTipoMap[id] || 'todos';
+  chRenderOverview();
   // Update section title
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
@@ -1695,8 +1715,8 @@ function udSortCol(colClass, thEl) {{
     return asc ? getVal(a)-getVal(b) : getVal(b)-getVal(a);
   }});
   rows.forEach((r,i) => {{
+    r.dataset.rowIdx = i;  // reasignar índice según el nuevo orden
     tbody.appendChild(r);
-    if (udDim !== 'reg') r.style.display = i < 10 ? '' : 'none';
   }});
   const verMas = tbody.querySelector('#ud-corp-ver-mas, #ud-dest-ver-mas');
   if (verMas) tbody.appendChild(verMas);
@@ -1713,6 +1733,8 @@ function udSortCol(colClass, thEl) {{
   // Reset sort-total indicator
   const thTot = document.getElementById('ud-sort-total');
   if (thTot) thTot.textContent = 'Total ↕';
+  // Reaplicar filtros activos (región, dest, corp) sobre el nuevo orden del DOM
+  hApplyFilter();
 }}
 
 function udSortTotal() {{
@@ -1729,7 +1751,6 @@ function udSortTotal() {{
   rows.forEach((r,i) => {{
     r.dataset.rowIdx = i;
     tbody.appendChild(r);
-    if (udDim !== 'reg') r.style.display = i < 10 ? '' : 'none';
   }});
   const verMas = tbody.querySelector('#ud-corp-ver-mas, #ud-dest-ver-mas');
   if (verMas) tbody.appendChild(verMas);
@@ -1741,6 +1762,8 @@ function udSortTotal() {{
     th.dataset.sortLabel = label;
     th.textContent = label + ' ↕';
   }});
+  // Reaplicar filtros activos (región, dest, corp) sobre el nuevo orden del DOM
+  hApplyFilter();
 }}
 
 /* ── DEST TABLE SEARCH (unified table) ── */
@@ -1807,29 +1830,45 @@ function chRenderOverview() {{
   // Render Producto Propio rows
   const pTbody = document.getElementById('ch-propio-tbody');
   if (pTbody) {{
+    const maxAvgDest = Math.max(...d.propio.map(r=>r.avg_destinos||0), 1);
     pTbody.innerHTML = d.propio.map(r => {{
       if (r.hoteles === 0) return '';
       const w = Math.min(100, r.avg_contratos / maxAvg * 100);
+      const wDest = Math.min(100, (r.avg_destinos||0) / maxAvgDest * 100);
       return `<tr style="cursor:pointer" onclick="chDrill('${{r.channel}}',this)">
         <td><strong>${{r.channel}}</strong></td>
         <td>${{r.hoteles.toLocaleString('es-MX')}}</td>
         <td><div class="int-wrap"><div class="int-bar"><div class="int-fill" style="width:${{w.toFixed(0)}}%"></div></div>
           <span class="int-val">${{r.avg_contratos}} ctr/hotel</span></div></td>
-        <td>${{r.destinos.toLocaleString('es-MX')}}</td></tr>`;
+        <td>${{r.destinos.toLocaleString('es-MX')}}</td>
+        <td><div style="display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;height:3px;background:var(--rule,#E8E4DF);border-radius:2px;max-width:60px;">
+            <div style="height:100%;width:${{wDest.toFixed(0)}}%;background:#4FC3F4;border-radius:2px;"></div></div>
+          <span class="int-val">${{(r.avg_destinos||0)}} dest/h</span></div></td></tr>`;
     }}).join('');
   }}
 
   // Render Third Party rows
   const tTbody = document.getElementById('ch-tercero-tbody');
   if (tTbody) {{
+    const totalN = {int(N)};
     tTbody.innerHTML = d.tercero.map(r => {{
       if (r.hoteles === 0) return '';
-      const cls = r.residual ? ' class="residual"' : '';
+      const cls = r.residual ? 'residual' : '';
       const badge = r.residual ? ' <span style="font-size:9px;color:var(--ink-muted)">Residual</span>' : '';
-      return `<tr${{cls}}>
+      const chSafe = r.channel.replace(/'/g, "\\'");
+      const pctH = r.hoteles > 0 ? (r.hoteles / totalN * 100) : 0;
+      const pctStr = r.hoteles > 0 ? pctH.toFixed(1)+'%' : '—';
+      const gapBar = `<div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:3px;background:var(--rule,#E8E4DF);border-radius:2px;max-width:60px;">
+          <div style="height:100%;width:${{Math.min(100,pctH).toFixed(0)}}%;background:#4FC3F4;border-radius:2px;"></div></div>
+        <span class="int-val" style="color:#6A6A6A;font-weight:700;">${{pctStr}}</span></div>`;
+      return `<tr class="${{cls}}" style="cursor:pointer" onclick="chDrill('${{chSafe}}',this)">
         <td><strong>${{r.channel}}</strong>${{badge}}</td>
         <td>${{r.hoteles.toLocaleString('es-MX')}}</td>
-        <td>${{r.destinos.toLocaleString('es-MX')}}</td></tr>`;
+        <td>${{gapBar}}</td>
+        <td>${{r.destinos.toLocaleString('es-MX')}}</td>
+        <td>${{gapBar}}</td></tr>`;
     }}).join('');
   }}
 }}
@@ -1958,7 +1997,11 @@ function hDestroyChart() {{ if(hChart){{ hChart.destroy(); hChart=null; }} }}
 function hGetDim() {{
   const activeRegions  = hFRegion  ? [hFRegion]  : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const activeCorps    = hFCorp    ? [hFCorp]    : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
-  const activeChannels = hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value);
+  // Normalizar nombres de channel al label usado en dim_ch (CHANNEL_LABELS de Python)
+  const _CH_NORM = {{'Hotel Unico V2':'Hotel Unico','HotelBeds Apitude':'HotelBeds'}};
+  const _normCh = ch => _CH_NORM[ch] || ch;
+  const activeChannels = (hFChannel ? [hFChannel] : (udActiveFilters||[]).filter(f=>f.type==='channel').map(f=>f.value))
+    .map(_normCh);
   const activeTipo     = hFTipo;
 
   const tipoMatch = (t) => !activeTipo
@@ -2205,11 +2248,12 @@ function hApplyFilter() {{
       r.style.display = (r.dataset.region === activeRegion) ? '' : 'none';
     }}
   }});
-  // Ver-más rows follow their dim
+  // Ver-más rows: ocultar si hay filtro activo que ya muestra todas las filas relevantes
   const vmCorp = document.getElementById('ud-corp-ver-mas');
-  if (vmCorp) vmCorp.style.display = udDim === 'corp' ? '' : 'none';
+  if (vmCorp) vmCorp.style.display = (udDim === 'corp' && !activeRegion) ? '' : 'none';
   const vmDest = document.getElementById('ud-dest-ver-mas');
-  if (vmDest) vmDest.style.display = udDim === 'dest' ? '' : 'none';
+  const activeDestFilters2 = udActiveFilters.filter(f=>f.type==='dest');
+  if (vmDest) vmDest.style.display = (udDim === 'dest' && !activeRegion && !activeDestFilters2.length) ? '' : 'none';
   const _gd=document.getElementById('ud-gap-content'); if(_gd&&_gd.style.display!=='none') gapSyncDim();
   // Re-render chart when filters change
   hRender();
@@ -2281,8 +2325,10 @@ function hTipo(btn, val) {{
 function hClearFilters() {{
   hFRegion=''; hFCorp=''; hFChannel=''; hFTipo='';
   udActiveFilters = [];
-  document.querySelectorAll('#ud-tbody tr').forEach(r=>r.classList.remove('ud-filter-active'));
-  document.querySelectorAll('#ch-propio-tbody tr, #ch-tercero-tbody tr').forEach(r=>r.classList.remove('sel'));
+  // Limpiar highlights de filas en tabla principal Y channel
+  document.querySelectorAll('#ud-tbody tr, #ch-propio-tbody tr, #ch-tercero-tbody tr').forEach(r => {{
+    r.classList.remove('ud-filter-active', 'sel', 'on');
+  }});
   // Reset region pills
   document.querySelectorAll('#hf-region-pills .pill').forEach(p=>p.classList.remove('on'));
   const todasBtn = document.querySelector('#hf-region-pills .pill[data-region=""]');
@@ -2291,12 +2337,16 @@ function hClearFilters() {{
   document.querySelectorAll('#htipo-pills .pill').forEach(b=>b.classList.remove('on'));
   const htodoAll = document.getElementById('htipo-all');
   if (htodoAll) htodoAll.classList.add('on');
-  // Reset combos
-  const chSel = document.getElementById('hf-channel');
-  if (chSel) {{ chSel.value=''; hUpdateComboStyle('hf-channel'); }}
-  hFilterCorpByChannel('');
+  // Reset combos — limpiar corp ANTES de llamar hFilterCorpByChannel (evita que re-asigne hFCorp)
   const corpSel = document.getElementById('hf-corp');
   if (corpSel) {{ corpSel.value=''; hUpdateComboStyle('hf-corp'); }}
+  hFilterCorpByChannel('');
+  const chSel = document.getElementById('hf-channel');
+  if (chSel) {{ chSel.value=''; hUpdateComboStyle('hf-channel'); }}
+  // Reset channel view selection
+  chTipo = 'todos';
+  chRenderOverview();
+  updateCards({{type:'all'}});
   hRenderActivePills();
   hApplyFilter();
   udSyncBadges();
@@ -2397,6 +2447,10 @@ function hClearFilter(key) {{
   }}
   hRenderActivePills();
   hApplyFilter();
+  // Si ya no quedan filtros de dimensión activos, resetear cards al global
+  if (!hFRegion && !hFCorp && !hFChannel && !(udActiveFilters && udActiveFilters.filter(f=>f.type==='region'||f.type==='corp'||f.type==='dest').length)) {{
+    updateCards({{type:'all'}});
+  }}
   udSyncBadges();
 }}
 
@@ -2637,8 +2691,18 @@ function hRender() {{
       const _activeTipo = hFTipo;
       const _onlyTipo = !_activeR.length && !_activeC.length && !_activeCh.length && _activeTipo;
       const _tipoBase = _onlyTipo && HIST.actual_by_tipo ? (HIST.actual_by_tipo[_activeTipo] || 0) : 0;
+      // Calcular total real actual para el subconjunto filtrado (incluye hoteles sin FechaCreación)
+      // Usado para ajustar la base inicial y evitar picos artificiales en el último punto
+      const _chActual  = _activeCh.length === 1 && HIST.actual_by_channel ? (HIST.actual_by_channel[_activeCh[0]] || 0) : 0;
+      const _regActual = _activeR.length  === 1 && HIST.actual_by_region  ? (HIST.actual_by_region[_activeR[0]]   || 0) : 0;
+      const _corpActual= _activeC.length  === 1 && HIST.actual_by_corp    ? (HIST.actual_by_corp[_activeC[0]]     || 0) : 0;
+      const _totalHistAll = allDim.length ? allDim[allDim.length-1].acum : 0;
+      // Base ajustada = total_actual - variación_histórica_total (hoteles sin fecha quedan en la base)
+      const _realActual = _chActual || _regActual || _corpActual || 0;
+      const _adjustedBase = _realActual > 0 && _totalHistAll > 0 ? Math.max(0, _realActual - _totalHistAll) : 0;
       const _acumBase = _onlyTipo && _tipoBase > 0 ? _tipoBase - inRange : (totalInSubset - inRange);
-      let c = before.length ? before[before.length-1].acum : _acumBase;
+      // Arrancar desde base ajustada si aplica, si no usar la base histórica calculada
+      let c = before.length ? before[before.length-1].acum + _adjustedBase : (_adjustedBase > 0 ? _adjustedBase : _acumBase);
 
       // Si no hay netnew histórico pero hay hoteles actuales → línea plana con total actual
       // Fill todas las semanas de referencia con netnew=0 donde no hay datos
@@ -3478,8 +3542,8 @@ def build_html():
     <span style="display:inline-flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#4FC3F4;border:1.5px solid #4FC3F4;border-radius:20px;padding:3px 10px;margin-right:8px;flex-shrink:0;">Dimensión</span>
     <div class="pills-wrap" id="ud-dim-pills" style="gap:4px;">
       <button class="pill on" onclick="udToggleDim('reg',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Región</button>
-      <button class="pill"    onclick="udToggleDim('corp',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Corporativo</button>
       <button class="pill"    onclick="udToggleDim('dest',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Destino</button>
+      <button class="pill"    onclick="udToggleDim('corp',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Corporativo</button>
       <button class="pill"    onclick="udToggleDim('ch',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Channel</button>
     </div>
   </div>
