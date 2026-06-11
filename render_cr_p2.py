@@ -262,6 +262,37 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     hotels_sc_rows   = hotel_rows_from(df_sc)
     hotels_cv_rows   = hotel_rows_from(df_cv)
 
+    # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
+    # Usa g_hotel (todos los hoteles) para ampliar el universo de búsqueda
+    # Solo para el searchbox — las filas _sb se marcan como sb-only en el JS
+    SB_N = 500
+    try:
+        _gh = g_hotel.copy() if g_hotel is not None else None
+        if _gh is not None and 'BandaEficacia' in _gh.columns and 'Bookings' in _gh.columns:
+            # Merge WoW si disponible
+            if g_hotel_w17 is not None and 'Hotel' in _gh.columns:
+                _w17_cols = [c for c in ['Hotel','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']
+                             if c in g_hotel_w17.columns]
+                _gh = _gh.merge(g_hotel_w17[_w17_cols], on='Hotel', how='left')
+                _gh['Eficacia_WoW_pp']  = (_gh['Eficacia']  - _gh.get('Eficacia_W17',  _gh['Eficacia']))  * 100
+                _gh['ConvRate_WoW_pp']  = (_gh['ConvRate']  - _gh.get('ConvRate_W17',  _gh['ConvRate']))  * 100
+                _gh['CR_Unicos_WoW_pp'] = (_gh['CR_Unicos'] - _gh.get('CR_Unicos_W17', _gh['CR_Unicos'])) * 100
+            _gh_w = _gh[_gh['Bookings'] > 0] if 'Bookings' in _gh.columns else _gh
+            df_crit_sb = _gh_w[_gh_w['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(SB_N)
+            df_br_sb   = _gh_w[_gh_w['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(SB_N)
+            df_sc_sb   = _gh[_gh['Bookings'] == 0].sort_values('CR_Unicos', ascending=False).head(SB_N) if 'Bookings' in _gh.columns else _gh.head(0)
+            hotels_crit_sb = hotel_rows_from(df_crit_sb)
+            hotels_br_sb   = hotel_rows_from(df_br_sb)
+            hotels_sc_sb   = hotel_rows_from(df_sc_sb)
+        else:
+            hotels_crit_sb = hotels_crit_rows
+            hotels_br_sb   = hotels_br_rows
+            hotels_sc_sb   = hotels_sc_rows
+    except Exception:
+        hotels_crit_sb = hotels_crit_rows
+        hotels_br_sb   = hotels_br_rows
+        hotels_sc_sb   = hotels_sc_rows
+
     df_crit_top = df_crit  # para el plan de acción
 
     # Dims rows (por Corp, top 10 Eficacia ASC)
@@ -458,7 +489,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     # Carryover (vacío por defecto)
     co = []
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'dims': dim_rows, 'corps': dim_rows, 'corps_cv': corps_cv_rows, 'dests': dest_rows, 'dests_cv': dests_cv_rows, 'chans': chan_rows, 'chans_pp': chans_pp, 'chans_tp': chans_tp, 'plan': plan, 'co': co}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'hotels_crit_sb': hotels_crit_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': dim_rows, 'corps_cv': corps_cv_rows, 'dests': dest_rows, 'dests_cv': dests_cv_rows, 'chans': chan_rows, 'chans_pp': chans_pp, 'chans_tp': chans_tp, 'plan': plan, 'co': co}
 
 
 def build_cr_d():
