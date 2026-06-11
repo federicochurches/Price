@@ -785,156 +785,599 @@ window.bkSort = function(el) {
 """
 
 AR3_CANVAS_JS = '''
-/* ── Canvas histórico AR3 Bookability (IDs independientes) ── */
 (function(){
-  var CID = 'h-ar3-bk-global';
-  var SEM = ['W16','W17','W18','W19','W20','W21','W22','W23'];
-  var VALS = [98.28,98.44,98.22,98.26,98.17,98.25,98.40,98.43];
-  var TARGET = 97.0, ACC = '#333132';
-  function draw(vals) {
-    var el = document.getElementById(CID); if (!el) return;
-    var W = el.parentElement ? (el.parentElement.offsetWidth || 300) : 300;
-    el.width = W; el.height = 100;
-    var ctx = el.getContext('2d'); if (!ctx) return;
-    ctx.clearRect(0,0,W,100);
-    var n=vals.length, pl=10,pr=30,pt=10,pb=20, gw=W-pl-pr, gh=100-pt-pb;
-    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals), rng=mx-mn||1;
-    function px(i){return pl+i/(n-1)*gw;}
-    function py(v){return pt+(1-(v-mn)/rng)*gh;}
-    var ty=py(TARGET);
-    if(ty>=pt&&ty<=pt+gh){ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(26,107,74,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pl,ty);ctx.lineTo(pl+gw,ty);ctx.stroke();ctx.setLineDash([]);}
-    ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();
-    vals.forEach(function(v,i){i===0?ctx.moveTo(px(i),py(v)):ctx.lineTo(px(i),py(v));});ctx.stroke();
-    vals.forEach(function(v,i){
-      var last=i===n-1;ctx.beginPath();ctx.arc(px(i),py(v),last?3.5:2.5,0,2*Math.PI);
-      ctx.fillStyle=last?'#fff':ACC;ctx.fill();
-      if(last){ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.stroke();}
+  var CID = 'hcr-panel-ef', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 97.0;
+  var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [93.27, 93.58, 93.71, 93.3, 93.34, 93.15, 94.21, 94.53], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
+  var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
+  
+  function getBanda(v) {
+    if (METRIC === 'bookability' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
+    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
+    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
+    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
+  }
+  
+  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
+  
+  /* Thresholds por métrica */
+  var THS = METRIC === 'bookability' ? [97, 93, 85, 60] :
+            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
+            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
+  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
+  
+  /* Distancia ordinal: cuántas bandas de distancia al target */
+  function ordinalDist(mid, target, thresholds, invert) {
+    if (!invert) {
+      if (mid >= target) return 0;
+      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
+    } else {
+      if (mid <= target) return 0;
+      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
+    }
+  }
+  
+  /* Color de semáforo por distancia ordinal */
+  var SEMAFORO_PALETTE = [
+    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
+    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
+    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
+    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
+  ];
+  function getSemaforoColor(dist) {
+    return SEMAFORO_PALETTE[Math.min(dist, 3)];
+  }
+  
+  /* Formato de label de threshold */
+  function fmtThLabel(t) {
+    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
+           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
+  }
+  
+  /* Formato de label de target */
+  function fmtTarget() {
+    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
+           (METRIC === 'bookability' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
+  }
+  
+  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
+  function drawCanvas(vals) {
+    currentVals = vals;  /* recordar último estado para re-draws automáticos */
+    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
+    if (!ctx) return;
+    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
+    var _ow = el.offsetWidth;
+    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
+    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
+    if (!_ow) _ow = 360;          /* fallback absoluto */
+    _lastWidth = _ow;             /* guardar para próxima vez */
+    var _oh = el.offsetHeight || 100;
+    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
+    var W = el.width, H = el.height, n = vals.length;
+    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
+    var cw = W-pL-pR, ch = H-pT-pB;
+    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_max = Math.max(Math.max.apply(null, vals), TARGET);
+    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
+    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
+    var below = ths_s.filter(function(t) { return t < i_min; });
+    var above = ths_s.filter(function(t) { return t > i_max; });
+    var adj_below = below.length ? below[below.length-1] : null;
+    var adj_above = above.length ? above[0] : null;
+    var anchor_min = i_min, anchor_max = i_max;
+    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
+    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
+    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
+    var dR = canvas_max - canvas_min + 0.0001;
+    var xOf = function(i) { return pL + (i/(n-1))*cw; };
+    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
+    /* Líneas de umbral visibles (sin fondos de banda) */
+    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
+    visible_ths.forEach(function(t) {
+      var ty = yOf(t);
+      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
+      var sc = getSemaforoColor(dist);
+      ctx.save();
+      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '6.5px Geist,system-ui,sans-serif';
+      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
+      ctx.restore();
     });
-    ctx.fillStyle='rgba(138,131,119,0.8)';ctx.font='bold 8px sans-serif';
-    ctx.textAlign='left';ctx.fillText(SEM[0],pl,96);
-    ctx.textAlign='right';ctx.fillText(SEM[n-1],W-2,96);
+    /* Línea target verde */
+    var tY = yOf(TARGET);
+    ctx.save();
+    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
+    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
+    ctx.restore();
+    /* Area fill gradiente en color de la serie */
+    ctx.save();
+    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
+    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
+    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.lineTo(xOf(n-1), pT+ch); ctx.lineTo(xOf(0), pT+ch);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    /* Línea de datos */
+    ctx.save();
+    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.stroke(); ctx.restore();
+    /* Puntos en la serie — todos visibles */
+    for (var i = 0; i < n; i++) { 
+      var isLast = (i === n - 1); 
+      ctx.fillStyle = ACCENT_HEX;
+      ctx.globalAlpha = 1.0; 
+      ctx.beginPath(); 
+      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI); 
+      ctx.fill(); 
+      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
+    }
+    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
   }
-  function tryDraw(n){
-    var el=document.getElementById(CID);
-    if(!el){if(n<5)setTimeout(function(){tryDraw(n+1);},300);return;}
-    var card=el.closest('.kpi-card');
-    if(card&&card.offsetWidth===0){setTimeout(function(){tryDraw(n);},400);return;}
-    draw(VALS);
+  
+  function updateMetrics(vals, lbl) {
+    var vMin = Math.min.apply(null, vals), vMax = Math.max.apply(null, vals), vAvg = vals.reduce(function(a,b){return a+b;},0)/vals.length, vCurr = vals[vals.length-1];
+    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
+    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
+    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
+    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
+    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
+    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
+    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
+    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
+    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
+    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
+    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
+    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
+                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
+    var kvId = kvMap[CID];
+    if (kvId) {
+      var kvEl = document.getElementById(kvId);
+      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
+    }
   }
-  document.addEventListener('hist-update',function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(e.detail.vals||VALS);}});
-  document.addEventListener('hist-reset', function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(VALS);}});
-  /* Intentar dibujar inmediatamente y con retry */
-  function doInit() {
+  
+  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
+  function buildSerie(w_c, w_p) { var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }
+  
+  function attachListeners() {
+    /* Solo maneja click en el label del histórico para volver a Global.
+       La selección de filas la maneja js_override document-level listener
+       que dispara hist-update/hist-reset correctamente. */
+    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
+    if (!card) return;
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl) lblEl.addEventListener('click', function() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
+      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
+      lblEl.textContent = 'Global';
+    });
+  }
+  
+  function _cardWidth() {
+    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:block */
     var el = document.getElementById(CID);
-    if (el && el.offsetWidth > 0) { draw(VALS); return; }
-    setTimeout(function(){tryDraw(1);}, 300);
+    if (!el) return 0;
+    var p = el.parentElement;
+    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
+    return 0;
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(doInit, 200); });
-  } else {
-    setTimeout(doInit, 200);
+
+  function _tryDraw() {
+    var el = document.getElementById(CID);
+    if (!el) return false;
+    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
+    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
+    return false;
   }
+
+  function init() {
+    updateMetrics(VALS_DEF, 'Global'); attachListeners();
+    var el = document.getElementById(CID);
+    if (el) {
+      var det = el.closest('details');
+      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
+      var drawn = false;
+      /* Observar la CARD (que sí es visible) no el canvas (que está en display:block) */
+      var anchor = el.closest('.kpi-card') || el.parentElement;
+      if (typeof IntersectionObserver !== 'undefined' && anchor) {
+        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
+          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
+        }); }, {threshold: 0.01}).observe(anchor);
+      }
+      /* Fallback por si el observer no dispara */
+      [300, 800, 2000].forEach(function(d) {
+        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
+      });
+    }
+    document.addEventListener('change', function(e) {
+      if (e.target.type !== 'radio') return;
+      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
+    });
+  }
+  
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var s = buildSerie(e.detail.w_curr, e.detail.w_prev);
+    var lbl = e.detail.label || '';
+    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        drawCanvas(s);
+        updateMetrics(s, lbl);
+      });
+    });
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
+  });
+  
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else requestAnimationFrame(init);
+  
+  /* Exponer función de redraw con nuevo accent para cambio de canasta */
+  window['histRedraw_'+CID] = function(newAccent, newVals) {
+    if (newAccent) {
+      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
+        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
+        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
+      };
+      ACCENT_HEX = newAccent;
+      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
+    }
+    var vals = newVals || currentVals;
+    drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
 })();
+</script></div>
+<script>
+(function(){
+  var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0;
+  var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
+     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
+  if (typeof window !== 'undefined') {
+    if (!window._HIST_CANON) window._HIST_CANON = {};
+    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
+  }
+  var ACCENT_HEX = '#333132', ACCENT_RGB = '92,70,156';
+  
+  function getBanda(v) {
+    if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
+    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
+    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
+    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
+  }
+  
+  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
+  
+  /* Thresholds por métrica */
+  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
+            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
+            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
+  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
+  
+  /* Distancia ordinal: cuántas bandas de distancia al target */
+  function ordinalDist(mid, target, thresholds, invert) {
+    if (!invert) {
+      if (mid >= target) return 0;
+      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
+    } else {
+      if (mid <= target) return 0;
+      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
+    }
+  }
+  
+  /* Color de semáforo por distancia ordinal */
+  var SEMAFORO_PALETTE = [
+    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
+    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
+    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
+    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
+  ];
+  function getSemaforoColor(dist) {
+    return SEMAFORO_PALETTE[Math.min(dist, 3)];
+  }
+  
+  /* Formato de label de threshold */
+  function fmtThLabel(t) {
+    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
+           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
+  }
+  
+  /* Formato de label de target */
+  function fmtTarget() {
+    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
+           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
+  }
+  
+  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
+  function drawCanvas(vals) {
+    currentVals = vals;  /* recordar último estado para re-draws automáticos */
+    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
+    if (!ctx) return;
+    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
+    var _ow = el.offsetWidth;
+    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
+    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
+    if (!_ow) _ow = 360;          /* fallback absoluto */
+    _lastWidth = _ow;             /* guardar para próxima vez */
+    var _oh = el.offsetHeight || 100;
+    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
+    var W = el.width, H = el.height, n = vals.length;
+    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
+    var cw = W-pL-pR, ch = H-pT-pB;
+    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
+    var i_min = Math.min(Math.min.apply(null, vals), TARGET);
+    var i_max = Math.max(Math.max.apply(null, vals), TARGET);
+    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
+    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
+    var below = ths_s.filter(function(t) { return t < i_min; });
+    var above = ths_s.filter(function(t) { return t > i_max; });
+    var adj_below = below.length ? below[below.length-1] : null;
+    var adj_above = above.length ? above[0] : null;
+    var anchor_min = i_min, anchor_max = i_max;
+    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
+    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
+    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
+    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
+    var dR = canvas_max - canvas_min + 0.0001;
+    var xOf = function(i) { return pL + (i/(n-1))*cw; };
+    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
+    /* Líneas de umbral visibles (sin fondos de banda) */
+    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
+    visible_ths.forEach(function(t) {
+      var ty = yOf(t);
+      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
+      var sc = getSemaforoColor(dist);
+      ctx.save();
+      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '6.5px Geist,system-ui,sans-serif';
+      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
+      ctx.restore();
+    });
+    /* Línea target verde */
+    var tY = yOf(TARGET);
+    ctx.save();
+    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
+    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
+    ctx.restore();
+    /* Area fill gradiente en color de la serie */
+    ctx.save();
+    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
+    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
+    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.lineTo(xOf(n-1), pT+ch); ctx.lineTo(xOf(0), pT+ch);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    /* Línea de datos */
+    ctx.save();
+    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
+    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.stroke(); ctx.restore();
+    /* Puntos en la serie — todos visibles */
+    for (var i = 0; i < n; i++) { 
+      var isLast = (i === n - 1); 
+      ctx.fillStyle = ACCENT_HEX;
+      ctx.globalAlpha = 1.0; 
+      ctx.beginPath(); 
+      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI); 
+      ctx.fill(); 
+      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
+    }
+    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
+    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
+      window._HIST_CANON[CID].vals = vals.slice();
+    }
+  }
+  
+  function updateMetrics(vals, lbl) {
+    var vMin = Math.min.apply(null, vals), vMax = Math.max.apply(null, vals), vAvg = vals.reduce(function(a,b){return a+b;},0)/vals.length, vCurr = vals[vals.length-1];
+    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
+    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
+    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
+    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
+    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
+    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
+    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
+    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
+    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
+    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
+    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
+    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
+                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
+    var kvId = kvMap[CID];
+    if (kvId) {
+      var kvEl = document.getElementById(kvId);
+      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
+    }
+  }
+  
+  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
+  function buildSerie(w_c, w_p) { var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }
+  
+  function attachListeners() {
+    /* Solo maneja click en el label del histórico para volver a Global.
+       La selección de filas la maneja js_override document-level listener
+       que dispara hist-update/hist-reset correctamente. */
+    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
+    if (!card) return;
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl) lblEl.addEventListener('click', function() {
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
+      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
+      lblEl.textContent = 'Global';
+    });
+  }
+  
+  function _cardWidth() {
+    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
+    var el = document.getElementById(CID);
+    if (!el) return 0;
+    var p = el.parentElement;
+    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
+    return 0;
+  }
+
+  function _tryDraw() {
+    var el = document.getElementById(CID);
+    if (!el) return false;
+    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
+    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
+    return false;
+  }
+
+  function init() {
+    updateMetrics(VALS_DEF, 'Global'); attachListeners();
+    var el = document.getElementById(CID);
+    if (el) {
+      var det = el.closest('details');
+      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
+      var drawn = false;
+      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
+      var anchor = el.closest('.kpi-card') || el.parentElement;
+      if (typeof IntersectionObserver !== 'undefined' && anchor) {
+        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
+          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
+        }); }, {threshold: 0.01}).observe(anchor);
+      }
+      /* Fallback por si el observer no dispara */
+      [300, 800, 2000].forEach(function(d) {
+        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
+      });
+    }
+    document.addEventListener('change', function(e) {
+      if (e.target.type !== 'radio') return;
+      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
+    });
+  }
+  
+  document.addEventListener('hist-update', function(e) {
+    if (e.detail.cid !== CID) return;
+    var s = buildSerie(e.detail.w_curr, e.detail.w_prev);
+    var lbl = e.detail.label || '';
+    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        drawCanvas(s);
+        updateMetrics(s, lbl);
+      });
+    });
+  });
+  document.addEventListener('hist-reset', function(e) {
+    if (e.detail.cid !== CID) return;
+    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
+  });
+  
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else requestAnimationFrame(init);
+  
+  /* Exponer función de redraw con nuevo accent para cambio de canasta */
+  window['histRedraw_'+CID] = function(newAccent, newVals) {
+    if (newAccent) {
+      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
+        '#333132':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
+        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
+      };
+      ACCENT_HEX = newAccent;
+      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
+    }
+    var vals = newVals || currentVals;
+    drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+})();
+
 '''
 
 AR_SB_PATCH_JS = '''
-/* ── W23+: Patch para que attachPill funcione en las cards AR ──────────
-   Las cards AR tienen .kpi-tab-rows en lugar de .tab-panel.
-   Re-ejecutamos autoAttach después del render inicial. */
+/* W23+: Searchbox con autocomplete para cards AR */
 (function() {
+  function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
   function _attachArSb(inputId, containerId) {
     var input = document.getElementById(inputId);
     var container = document.getElementById(containerId);
     if (!input || !container) return;
-    var clearBtn = document.getElementById(input.getAttribute('data-sb-clear-id'));
-
-    function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-
+    var clearBtn = document.getElementById(input.getAttribute('data-sb-clear-id')||inputId+'-clear');
     function filter() {
       var q = norm(input.value.trim());
-      var rows = container.querySelectorAll('[data-hist-label]');
-      rows.forEach(function(r) {
+      container.querySelectorAll('[data-hist-label]').forEach(function(r) {
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q) {
-          r.style.setProperty('display', match ? 'grid' : 'none', 'important');
-        } else {
-          /* Sin query: restaurar estado original */
-          if (r.classList.contains('sb-hidden') || r.classList.contains('rows-more')) {
-            r.style.setProperty('display', 'none', 'important');
-          } else {
-            r.style.setProperty('display', 'grid', 'important');
-          }
-        }
+        if (q) { r.style.setProperty('display', match ? 'grid' : 'none', 'important'); }
+        else { r.style.setProperty('display', (r.classList.contains('sb-hidden')||r.classList.contains('rows-more')) ? 'none' : 'grid', 'important'); }
       });
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
     }
-
     function buildDD(q) {
       var qn = norm(q);
-      /* Buscar o crear dropdown */
-      var dd = document.getElementById(inputId + '-dd');
-      if (!dd) {
-        dd = document.createElement('div');
-        dd.id = inputId + '-dd';
-        dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;font-family:Geist,sans-serif;";
-        document.body.appendChild(dd);
-      }
-      if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
-
-      var seen = {}, labels = [];
-      container.querySelectorAll('[data-hist-label]').forEach(function(r) {
-        var l = r.getAttribute('data-hist-label');
-        if (l && !seen[l]) { seen[l] = true; labels.push(l); }
-      });
-      var matches = labels.filter(function(l){ return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
-      if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
-
-      dd.innerHTML = matches.map(function(l) {
-        var hi = l; /* highlight simple */  var hi = l.split(q).join('<strong>'+q+'</strong>');
-        return '<div class="sb-suggestion" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + hi + '</div>';
-      }).join('');
-
-      /* Posicionar */
-      var rect = input.getBoundingClientRect();
-      dd.style.left = rect.left + 'px';
-      dd.style.top  = (rect.bottom + 4) + 'px';
-      dd.style.width = Math.max(rect.width + 60, 200) + 'px';
-      dd.style.display = 'block';
-
-      dd.querySelectorAll('.sb-suggestion').forEach(function(el) {
-        el.onmousedown = function(e) {
-          e.preventDefault();
-          input.value = el.getAttribute('data-value');
-          filter();
-          dd.style.display = 'none';
-          input.focus();
-        };
-        el.onmouseover = function(){ el.style.background = 'var(--paper-soft)'; };
-        el.onmouseout  = function(){ el.style.background = ''; };
+      var dd = document.getElementById(inputId+'-dd');
+      if (!dd) { dd=document.createElement('div'); dd.id=inputId+'-dd'; dd.style.cssText="position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;"; document.body.appendChild(dd); }
+      if (!qn) { dd.style.display='none'; dd.innerHTML=''; return; }
+      var seen={}, labels=[];
+      container.querySelectorAll('[data-hist-label]').forEach(function(r){ var l=r.getAttribute('data-hist-label'); if(l&&!seen[l]){seen[l]=true;labels.push(l);} });
+      var matches=labels.filter(function(l){return norm(l).indexOf(qn)>=0;}).slice(0,8);
+      if(!matches.length){dd.style.display='none';dd.innerHTML='';return;}
+      dd.innerHTML=matches.map(function(l){return '<div class="sb-suggestion" data-value="'+l+'" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">'+l+'</div>';}).join('');
+      var rect=input.getBoundingClientRect(); dd.style.left=rect.left+'px'; dd.style.top=(rect.bottom+4)+'px'; dd.style.width=Math.max(rect.width+60,200)+'px'; dd.style.display='block';
+      dd.querySelectorAll('.sb-suggestion').forEach(function(el){
+        el.onmousedown=function(e){e.preventDefault();input.value=el.getAttribute('data-value');filter();dd.style.display='none';input.focus();};
+        el.onmouseover=function(){el.style.background='var(--paper-soft)';}; el.onmouseout=function(){el.style.background='';};
       });
     }
-
-    input.oninput = function() { filter(); buildDD(input.value); };
-    if (clearBtn) clearBtn.onclick = function() { input.value = ''; filter(); var dd = document.getElementById(inputId+'-dd'); if(dd) dd.style.display='none'; };
-    input.onblur = function() { setTimeout(function(){ var dd=document.getElementById(inputId+'-dd'); if(dd) dd.style.display='none'; }, 150); };
+    input.oninput=function(){filter();buildDD(input.value);};
+    if(clearBtn) clearBtn.onclick=function(){input.value='';filter();var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';};
+    input.onblur=function(){setTimeout(function(){var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';},150);};
   }
-
-  function attachArSearchboxes() {
-    _attachArSb('sb-ar1', 'ar1-th');
-    _attachArSb('sb-ar2', 'ar2-th');
-    _attachArSb('ar3-sb', 'ar3-tbody');
-  }
-
-  /* Ejecutar después del render inicial */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(attachArSearchboxes, 800); });
-  } else {
-    setTimeout(attachArSearchboxes, 800);
-  }
-  /* Re-ejecutar cuando cambia la canasta o el modo */
-  document.addEventListener('hist-update', function(){ setTimeout(attachArSearchboxes, 100); });
+  function attachArSearchboxes(){_attachArSb('sb-ar1','ar1-th');_attachArSb('sb-ar2','ar2-th');_attachArSb('ar3-sb','ar3-tbody');}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(attachArSearchboxes,800);});}
+  else{setTimeout(attachArSearchboxes,800);}
 })();
 '''
+
 GLOBAL_PANEL_SCRIPT = '<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
@@ -1116,8 +1559,7 @@ SHARED_CONTAINERS = f'''
         <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
       </div>
     </div>
-        <!-- Histórico BK — igual estructura que cards 1 y 2 -->
-    <div id="hist-ar3-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
+        <div id="ar3-hist-bk" style="margin-top:12px;display:block;"><div id="hist-ar3-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
@@ -1132,7 +1574,7 @@ SHARED_CONTAINERS = f'''
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-ar3-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.44%</div>
+      <div id="hist-ar3-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.43%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
@@ -1148,17 +1590,17 @@ SHARED_CONTAINERS = f'''
   </div>
   <div style="margin-top:10px;">
     <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:20px;width:100%;"></div>
-    <div style="display:flex;justify-content:space-between;margin-top:2px;">
-      <span style="font-size:8px;color:var(--ink-muted);">W16</span>
-      <span style="font-size:8px;color:var(--ink-muted);">W23</span>
+    <div id="hist-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(92,70,156,0.31);height:5px;border-radius:1px 1px 0 0;" title="W16: 93.27%"></div><div style="flex:1;background:rgba(92,70,156,0.47);height:8px;border-radius:1px 1px 0 0;" title="W17: 93.58%"></div><div style="flex:1;background:rgba(92,70,156,0.53);height:9px;border-radius:1px 1px 0 0;" title="W18: 93.71%"></div><div style="flex:1;background:rgba(92,70,156,0.33);height:5px;border-radius:1px 1px 0 0;" title="W19: 93.30%"></div><div style="flex:1;background:rgba(92,70,156,0.35);height:5px;border-radius:1px 1px 0 0;" title="W20: 93.34%"></div><div style="flex:1;background:rgba(92,70,156,0.25);height:4px;border-radius:1px 1px 0 0;" title="W21: 93.15%"></div><div style="flex:1;background:rgba(92,70,156,0.79);height:14px;border-radius:1px 1px 0 0;" title="W22: 94.21%"></div><div style="flex:1;background:#5C469C;height:18px;border-radius:1px 1px 0 0;" title="W23: 94.53%"></div></div>
+    <div style="position:relative;height:14px;margin-top:2px;">
+      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1A6B4A;">EXITOSA</span>
+    <span id="hist-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#FEF9C3;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
     <span id="hist-ar3-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
   </div>
 </div>
+
   </div><!-- /grid 3 cards -->
 </section>
 
