@@ -2865,24 +2865,24 @@ window.HIST_DATA['rnd'] = {
       <div id="ar1-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
       <div id="ar1-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
-    <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
-    <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">
-      <div id="ar1-vch-h" onclick="ar_setView(1,'hotel')"
-        class="tab-label tab-label-active" style="border-radius:6px 6px 0 0;cursor:pointer;">🏨 Por Hotel</div>
-      <div id="ar1-vch-d" onclick="ar_setView(1,'dim')"
-        class="tab-label" style="border-radius:6px 6px 0 0;cursor:pointer;">📊 Por Dimensión</div>
-    </div>
-    <!-- Panel Por Hotel card 1 -->
-    <div id="ar1-ph" style="padding:12px 16px 0;">
-      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
-        <label class="tab-label tab-label-active" onclick="ar_setHotelTab(1,'crit',this)" id="ar1-tab-1">Críticos</label>
-        <label class="tab-label" onclick="ar_setHotelTab(1,'br',this)"   id="ar1-tab-2">Bajo Rend.</label>
-        <label class="tab-label" onclick="ar_setHotelTab(1,'sc',this)"   id="ar1-tab-3">Sin Conv.</label>
-        <label class="tab-label" onclick="ar_setHotelTab(1,'cv',this)"   id="ar1-tab-4" id="ar1-tab-cv">Menor CV</label>
+
+    <!-- Pills navegación card 1 — modelo BK -->
+    <div style="padding:10px 16px 0;">
+      <div style="font-size:8px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.10em;margin-bottom:5px;">Vista</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+        <span id="ar1-v-hotel"  onclick="ar_setPillView(1,'hotel',this)"  class="ar1-vpill ar-vpill-active"  style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
+        <span id="ar1-v-corp"   onclick="ar_setPillView(1,'corp',this)"   class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Corp</span>
+        <span id="ar1-v-dest"   onclick="ar_setPillView(1,'dest',this)"   class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Destino</span>
+        <span id="ar1-v-chan"   onclick="ar_setPillView(1,'chan',this)"    class="ar1-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Channel</span>
       </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+      <div id="ar1-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+        <span id="ar1-f-crit"   onclick="ar_setPillFilt(1,'crit',this)"   class="ar1-fpill ar-fpill-active"  style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
+        <span id="ar1-f-br"     onclick="ar_setPillFilt(1,'br',this)"     class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</span>
+        <span id="ar1-f-sc"     onclick="ar_setPillFilt(1,'sc',this)"     class="ar1-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Sin Conv.</span>
+      </div>
+      <table id="ar1-tbl" style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
-        <thead><tr style="border-bottom:2px solid var(--accent);">
+        <thead><tr id="ar1-thead" style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-th-lbl">Hotel</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
@@ -2894,29 +2894,6 @@ window.HIST_DATA['rnd'] = {
       </table>
       <div style="text-align:center;margin-top:8px;">
         <button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
-      </div>
-    </div>
-    <!-- Panel Por Dimensión card 1 -->
-    <div id="ar1-pd" style="display:none;padding:12px 16px 0;">
-      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
-        <label class="tab-label tab-label-active" onclick="ar_setDim(1,'corp');w22_iTab(this);" id="ar1-dim-corp">Corporativo</label>
-        <label class="tab-label" onclick="ar_setDim(1,'dest');w22_iTab(this);" id="ar1-dim-dest">Destino</label>
-        <label class="tab-label" onclick="ar_setDim(1,'chan');w22_iTab(this);" id="ar1-dim-chan">Channel</label>
-      </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
-        <thead><tr style="border-bottom:2px solid var(--accent);">
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar1-td-lbl">Corporativo</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar1-td-col-m">Eficacia</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
-        </tr></thead>
-        <tbody id="ar1-td"></tbody>
-      </table>
-      <div style="text-align:center;margin-top:8px;">
-        <button id="ar1-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
       </div>
     </div>
     <!-- Canvas histórico card 1 -->
@@ -3572,24 +3549,24 @@ window.HIST_DATA['rnd'] = {
       <div id="ar2-gauge" style="display:flex;gap:2px;margin-top:10px;"></div>
       <div id="ar2-wowbox" style="margin-top:8px;background:var(--paper-soft);border-radius:3px;padding:6px;display:flex;align-items:stretch;gap:6px;"></div>
     </div>
-    <!-- Nivel 1: Por Hotel / Por Dimensión — formato folder -->
-    <div class="tabs-row" style="gap:2px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;margin-top:10px;margin-bottom:0;">
-      <div id="ar2-vch-h" onclick="ar_setView(2,'hotel')"
-        class="tab-label tab-label-active" style="border-radius:6px 6px 0 0;cursor:pointer;">🏨 Por Hotel</div>
-      <div id="ar2-vch-d" onclick="ar_setView(2,'dim')"
-        class="tab-label" style="border-radius:6px 6px 0 0;cursor:pointer;">📊 Por Dimensión</div>
-    </div>
-    <!-- Panel Por Hotel card 2 -->
-    <div id="ar2-ph" style="padding:12px 16px 0;">
-      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
-        <label class="tab-label tab-label-active" onclick="ar_setHotelTab(2,'crit',this)" id="ar2-tab-1">Críticos</label>
-        <label class="tab-label" onclick="ar_setHotelTab(2,'br',this)"   id="ar2-tab-2">Bajo Rend.</label>
-        <label class="tab-label" onclick="ar_setHotelTab(2,'sc',this)"   id="ar2-tab-3">Sin Conv.</label>
-        <label class="tab-label" onclick="ar_setHotelTab(2,'cv',this)"   id="ar2-tab-4">Menor CV</label>
+
+    <!-- Pills navegación card 2 — modelo BK -->
+    <div style="padding:10px 16px 0;">
+      <div style="font-size:8px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.10em;margin-bottom:5px;">Vista</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+        <span id="ar2-v-hotel" onclick="ar_setPillView(2,'hotel',this)" class="ar2-vpill ar-vpill-active" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Hotel</span>
+        <span id="ar2-v-corp"  onclick="ar_setPillView(2,'corp',this)"  class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Corp</span>
+        <span id="ar2-v-dest"  onclick="ar_setPillView(2,'dest',this)"  class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Destino</span>
+        <span id="ar2-v-chan"  onclick="ar_setPillView(2,'chan',this)"   class="ar2-vpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Channel</span>
       </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+      <div id="ar2-hfilt" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+        <span id="ar2-f-crit" onclick="ar_setPillFilt(2,'crit',this)" class="ar2-fpill ar-fpill-active" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;white-space:nowrap;">Críticos</span>
+        <span id="ar2-f-br"   onclick="ar_setPillFilt(2,'br',this)"   class="ar2-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Bajo Rend.</span>
+        <span id="ar2-f-sc"   onclick="ar_setPillFilt(2,'sc',this)"   class="ar2-fpill" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:var(--paper-soft);color:var(--ink-muted);white-space:nowrap;">Sin Conv.</span>
+      </div>
+      <table id="ar2-tbl" style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
-        <thead><tr style="border-bottom:2px solid var(--accent);">
+        <thead><tr id="ar2-thead" style="border-bottom:2px solid var(--accent);">
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-th-lbl">Hotel</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
           <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
@@ -3601,29 +3578,6 @@ window.HIST_DATA['rnd'] = {
       </table>
       <div style="text-align:center;margin-top:8px;">
         <button id="ar2-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
-      </div>
-    </div>
-    <!-- Panel Por Dimensión card 2 -->
-    <div id="ar2-pd" style="display:none;padding:12px 16px 0;">
-      <div class="tabs-row" style="margin-top:0;margin-bottom:10px;">
-        <label class="tab-label tab-label-active" onclick="ar_setDim(2,'corp');w22_iTab(this);" id="ar2-dim-corp">Corporativo</label>
-        <label class="tab-label" onclick="ar_setDim(2,'dest');w22_iTab(this);" id="ar2-dim-dest">Destino</label>
-        <label class="tab-label" onclick="ar_setDim(2,'chan');w22_iTab(this);" id="ar2-dim-chan">Channel</label>
-      </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <colgroup><col/><col style="width:90px"/><col style="width:60px"/><col style="width:42px"/><col style="width:76px"/><col style="width:42px"/></colgroup>
-        <thead><tr style="border-bottom:2px solid var(--accent);">
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);text-align:left;padding:5px 0 5px 8px;" id="ar2-td-lbl">Corporativo</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding:5px 4px;">Severity</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;">Tráfico</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 2px;">WoW</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 4px;" id="ar2-td-col-m">Conv Rate</th>
-          <th style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;padding:5px 6px 5px 2px;">WoW</th>
-        </tr></thead>
-        <tbody id="ar2-td"></tbody>
-      </table>
-      <div style="text-align:center;margin-top:8px;">
-        <button id="ar2-td-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;"></button>
       </div>
     </div>
     <!-- Canvas histórico card 2 -->
@@ -7727,6 +7681,83 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var lblEl = document.getElementById('hist-' + cid + '-label');
   if (lblEl) lblEl.textContent = label;
 }
+
+/* ── Pills de navegación para cards AR (Vista + Filtro) ──────────────── */
+var _arPillView = {1: 'hotel', 2: 'hotel'};
+var _arPillFilt = {1: 'crit',  2: 'crit'};
+
+function ar_setPillView(n, view, el) {
+  _arPillView[n] = view;
+  /* Actualizar pills de vista */
+  document.querySelectorAll('.ar'+n+'-vpill').forEach(function(p) {
+    var isActive = p === el;
+    p.style.background    = isActive ? 'var(--accent)' : 'var(--paper-soft)';
+    p.style.color         = isActive ? '#fff' : 'var(--ink-muted)';
+    p.style.border        = isActive ? '1px solid var(--accent)' : '1px solid transparent';
+  });
+  /* Fila de filtro: solo visible en vista Hotel */
+  var hfilt = document.getElementById('ar'+n+'-hfilt');
+  if (hfilt) hfilt.style.display = (view === 'hotel') ? 'flex' : 'none';
+  /* Actualizar label de columna header */
+  var lbl = document.getElementById('ar'+n+'-th-lbl');
+  var labels = {hotel:'Hotel', corp:'Corporativo', dest:'Destino', chan:'Channel'};
+  if (lbl) lbl.textContent = labels[view] || view;
+  /* Re-renderizar tabla */
+  _arPillRender(n);
+}
+
+function ar_setPillFilt(n, filt, el) {
+  _arPillFilt[n] = filt;
+  document.querySelectorAll('.ar'+n+'-fpill').forEach(function(p) {
+    var isActive = p === el;
+    p.style.background = isActive ? 'var(--accent)' : 'var(--paper-soft)';
+    p.style.color      = isActive ? '#fff' : 'var(--ink-muted)';
+    p.style.border     = isActive ? '1px solid var(--accent)' : '1px solid transparent';
+  });
+  _arPillRender(n);
+}
+
+function _arPillRender(n) {
+  var view = _arPillView[n] || 'hotel';
+  var filt = _arPillFilt[n] || 'crit';
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+
+  var rows;
+  if (view === 'hotel') {
+    /* Vista hotel: usar filtro */
+    var tabMap = {crit:'crit', br:'br', sc:'sc'};
+    rows = _arRows(n, tabMap[filt] || 'crit');
+  } else if (view === 'chan') {
+    /* Vista channel: usar _arRenderChan */
+    if (isCR) { _arRenderChan(n); return; }
+    rows = _arDimRows(n, 'chan');
+  } else {
+    /* Vista corp/dest: dimensión */
+    var dimMap = {corp:'corp', dest:'dest'};
+    rows = _arDimRows(n, dimMap[view] || 'corp');
+  }
+
+  /* Usar el tbody unificado ar{n}-th */
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+}
+
+/* Wrapper de compatibilidad: el JS existente aún llama ar_setView/ar_setHotelTab/ar_setDim */
+function ar_setView(n, view) {
+  var map = {hotel:'hotel', dim:'corp'};
+  var el = document.getElementById('ar'+n+'-v-' + (view==='hotel'?'hotel':'corp'));
+  ar_setPillView(n, map[view] || view, el);
+}
+function ar_setHotelTab(n, tab, el_unused) {
+  var map = {crit:'crit', br:'br', sc:'sc', cv:'crit'};
+  var pill = document.getElementById('ar'+n+'-f-'+(map[tab]||'crit'));
+  ar_setPillFilt(n, map[tab]||'crit', pill);
+}
+function ar_setDim(n, dim, el_unused) {
+  var pill = document.getElementById('ar'+n+'-v-'+dim);
+  ar_setPillView(n, dim, pill);
+}
+
+/* ── Pills de navegación para cards AR (Vista + Filtro) — FIN ──────── */
 
 /* Listener del panel — captura clicks en w22-th/w22-td, cards AR y channel divs */
 document.addEventListener('click', function(e) {
