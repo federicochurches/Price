@@ -2,7 +2,7 @@
 run_inv.py — Wrapper transparente del pipeline Hotel Inventory
 ═══════════════════════════════════════════════════════════════════
 
-Resuelve los puntos de fricción detectados en W23:
+Resuelve los puntos de fricción detectados en W23 (vigente para W24+):
   1. Correr desde la carpeta equivocada       → valida CWD antes de arrancar
   2. El script no regenera si el HTML existe   → borra el HTML viejo automáticamente
   3. Versiones desincronizadas del calc_inv.py → verifica fixes canónicos antes de correr
@@ -47,7 +47,7 @@ CANONICAL_CHECKS = {
     "_ppRatio dinámico (no hardcodeado)":
         lambda s: '{pp} / {N}' in s,
     "snapshot eliminado (optimización presente)":
-        lambda s: 'dim_ch' in s and 'dim_hotel' in s,
+        lambda s: 'dim_ch' in s and 'dim_hotel' in s and 'HIST.snapshot' not in s,
 }
 
 C_OK   = "\033[92m"   # verde
