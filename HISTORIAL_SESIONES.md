@@ -40,6 +40,45 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-P5 · 11-06-2026 · extract_hist_data.py
+
+### Qué hace
+Script utilitario que lee los pickles CR, RND y BK de la semana recién procesada
+y actualiza `historico_data.py` automáticamente — reemplaza la actualización manual
+de los arrays semana a semana.
+
+### Uso
+```bash
+# Dry-run — muestra valores sin escribir
+python extract_hist_data.py --week 24 --dir /ruta/a/pickles
+
+# Apply — actualiza historico_data.py
+python extract_hist_data.py --week 24 --dir /ruta/a/pickles --apply
+
+# Con VOL_NUM del entorno (si ya corriste el pipeline)
+python extract_hist_data.py --apply
+```
+
+### Lógica
+- Lee `M['global_wNN']['eficacia']`, `M['global_wNN']['conv_rate']` del pickle CR
+- Lee `M['global_wNN']['pct_nodispo']`, `M['global_wNN']['ipm']` del pickle RND
+- Lee `bk_global` del pickle BK
+- Repite para canastas: `B2C`, `B2B-OP`, `CUG` (16 valores en total por semana)
+- Ventana móvil de 8 semanas: descarta la primera al llegar al límite
+- Dry-run por default — `--apply` para escribir
+
+### Archivos modificados
+`extract_hist_data.py` (nuevo) · `PROMPT_CORE.md`
+
+### Bugs cerrados
+P5: extract_hist_data.py creado
+
+### Estado del backlog
+**0 bugs abiertos** — P1–P14 todos cerrados.
+
+
+---
+
 ## Sesión W23-P12 · 11-06-2026 · Filtro cruzado Corp+Dest en cards AR
 
 ### Spec implementada
