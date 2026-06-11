@@ -105,7 +105,10 @@ def build_hotel_row(row, ef_col='Eficacia', cv_col='ConvRate',
     else:
         # CR_Unicos_WoW_pp = (cr - cr_w17)*100 → dividir por 100 = delta real
         wow_cr_str = wow_arrow_abs(wow_cr_pp / 100)
-    return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str]
+    # r[11]=CorpName, r[12]=Destino — para filtro cruzado en JS
+    corp_name = str(row.get('CorpName', '') or '')
+    dest_name = str(row.get('Destino',  '') or '')
+    return [name, bbg, bfg, banda, cr, ef, cv, wow_up, wow_ef_str, wow_cv_str, wow_cr_str, corp_name, dest_name]
 
 
 # ── Construir CR_CV[canasta] ──────────────────────────────────────────────────
