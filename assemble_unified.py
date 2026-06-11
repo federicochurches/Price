@@ -797,19 +797,19 @@ SWITCHER = f'''<div style="padding-top:10px;">
     <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl1">Eficacia</div>
       <div class="cfb-kpi-val" id="w22-strip-ef" style="color:#5C469C;">—</div>
-      <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl2">Conv Rate</div>
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
-      <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item" id="w22-strip-bk-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl">Bookability</div>
       <div class="cfb-kpi-val" id="w22-strip-bk" style="color:#333132;">—</div>
-      <span class="sev-badge" id="w22-strip-bk-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-bk-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep" id="w22-strip-bk-sep"></div>
   </div>

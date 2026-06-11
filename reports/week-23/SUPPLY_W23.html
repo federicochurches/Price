@@ -987,19 +987,19 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl1">Eficacia</div>
       <div class="cfb-kpi-val" id="w22-strip-ef" style="color:#5C469C;">—</div>
-      <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl2">Conv Rate</div>
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
-      <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep"></div>
     <div class="cfb-kpi-item" id="w22-strip-bk-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl">Bookability</div>
       <div class="cfb-kpi-val" id="w22-strip-bk" style="color:#333132;">—</div>
-      <span class="sev-badge" id="w22-strip-bk-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:4px;margin-bottom:2px;">—</span>
+      <span class="sev-badge" id="w22-strip-bk-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
     <div class="cfb-sep" id="w22-strip-bk-sep"></div>
   </div>
@@ -6575,6 +6575,42 @@ function ar_updateKPIs() {
  if (b2) { b2.textContent = cvBanda2 + ' ' + cvTarget; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
  var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
+
+ /* Actualizar badges de severity en la barra de KPIs */
+ function _parsePct(s) {
+  if (typeof s === 'number') return s;
+  return parseFloat(String(s||'').replace('%','').replace(',','.'));
+ }
+ function _banda(val, metric) {
+  var p = val / 100;
+  if (metric === 'ef' || metric === 'bk') {
+   if (p >= 0.97) return {lbl:'Exitosa',    bg:'#E1F5EE', fg:'#1A6B4A'};
+   if (p >= 0.93) return {lbl:'Aceptable',  bg:'#FEF9C3', fg:'#7B6F00'};
+   if (p >= 0.85) return {lbl:'Revisar',    bg:'#FED7AA', fg:'#C2410C'};
+   if (p >= 0.60) return {lbl:'Crítica',    bg:'#FCCDD9', fg:'#99162B'};
+   return              {lbl:'Súper Crítica',bg:'#E8E6E3', fg:'#2D2828'};
+  }
+  if (metric === 'cv') {
+   if (p <= 0)    return {lbl:'Sin Conv.',  bg:'#F2EEE6', fg:'#5F5E5A'};
+   if (p < 0.008) return {lbl:'Crítica',    bg:'#FCCDD9', fg:'#99162B'};
+   if (p < 0.015) return {lbl:'Revisar',    bg:'#FED7AA', fg:'#C2410C'};
+   if (p <= 0.025)return {lbl:'Aceptable',  bg:'#FEF9C3', fg:'#7B6F00'};
+   return              {lbl:'Exitosa',    bg:'#E1F5EE', fg:'#1A6B4A'};
+  }
+  return {lbl:'—', bg:'#F2EEE6', fg:'#5F5E5A'};
+ }
+ function _applyBand(id, val, metric) {
+  var el = document.getElementById(id); if (!el || isNaN(val)) return;
+  var b = _banda(val, metric);
+  el.textContent = b.lbl;
+  el.style.background = b.bg; el.style.color = b.fg;
+  el.style.outline = '1px solid ' + b.fg + '55';
+ }
+ var _ef  = _parsePct(ef21);
+ var _cv  = _parsePct(cv21);
+ _applyBand('w22-strip-ef-band', _ef,  'ef');
+ _applyBand('w22-strip-cv-band', _cv,  'cv');
+ /* BK badge se maneja en tryInitBK — solo actualizamos EF/CV aquí */
 }
 
 /* ══════════════════════════════════════════════════
@@ -7418,6 +7454,14 @@ function ar3_showMore() {
     badge3.textContent = ar3_bandLabel(d.banda);
     badge3.style.background = bc[0]; badge3.style.color = bc[1];
     badge3.style.border = '1px solid ' + bc[1] + '44';
+  }
+  /* Badge BK en barra de KPIs — usar banda directa de BK_DATA.global */
+  var _bkBandEl = document.getElementById('w22-strip-bk-band');
+  if (_bkBandEl) {
+    _bkBandEl.textContent = ar3_bandLabel(d.banda);
+    _bkBandEl.style.background = bc[0];
+    _bkBandEl.style.color = bc[1];
+    _bkBandEl.style.outline = '1px solid ' + bc[1] + '55';
   }
 
   var GAUGE = ['#8A8377','#DC2626','#C0392B','#F97316','#FCD34D','#1A6B4A'];
