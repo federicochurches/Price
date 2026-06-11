@@ -366,6 +366,34 @@ max_avg_ctr_sp = max((r['avg_contratos'] for r in ch_propio_sp), default=1) or 1
 max_avg_ctr_hy = max((r['avg_contratos'] for r in ch_propio_hy), default=1) or 1
 max_avg_ctr_pp = max((r['avg_contratos'] for r in ch_propio_pp), default=1) or 1
 
+# Channel stats por región (para filtrar tabla Channel View cuando hay filtro de región activo)
+ch_by_region = {}
+for reg in REGION_ORDER:
+    df_reg = df[df['Region_display'] == reg]
+    if len(df_reg) == 0:
+        continue
+    p_todos = channel_stats_propio(df_reg)
+    t_todos = channel_stats_tercero(df_reg)
+    mx_todos = max((r['avg_contratos'] for r in p_todos), default=1) or 1
+    df_reg_pp = df_reg[df_reg['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])]
+    p_pp = channel_stats_propio(df_reg_pp)
+    t_pp = channel_stats_tercero(df_reg_pp)
+    mx_pp = max((r['avg_contratos'] for r in p_pp), default=1) or 1
+    df_reg_sp = df_reg[df_reg['TipoHotel'] == 'sólo propio']
+    p_sp = channel_stats_propio(df_reg_sp)
+    t_sp = channel_stats_tercero(df_reg_sp)
+    mx_sp = max((r['avg_contratos'] for r in p_sp), default=1) or 1
+    df_reg_hy = df_reg[df_reg['TipoHotel'] == 'Propio_con_tercero']
+    p_hy = channel_stats_propio(df_reg_hy)
+    t_hy = channel_stats_tercero(df_reg_hy)
+    mx_hy = max((r['avg_contratos'] for r in p_hy), default=1) or 1
+    ch_by_region[reg] = {
+        'todos': {'propio': p_todos, 'tercero': t_todos, 'maxAvg': mx_todos},
+        'pp':    {'propio': p_pp,    'tercero': t_pp,    'maxAvg': mx_pp},
+        'sp':    {'propio': p_sp,    'tercero': t_sp,    'maxAvg': mx_sp},
+        'hy':    {'propio': p_hy,    'tercero': t_hy,    'maxAvg': mx_hy},
+    }
+
 # Datos a nivel hotel por channel para drill
 CHANNEL_COL_MAP = {
     'DerbySoft':       'DerbySoft',
@@ -925,6 +953,7 @@ JS = f"""
 const HIST = {json.dumps(hist_data, cls=NpEncoder)};
 const CORP_DATA     = {json.dumps(corp_json, cls=NpEncoder)};
 const DEST_DATA     = {json.dumps(dest_json, cls=NpEncoder)};
+const REG_TOTALS    = {json.dumps({r['region']: r for r in reg_stats}, cls=NpEncoder)};
 const CORP_MKT_DATA = {json.dumps(corp_mkt_json, cls=NpEncoder)};
 const CH_DRILL_DATA = {json.dumps(ch_drill_data, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
@@ -934,6 +963,7 @@ const CH_DATA = {{
   'sp':    {{ propio:{json.dumps(ch_propio_sp, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero_sp, cls=NpEncoder)}, maxAvg:{max_avg_ctr_sp} }},
   'hy':    {{ propio:{json.dumps(ch_propio_hy, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero_hy, cls=NpEncoder)}, maxAvg:{max_avg_ctr_hy} }},
 }};
+const CH_DATA_BY_REGION = {json.dumps(ch_by_region, cls=NpEncoder)};
 const DEST_MKT_DATA = {json.dumps(dest_mkt_json, cls=NpEncoder)};
 const MARKET_TOTAL  = {market_total};
 const MARKET_SHARE  = {market_share:.2f};
@@ -999,6 +1029,43 @@ function renderCardValues(pp, tp, tot) {{
   document.getElementById('card-gap').textContent  = gap.toLocaleString('es-MX');
   document.getElementById('card-avance').textContent = (GLOBAL_PP/TARGET*100).toFixed(1)+'%';
   document.getElementById('prog-fill').style.width = Math.min(100, GLOBAL_PP/TARGET*100).toFixed(1)+'%';
+}}
+
+function updateGlobalRow() {{
+  // Actualiza la fila GLOBAL de la tabla con los totales del filtro activo
+  const _activeR = hFRegion || (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value).slice(-1)[0] || '';
+  const _activeC = hFCorp   || (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value).slice(-1)[0]   || '';
+  const _activeDest = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value).slice(-1)[0] || '';
+
+  let tot, pp, sp, hy, tp;
+
+  if (_activeDest) {{
+    const r = DEST_DATA.find(d => d.Destino === _activeDest);
+    if (!r) return;
+    tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+  }} else if (_activeC) {{
+    const r = CORP_DATA.find(c => c.Corporativo === _activeC);
+    if (!r) return;
+    tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+  }} else if (_activeR && REG_TOTALS[_activeR]) {{
+    const r = REG_TOTALS[_activeR];
+    tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+  }} else {{
+    // Sin filtro: restaurar valores globales
+    tot = {int(N)}; pp = {int(pp)}; sp = {int(solo_propio)}; hy = {int(hybrid)}; tp = {int(solo_terc)};
+  }}
+
+  const fmt = v => v.toLocaleString('es-MX');
+  const pct = tot > 0 ? (pp/tot*100) : 0;
+  const bar = `<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${{Math.min(100,pct).toFixed(1)}}%;background:#4FC3F4"></div></div><span class="pct-val" style="color:#4FC3F4">${{pct.toFixed(1)}}%</span></div>`;
+
+  const gEl = id => document.getElementById(id);
+  if (gEl('grow-total')) gEl('grow-total').textContent = fmt(tot);
+  if (gEl('grow-pp'))    gEl('grow-pp').textContent    = fmt(pp);
+  if (gEl('grow-sp'))    gEl('grow-sp').textContent    = fmt(sp);
+  if (gEl('grow-hy'))    gEl('grow-hy').textContent    = fmt(hy);
+  if (gEl('grow-tp'))    gEl('grow-tp').textContent    = fmt(tp);
+  if (gEl('grow-pct'))   gEl('grow-pct').innerHTML     = bar;
 }}
 
 /* ── AUTOCOMPLETE FACTORY ── */
@@ -1823,7 +1890,14 @@ function chSetTipo(btn, tipo) {{
 }}
 
 function chRenderOverview() {{
-  const d = CH_DATA[chTipo];
+  // Si hay filtro de región activo, usar datos filtrados por región
+  const _activeR = hFRegion || (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value).slice(-1)[0] || '';
+  let d;
+  if (_activeR && CH_DATA_BY_REGION[_activeR]) {{
+    d = CH_DATA_BY_REGION[_activeR][chTipo] || CH_DATA_BY_REGION[_activeR]['todos'];
+  }} else {{
+    d = CH_DATA[chTipo];
+  }}
   if (!d) return;
   const maxAvg = d.maxAvg || 1;
 
@@ -1835,7 +1909,7 @@ function chRenderOverview() {{
       if (r.hoteles === 0) return '';
       const w = Math.min(100, r.avg_contratos / maxAvg * 100);
       const wDest = Math.min(100, (r.avg_destinos||0) / maxAvgDest * 100);
-      return `<tr style="cursor:pointer" onclick="chDrill('${{r.channel}}',this)">
+      return `<tr style="cursor:pointer" data-channel="${{r.channel}}" onclick="chDrill('${{r.channel}}',this)">
         <td><strong>${{r.channel}}</strong></td>
         <td>${{r.hoteles.toLocaleString('es-MX')}}</td>
         <td><div class="int-wrap"><div class="int-bar"><div class="int-fill" style="width:${{w.toFixed(0)}}%"></div></div>
@@ -1863,13 +1937,19 @@ function chRenderOverview() {{
         <div style="flex:1;height:3px;background:var(--rule,#E8E4DF);border-radius:2px;max-width:60px;">
           <div style="height:100%;width:${{Math.min(100,pctH).toFixed(0)}}%;background:#4FC3F4;border-radius:2px;"></div></div>
         <span class="int-val" style="color:#6A6A6A;font-weight:700;">${{pctStr}}</span></div>`;
-      return `<tr class="${{cls}}" style="cursor:pointer" onclick="chDrill('${{chSafe}}',this)">
+      return `<tr class="${{cls}}" style="cursor:pointer" data-channel="${{r.channel}}" onclick="chDrill('${{chSafe}}',this)">
         <td><strong>${{r.channel}}</strong>${{badge}}</td>
         <td>${{r.hoteles.toLocaleString('es-MX')}}</td>
         <td>${{gapBar}}</td>
         <td>${{r.destinos.toLocaleString('es-MX')}}</td>
         <td>${{gapBar}}</td></tr>`;
     }}).join('');
+  }}
+  // Restaurar clase 'sel' al channel activo si hay uno (el re-render destruye el DOM)
+  if (hFChannel) {{
+    document.querySelectorAll('#ch-propio-tbody tr[data-channel], #ch-tercero-tbody tr[data-channel]').forEach(r => {{
+      if (r.dataset.channel === hFChannel) r.classList.add('sel');
+    }});
   }}
 }}
 
@@ -2010,8 +2090,6 @@ function hGetDim() {{
 
   if (activeChannels.length > 0) {{
     // dim_ch es compacto: solo yw×ym×tipo×channel (sin región ni corp)
-    // Para filtro solo-channel (sin región/corp): usar dim_ch directo — O(semanas×tipos×channels)
-    // Para filtro channel+región/corp combinado: cruzar dim_ch con dim_hotel por semana
     const chRows = HIST.dim_ch.filter(r =>
       activeChannels.includes(r.ch) && tipoMatch(r.t)
     );
@@ -2019,19 +2097,33 @@ function hGetDim() {{
       // Solo channel (caso más frecuente) — directo desde dim_ch
       return chRows.map(r => ({{w:r.w, m:r.m, n:r.n}}));
     }}
-    // Channel + región/corp: calcular intersección por semana via dim_hotel
-    // dim_hotel sabe qué hoteles (agregados) hay por (yw,región,corp,tipo)
-    // dim_ch sabe cuántos hoteles hay por (yw,tipo,channel)
-    // Aproximación: filtrar dim_hotel por región/corp/tipo y usar esas semanas/n
-    // (el filtro channel ya redujo el universo via pills → este path es raro)
-    const hotelRows = HIST.dim_hotel.filter(r =>
-      (!activeRegions.length || activeRegions.includes(r.r)) &&
-      (!activeCorps.length   || activeCorps.includes(r.c))  &&
-      tipoMatch(r.t)
-    );
-    // Intersectar: solo semanas donde ambos tienen datos
-    const chwSet = new Set(chRows.map(r=>r.w));
-    return hotelRows.filter(r => chwSet.has(r.w)).map(r => ({{w:r.w, m:r.m, n:r.n}}));
+    // Channel + región/corp: escalar dim_ch por la proporción que corresponde a esa región/corp
+    // Proporción = hoteles_actuales(región,channel) / hoteles_actuales(global,channel)
+    // Usa CH_DATA_BY_REGION para calcular la proporción actual y aplicarla al histórico
+    let ratio = 1;
+    if (activeRegions.length === 1 && !activeCorps.length) {{
+      const reg = activeRegions[0];
+      const regData = CH_DATA_BY_REGION && CH_DATA_BY_REGION[reg];
+      if (regData) {{
+        const tipoKey = activeTipo === 'Solo Propio' ? 'sp' : activeTipo === 'Hybrid' ? 'hy' : activeTipo === 'Prod. Propio' ? 'pp' : 'todos';
+        const dReg = regData[tipoKey] || regData['todos'];
+        const dGlob = CH_DATA[tipoKey] || CH_DATA['todos'];
+        // Sumar hoteles del channel en región vs global
+        const chNorm = activeChannels[0];
+        const regRow  = [...(dReg.propio||[]),...(dReg.tercero||[])].find(r=>{{
+          const _CH_NORM2={{'Hotel Unico V2':'Hotel Unico','HotelBeds Apitude':'HotelBeds'}};
+          return r.channel===chNorm || (_CH_NORM2[r.channel]||r.channel)===chNorm;
+        }});
+        const globRow = [...(dGlob.propio||[]),...(dGlob.tercero||[])].find(r=>{{
+          const _CH_NORM2={{'Hotel Unico V2':'Hotel Unico','HotelBeds Apitude':'HotelBeds'}};
+          return r.channel===chNorm || (_CH_NORM2[r.channel]||r.channel)===chNorm;
+        }});
+        if (regRow && globRow && globRow.hoteles > 0) {{
+          ratio = regRow.hoteles / globRow.hoteles;
+        }}
+      }}
+    }}
+    return chRows.map(r => ({{w:r.w, m:r.m, n:Math.round(r.n * ratio)}}));
   }}
 
   // No channel filter: use dim_hotel (one row per hotel, no channel duplication)
@@ -2255,6 +2347,11 @@ function hApplyFilter() {{
   const activeDestFilters2 = udActiveFilters.filter(f=>f.type==='dest');
   if (vmDest) vmDest.style.display = (udDim === 'dest' && !activeRegion && !activeDestFilters2.length) ? '' : 'none';
   const _gd=document.getElementById('ud-gap-content'); if(_gd&&_gd.style.display!=='none') gapSyncDim();
+  // Re-render channel view si está visible (para que refleje filtros de región/corp)
+  const _chContent = document.getElementById('ud-ch-content');
+  if (_chContent && _chContent.style.display !== 'none') chRenderOverview();
+  // Actualizar fila GLOBAL con totales del filtro activo
+  updateGlobalRow();
   // Re-render chart when filters change
   hRender();
 }}
@@ -2692,10 +2789,23 @@ function hRender() {{
       const _onlyTipo = !_activeR.length && !_activeC.length && !_activeCh.length && _activeTipo;
       const _tipoBase = _onlyTipo && HIST.actual_by_tipo ? (HIST.actual_by_tipo[_activeTipo] || 0) : 0;
       // Calcular total real actual para el subconjunto filtrado (incluye hoteles sin FechaCreación)
-      // Usado para ajustar la base inicial y evitar picos artificiales en el último punto
-      const _chActual  = _activeCh.length === 1 && HIST.actual_by_channel ? (HIST.actual_by_channel[_activeCh[0]] || 0) : 0;
-      const _regActual = _activeR.length  === 1 && HIST.actual_by_region  ? (HIST.actual_by_region[_activeR[0]]   || 0) : 0;
-      const _corpActual= _activeC.length  === 1 && HIST.actual_by_corp    ? (HIST.actual_by_corp[_activeC[0]]     || 0) : 0;
+      const _CH_NORM3 = {{'Hotel Unico V2':'Hotel Unico','HotelBeds Apitude':'HotelBeds'}};
+      const _normCh3 = ch => _CH_NORM3[ch] || ch;
+      let _chActual = 0;
+      if (_activeCh.length === 1) {{
+        const _chName = _activeCh[0]; // ya normalizado por hGetDim
+        if (_activeR.length === 1 && CH_DATA_BY_REGION && CH_DATA_BY_REGION[_activeR[0]]) {{
+          // Channel + región: buscar en CH_DATA_BY_REGION
+          const _tipoKey = _activeTipo === 'Solo Propio' ? 'sp' : _activeTipo === 'Hybrid' ? 'hy' : _activeTipo === 'Prod. Propio' ? 'pp' : 'todos';
+          const _dReg = CH_DATA_BY_REGION[_activeR[0]][_tipoKey] || CH_DATA_BY_REGION[_activeR[0]]['todos'];
+          const _row = [...(_dReg.propio||[]),...(_dReg.tercero||[])].find(r => (_normCh3(r.channel)||r.channel) === _chName || r.channel === _chName);
+          if (_row) _chActual = _row.hoteles || 0;
+        }} else if (HIST.actual_by_channel) {{
+          _chActual = HIST.actual_by_channel[_chName] || 0;
+        }}
+      }}
+      const _regActual = !_activeCh.length && _activeR.length === 1 && HIST.actual_by_region ? (HIST.actual_by_region[_activeR[0]] || 0) : 0;
+      const _corpActual= !_activeCh.length && _activeC.length === 1 && HIST.actual_by_corp    ? (HIST.actual_by_corp[_activeC[0]]   || 0) : 0;
       const _totalHistAll = allDim.length ? allDim[allDim.length-1].acum : 0;
       // Base ajustada = total_actual - variación_histórica_total (hoteles sin fecha quedan en la base)
       const _realActual = _chActual || _regActual || _corpActual || 0;
@@ -2953,14 +3063,14 @@ def build_unified_distrib():
         <th class="th-vs">vs Global</th>
       </tr></thead>
       <tbody id="ud-tbody">
-        <tr class="global-row">
+        <tr class="global-row" id="ud-global-row">
           <td>GLOBAL</td>
-          <td>{fmt_n(N)}</td>
-          <td class="td-pp">{fmt_n(pp)}</td>
-          <td class="td-sp" style="opacity:.55;">{fmt_n(solo_propio)}</td>
-          <td class="td-hy" style="opacity:.55;">{fmt_n(hybrid)}</td>
-          <td class="td-tp">{fmt_n(solo_terc)}</td>
-          <td>{pct_bar_html(pp/N*100,"#4FC3F4")}</td>
+          <td id="grow-total">{fmt_n(N)}</td>
+          <td class="td-pp" id="grow-pp">{fmt_n(pp)}</td>
+          <td class="td-sp" style="opacity:.55;" id="grow-sp">{fmt_n(solo_propio)}</td>
+          <td class="td-hy" style="opacity:.55;" id="grow-hy">{fmt_n(hybrid)}</td>
+          <td class="td-tp" id="grow-tp">{fmt_n(solo_terc)}</td>
+          <td id="grow-pct">{pct_bar_html(pp/N*100,"#4FC3F4")}</td>
           <td class="td-vs">—</td>
         </tr>
         {reg_rows}
