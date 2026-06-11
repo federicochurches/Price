@@ -2284,30 +2284,18 @@ function ar3_renderTable(view, htab) {
 
 function ar3_setView(view) {
   _ar3_view = view;
-  // Actualizar pills Vista
   ['prov','dest','corp','hotel'].forEach(function(v) {
     var btn = document.getElementById('ar3-vbk-' + v);
-    if (!btn) return;
-    if (v === view) {
-      btn.style.background = '#333132'; btn.style.color = '#fff'; btn.style.borderColor = '#333132';
-    } else {
-      btn.style.background = 'transparent'; btn.style.color = 'var(--ink-muted)'; btn.style.borderColor = 'var(--rule)';
-    }
+    if (btn) btn.classList.toggle('tab-label-active', v === view);
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
 
 function ar3_setHotelTab(htab) {
   _ar3_htab = htab;
-  // Actualizar pills Hoteles
   ['crit','br','sc'].forEach(function(t) {
     var btn = document.getElementById('ar3-htab-' + t);
-    if (!btn) return;
-    if (t === htab) {
-      btn.style.background = 'var(--ink)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--ink)';
-    } else {
-      btn.style.background = 'transparent'; btn.style.color = 'var(--ink-muted)'; btn.style.borderColor = 'var(--rule)';
-    }
+    if (btn) btn.classList.toggle('tab-label-active', t === htab);
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
