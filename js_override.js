@@ -2319,8 +2319,9 @@ function ar3_renderTable(view, htab) {
 
   function wPill(v) {
     if (!v || v === '—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
-    var up = v.charAt(0) === '+';
-    return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(up?'#EAF3DE':'#FCE8E6')+';color:'+(up?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+v+'</em>';
+    var up = v.charAt(0) === '▲' || v.charAt(0) === '+';
+    var lbl = v.replace(/pp$/,'').trim();
+    return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(up?'#EAF3DE':'#FCE8E6')+';color:'+(up?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
   }
 
   var html = hdr;
