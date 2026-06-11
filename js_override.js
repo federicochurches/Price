@@ -1272,7 +1272,7 @@ w22_update = function() {
 function trow_ar(r, card, idx) {
  /* Genera div grid igual que _cardRow de las KPI */
  var isCR = W.mode === 'cr';
- var metVal = card === 1 ? r[5] : r[6];
+ var metVal = card === 1 ? r[6] : r[8]; /* ef_val o cv_val */
  var metNum = parseFloat(String(metVal).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var wowStr = card === 1 ? (r[8]||'—') : (r[9]||'—');
  var isUp = wowStr.charAt(0)==='▲';
@@ -1295,13 +1295,19 @@ function trow_ar(r, card, idx) {
   var lbl = str.replace(/^[▲▼]/,'').replace(/pp$/,'').trim();
   return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
  }
- var wowTraf = wPill(r[10]||'—', true);
- /* Métrica */
- var metSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+metVal+'</span>';
- /* WoW métrica */
- var wowMet = isCR
-   ? (card===1 ? wPill(r[8]||'—',true) : wPill(r[9]||'—',true))
-   : (card===1 ? wPill(r[8]||'—',false): wPill(r[9]||'—',true));
+ /* WoW tráfico — r[5] es delta numérico, formatear con ▲/▼ */
+ var _wt = r[5];
+ var wowTrafStr = (_wt == null || _wt === '' || isNaN(parseFloat(_wt))) ? '—'
+   : (parseFloat(_wt) >= 0 ? '▲' : '▼') + Math.abs(Math.round(parseFloat(_wt))).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+ var wowTraf = wPill(wowTrafStr, true);
+ /* Métrica — índices correctos según CR_CARD_TABS */
+ var metVal2 = card===1 ? r[6] : r[8];
+ var metSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+(metVal2!=null?metVal2:'—')+'</span>';
+ /* WoW métrica — r[7]=ef_wow_pp, r[9]=cv_wow_pp (numéricos en pp) */
+ var _wm = card===1 ? r[7] : r[9];
+ var wowMetStr = (_wm == null || isNaN(parseFloat(_wm))) ? '—'
+   : (parseFloat(_wm) >= 0 ? '▲' : '▼') + Math.abs(parseFloat(_wm)).toFixed(2).replace('.',',');
+ var wowMet = wPill(wowMetStr, isCR ? true : (card===1 ? false : true));
  return '<div '+histAttr+' style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
    +nameSpan+trafSpan+wowTraf+metSpan+wowMet+'</div>';
 }
@@ -2390,14 +2396,13 @@ function ar3_setView(view) {
 
 function ar3_setHotelTab(htab) {
   _ar3_htab = htab;
-  var acc = '#4FC3F4';
   ['crit','br','sc'].forEach(function(t) {
     var btn = document.getElementById('ar3-htab-' + t);
     if (!btn) return;
     var active = (t === htab);
-    btn.style.background  = active ? acc : 'transparent';
+    btn.style.background  = active ? 'var(--ink)' : 'transparent';
     btn.style.color       = active ? '#fff' : 'var(--ink-muted)';
-    btn.style.borderColor = active ? acc : 'var(--rule)';
+    btn.style.borderColor = active ? 'var(--ink)' : 'var(--rule)';
   });
   ar3_renderTable(_ar3_view, _ar3_htab);
 }
