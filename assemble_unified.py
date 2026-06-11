@@ -1140,8 +1140,7 @@ AR3_MODE_JS = '''
 (function() {
   function _syncCard3(mode) {
     var card3 = document.getElementById('kpicard-ar3');
-    var grid  = document.querySelector('
-.ar-cards-grid');
+    var grid  = document.querySelector('.ar-cards-grid');
     if (!card3 || !grid) return;
     if (mode === 'rnd') {
       card3.style.display = 'none';
@@ -1150,6 +1149,11 @@ AR3_MODE_JS = '''
       card3.style.display = '';
       grid.style.gridTemplateColumns = 'repeat(3,1fr)';
     }
+    /* Switcher local AR — solo clase .on, sin inline style (CSS maneja el negro) */
+    var arBtnCr  = document.getElementById('ar-btn-cr');
+    var arBtnRnd = document.getElementById('ar-btn-rnd');
+    if (arBtnCr)  { arBtnCr.classList.toggle('on',  mode !== 'rnd'); arBtnCr.style.background  = ''; arBtnCr.style.color = ''; }
+    if (arBtnRnd) { arBtnRnd.classList.toggle('on', mode === 'rnd'); arBtnRnd.style.background = ''; arBtnRnd.style.color = ''; }
   }
   document.addEventListener('mode-changed', function(e) {
     _syncCard3(e.detail && e.detail.mode);
