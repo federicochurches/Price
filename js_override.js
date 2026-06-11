@@ -1024,11 +1024,17 @@ function _arRows(n, tab) {
                (dd.hotels_crit || dd.hotels);
     return rows || [];
   } else {
-    /* Card 2: Conv Rate (CR) / IPM (RND) — mismos tabs pero ordenados por cv/ipm */
-    var rows2 = tab === 'br' ? (dd.hotels_br || dd.hotels) :
-                tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
-                tab === 'cv' ? (dd.hotels_cv || dd.hotels) :
-                (dd.hotels_crit || dd.hotels);
+    /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
+    var rows2;
+    if (isCR) {
+      rows2 = tab === 'br' ? (dd.hotels_br  || dd.hotels) :
+              tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
+              (dd.hotels_cv || dd.hotels_crit || dd.hotels);
+    } else {
+      rows2 = tab === 'br' ? (dd.hotels_br  || dd.hotels) :
+              tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
+              (dd.hotels_dnc || dd.hotels_crit || dd.hotels);
+    }
     return rows2 || [];
   }
 }
