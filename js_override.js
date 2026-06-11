@@ -1982,6 +1982,34 @@ function _arSort(n, col) {
   ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rowsWithOrig);
 }
 
+
+function _arPillRender(n) {
+  /* Resetear sort al cambiar pill → vuelve al orden original del dataset */
+  _arSortState[n] = {col:null, dir:'orig'};
+  var view = _arPillView[n] || 'hotel';
+  var filt = _arPillFilt[n] || 'crit';
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+
+  var rows;
+  if (view === 'hotel') {
+    /* Vista hotel: usar filtro */
+    var tabMap = {crit:'crit', br:'br', sc:'sc'};
+    rows = _arRows(n, tabMap[filt] || 'crit');
+  } else if (view === 'chan') {
+    /* Vista channel: usar _arRenderChan */
+    if (isCR) { _arRenderChan(n); return; }
+    rows = _arDimRows(n, 'chan');
+  } else {
+    /* Vista corp/dest: dimensión */
+    var dimMap = {corp:'corp', dest:'dest'};
+    rows = _arDimRows(n, dimMap[view] || 'corp');
+  }
+
+  /* Usar el tbody unificado ar{n}-th */
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+}
+
+
 function _arSortAttach(n, tbodyId, btnId) {
   var tbody = document.getElementById(tbodyId); if (!tbody) return;
   var table = tbody.closest('table'); if (!table) return;
@@ -2730,6 +2758,9 @@ function ar3_showMore() {
   _updateBandBadge('ar-strip-bk-band', _parseKpiPct(_bkCanasta.bk), 'bookability');
 
   ar3_renderTable('hotel', 'crit');
+  /* Ocultar tab Sin Conv en BK — la banda sinconv no existe en BK_DATA */
+  var _scTab = document.getElementById('ar3-htab-sc');
+  if (_scTab) _scTab.style.display = 'none';
   
   /* W23+: Tabs BK — JS driven (los radios están dentro de kpi-card, no son hermanos de .tab-panels) */
   (function() {
