@@ -441,32 +441,32 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 7. Copiar solo los archivos que cambiaron al ZIP del proyecto — siempre todos
 8. Usar CSS grid para tablas hotel/dim — usar HTML `<table>` con `table-layout:fixed`
 9. Olvidar `width:100%` en grids de canastas — causa overflow en contenedores 2-col
-10. Usar `margin-left` en `.wow-pill` — causa "guion fantasma"
-11. Poner `min-width` fijo en `.sev-badge` — trunca "SÚPER CRÍTICA" en cols de 60px
-12. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
-13. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo — usar enriquecimiento post-construcción en `calc_*.py`
-14. Mapear Channel con `hotel_channel_map` directamente — el mapa tiene IDs; usar `_hcm_clean`
-15. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — usar función `_enrich(df)`
-16. Escribir `<body>` o `</body>` en `render_*_p1.py` o `render_*_p3.py`
-17. Poner selectores de tabs CSS sin prefijo `.section-cr` / `.section-rnd` — colisionan entre secciones
-18. Definir funciones con scope global en `js_override.js` — van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`
-19. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser
-20. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"
-21. Usar `VALS_DEF` en re-draws automáticos del histórico — usar `currentVals` para mantener el estado
-22. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner todos los rows en DOM con extras ocultos
-23. Crear el botón "Ver más" de cards AR con `createElement`+`addEventListener` — usar el botón HTML estático existente activado por `_moreBtn`
-24. Usar `display:''` o `display:'grid'` para mostrar `<tr>` — el valor correcto es `display:'table-row'`
-25. Recalcular `g_dest`/`g_pais` desde `df_hotel` en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle
-26. Usar `MIN_TRAFICO_DIM = 500K` — el umbral correcto es **50K**
-27. Duplicar lógica de formato entre `render_cr_p2.py` y `render_rnd_p2.py` — toda lógica compartida va en `render_helpers.py`
-28. Duplicar `tab_rows_canasta` entre p3 CR y RND — usar `canasta_tab_rows(df, dim_col, cfg)` de `render_helpers.py`
-29. Duplicar `_build_card_rows_ef`/`_build_card_rows_cv` — usar `build_card_rows(df, t_key, cfg)` de `render_helpers.py`
-30. Duplicar `_chanRow`/`chanRowAR` — usar `_buildChanRow(r, i, opts)` en `js_override.js`
-31. Calcular `BandaConvRate` en `tab_convrate()` sin Bookings reales — `banda_convrate(val, bookings)` con los Bookings del row, no hardcodeado a 0
-32. Mergear `ConvRate_WoW_pp` dos veces en `render_cr_p2.py` — desde W22 viene directo en `p80_hotel` del pickle
-33. Modificar filas EF/CV sin tocar `_cardRow` en `js_override.js` — el JS re-renderiza con grid 6 cols + badge sev en runtime. Los cambios visuales requieren editar `_cardRow`, `_KPI_GRID` y `hdrLabels`
-34. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
-35. Crear layout Channel distinto al canónico — Channel en cards KPI y AR usa flex-column (PP arriba, TP abajo) + header con columnas + sin badge severity. Aplicar en Python (`render_cr_p1.py`) y en JS (`_buildChanRow`, `_arRenderChan`)
+10. Usar `outer_bg:var(--paper)` en `wow_box(compact=True)` — no contrasta con fondo canasta
+11. Agregar `WoW_pp` en `TOP[]` o `CANASTA[]` antes de calcularlo — usar enriquecimiento post-construcción en `calc_*.py`
+12. Mapear Channel con `hotel_channel_map` directamente — el mapa tiene IDs; usar `_hcm_clean`
+13. Modificar DataFrames dentro de un loop `for df in [...]` sin `.copy()` — usar función `_enrich(df)`
+14. Escribir `<body>` o `</body>` en `render_*_p1.py` o `render_*_p3.py`
+15. Poner selectores de tabs CSS sin prefijo `.section-cr` / `.section-rnd` — colisionan entre secciones
+16. Definir funciones con scope global en `js_override.js` — van en `GLOBAL_PANEL_SCRIPT` de `assemble_unified.py`
+17. Cerrar `<strong>` con `</span>` en f-strings HTML — rompe el layout del browser
+18. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"
+19. Usar `VALS_DEF` en re-draws automáticos del histórico — usar `currentVals` para mantener el estado
+20. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner todos los rows en DOM con extras ocultos
+21. Crear el botón "Ver más" de cards AR con `createElement`+`addEventListener` — usar el botón HTML estático existente activado por `_moreBtn`
+22. Usar `display:''` o `display:'grid'` para mostrar `<tr>` — el valor correcto es `display:'table-row'`
+23. Recalcular `g_dest`/`g_pais` desde `df_hotel` en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle
+24. Usar `MIN_TRAFICO_DIM = 500K` — el umbral correcto es **50K**
+25. Duplicar lógica de formato entre `render_cr_p2.py` y `render_rnd_p2.py` — toda lógica compartida va en `render_helpers.py`
+26. Duplicar `tab_rows_canasta` entre p3 CR y RND — usar `canasta_tab_rows(df, dim_col, cfg)` de `render_helpers.py`
+27. Duplicar `_build_card_rows_ef`/`_build_card_rows_cv` — usar `build_card_rows(df, t_key, cfg)` de `render_helpers.py`
+28. Duplicar `_chanRow`/`chanRowAR` — usar `_buildChanRow(r, i, opts)` en `js_override.js`
+29. Calcular `BandaConvRate` en `tab_convrate()` sin Bookings reales — `banda_convrate(val, bookings)` con los Bookings del row, no hardcodeado a 0
+30. Mergear `ConvRate_WoW_pp` dos veces en `render_cr_p2.py` — desde W22 viene directo en `p80_hotel` del pickle
+31. Modificar filas EF/CV sin tocar `_cardRow` en `js_override.js` — el JS re-renderiza con grid 6 cols + badge sev en runtime. Los cambios visuales requieren editar `_cardRow`, `_KPI_GRID` y `hdrLabels`
+32. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
+33. Crear layout Channel distinto al canónico — Channel en cards KPI y AR usa flex-column (PP arriba, TP abajo) + header con columnas + sin badge severity. Aplicar en Python (`render_cr_p1.py`) y en JS (`_buildChanRow`, `_arRenderChan`)
+34. Asumir que la primera definición de `w22_setMode` es la que ejecuta el browser — puede haber N redefiniciones encadenadas; verificar cuál es la última antes de añadir lógica que dependa de ella. Imprimir `w22_setMode.toString()` en consola para ver la real.
+35. Pisar un CSS con `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
 
 ---
 
@@ -608,3 +608,4 @@ Al terminar cualquier sesión con cambios, Claude debe verificar:
 que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
+
