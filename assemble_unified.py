@@ -1166,29 +1166,8 @@ AR3_MODE_JS = '''
   window._syncCard3 = _syncCard3;
 })();
 
-/* Patch w22_setMode → data-ar-mode body attr (W23+) */
-(function(){
-  var _patchMode = function() {
-    if (typeof window.w22_setMode !== 'function') { setTimeout(_patchMode, 100); return; }
-    var _orig = window.w22_setMode;
-    window.w22_setMode = function(m, el) {
-      _orig.apply(this, arguments);
-      /* Sync card3 en setTimeout(250ms) — después del 200ms de w22_update */
-      var _m = m;
-      setTimeout(function() {
-        document.body.setAttribute('data-ar-mode', _m);
-        if (typeof window._syncCard3 === 'function') window._syncCard3(_m);
-      }, 250);
-    };
-    /* Estado inicial */
-    setTimeout(function(){
-      document.body.setAttribute('data-ar-mode', (typeof W!=='undefined')?W.mode:'cr');
-    }, 80);
-  };
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _patchMode);
-  } else { _patchMode(); }
-})();
+/* w22_setMode consolidada en js_override.js (W23-bk-s3)
+   data-ar-mode y _syncCard3 se manejan ahí directamente */
 '''
 GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_TRX_WOW_JS + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
