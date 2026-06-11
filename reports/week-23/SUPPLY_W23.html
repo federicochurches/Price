@@ -6298,24 +6298,24 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
 
  /* Conectar searchbox sb-ar{n} */
  var sbN = document.getElementById('sb-ar'+n);
- if (sbN && !sbN._connected) {
-   sbN._connected = true;
+ if (sbN) {
+   var clrN = document.getElementById('sb-ar'+n+'-clear');
    sbN.oninput = function() {
      var q = sbN.value.toLowerCase();
      container.querySelectorAll('[data-hist-label]').forEach(function(row) {
        var lbl = (row.getAttribute('data-hist-label')||'').toLowerCase();
        var match = lbl.indexOf(q) >= 0;
-       if (row.classList.contains('sb-hidden')) {
-         row.style.display = (match && q) ? 'grid' : 'none';
-       } else if (!row.classList.contains('rows-more')) {
-         row.style.display = (match || !q) ? 'grid' : 'none';
+       if (!q) {
+         /* Sin filtro: restaurar visibilidad original */
+         row.style.display = (row.classList.contains('rows-more') || row.classList.contains('sb-hidden')) ? 'none' : 'grid';
+       } else {
+         row.style.display = match ? 'grid' : 'none';
        }
      });
+     if (clrN) clrN.style.display = q ? 'inline' : 'none';
    };
-   var clrN = document.getElementById('sb-ar'+n+'-clear');
    if (clrN) {
-     clrN.onclick = function() { sbN.value = ''; sbN.oninput(); clrN.style.display='none'; };
-     sbN.addEventListener('input', function() { clrN.style.display = sbN.value ? 'inline' : 'none'; });
+     clrN.onclick = function() { sbN.value = ''; sbN.oninput(); };
    }
  }
 }
@@ -7300,18 +7300,28 @@ function ar3_renderTable(view, htab) {
     };
   }
 
-  // Searchbox
+  // Searchbox AR3
   var sb = document.getElementById('ar3-sb');
-  if (sb) {
+  if (sb && !sb._connected) {
+    sb._connected = true;
+    var clr3 = document.getElementById('ar3-sb-clear');
     sb.oninput = function() {
       var q = sb.value.toLowerCase();
       tbody.querySelectorAll('[data-lbl]').forEach(function(row){
-        var match = (row.getAttribute('data-lbl')||'').toLowerCase().indexOf(q) >= 0;
-        if (!row.classList.contains('sb-hidden') || match) {
+        var lbl   = (row.getAttribute('data-lbl')||'').toLowerCase();
+        var match = lbl.indexOf(q) >= 0;
+        if (!q) {
+          /* Sin filtro: mostrar top-5, ocultar rows-more y sb-hidden */
+          row.style.display = (row.classList.contains('rows-more') || row.classList.contains('sb-hidden')) ? 'none' : 'grid';
+        } else {
           row.style.display = match ? 'grid' : 'none';
         }
       });
+      if (clr3) clr3.style.display = q ? 'inline' : 'none';
     };
+    if (clr3) {
+      clr3.onclick = function() { sb.value = ''; sb.oninput(); };
+    }
   }
 }
 
