@@ -1027,8 +1027,15 @@ function _arRows(n, tab) {
     /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
     var rows2;
     if (isCR) {
-      rows2 = tab === 'br' ? (dd.hotels_br  || dd.hotels) :
-              tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
+      /* Card 2 BR/SC: mismo pool que card 1 pero re-ordenado por ConvRate (r[6]) ASC */
+      var _br2 = (dd.hotels_br || dd.hotels || []).slice().sort(function(a,b){ return parseFloat(String(a[6]||'0').replace('%','').replace(',','.')) - parseFloat(String(b[6]||'0').replace('%','').replace(',','.')); });
+      /* Sin Conv: todos tienen CV=0; card 2 ordena por Tráfico DESC */
+      var _sc2 = (dd.hotels_sc || dd.hotels || []).slice().sort(function(a,b){
+        var parse=function(s){return parseFloat(String(s||'0').replace(/[KMB]$/,function(x){return x==='K'?'000':x==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,''))||0;};
+        return parse(b[4])-parse(a[4]); /* tráfico DESC */
+      });
+      rows2 = tab === 'br' ? _br2 :
+              tab === 'sc' ? _sc2 :
               (dd.hotels_cv || dd.hotels_crit || dd.hotels);
     } else {
       rows2 = tab === 'br' ? (dd.hotels_br  || dd.hotels) :
@@ -1335,7 +1342,8 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
  var _mkSH = function(lbl, col, acc) {
    var state = _arSortState[n] || {};
-   var ico = state.col===col ? (state.asc?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
+   var _d = state.dir || (state.asc?'asc':'desc');
+   var ico = state.col===col && _d!=='orig' ? (_d==='asc'?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
    var colStyle = acc ? 'color:var(--accent);' : '';
    return '<span onclick="_arSort('+n+',\''+col+'\')" style="'+_s+'text-align:right;padding:2px 0 4px;cursor:pointer;user-select:none;'+colStyle+'">'+lbl+ico+'</span>';
  };
@@ -1347,8 +1355,11 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
    +'</div>';
 
- var rowsHtml = rows.map(function(r,i){
-   var html = trow_ar(r, n, i+1);
+ var rowsHtml = rows.map(function(item,i){
+   /* Soportar tanto {r, origPos} como array plano */
+   var r = (item && item.r !== undefined) ? item.r : item;
+   var origPos = (item && item.origPos !== undefined) ? item.origPos : (i+1);
+   var html = trow_ar(r, n, origPos);
    if(i >= _KPI_EXPAND_N) {
      /* Reemplazar display:grid por display:none y agregar clase sb-hidden */
      html = html.replace(/^(<div)/, '$1 class="sb-hidden"')
@@ -1362,11 +1373,26 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
 
  container.innerHTML = hdr + rowsHtml;
 
- /* Botón Ver más */
- var moreWrap = document.getElementById('ar'+n+'-more-wrap');
- if (moreWrap) {
-   moreWrap.innerHTML = '';
-   if (rows.length > _KPI_TOP_N) _moreBtn(moreWrap, 'ar'+n+'-th');
+ /* Botón Ver más — activar botón estático directamente sin destruirlo */
+ var _staticMoreBtn = document.getElementById('ar'+n+'-th-more');
+ if (_staticMoreBtn) {
+   if (rows.length > _KPI_TOP_N) {
+     _staticMoreBtn.style.display = '';
+     _staticMoreBtn.textContent = 'Ver más ▾';
+     _staticMoreBtn.setAttribute('data-exp','0');
+     (function(btn, container) {
+       btn.onclick = function() {
+         var exp = btn.getAttribute('data-exp') !== '1';
+         btn.setAttribute('data-exp', exp ? '1' : '0');
+         container.querySelectorAll('.rows-more').forEach(function(r) {
+           r.style.setProperty('display', exp ? 'grid' : 'none', 'important');
+         });
+         btn.textContent = exp ? 'Ver menos ▴' : 'Ver más ▾';
+       };
+     })(_staticMoreBtn, document.getElementById('ar'+n+'-th'));
+   } else {
+     _staticMoreBtn.style.display = 'none';
+   }
  }
 
  /* Conectar searchbox sb-ar{n} */
@@ -1486,8 +1512,8 @@ function ar_updateKPIs() {
    }
    if (cdata.cv) { cv21 = cdata.cv; }
   }
-  if (cdata.banda_ef) { efBanda = cdata.banda_ef; }
-  if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.band)    { efBanda = cdata.band;    efBandaBg = cdata.bbg || efBandaBg; efBandaFg = cdata.bfg || efBandaFg; }
+  if (cdata.band_cv) { cvBanda = cdata.band_cv; cvBandaBg = cdata.bbg_cv || cvBandaBg; cvBandaFg = cdata.bfg_cv || cvBandaFg; }
   if (cdata.vol)      { vol = cdata.vol; }
   if (cdata.trafico)  { trafico = cdata.trafico; }
   if (cdata.traf_wow) { trafWow = cdata.traf_wow; }
@@ -1534,7 +1560,8 @@ function ar_updateKPIs() {
    }
    if (cdata.cv) { cv21 = cdata.cv; }
   }
-  if (cdata.banda_ef) { efBanda = cdata.banda_ef; } if (cdata.banda_cv) { cvBanda = cdata.banda_cv; }
+  if (cdata.band)    { efBanda = cdata.band;    efBandaBg = cdata.bbg || efBandaBg; efBandaFg = cdata.bfg || efBandaFg; }
+  if (cdata.band_cv) { cvBanda = cdata.band_cv; cvBandaBg = cdata.bbg_cv || cvBandaBg; cvBandaFg = cdata.bfg_cv || cvBandaFg; }
   if (cdata.vol)      { vol = cdata.vol; } if (cdata.trafico) { trafico = cdata.trafico; }
   efTarget = '· Target < 3%'; cvTarget = '· Target ≥ $650';
  }
@@ -1549,7 +1576,7 @@ function ar_updateKPIs() {
  var tw1 = document.getElementById('ar1-trafico-wow');
  if (tw1) tw1.innerHTML = cdata.traf_wow != null ? wPillSm(cdata.traf_wow, true) : '';
  var b1 = document.getElementById('ar1-badge');
- if (b1) { b1.textContent = (efBanda && efBanda!=='—' ? efBanda : '') + (efTarget ? ' '+efTarget : ''); b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
+ if (b1) { b1.textContent = (efBanda && efBanda!=='—' ? efBanda : ''); b1.style.background = efBandaBg; b1.style.color = efBandaFg; b1.style.border = '1px solid '+efBandaFg+'44'; }
  var g1 = document.getElementById('ar1-gauge'); if (g1) g1.innerHTML = gauge(GAUGE_COLORS);
  var wb1 = document.getElementById('ar1-wowbox'); if (wb1) wb1.innerHTML = wowBox(ef20, ef21.replace(' %','%'), efWow, !isCR ? false : true, acc);
 
@@ -1566,7 +1593,7 @@ function ar_updateKPIs() {
  var cvBanda2 = cdata.band_cv || cvBanda;
  var cvBandaBg2 = cdata.bbg_cv || cvBandaBg;
  var cvBandaFg2 = cdata.bfg_cv || cvBandaFg;
- if (b2) { b2.textContent = cvBanda2 + ' ' + cvTarget; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
+ if (b2) { b2.textContent = cvBanda2; b2.style.background = cvBandaBg2; b2.style.color = cvBandaFg2; b2.style.border = '1px solid '+cvBandaFg2+'44'; }
  var g2 = document.getElementById('ar2-gauge'); if (g2) g2.innerHTML = gauge(GAUGE_COLORS);
  var wb2 = document.getElementById('ar2-wowbox'); if (wb2) wb2.innerHTML = wowBox(cv20, cv21.replace(' %','%'), cvWow, true, acc);
 
@@ -1929,10 +1956,11 @@ var _AR_SORT_MAP = {2:4}; /* tráfico: th[2] → r[4] */
 /* ── Sort clickeable para cards AR 1/2 (sistema div-grid W23+) ── */
 var _arSortState = {};
 function _arSort(n, col) {
-  var prev = _arSortState[n] || {col:null, asc:true};
-  var asc  = (prev.col === col) ? !prev.asc : true;
-  _arSortState[n] = {col:col, asc:asc};
-  /* Obtener filas actuales según view/filt */
+  var prev = _arSortState[n] || {col:null, dir:'orig'};
+  /* 3 estados: orig→asc→desc→orig (igual que KPI cards) */
+  var dir = (prev.col === col) ? _nd(prev.dir) : 'asc';
+  _arSortState[n] = {col:col, dir:dir};
+  /* Obtener filas según view/filt */
   var view = _arPillView[n] || 'hotel';
   var filt = _arPillFilt[n] || 'crit';
   var rows;
@@ -1941,14 +1969,17 @@ function _arSort(n, col) {
     rows = _arRows(n, tabMap[filt] || 'crit');
   } else if (view === 'chan') { return; }
   else { rows = _arDimRows(n, view); }
-  /* r[4]=tráfico(str), r[5]=ef_val(str%), r[6]=cv_val(str%) */
-  var colIdx = col === 'traf' ? 4 : (n===1 ? 5 : 6);
-  rows = rows.slice().sort(function(a, b) {
-    var va = parseFloat(String(a[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
-    var vb = parseFloat(String(b[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
-    return asc ? va-vb : vb-va;
-  });
-  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rows);
+  /* Asignar origPos (posición en dataset original) */
+  var rowsWithOrig = rows.map(function(r, i){ return {r: r, origPos: i+1}; });
+  if (dir !== 'orig') {
+    var colIdx = col === 'traf' ? 4 : (n===1 ? 5 : 6);
+    rowsWithOrig = rowsWithOrig.slice().sort(function(a, b) {
+      var va = parseFloat(String(a.r[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
+      var vb = parseFloat(String(b.r[colIdx]||'0').replace(/[KkMmBb]$/,function(m){return m.toUpperCase()==='K'?'000':m.toUpperCase()==='M'?'000000':'000000000';}).replace(/[^0-9.]/g,'')) || 0;
+      return dir === 'asc' ? va-vb : vb-va;
+    });
+  }
+  ar_renderTable(n, 'ar'+n+'-th', 'ar'+n+'-th-more', rowsWithOrig);
 }
 
 function _arSortAttach(n, tbodyId, btnId) {
@@ -2332,9 +2363,10 @@ function ar3_bandLabel(banda) {
 /* Sort para card 3 (BK) */
 var _ar3SortState = {col:null, asc:true};
 function _ar3Sort(col) {
-  var prev = _ar3SortState;
-  var asc = (prev.col === col) ? !prev.asc : true;
-  _ar3SortState = {col:col, asc:asc};
+  /* 3 estados: orig→asc→desc→orig (igual que KPI cards) */
+  var prevDir = (_ar3SortState && _ar3SortState.col === col) ? _ar3SortState.dir : 'orig';
+  var dir = _nd(prevDir);
+  _ar3SortState = {col:col, dir:dir, asc:(dir==='asc')};
   ar3_renderTable(_ar3_view, _ar3_htab, _ar3SortState);
 }
 
@@ -2361,28 +2393,49 @@ function ar3_renderTable(view, htab) {
 
   // Ordenar según sortState o peor BK primero por defecto
   var _ss3 = arguments[2] || _ar3SortState || {col:null, asc:true};
-  rows = rows.slice().sort(function(a,b){
-    var va, vb;
-    if (_ss3.col === 'trx') {
-      va = a.books || 0; vb = b.books || 0;
-    } else {
-      va = parseFloat(String(a.val||'0').replace('%','').replace(',','.')) || 0;
-      vb = parseFloat(String(b.val||'0').replace('%','').replace(',','.')) || 0;
-    }
-    return _ss3.asc ? va-vb : vb-va;
-  });
+  /* Añadir origPos (posición original en dataset) ANTES del sort */
+  var rowsWithPos = rows.map(function(r, i){ return {r: r, origPos: i + 1}; });
+  /* Respetar 3 estados: orig=sin sort, asc, desc */
+  var _dir3 = _ss3.dir || (_ss3.asc ? 'asc' : 'desc');
+  if (_dir3 !== 'orig') {
+    rowsWithPos.sort(function(a, b){
+      var va, vb;
+      if (_ss3.col === 'trx') {
+        va = a.r.books || 0; vb = b.r.books || 0;
+      } else {
+        va = parseFloat(String(a.r.val||'0').replace('%','').replace(',','.')) || 0;
+        vb = parseFloat(String(b.r.val||'0').replace('%','').replace(',','.')) || 0;
+      }
+      return _dir3 === 'asc' ? va-vb : vb-va;
+    });
+  }
 
   // Filtrar
-  var filtered = rows.filter(function(r){ return activeBands.indexOf(r.banda) >= 0; });
-  // Si no hay filas en la banda, mostrar todos ordenados
-  if (filtered.length === 0) filtered = rows;
+  /* Normalizar banda para comparación sin acentos/mayúsculas */
+  function _normBanda(b) {
+    var s=(b||'').toLowerCase();
+    s=s.replace(/[íì]/g,'i').replace(/[áà]/g,'a')
+       .replace(/[éè]/g,'e').replace(/[óò]/g,'o').replace(/[úùü]/g,'u');
+    if(s==='s\u00faper cr\u00edtica'||s==='super critica') return 'sc';
+    if(s==='sin conversi\u00f3n'||s==='sin conversion') return 'sinconv';
+    return s;
+  }
+  var filteredWithPos = rowsWithPos.filter(function(item){ return activeBands.indexOf(_normBanda(item.r.banda)) >= 0; });
+  /* Sin Conv: BK_DATA nunca tiene esa banda → no usar fallback, mostrar vacío */
+  var _isSinConv = (_ar3_htab === 'sc');
+  if (filteredWithPos.length === 0 && !_isSinConv) filteredWithPos = rowsWithPos;
+  /* Renumerar localmente dentro del subset filtrado (1, 2, 3...) */
+  filteredWithPos = filteredWithPos.map(function(item, i){ return {r: item.r, origPos: i + 1}; });
+  /* alias para hasMore check */
+  var filtered = filteredWithPos;
 
   /* Grid igual a cards 1/2: nombre · Books · WoW · BK% · WoW */
   var grid = 'minmax(0,1fr) 56px 44px 72px 48px';
   var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
   var _mk3SH = function(lbl, col, acc) {
     var state = _ar3SortState || {};
-    var ico = state.col===col ? (state.asc?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
+    var _d3 = state.dir || (state.asc?'asc':'desc');
+    var ico = state.col===col && _d3!=='orig' ? (_d3==='asc'?' <span style="font-size:8px;">↑</span>':' <span style="font-size:8px;">↓</span>') : ' <span style="opacity:.35;font-size:8px;">↕</span>';
     var cStyle = acc ? 'color:#333132;' : '';
     return '<span onclick="_ar3Sort(\''+col+'\')" style="'+_s+'text-align:right;padding:2px 0 4px;cursor:pointer;user-select:none;'+cStyle+'">'+lbl+ico+'</span>';
   };
@@ -2402,18 +2455,19 @@ function ar3_renderTable(view, htab) {
   }
 
   var html = hdr;
-  filtered.forEach(function(r, i) {
-    var cls = i >= _KPI_EXPAND_N ? 'sb-hidden' : i >= _KPI_TOP_N ? 'ar3-more' : '';
+  filteredWithPos.forEach(function(item, i) {
+    var r = item.r;
+    var cls = i >= _KPI_EXPAND_N ? 'sb-hidden' : i >= _KPI_TOP_N ? 'rows-more' : '';
     var disp = (i >= _KPI_TOP_N) ? 'display:none;' : '';
     var _bkNum = parseFloat(String(r.val||'0').replace('%','').replace(',','.')) || 0;
     var _bkWow = parseFloat(String(r.wow||'0').replace(/[^0-9.,+-]/g,'').replace(',','.')) || 0;
     var _bkPrev = _bkNum - _bkWow;
     html += '<div class="'+cls+'" data-lbl="'+r.lab+'" data-hist-w21="'+_bkNum+'" data-hist-w20="'+_bkPrev+'" data-hist-label="'+r.lab+'" data-hist-card="3" style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;'+disp+'">'
       +'<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'
-        +(String(i+1).padStart(2,'0'))+'. '+r.lab
+        +(String(item.origPos).padStart(2,'0'))+'. '+r.lab
       +'</span></div>'
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r.books+'</span>'
-      +wPill('—')
+      +wPill((typeof _BK_TRX_WOW !== 'undefined' && _BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view] && _BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab] !== undefined) ? (parseFloat(_BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab]) >= 0 ? '▲' : '▼') + Math.abs(parseFloat(_BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab])).toFixed(1).replace('.',',') + '%' : '—')
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:#333132;font-variant-numeric:tabular-nums;">'+r.val+'</span>'
       +wPill(r.wow||'—')
       +'</div>';
@@ -2421,24 +2475,10 @@ function ar3_renderTable(view, htab) {
 
   tbody.innerHTML = html;
 
-  // Ver más — toggle filas rows-more con display:grid
-  var moreBtn = document.getElementById('ar3-more-btn');
-  if (moreBtn) {
-    var hasMore = filtered.length > _KPI_TOP_N;
-    moreBtn.style.display = hasMore ? '' : 'none';
-    moreBtn.textContent = 'Ver más ▾';
-    moreBtn.setAttribute('data-exp', '0');
-    moreBtn.onclick = function() {
-      var exp = moreBtn.getAttribute('data-exp') !== '1';
-      moreBtn.setAttribute('data-exp', exp ? '1' : '0');
-      var allRows = tbody.querySelectorAll('[data-hist-label]');
-      allRows.forEach(function(r, i){
-        if (i >= _KPI_TOP_N) {
-          r.style.setProperty('display', exp ? 'grid' : 'none', 'important');
-        }
-      });
-      moreBtn.textContent = exp ? 'Ver menos ▴' : 'Ver más ▾';
-    };
+  /* Ver más — activar botón estático ar3-th-more igual que ar1/ar2 */
+  var _ar3MoreWrap = document.getElementById('ar3-more-wrap');
+  if (_ar3MoreWrap) {
+    _moreBtn(_ar3MoreWrap, 'ar3-tbody');
   }
 
   // Searchbox AR3
@@ -2512,6 +2552,8 @@ function _ar3_renderChan() {
 }
 
 function ar3_setView(view) {
+  /* Resetear sort al cambiar dimensión */
+  _ar3SortState = {col:null, dir:'orig', asc:true};
   _ar3_view = view;
   ['prov','dest','corp','hotel'].forEach(function(v) {
     var btn = document.getElementById('ar3-vbk-' + v);
@@ -2524,10 +2566,12 @@ function ar3_setView(view) {
   /* Mostrar fila de htab (Críticos/Bajo Rend/Sin Conv) solo en vista hotel */
   var htabRow = document.getElementById('ar3-htab-row');
   if (htabRow) htabRow.style.display = (view === 'hotel') ? '' : 'none';
-  ar3_renderTable(_ar3_view, _ar3_htab);
+  ar3_renderTable(_ar3_view, _ar3_htab, _ar3SortState);
 }
 
 function ar3_setHotelTab(htab) {
+  /* Resetear sort al cambiar filtro de banda */
+  _ar3SortState = {col:null, dir:'orig', asc:true};
   _ar3_htab = htab;
   ['crit','br','sc'].forEach(function(t) {
     var btn = document.getElementById('ar3-htab-' + t);
@@ -2537,7 +2581,7 @@ function ar3_setHotelTab(htab) {
     btn.style.color       = active ? '#333132' : 'var(--ink-muted)';
     btn.style.borderColor = active ? '#8A8377' : 'var(--rule)';
   });
-  ar3_renderTable(_ar3_view, _ar3_htab);
+  ar3_renderTable(_ar3_view, _ar3_htab, _ar3SortState);
 }
 
 function ar3_showMore() {
