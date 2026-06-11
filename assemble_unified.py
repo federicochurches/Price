@@ -827,7 +827,105 @@ AR3_CANVAS_JS = '''
 })();
 '''
 
-GLOBAL_PANEL_SCRIPT = '<script>' + AR3_CANVAS_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
+AR_SB_PATCH_JS = '''
+/* ── W23+: Patch para que attachPill funcione en las cards AR ──────────
+   Las cards AR tienen .kpi-tab-rows en lugar de .tab-panel.
+   Re-ejecutamos autoAttach después del render inicial. */
+(function() {
+  function _attachArSb(inputId, containerId) {
+    var input = document.getElementById(inputId);
+    var container = document.getElementById(containerId);
+    if (!input || !container) return;
+    var clearBtn = document.getElementById(input.getAttribute('data-sb-clear-id'));
+
+    function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+    function filter() {
+      var q = norm(input.value.trim());
+      var rows = container.querySelectorAll('[data-hist-label]');
+      rows.forEach(function(r) {
+        var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
+        if (q) {
+          r.style.setProperty('display', match ? 'grid' : 'none', 'important');
+        } else {
+          /* Sin query: restaurar estado original */
+          if (r.classList.contains('sb-hidden') || r.classList.contains('rows-more')) {
+            r.style.setProperty('display', 'none', 'important');
+          } else {
+            r.style.setProperty('display', 'grid', 'important');
+          }
+        }
+      });
+      if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+    }
+
+    function buildDD(q) {
+      var qn = norm(q);
+      /* Buscar o crear dropdown */
+      var dd = document.getElementById(inputId + '-dd');
+      if (!dd) {
+        dd = document.createElement('div');
+        dd.id = inputId + '-dd';
+        dd.style.cssText = 'position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;font-family:\'Geist\',sans-serif;';
+        document.body.appendChild(dd);
+      }
+      if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+
+      var seen = {}, labels = [];
+      container.querySelectorAll('[data-hist-label]').forEach(function(r) {
+        var l = r.getAttribute('data-hist-label');
+        if (l && !seen[l]) { seen[l] = true; labels.push(l); }
+      });
+      var matches = labels.filter(function(l){ return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
+      if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+
+      dd.innerHTML = matches.map(function(l) {
+        var hi = l.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'), '<strong>$1</strong>');
+        return '<div class="sb-suggestion" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + hi + '</div>';
+      }).join('');
+
+      /* Posicionar */
+      var rect = input.getBoundingClientRect();
+      dd.style.left = rect.left + 'px';
+      dd.style.top  = (rect.bottom + 4) + 'px';
+      dd.style.width = Math.max(rect.width + 60, 200) + 'px';
+      dd.style.display = 'block';
+
+      dd.querySelectorAll('.sb-suggestion').forEach(function(el) {
+        el.onmousedown = function(e) {
+          e.preventDefault();
+          input.value = el.getAttribute('data-value');
+          filter();
+          dd.style.display = 'none';
+          input.focus();
+        };
+        el.onmouseover = function(){ el.style.background = 'var(--paper-soft)'; };
+        el.onmouseout  = function(){ el.style.background = ''; };
+      });
+    }
+
+    input.oninput = function() { filter(); buildDD(input.value); };
+    if (clearBtn) clearBtn.onclick = function() { input.value = ''; filter(); var dd = document.getElementById(inputId+'-dd'); if(dd) dd.style.display='none'; };
+    input.onblur = function() { setTimeout(function(){ var dd=document.getElementById(inputId+'-dd'); if(dd) dd.style.display='none'; }, 150); };
+  }
+
+  function attachArSearchboxes() {
+    _attachArSb('sb-ar1', 'ar1-th');
+    _attachArSb('sb-ar2', 'ar2-th');
+    _attachArSb('ar3-sb', 'ar3-tbody');
+  }
+
+  /* Ejecutar después del render inicial */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(attachArSearchboxes, 800); });
+  } else {
+    setTimeout(attachArSearchboxes, 800);
+  }
+  /* Re-ejecutar cuando cambia la canasta o el modo */
+  document.addEventListener('hist-update', function(){ setTimeout(attachArSearchboxes, 100); });
+})();
+'''
+GLOBAL_PANEL_SCRIPT = '<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
@@ -916,7 +1014,7 @@ SHARED_CONTAINERS = f'''
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="sb-ar1" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <input type="text" id="sb-ar1" placeholder="Buscar…" data-sb-pill="true" data-sb-pill-accent="#5C469C" data-sb-count-id="cnt-ar1" data-sb-clear-id="sb-ar1-clear" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
           <button id="sb-ar1-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>
@@ -957,7 +1055,7 @@ SHARED_CONTAINERS = f'''
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="sb-ar2" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <input type="text" id="sb-ar2" placeholder="Buscar…" data-sb-pill="true" data-sb-pill-accent="#5C469C" data-sb-count-id="cnt-ar2" data-sb-clear-id="sb-ar2-clear" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
           <button id="sb-ar2-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>
@@ -996,7 +1094,7 @@ SHARED_CONTAINERS = f'''
       <div style="display:flex;justify-content:flex-start;margin-bottom:6px;" id="ar3-sb-wrap">
         <div class="sb-pill" style="display:flex;align-items:center;gap:5px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:20px;padding:3px 10px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="ar3-sb" placeholder="Buscar…" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
+          <input type="text" id="ar3-sb" placeholder="Buscar…" data-sb-pill="true" data-sb-pill-accent="#5C469C" data-sb-count-id="cnt-ar3" data-sb-clear-id="ar3-sb-clear" autocomplete="off" spellcheck="false" style="background:none;border:none;outline:none;font-size:11px;color:var(--ink);width:100px;font-family:'Geist',sans-serif;"/>
           <button id="ar3-sb-clear" type="button" style="display:none;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:var(--ink-muted);font-size:13px;">×</button>
         </div>
       </div>

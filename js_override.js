@@ -1282,8 +1282,22 @@ function trow_ar(r, card, idx) {
   var lbl = str.replace(/pp$/,'').trim(); /* mantener ▲/▼ */
   return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
  }
- /* WoW tráfico — r[10] ya viene formateado con ▲/▼ */
- var wowTraf = wPill(r[10]||'—', true);
+ /* WoW tráfico — convertir delta absoluto a % relativo */
+ var _wt10 = r[10] || '—';
+ var wowTraf;
+ if (_wt10 === '—' || !_wt10) {
+   wowTraf = wPill('—', true);
+ } else {
+   var _wt_up = _wt10.charAt(0) === '▲';
+   var _wt_delta = parseFloat(_wt10.replace(/[^0-9.,]/g,'').replace(',','.')) || 0;
+   /* Parsear tráfico actual */
+   var _traf_str = String(r[4]||'0').replace(',','.').replace(/K$/i,'000').replace(/M$/i,'000000').replace(/B$/i,'000000000');
+   var _traf_curr = parseFloat(_traf_str.replace(/[^0-9.]/g,'')) || 0;
+   var _traf_prev = _wt_up ? _traf_curr - _wt_delta : _traf_curr + _wt_delta;
+   var _pct = _traf_prev > 0 ? (_wt_delta / _traf_prev * 100) : 0;
+   var _pct_str = (_wt_up ? '▲' : '▼') + _pct.toFixed(1).replace('.',',') + '%';
+   wowTraf = wPill(_pct_str, true);
+ }
  /* Métrica */
  var metSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+(metVal!=null?metVal:'—')+'</span>';
  /* WoW métrica — r[8]=ef_wow, r[9]=cv_wow (strings con ▲/▼) */
