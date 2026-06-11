@@ -7279,7 +7279,10 @@ function ar3_renderTable(view, htab) {
   filtered.forEach(function(r, i) {
     var cls = i >= _KPI_EXPAND_N ? 'sb-hidden' : i >= _KPI_TOP_N ? 'ar3-more' : '';
     var disp = (i >= _KPI_TOP_N) ? 'display:none;' : '';
-    html += '<div class="'+cls+'" data-lbl="'+r.lab+'" style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;'+disp+'">'
+    var _bkNum = parseFloat(String(r.val||'0').replace('%','').replace(',','.')) || 0;
+    var _bkWow = parseFloat(String(r.wow||'0').replace(/[^0-9.,+-]/g,'').replace(',','.')) || 0;
+    var _bkPrev = _bkNum - _bkWow;
+    html += '<div class="'+cls+'" data-lbl="'+r.lab+'" data-hist-w21="'+_bkNum+'" data-hist-w20="'+_bkPrev+'" data-hist-label="'+r.lab+'" data-hist-card="3" style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;'+disp+'">'
       +'<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'
         +(String(i+1).padStart(2,'0'))+'. '+r.lab
       +'</span></div>'
