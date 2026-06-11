@@ -2347,13 +2347,20 @@ function ar3_renderTable(view, htab) {
 
   tbody.innerHTML = html;
 
-  // Ver más — toggle filas ar3-more
+  // Ver más — toggle filas rows-more con display:grid
   var moreBtn = document.getElementById('ar3-more-btn');
   if (moreBtn) {
-    moreBtn.style.display = filtered.length > _KPI_TOP_N ? '' : 'none';
+    var hasMore = filtered.length > _KPI_TOP_N;
+    moreBtn.style.display = hasMore ? '' : 'none';
+    moreBtn.textContent = 'Ver más ▾';
+    moreBtn.setAttribute('data-exp', '0');
     moreBtn.onclick = function() {
-      tbody.querySelectorAll('.ar3-more').forEach(function(r){ r.style.display = 'grid'; });
-      moreBtn.style.display = 'none';
+      var exp = moreBtn.getAttribute('data-exp') !== '1';
+      moreBtn.setAttribute('data-exp', exp ? '1' : '0');
+      tbody.querySelectorAll('.rows-more').forEach(function(r){
+        r.style.display = exp ? 'grid' : 'none';
+      });
+      moreBtn.textContent = exp ? 'Ver menos ▴' : 'Ver más ▾';
     };
   }
 
@@ -2553,7 +2560,7 @@ function ar3_showMore() {
   _updateBandBadge('ar-strip-cv-band', _parseKpiPct(_crCv.cv), 'convrate');
   _updateBandBadge('ar-strip-bk-band', _parseKpiPct(_bkCanasta.bk), 'bookability');
 
-  ar3_renderTable('prov', 'crit');
+  ar3_renderTable('hotel', 'crit');
   
   /* W23+: Tabs BK — JS driven (los radios están dentro de kpi-card, no son hermanos de .tab-panels) */
   (function() {

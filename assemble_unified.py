@@ -783,7 +783,51 @@ window.bkSort = function(el) {
     });
 };
 """
-GLOBAL_PANEL_SCRIPT = '<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
+
+AR3_CANVAS_JS = '''
+/* ── Canvas histórico AR3 Bookability (IDs independientes) ── */
+(function(){
+  var CID = 'h-ar3-bk-global';
+  var SEM = ['W16','W17','W18','W19','W20','W21','W22','W23'];
+  var VALS = [98.28,98.44,98.22,98.26,98.17,98.25,98.40,98.43];
+  var TARGET = 97.0, ACC = '#333132';
+  function draw(vals) {
+    var el = document.getElementById(CID); if (!el) return;
+    var W = el.parentElement ? (el.parentElement.offsetWidth || 300) : 300;
+    el.width = W; el.height = 100;
+    var ctx = el.getContext('2d'); if (!ctx) return;
+    ctx.clearRect(0,0,W,100);
+    var n=vals.length, pl=10,pr=30,pt=10,pb=20, gw=W-pl-pr, gh=100-pt-pb;
+    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals), rng=mx-mn||1;
+    function px(i){return pl+i/(n-1)*gw;}
+    function py(v){return pt+(1-(v-mn)/rng)*gh;}
+    var ty=py(TARGET);
+    if(ty>=pt&&ty<=pt+gh){ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(26,107,74,0.4)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pl,ty);ctx.lineTo(pl+gw,ty);ctx.stroke();ctx.setLineDash([]);}
+    ctx.strokeStyle=ACC;ctx.lineWidth=1.5;ctx.beginPath();
+    vals.forEach(function(v,i){i===0?ctx.moveTo(px(i),py(v)):ctx.lineTo(px(i),py(v));});ctx.stroke();
+    vals.forEach(function(v,i){
+      var last=i===n-1;ctx.beginPath();ctx.arc(px(i),py(v),last?3.5:2.5,0,2*Math.PI);
+      ctx.fillStyle=last?'#fff':ACC;ctx.fill();
+      if(last){ctx.strokeStyle=ACC;ctx.lineWidth=2;ctx.stroke();}
+    });
+    ctx.fillStyle='rgba(138,131,119,0.8)';ctx.font='bold 8px sans-serif';
+    ctx.textAlign='left';ctx.fillText(SEM[0],pl,96);
+    ctx.textAlign='right';ctx.fillText(SEM[n-1],W-2,96);
+  }
+  function tryDraw(n){
+    var el=document.getElementById(CID);
+    if(!el){if(n<5)setTimeout(function(){tryDraw(n+1);},300);return;}
+    var card=el.closest('.kpi-card');
+    if(card&&card.offsetWidth===0){setTimeout(function(){tryDraw(n);},400);return;}
+    draw(VALS);
+  }
+  document.addEventListener('hist-update',function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(e.detail.vals||VALS);}});
+  document.addEventListener('hist-reset', function(e){if(e.detail&&(e.detail.cid==='h-bk-global'||e.detail.cid===CID)){draw(VALS);}});
+  setTimeout(function(){tryDraw(1);},600);
+})();
+'''
+
+GLOBAL_PANEL_SCRIPT = '<script>' + AR3_CANVAS_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 
@@ -968,50 +1012,47 @@ SHARED_CONTAINERS = f'''
       </div>
     </div>
         <!-- Histórico BK — igual a cards 1 y 2 -->
-    <div id="hist-h-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
+    <div id="hist-ar3-bk-global" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
   <div style="height:8px;"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
     <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-h-bk-global-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
+      Evolución Histórica · <span id="hist-ar3-bk-global-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
     </span>
   </div>
-  <div style="width:100%;height:100px;"><canvas id="h-bk-global" style="display:block;width:100%;height:100px;"></canvas></div>
+  <div style="width:100%;height:100px;"><canvas id="h-ar3-bk-global" style="display:block;width:100%;height:100px;"></canvas></div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-h-bk-global-actual" style="font-size:13px;font-weight:700;color:#333132;margin-top:2px;">98.43%</div>
+      <div id="hist-ar3-bk-global-actual" style="font-size:13px;font-weight:700;color:#333132;margin-top:2px;">98.43%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-h-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.44%</div>
+      <div id="hist-ar3-bk-global-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">98.44%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-h-bk-global-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">98.17%</div>
+      <div id="hist-ar3-bk-global-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">98.17%</div>
     </div>
     <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
       <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-h-bk-global-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">98.31%</div>
+      <div id="hist-ar3-bk-global-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">98.31%</div>
     </div>
-    <div id="hist-h-bk-global-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
-      <div id="hist-h-bk-global-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
+    <div id="hist-ar3-bk-global-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#E1F5EE;border:1px solid #1D9E75;">
+      <div id="hist-ar3-bk-global-banda" style="font-size:11px;font-weight:700;color:#1A6B4A;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
     </div>
   </div>
   <div style="margin-top:10px;">
     <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-h-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(51,49,50,0.54);height:9px;border-radius:1px 1px 0 0;" title="W16: 98.28%"></div><div style="flex:1;background:rgba(51,49,50,0.95);height:18px;border-radius:1px 1px 0 0;" title="W17: 98.44%"></div><div style="flex:1;background:rgba(51,49,50,0.38);height:6px;border-radius:1px 1px 0 0;" title="W18: 98.22%"></div><div style="flex:1;background:rgba(51,49,50,0.48);height:8px;border-radius:1px 1px 0 0;" title="W19: 98.26%"></div><div style="flex:1;background:rgba(51,49,50,0.25);height:4px;border-radius:1px 1px 0 0;" title="W20: 98.17%"></div><div style="flex:1;background:rgba(51,49,50,0.46);height:8px;border-radius:1px 1px 0 0;" title="W21: 98.25%"></div><div style="flex:1;background:rgba(51,49,50,0.85);height:15px;border-radius:1px 1px 0 0;" title="W22: 98.40%"></div><div style="flex:1;background:#333132;height:17px;border-radius:1px 1px 0 0;" title="W23: 98.43%"></div></div>
+    <div id="hist-ar3-bk-global-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(51,49,50,0.54);height:9px;border-radius:1px 1px 0 0;" title="W16: 98.28%"></div><div style="flex:1;background:rgba(51,49,50,0.95);height:18px;border-radius:1px 1px 0 0;" title="W17: 98.44%"></div><div style="flex:1;background:rgba(51,49,50,0.38);height:6px;border-radius:1px 1px 0 0;" title="W18: 98.22%"></div><div style="flex:1;background:rgba(51,49,50,0.48);height:8px;border-radius:1px 1px 0 0;" title="W19: 98.26%"></div><div style="flex:1;background:rgba(51,49,50,0.25);height:4px;border-radius:1px 1px 0 0;" title="W20: 98.17%"></div><div style="flex:1;background:rgba(51,49,50,0.46);height:8px;border-radius:1px 1px 0 0;" title="W21: 98.25%"></div><div style="flex:1;background:rgba(51,49,50,0.85);height:15px;border-radius:1px 1px 0 0;" title="W22: 98.40%"></div><div style="flex:1;background:#333132;height:17px;border-radius:1px 1px 0 0;" title="W23: 98.43%"></div></div>
     <div style="position:relative;height:14px;margin-top:2px;">
       <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W16</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W23</span>
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-h-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#E1F5EE;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
-    <span id="hist-h-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
+    <span id="hist-ar3-bk-global-banda-footer" style="font-size:8px;font-weight:700;color:#1A6B4A;background:#E1F5EE;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
+    <span id="hist-ar3-bk-global-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
   </div>
 </div>
-  </div>
-
-
 </div><!-- /grid 3 cards -->
 </section>
 
