@@ -900,8 +900,7 @@ SHARED_CONTAINERS = f'''
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
           <div id="ar-kpi-1" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
-          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar1-vol">—</span> · vs sem. ant. <span id="ar1-wow-pill"></span></div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span id="ar1-trafico" style="font-weight:600;color:var(--ink-soft);">—</span><span id="ar1-trafico-wow"></span></div>
+
         </div>
         <div style="padding-top:4px;"><span id="ar1-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
       </div>
@@ -942,8 +941,7 @@ SHARED_CONTAINERS = f'''
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
           <div id="ar-kpi-2" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
-          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar2-vol">—</span> · vs sem. ant. <span id="ar2-wow-pill"></span></div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span id="ar2-trafico" style="font-weight:600;color:var(--ink-soft);">—</span><span id="ar2-trafico-wow"></span></div>
+
         </div>
         <div style="padding-top:4px;"><span id="ar2-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
       </div>
@@ -984,8 +982,7 @@ SHARED_CONTAINERS = f'''
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
           <div id="ar-kpi-3" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
-          <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. <span id="ar3-vol">—</span><span>· vs sem. ant. </span><span id="ar3-wow-pill"></span></div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);"><span><strong style="color:var(--ink-soft);">Transacciones:</strong> <span id="ar3-books">—</span></span><span id="ar3-books-wow"></span></div>
+
         </div>
         <div style="padding-top:4px;"><span id="ar3-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
       </div>

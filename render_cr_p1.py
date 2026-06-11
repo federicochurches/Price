@@ -271,8 +271,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
-<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. {VOL_NUM}K · vs sem. ant. {_wow_pill_ef}</div>
-{cr_trafico_line}
+
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -420,8 +419,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div id="w21-kv-cv" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
-<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">Vol. {VOL_NUM}K · vs sem. ant. {_wow_pill_cv}</div>
-{cr_trafico_line}
+
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
@@ -743,10 +741,7 @@ def render_kpi_card_bookability():
         f'<div>'
         f'<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:{BK_COLOR};line-height:1;">{bk_fmt}</div>'
         f'<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);flex-wrap:wrap;">'
-        f'<span>Vol. {_fmt_compact(books)}</span>'
-        f'<span>· vs sem. ant. </span>{wow_pill_bk}</div>'
-        f'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">'
-        f'<span><strong style="color:var(--ink-soft);">Trx:</strong> {fmt_int_es(books)}</span>{wow_books_pill}'
+        f''
         f'</div>'
         f'</div>'
         f'<div style="padding-top:4px;flex-shrink:0;align-self:flex-start;">{pill_tgt}</div>'

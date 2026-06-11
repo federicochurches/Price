@@ -1062,27 +1062,14 @@ function _arRenderChan(n) {
     +'<div><div style="font-size:9px;font-weight:700;color:'+cyan+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">\uD83D\uDD0C Third Party</div>'+_mkHdr(metricLbl)+tp_html+'</div>'
     +'</div>';
 
-  /* Ocultar la tabla y mostrar el div de canal */
-  var pd = document.getElementById('ar'+n+'-pd');
-  if (!pd) return;
-  var table = pd.querySelector('table');
-  var btn   = document.getElementById('ar'+n+'-td-more');
-  if (table) table.style.display = 'none';
-  if (btn)   btn.style.display   = 'none';
+  /* Escribir en ar{n}-th (kpi-tab-rows) — mismo contenedor que las otras vistas */
+  var container = document.getElementById('ar'+n+'-th');
+  if (!container) return;
+  container.innerHTML = html;
 
-  /* Usar o crear el div canal */
-  var chanDiv = document.getElementById('ar'+n+'-chan-div');
-  if (!chanDiv) {
-    chanDiv = document.createElement('div');
-    chanDiv.id = 'ar'+n+'-chan-div';
-    pd.appendChild(chanDiv);
-  }
-  chanDiv.innerHTML = html;
-  chanDiv.style.display = '';
-  /* Enganchar clicks en las filas del channel */
-  if (typeof window._injectHistAttrs === 'function') {
-    window._injectHistAttrs(chanDiv.closest('.ar-card') || chanDiv.parentElement);
-  }
+  /* Ocultar Ver más (no aplica para Channel) */
+  var moreWrap = document.getElementById('ar'+n+'-more-wrap');
+  if (moreWrap) moreWrap.innerHTML = '';
 }
 
 function _arDimRows(n, dim) {
