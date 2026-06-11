@@ -40,6 +40,47 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-P12 · 11-06-2026 · Filtro cruzado Corp+Dest en cards AR
+
+### Spec implementada
+Click en fila Corp → activa filtro Corp (la vista permanece en Corp para elegir
+el siguiente filtro). Click en fila Dest → añade filtro Dest en AND. Los filtros
+activos aparecen como pills eliminables [Corp: AmEx ×] [Dest: Cancún ×] sobre
+la tabla. Cambiar de pestaña Críticos/BR/SC mantiene los filtros activos.
+Cambiar canasta o modo CR↔RND limpia los filtros.
+
+### Arquitectura implementada
+
+**Python (`render_cr_p2.py`, `render_rnd_p2.py`)**
+- `build_hotel_row` y `build_hotel_row_rnd` extendidas con `r[11]=CorpName`, `r[12]=Destino`
+- Estos campos son leídos del pickle (p80_hotel tiene ambas columnas)
+
+**JS (`js_override.js`)**
+- `_arCrossFilter = {1:{corp,dest}, 2:{corp,dest}}` — estado independiente por card
+- `_arFilterApply(rows, n)` — filtra rows en AND antes de renderizar
+- `_arCrossFilterPillsRender(n)` — dibuja los pills eliminables activos
+- `_arCrossFilterClear(n, type)` — quita un filtro o todos
+- Event listener único: detecta click en `.ar-cross-pill` (×) y en `[data-hist-label]` 
+  cuando la vista activa es 'corp' o 'dest'
+- `_arRows` (card 1 y 2) pasan por `_arFilterApply` al final
+- Reset en `w22_setMode` (cambio CR↔RND) y en `w22_setC` (cambio canasta)
+
+**HTML (`assemble_unified.py`)**
+- Contenedores `ar1-cross-pills` y `ar2-cross-pills` insertados después de los pills 
+  de filtro (Críticos/BR/SC), con `display:none` inicial
+
+### Archivos modificados
+`js_override.js` · `render_cr_p2.py` · `render_rnd_p2.py` · `assemble_unified.py`
+
+### Bugs cerrados
+P12: Filtro cruzado Corp+Dest en AND en cards AR
+
+### Bugs abiertos
+P5: `extract_hist_data.py` pendiente de crear
+
+
+---
+
 ## Sesión W23-P13 · 11-06-2026 · Fix ConvRate WoW en Críticos/Bajo Rend.
 
 ### Causa raíz
