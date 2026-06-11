@@ -40,6 +40,42 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-bk-s3 · 11-06-2026 · Fixes de Availability y UI
+
+### Contexto
+Tercera sesión de correcciones sobre W23. Enfoque en el bug persistente de
+card BK en Availability y pulido de UI del switcher.
+
+### Cambios aplicados
+
+**Bug: Card BK persiste en Availability (P14) — causa raíz encontrada**
+- Había 4 redefiniciones encadenadas de `w22_setMode` en el HTML
+- La primera definición (con `_syncCard3`) nunca se ejecutaba — la 2a def la sobreescribía completamente
+- La 2a def (en `js_override.js`) llamaba `w22_update()` y terminaba sin `_syncCard3`
+- Fix: `_syncCard3` añadida al cierre de la 2a def con `setTimeout(250ms)`
+  para que corra después del `setTimeout(200ms)` interno de `w22_update()`
+- `assemble_unified.py`: mismo patrón en el closure de `_patchMode`
+
+**Bug: Switcher AR en color (violet/magenta) en lugar de negro**
+- `_syncCard3` seteaba `arBtnCr.style.background = modeCol` como inline style
+- El inline style pisaba el CSS `.w22-seg-btn.on { background: var(--ink) }`
+- Fix: `_syncCard3` ahora solo toggle la clase `.on` y deja `style.background = ''`
+- El CSS maneja el color negro automáticamente
+
+### Archivos modificados
+`js_override.js` · `assemble_unified.py` · `SUPPLY_W23.html`
+
+### Bugs cerrados
+P14: Card BK persiste en Availability ← causa raíz en cadena de redefiniciones de w22_setMode
+Switcher AR en negro ← inline style eliminado, CSS maneja el color
+
+### Bugs abiertos
+P13: ConvRate_WoW en hotels_crit/br/sc (r[9]='—') — fix en render_cr_p2.py
+P12: Filtro cruzado pills Corp+Dest+Channel
+
+
+---
+
 ---
 
 ## Sesión W23-bk-s2 · 10-06-2026 · Cards AR Bookability — fixes masivos
