@@ -362,6 +362,12 @@ w22_setMode = function(m, el) {
 
   /* Render */
   w22_update();
+  /* Sync card3 AR — setTimeout(250ms) para que corra después de todos los renders */
+  var _m2 = m;
+  setTimeout(function() {
+    if (typeof window._syncCard3 === 'function') window._syncCard3(_m2);
+    document.body.setAttribute('data-ar-mode', _m2);
+  }, 250);
 };
 
 /* Inicializar KPI heroes al cargar — CR visible, RND oculto */
