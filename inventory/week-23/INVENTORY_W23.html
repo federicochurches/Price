@@ -727,10 +727,7 @@ function updateGlobalRow() {
 
   const fmt = v => v.toLocaleString('es-MX');
   const pct = tot > 0 ? (pp/tot*100) : 0;
-  const bar = `<div style="display:flex;align-items:center;gap:6px;">
-    <div style="flex:1;height:4px;background:var(--rule);border-radius:2px;max-width:80px;">
-      <div style="height:100%;width:${Math.min(100,pct).toFixed(1)}%;background:#4FC3F4;border-radius:2px;"></div></div>
-    <span style="font-size:11px;color:#4FC3F4;font-weight:700;">${pct.toFixed(1)}%</span></div>`;
+  const bar = `<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${Math.min(100,pct).toFixed(1)}%;background:#4FC3F4"></div></div><span class="pct-val" style="color:#4FC3F4">${pct.toFixed(1)}%</span></div>`;
 
   const gEl = id => document.getElementById(id);
   if (gEl('grow-total')) gEl('grow-total').textContent = fmt(tot);
