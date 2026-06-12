@@ -59,10 +59,15 @@ def validate_datasets():
         f'Dataset_CheckRates_W{WEEK_NUM - 1}.xlsx',
         f'Dataset_Bookability_W{WEEK_NUM}.xlsx',  # acumulado W16-WNN (primer pipeline)
     ]
+    # Aliases aceptados para Bookability (el archivo puede llamarse Dataset_bookability.xlsx)
+    bk_aliases = ['Dataset_bookability.xlsx', f'Dataset_Bookability_W{WEEK_NUM}.xlsx']
     search_dirs = [SCRIPT_DIR, PROJECT_DIR, Path('/mnt/user-data/uploads')]
     missing = []
     for name in required:
-        found = any((d / name).exists() for d in search_dirs)
+        if 'Bookability' in name:
+            found = any((d / alias).exists() for d in search_dirs for alias in bk_aliases)
+        else:
+            found = any((d / name).exists() for d in search_dirs)
         if not found:
             missing.append(name)
     if missing:
