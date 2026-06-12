@@ -50,10 +50,22 @@ MIN_BOOKS = 5  # mínimo de books para incluir en rankings
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def _find(name):
+    import glob as _glob
     for d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
         p = os.path.join(d, name)
         if os.path.exists(p):
             return p
+        # Buscar variantes de nombre (mayúsculas/minúsculas, sin semana)
+        base = os.path.splitext(name)[0]  # ej: Dataset_Bookability_W23
+        # Intentar nombre genérico: Dataset_bookability.xlsx
+        generic = os.path.join(d, 'Dataset_bookability.xlsx')
+        if os.path.exists(generic):
+            return generic
+        # Buscar con glob insensible a mayúsculas
+        pattern = os.path.join(d, '[Dd]ataset_[Bb]ookability*.xlsx')
+        matches = _glob.glob(pattern)
+        if matches:
+            return matches[0]
     raise FileNotFoundError(f'{name} no encontrado')
 
 def bk_weighted(df):
