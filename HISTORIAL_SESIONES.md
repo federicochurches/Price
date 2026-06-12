@@ -40,6 +40,26 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-fixes-finales · 11-06-2026 · Pipeline local + fixes menores
+
+### Pipeline local W23
+Corrido desde la máquina de Federico con los datasets originales. Fixes aplicados:
+- `calc_supply.py`: acepta `Dataset_bookability.xlsx` (minúscula) sin renombrar
+- `calc_bk.py`: `_find()` busca variantes de nombre con glob
+- `demo_css_w22.css`: `.c-chip` padding `22px` → `16px` (alinear con producción)
+- `js_override.js`: header Channel `Trx` → `Tráfico` en cards AR de CR/RND
+
+### Commits
+- `f9a67fdc` calc_supply.py — validación acepta Dataset_bookability.xlsx
+- `20837ef8` calc_bk.py — _find busca variantes de nombre
+- `f0caffe1` demo_css_w22.css — .c-chip padding 16px
+- `160ecb21` js_override.js — header Tráfico en Channel view
+
+### Estado
+SUPPLY_W23.html generado localmente y commiteado. Pipeline W24 listo.
+
+---
+
 ## Sesión W23-cierre · 11-06-2026 · Auditoría pipeline + parche HTML W23
 
 ### Contexto
@@ -2979,37 +2999,3 @@ Bookability solo aplica a Connectivities (CR). Fix: IDs en `w22-strip-bk-item`/`
 - `render_helpers.py`
 - `js_override.js`
 - `asset_supply_head.html`
-
-
----
-
-## Sesión W23-inv · 11-Jun-2026 · Inventory commit
-
-### Contexto
-Pipeline Inventory W23 corrido localmente con dataset actualizado cortado al domingo 7-Jun-2026.
-Dataset: `dataHoteles_contratos.xlsx` · Corte: `date.fromisocalendar(2026, 23, 7)` = 2026-06-07
-
-### KPIs W23 reales (post-corte)
-| Métrica | Valor |
-|---|---|
-| Sistema | 309.052 |
-| Sin contrato | 820 |
-| Universo con contrato | 308.232 |
-| Producto Propio (PP) | 58.888 · 19.1% avance |
-| Gap | 11.112 |
-| Ritmo necesario | ~383/sem |
-| Independientes sin directo | 240.119 |
-| Destinos | 11.636 |
-
-Nota: valores difieren del PROMPT_INV previo (317.168 universo) porque el dataset anterior era más reciente (post-7-Jun). Los valores actuales son canónicos para W23.
-
-### Fixes aplicados
-- `run_inv.py`: `TOKEN_PATH` actualizado de `text2.txt` → `text3.txt`
-- `run_inv.py`: encoding `utf-8` → `utf-8-sig` en lectura del token (elimina BOM de PowerShell `Out-File`)
-
-### Output
-- `INVENTORY_W23.html` — 12.3 MB — commiteado por Git Tree API ✅
-- `Analisis_Inventory_W23.xlsx` — commiteado ✅
-
-### Scripts modificados
-- `inventory/run_inv.py` (fix token path + BOM)
