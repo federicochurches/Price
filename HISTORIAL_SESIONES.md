@@ -40,6 +40,53 @@ Sesión de corrección de bugs sobre `INVENTORY_W23.html`. Sin cambio de datos n
 
 ---
 
+## Sesión W23-cierre · 11-06-2026 · Auditoría pipeline + parche HTML W23
+
+### Contexto
+Sesión de cierre W23. Se auditó el flujo completo del pipeline, se corrigió un bug
+de sintaxis en `assemble_unified.py`, y se parcheó `SUPPLY_W23.html` en producción
+reemplazando únicamente el bloque `js_override.js` embebido — sin tocar los datos.
+
+### Bug encontrado en auditoría
+`assemble_unified.py` línea 233: CSS de card BK (`body[data-ar-mode='rnd']`) tenía
+newlines reales y comillas simples crudas dentro de un string Python → `SyntaxError`
+en tiempo de ejecución. Corregido escapando con `\'rnd\'`.
+
+### Parche SUPPLY_W23.html
+Estrategia: descargar el HTML correcto de producción, localizar el inicio del
+`js_override.js` embebido (`var _KPI_TOP_N`), reemplazar solo ese bloque con el
+nuevo `js_override.js` (138,371 chars). Datos, estructura HTML y demás scripts
+intactos. Commit via Git Tree API → `685b3bf4`.
+
+Resultado: 2 defs de `w22_setMode` en el HTML (1 del `GLOBAL_PANEL_SCRIPT` +
+1 del nuevo `js_override`) — la segunda (la activa) tiene todos los side-effects
+consolidados. Comportamiento correcto.
+
+### Fixes activos en SUPPLY_W23.html
+- P12: filtro cruzado Corp+Dest con pills eliminables en AR cards
+- P13: ConvRate WoW en Críticos/BR (r[11]/r[12] en build_hotel_row — activo en W24+)
+- Refactor `ar_updateKPIs` → `_AR_MODE_CFG` + `_arReadKpiData` + `_arApplyCard`
+- `w22_setMode` consolidada (1 def activa con todos los side-effects)
+- Searchbox 500 hoteles (pool `_sb` — activo en W24+, requiere re-pipeline para W23)
+- `_arCrossFilter` y `_arCrossFilterPillsRender` disponibles
+
+### Archivos modificados esta sesión
+`js_override.js` · `assemble_unified.py` · `render_cr_p2.py` · `render_rnd_p2.py` ·
+`calc_cr.py` · `build_package.py` · `extract_hist_data.py` (nuevo) ·
+`SUPPLY_W23.html` (parche JS) · `PROMPT_CORE.md` · `HISTORIAL_SESIONES.md`
+
+### Para W24
+Pipeline estándar:
+```powershell
+python calc_supply.py
+python extract_hist_data.py --week 24 --apply
+python run_inv.py --commit
+```
+El hub (`index.html`) se regenera con `build_package.py` al final del pipeline.
+
+
+---
+
 ## Sesión W23-P5 · 11-06-2026 · extract_hist_data.py
 
 ### Qué hace
