@@ -34,7 +34,7 @@ from pathlib import Path
 REPO          = "federicochurches/Price"
 BRANCH        = "main"
 REPO_SUBPATH  = "inventory"                 # ruta dentro del repo donde vive calc_inv.py
-TOKEN_PATH    = Path("../text2.txt")        # el token vive en la raíz del repo
+TOKEN_PATH    = Path("../text3.txt")        # el token vive en la raíz del repo
 SIZE_WARN_MB  = 15.0                         # alerta si el HTML supera esto (optimización rota)
 SIZE_HARD_MB  = 25.0                         # error duro: algo está muy mal
 
@@ -111,7 +111,7 @@ def validate_environment():
     if "--commit" in sys.argv:
         if not TOKEN_PATH.exists():
             die(f"No encuentro el token en {TOKEN_PATH.resolve()}")
-        token = TOKEN_PATH.read_text(encoding="utf-8").strip()
+        token = TOKEN_PATH.read_text(encoding="utf-8-sig").strip()
         if not token.startswith("ghp_") and not token.startswith("github_pat_"):
             warn("El token no tiene el prefijo esperado (ghp_ / github_pat_)")
         ok("Token GitHub legible")
@@ -221,7 +221,7 @@ def _api(method, url, token, payload=None):
 
 def commit_via_tree_api(week, week_num, out_html, local_size_mb):
     step(6, 6, "Commiteando HTML por Git Tree API (método confiable para archivos grandes)...")
-    token = TOKEN_PATH.read_text(encoding="utf-8").strip()
+    token = TOKEN_PATH.read_text(encoding="utf-8-sig").strip()
     repo_path = f"{REPO_SUBPATH}/week-{week_num:02d}/INVENTORY_{week}.html"
 
     # 1. HEAD ref
@@ -302,3 +302,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
