@@ -15,15 +15,15 @@ Dataset: `dataHoteles_contratos.xlsx` (header=1, 571K+ rows)
 
 | Métrica | Valor W23 |
 |---|---|
-| Sistema | 318.005 |
-| Sin contrato | 837 — **excluidos siempre** |
-| **Universo con contrato** | **317.168** |
-| Producto Propio (SP+H) | 58.966 · 18.6% |
-| Solo Propio | 4.794 · Hybrid | 54.172 |
-| Third Party | 258.202 · Target 2026 | 70.000 |
-| Gap | 11.034 · Avance | 84.2% |
-| Ritmo necesario | ~380 / sem |
-| Independientes sin directo | 248.290 · Destinos | 11.672 |
+| Sistema | 309.052 |
+| Sin contrato | 820 — **excluidos siempre** |
+| **Universo con contrato** | **308.232** |
+| Producto Propio (SP+H) | 58.888 · 19.1% |
+| Solo Propio | 5.078 · Hybrid | 53.810 |
+| Third Party | 249.344 · Target 2026 | 70.000 |
+| Gap | 11.112 · Avance | 84.1% |
+| Ritmo necesario | ~383 / sem |
+| Independientes sin directo | 240.119 · Destinos | 11.636 |
 
 **Variables Python canónicas:** `N` · `pp` · `solo_propio` · `hybrid` · `solo_terc` · `gap` · `SEMANAS_RESTANTES` · `ritmo_nec`
 
@@ -516,3 +516,4 @@ Donde: `w`=yw, `m`=ym, `r`=region, `c`=corp, `d`=dest, `t`=ch_tipo, `ch`=channel
 - Hotel Unico V2 sin datos en gráfico histórico
 - Validar Marriott+Expedia en destino donde sí exista esa combinación en el dataset
 - Optimizar HIST.snapshot para reducir tamaño del HTML
+
