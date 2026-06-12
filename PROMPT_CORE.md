@@ -553,7 +553,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 11-06-2026 (sesión cierre: parche SUPPLY_W23.html · fix CSS BK assemble_unified · badges semáforo hub)
+**Última actualización:** W23 · Junio 2026 · 11-06-2026 (fixes finales: Tráfico en Channel, c-chip 16px, bookability alias, pipeline local OK)
 **Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
