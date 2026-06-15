@@ -1,10 +1,9 @@
-/
-  /* Reset filtros cruzados al cambiar canasta */
-  if (typeof _arCrossFilter !== 'undefined') {
-    _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
-    if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
-  }
-* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
+/* Reset filtros cruzados al cambiar canasta */
+if (typeof _arCrossFilter !== 'undefined') {
+  _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
+  if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
+}
+/* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
 var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
 
 /* Parchear w22_redrawCanvas para incluir HIST_RND */
