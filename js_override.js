@@ -2630,10 +2630,26 @@ function ar3_renderTable(view, htab) {
 
   tbody.innerHTML = html;
 
-  /* Ver más — activar botón estático ar3-th-more igual que ar1/ar2 */
-  var _ar3MoreWrap = document.getElementById('ar3-more-wrap');
-  if (_ar3MoreWrap) {
-    _moreBtn(_ar3MoreWrap, 'ar3-tbody');
+  /* Ver más — activar botón estático ar3-more-btn directamente */
+  var _ar3MoreBtn = document.getElementById('ar3-more-btn');
+  if (_ar3MoreBtn) {
+    if (filteredWithPos.length > _KPI_TOP_N) {
+      _ar3MoreBtn.style.display = '';
+      _ar3MoreBtn.textContent = 'Ver más ▾';
+      _ar3MoreBtn.setAttribute('data-exp', '0');
+      (function(btn, tbodyEl) {
+        btn.onclick = function() {
+          var exp = btn.getAttribute('data-exp') !== '1';
+          btn.setAttribute('data-exp', exp ? '1' : '0');
+          tbodyEl.querySelectorAll('.rows-more').forEach(function(r) {
+            r.style.setProperty('display', exp ? 'grid' : 'none', 'important');
+          });
+          btn.textContent = exp ? 'Ver menos ▴' : 'Ver más ▾';
+        };
+      })(_ar3MoreBtn, tbody);
+    } else {
+      _ar3MoreBtn.style.display = 'none';
+    }
   }
 
   // Searchbox AR3
