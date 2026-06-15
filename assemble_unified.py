@@ -1158,7 +1158,9 @@ AR3_MODE_JS = '''
   setTimeout(function() {
     var mode = (typeof W !== 'undefined') ? W.mode : 'cr';
     _syncCard3(mode);
+    document.body.setAttribute('data-ar-mode', mode);
   }, 100);
+  /* Exponer globalmente para llamada directa desde w22_setMode */
   window._syncCard3 = _syncCard3;
 })();
 
@@ -1344,8 +1346,8 @@ SHARED_CONTAINERS = f'''
     <!-- Panel tabla -->
     <div id="ar3-panel" style="padding:0 16px 0;">
       <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
-      <div style="text-align:center;margin-top:4px;">
-        <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+      <div style="margin-top:4px;">
+        <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button>
       </div>
     </div>
     <div style="padding:0 16px 16px;">

@@ -4189,8 +4189,8 @@ window.HIST_DATA['rnd'] = {
     <!-- Panel tabla -->
     <div id="ar3-panel" style="padding:0 16px 0;">
       <div id="ar3-tbody" class="kpi-tab-rows" style="padding-top:4px;"></div>
-      <div style="text-align:center;margin-top:4px;">
-        <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;">Ver más ▾</button>
+      <div style="margin-top:4px;">
+        <button id="ar3-more-btn" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button>
       </div>
     </div>
     <div style="padding:0 16px 16px;">
@@ -7103,9 +7103,9 @@ function _moreBtn(containerEl, tbodyId) {
   if (containerEl.querySelector('.kpi-more-btn')) return;
   var moreRows2 = containerEl.querySelectorAll('.rows-more');
   if (!moreRows2.length) return;
-  var btn = document.createElement('div');
+  var btn = document.createElement('button');
   btn.className = 'kpi-more-btn';
-  btn.style.cssText = 'margin:8px 0 2px;border-top:1px solid var(--rule-soft);color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;user-select:none;';
+  btn.style.cssText = 'display:block;width:100%;margin-top:4px;font-family:\'Geist\',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;';
   btn.textContent = 'Ver más ▾';
   var sid2 = tbodyId || '';
   btn.setAttribute('onclick', [
