@@ -7058,21 +7058,23 @@ var _KPI_TOP_N = 5;   /* filas visibles por defecto */
 function _moreBtnAll() {
   document.querySelectorAll('.kpi-tab-rows').forEach(function(el) {
     /* Solo si tiene rows-more y no tiene ya el botón */
+    /* Excluir los divs AR (ar1-th, ar2-th) — se manejan por el loop explícito abajo */
+    if (/^ar\d+-/.test(el.id)) return;
     if (el.querySelector('.rows-more') && !el.querySelector('.kpi-more-btn')) {
       _moreBtn(el);
     }
   });
-  /* También para las tablas AR */
+  /* También para las tablas AR — ar1-th es un div, no table; usar rows-wrap como contenedor */
   [1,2].forEach(function(n) {
     ['th','td'].forEach(function(t) {
       var tbodyId = 'ar'+n+'-'+t;
       var tbody = document.getElementById(tbodyId);
       if (!tbody) return;
-      var wrap = tbody.closest('table');
-      if (wrap && wrap.parentNode) {
-        if (wrap.querySelector('.rows-more') && !wrap.parentNode.querySelector('.kpi-more-btn')) {
-          _moreBtn(wrap.parentNode, tbodyId);
-        }
+      /* ar*-th es un div.kpi-tab-rows; su rows-wrap contiene el botón estático */
+      var rowsWrap = document.getElementById('ar'+n+'-rows-wrap') || tbody.parentNode;
+      if (!rowsWrap) return;
+      if (tbody.querySelectorAll('.rows-more').length && !rowsWrap.querySelector('.kpi-more-btn')) {
+        _moreBtn(rowsWrap, tbodyId);
       }
     });
   });
