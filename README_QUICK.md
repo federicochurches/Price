@@ -51,7 +51,7 @@ Price/
 | INV Producto Propio | 58.966 (18.6%) | — |
 | INV Gap 2026 | 11.034 | avance 84.2% |
 
-🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W23](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html) · [CR](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-23/SUPPLY_W23.html#section-rnd)
+🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W23](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html) · [CR](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-rnd)
 
 
 ## 🗂️ Inventario de scripts (raíz del repo)

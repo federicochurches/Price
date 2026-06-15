@@ -2999,3 +2999,63 @@ Bookability solo aplica a Connectivities (CR). Fix: IDs en `w22-strip-bk-item`/`
 - `render_helpers.py`
 - `js_override.js`
 - `asset_supply_head.html`
+
+---
+
+## Sesión W24 · 15-06-2026 · Bugs B68/B69 + Pipeline W24
+
+### Contexto
+Pipeline W24 (8–14 jun 2026). Métricas: CR Eficacia 95.55% (Aceptable, +0.75pp) · Conv Rate 0.82% (Revisar) · RND %NoDispo 3.02% · Bookability 98.67% (Exitosa, +0.24pp). Sesión de múltiples fixes post-pipeline antes de distribución.
+
+### Bugs cerrados
+
+#### B68 — SyntaxError en Chrome: regex inválida (`js_override.js` L1)
+- **Síntoma:** Strip superior (EFICACIA/CONV RATE/BOOKABILITY) mostraba "—", cards AR no inicializaban. Error en consola Chrome: `supply_w24:5226 Uncaught SyntaxError: Invalid regular expression: missing /`
+- **Root cause:** `js_override.js` comenzaba con `/` suelto en L1 (faltaba el `*` para abrir `/*`). En W23 Chrome lo toleraba; en W24 el script 17 creció de 4.5MB a 6.5MB y cambió el contexto de parseo — Chrome interpretó el `/` como inicio de regex inválida e interrumpió toda la ejecución JS.
+- **Fix:** Corregir L1-L7 de `js_override.js`:
+  - Antes: `/\n  /* Reset filtros...` + `* Semanas históricas...*/`
+  - Después: `/* Reset filtros cruzados al cambiar canasta */\n...\n/* Semanas históricas... */`
+- **Archivos:** `js_override.js`, `SUPPLY_W24.html` regenerado
+- **Commit:** `60ac46b7`
+
+#### B69 — Botón "Ver más" duplicado en cards AR (3 iteraciones)
+- **Síntoma v1:** Dos "VER MÁS" en cards 1 y 2. Card 3 sin botón.
+- **Root cause:** `_moreBtnAll` usaba `tbody.closest('table')` pero `ar1-th` es un `div`, no `table` → retorna `null`. El loop `querySelectorAll('.kpi-tab-rows')` también procesaba `ar1-th` y creaba un `div.kpi-more-btn` dinámico, mientras que el loop `[1,2].forEach` no activaba el botón estático.
+- **Fix v1:** Dos cambios en `_moreBtnAll`:
+  1. Loop `.kpi-tab-rows` excluye divs AR con `/^ar\d+-/.test(el.id)`
+  2. Loop `[1,2].forEach` usa `getElementById('ar1-rows-wrap')` como container
+
+- **Síntoma v2:** Aún duplicado. Root cause real: `ar_renderTable()` ya activaba `ar1-th-more` directamente, y el loop `[1,2].forEach` de `_moreBtnAll` también lo activaba → doble activación + div dinámico residual.
+- **Fix v2:** Eliminar completamente el loop `[1,2].forEach` de `_moreBtnAll` — `ar_renderTable()` es la única fuente de verdad para cards AR 1/2.
+
+- **Síntoma v3:** Card 3 (BK) sin botón. Root cause: el código buscaba `getElementById('ar3-more-wrap')` que no existe. El botón es `ar3-more-btn` con id que termina en `-btn` no en `-more` → `_moreBtn` no lo encontraba.
+- **Fix v3:** Activar `ar3-more-btn` directamente con la misma lógica que `ar_renderTable` usa para ar1/ar2 — chequear `filteredWithPos.length > _KPI_TOP_N` y setear `display:''` + `onclick` explícito.
+
+- **Síntoma v4:** `ar3-more-btn` más pequeño que ar1/ar2. Root cause: le faltaba `width:100%;margin-top:4px;` y el div contenedor tenía `text-align:center`. Además, el `div.kpi-more-btn` dinámico de cards KPI tenía estilo diferente (9px, sin borde).
+- **Fix v4:** 
+  - `assemble_unified.py`: `ar3-more-btn` con `width:100%;margin-top:4px;`, contenedor sin `text-align:center`
+  - `js_override.js`: `kpi-more-btn` cambiado de `div` a `button` con mismo estilo que AR buttons
+
+- **Commits:** `646bc669` · `b6b2dade` · `c33a2b3e` · `e2f542e1`
+
+### Pipeline W24
+- **Datasets:** 6 datasets validados (CR/RND/BK W24 + W23, bookability semanal y acumulado)
+- **RateFox** agregado a Third Party en `calc_bk.py`
+- **Bookability W24:** `Dataset_bookability_W24.xlsx` filtrado `Semana==24` para cur (62.857 books reales vs 6.172 del acumulado incompleto)
+- **index.html:** actualizado con KPIs W24 (95.6% / 0.82% / 3.04% / $611)
+- **Commits:** pipeline W24 + 5 commits de fixes post-pipeline
+
+### Scripts modificados esta sesión
+- `js_override.js` — B68 (L1 slash), B69 (Ver más duplicado × 4 iteraciones), kpi-more-btn estandarizado
+- `assemble_unified.py` — ar3-more-btn width:100% + wrapper sin text-align:center
+- `calc_bk.py` — RateFox Third Party, lógica bookability semanal vs acumulado
+- `render_cr_p1.py` — clasificación _PROPIO/_TERCERO dinámica desde TipoProvider
+- `historico_data.py` — ventana móvil W17-W24
+- `calc_supply.py` — CONFIG W24
+- `SUPPLY_W24.html` — regenerado múltiples veces (fixes B68+B69)
+- `index.html` — KPIs W24
+
+### Lección aprendida
+- **Script 17 en W24 creció 2MB** (4.5MB → 6.5MB) por más hoteles/datos — cambió el contexto de parseo de Chrome y expuso el bug latente de B68 que en W23 era inofensivo.
+- **`ar_renderTable()` es la única fuente de verdad** para los botones Ver más de las cards AR 1/2. `_moreBtnAll` no debe interferir con AR.
+- **Netlify delay:** cuando hay múltiples commits seguidos, Netlify puede omitir deploys intermedios. Forzar redeploy con commit explícito del `index.html`.

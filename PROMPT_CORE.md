@@ -452,7 +452,7 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 18. Usar labels "B2B-OP" o "CUG" en displays — son "Opaco" y "Ultra Opaco"
 19. Usar `VALS_DEF` en re-draws automáticos del histórico — usar `currentVals` para mantener el estado
 20. Usar `slice(0,10)` o `slice(0,5)` en renders JS de cards — poner todos los rows en DOM con extras ocultos
-21. Crear el botón "Ver más" de cards AR con `createElement`+`addEventListener` — usar el botón HTML estático existente activado por `_moreBtn`
+21. Crear el botón "Ver más" de cards AR con `createElement`+`addEventListener` — `ar_renderTable()` activa `ar1-th-more`/`ar2-th-more` directamente; `ar3-more-btn` se activa en `tryInitBK`. `_moreBtnAll` NO debe intervenir en las cards AR.
 22. Usar `display:''` o `display:'grid'` para mostrar `<tr>` — el valor correcto es `display:'table-row'`
 23. Recalcular `g_dest`/`g_pais` desde `df_hotel` en `render_rnd_p2.py` — usar `g_dest` y `g_pais_global` del pickle
 24. Usar `MIN_TRAFICO_DIM = 500K` — el umbral correcto es **50K**
@@ -478,9 +478,11 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 
 ## 🐛 Bugs pendientes
 
-> **P1–P14 cerrados — no quedan bugs abiertos en el backlog.**
+> **P1–P14 cerrados · B68–B69 cerrados W24 — no quedan bugs abiertos en el backlog.**
 > P5 cerrado W23: `extract_hist_data.py` creado. P12: filtro cruzado Corp+Dest. P13: ConvRate WoW. P14: card BK en Availability.
-> 
+> B68 cerrado W24: `js_override.js` L1 slash suelto → SyntaxError Chrome (script creció 2MB en W24, cambió contexto de parseo).
+> B69 cerrado W24: botón "Ver más" duplicado/faltante en cards AR — `ar_renderTable()` es fuente de verdad para AR1/AR2; `ar3-more-btn` activado directamente.
+>
 > W22: dataset CR sin columna `Successful UniqueChkRts` — `calc_cr.py` la deriva automáticamente (compatibilidad permanente).
 ---
 
@@ -553,11 +555,12 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W23 · Junio 2026 · 11-06-2026 (fixes finales: Tráfico en Channel, c-chip 16px, bookability alias, pipeline local OK)
+**Última actualización:** W24 · Junio 2026 · 15-06-2026 (B68: js_override L1 slash→SyntaxError Chrome; B69: Ver más duplicado/faltante en cards AR × 4 iteraciones)
 **Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 **Pipeline W23:** histórico W16–W23 (8pts) · fix display:table-row filas 6-10 · fix border-bottom rows-more · calc_supply.py pipeline completo 8 pasos
+**Pipeline W24:** histórico W17–W24 (8pts, ventana móvil) · B68 js_override L1 SyntaxError · B69 Ver más duplicado/faltante cards AR · estandarización botones Ver más · RateFox Third Party
 **Post-W22:** Hub visual · badges amarillo FCB000 · loading screens · session_init.py · inventory/calc_inv.py en repo · Connectivities magenta + Availability magenta · footer unificado beige · State of PriceTravel Product · Evolución Histórica del Producto · rojo `#FF3B30`
 
 ---
