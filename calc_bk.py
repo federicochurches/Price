@@ -40,7 +40,7 @@ FECHA_PUB = os.getenv('FECHA_PUB', 'LUNES 09 de Junio de 2026')
 
 # Clasificación de providers
 PRODUCTO_PROPIO = ['DerbySoft', 'Internal', 'HBSI', 'SynXis', 'Siteminder', 'Travelclick', 'Omnibees']
-THIRD_PARTY     = ['Expedia', 'HotelBeds', 'Hotel Unico', 'Travelgate']
+THIRD_PARTY     = ['Expedia', 'HotelBeds', 'Hotel Unico', 'Travelgate', 'RateFox']
 # Rename para mostrar nombres canónicos (igual que CR)
 _CHANNEL_RENAME = {'HotelBeds Apitude': 'HotelBeds', 'Hotel Unico V2': 'Hotel Unico'}
 
@@ -108,17 +108,48 @@ def load_bk(path, week_num=None):
     return df
 
 
-# Primer intento: dataset solo de la semana actual (W24+)
-# Segundo intento: dataset acumulado (W16-W23), filtrar por semana
-try:
-    df_cur = load_bk(_find(f'Dataset_Bookability_W{WEEK_NUM}.xlsx'), week_num=WEEK_NUM)
-    df_prev = load_bk(_find(f'Dataset_Bookability_W{WEEK_NUM}.xlsx'), week_num=WEEK_NUM - 1)
-    print(f"✅ Dataset acumulado encontrado (W{WEEK_NUM}), filtrando semanas {WEEK_NUM} y {WEEK_NUM-1}")
-except FileNotFoundError:
-    # Formato W24+: datasets separados por semana
-    df_cur  = load_bk(_find(f'Dataset_Bookability_W{WEEK_NUM}.xlsx'))
-    df_prev = load_bk(_find(f'Dataset_Bookability_W{VOL_NUM_PREV}.xlsx'))
-    print(f"✅ Datasets separados W{WEEK_NUM} y W{VOL_NUM_PREV} cargados")
+# Estrategia de carga W24+:
+#   - df_cur:  Dataset_bookability_W{NN}.xlsx filtrado a Semana==NN  (datos completos de la semana)
+#   - df_prev: Dataset_bookability.xlsx filtrado a Semana==NN-1      (acumulado histórico, prev)
+# Fallback: si no existe el semanal específico, usar acumulado para ambos.
+import glob as _glob_mod
+
+def _find_semanal(week_n):
+    """Busca Dataset_bookability_W{N}.xlsx en los dirs de búsqueda."""
+    name = f'Dataset_bookability_W{week_n}.xlsx'
+    for d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            return p
+    # También buscar con mayúscula
+    name_cap = f'Dataset_Bookability_W{week_n}.xlsx'
+    for d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
+        p = os.path.join(d, name_cap)
+        if os.path.exists(p):
+            return p
+    return None
+
+_semanal_path = _find_semanal(WEEK_NUM)
+_acumulado_path = None
+for _d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
+    _p = os.path.join(_d, 'Dataset_bookability.xlsx')
+    if os.path.exists(_p):
+        _acumulado_path = _p
+        break
+
+if _semanal_path and _acumulado_path:
+    # Caso W24+: semanal para cur, acumulado para prev
+    df_cur  = load_bk(_semanal_path, week_num=WEEK_NUM)
+    df_prev = load_bk(_acumulado_path, week_num=WEEK_NUM - 1)
+    print(f"✅ W{WEEK_NUM}: semanal ({os.path.basename(_semanal_path)}) filtrado → Semana {WEEK_NUM}")
+    print(f"   W{WEEK_NUM-1}: acumulado ({os.path.basename(_acumulado_path)}) filtrado → Semana {WEEK_NUM-1}")
+elif _acumulado_path:
+    # Fallback: solo acumulado disponible — filtrar por semana
+    df_cur  = load_bk(_acumulado_path, week_num=WEEK_NUM)
+    df_prev = load_bk(_acumulado_path, week_num=WEEK_NUM - 1)
+    print(f"✅ Dataset acumulado ({os.path.basename(_acumulado_path)}), filtrando semanas {WEEK_NUM} y {WEEK_NUM-1}")
+else:
+    raise FileNotFoundError(f'No se encontró ningún dataset de bookability para W{WEEK_NUM}')
 
 print(f"   W{WEEK_NUM}: {len(df_cur):,} filas · {df_cur['Books'].sum():,} books")
 print(f"   W{VOL_NUM_PREV}: {len(df_prev):,} filas · {df_prev['Books'].sum():,} books")
@@ -253,18 +284,25 @@ M = {
 # Calculamos por semana desde el dataset acumulado
 # Cuando sea W24+, el histórico vendrá del HIST_DATA de historico_data.py
 hist_by_week = {}
-if 'Semana' in df_cur.columns:
-    # Dataset acumulado — calcular por semana
-    df_all = pd.read_excel(_find(f'Dataset_Bookability_W{WEEK_NUM}.xlsx'))
+# Para el histórico usamos el acumulado (W16-W{NN-1}) + la semana actual del semanal
+if _acumulado_path:
+    df_all = pd.read_excel(_acumulado_path)
     df_all['Bookability'] = pd.to_numeric(df_all['Bookability'], errors='coerce').fillna(0).clip(0, 1)
     df_all['Books']       = pd.to_numeric(df_all['Books'],       errors='coerce').fillna(0).astype(int)
     for sem in sorted(df_all['Semana'].unique()):
+        if int(sem) >= WEEK_NUM:
+            continue  # la semana actual la ponemos desde df_cur (semanal completo)
         df_s = df_all[df_all['Semana'] == sem]
         hist_by_week[f'W{int(sem)}'] = {
             'bk':    bk_weighted(df_s),
             'books': int(df_s['Books'].sum()),
         }
-    print(f"\n   Histórico por semana: {list(hist_by_week.keys())}")
+# Agregar semana actual desde df_cur (fuente correcta)
+hist_by_week[f'W{WEEK_NUM}'] = {
+    'bk':    bk_global,
+    'books': books_global,
+}
+print(f"\n   Histórico por semana: {list(hist_by_week.keys())}")
 
 # ── PICKLE ────────────────────────────────────────────────────────────────────
 D = {

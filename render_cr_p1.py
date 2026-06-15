@@ -591,9 +591,6 @@ def render_kpi_card_bookability():
         tabs_lbl += f'<label class="tab-label" for="tab-bk-{tk}">{tl}</label>'
 
     # ── Helpers de fila ───────────────────────────────────────────────────────
-    _PROPIO  = {'DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'}
-    _TERCERO = {'Expedia','HotelBeds','Hotel Unico','Travelgate'}
-
     def _hdr(col):
         # Headers clickeables con data-sort-key
         return (f'<div class="bk-sort-hdr" '
@@ -700,6 +697,9 @@ def render_kpi_card_bookability():
     # Channel — split Producto Propio / Third Party
     top_prov = DB.get('TOP_PROVIDER', DB.get('g_provider', None))
     if top_prov is not None:
+        # Clasificación dinámica desde TipoProvider del pickle (providers nuevos como RateFox incluidos)
+        _PROPIO  = set(top_prov[top_prov['TipoProvider'] == 'Producto Propio']['Provider'].tolist())
+        _TERCERO = set(top_prov[top_prov['TipoProvider'] == 'Third Party']['Provider'].tolist())
         pp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _PROPIO)
         tp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _TERCERO)
         _no_data = '<p style="font-size:11px;color:var(--ink-muted)">Sin datos</p>'
