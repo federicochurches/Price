@@ -1839,20 +1839,7 @@ function _moreBtnAll() {
       _moreBtn(el);
     }
   });
-  /* También para las tablas AR — ar1-th es un div, no table; usar rows-wrap como contenedor */
-  [1,2].forEach(function(n) {
-    ['th','td'].forEach(function(t) {
-      var tbodyId = 'ar'+n+'-'+t;
-      var tbody = document.getElementById(tbodyId);
-      if (!tbody) return;
-      /* ar*-th es un div.kpi-tab-rows; su rows-wrap contiene el botón estático */
-      var rowsWrap = document.getElementById('ar'+n+'-rows-wrap') || tbody.parentNode;
-      if (!rowsWrap) return;
-      if (tbody.querySelectorAll('.rows-more').length && !rowsWrap.querySelector('.kpi-more-btn')) {
-        _moreBtn(rowsWrap, tbodyId);
-      }
-    });
-  });
+  /* AR cards: el botón se maneja directamente en ar_renderTable() — no intervenir aquí */
 }
 var _KPI_EXPAND_N = 10; /* filas visibles tras expandir */
 
