@@ -234,8 +234,8 @@ def tab_eficacia():
     g_c = df18_p80.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
     g_c.rename(columns={'CorpName':'CorpName'}, inplace=True)
-    # Hotel (P80)
-    g_h = p80_hotel[p80_hotel['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
+    # Hotel — usar todos los hoteles (g_hotel_all) para no excluir hoteles con volumen bajo
+    g_h = g_hotel_all[g_hotel_all['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
     # Channel — sobre dataset completo (channel no se filtra por hotel)
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
@@ -251,7 +251,12 @@ def tab_eficacia():
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
-    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('Eficacia').head(100).reset_index(drop=True)
+    # Sin filtro p50 — pills de banda filtran en JS. Límite por banda para controlar tamaño HTML.
+    _df_crit = g_h[g_h['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(500)
+    _df_br   = g_h[g_h['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(300)
+    _df_exit = g_h[g_h['BandaEficacia']=='Exitosa'].sort_values('CR_Unicos', ascending=False).head(1000)
+    _df_sc   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(500)
+    df_h = pd.concat([_df_crit, _df_br, _df_exit, _df_sc], ignore_index=True).drop_duplicates('Hotel').reset_index(drop=True)
     # Merge WoW — Eficacia + ConvRate + CR_Unicos (tráfico)
     df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
     df_d['Eficacia_WoW_pp']  = (df_d['Eficacia']  - df_d['Eficacia_W17'])  * 100
@@ -281,7 +286,7 @@ def tab_convrate():
     g_c = df18_p80.groupby('CorpName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_c['ConvRate'] = g_c['Bookings']/g_c['CR_Unicos']
     g_c['Eficacia'] = g_c['Successful']/g_c['CR_Unicos']
-    g_h = p80_hotel[p80_hotel['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
+    g_h = g_hotel_all[g_hotel_all['Bookings'] > 0].copy()  # excluir Sin Conversión del card Conv Rate
     g_ch = df18.groupby('ExternalProviderName', as_index=False).agg(CR_Unicos=('CR_Unicos','sum'), Bookings=('Bookings','sum'), Successful=('Successful UniqueChkRts','sum'))
     g_ch['ConvRate'] = g_ch['Bookings']/g_ch['CR_Unicos']
     g_ch['Eficacia'] = g_ch['Successful']/g_ch['CR_Unicos']
@@ -294,7 +299,12 @@ def tab_convrate():
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('ConvRate').head(100).reset_index(drop=True)
-    df_h = g_h[g_h['CR_Unicos']>=p50_h].sort_values('ConvRate').head(100).reset_index(drop=True)
+    # Sin filtro p50 — pills de banda filtran en JS. Límite por banda para controlar tamaño HTML.
+    _df_crit_cv = g_h[g_h['BandaConvRate'].isin(['Crítica','Súper Crítica'])].sort_values('ConvRate', ascending=True).head(500)
+    _df_br_cv   = g_h[g_h['BandaConvRate'].isin(['Revisar','Aceptable'])].sort_values('ConvRate', ascending=True).head(300)
+    _df_exit_cv = g_h[g_h['BandaConvRate']=='Exitosa'].sort_values('CR_Unicos', ascending=False).head(1000)
+    _df_sc_cv   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(500)
+    df_h = pd.concat([_df_crit_cv, _df_br_cv, _df_exit_cv, _df_sc_cv], ignore_index=True).drop_duplicates('Hotel').reset_index(drop=True)
     # Merge WoW — ConvRate + CR_Unicos (tráfico)
     df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
     df_d['ConvRate_WoW_pp'] = (df_d['ConvRate'] - df_d['ConvRate_W17']) * 100

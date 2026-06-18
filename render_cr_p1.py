@@ -278,7 +278,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div>
+<div id="kpi-ef-hfilt" style="display:none;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:2px;"><span id="kpi-ef-f-crit" class="kpi-ef-fpill" onclick="kpi_setPillFilt('ef','crit',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #8A8377;background:#E8E6E3;color:#333132;">Críticos</span><span id="kpi-ef-f-br" class="kpi-ef-fpill" onclick="kpi_setPillFilt('ef','br',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="kpi-ef-f-sc" class="kpi-ef-fpill" onclick="kpi_setPillFilt('ef','sc',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'eficacia', banda, ef_w18, 'hcr-global-ef')}
 </div>'''
@@ -426,7 +428,9 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div><div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
+<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}</div>
+<div id="kpi-cv-hfilt" style="display:none;gap:6px;flex-wrap:wrap;margin-top:6px;margin-bottom:2px;"><span id="kpi-cv-f-crit" class="kpi-cv-fpill" onclick="kpi_setPillFilt('cv','crit',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid #8A8377;background:#E8E6E3;color:#333132;">Críticos</span><span id="kpi-cv-f-br" class="kpi-cv-fpill" onclick="kpi_setPillFilt('cv','br',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Bajo Rend.</span><span id="kpi-cv-f-sc" class="kpi-cv-fpill" onclick="kpi_setPillFilt('cv','sc',this)" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);">Sin Conv.</span></div>
+<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
 {render_historico('cr', 'convrate', banda, cv_w18, 'hcr-global-cv')}
 </div>'''

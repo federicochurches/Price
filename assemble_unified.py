@@ -442,6 +442,136 @@ function ar_setDim(n, dim, el_unused) {
 }
 
 /* ── Pills de navegación para cards AR (Vista + Filtro) — FIN ──────── */
+/* ══════════════════════════════════════════════════
+   PILLS DE FILTRO · CARDS KPI (EF / CV)
+   Misma lógica que ar_setPillFilt/ar_setPillView
+   ══════════════════════════════════════════════════ */
+
+var _kpiPillFilt = {ef: 'crit', cv: 'crit'};
+
+function kpi_setPillFilt(card, filt, el) {
+  _kpiPillFilt[card] = filt;
+  ['crit','br','sc'].forEach(function(f) {
+    var pill = document.getElementById('kpi-'+card+'-f-'+f);
+    if (!pill) return;
+    var active = (f === filt);
+    pill.style.background  = active ? '#E8E6E3' : 'transparent';
+    pill.style.color       = active ? '#333132' : 'var(--ink-muted)';
+    pill.style.borderColor = active ? '#8A8377' : 'var(--rule)';
+  });
+  _kpiPillRender(card);
+}
+
+function _kpiPillRender(card) {
+  /* Determinar tab activa — buscar el radio checked del kpi card */
+  var tabsName = 'tabs-' + card;
+  var activeTab = 'hotel';
+  var radios = document.querySelectorAll('input[name="' + tabsName + '"]');
+  radios.forEach(function(r) {
+    if (r.checked) {
+      /* id = tab-ef-hotel → split por - */
+      var parts = r.id.split('-');
+      activeTab = parts[parts.length - 1];
+    }
+  });
+
+  /* Filtros de banda para el tab hotel */
+  var filt = _kpiPillFilt[card] || 'crit';
+  var bandMap = {
+    ef: {
+      crit: ['Crítica','Súper Crítica'],
+      br:   ['Revisar','Aceptable'],
+      sc:   ['Sin Conversión']
+    },
+    cv: {
+      crit: ['Crítica','Súper Crítica'],
+      br:   ['Revisar','Aceptable'],
+      sc:   ['Sin Conversión']
+    }
+  };
+  var activeBands = (bandMap[card] && bandMap[card][filt]) ? bandMap[card][filt] : [];
+
+  /* Aplicar filtro solo en tab hotel — ocultar/mostrar filas por banda */
+  var panelsId = 'kpi-' + card + '-panels';
+  var panelsEl = document.getElementById(panelsId);
+  if (!panelsEl) return;
+
+  /* Encontrar el tab-panel data-tab="hotel" */
+  var hotelPanel = panelsEl.querySelector('[data-tab="hotel"]');
+  if (!hotelPanel) return;
+
+  /* Las filas son divs con data-banda (inyectado por _injectHistAttrs o por _kpiInjectBandas) */
+  var rows = hotelPanel.querySelectorAll('[data-banda]');
+  if (!rows.length) {
+    /* Fallback: intentar re-inyectar bandas desde CR_CARD_TABS */
+    _kpiInjectBandas(card, hotelPanel);
+    rows = hotelPanel.querySelectorAll('[data-banda]');
+  }
+
+  rows.forEach(function(row) {
+    var banda = row.getAttribute('data-banda') || '';
+    var isSbHidden = row.classList.contains('sb-hidden');
+    if (isSbHidden) return; /* Respetar visibilidad del searchbox */
+    if (activeTab !== 'hotel') {
+      /* En tabs que no son hotel, no filtrar por banda */
+      row.style.display = '';
+      return;
+    }
+    var visible = activeBands.indexOf(banda) >= 0;
+    row.style.setProperty('display', visible ? '' : 'none', 'important');
+  });
+
+  /* Actualizar contador de resultados visibles */
+  var cntEl = document.getElementById('cnt-kpi-' + card);
+  if (cntEl) {
+    var visible = Array.from(rows).filter(function(r) {
+      return r.getAttribute('data-banda') &&
+             activeBands.indexOf(r.getAttribute('data-banda')) >= 0 &&
+             !r.classList.contains('sb-hidden');
+    }).length;
+    cntEl.textContent = visible ? visible + ' resultado' + (visible !== 1 ? 's' : '') : '';
+  }
+}
+
+function _kpiInjectBandas(card, hotelPanel) {
+  /* Inyectar data-banda en las filas del tab hotel desde CR_CARD_TABS */
+  if (typeof CR_CARD_TABS === 'undefined') return;
+  var canasta = (typeof W !== 'undefined') ? (W.canasta || 'global') : 'global';
+  var metric = card === 'ef' ? 'ef' : 'cv';
+  var tabData = CR_CARD_TABS[canasta] && CR_CARD_TABS[canasta][metric]
+              ? CR_CARD_TABS[canasta][metric]['hotel']
+              : null;
+  if (!tabData || !tabData.length) return;
+  /* Las filas del DOM son divs dentro del tab-panel, en orden */
+  var divRows = Array.from(hotelPanel.querySelectorAll('.kpi-tab-rows > div, .kpi-tab-rows [data-hist-w21]'));
+  divRows.forEach(function(divRow, i) {
+    if (i < tabData.length) {
+      var row = tabData[i];
+      var banda = row[4] || '';  /* índice 4 = banda */
+      divRow.setAttribute('data-banda', banda);
+    }
+  });
+}
+
+/* Hook: mostrar/ocultar pill row cuando cambia el tab de dim */
+/* Los tabs usan radio inputs — observar cambios con event delegation */
+document.addEventListener('change', function(e) {
+  var t = e.target;
+  if (!t || t.tagName !== 'INPUT' || t.type !== 'radio') return;
+  var name = t.name || '';
+  var card = null;
+  if (name === 'tabs-ef') card = 'ef';
+  else if (name === 'tabs-cv') card = 'cv';
+  if (!card) return;
+  /* Mostrar pill row solo en tab hotel */
+  var parts = t.id.split('-');
+  var activeTab = parts[parts.length - 1];
+  var hfilt = document.getElementById('kpi-' + card + '-hfilt');
+  if (hfilt) hfilt.style.display = (activeTab === 'hotel') ? 'flex' : 'none';
+});
+
+/* ── Pills KPI — FIN ── */
+
 
 /* Listener del panel — captura clicks en w22-th/w22-td, cards AR y channel divs */
 document.addEventListener('click', function(e) {
