@@ -800,7 +800,8 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
     else:
         panel_html = top_html + rest_html
 
-    return f'<div class="tab-panel" data-tab="{t_key}">{panel_html}</div>'
+    hidden_style = ' style="display:none;"' if t_key not in ('destino',) else ''
+    return f'<div class="tab-panel" data-tab="{t_key}"{hidden_style}>{panel_html}</div>'
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

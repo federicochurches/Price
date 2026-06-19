@@ -563,6 +563,26 @@ document.addEventListener('click', function(e) {
     if (lblEl) lblEl.textContent = 'Global';
   }
 
+  /* Si vista activa es corp/destino → delegar al filtro cruzado KPI */
+  if (typeof _kpiView !== 'undefined' && typeof _kpiCrossFilter !== 'undefined') {
+    var _bkView = _kpiView['bk'] || 'destino';
+    if (_bkView === 'corp' || _bkView === 'destino') {
+      var _cfKey = (_bkView === 'corp') ? 'corp' : 'dest';
+      var _val   = row.getAttribute('data-hist-label') || row.getAttribute('data-lbl') || '';
+      if (_val) {
+        if (!_kpiCrossFilter['bk']) _kpiCrossFilter['bk'] = {corp:null, dest:null};
+        var _isAlreadySel = (_kpiCrossFilter['bk'][_cfKey] === _val);
+        _kpiCrossFilter['bk'][_cfKey] = _isAlreadySel ? null : _val;
+        /* Paint de fila */
+        bkCard.querySelectorAll('.bk-row').forEach(function(r){ r.style.background = ''; r.removeAttribute('data-selected'); });
+        if (!_isAlreadySel) { row.style.background = 'rgba(51,49,50,0.07)'; row.setAttribute('data-selected','1'); }
+        _kpiCrossFilterPillsRender('bk');
+        if (typeof _kpiPillRender === 'function') _kpiPillRender('bk');
+        return;
+      }
+    }
+  }
+
   /* SEGUNDO CLICK en la fila ya seleccionada → deseleccionar y volver a global */
   if (row.getAttribute('data-selected') === '1') {
     _bkResetGlobal();
