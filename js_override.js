@@ -2596,9 +2596,12 @@ function ar3_renderTable(view, htab) {
     return s;
   }
   var filteredWithPos = rowsWithPos.filter(function(item){ return activeBands.indexOf(_normBanda(item.r.banda)) >= 0; });
-  /* Sin Conv: BK_DATA nunca tiene esa banda → no usar fallback, mostrar vacío */
-  var _isSinConv = (_ar3_htab === 'sc');
-  if (filteredWithPos.length === 0 && !_isSinConv) filteredWithPos = rowsWithPos;
+  /* Si no hay resultados con la banda activa → intentar Bajo Rend., luego todos */
+  if (filteredWithPos.length === 0) {
+    var fallbackBands = bandMap['br'] || [];
+    var fallbackRows = rowsWithPos.filter(function(item){ return fallbackBands.indexOf(_normBanda(item.r.banda)) >= 0; });
+    filteredWithPos = fallbackRows.length > 0 ? fallbackRows : rowsWithPos;
+  }
   /* Renumerar localmente dentro del subset filtrado (1, 2, 3...) */
   filteredWithPos = filteredWithPos.map(function(item, i){ return {r: item.r, origPos: i + 1}; });
   /* alias para hasMore check */

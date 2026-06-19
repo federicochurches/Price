@@ -17,6 +17,31 @@ VOL_NUM  = "18"
 ACCENT   = "#EA0074"  # magenta RND
 
 # ============ HELPER: limpiar nombre de hotel ============
+def _kpi_ver_mas_btn(target_class='rows-more'):
+    """Botón Ver más canónico — mismo estilo para todos los paneles KPI."""
+    _sq = "'"
+    _oc = '{'
+    _cc = '}'
+    _cls = target_class
+    return (
+        '<button class="kpi-more-btn"'
+        ' style="display:block;width:100%;margin-top:4px;'
+        'font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;'
+        'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
+        'padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;"'
+        ' onclick="(function(el){'
+        'var exp=el.getAttribute(' + _sq + 'data-exp' + _sq + ')!==' + _sq + '1' + _sq + ';'
+        'el.setAttribute(' + _sq + 'data-exp' + _sq + ',exp?' + _sq + '1' + _sq + ':' + _sq + '0' + _sq + ');'
+        'var p=el.closest(' + _sq + '.kpi-tab-rows' + _sq + ');if(!p)p=el.parentNode;'
+        'p.querySelectorAll(' + _sq + '.' + _cls + _sq + ').forEach(function(r){'
+        'r.style.setProperty(' + _sq + 'display' + _sq + ',exp?' + _sq + 'grid' + _sq + ':' + _sq + 'none' + _sq + ',' + _sq + 'important' + _sq + ');'
+        '});'
+        'el.textContent=exp?' + _sq + 'Ver menos ▴' + _sq + ':' + _sq + 'Ver más ▾' + _sq + ';'
+        '})(this)">'
+        'Ver más ▾</button>'
+    )
+
+
 def clean_hotel_name(name):
     """Quita prefijo de ID '(NNNNNN) - ' del nombre del hotel.
     Ejemplo: '(102572) - Hyatt Grand Central' → 'Hyatt Grand Central'
@@ -779,23 +804,7 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
         headers = panel_tabs_spec.get('headers', [])
         widths  = panel_tabs_spec.get('widths', cfg['grid_cols'])
         _hdr = tab_column_header(headers, widths) if headers else ''
-        _more_btn = (
-            '<div class="kpi-more-btn" '
-            'style="margin:8px 0 2px;border-top:1px solid var(--rule-soft);'
-            'color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;'
-            'text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;'
-            'user-select:none;" '
-            'onclick="(function(el){'
-            'var exp=el.getAttribute(\'data-exp\')!==\'1\';'
-            'el.setAttribute(\'data-exp\',exp?\'1\':\'0\');'
-            'var p=el.parentNode;'
-            'p.querySelectorAll(\'.rows-more\').forEach(function(r){'
-            'r.style.display=exp?\'grid\':\'none\';'
-            '});'
-            'el.textContent=exp?\'Ver menos ▴\':\'Ver más ▾\';'
-            '})(this)">'
-            'Ver más ▾</div>'
-        ) if rest_html else ''
+        _more_btn = _kpi_ver_mas_btn(target_class='rows-more') if rest_html else ''
         panel_html = f'<div class="kpi-tab-rows">{_hdr}{top_html}{rest_html}{_more_btn}</div>'
     else:
         panel_html = top_html + rest_html
@@ -1033,14 +1042,7 @@ def canasta_tab_rows(df, dim_col, cfg):
     is_simple = tab_key in ('canasta', 'channel', 'provider')
     ver_mas_btn = ''
     if len(df) > 5 and not is_simple:
-        ver_mas_btn = (
-            f'<button class="rows-toggle" data-panel="{tab_key}" '
-            f'style="margin-top:6px;background:none;border:none;cursor:pointer;'
-            f'font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.04em;'
-            f'text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px;">'
-            f'<span class="toggle-label">Ver 5 más</span> '
-            f'<span class="toggle-icon" style="font-size:12px;">↓</span></button>'
-        )
+        ver_mas_btn = _kpi_ver_mas_btn(target_class='rows-more')
 
     # ── Header de columnas ────────────────────────────────────────────────────
     _hdr = ''

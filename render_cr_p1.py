@@ -553,7 +553,7 @@ def render_kpi_card_bookability():
 
     from render_helpers import (wow_box, fmt_pct2, fmt_int_es, BANDA_COLORS,
                                 banda_pill, target_caption, gauge_5levels,
-                                wow_pill_html, searchbox_pill_html)
+                                wow_pill_html, searchbox_pill_html, _kpi_ver_mas_btn)
     def _fmt_compact(n):
         n = int(n)
         if n >= 1_000_000: return f'{n/1_000_000:.1f}M'.replace('.',',')
@@ -667,10 +667,10 @@ def render_kpi_card_bookability():
         _trx_wow_v = bwp if (bwp is not None and not _pd.isna(bwp)) else 0
         _bk_wow_v  = wpp if (wpp is not None and not _pd.isna(wpp)) else 0
         return (f'<div class="bk-row{extra_cls}" '
-                f'data-lbl="{lbl}" data-trx="{_trx_int}" '
+                f'data-lbl="{lbl}" data-hist-label="{lbl}" data-trx="{_trx_int}" '
                 f'data-trx-wow="{_trx_wow_v:.4f}" '
                 f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
-                f'style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
+                f'style="{"" if "display:none" in extra_style else "display:grid;"}grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
                 f'align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;{extra_style}">'
                 f'<div style="min-width:0;overflow:hidden;">'
                 f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
@@ -683,22 +683,7 @@ def render_kpi_card_bookability():
                 f'</div>')
 
     def _ver_mas_btn():
-        # Mismo estilo que EF/CV — div con border-top
-        return ('<div class="kpi-more-btn" '
-                'style="display:block;width:100%;margin:8px 0 2px;border-top:1px solid var(--rule-soft);'
-                'color:var(--ink-muted);font-size:9px;font-weight:700;letter-spacing:.08em;'
-                'text-transform:uppercase;cursor:pointer;padding:8px 0 2px;text-align:center;'
-                'user-select:none;" '
-                'onclick="(function(el){'
-                'var exp=el.getAttribute(\'data-exp\')!==\'1\';'
-                'el.setAttribute(\'data-exp\',exp?\'1\':\'0\');'
-                'var p=el.closest(\'[data-tab]\');'
-                'p.querySelectorAll(\'.bk-more\').forEach(function(r){'
-                'r.style.display=exp?\'grid\':\'none\';'
-                '});'
-                'el.textContent=exp?\'Ver menos ▴\':\'Ver más ▾\';'
-                '})(this)">'
-                'Ver más ▾</div>')
+        return _kpi_ver_mas_btn(target_class='rows-more')
 
     def _panel(t_key, df, dim_col, col_lbl):
         if df is None or len(df) == 0:
@@ -706,18 +691,18 @@ def render_kpi_card_bookability():
         _sub = 'CorpName' if dim_col == 'Hotel' else None
         # 5 visibles
         rows5 = ''.join(_row(r, dim_col, sub_col=_sub, idx=i+1) for i, (_, r) in enumerate(df.head(5).iterrows()))
-        # 6-10: expandibles con "Ver más" (clase bk-more, display:none hasta expandir)
+        # 6-10: clase rows-more (mismo sistema que EF/CV)
         rows_m = ''.join(
-            _row(r, dim_col, sub_col=_sub, extra_cls=' bk-more', extra_style='display:none;', idx=i+6)
+            _row(r, dim_col, sub_col=_sub, extra_cls=' rows-more', extra_style='display:none;', idx=i+6)
             for i, (_, r) in enumerate(df.iloc[5:10].iterrows()))
-        # 11+: buscables pero ocultas (clase bk-sb-hidden) — clase directa en bk-row, sin wrapper,
-        # para que el searchbox las encuentre por [data-lbl] y pueda mostrarlas
+        # 11+: clase sb-hidden (buscables)
         rows_sb = ''.join(
-            _row(r, dim_col, sub_col=_sub, extra_cls=' bk-sb-hidden', extra_style='display:none;')
+            _row(r, dim_col, sub_col=_sub, extra_cls=' sb-hidden', extra_style='display:none;')
             for _, r in df.iloc[10:].iterrows())
         show_btn = _ver_mas_btn() if len(df) > 5 else ''
+        # Mismo wrapper .kpi-tab-rows que EF/CV para compatibilidad con SB y Ver más
         return (f'<div class="tab-panel" data-tab="{t_key}">'
-                f'{_hdr(col_lbl)}{rows5}{rows_m}{rows_sb}{show_btn}</div>')
+                f'<div class="kpi-tab-rows">{_hdr(col_lbl)}{rows5}{rows_m}{rows_sb}{show_btn}</div></div>')
 
     # ── Paneles ───────────────────────────────────────────────────────────────
     panels = ''
@@ -755,7 +740,7 @@ def render_kpi_card_bookability():
     hist_bk = _rh('bk', 'bookability', banda, bk_val, 'h-bk-global')
 
     # ── HTML final ────────────────────────────────────────────────────────────
-    _sb = searchbox_pill_html('sb-kpi-bk', accent_color=BK_COLOR,
+    _sb = searchbox_pill_html('sb-kpi-bk', accent_color='#5C469C',
                               placeholder='Buscar…', count_id='cnt-kpi-bk')
     return (
         f'<div class="kpi-card" id="kpicard-bk" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">'

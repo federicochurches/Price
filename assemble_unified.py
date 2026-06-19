@@ -501,8 +501,7 @@ function kpi_setView(card, view, el) {
   /* Mostrar pills de filtro solo en vista hotel */
   var hfilt = document.getElementById('kpi-'+card+'-hfilt');
   if (hfilt) hfilt.style.display = (view === 'hotel') ? 'flex' : 'none';
-  /* Re-crear botón Ver más si el panel que se muestra aún no lo tiene */
-  if (typeof _moreBtnAll === 'function') setTimeout(_moreBtnAll, 0);
+  /* Botón Ver más es estático (onclick inline) — no requiere JS dinámico */
 }
 
 var _kpiPillFilt = {ef: 'crit', cv: 'crit'};
