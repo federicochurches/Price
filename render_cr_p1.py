@@ -51,7 +51,7 @@ def _kpi_pill(card, key, label, base_style, active_style):
 
 def _kpi_view_pill_bk(key, label, active):
     """Pills de vista para card Bookability."""
-    _PA = 'border:1px solid #333132;background:#E8E6E3;color:#333132;'
+    _PA = 'border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;'
     _PI = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
     _PS = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     st = _PA if active else _PI
