@@ -1003,6 +1003,25 @@ function w22_renderCardTabs(canasta){
   });
 }
 
+/* ═══ w22_renderBKCardTabs — render card BK con sort unificado (igual EF/CV) ═══
+   La card BK usa el MISMO motor _kpiSortAttach que EF/CV. Solo cambia:
+   - metricKey 'bk' (grid, hdrLabels ya definidos)
+   - datos desde BK_CARD_TABS en vez de CR_CARD_TABS
+   - tabs por pills (kpi_setView) → el panel se identifica por data-tab */
+function w22_renderBKCardTabs(canasta){
+  if(typeof BK_CARD_TABS === 'undefined') return;
+  var tabs = BK_CARD_TABS[canasta] || BK_CARD_TABS['global'];
+  if(!tabs || !tabs.bk) return;
+  var bkCard = document.getElementById('kpicard-bk');
+  if(!bkCard) return;
+  /* Attach sort para destino/corp/hotel — mismo _kpiSortAttach que EF/CV */
+  ['destino','corp','hotel'].forEach(function(tkey){
+    var allRows = (tabs.bk||{})[tkey]||[];
+    if(!allRows.length) return;
+    _kpiSortAttach(bkCard, tkey, 'bk', allRows);
+  });
+}
+
 /* ═══ Función unificada de fila de canal — usada en KPI cards y AR cards (P10) ═══
    r       : [nombre, bbg, bfg, banda, cr_u, val_pct, wow_pp_raw]
    i       : índice 0-based
@@ -1951,6 +1970,7 @@ var _KPI_GRID = {
   cv:  'minmax(0,1fr) 80px 56px 68px 40px',
   nd:  'minmax(0,1fr) 76px 52px 44px 54px 36px',
   ipm: 'minmax(0,1fr) 76px 52px 44px 54px 36px',
+  bk:  'minmax(0,1fr) 80px 56px 54px 48px',
 };
 
 function _kpiSortAttach(card, tkey, metricKey, allRows100) {
@@ -2033,6 +2053,7 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
     cv:  ['Tráfico','WoW','Conv Rate','WoW'],
     nd:  ['Severity','Tráfico','WoW','%NoDispo','WoW'],
     ipm: ['Severity','Tráfico','WoW','IPM','WoW'],
+    bk:  ['Trx','WoW','BK%','WoW'],
   };
   var labels = hdrLabels[metricKey] || hdrLabels.ef;
   var hdrSpans = '<span></span>' + labels.map(function(h, i){
@@ -2087,6 +2108,19 @@ function _initAllSort() {
         _kpiSortAttach(card, tkey, metric, allRows);
       });
     });
+    /* BK: card Bookability — mismo motor _kpiSortAttach */
+    var BK_TABS = (typeof BK_CARD_TABS!=='undefined') ? BK_CARD_TABS : null;
+    if (BK_TABS) {
+      var bkTabs = BK_TABS[canasta] || BK_TABS['global'] || {};
+      var bkCard = document.getElementById('kpicard-bk');
+      if (bkCard && bkTabs.bk) {
+        ['destino','corp','hotel'].forEach(function(tkey){
+          var allRows = (bkTabs.bk||{})[tkey]||[];
+          if (!allRows.length) return;
+          _kpiSortAttach(bkCard, tkey, 'bk', allRows);
+        });
+      }
+    }
   } else {
     /* RND: cards NoDispo + IPM — buscar tabs en los panels RND */
     /* Los tabs RND usan IDs tab-nd-* y tab-rpm-* */

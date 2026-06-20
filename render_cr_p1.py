@@ -852,6 +852,45 @@ def _build_cr_card_tabs_json():
         }
     return f'\n<script>\nvar CR_CARD_TABS={_json.dumps(tabs, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 
+def _build_bk_card_rows(df, t_key):
+    """Convierte df de BK en array de filas para JS — misma estructura que EF/CV.
+    Array: [lab, sub, bbg, bfg, banda, traf(Books), traf_wow, val(Bookability), val_wow, hist_w21, hist_w20]
+    """
+    if df is None or len(df) == 0:
+        return []
+    return build_card_rows(df, t_key, {
+        'val_col':        'Bookability',
+        'val_scale':      lambda v: round(float(v)*100, 2),
+        'banda_col':      'BandaBK',
+        'traf_col':       'Books',
+        'traf_wow_col':   'Books_WoW_abs',
+        'traf_wow_scale': lambda v: round(float(v), 0),
+        'wow_col':        'BK_WoW_pp',
+        'hist_prev_col':  'Bookability_prev',
+    })
+
+def _build_bk_card_tabs_json():
+    """Genera JSON con los datos de la card BK por canasta — estructura igual a CR_CARD_TABS."""
+    import pickle as _pk, os as _os
+    bk_path = _os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+    if not _os.path.exists(bk_path):
+        return '\n<script>\nvar BK_CARD_TABS={};\n</script>\n'
+    with open(bk_path, 'rb') as _f:
+        _BKD = _pk.load(_f)
+    _BK_BY = _BKD.get('BK_BY_CANASTA', None)
+    tabs = {}
+    for canasta in ['global', 'b2c', 'op', 'cug']:
+        src = (_BK_BY.get(canasta) if _BK_BY else None) or _BKD
+        tabs[canasta] = {
+            'bk': {
+                'destino': _build_bk_card_rows(src.get('TOP_DEST',  src.get('g_dest',  None)), 'destino'),
+                'corp':    _build_bk_card_rows(src.get('TOP_CORP',  src.get('g_corp',  None)), 'corp'),
+                'hotel':   _build_bk_card_rows(src.get('TOP_HOTEL', src.get('g_hotel', None)), 'hotel'),
+            },
+        }
+    return f'\n<script>\nvar BK_CARD_TABS={_json.dumps(tabs, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
+
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN CR ═══════════════ -->\n'
     '<section id="section-cr" class="section-cr">\n'
@@ -881,6 +920,7 @@ window.HIST_DATA = HIST_DATA;
 </script>
 '''
     + _build_cr_card_tabs_json()
+    + _build_bk_card_tabs_json()
 )
 
 with open('part1_cr.html', 'w', encoding='utf-8') as f:
