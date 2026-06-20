@@ -265,7 +265,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
     # Usa g_hotel (todos los hoteles) para ampliar el universo de búsqueda
     # Solo para el searchbox — las filas _sb se marcan como sb-only en el JS
-    SB_N = 500
+    SB_N = 1000
     try:
         _gh = g_hotel.copy() if g_hotel is not None else None
         if _gh is not None and 'BandaEficacia' in _gh.columns and 'Bookings' in _gh.columns:

@@ -212,7 +212,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     hotels_sc_rows   = rnd_hotel_rows_from(df_sc)
 
     # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
-    SB_N = 500
+    SB_N = 1000
     try:
         _gh_rnd = g_hotel_rnd.copy() if g_hotel_rnd is not None else None
         if g_hotel_w17 is not None and 'Hotel' in _gh_rnd.columns:
