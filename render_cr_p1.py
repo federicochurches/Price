@@ -250,8 +250,17 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
-                # Grid de 4 cols (BK style): nombre · TRX · valor · WoW
-                return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
+                # data-* para sort (reusa la maquinaria de bkSort: data-lbl/trx/trx-wow/bk/bk-wow)
+                _trx_int = int(cr_u) if cr_u and cr_u == cr_u else 0
+                _bk_val  = float(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isinf(raw_val)) else 0
+                try:
+                    _wv = r[wow_col_k]; _bk_wow_v = _wv if _wv == _wv else 0
+                except Exception:
+                    _bk_wow_v = 0
+                # Grid de 4 cols (BK style): nombre · TRX · valor · WoW — clase bk-row para sort+selección
+                return (f'<div class="bk-row" data-lbl="{_lbl}" data-trx="{_trx_int}" data-trx-wow="0" '
+                        f'data-bk="{_bk_val:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
+                        f'data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
                         f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
@@ -263,12 +272,12 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
             _metric_lbl = 'Eficacia'
             _hdr_chan = lambda lbl, acc: (
-                f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;width:100%;'
+                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;">{lbl}</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                f'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Trx <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;cursor:pointer;user-select:none;">{lbl} <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
                 f'</div>'
             )
             chan_html = (
@@ -405,7 +414,15 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                     wow_pill = '<span style="color:var(--ink-muted);font-size:10px;">—</span>'
                 _w21 = round(float(raw_val)*100, 4) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isnan(raw_val)) else 0
                 _lbl = str(r.get('ExternalProviderName', nombre))
-                return (f'<div data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
+                _trx_int = int(cr_u) if cr_u and cr_u == cr_u else 0
+                _bk_val  = float(raw_val) if raw_val == raw_val and not (isinstance(raw_val, float) and math.isinf(raw_val)) else 0
+                try:
+                    _wv = r[wow_col_k]; _bk_wow_v = _wv if _wv == _wv else 0
+                except Exception:
+                    _bk_wow_v = 0
+                return (f'<div class="bk-row" data-lbl="{_lbl}" data-trx="{_trx_int}" data-trx-wow="0" '
+                        f'data-bk="{_bk_val:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
+                        f'data-hist-w21="{_w21}" data-hist-w20="{_w21}" data-hist-label="{_lbl}"'
                         f' style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
@@ -415,14 +432,14 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 
             rows_pp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_pp_sorted_cv))
             rows_tp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_tp_sorted_cv))
-            _metric_lbl = 'Eficacia'
+            _metric_lbl = 'ConvRate'
             _hdr_chan = lambda lbl, acc: (
-                f'<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;width:100%;'
+                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;">{lbl}</span>'
-                f'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'
+                f'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Trx <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:{acc};text-align:right;cursor:pointer;user-select:none;">{lbl} <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
+                f'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
                 f'</div>'
             )
             chan_html = (

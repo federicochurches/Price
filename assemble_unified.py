@@ -1447,7 +1447,54 @@ AR3_MODE_JS = '''
 /* w22_setMode consolidada en js_override.js (W23-bk-s3)
    data-ar-mode y _syncCard3 se manejan ahí directamente */
 '''
-GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_TRX_WOW_JS + '</script>\n<script>' + BK_SORT_JS + '</script>\n'
+CHAN_SORT_EFCV_JS = '''
+/* ══ Channel EF/CV: sort + selección de fila (unificado con BK · W24) ══
+   Reusa window.bkSort (sort genérico por data-{key}). Script separado para
+   no depender de que js_override.js llegue al final. */
+(function initChannelSortEFCV() {
+  function _attach() {
+    var done = true;
+    ['ef','cv'].forEach(function(metric) {
+      var card = document.getElementById('kpicard-'+metric);
+      if (!card) { done = false; return; }
+      if (card._chanSortAttached) return;
+      card._chanSortAttached = true;
+      card.addEventListener('click', function(e) {
+        var sp = e.target.closest('[data-sort-key]');
+        if (sp && card.contains(sp)) {
+          var panel = sp.closest('[data-tab]');
+          if (panel && panel.getAttribute('data-tab') === 'channel') {
+            if (typeof window.bkSort === 'function') window.bkSort(sp);
+            return;
+          }
+        }
+        var row = e.target.closest('.bk-row');
+        if (row && card.contains(row)) {
+          var panel2 = row.closest('[data-tab]');
+          if (panel2 && panel2.getAttribute('data-tab') === 'channel') {
+            var wasSel = row.getAttribute('data-selected') === '1';
+            card.querySelectorAll('.bk-row').forEach(function(r){
+              r.style.background = ''; r.removeAttribute('data-selected');
+            });
+            if (!wasSel) {
+              row.style.background = '#EDE8F7';
+              row.setAttribute('data-selected', '1');
+            }
+          }
+        }
+      });
+    });
+    return done;
+  }
+  var _tries = 0;
+  (function _retry(){
+    if (_attach() || _tries++ > 40) return;
+    setTimeout(_retry, 100);
+  })();
+})();
+'''
+
+GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_TRX_WOW_JS + '</script>\n<script>' + BK_SORT_JS + '</script>\n<script>' + CHAN_SORT_EFCV_JS + '</script>\n'
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 

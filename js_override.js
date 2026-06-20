@@ -979,7 +979,7 @@ function w22_renderCardTabs(canasta){
     var acc = (typeof cv==='function') ? cv().col : '#5C469C';
     var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
-    var _mkHdr = function(label){return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Tráfico</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;">'+label+'</span>'+'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">WoW</span>'+'</div>';};
+    var _mkHdr = function(label){return '<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Tráfico <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;cursor:pointer;user-select:none;">'+label+' <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'</div>';};
     /* Label de métrica según card (Eficacia / Conv Rate) */
     var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Eficacia';
     /* Layout BK style: PP arriba, TP abajo (flex column) */
@@ -1065,7 +1065,12 @@ function _buildChanRow(r, i, opts) {
       +'<span style="font-size:9px;color:var(--ink-muted);font-style:italic;grid-column:2/-1;text-align:right;">sin actividad</span>'
       +'</div>';
   }
-  return '<div '+histAttrs+' style="'+rowStyle+'">'
+  /* data-* para sort (reusa bkSort: data-lbl/trx/trx-wow/bk/bk-wow) */
+  var _trxNum = (cr_u!=null && cr_u!=='—' && cr_u!=='') ? (parseFloat(String(cr_u).replace(/[^0-9.\-]/g,''))||0) : 0;
+  var _sortAttrs = ' data-lbl="'+String(nombre).replace(/"/g,'&quot;')+'"'
+    + ' data-trx="'+_trxNum+'" data-trx-wow="0"'
+    + ' data-bk="'+metNum+'" data-bk-wow="'+(wow_pp!=null&&!isNaN(wow_pp)?wow_pp:0)+'"';
+  return '<div class="bk-row" '+histAttrs+_sortAttrs+' style="'+rowStyle+'">'
     +'<span style="'+nameStyle+'">'+nombre+'</span>'
     +'<span style="'+trxStyle+'">'+trxStr+'</span>'
     +'<span style="'+valStyle+'">'+displayVal+'</span>'
@@ -3067,3 +3072,4 @@ function ar3_showMore() {
     });
   })();
 })();
+
