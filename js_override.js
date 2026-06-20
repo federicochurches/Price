@@ -966,7 +966,7 @@ function w22_renderCardTabs(canasta){
 
     /* Completar con catálogo canónico — channels sin datos = Sin Actividad */
     var CATALOG_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees'];
-    var CATALOG_TP = ['Expedia','HotelBeds','Hotel Unico','Travelgate'];
+    var CATALOG_TP = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox'];
     function _inactive(name){ return [name,'#F2EEE6','#8A8377','Sin Actividad','—','—',null]; }
     var pp_names = pp.map(function(r){ return r[0]; });
     var tp_names = tp.map(function(r){ return r[0]; });
@@ -2738,7 +2738,7 @@ function _ar3_renderChan() {
   if (typeof BK_DATA === 'undefined' || !BK_DATA) return;
   var provs = BK_DATA.prov || [];
   var PROPIO = ['SynXis','HBSI','DerbySoft','Internal','Siteminder','Travelclick','Omnibees'];
-  var THIRD  = ['Expedia','HotelBeds','Hotel Unico','Travelgate','HotelBeds Apitude','Hotel Unico V2'];
+  var THIRD  = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox','HotelBeds Apitude','Hotel Unico V2'];
   var pp = provs.filter(function(r){ return PROPIO.indexOf(r.lab) >= 0; });
   var tp = provs.filter(function(r){ return THIRD.indexOf(r.lab) >= 0; });
 

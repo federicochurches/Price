@@ -711,11 +711,26 @@ def render_kpi_card_bookability():
     # Channel — split Producto Propio / Third Party
     top_prov = DB.get('TOP_PROVIDER', DB.get('g_provider', None))
     if top_prov is not None:
+        # Catálogo canónico unificado (mismo que EF/CV) — rellenar faltantes con "Sin Actividad"
+        _CAT_PP = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
+        _CAT_TP = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
         # Clasificación dinámica desde TipoProvider del pickle (providers nuevos como RateFox incluidos)
         _PROPIO  = set(top_prov[top_prov['TipoProvider'] == 'Producto Propio']['Provider'].tolist())
         _TERCERO = set(top_prov[top_prov['TipoProvider'] == 'Third Party']['Provider'].tolist())
+        _present = set(str(p) for p in top_prov['Provider'].tolist())
+        def _inactive_row_bk(name):
+            return ('<div style="display:grid;grid-template-columns:minmax(0,1fr) 56px 72px 48px;'
+                    'align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--rule-soft);opacity:.45;">'
+                    f'<span style="font-size:11px;font-weight:600;color:var(--ink-muted);">{name}</span>'
+                    '<span style="text-align:right;font-size:11px;color:var(--ink-muted);">—</span>'
+                    '<span style="text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--ink-muted);">Sin Actividad</span>'
+                    '<span style="text-align:right;font-size:11px;color:var(--ink-muted);">—</span>'
+                    '</div>')
         pp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _PROPIO)
         tp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _TERCERO)
+        # Rellenar faltantes del catálogo con Sin Actividad
+        pp_rows += ''.join(_inactive_row_bk(n) for n in _CAT_PP if n not in _present)
+        tp_rows += ''.join(_inactive_row_bk(n) for n in _CAT_TP if n not in _present)
         _no_data = '<p style="font-size:11px;color:var(--ink-muted)">Sin datos</p>'
         _pp_body = pp_rows if pp_rows else _no_data
         _tp_body = tp_rows if tp_rows else _no_data
