@@ -462,9 +462,9 @@ RND_CARD_TABS[canasta][metric][tkey] = array de 100 rows
 28. Duplicar `_chanRow`/`chanRowAR` — usar `_buildChanRow(r, i, opts)` en `js_override.js`
 29. Calcular `BandaConvRate` en `tab_convrate()` sin Bookings reales — `banda_convrate(val, bookings)` con los Bookings del row, no hardcodeado a 0
 30. Mergear `ConvRate_WoW_pp` dos veces en `render_cr_p2.py` — desde W22 viene directo en `p80_hotel` del pickle
-31. Modificar filas EF/CV sin tocar `_cardRow` en `js_override.js` — el JS re-renderiza con grid 6 cols + badge sev en runtime. Los cambios visuales requieren editar `_cardRow`, `_KPI_GRID` y `hdrLabels`
+31. Buscar radios `tab-ef-*`/`tab-cv-*` para enganchar sort o leer la vista activa — esos radios YA NO EXISTEN (refactor pills W24). Buscar la card por ID `kpicard-ef`/`kpicard-cv` (igual que BK) y leer la vista de `_kpiView[card]`. Aplica a `_initAllSort`, `w22_renderCardTabs`, `_kpiPillRender`.
 32. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
-33. Crear layout Channel distinto al canónico — Channel en cards KPI y AR usa flex-column (PP arriba, TP abajo) + header con columnas + sin badge severity. Aplicar en Python (`render_cr_p1.py`) y en JS (`_buildChanRow`, `_arRenderChan`)
+33. Crear el channel de las KPI cards sin sort/selección o con render distinto entre EF/CV y BK — las 3 usan filas `.bk-row` (con `data-lbl`/`data-trx`/`data-bk`/`data-bk-wow`) + header `data-sort-key`, reusando `window.bkSort`. EF/CV en JS (`_buildChanRow`, `_mkHdr` de `w22_renderCardTabs`) y Python (`chan_row`/`chan_row_cv`); BK en Python (`_hdr`/`_row`). El listener sort+selección de EF/CV es `CHAN_SORT_EFCV_JS` (script separado en `GLOBAL_PANEL_SCRIPT`). Layout flex-column (PP arriba, TP abajo), catálogo canónico con "Sin Actividad" para faltantes.
 34. Asumir que la primera definición de `w22_setMode` es la que ejecuta el browser — puede haber N redefiniciones encadenadas; verificar cuál es la última antes de añadir lógica que dependa de ella. Imprimir `w22_setMode.toString()` en consola para ver la real.
 35. Pisar un CSS con `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
 
@@ -555,7 +555,8 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W24 · Junio 2026 · 15-06-2026 (B68: js_override L1 slash→SyntaxError Chrome; B69: Ver más duplicado/faltante en cards AR × 4 iteraciones)
+**Última actualización:** W24 · Junio 2026 · 20-06-2026 (KPI cards: 3 cards unificadas sobre `_kpiSortAttach` + channel con sort/selección · pills verdes · cross-filter hotel por corp/dest · catálogo channels unificado · paso 10 copia HTML a reports/)
+**Pipeline W24-kpi-unify:** las 3 KPI cards (EF/CV/BK) 100% unificadas · pills activas VERDES `#1A6B4A` · cross-pills orden de selección · channel con sort+selección en las 3 (filas `.bk-row` + `bkSort`) · catálogo channels canónico + RateFox · cross-filter hotel por `data-cf-corp`/`data-cf-dest` · límite 1000 filas buscables · paso 10 en calc_supply copia HTML a reports/week-NN
 **Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign

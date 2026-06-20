@@ -40,18 +40,17 @@ Price/
 
 ## 📌 Última semana publicada
 
-**W23 · 2-8 jun 2026 · Junio 2026**
+**W24 · 8-14 jun 2026 · Junio 2026**
 
 | Métrica | Valor | WoW |
 |---|---|---|
-| RND %NoDispo | 2.87% | +0.28pp |
-| RND IPM | $534 | — |
-| CR Eficacia | 94.53% | — |
-| CR ConvRate | 0.84% | — |
-| INV Producto Propio | 58.966 (18.6%) | — |
-| INV Gap 2026 | 11.034 | avance 84.2% |
+| CR Eficacia | 95,55% | +0,75pp |
+| CR ConvRate | 0,82% | +0,00pp |
+| Bookability | 98,67% | +0,24pp |
+| RND %NoDispo | — | — |
+| RND IPM | — | — |
 
-🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W23](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html) · [CR](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-rnd)
+🔗 [Hub](https://analytics-desk.netlify.app) · [Supply W24](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html) · [CR](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-cr) · [RND](https://federicochurches.github.io/Price/reports/week-24/SUPPLY_W24.html#section-rnd)
 
 
 ## 🗂️ Inventario de scripts (raíz del repo)

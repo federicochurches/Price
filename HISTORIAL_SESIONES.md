@@ -5,6 +5,46 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-kpi-unify · 20 Jun 2026 · KPI cards — unificación total de las 3 cards
+
+### Contexto
+Sesión larga de unificación de las 3 KPI cards (Eficacia, Conv Rate, Bookability) tras el refactor que las puso sobre el mismo motor `_kpiSortAttach`. Múltiples inconsistencias de comportamiento entre cards 1/2 (EF/CV) y 3 (BK) por sistemas de render paralelos. Validación final con **navegador headless jsdom** (no solo screenshots).
+
+### Causa raíz transversal de las inconsistencias recurrentes
+Las cards 1/2 (EF/CV) y la 3 (BK) usaban motores de render distintos en varias áreas. Cada fix tocaba destino/corp/hotel (que ya comparten `_kpiSortAttach`) pero el **channel** quedaba con su sistema paralelo: EF/CV renderizaban channel en JS (`w22_renderCardTabs` + `_buildChanRow`, sin sort), BK en Python (`_hdr` con `data-sort-key`, con sort). De ahí la divergencia que reaparecía.
+
+### Bugs y fixes cerrados
+
+| # | Descripción | Fix |
+|---|---|---|
+| Path bug | `calc_supply.py` reportaba "✓ SUPPLY" pero el HTML nuevo vivía solo en el ZIP; `reports/week-NN/` quedaba con versión vieja → >1h de confusión | **Paso 10** en `calc_supply.py`: copia el HTML desde `OUTPUTS_DIR` (multi-ubicación) a `reports/week-NN/` en disco. Commit `dddda979` |
+| Pills filtro | Pills Críticos/Bajo Rend./Sin Conv. en KPI cards no tienen sentido (son de AR) | Vaciados `kpi-ef-hfilt`/`kpi-cv-hfilt`; `kpi_setView` nunca los muestra (`display:none`) |
+| Pills color | Pills de vista y cross-pills en violeta | Todas las pills activas → **verde** `#1A6B4A`/`#E1F5EE` (Python `_PILL_ACTIVE` + `kpi_setView` + cross-pills) |
+| Cross-pills orden | Orden fijo (corp, dest) | Orden = **orden de selección** vía array `_order` en `_kpiCrossFilter[card]` |
+| HTML roto hotel | Cards 1/2 vista Hotel: filas apiladas sin grid | **(a)** array `ef.hotel` tenía 1981 filas (sin límite) → límite **1000**; **(b)** `_kpiPillRender` ponía `display:''` que rompía el grid → `display:grid` explícito |
+| Sort EF/CV roto | `_initAllSort`/`w22_renderCardTabs` buscaban radios `tab-ef-*` inexistentes (refactor pills) → sort no se enganchaba | Buscar la card por ID `kpicard-ef`/`kpicard-cv` (igual que BK) |
+| Cross-filter hotel | Seleccionar Accor mostraba hoteles de otros corps | **(a)** `activeTab` leía radios inexistentes → leer de `_kpiView`; **(b)** filas de hotel no tenían corp/dest → agregados `data-cf-corp`/`data-cf-dest` (array +2 elementos en `build_card_rows`); **(c)** con filtro activo, ignorar paginación para mostrar matches ocultos |
+| Channel catálogo | BK mostraba Omnibees/RateFox/Travelgate, EF/CV no | Catálogo canónico unificado en las 3: PP=[DerbySoft,Internal,HBSI,SynXis,Siteminder,Travelclick,Omnibees] TP=[Expedia,HotelBeds,Hotel Unico,Travelgate,**RateFox**]; faltantes → "Sin Actividad" |
+| Channel inconsistente | BK channel con sort+selección, EF/CV sin | **Unificado:** `_buildChanRow` (JS) y `chan_row`/`chan_row_cv` (Python) generan filas `.bk-row` con `data-sort-key`; reusa `window.bkSort`. Listener `CHAN_SORT_EFCV_JS` (script separado en GLOBAL_PANEL_SCRIPT) engancha sort+selección en `kpicard-ef`/`kpicard-cv` |
+
+### Decisiones canónicas nuevas
+- **Pills activas siempre verdes** (`#1A6B4A`/`#E1F5EE`) — vista y cross-pills. No más violeta.
+- **Orden de cross-pills = orden de click** (array `_order`).
+- **Límite 1000 filas buscables** en las cards (todas de W24). El Excel NO se afecta (se genera del dataset `p80_hotel`, no del JSON).
+- **AR ya tenía** sort (`_arSort`) y selección (`data-selected`); solo se alineó el pool de búsqueda `SB_N` 500→1000.
+- **Catálogo de channels idéntico en las 3 cards**; lo que difiere es qué channel tuvo datos en cada dataset (CR vs BK) — esperado.
+
+### Aprendizajes clave
+- **El HTML correcto vive en `Price_W24.zip` y (desde `dddda979`) en `reports/week-24/` en disco.** `assemble` escribe en `OUTPUTS_DIR` (raíz en local), `build_package` lo mete al ZIP; el paso 10 lo copia a `reports/`.
+- **Validar con jsdom, no solo screenshots.** El HTML roto del hotel (1981 filas + `display:''`) y el listener de channel que no enganchaba (abortado por error `clearRect` de canvas en jsdom cuando estaba al final de `js_override.js`) se diagnosticaron con `node + jsdom`. Solución del listener: moverlo a un `<script>` separado en `GLOBAL_PANEL_SCRIPT` para que no dependa de que `js_override.js` llegue al final.
+- **Funciones globales (listeners) van en scripts separados de `GLOBAL_PANEL_SCRIPT`, no al final de `js_override.js`** — si un IIFE previo aborta (ej. canvas en headless), el resto no corre.
+- **El motor `bkSort` es genérico** (ordena por `data-{key}`): cualquier card con filas `.bk-row` + headers `data-sort-key` lo reusa.
+
+### Commits de la sesión
+`dddda979` (paso 10 copia HTML) · `30706083` (quitar pills filtro) · `2796d039` (pills verdes + orden + HTML roto + cross-filter) · `1923bc6a` (catálogo channels unificado) · `45335782` (límite filas + display grid + cross-filter ignora paginación) · `0a0aedd9` (channel EF/CV unificado sort+selección + límite 1000) · `caef6d9f` (SB_N AR → 1000)
+
+---
+
 ## Sesión W23-inv-bugs · 11 Jun 2026 · Hotel Inventory — bugs UI interactivo
 
 ### Contexto
