@@ -158,10 +158,31 @@ if __name__ == '__main__':
     # 9. Build package (index.html)
     run_step('9/8', 'build_package.py')
 
-    # ── Resumen ──
-    print('\n' + '=' * 60)
+    # ── 10. Copiar HTML a reports/week-NN/ en disco ─────────────────────────
+    # assemble_unified.py escribe SUPPLY_WNN.html en OUTPUTS_DIR (la raíz),
+    # pero el HTML "oficial" del repo vive en reports/week-NN/. Sin esta copia,
+    # reports/week-NN/SUPPLY_WNN.html queda con la versión vieja y genera
+    # confusión (el usuario abre el viejo mientras el nuevo está solo en el ZIP).
     script_dir = Path(__file__).parent
     wn = VOL_NUM.zfill(2)
+    # assemble escribe SUPPLY_WNN.html en OUTPUTS_DIR. Buscar en las ubicaciones
+    # posibles (raíz del repo en local; /mnt/user-data/outputs en Claude).
+    _candidates = [
+        Path(os.getenv('OUTPUTS_DIR', str(script_dir))) / f'SUPPLY_W{VOL_NUM}.html',
+        script_dir / f'SUPPLY_W{VOL_NUM}.html',
+        Path('/mnt/user-data/outputs') / f'SUPPLY_W{VOL_NUM}.html',
+    ]
+    _src_html = next((c for c in _candidates if c.exists()), None)
+    _dst_html = script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html'
+    if _src_html:
+        _dst_html.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(_src_html, _dst_html)
+        print(f'\n[10/10] HTML copiado a reports/week-{wn}/ ({_dst_html.stat().st_size//1024} KB)')
+    else:
+        print(f'\n[10/10] ⚠️  No se encontró SUPPLY_W{VOL_NUM}.html — reports/week-{wn}/ no actualizado')
+
+    # ── Resumen ──
+    print('\n' + '=' * 60)
     outputs = [
         (script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html',                    'SUPPLY_W{}.html'.format(VOL_NUM)),
         (script_dir / f'checkrates/week-{wn}/Analisis_CheckRates_W{VOL_NUM}.xlsx',     'Analisis_CheckRates_W{}.xlsx'.format(VOL_NUM)),
