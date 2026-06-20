@@ -411,7 +411,7 @@ function ar_setPillView(n, view, el) {
   });
   /* Fila de filtro: solo visible en vista Hotel */
   var hfilt = document.getElementById('ar'+n+'-hfilt');
-  if (hfilt) hfilt.style.display = (view === 'hotel') ? 'flex' : 'none';
+  if (hfilt) hfilt.style.display = 'none';  /* KPI cards no usan filtro de severidad (es de AR) */
   _arPillRender(n);
 }
 
@@ -500,7 +500,7 @@ function kpi_setView(card, view, el) {
 
   /* Mostrar pills de filtro solo en vista hotel */
   var hfilt = document.getElementById('kpi-'+card+'-hfilt');
-  if (hfilt) hfilt.style.display = (view === 'hotel') ? 'flex' : 'none';
+  if (hfilt) hfilt.style.display = 'none';  /* KPI cards no usan filtro de severidad (es de AR) */
   /* Botón Ver más es estático (onclick inline) — no requiere JS dinámico */
 }
 
