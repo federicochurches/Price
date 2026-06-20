@@ -666,7 +666,8 @@ def render_kpi_card_bookability():
         _trx_int = int(r.get('Books', 0))
         _trx_wow_v = bwp if (bwp is not None and not _pd.isna(bwp)) else 0
         _bk_wow_v  = wpp if (wpp is not None and not _pd.isna(wpp)) else 0
-        return (f'<div class="bk-row{extra_cls}" '
+        _ridx = f' data-row-idx="{idx-1}"' if idx is not None else ''
+        return (f'<div class="bk-row{extra_cls}"{_ridx} '
                 f'data-lbl="{lbl}" data-hist-label="{lbl}" data-trx="{_trx_int}" '
                 f'data-trx-wow="{_trx_wow_v:.4f}" '
                 f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
