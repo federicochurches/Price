@@ -1034,7 +1034,9 @@ window.bkSort = function(el) {
         if (!g) { g = { container: c, rows: [] }; groups.push(g); }
         g.rows.push(r);
     });
-    /* Para cada grupo, ordenar y re-asignar clases/visibilidad según posición */
+    /* Para cada grupo, ordenar y re-asignar clases/visibilidad según posición.
+       Sistema unificado con EF/CV: clases rows-more (6-10) / sb-hidden (11+),
+       data-row-idx por posición, preservado tras el sort. */
     groups.forEach(function(grp) {
         grp.rows.sort(sortFn);
         var moreBtn = grp.container.querySelector(':scope > .kpi-more-btn');
@@ -1043,20 +1045,24 @@ window.bkSort = function(el) {
         grp.rows.forEach(function(r){ if(r.parentNode) r.parentNode.removeChild(r); });
         var beforeEl = moreBtn;
         grp.rows.forEach(function(r, i) {
-            /* Resetear clases de posición */
+            /* Re-asignar data-row-idx según nueva posición */
+            r.setAttribute('data-row-idx', i);
+            /* Resetear clases de posición (sistema unificado) */
+            r.classList.remove('rows-more');
+            r.classList.remove('sb-hidden');
             r.classList.remove('bk-more');
             r.classList.remove('bk-sb-hidden');
             if (i < 5) {
                 /* Top 5 — visible */
-                r.style.display = 'grid';
+                r.style.setProperty('display', 'grid', 'important');
             } else if (i < 10) {
                 /* 6-10 — expandible con Ver más */
-                r.classList.add('bk-more');
-                r.style.display = isExpanded ? 'grid' : 'none';
+                r.classList.add('rows-more');
+                r.style.setProperty('display', isExpanded ? 'grid' : 'none', 'important');
             } else {
                 /* 11+ — buscable pero oculta */
-                r.classList.add('bk-sb-hidden');
-                r.style.display = 'none';
+                r.classList.add('sb-hidden');
+                r.style.setProperty('display', 'none', 'important');
             }
             if (beforeEl) grp.container.insertBefore(r, beforeEl);
             else grp.container.appendChild(r);

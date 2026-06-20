@@ -2942,11 +2942,54 @@ function ar3_showMore() {
     var panels = bkCard.querySelector('#kpi-bk-panels');
     if (!panels) return;
 
+    /* Paginación unificada: 5 visibles + 5 rows-more + resto sb-hidden.
+       Aplica por POSICIÓN directamente sobre las filas, agrupando por container
+       (channel tiene 2 grupos PP/TP). Independiente del HTML data-row-idx. */
+    function _paginateBKPanel(panel) {
+      if (!panel) return;
+      var allRows = Array.prototype.slice.call(panel.querySelectorAll('.bk-row'));
+      if (!allRows.length) return;
+      /* Agrupar por parentNode (para channel PP/TP) */
+      var groups = [];
+      allRows.forEach(function(r) {
+        var c = r.parentNode;
+        var g = null;
+        for (var k=0; k<groups.length; k++){ if(groups[k].container===c){ g=groups[k]; break; } }
+        if (!g) { g = {container:c, rows:[]}; groups.push(g); }
+        g.rows.push(r);
+      });
+      groups.forEach(function(grp) {
+        var moreBtn = grp.container.querySelector(':scope > .kpi-more-btn');
+        var isExpanded = moreBtn && moreBtn.getAttribute('data-exp') === '1';
+        grp.rows.forEach(function(r, i) {
+          r.setAttribute('data-row-idx', i);
+          r.classList.remove('rows-more');
+          r.classList.remove('sb-hidden');
+          r.classList.remove('bk-more');
+          r.classList.remove('bk-sb-hidden');
+          if (i < 5) {
+            r.style.setProperty('display', 'grid', 'important');
+          } else if (i < 10) {
+            r.classList.add('rows-more');
+            r.style.setProperty('display', isExpanded ? 'grid' : 'none', 'important');
+          } else {
+            r.classList.add('sb-hidden');
+            r.style.setProperty('display', 'none', 'important');
+          }
+        });
+        /* Mostrar el botón Ver más si hay más de 5 filas */
+        if (moreBtn) moreBtn.style.display = grp.rows.length > 5 ? '' : 'none';
+      });
+    }
+
     function _activateBKTab(tabKey) {
       /* Mostrar/ocultar panels */
       BK_TABS.forEach(function(t) {
         var p = panels.querySelector('[data-tab="' + t + '"]');
-        if (p) p.style.display = (t === tabKey) ? '' : 'none';
+        if (p) {
+          p.style.display = (t === tabKey) ? '' : 'none';
+          if (t === tabKey) _paginateBKPanel(p);
+        }
       });
       /* Actualizar estilo de TODOS los labels tab-bk-* en la card */
       BK_TABS.forEach(function(t) {
