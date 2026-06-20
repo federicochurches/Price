@@ -570,26 +570,33 @@ function _kpiPillRender(card) {
 
   rows.forEach(function(row) {
     var isSbHidden = row.classList.contains('sb-hidden');
-    if (isSbHidden) return; /* Respetar visibilidad del searchbox */
     if (activeTab !== 'hotel') {
       /* En tabs corp/destino: filtrar por cross filter del mismo tipo */
-      var label = row.getAttribute('data-hist-label') || '';
       var cfKey = (activeTab === 'corp') ? 'corp' : (activeTab === 'destino') ? 'dest' : null;
-      if (cfKey && cf[cfKey]) {
-        var visible = _kpiNormCF(label).indexOf(_kpiNormCF(cf[cfKey])) >= 0;
-        row.style.setProperty('display', visible ? '' : 'none', 'important');
-      } else {
-        row.style.display = '';
-      }
+      if (!cfKey || !cf[cfKey]) { if (isSbHidden) return; return; }  /* sin filtro → respetar paginación */
+      if (isSbHidden) return;
+      if (row.classList.contains('rows-more')) return;
+      var label = row.getAttribute('data-hist-label') || '';
+      var visible = _kpiNormCF(label).indexOf(_kpiNormCF(cf[cfKey])) >= 0;
+      row.style.setProperty('display', visible ? 'grid' : 'none', 'important');
       return;
     }
-    /* Vista hotel: filtrar por cross filter corp Y dest (los que estén activos).
-       Las KPI cards ya no usan filtro de severidad (es de AR). */
+    /* Vista hotel: filtrar por cross filter corp Y dest (los que estén activos). */
+    if (!cf.corp && !cf.dest) {
+      if (isSbHidden) return;  /* sin filtro → respetar paginación */
+      return;
+    }
+    /* Con cross-filter activo: evaluar TODAS las filas (incluso rows-more/sb-hidden)
+       para poder mostrar matches que estaban ocultos por paginación */
     var rowCorp = row.getAttribute('data-cf-corp') || '';
     var rowDest = row.getAttribute('data-cf-dest') || '';
     var okCorp = !cf.corp || _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0;
     var okDest = !cf.dest || _kpiNormCF(rowDest).indexOf(_kpiNormCF(cf.dest)) >= 0;
-    row.style.setProperty('display', (okCorp && okDest) ? '' : 'none', 'important');
+    if (okCorp && okDest) {
+      row.style.setProperty('display', 'grid', 'important');
+    } else {
+      row.style.setProperty('display', 'none', 'important');
+    }
   });
 
   /* cntEl del searchbox se maneja por el SB nativo — no intervenir */

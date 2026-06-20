@@ -1100,6 +1100,10 @@ def build_card_rows(df, t_key, cfg):
     sub_fn = (lambda r: truncate(str(r.get('CorpName','')), 20)
               if 'CorpName' in r.index else '') if t_key == 'hotel' else (lambda r: '')
 
+    # Top 500 buscables (regla canónica) — evita meter miles de filas al DOM
+    if df is not None and len(df) > 500:
+        df = df.head(500)
+
     rows = []
     for _, r in df.iterrows():
         lab = name_fn(r)
