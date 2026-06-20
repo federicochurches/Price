@@ -25,7 +25,7 @@ def _kpi_ver_mas_btn(target_class='rows-more'):
     _cls = target_class
     return (
         '<button class="kpi-more-btn"'
-        ' style="display:block;width:100%;margin-top:4px;'
+        ' style="display:block;width:100%;margin-top:4px;margin-bottom:18px;'
         'font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;'
         'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
         'padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;"'

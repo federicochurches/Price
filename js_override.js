@@ -1919,7 +1919,7 @@ function _moreBtn(containerEl, tbodyId) {
   if (!moreRows2.length) return;
   var btn = document.createElement('button');
   btn.className = 'kpi-more-btn';
-  btn.style.cssText = 'display:block;width:100%;margin-top:4px;font-family:\'Geist\',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;';
+  btn.style.cssText = 'display:block;width:100%;margin-top:4px;margin-bottom:18px;font-family:\'Geist\',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;';
   btn.textContent = 'Ver más ▾';
   var sid2 = tbodyId || '';
   btn.setAttribute('onclick', [
