@@ -929,7 +929,10 @@ function _cardRow(r, idx, isEf, grid){
     +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
   var _display = (typeof arguments[4]==='string') ? arguments[4] : 'grid';
   var _cls = (typeof arguments[5]==='string') ? ' class="'+arguments[5]+'"' : '';
-  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'"'
+  /* Cross-filter (vista hotel): corp/dest crudos en r[11]/r[12] */
+  var _cf_corp = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
+  var _cf_dest = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
+  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'" data-cf-corp="'+_cf_corp+'" data-cf-dest="'+_cf_dest+'"'
     +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
@@ -956,8 +959,7 @@ function w22_renderCardTabs(canasta){
     var chanData = tabs[chanKey] || {};
     var pp = chanData.pp || [], tp = chanData.tp || [];
     var radioEl = document.getElementById('tab'+suffix+'channel');
-    if(!radioEl) return;
-    var card = radioEl.closest('.kpi-card');
+    var card = document.getElementById('kpicard-'+metric);
     if(!card) return;
     var panel = card.querySelector('[data-tab="channel"]');
     if(!panel) return;
@@ -990,12 +992,10 @@ function w22_renderCardTabs(canasta){
   
   /* W23+: Attach sort listeners después de renderizar tabs */
   ['ef','cv'].forEach(function(metric){
-    var suffix = metric==='ef' ? '-ef-' : '-cv-';
+    /* Refactor pills W24: buscar card por ID (ya no existen radios tab-ef-*) */
+    var card = document.getElementById('kpicard-'+metric);
+    if (!card) return;
     ['destino','corp','hotel'].forEach(function(tkey){
-      var radioEl = document.getElementById('tab'+suffix+tkey);
-      if (!radioEl) return;
-      var card = radioEl.closest('.kpi-card');
-      if (!card) return;
       var allRows = (tabs[metric]||{})[tkey]||[];
       if (!allRows.length) return;
       _kpiSortAttach(card, tkey, metric, allRows);
@@ -2097,14 +2097,13 @@ function _initAllSort() {
     if (!CR_TABS) return;
     var tabs = CR_TABS[canasta] || CR_TABS['global'] || {};
     ['ef','cv'].forEach(function(metric){
-      var suffix = metric==='ef' ? '-ef-' : '-cv-';
+      /* Refactor pills W24: ya no existen radios tab-ef-*. Buscar la card por ID
+         (igual que BK) en vez de los radios inexistentes. */
+      var card = document.getElementById('kpicard-'+metric);
+      if (!card) return;
       ['destino','corp','hotel'].forEach(function(tkey){
         var allRows = (tabs[metric]||{})[tkey]||[];
         if (!allRows.length) return;
-        var radioEl = document.getElementById('tab'+suffix+tkey);
-        if (!radioEl) return;
-        var card = radioEl.closest('.kpi-card');
-        if (!card) return;
         _kpiSortAttach(card, tkey, metric, allRows);
       });
     });

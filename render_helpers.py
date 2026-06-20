@@ -1141,10 +1141,15 @@ def build_card_rows(df, t_key, cfg):
                 if not _m.isnan(_pf): hist_w20 = val_scale(_pf)
             except (TypeError, ValueError): pass
 
+        # Cross-filter (vista hotel): corp y destino crudos para matchear los pills
+        _cf_corp = str(r.get('CorpName', '')) if 'CorpName' in r.index else ''
+        _cf_dest = str(r.get('Destino', '')) if 'Destino' in r.index else ''
+
         rows.append([
             lab, sub,
             bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
             traf, traf_wow, val_pct, wow,
             round(hist_w21, 4), round(hist_w20, 4),
+            _cf_corp, _cf_dest,
         ])
     return rows
