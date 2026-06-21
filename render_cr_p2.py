@@ -489,7 +489,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     # Carryover (vacío por defecto)
     co = []
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'hotels_crit_sb': hotels_crit_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': dim_rows, 'corps_cv': corps_cv_rows, 'dests': dest_rows, 'dests_cv': dests_cv_rows, 'chans': chan_rows, 'chans_pp': chans_pp, 'chans_tp': chans_tp, 'plan': plan, 'co': co}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'hotels_crit_sb': hotels_crit_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'corps_cv': [], 'dests': [], 'dests_cv': [], 'chans': [], 'chans_pp': [], 'chans_tp': [], 'plan': plan, 'co': co}
 
 
 def build_cr_d():

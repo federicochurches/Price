@@ -564,6 +564,13 @@ document.addEventListener('click', function(e) {
     document.dispatchEvent(new CustomEvent('hist-reset', { detail: { cid: 'h-bk-global' } }));
     var lblEl = document.getElementById('hist-h-bk-global-label');
     if (lblEl) lblEl.textContent = 'Global';
+    /* #1: limpiar también la cross-pill de channel si quedó activa */
+    if (typeof _kpiCrossFilter !== 'undefined' && _kpiCrossFilter['bk']) {
+      _kpiCrossFilter['bk'].channel = null;
+      var _bo = _kpiCrossFilter['bk']._order || [];
+      var _bi = _bo.indexOf('channel'); if (_bi >= 0) _bo.splice(_bi, 1);
+      if (typeof _kpiCrossFilterPillsRender === 'function') _kpiCrossFilterPillsRender('bk');
+    }
   }
 
   /* Si vista activa es corp/destino → delegar al filtro cruzado KPI */
@@ -612,6 +619,15 @@ document.addEventListener('click', function(e) {
 
   var labelEl = document.getElementById('hist-h-bk-global-label');
   if (labelEl) labelEl.textContent = label;
+
+  /* #1: si la vista activa es channel, crear también la cross-pill (como ef/cv) */
+  if (typeof _kpiView !== 'undefined' && _kpiView['bk'] === 'channel' && typeof _kpiCrossFilter !== 'undefined') {
+    if (!_kpiCrossFilter['bk']) _kpiCrossFilter['bk'] = {corp:null, dest:null, channel:null, _order:[]};
+    _kpiCrossFilter['bk'].channel = label;
+    var _bo2 = _kpiCrossFilter['bk']._order || (_kpiCrossFilter['bk']._order = []);
+    if (_bo2.indexOf('channel') < 0) _bo2.push('channel');
+    if (typeof _kpiCrossFilterPillsRender === 'function') _kpiCrossFilterPillsRender('bk');
+  }
 });
 
 /* ── Event delegation para histórico del panel (cards AR — tbody) ──────────── */
@@ -1723,8 +1739,9 @@ function ar_updateKPIs() {
     var wBg = wowGood ? '#E0F0E2' : '#FCE8E6';
     var wFg = wowGood ? '#2F6C34' : '#C0392B';
     var wowTxt = (parseFloat(wow) > 0 ? '↑ +' : '↓ ') + parseFloat(wow).toFixed(2).replace('.',',');
-    var wPrev = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'22':'22')) : 'W22';
-    var wCurr = (typeof W !== 'undefined') ? 'W'+(parseInt(W.mode==='cr'?'23':'23')) : 'W23';
+    var _vn = (typeof _VOL_NUM !== 'undefined') ? _VOL_NUM : 24;
+    var wPrev = 'W'+(_vn-1);
+    var wCurr = 'W'+_vn;
     return '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wPrev+'</div><div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+w20+'</div></div>'
       +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">'+wCurr+'</div><div style="font-size:14px;font-weight:700;margin-top:2px;color:'+acc+';">'+w21+'</div></div>'
       +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div><div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
@@ -1852,8 +1869,11 @@ function _arCrossFilterPillsRender(n) {
   if (!container) return;
   var f = _arCrossFilter[n];
   var html = '';
-  /* Cross-pills (corp/dest/pais/hotel) SIEMPRE en verde — igual que KPI cards (W24) */
-  var GR_BG = '#E1F5EE', GR_FG = '#1A6B4A', GR_BD = '#1A6B4A';
+  /* Cross-pills: violeta en CR (ef/cv), verde en RND (nd/ipm) — igual que las KPI cards (W24) */
+  var _isCR_ar = (typeof W !== 'undefined') && W.mode === 'cr';
+  var GR_BG = _isCR_ar ? '#EDE8F7' : '#E1F5EE';
+  var GR_FG = _isCR_ar ? '#5C469C' : '#1A6B4A';
+  var GR_BD = _isCR_ar ? '#5C469C' : '#1A6B4A';
   var _pill = function(type, label) {
     return '<span class="ar-cross-pill" data-cross-n="'+n+'" data-cross-type="'+type+'"'
       +' style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 10px;'

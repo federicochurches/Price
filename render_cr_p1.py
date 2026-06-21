@@ -202,7 +202,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     for t_key, df_t in [
         ('destino', TAB_EF['destino']),
         ('corp', TAB_EF['corp']),
-        ('hotel', TAB_EF['hotel']),
+        ('hotel', TAB_EF['hotel'].head(1000)),  # static: cap 1000 (JS re-renderiza desde JSON completo)
         ('channel', TAB_EF['channel']),
         ('canasta', TAB_EF['canasta']),
     ]:
@@ -370,7 +370,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     for t_key, df_t in [
         ('destino', TAB_CV['destino']),
         ('corp', TAB_CV['corp']),
-        ('hotel', TAB_CV['hotel'][TAB_CV['hotel']['Bookings'] > 0].sort_values('ConvRate').reset_index(drop=True)),
+        ('hotel', TAB_CV['hotel'][TAB_CV['hotel']['Bookings'] > 0].sort_values('ConvRate').reset_index(drop=True).head(1000)),  # static: cap 1000 (JS re-renderiza desde JSON completo)
         ('channel', TAB_CV['channel']),
         ('canasta', TAB_CV['canasta']),
     ]:

@@ -337,6 +337,13 @@ GLOBAL_PANEL_SCRIPT (script separado, ÚLTIMO en el body)
 - `--ink-muted: #8A8377` — Sin Conversión, valores muted
 - Gauge 5 niveles: `height:6px · opacity:1` uniforme
 
+### ⚠️ Cards AR · SOLO HOTEL (W25 · refactor)
+Las 3 cards de Análisis de Rendimiento (ar1 Ef/NoDispo · ar2 CV/IPM · ar3 Bookability) son **solo vista hotel** con bandas de severidad (Críticos / Bajo Rendimiento / Sin Conversión). **Se eliminaron las pills de vista corp/dest/channel** — eran redundantes con las KPI cards (mismo ranking para EF/CV/NoDispo) e inconsistentes para IPM (las dims de AR se ordenaban por %NoDispo, no por IPM). El breakdown por corp/dest/channel vive **solo en las KPI cards**.
+- **Navegación de bandas:** ar1/ar2 → `ar{n}-hfilt` (`ar_setPillFilt`) · ar3 → `ar3-htab-row` (`ar3_setHotelTab`). Ambas `display:flex` por default.
+- **Data de dims vaciada** en `CR_D`/`RND_D` (`build_canasta_data` return: `dims/corps/dests/chans = []`) → −952 KB de HTML. La data de hotel (`hotels_*`, `_sb`) intacta.
+- **Handlers dim de AR** (`_arRenderTable` dim views, `_ar3` corp/dest/prov, `_arCrossFilter`) quedan como código muerto inalcanzable (cleanup A2b pendiente, no urgente).
+- Esto resolvió por eliminación: pills AR no marcaban (#2), channel BK AR no seleccionaba (#3), orden pills BK AR (#6), searchbox RND AR (#9), y la mezcla de valores en ConvRate AR (#4).
+
 ### Cross-filter KPI/AR · Comportamiento canónico (W24)
 - **Cross-pills color por sección:** CR (ef/cv/bk) = **violeta** `#EDE8F7`/`#5C469C` · RND (nd/ipm) = **verde** `#E1F5EE`/`#1A6B4A`. Condición en `_kpiCrossFilterPillsRender`: `_isCR = card in ('ef','cv','bk')`. (El verde se confundía con la barra de banda "Exitosa" en CR.)
 - **Dimensión propia NO se auto-filtra** — al seleccionar en la misma vista, solo resalta la fila; las demás siguen visibles. Las dimensiones **cruzadas** filtran + paginan (`cf-extra` + botón `.cf-more-btn` del subconjunto, vía `_cfSetupMoreBtn`).
@@ -493,7 +500,7 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 
 > **P1–P14 cerrados · B68–B69 cerrados W24 — no quedan bugs de lógica abiertos.**
 >
-> **DECISIÓN PENDIENTE (P15 · cobertura de pool CR):** el panel hotel de CR KPI son los ~1000-2300 peores por Eficacia (`concat(crit 500 + br 300 + exitosa·top1000 + sinconv 500)` dedupe). Un corp de buena eficacia agregada-baja pero hoteles individuales fuera de los caps (ej. Iberostar) **no está en el pool** → corp→hotel da 0 y el searchbox de CR KPI tampoco lo encuentra. La lógica de cross-filter YA es correcta (ignora banda); es cobertura de datos. Opciones: (A) incluir pool extendido completo como `sb-hidden` en el panel hotel CR (sube HTML +1–3MB, igual que AR); (B) limitar la vista Corp/Destino a entidades presentes en el pool. **Esperando definición de Federico.** Afecta #2 (corp→hotel) y #3 (base searchbox CR).
+> **RESUELTO (P15 · cobertura de pool CR · opción A):** el panel hotel de CR KPI ahora incluye el **pool completo** (3582 hoteles, todas las bandas) como `sb-hidden`. `tab_eficacia`/`tab_convrate` en `calc_cr.py` ya no capean (`TAB_EF['hotel']`/`TAB_CV['hotel']` = pool completo); `build_card_rows` cap 1000→4000; el render estático en `render_cr_p1.py` queda capeado a top-1000 (el JS lo reemplaza con el JSON completo, así no infla el HTML). Resultado: corp→hotel y searchbox de CR KPI alcanzan cualquier corp/hotel (ej. Iberostar, banda Exitosa). **Solo aplica a CR KPI ef+cv.** Pendiente backlog: extender pool completo a RND KPI nd/ipm (hoy 500/100) en una pasada unificada con pool compartido.
 > P5 cerrado W23: `extract_hist_data.py` creado. P12: filtro cruzado Corp+Dest. P13: ConvRate WoW. P14: card BK en Availability.
 > B68 cerrado W24: `js_override.js` L1 slash suelto → SyntaxError Chrome (script creció 2MB en W24, cambió contexto de parseo).
 > B69 cerrado W24: botón "Ver más" duplicado/faltante en cards AR — `ar_renderTable()` es fuente de verdad para AR1/AR2; `ar3-more-btn` activado directamente.
@@ -570,7 +577,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W24-cr-kpi-ar · 20-06-2026 (CR/Connectivity: cross-pills violeta en CR / verde en RND · channel seleccionable en KPI (canvas global + pill violeta + stopPropagation) y en AR (vía _handleKpiCardHistClick) · corp→hotel ignora banda con cross-filter activo · P15 cobertura de pool CR diagnosticada — decisión pendiente)
+**Última actualización:** W24-ar-hotel-only · 20-06-2026 (P15 RESUELTO opción A: pool completo CR KPI ef/cv 3582 hoteles · **refactor AR SOLO HOTEL** — eliminadas pills de vista corp/dest/channel en las 3 cards AR, data dims vaciada −952KB, resuelve #2/#3/#4/#6/#9 · #7 semanas dinámicas vía _VOL_NUM · #1 pill channel BK KPI · 9/10 bugs resueltos, #8 searchbox RND KPI pendiente)
 **Última actualización previa:** W24-rnd-kpi · 20-06-2026 (KPI cards RND migradas a pills + 6 bugs cross-filter/searchbox: filtro País→Destino, click hotel grafica, pills severidad AR en hotel, AR cards distintas por IPM, searchbox AR en vistas dim · array RND_CARD_TABS alineado a índices de CR · canvas redraw con try/catch global)
 **Pipeline W24-rnd-kpi:** 2 KPI cards RND (NoDispo/IPM) migradas de radios CSS a pills verdes · `RND_CARD_TABS` realineado (hist r9/r10, cf r11/r12/r13) · `_crossFilterNonHotel` filtra panel de vista activa + País→Destino · `g_dest` enriquecido con país en `calc_rnd.py` · `_arDimRows` card 2 RND ordena por IPM · searchbox AR unificado con clase `.sb-search-hit{display:grid !important}` (dos handlers oninput) · `w22_redrawCanvas` envuelto en try/catch (no corta `w22_setMode`)
 **Última actualización previa:** W24-kpi-unify · 20-06-2026 (KPI cards: 3 cards unificadas sobre `_kpiSortAttach` + channel con sort/selección · pills verdes · cross-filter hotel por corp/dest · catálogo channels unificado · paso 10 copia HTML a reports/)

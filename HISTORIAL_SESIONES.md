@@ -5,6 +5,45 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-ar-hotel-only · 20 Jun 2026 · Refactor AR SOLO HOTEL + P15 pool completo + cierre de 9/10 bugs
+
+### Contexto
+Continuación de W24-cr-kpi-ar. Federico reporta 10 bugs (CR/RND × KPI/AR) y, durante el debug, nota que las dims corp/dest/channel de las cards AR son **redundantes** con las KPI cards (mismo ranking EF/CV/NoDispo) e **inconsistentes** para IPM. Decisión de diseño aprobada: AR queda **solo hotel**. Validación con jsdom headless (HTML ~19-20MB tarda ~32s en construir → timeout ≥120s, stub canvas en `beforeParse`).
+
+### P15 · Pool completo CR KPI (opción A) ✅
+- `calc_cr.py` `tab_eficacia`/`tab_convrate`: quitado `.head(N)` → `TAB_EF/CV['hotel']` = pool completo (3582 hoteles, todas las bandas).
+- `render_helpers.py` `build_card_rows`: cap 1000→4000.
+- `render_cr_p1.py`: render estático capeado a top-1000 (el JS lo reemplaza con el JSON completo → no infla HTML).
+- Resuelve cobertura: corp→hotel y searchbox CR KPI alcanzan cualquier corp/hotel (ej. Iberostar, banda Exitosa). Solo CR KPI ef+cv (backlog: RND nd/ipm).
+
+### Refactor AR SOLO HOTEL (Bloque A) ✅
+- **A1 (UI):** removidas las 3 filas de pills de vista (assemble: ar1, ar2, ar3-vbk) vía regex. Navegación de bandas conservada (ar1/ar2 → `ar{n}-hfilt`/`ar_setPillFilt`; ar3 → `ar3-htab-row`/`ar3_setHotelTab`).
+- **A2 (data):** vaciadas las dims en `build_canasta_data` returns (`render_cr_p2.py`, `render_rnd_p2.py`): `dims/corps/dests/chans = []`. Computación interna intacta (re/plan la usan). **HTML 20.06MB → 19.10MB (−952 KB).**
+- Validado jsdom: pills vista ausentes, bandas presentes, hoteles renderizan, Ver más OK, 0 errores JS.
+
+### Bugs (9/10 cerrados)
+
+| # | Descripción | Fix |
+|---|---|---|
+| #1 | Channel BK KPI no generaba pill | Handler `.bk-row` (js_override): channel → cross-pill (`_kpiCrossFilter['bk'].channel`) + limpieza en `_bkResetGlobal` |
+| #2 | Pills AR no marcaban (3 cards) | Resuelto por A1 (eliminadas). También: `_handleKpiCardHistClick` retorna temprano para kpicard-ar1/ar2 en vistas dim |
+| #3 | Channel BK AR no seleccionaba | Resuelto por A1 |
+| #4 | ConvRate AR mezclaba convrate+eficacia | Resuelto por A1 (la mezcla estaba en las dims). Confirmado: serie base `hcr-panel-cv`=convrate `[1.15..0.82]` separada de `hcr-panel-ef`=eficacia `[93.58..95.57]`; AR card 2 grafica convrate al panel convrate |
+| #5/#10 | Sin botón Ver más en AR ef/cv y RND AR | Validado jsdom (`ar{n}-th-more` display:'' cuando rows>5) |
+| #6 | Orden pills BK AR | Resuelto por A1 |
+| #7 | Semanas hardcodeadas (W22/W23 en vez de W23/W24) | `wowBox` (js_override) usa `_VOL_NUM` dinámico, inyectado en FOOTER_JS de assemble (`var _VOL_NUM={int(VOL_NUM)};`). HALLAZGO: `_SEMANAS_HIST` (js L7) también stale W16-W23 → debería W17-W24 (pendiente) |
+| #8 | Searchbox RND KPI: query queda activo, lista enorme, sin resaltar | 🔴 **PENDIENTE.** Diagnóstico: el searchbox KPI (`sb-kpi-*`) muestra dropdown de sugerencias pero NO filtra/resalta filas del panel (`sb-search-hit=0`); no lo ataca `_attachArSb` (solo AR) ni `_attachPanelSb` (legacy muerto). Hay un listener delegado por aislar. Fix: recablear para filtrar panel activo + al seleccionar → cross-filter + resaltar fila + limpiar query + paginar |
+| #9 | Searchbox RND AR no resaltaba | Resuelto por A1 |
+
+### Pendientes
+- **#8** searchbox RND KPI (recableo aislado).
+- `_SEMANAS_HIST` stale (W16-W23 → W17-W24).
+- Cleanup A2b: remover handlers dim muertos de AR.
+- Bloque D: optimización tamaño HTML (estilos inline→clase, pool compartido, JSON compacto).
+
+---
+
+
 ## Sesión W24-cr-kpi-ar · 20 Jun 2026 · CR/Connectivity: cross-pills, channel, corp→hotel + análisis unificación
 
 ### Contexto

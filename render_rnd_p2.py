@@ -369,7 +369,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
                  'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
                  't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_ipm_sc': hotels_ipm_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_ipm_sc': hotels_ipm_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': []}
 
 
 def build_rnd_d():

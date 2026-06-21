@@ -255,11 +255,13 @@ def tab_eficacia():
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[g_d['CR_Unicos']>=p50_d].sort_values('Eficacia').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('Eficacia').head(100).reset_index(drop=True)
-    # Sin filtro p50 — pills de banda filtran en JS. Límite por banda para controlar tamaño HTML.
-    _df_crit = g_h[g_h['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True).head(500)
-    _df_br   = g_h[g_h['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True).head(300)
-    _df_exit = g_h[g_h['BandaEficacia']=='Exitosa'].sort_values('CR_Unicos', ascending=False).head(1000)
-    _df_sc   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(500)
+    # P15: pool COMPLETO de hoteles (todas las bandas, sin cap) para que cross-filter
+    # y searchbox de CR KPI alcancen cualquier corp/hotel. Filas 11+ van como sb-hidden.
+    # Los pills de banda filtran en JS por data-banda; el orden band-grouped se preserva.
+    _df_crit = g_h[g_h['BandaEficacia'].isin(['Crítica','Súper Crítica'])].sort_values('Eficacia', ascending=True)
+    _df_br   = g_h[g_h['BandaEficacia'].isin(['Revisar','Aceptable'])].sort_values('Eficacia', ascending=True)
+    _df_exit = g_h[g_h['BandaEficacia']=='Exitosa'].sort_values('CR_Unicos', ascending=False)
+    _df_sc   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False)
     df_h = pd.concat([_df_crit, _df_br, _df_exit, _df_sc], ignore_index=True).drop_duplicates('Hotel').reset_index(drop=True)
     # Merge WoW — Eficacia + ConvRate + CR_Unicos (tráfico)
     df_d = df_d.merge(g_dest_w17[['Destino','Eficacia_W17','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')
@@ -303,11 +305,11 @@ def tab_convrate():
     p50_h = g_h['CR_Unicos'].quantile(0.50)
     df_d = g_d[(g_d['CR_Unicos']>=p50_d) & (g_d['Bookings']>0)].sort_values('ConvRate').head(500).reset_index(drop=True)
     df_c = g_c.sort_values('ConvRate').head(100).reset_index(drop=True)
-    # Sin filtro p50 — pills de banda filtran en JS. Límite por banda para controlar tamaño HTML.
-    _df_crit_cv = g_h[g_h['BandaConvRate'].isin(['Crítica','Súper Crítica'])].sort_values('ConvRate', ascending=True).head(500)
-    _df_br_cv   = g_h[g_h['BandaConvRate'].isin(['Revisar','Aceptable'])].sort_values('ConvRate', ascending=True).head(300)
-    _df_exit_cv = g_h[g_h['BandaConvRate']=='Exitosa'].sort_values('CR_Unicos', ascending=False).head(1000)
-    _df_sc_cv   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False).head(500)
+    # P15: pool COMPLETO de hoteles (todas las bandas, sin cap) — cobertura total de corps.
+    _df_crit_cv = g_h[g_h['BandaConvRate'].isin(['Crítica','Súper Crítica'])].sort_values('ConvRate', ascending=True)
+    _df_br_cv   = g_h[g_h['BandaConvRate'].isin(['Revisar','Aceptable'])].sort_values('ConvRate', ascending=True)
+    _df_exit_cv = g_h[g_h['BandaConvRate']=='Exitosa'].sort_values('CR_Unicos', ascending=False)
+    _df_sc_cv   = g_hotel_all[g_hotel_all['Bookings']==0].sort_values('CR_Unicos', ascending=False)
     df_h = pd.concat([_df_crit_cv, _df_br_cv, _df_exit_cv, _df_sc_cv], ignore_index=True).drop_duplicates('Hotel').reset_index(drop=True)
     # Merge WoW — ConvRate + CR_Unicos (tráfico)
     df_d = df_d.merge(g_dest_w17[['Destino','ConvRate_W17','CR_Unicos_W17']], on='Destino', how='left')

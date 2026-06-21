@@ -1107,9 +1107,10 @@ def build_card_rows(df, t_key, cfg):
     sub_fn = (lambda r: truncate(str(r.get('CorpName','')), 20)
               if 'CorpName' in r.index else '') if t_key == 'hotel' else (lambda r: '')
 
-    # Top 1000 buscables (W24) — evita meter miles de filas al DOM
-    if df is not None and len(df) > 1000:
-        df = df.head(1000)
+    # P15: cap elevado para que el JSON de cross-filter/searchbox cubra el pool completo
+    # de hoteles de CR (~3,6K). RND y dims (destino/corp) quedan muy por debajo, sin cambio.
+    if df is not None and len(df) > 4000:
+        df = df.head(4000)
 
     rows = []
     for _, r in df.iterrows():
