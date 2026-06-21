@@ -162,7 +162,7 @@ def run_calc():
     print(_c("   ─── salida de calc_inv.py ───", C_DIM))
     result = subprocess.run(
         [sys.executable, "calc_inv.py"],
-        capture_output=True, text=True, encoding="utf-8"
+        capture_output=True, text=True, encoding="utf-8", errors="replace"
     )
     for line in (result.stdout or "").splitlines():
         print(f"   {C_DIM}│{C_END} {line}")
