@@ -2566,3 +2566,11 @@ print(f'   Tamaño: {size_kb:.0f} KB · {len(final):,} chars')
 print(f'   CR: {len(p1_cr)+len(p2_cr)+len(p3_cr):,} chars')
 print(f'   RND: {len(p1_rnd)+len(p2_rnd)+len(p3_rnd):,} chars')
 
+# ── Auditoría del HTML (composición · duplicados · presupuesto · huérfanos) ──
+# No fatal: si check_html falla por cualquier motivo, el build ya está escrito.
+try:
+    import check_html
+    check_html.report(str(out))
+except Exception as _e:
+    print(f'[check_html] aviso: no se pudo correr la auditoría ({_e})')
+

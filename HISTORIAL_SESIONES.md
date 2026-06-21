@@ -5,6 +5,30 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-check-html · 21 Jun 2026 · Auditoría automática del HTML (composición · duplicados · presupuesto · huérfanos)
+
+### Contexto
+Tras encontrar tanto código muerto / data duplicada en el refactor (CR_HOTELS, _sb 4×, panel w22, handlers AR dim), Fede preguntó cómo *garantizar* que no haya más. Respuesta: no auditar más fuerte, sino hacer estas clases detectables automáticamente en cada build. → `check_html.py`.
+
+### check_html.py
+4 chequeos sobre el HTML generado:
+1. **COMPOSICIÓN** — balance-match de cada `var NAME = {`/`[` top-level (consciente de strings), peso + % del total, ordenado.
+2. **DUPLICADOS** — parsea los vars JSON, camina 2 niveles, hashea (md5) arrays/objetos ≥4KB, agrupa por hash → reporta los emitidos ≥2× con bytes redundantes. Es lo que habría cazado CR_HOTELS y los _sb 4× desde el inicio.
+3. **PRESUPUESTO** — total + delta vs baseline local `.html_budget.json` (gitignored, regenera por build). Caza regresiones de tamaño.
+4. **HUÉRFANOS** — `getElementById('X')` literales sin `id="X"` en el DOM · `onclick="fn("` sin `function fn`/asignación. (Caveat: IDs dinámicos `'ar'+n+'-th'` no se chequean → "candidatos a revisar".)
+
+Expone `report(path, update=False)` (invocable) + `main()` (argv). Enganchado al final de `assemble_unified.py` en try/except no-fatal (si falla, el build ya está escrito). `.html_budget.json` → .gitignore.
+
+### Barrido inicial sobre W24
+- **DUPLICADOS ~4,44MB**, casi todo RND: `RND_CARD_TABS` 4× (global=b2c=op=cug, 806KB) + sub-arrays nd (503KB)/ipm (303KB) 4×; `RND_D._sb` 4× (sc_sb 514KB + dnc_sb 486KB + br_sb 321KB); internos `hotels==hotels_dnc` y `hotels_sc==hotels_ipm_sc` (~180KB c/u por canasta); `BK_CARD_TABS` 4× (98KB). Confirma que RND tiene los MISMOS patrones que CR (las dedup A/B aplicables análogamente).
+- **HUÉRFANOS 32 IDs**: panel `w22-*` completo (`w22-ph`/`pd`/`td`/`tab-lbl-*`/`alertas-sub`/`report-tag`…) + elementos AR dim (`ar1-col-m`/`ar2-col-m`/`ar3-th-dim`/`ar3-books`/`ar3-vol`/`ar3-wow-pill`/`ar-strip-bk`…) + `tab-bk-destino`/`vch-d`/`vch-h`/`sb-panel-th`. Cero onclick sin función. Confirma el código muerto del panel w22 + handlers AR dim (#4).
+
+### Pendientes que esto abre
+- **Dedup RND** (~3MB, RND_CARD_TABS 4× + RND_D._sb 4× + internos) — mismo patrón bajo riesgo que B de CR. **PRÓXIMO.**
+- **Cleanup #4** (código muerto) ahora trazable: tras limpiar, los IDs huérfanos correspondientes deben desaparecer del reporte.
+
+---
+
 ## Sesión W24-B-sbdedup · 21 Jun 2026 · Dedup de los pools _sb del searchbox (−0,84MB)
 
 ### Contexto

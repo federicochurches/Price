@@ -35,3 +35,6 @@ part*.html
 # Archivos temporales Python
 __pycache__/
 *.pyc
+
+# Baseline local de check_html (regenera por build, no va al repo)
+.html_budget.json
