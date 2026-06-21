@@ -5,6 +5,39 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-rnd-pool-B · 21 Jun 2026 · C/D resueltos — cross-filter →hotel en RND vía pool completo lazy + cap-10
+
+### Contexto
+Continuación del debug de la "Revisión #8". Tras cerrar A (searchbox AR RND) y descartar la "lista enorme" como no-bug (era el click del usuario en "Ver más"), quedaban C y D: cruzar corp/dest/país → **hotel** en las KPI cards de RND daba vacío o casi vacío.
+
+### Diagnóstico (data real del pickle)
+- El pool hotel de RND en las KPI cards estaba capeado: **nd 500 / ipm 100**, mientras el universo (`p80_hotel`) es **21.183 hoteles**. Al cruzar por corp/dest/país, los hoteles relevantes caían fuera del top → vacío. (Ej. ipm corp `NH` = 0 hoteles en el pool de 100.)
+- Los cruces que NO tocan hotel (país→corp, dest→corp, etc.) YA funcionaban — usan `RND_MEMBERSHIP` con los 94 corps completos. "No aparece Ver más" en país→corp = subconjunto ≤5 (correcto, no bug).
+- Cuantificación A (cap 2000/1500) vs B (pool completo): A daba 57-69% cobertura y mostraba solo ~22% de los hoteles de cada selección; B da 100% (nd) / 70-75% (ipm, máximo posible). B además más liviana que A (JSON 2,6MB vs +4,1MB DOM).
+
+### Diferencia con CR
+CR ya estaba resuelto por P15 (pool completo 3582 **en DOM** como sb-hidden). RND no puede copiar eso: 21K en DOM = +29MB. Por eso RND usa pool en **JSON compacto + render lazy**. Pendiente acordado: unificar CR sobre el mismo motor lazy después (recupera ~4MB de DOM de CR).
+
+### Implementación B (ya existía en source de sesión previa, faltaba regenerar)
+- `render_rnd_p1.py` `_build_rnd_hotel_pool_json()`: emite `var RND_HOTEL_POOL` (21.183 filas, 12 campos: `[lab,corp,dest,pais,traf_str,traf_wow, nd_pct,nd_bidx,nd_wow, ipm_val,ipm_bidx,ipm_wow]`, banda como índice → `_RND_BAND_NAMES`). Llamado en PART1. JSON 2,93MB.
+- `assemble_unified.py`: `_rndPoolToCardRow(h,metric)` (pool→14 campos de `_cardRow`), `_rndLazyHotelRender(card,cf,container)` (filtra pool por cf, ordena, 5 vis + 5 cf-extra + resto sb-hidden tope 300, header preservado), `_rndHotelRestore` (repone estático cacheado en `_rndHotelOrigHTML`). Cableado en el bloque hotel de `_kpiPillRender`: `if (_isRnd && _hasCf) { _rndLazyHotelRender(...); return; }`.
+- **cap-10** también en el cross-filter NON-hotel (`_crossFilterNonHotel`): `else if (_shown <= _KPI_TOP_N+5) cf-extra; else oculto`. Esto cierra la "lista enorme" de destino (antes "Ver más" expandía a 30 → ahora 10).
+
+### Validación
+- jsdom (invocación directa sobre paneles RND sin switch de modo): 0 errores parse/init · `RND_HOTEL_POOL` 21183 · ipm `NH` 0→**1 hotel** · ipm Hilton/nd España/nd Cancun → 5 vis + 5 cf-extra + sb-hidden (cap-10 OK) · nd Iberostar 46 · cap-10 non-hotel destino España = 5+5 (antes 30) · CR ef Iberostar intacto (3582, no usa lazy) · restore Hilton 300→100 OK.
+- Visual Fede: OK.
+
+### Archivos
+`render_rnd_p1.py` (pool), `assemble_unified.py` (lazy render + cap-10 + fix A searchbox AR + redesign searchbox KPI de sesión previa), `reports/week-24/SUPPLY_W24.html` (regenerado 19→22MB), `PROMPT_CORE.md`, `HISTORIAL_SESIONES.md`. js_override.js sin cambios.
+
+### Pendiente
+- Variante size-neutral de B (servir vista default desde el pool → achicar dump estático) + unificar CR sobre el motor lazy.
+- `_SEMANAS_HIST` stale en js_override.js L7 (W16-W23 → W17-W24).
+- Reconciliar PROMPT_INV.md / calc_inv.py (proyecto vs repo).
+- Cleanup A2b (handlers dim muertos AR).
+
+---
+
 ## Sesión W24-ar-hotel-only · 20 Jun 2026 · Refactor AR SOLO HOTEL + P15 pool completo + cierre de 9/10 bugs
 
 ### Contexto

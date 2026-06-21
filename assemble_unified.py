@@ -607,6 +607,85 @@ function _cfRestoreMoreBtn(container) {
   if (norm) { norm.style.display = ''; norm.setAttribute('data-exp', '0'); norm.textContent = 'Ver más \u25BE'; }
 }
 
+/* ── B (W24): Pool completo de hoteles RND para cross-filter →hotel ──────────
+   El universo RND es ~21K hoteles; volcarlos al DOM (como P15 en CR) serían
+   +29MB. En su lugar viven en RND_HOTEL_POOL (JSON compacto). Cuando hay un
+   cross-filter activo en la vista hotel de nd/ipm, el JS arma SOLO el
+   subconjunto cruzado on-demand y reemplaza el panel hotel. Al limpiar el
+   cross-filter se restaura el estático cacheado. Resuelve C/D. */
+var _rndHotelOrigHTML = {};   /* cache del innerHTML estático por card (nd/ipm) */
+
+function _rndPoolToCardRow(h, metric) {
+  /* h = [lab,corp,dest,pais,traf_str,traf_wow, nd_pct,nd_b,nd_wow, ipm_val,ipm_b,ipm_wow]
+     → array de 14 campos que entiende _cardRow */
+  var isNd = (metric === 'nd');
+  var val  = isNd ? h[6] : h[9];
+  var bidx = isNd ? h[7] : h[10];
+  var wow  = isNd ? h[8] : h[11];
+  var bname = (typeof _RND_BAND_NAMES !== 'undefined' && _RND_BAND_NAMES[bidx] != null)
+              ? _RND_BAND_NAMES[bidx] : 'Sin Conversión';
+  var bc = (typeof _AR_BANDA_C !== 'undefined' && _AR_BANDA_C[bname])
+           ? _AR_BANDA_C[bname] : {bg:'#F2EEE6', fg:'#5F5E5A'};
+  return [ h[0], h[1], bc.bg, bc.fg, bname,
+           h[4], h[5], val, wow, val, val,
+           h[1], h[2], h[3] ];
+}
+
+function _rndLazyHotelRender(card, cf, container) {
+  if (typeof RND_HOTEL_POOL === 'undefined' || !container) return false;
+  var isNd = (card === 'nd');
+  var _N = _kpiNormCF;
+  var nCorp = cf.corp ? _N(cf.corp) : '';
+  var nDest = cf.dest ? _N(cf.dest) : '';
+  var nPais = cf.pais ? _N(cf.pais) : '';
+  /* 1· filtrar el pool por el cross-filter */
+  var matched = [];
+  for (var i = 0; i < RND_HOTEL_POOL.length; i++) {
+    var h = RND_HOTEL_POOL[i];
+    if (!isNd && h[9] == null) continue;                 /* IPM: solo hoteles con IPM */
+    if (nCorp && _N(h[1]).indexOf(nCorp) < 0) continue;
+    if (nDest && _N(h[2]).indexOf(nDest) < 0) continue;
+    if (nPais && _N(h[3]).indexOf(nPais) < 0) continue;
+    matched.push(h);
+  }
+  /* 2· ordenar peor primero (nd: %NoDispo desc · ipm: IPM asc) */
+  matched.sort(isNd
+    ? function(a,b){ return (b[6]||0) - (a[6]||0); }
+    : function(a,b){ return (a[9]||0) - (b[9]||0); });
+  /* 3· cachear el estático una vez para poder restaurar al limpiar el filtro */
+  if (_rndHotelOrigHTML[card] == null) _rndHotelOrigHTML[card] = container.innerHTML;
+  /* 4· construir filas: 5 visibles + 5 cf-extra (cap 10) + resto sb-hidden (buscable, tope 300) */
+  var grid = 'minmax(0,1fr) 72px 52px 74px 46px';
+  var SEARCH_CAP = 300;
+  var lim = Math.min(matched.length, SEARCH_CAP);
+  var html = '';
+  for (var k = 0; k < lim; k++) {
+    var arr = _rndPoolToCardRow(matched[k], card);
+    var disp, cls;
+    if (k < _KPI_TOP_N) { disp = 'grid'; cls = ''; }
+    else if (k < _KPI_TOP_N + 5) { disp = 'none'; cls = 'cf-extra'; }
+    else { disp = 'none'; cls = 'sb-hidden'; }
+    html += _cardRow(arr, k, false, grid, disp, cls);
+  }
+  if (!html) html = '<div style="padding:14px 0;font-size:11px;color:var(--ink-muted);">Sin hoteles para esta combinación.</div>';
+  /* preservar el header (primer hijo sin data-hist-label) al reemplazar las filas */
+  var headerHTML = '';
+  var _fc = container.firstElementChild;
+  if (_fc && !_fc.hasAttribute('data-hist-label')) headerHTML = _fc.outerHTML;
+  container.innerHTML = headerHTML + html;
+  /* 5· botón Ver más para las cf-extra (máx 5) */
+  var nExtra = Math.max(0, Math.min(matched.length, _KPI_TOP_N + 5) - _KPI_TOP_N);
+  _cfSetupMoreBtn(container, nExtra);
+  return true;
+}
+
+function _rndHotelRestore(card, container) {
+  if (_rndHotelOrigHTML[card] != null && container) {
+    container.innerHTML = _rndHotelOrigHTML[card];
+    _rndHotelOrigHTML[card] = null;
+  }
+}
+
 function _kpiPillRender(card) {
   /* Tab activa: leer del estado _kpiView (refactor pills W24 — ya no hay radios) */
   var activeTab = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'hotel';
@@ -646,14 +725,25 @@ function _kpiPillRender(card) {
     var _rows = _panel.querySelectorAll('[data-hist-label]');
     var _rowsContainer = _panel.querySelector('.kpi-tab-rows') || _panel;
     if (!_anyFilter) {
-      /* sin filtro cruzado → restaurar paginación normal y limpiar marcas de filtro */
+      /* sin filtro cruzado → restaurar paginación normal, PERO preservar:
+         (a) la fila seleccionada (data-selected) y (b) el estado expandido del "Ver más"
+         para no colapsar la lista cuando el usuario clickea una fila en posición 6-10
+         (bug B: el click disparaba este restore y colapsaba el Ver más, ocultando la fila). */
+      var _moreBtn = _rowsContainer.querySelector('.kpi-more-btn');
+      var _wasExpanded = !!(_moreBtn && _moreBtn.getAttribute('data-exp') === '1');
       _rows.forEach(function(row){
         row.classList.remove('cf-extra');
         var _isSb = row.classList.contains('sb-hidden');
-        if (!_isSb && !row.classList.contains('rows-more')) row.style.setProperty('display', 'grid');
+        var _isMore = row.classList.contains('rows-more');
+        if (row.getAttribute('data-selected') === '1') row.style.setProperty('display', 'grid', 'important');
+        else if (!_isSb && !_isMore) row.style.setProperty('display', 'grid');
+        else if (_isMore && _wasExpanded) row.style.setProperty('display', 'grid', 'important');
         else row.style.removeProperty('display');
       });
-      _cfRestoreMoreBtn(_rowsContainer);
+      /* ocultar el botón cf si quedó, pero NO resetear el estado expandido del botón normal */
+      var _cfBtn = _rowsContainer.querySelector('.cf-more-btn');
+      if (_cfBtn) _cfBtn.style.display = 'none';
+      if (_moreBtn) _moreBtn.style.display = '';
       return;
     }
     /* Con filtro cruzado → paginar el subconjunto que matchea */
@@ -675,7 +765,8 @@ function _kpiPillRender(card) {
       if (_ok) {
         _shown++;
         if (_shown <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
-        else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _extra++; }
+        else if (_shown <= _KPI_TOP_N + 5) { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _extra++; }
+        else { row.style.setProperty('display', 'none', 'important'); }   /* cap 10: más allá → oculto, no expandible (buscable por searchbox) */
       } else {
         row.style.setProperty('display', 'none', 'important');
       }
@@ -725,6 +816,12 @@ function _kpiPillRender(card) {
   if (activeTab === 'hotel') {
     var _hasCf = !!(cf.corp || cf.dest || cf.pais);
     var _hasBand = !!(activeBands && activeBands.length);
+    /* B (W24): RND nd/ipm → el panel hotel se sirve del pool completo on-demand.
+       Con cross-filter: render lazy del subconjunto cruzado (cubre los 21K).
+       Sin cross-filter: si antes se reemplazó, restaurar el estático y salir. */
+    var _isRnd = (card === 'nd' || card === 'ipm');
+    if (_isRnd && _hasCf) { _rndLazyHotelRender(card, cf, _hotelCont); return; }
+    if (_isRnd && _rndHotelOrigHTML[card] != null) { _rndHotelRestore(card, _hotelCont); return; }
     if (!_hasCf) {
       /* Sin cross-filter → comportamiento original (filtro de banda CR o paginación normal) */
       _cfRestoreMoreBtn(_hotelCont);
@@ -1657,6 +1754,33 @@ AR_SB_PATCH_JS = '''
      al seleccionar dispara el click real de la fila (reusa _handleKpiCardHistClick:
      cross-filter + highlight + gráfica), limpia el query, repagina y fija la fila visible. */
   var _KPI_SB_CARDS = ['ef', 'cv', 'bk', 'nd', 'ipm'];
+  /* Fix B (#8 rev): la fila seleccionada en posición 6-10 se re-colapsaba porque
+     el botón "Ver más" y los re-renders ponen inline display:none !important sobre
+     las .rows-more (pisa el sb-search-hit). Pin + MutationObserver: re-fija la fila
+     seleccionada ante CUALQUIER re-render o colapso. */
+  var _kpiSbPinned = {};
+  function _kpiSbRepin(card) {
+    var label = _kpiSbPinned[card]; if (!label) return;
+    var panels = document.getElementById('kpi-' + card + '-panels'); if (!panels) return;
+    /* refijar en TODOS los paneles (la vista activa puede cambiar) */
+    panels.querySelectorAll('[data-hist-label]').forEach(function(r) {
+      if (r.getAttribute('data-hist-label') !== label) return;
+      /* solo actuar si está oculta — evita loop con el observer de atributos */
+      if (r.classList.contains('sb-search-hit') && r.style.getPropertyValue('display') === 'grid') return;
+      r.classList.add('sb-search-hit');
+      r.style.setProperty('display', 'grid', 'important');
+    });
+  }
+  var _kpiSbMO = (typeof MutationObserver !== 'undefined') ? new MutationObserver(function() {
+    for (var i = 0; i < _KPI_SB_CARDS.length; i++) { if (_kpiSbPinned[_KPI_SB_CARDS[i]]) _kpiSbRepin(_KPI_SB_CARDS[i]); }
+  }) : null;
+  function _kpiSbObserve() {
+    if (!_kpiSbMO) return;
+    _KPI_SB_CARDS.forEach(function(c) {
+      var el = document.getElementById('kpi-' + c + '-panels');
+      if (el) _kpiSbMO.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+    });
+  }
   function _kpiSbCardOf(input) {
     if (!input || !input.id || input.id.indexOf('sb-kpi-') !== 0) return null;
     var c = input.id.replace('sb-kpi-', '');
@@ -1671,6 +1795,7 @@ AR_SB_PATCH_JS = '''
   function _kpiSbRows(card) { var p = _kpiSbPanel(card); return p ? p.querySelectorAll('[data-hist-label]') : []; }
   function _kpiSbFilter(card, input) {
     var q = norm(input.value.trim());
+    _kpiSbPinned[card] = null;   /* nueva búsqueda → invalidar pin anterior */
     var clearBtn = document.getElementById('sb-kpi-' + card + '-clear');
     _kpiSbRows(card).forEach(function(r) {
       var match = !q || norm(r.getAttribute('data-hist-label') || '').indexOf(q) >= 0;
@@ -1700,27 +1825,41 @@ AR_SB_PATCH_JS = '''
   }
   function _kpiSbSelect(card, label) {
     var input = document.getElementById('sb-kpi-' + card);
-    if (input) { input.value = ''; _kpiSbFilter(card, input); }
+    if (input) input.value = '';
     var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
-    var clearBtn = document.getElementById('sb-kpi-' + card + '-clear'); if (clearBtn) clearBtn.style.display = 'none';
     var p = _kpiSbPanel(card); if (!p) return;
     var target = null;
     p.querySelectorAll('[data-hist-label]').forEach(function(r) { if (!target && r.getAttribute('data-hist-label') === label) target = r; });
-    if (target) target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    setTimeout(function() {
+    if (!target) return;
+    /* disparar el click real de la fila (cross-filter en otras vistas + pill + highlight + gráfica) */
+    target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    /* Filtrar el panel activo a SOLO la fila elegida. Evita la "lista enorme" y la deja
+       SIEMPRE visible sin pelear con la paginación (que es lo que re-colapsaba la fila 6-10).
+       _showOnly se re-aplica tras el re-render del click; el observer (_kpiSbRepin) la mantiene. */
+    _kpiSbPinned[card] = label;
+    function _showOnly() {
       var p2 = _kpiSbPanel(card); if (!p2) return;
       p2.querySelectorAll('[data-hist-label]').forEach(function(r) {
         if (r.getAttribute('data-hist-label') === label) {
           r.classList.add('sb-search-hit');
           r.style.setProperty('display', 'grid', 'important');
-          if (r.scrollIntoView) try { r.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+        } else {
+          r.classList.remove('sb-search-hit');
+          r.style.setProperty('display', 'none', 'important');
         }
       });
-    }, 70);
+      var cb = document.getElementById('sb-kpi-' + card + '-clear'); if (cb) cb.style.display = 'inline-block';
+      if (target.scrollIntoView) try { target.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    }
+    _showOnly();
+    setTimeout(_showOnly, 80);
+    setTimeout(_showOnly, 260);
   }
   document.addEventListener('input', function(e) {
     var card = _kpiSbCardOf(e.target); if (!card) return;
-    _kpiSbFilter(card, e.target); _kpiSbBuildDD(card, e.target);
+    /* Solo dropdown — NO filtrar el panel en vivo (eso mostraba la "lista enorme").
+       El panel se filtra a la fila elegida recién al seleccionar una sugerencia. */
+    _kpiSbBuildDD(card, e.target);
   });
   document.addEventListener('mousedown', function(e) {
     var sug = e.target.closest ? e.target.closest('.sb-suggestion[data-kpi-card]') : null;
@@ -1732,16 +1871,38 @@ AR_SB_PATCH_JS = '''
     if (!btn) return;
     var card = btn.id.replace('sb-kpi-', '').replace('-clear', '');
     if (_KPI_SB_CARDS.indexOf(card) < 0) return;
-    var input = document.getElementById('sb-kpi-' + card); if (input) { input.value = ''; _kpiSbFilter(card, input); }
+    var input = document.getElementById('sb-kpi-' + card); if (input) input.value = '';
+    _kpiSbPinned[card] = null;
     var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
+    btn.style.display = 'none';
+    /* Restaurar la paginación normal del panel activo (deshacer el filtro-a-uno):
+       top-5 visible, resto oculto, luego re-aplicar cross-filter si está activo. */
+    var p = _kpiSbPanel(card);
+    if (p) {
+      var _n = 0;
+      p.querySelectorAll('[data-hist-label]').forEach(function(r) {
+        r.classList.remove('sb-search-hit');
+        if (r.classList.contains('sb-hidden') || r.classList.contains('rows-more')) r.style.setProperty('display', 'none', 'important');
+        else r.style.setProperty('display', 'grid', 'important');
+      });
+    }
+    if (typeof _kpiPillRender === 'function') _kpiPillRender(card);
   });
   document.addEventListener('focusout', function(e) {
     var card = _kpiSbCardOf(e.target); if (!card) return;
     setTimeout(function() { var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none'; }, 150);
   });
   function attachArSearchboxes(){_attachArSb('sb-ar1','ar1-th');_attachArSb('sb-ar2','ar2-th');_attachArSb('ar3-sb','ar3-tbody');}
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(attachArSearchboxes,800);});}
-  else{setTimeout(attachArSearchboxes,800);}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(attachArSearchboxes,800);setTimeout(_kpiSbObserve,900);});}
+  else{setTimeout(attachArSearchboxes,800);setTimeout(_kpiSbObserve,900);}
+  /* A (#8 rev): el switch CR↔RND re-renderiza las cards AR y borra el .oninput del
+     searchbox AR (sb-ar1/sb-ar2/ar3-sb) → en RND no desplegaba el autocomplete.
+     Re-cablear tras cada cambio de modo (delegado sobre los botones del switcher). */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('[onclick*="w22_setMode"]') : null;
+    if (!btn) return;
+    setTimeout(attachArSearchboxes, 350);
+  });
 })();
 '''
 

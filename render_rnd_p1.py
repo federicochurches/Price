@@ -536,6 +536,55 @@ def _build_rnd_membership_json():
             + ';\n</script>\n')
 
 
+def _build_rnd_hotel_pool_json():
+    """Pool COMPLETO de hoteles (~21K) para el cross-filter →hotel en las KPI cards RND.
+    Compacto y NO en el DOM: el JS arma las filas del subconjunto cruzado on-demand
+    (B · W24). Resuelve C/D — corp/dest/país →hotel alcanzaban solo el top-500/100.
+    Formato fila (12 campos):
+      [label, corp, dest, pais, traf_str, traf_wow,
+       nd_pct, nd_bidx, nd_wow, ipm_val, ipm_bidx, ipm_wow]
+    Banda como índice 0-5 → _RND_BAND_NAMES → _AR_BANDA_C (colores) en JS."""
+    _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
+             'Súper Crítica': 4, 'Sin Conversión': 5}
+
+    def _num(v, ndig=2):
+        try:
+            f = float(v)
+            if _math_rnd.isnan(f) or _math_rnd.isinf(f):
+                return None
+            return round(f, ndig)
+        except (TypeError, ValueError):
+            return None
+
+    pool = []
+    for _, r in p80_hotel.iterrows():
+        lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
+        corp = str(r.get('CorpName', '') or '')
+        dest = str(r.get('Destino', '') or '')
+        pais = str(r.get('PaisDestino', '') or '')
+        traf = r.get('Trafico', 0)
+        traf_str = fmt_big(traf) if traf else '0'
+        traf_wow = _num(r.get('Trafico_WoW_pct'))
+        nd = r.get('%NoDispo')
+        nd_pct = _num(nd * 100) if nd is not None else None
+        nd_band = _BIDX.get(r.get('BandaNoDispo') or (banda_nodispo(nd) if nd is not None else 'Sin Conversión'), 5)
+        nd_wow = _num(r.get('NoDispo_WoW_pp'))
+        bk = r.get('Bookings', 0) or 0
+        ipm = r.get('IPM')
+        if bk > 0 and ipm is not None and float(ipm) > 0:
+            ipm_val = _num(ipm)
+            ipm_band = _BIDX.get(r.get('BandaRPM') or banda_rpm(ipm, int(bk)), 5)
+            ipm_wow = _num(r.get('IPM_WoW_pp'))
+        else:
+            ipm_val = ipm_band = ipm_wow = None
+        pool.append([lab, corp, dest, pais, traf_str, traf_wow,
+                     nd_pct, nd_band, nd_wow, ipm_val, ipm_band, ipm_wow])
+    return ('\n<script>\nvar RND_HOTEL_POOL='
+            + _json_rnd.dumps(pool, ensure_ascii=False, default=lambda x: None)
+            + ';\nvar _RND_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\\u00edtica",'
+              '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
+
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN RND ═══════════════ -->\n'
     '<section id="section-rnd" class="section-rnd">\n'
@@ -543,6 +592,7 @@ PART1 = (
     + HERO
     + _build_rnd_card_tabs_json()
     + _build_rnd_membership_json()
+    + _build_rnd_hotel_pool_json()
     + '''
 <script>
 // HIST_DATA: datos históricos RND W17-W21
