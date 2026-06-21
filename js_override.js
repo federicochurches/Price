@@ -1110,8 +1110,10 @@ function _arRows(n, tab) {
   var dd = data();
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
   /* _sb dedup (W24-B): los pools del searchbox son globales; en CR viven solo en
-     CR_D.global. Para cualquier canasta CR se leen de ahí. RND sin cambios. */
-  var _sbData = (isCR && typeof CR_D !== 'undefined' && CR_D.global) ? CR_D.global : dd;
+     CR_D.global y en RND solo en RND_D.global. Para cualquier canasta se leen de ahí. */
+  var _sbData = isCR
+    ? ((typeof CR_D  !== 'undefined' && CR_D.global)  ? CR_D.global  : dd)
+    : ((typeof RND_D !== 'undefined' && RND_D.global) ? RND_D.global : dd);
   if (n === 1) {
     /* Card 1: Eficacia (CR) / NoDispo (RND) — usa hotels_crit/br/sc/cv */
     var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :

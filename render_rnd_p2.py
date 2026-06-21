@@ -577,6 +577,16 @@ print('Calculando RND_CV...')
 RND_CV = build_rnd_cv()
 print('Calculando RND_D...')
 RND_D  = build_rnd_d()
+
+# ── Dedup _sb (W24-B-rnd): los pools del searchbox son GLOBALES (se construyen de
+# g_hotel_rnd, no de la canasta), idénticos en las 4 canastas. Se emiten solo en
+# RND_D['global']; el JS (_arRows) los lee de RND_D.global para cualquier canasta.
+_SB_KEYS_RND = ('hotels_dnc_sb', 'hotels_br_sb', 'hotels_sc_sb', 'hotels_crit_sb')
+for _can in ('b2c', 'op', 'cug'):
+    if isinstance(RND_D.get(_can), dict):
+        for _k in _SB_KEYS_RND:
+            RND_D[_can].pop(_k, None)
+
 print('Calculando RND_AL...')
 RND_AL = build_rnd_al()
 

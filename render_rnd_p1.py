@@ -436,16 +436,25 @@ def _build_rnd_card_tabs_json():
     """Genera JSON RND_CARD_TABS con datos para sort en cards KPI NoDispo e IPM."""
     CANASTA_BY = D.get('CANASTA', {})
     result = {}
+    _AGG_BY_TKEY = {'pais':'agg_pais', 'destino':'agg_dest', 'corp':'agg_corp', 'hotel':'agg_hotel'}
+    _GLOBAL_SRC = {
+        'pais':    (TAB_NoDispo['pais'],    TAB_RPM['pais']),
+        'destino': (TAB_NoDispo['destino'], TAB_RPM['destino']),
+        'corp':    (TAB_NoDispo['corp'],    TAB_RPM['corp']),
+        'hotel':   (TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
+    }
     for canasta_key, tab_key in [('global','global'),('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
-        # Usar TAB_NoDispo / TAB_RPM global para todas las canastas
-        # (por canasta usaría filtros adicionales — por ahora global)
+        # Desglose per-canasta: cada canasta es un subset del Global (por DistributionCategory).
+        # Global usa TAB_NoDispo/TAB_RPM; las canastas usan sus propios agg_* del pickle
+        # (CANASTA[c]). El row-builder re-ordena cada df (nd por %NoDispo desc · ipm por IPM asc).
+        _c = CANASTA_BY.get(canasta_key) if canasta_key != 'global' else None
         nd_rows, ipm_rows = [], []
-        for t_key, df_nd, df_ipm in [
-            ('pais',    TAB_NoDispo['pais'],    TAB_RPM['pais']),
-            ('destino', TAB_NoDispo['destino'], TAB_RPM['destino']),
-            ('corp',    TAB_NoDispo['corp'],    TAB_RPM['corp']),
-            ('hotel',   TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
-        ]:
+        for t_key in ['pais', 'destino', 'corp', 'hotel']:
+            _agg = _c.get(_AGG_BY_TKEY[t_key]) if _c is not None else None
+            if _agg is not None and len(_agg):
+                df_nd = df_ipm = _agg
+            else:
+                df_nd, df_ipm = _GLOBAL_SRC[t_key]
             _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
             df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(500)

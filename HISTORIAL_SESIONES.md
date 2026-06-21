@@ -5,6 +5,25 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-rnd-percanasta · 21 Jun 2026 · Desglose per-canasta real de KPI cards RND + dedup _sb RND (−1,21MB)
+
+### Contexto
+Tras armar `check_html.py`, el barrido sobre W24 mostró `RND_CARD_TABS` byte-idéntico en las 4 canastas + `RND_D._sb` 4×. Fede clarificó el modelo de datos: **Global = total; cada canasta (B2C/Opaco/Ultra Opaco) = un desglose del Global por DistributionCategory.** → el idéntico-4× de RND_CARD_TABS NO era para deduplicar sino un **gap funcional**: las KPI cards de RND mostraban global en todas las canastas. (`render_rnd_p1.py` L440 tenía el comentario explícito "Usar TAB global para todas las canastas — por ahora global".)
+
+### Fix 1 — desglose per-canasta (correctitud)
+La data per-canasta YA estaba en el pickle: `CANASTA[c]` tiene `agg_pais`/`agg_dest`/`agg_corp`/`agg_hotel` con %NoDispo/IPM/Trafico/Bookings/bandas/WoW. `render_rnd_p1.py`: el build de `RND_CARD_TABS` ahora selecciona la fuente por canasta — global usa `TAB_NoDispo`/`TAB_RPM`, b2c/op/cug usan sus `agg_*` (`_AGG_BY_TKEY` + `_GLOBAL_SRC`; el row-builder re-ordena cada df). Resultado: 4 canastas distintas (b2c top Grecia 35,25% vs global Dinamarca 48,82%; corp 94/79/90/89). **Caveat:** los `agg_*` per-canasta no traen `Trafico_WoW_pct` (ni `agg_hotel` el `%NoDispo_W18`) → r[6] traf_wow y r[10] hist salen vacíos per-canasta (`.get(default)`, sin crash). Enriquecer = follow-up en calc_rnd.py.
+
+### Fix 2 — dedup _sb RND (tamaño)
+Los `_sb` de RND (`hotels_dnc_sb`/`br_sb`/`sc_sb`) se construyen de `g_hotel_rnd` (global, render_rnd_p2 L238) → idénticos 4×. `render_rnd_p2.py` los borra de `RND_D['b2c'/'op'/'cug']` tras `build_rnd_d`. `js_override.js` `_arRows`: `_sbData` generalizado a CR_D.global/RND_D.global según `isCR` (los reads ya tenían `|| dd[sbKey]`). RND_D 5,83→4,54MB.
+
+### Validación
+jsdom t10: 0 errores · RND_CARD_TABS nd[pais] 4 hashes distintos · b2c top Grecia vs global Dinamarca · RND_D.b2c._sb AUSENTE, global=1000 · RND `_arRows` 4 canastas OK · **CR intacto** (global/b2c crit=180/180, la generalización de `_sbData` no rompió CR). HTML 16,99→14,99MB (−1,21MB; total sesión 22→14,99, −7MB). + visual Fede.
+
+### Nota meta
+`check_html` no solo cazó bloat — destapó el gap funcional de RND per-canasta. Valida la tesis: hacer las clases de problema detectables en cada build encuentra cosas que el ojo no ve. Dups que quedan (intra-canasta `hotels==hotels_dnc`, `hotels_sc==hotels_ipm_sc` ~700KB) son más delicados (distintas keys, distintos consumidores) — no urgentes.
+
+---
+
 ## Sesión W24-check-html · 21 Jun 2026 · Auditoría automática del HTML (composición · duplicados · presupuesto · huérfanos)
 
 ### Contexto
