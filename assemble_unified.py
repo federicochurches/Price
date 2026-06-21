@@ -538,20 +538,20 @@ var _kpiView = {ef: 'destino', cv: 'destino', bk: 'destino', nd: 'pais', ipm: 'p
 
 function kpi_setView(card, view, el) {
   _kpiView[card] = view;
-  /* Pill de vista activa: magenta en RND (nd/ipm), verde en CR (ef/cv/bk) — W24 */
+  /* Primera línea (dimensión): activa = color de sección relleno · inactiva = outline · activa MAYÚSCULA — W24 */
   var _isRnd = (card === 'nd' || card === 'ipm');
-  var acc_bg = _isRnd ? '#FCE4F1' : '#E1F5EE';
-  var acc_fg = _isRnd ? '#EA0074' : '#1A6B4A';
-  var acc_bd = _isRnd ? '#EA0074' : '#1A6B4A';
+  var sec_col = _isRnd ? '#EA0074' : '#5C469C';   /* violet CR / magenta RND */
+  var sec_bg  = _isRnd ? '#FCE4F1' : '#EDE8F7';   /* relleno claro para la activa */
 
   /* Actualizar estilos de pills de vista (CR: destino/corp/hotel/channel · RND: pais/destino/corp/hotel) */
   ['pais','destino','corp','hotel','channel'].forEach(function(v) {
     var pill = document.getElementById('kpi-'+card+'-v-'+v);
     if (!pill) return;
     var active = (v === view);
-    pill.style.background  = active ? acc_bg : 'transparent';
-    pill.style.color       = active ? acc_fg : 'var(--ink-muted)';
-    pill.style.borderColor = active ? acc_bd : 'var(--rule)';
+    pill.style.background    = active ? sec_bg : 'transparent';
+    pill.style.color         = sec_col;
+    pill.style.borderColor   = sec_col;
+    pill.style.textTransform = active ? 'uppercase' : 'none';
   });
 
   /* Mostrar/ocultar paneles */
@@ -659,7 +659,7 @@ function _poolToCardRow(h, report, metric) {
   var bnames = (typeof window !== 'undefined') ? window[cfg.bandNamesVar] : null;
   var bname = (bnames && bnames[bidx] != null) ? bnames[bidx] : 'Sin Conversión';
   var bc = (typeof _AR_BANDA_C !== 'undefined' && _AR_BANDA_C[bname])
-           ? _AR_BANDA_C[bname] : {bg:'#F2EEE6', fg:'#5F5E5A'};
+           ? _AR_BANDA_C[bname] : {bg:'#8A8377', fg:'#FFFFFF'};
   var corp = h[cfg.corpIdx], dest = h[cfg.destIdx];
   var pais = (cfg.paisIdx >= 0) ? h[cfg.paisIdx] : '';
   return [ h[0], corp, bc.bg, bc.fg, bname,
@@ -997,9 +997,9 @@ function _kpiCrossFilterPillsRender(card) {
   /* Cross-pills: en CR (Connectivities: ef/cv/bk) van en VIOLETA (acento CR);
      en RND (nd/ipm) van en VERDE. El magenta/violeta de nav queda para la pill activa. */
   var _isCR = (card === 'ef' || card === 'cv' || card === 'bk');
-  var GR_BG = _isCR ? '#EDE8F7' : '#E1F5EE';
-  var GR_FG = _isCR ? '#5C469C' : '#1A6B4A';
-  var GR_BD = _isCR ? '#5C469C' : '#1A6B4A';
+  var GR_BG = '#E1F5EE';
+  var GR_FG = '#1A6B4A';
+  var GR_BD = '#1A6B4A';
 
   var _pill = function(type, label) {
     return '<span class="kpi-cross-pill"'
@@ -1395,12 +1395,12 @@ var BK_DATA = {{
   corp:  {_json2.dumps(_bk_corp_rows,  ensure_ascii=False)},
   hotel: {_json2.dumps(_bk_hotel_rows, ensure_ascii=False)},
   banda_colors: {{
-    'exitosa':   ['#E1F5EE','#1A6B4A'],
-    'aceptable': ['#FEF9C3','#713F12'],
-    'revisar':   ['#FED7AA','#C2410C'],
-    'critica':   ['#FCE4F1','#99162B'],
-    'sc':        ['#E8E6E3','#2D2828'],
-    'sinconv':   ['#F2EEE6','#5F5E5A'],
+    'exitosa':   ['#1A6B4A','#FFFFFF'],
+    'aceptable': ['#FBBF24','#5C3A00'],
+    'revisar':   ['#F97316','#FFFFFF'],
+    'critica':   ['#C0392B','#FFFFFF'],
+    'sc':        ['#2D2828','#FFFFFF'],
+    'sinconv':   ['#8A8377','#FFFFFF'],
   }},
 }};
 """

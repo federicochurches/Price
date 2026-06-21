@@ -56,12 +56,12 @@ def clean_hotel_name(name):
 BANDA_COLORS = {
     # Paleta D · única fuente de verdad · sincronizada con BANDAS.md
     # bg=fondo badge · fg=texto badge · bd=borde badge · bar=color barra de progreso severity
-    'Exitosa':       {'bg':'#E1F5EE', 'fg':'#1A6B4A', 'bd':'#1D9E75', 'bar':'#1A6B4A'},
-    'Aceptable':     {'bg':'#FEF9C3', 'fg':'#713F12', 'bd':'#FCD34D', 'bar':'#FCD34D'},
-    'Revisar':       {'bg':'#FED7AA', 'fg':'#C2410C', 'bd':'#F97316', 'bar':'#F97316'},
-    'Crítica':       {'bg':'#FCE4F1', 'fg':'#99162B', 'bd':'#C0392B', 'bar':'#C0392B'},
-    'Súper Crítica': {'bg':'#E8E6E3',  'fg':'#2D2828', 'bd':'#9B2222', 'bar':'#8A8377'},
-    'Sin Conversión':{'bg':'#F2EEE6', 'fg':'#5F5E5A', 'bd':'#8A8377', 'bar':'#8A8377'},
+    'Exitosa':       {'bg':'#1A6B4A', 'fg':'#FFFFFF', 'bd':'#1D9E75', 'bar':'#1A6B4A'},
+    'Aceptable':     {'bg':'#FBBF24', 'fg':'#5C3A00', 'bd':'#FCD34D', 'bar':'#FCD34D'},
+    'Revisar':       {'bg':'#F97316', 'fg':'#FFFFFF', 'bd':'#F97316', 'bar':'#F97316'},
+    'Crítica':       {'bg':'#C0392B', 'fg':'#FFFFFF', 'bd':'#C0392B', 'bar':'#C0392B'},
+    'Súper Crítica': {'bg':'#2D2828',  'fg':'#FFFFFF', 'bd':'#9B2222', 'bar':'#8A8377'},
+    'Sin Conversión':{'bg':'#8A8377', 'fg':'#FFFFFF', 'bd':'#8A8377', 'bar':'#8A8377'},
 }
 
 def _mini_badge(bnd):
@@ -75,19 +75,14 @@ def mini_badge(bnd):
     return _mini_badge(bnd)
 
 def banda_pill(banda, target=None, font_size='11px'):
-    """Renderiza pill de severity · estilo compacto · target opcional embebido.
-    Si se pasa target, se muestra como '· Target X%' a la derecha del nombre.
+    """Renderiza pill de severity · estilo compacto · solo la banda (sin target).
+    El parámetro `target` se ignora (W24: los indicadores muestran solo el severity).
     """
     c = BANDA_COLORS.get(banda, BANDA_COLORS['Sin Conversión'])
     bg = c['bg']
     fg = c['fg']
     bd = c['bd']
-    banda_upper = banda.upper()
-    inner = banda_upper
-    if target:
-        inner = (f'{banda_upper}'
-                 f'<span style="font-weight:500;opacity:.75;margin-left:8px;letter-spacing:.02em;text-transform:none;">'
-                 f'· Target {target}</span>')
+    inner = banda.upper()
     return (f'<span style="display:inline-flex;align-items:center;font-size:{font_size};font-weight:700;letter-spacing:.04em;'
             f'text-transform:uppercase;padding:6px 12px;border-radius:3px;background:{bg};color:{fg};'
             f'border:1px solid {bd};white-space:nowrap;">{inner}</span>')

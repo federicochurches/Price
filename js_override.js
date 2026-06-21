@@ -1605,12 +1605,12 @@ var _AR_MODE_CFG = {
 
 /* Paleta de bandas compartida */
 var _AR_BANDA_C = {
-  'Exitosa':       {bg:'#E1F5EE', fg:'#1A6B4A'},
-  'Aceptable':     {bg:'#FEF9C3', fg:'#713F12'},
-  'Revisar':       {bg:'#FED7AA', fg:'#C2410C'},
-  'Crítica':       {bg:'#FCE4F1', fg:'#99162B'},
-  'Súper Crítica': {bg:'#E8E6E3', fg:'#2D2828'},
-  'Sin Conversión':{bg:'#F2EEE6', fg:'#5F5E5A'},
+  'Exitosa':       {bg:'#1A6B4A', fg:'#FFFFFF'},
+  'Aceptable':     {bg:'#FBBF24', fg:'#5C3A00'},
+  'Revisar':       {bg:'#F97316', fg:'#FFFFFF'},
+  'Crítica':       {bg:'#C0392B', fg:'#FFFFFF'},
+  'Súper Crítica': {bg:'#2D2828', fg:'#FFFFFF'},
+  'Sin Conversión':{bg:'#8A8377', fg:'#FFFFFF'},
 };
 
 /* Leer y normalizar los datos de KPI para el modo activo */
@@ -1777,20 +1777,20 @@ function ar_updateKPIs() {
   function _banda(val, metric) {
     var p = val / 100;
     if (metric === 'ef' || metric === 'bk') {
-      if (p >= 0.97) return {lbl:'Exitosa',     bg:'#E1F5EE',fg:'#1A6B4A'};
-      if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FEF9C3',fg:'#7B6F00'};
-      if (p >= 0.85) return {lbl:'Revisar',     bg:'#FED7AA',fg:'#C2410C'};
-      if (p >= 0.60) return {lbl:'Crítica',     bg:'#FCCDD9',fg:'#99162B'};
-      return               {lbl:'Súper Crítica',bg:'#E8E6E3',fg:'#2D2828'};
+      if (p >= 0.97) return {lbl:'Exitosa',     bg:'#1A6B4A',fg:'#FFFFFF'};
+      if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FBBF24',fg:'#5C3A00'};
+      if (p >= 0.85) return {lbl:'Revisar',     bg:'#F97316',fg:'#FFFFFF'};
+      if (p >= 0.60) return {lbl:'Crítica',     bg:'#C0392B',fg:'#FFFFFF'};
+      return               {lbl:'Súper Crítica',bg:'#2D2828',fg:'#FFFFFF'};
     }
     if (metric === 'cv') {
-      if (p <= 0)     return {lbl:'Sin Conv.',  bg:'#F2EEE6',fg:'#5F5E5A'};
-      if (p < 0.008)  return {lbl:'Crítica',    bg:'#FCCDD9',fg:'#99162B'};
-      if (p < 0.015)  return {lbl:'Revisar',    bg:'#FED7AA',fg:'#C2410C'};
-      if (p <= 0.025) return {lbl:'Aceptable',  bg:'#FEF9C3',fg:'#7B6F00'};
-      return               {lbl:'Exitosa',    bg:'#E1F5EE',fg:'#1A6B4A'};
+      if (p <= 0)     return {lbl:'Sin Conv.',  bg:'#8A8377',fg:'#FFFFFF'};
+      if (p < 0.008)  return {lbl:'Crítica',    bg:'#C0392B',fg:'#FFFFFF'};
+      if (p < 0.015)  return {lbl:'Revisar',    bg:'#F97316',fg:'#FFFFFF'};
+      if (p <= 0.025) return {lbl:'Aceptable',  bg:'#FBBF24',fg:'#5C3A00'};
+      return               {lbl:'Exitosa',    bg:'#1A6B4A',fg:'#FFFFFF'};
     }
-    return {lbl:'—',bg:'#F2EEE6',fg:'#5F5E5A'};
+    return {lbl:'—',bg:'#8A8377',fg:'#FFFFFF'};
   }
   function _applyBand(id, val, metric) {
     var el = document.getElementById(id); if (!el || isNaN(val)) return;
@@ -1874,11 +1874,11 @@ function _arCrossFilterPillsRender(n) {
   if (!container) return;
   var f = _arCrossFilter[n];
   var html = '';
-  /* Cross-pills: violeta en CR (ef/cv), verde en RND (nd/ipm) — igual que las KPI cards (W24) */
+  /* Cross-pills (segunda línea, al seleccionar): SIEMPRE verde — CR y RND (W24) */
   var _isCR_ar = (typeof W !== 'undefined') && W.mode === 'cr';
-  var GR_BG = _isCR_ar ? '#EDE8F7' : '#E1F5EE';
-  var GR_FG = _isCR_ar ? '#5C469C' : '#1A6B4A';
-  var GR_BD = _isCR_ar ? '#5C469C' : '#1A6B4A';
+  var GR_BG = '#E1F5EE';
+  var GR_FG = '#1A6B4A';
+  var GR_BD = '#1A6B4A';
   var _pill = function(type, label) {
     return '<span class="ar-cross-pill" data-cross-n="'+n+'" data-cross-type="'+type+'"'
       +' style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 10px;'
@@ -2708,14 +2708,14 @@ function ar3_fmt(v) {
 function ar3_bandColors(banda) {
   var k = (banda||'').toLowerCase().replace(/[áàä]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i').replace(/[ó]/g,'o').replace(/[ú]/g,'u').replace(/\s+/g,'').replace('crítica','critica').replace('superc','sc').replace('súperc','sc').replace('sincon','sinconv').replace('sinconv.','sinconv');
   var map = {
-    exitosa:   ['#E1F5EE','#1A6B4A'],
-    aceptable: ['#FEF9C3','#713F12'],
-    revisar:   ['#FED7AA','#C2410C'],
-    critica:   ['#FCE4F1','#99162B'],
-    sc:        ['#E8E6E3','#2D2828'],
-    sinconv:   ['#F2EEE6','#5F5E5A'],
+    exitosa:   ['#1A6B4A','#FFFFFF'],
+    aceptable: ['#FBBF24','#5C3A00'],
+    revisar:   ['#F97316','#FFFFFF'],
+    critica:   ['#C0392B','#FFFFFF'],
+    sc:        ['#2D2828','#FFFFFF'],
+    sinconv:   ['#8A8377','#FFFFFF'],
   };
-  return map[k] || map[(banda||'').toLowerCase()] || ['#F2EEE6','#5F5E5A'];
+  return map[k] || map[(banda||'').toLowerCase()] || ['#8A8377','#FFFFFF'];
 }
 
 function ar3_bandLabel(banda) {
@@ -3056,10 +3056,10 @@ function ar3_showMore() {
     /* getBanda devuelve banda según métrica */
     var banda = _getBandaForMetric(val, metric);
     var colors = {
-      'Exitosa': {bg:'#E1F5EE', fg:'#1A6B4A'},
-      'Aceptable': {bg:'#FEF9C3', fg:'#7B6F00'},
-      'Revisar': {bg:'#FED7AA', fg:'#C2410C'},
-      'Crítica': {bg:'#FCCDD9', fg:'#99162B'},
+      'Exitosa': {bg:'#1A6B4A', fg:'#FFFFFF'},
+      'Aceptable': {bg:'#FBBF24', fg:'#5C3A00'},
+      'Revisar': {bg:'#F97316', fg:'#FFFFFF'},
+      'Crítica': {bg:'#C0392B', fg:'#FFFFFF'},
       'Súper Crítica': {bg:'#FFCCCC', fg:'#D32F2F'},
       'Sin Conversión': {bg:'#F5F5F5', fg:'#666'},
     };

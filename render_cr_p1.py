@@ -51,9 +51,9 @@ def _kpi_pill(card, key, label, base_style, active_style):
 
 def _kpi_view_pill_bk(key, label, active):
     """Pills de vista para card Bookability."""
-    _PA = 'border:1px solid #1A6B4A;background:#E1F5EE;color:#1A6B4A;'
-    _PI = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
-    _PS = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
+    _PA = 'border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;text-transform:uppercase;'
+    _PI = 'border:1px solid #5C469C;background:transparent;color:#5C469C;text-transform:none;'
+    _PS = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     st = _PA if active else _PI
     return _kpi_pill('bk', key, label, _PS, st)
 
@@ -166,9 +166,9 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     cr_trafico_line = _cr_trafico_line()
     
     # Pills de vista — mismo patrón que AR (onclick, no CSS radio)
-    _PILL_ACTIVE = 'border:1px solid #1A6B4A;background:#E1F5EE;color:#1A6B4A;'
-    _PILL_INACT  = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
-    _PILL_STYLE  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
+    _PILL_ACTIVE = 'border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;text-transform:uppercase;'
+    _PILL_INACT  = 'border:1px solid #5C469C;background:transparent;color:#5C469C;text-transform:none;'
+    _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
     for i, (t_key, t_label) in enumerate([('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]):
         _active_style = _PILL_ACTIVE if i == 0 else _PILL_INACT
@@ -334,9 +334,9 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     cr_trafico_line = _cr_trafico_line()
     
     # Pills de vista — mismo patrón que AR (onclick, no CSS radio)
-    _PILL_ACTIVE = 'border:1px solid #1A6B4A;background:#E1F5EE;color:#1A6B4A;'
-    _PILL_INACT  = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
-    _PILL_STYLE  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
+    _PILL_ACTIVE = 'border:1px solid #5C469C;background:#EDE8F7;color:#5C469C;text-transform:uppercase;'
+    _PILL_INACT  = 'border:1px solid #5C469C;background:transparent;color:#5C469C;text-transform:none;'
+    _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
     for i, (t_key, t_label) in enumerate([('destino','Destino'),('corp','Corp'),('hotel','Hotel'),('channel','Channel')]):
         _active_style = _PILL_ACTIVE if i == 0 else _PILL_INACT

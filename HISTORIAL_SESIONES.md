@@ -5,6 +5,22 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-layout · 21 Jun 2026 · Ajustes de layout: badges sólidos + pills 2-líneas + tabs simétricas
+
+**Contexto:** tanda de ajustes visuales pedidos por Fede sobre `SUPPLY_W24.html`, iterando con validación visual. Hubo dos malentendidos de terminología resueltos en el camino (Fede usó "chips" para los badges de severity, no los chips de canasta; y "pills activas en verde" se refería a la segunda línea de cross-pills, no a la primera línea de dimensión).
+
+**Cambios (todo en fuente, nunca el HTML):**
+1. **Badges de severity → Opción B (sólido pleno, texto claro).** Se presentó un preview con 3 niveles (actual / A tinte profundo / B sólido pleno); Fede eligió primero A, luego B. Paleta final: Exitosa #1A6B4A/blanco · Aceptable #FBBF24/#5C3A00 · Revisar #F97316/blanco · Crítica #C0392B/blanco · Súper Crítica #2D2828/blanco · Sin Conv #8A8377/blanco. **Aprendizaje:** el color de banda está duplicado en **6 mapas** (`BANDA_COLORS` en render_helpers + `_AR_BANDA_C`, `getBanda` interno, mapa ~L3059, `ar3_bandColors` en js_override + `_bk` banda_colors en assemble). Se migraron por **par completo** (bg+fg juntos en todos sus formatos: objeto JS con/sin espacio, array, python quoted, bare getBanda con prefijo `lbl:`) — un replace de hex suelto habría roto las pills/accent-soft que comparten #E1F5EE/#FCE4F1.
+2. **Esquema de pills en 2 líneas.** Primera línea (selector de dimensión) = color de sección (CR violet / RND magenta; activa relleno claro + MAYÚSCULA, inactiva outline + title-case). Segunda línea (cross-filter, al seleccionar un elemento) = SIEMPRE verde (CR y RND). Antes la primera línea activa estaba en verde y las cross de CR en violet. Tocados: `_PILL_ACTIVE`/`_PILL_INACT` (render_cr_p1/render_rnd_p1), `kpi_setView` (`sec_col`/`sec_bg`, assemble), `_kpiCrossFilterPillsRender` (assemble, `GR_*` siempre verde) + gemelo AR (js_override).
+3. **Tabs de canasta simétricas + alto.** `.c-chip`: `flex:1`+`justify-content:center` (mismo ancho, llenan la barra) · `height:54px`→`min-height:54px` (estiran al alto de la barra de KPIs) · `:last-child` sin border-right (evita doble línea con el bloque KPI). El color de los chips se revirtió (Fede no lo pidió — solo simetría/alto).
+4. **Severity badges sin target.** `banda_pill` ya no renderiza el `· Target ≥ X`; solo la banda. El "Target: Bookings" del masthead es otro elemento (intacto).
+
+**Validación:** jsdom en cada paso (badges con texto blanco, primera línea = sección, cross-pills verdes, kpi_setView aplica colores+uppercase, 0 errores) + validación visual de Fede antes de commitear. Sin cambio de tamaño del HTML (solo strings de color/estilo).
+
+**Archivos:** `demo_css_w22.css`, `render_helpers.py`, `render_cr_p1.py`, `render_rnd_p1.py`, `assemble_unified.py`, `js_override.js`, `reports/week-24/SUPPLY_W24.html` + docs.
+
+---
+
 ## Sesión W24-rnd-percanasta · 21 Jun 2026 · Desglose per-canasta real de KPI cards RND + dedup _sb RND (−1,21MB)
 
 ### Contexto
