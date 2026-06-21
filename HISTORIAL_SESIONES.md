@@ -32,11 +32,10 @@ Continuación de W24-cr-kpi-ar. Federico reporta 10 bugs (CR/RND × KPI/AR) y, d
 | #5/#10 | Sin botón Ver más en AR ef/cv y RND AR | Validado jsdom (`ar{n}-th-more` display:'' cuando rows>5) |
 | #6 | Orden pills BK AR | Resuelto por A1 |
 | #7 | Semanas hardcodeadas (W22/W23 en vez de W23/W24) | `wowBox` (js_override) usa `_VOL_NUM` dinámico, inyectado en FOOTER_JS de assemble (`var _VOL_NUM={int(VOL_NUM)};`). HALLAZGO: `_SEMANAS_HIST` (js L7) también stale W16-W23 → debería W17-W24 (pendiente) |
-| #8 | Searchbox RND KPI: query queda activo, lista enorme, sin resaltar | 🔴 **PENDIENTE.** Diagnóstico: el searchbox KPI (`sb-kpi-*`) muestra dropdown de sugerencias pero NO filtra/resalta filas del panel (`sb-search-hit=0`); no lo ataca `_attachArSb` (solo AR) ni `_attachPanelSb` (legacy muerto). Hay un listener delegado por aislar. Fix: recablear para filtrar panel activo + al seleccionar → cross-filter + resaltar fila + limpiar query + paginar |
+| #8 | Searchbox RND KPI: query queda activo, lista enorme, sin resaltar | ✅ **DELEGACIÓN.** Diagnóstico: el searchbox KPI (`sb-kpi-*`) muestra dropdown de sugerencias pero NO filtra/resalta filas del panel (`sb-search-hit=0`); no lo ataca `_attachArSb` (solo AR) ni `_attachPanelSb` (legacy muerto). CAUSA: el searchbox KPI estaba sin cablear (oninput=null) y un intento con input.oninput se borraba porque las cards KPI re-renderizan su región. SOLUCIÓN: delegación de eventos a nivel document (input/mousedown/click/focusout) que deriva la card del id sb-kpi-XXX, filtra el panel de la vista activa (_kpiView[card]), y al seleccionar dispara el click real de la fila (reusa _handleKpiCardHistClick) + limpia query + fija fila visible. Validado jsdom: typing "can"→6 hits+dropdown; seleccionar "Cancún"→query vacío, fila visible+resaltada, 11/249 filas (no lista enorme), gráfica OK |
 | #9 | Searchbox RND AR no resaltaba | Resuelto por A1 |
 
 ### Pendientes
-- **#8** searchbox RND KPI (recableo aislado).
 - `_SEMANAS_HIST` stale (W16-W23 → W17-W24).
 - Cleanup A2b: remover handlers dim muertos de AR.
 - Bloque D: optimización tamaño HTML (estilos inline→clase, pool compartido, JSON compacto).

@@ -1650,6 +1650,95 @@ AR_SB_PATCH_JS = '''
     if(clearBtn) clearBtn.onclick=function(){input.value='';filter();var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';};
     input.onblur=function(){setTimeout(function(){var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';},150);};
   }
+  /* W25 (#8): Searchbox de cards KPI (sb-kpi-{ef,cv,bk,nd,ipm}) — DELEGADO.
+     Antes intentado con input.oninput, pero las cards KPI re-renderizan su región
+     (tabs-row) y borraban el handler → oninput quedaba null. Con delegación a nivel
+     document sobrevive al re-render. Filtra el panel de la VISTA ACTIVA (_kpiView[card]);
+     al seleccionar dispara el click real de la fila (reusa _handleKpiCardHistClick:
+     cross-filter + highlight + gráfica), limpia el query, repagina y fija la fila visible. */
+  var _KPI_SB_CARDS = ['ef', 'cv', 'bk', 'nd', 'ipm'];
+  function _kpiSbCardOf(input) {
+    if (!input || !input.id || input.id.indexOf('sb-kpi-') !== 0) return null;
+    var c = input.id.replace('sb-kpi-', '');
+    return _KPI_SB_CARDS.indexOf(c) >= 0 ? c : null;
+  }
+  function _kpiSbPanel(card) {
+    var view = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
+    var panels = document.getElementById('kpi-' + card + '-panels');
+    if (!panels) return null;
+    return panels.querySelector('[data-tab="' + view + '"]');
+  }
+  function _kpiSbRows(card) { var p = _kpiSbPanel(card); return p ? p.querySelectorAll('[data-hist-label]') : []; }
+  function _kpiSbFilter(card, input) {
+    var q = norm(input.value.trim());
+    var clearBtn = document.getElementById('sb-kpi-' + card + '-clear');
+    _kpiSbRows(card).forEach(function(r) {
+      var match = !q || norm(r.getAttribute('data-hist-label') || '').indexOf(q) >= 0;
+      if (q) {
+        if (match) { r.classList.add('sb-search-hit'); r.style.setProperty('display', 'grid', 'important'); }
+        else { r.classList.remove('sb-search-hit'); r.style.setProperty('display', 'none', 'important'); }
+      } else {
+        r.classList.remove('sb-search-hit');
+        if (!r.classList.contains('sb-hidden') && !r.classList.contains('rows-more')) r.style.setProperty('display', 'grid');
+        else r.style.removeProperty('display');
+      }
+    });
+    if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
+  }
+  function _kpiSbDD(card) { return document.getElementById('sb-kpi-' + card + '-dd'); }
+  function _kpiSbBuildDD(card, input) {
+    var qn = norm(input.value);
+    var dd = _kpiSbDD(card);
+    if (!dd) { dd = document.createElement('div'); dd.id = 'sb-kpi-' + card + '-dd'; dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;"; document.body.appendChild(dd); }
+    if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+    var seen = {}, labels = [];
+    _kpiSbRows(card).forEach(function(r) { var l = r.getAttribute('data-hist-label'); if (l && !seen[l]) { seen[l] = true; labels.push(l); } });
+    var matches = labels.filter(function(l) { return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
+    if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+    dd.innerHTML = matches.map(function(l) { return '<div class="sb-suggestion" data-kpi-card="' + card + '" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + l + '</div>'; }).join('');
+    var rect = input.getBoundingClientRect(); dd.style.left = rect.left + 'px'; dd.style.top = (rect.bottom + 4) + 'px'; dd.style.width = Math.max(rect.width + 60, 200) + 'px'; dd.style.display = 'block';
+  }
+  function _kpiSbSelect(card, label) {
+    var input = document.getElementById('sb-kpi-' + card);
+    if (input) { input.value = ''; _kpiSbFilter(card, input); }
+    var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
+    var clearBtn = document.getElementById('sb-kpi-' + card + '-clear'); if (clearBtn) clearBtn.style.display = 'none';
+    var p = _kpiSbPanel(card); if (!p) return;
+    var target = null;
+    p.querySelectorAll('[data-hist-label]').forEach(function(r) { if (!target && r.getAttribute('data-hist-label') === label) target = r; });
+    if (target) target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    setTimeout(function() {
+      var p2 = _kpiSbPanel(card); if (!p2) return;
+      p2.querySelectorAll('[data-hist-label]').forEach(function(r) {
+        if (r.getAttribute('data-hist-label') === label) {
+          r.classList.add('sb-search-hit');
+          r.style.setProperty('display', 'grid', 'important');
+          if (r.scrollIntoView) try { r.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+        }
+      });
+    }, 70);
+  }
+  document.addEventListener('input', function(e) {
+    var card = _kpiSbCardOf(e.target); if (!card) return;
+    _kpiSbFilter(card, e.target); _kpiSbBuildDD(card, e.target);
+  });
+  document.addEventListener('mousedown', function(e) {
+    var sug = e.target.closest ? e.target.closest('.sb-suggestion[data-kpi-card]') : null;
+    if (!sug) return; e.preventDefault();
+    _kpiSbSelect(sug.getAttribute('data-kpi-card'), sug.getAttribute('data-value'));
+  });
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest ? e.target.closest('[id^="sb-kpi-"][id$="-clear"]') : null;
+    if (!btn) return;
+    var card = btn.id.replace('sb-kpi-', '').replace('-clear', '');
+    if (_KPI_SB_CARDS.indexOf(card) < 0) return;
+    var input = document.getElementById('sb-kpi-' + card); if (input) { input.value = ''; _kpiSbFilter(card, input); }
+    var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
+  });
+  document.addEventListener('focusout', function(e) {
+    var card = _kpiSbCardOf(e.target); if (!card) return;
+    setTimeout(function() { var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none'; }, 150);
+  });
   function attachArSearchboxes(){_attachArSb('sb-ar1','ar1-th');_attachArSb('sb-ar2','ar2-th');_attachArSb('ar3-sb','ar3-tbody');}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(attachArSearchboxes,800);});}
   else{setTimeout(attachArSearchboxes,800);}
