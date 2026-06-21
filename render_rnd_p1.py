@@ -8,6 +8,7 @@ import pickle
 import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
+from render_helpers import _kpi_pill
 
 from historico_module import render_historico
 
@@ -179,10 +180,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     _tr17 = M.get('global_w17', {}).get('trafico', 0)
     _traf_line = render_traf_line_rnd(_tr18, _tr17)
     
-    # Tabs panels
+    # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
+    _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;'
+    _PILL_INACT  = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
+    _PILL_STYLE  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
-    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
-        tabs += f'<label class="tab-label" for="tab-nd-{t_key}">{t_label}</label>'
+    for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):
+        tabs += _kpi_pill('nd', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
 
     # ── Config centralizada NoDispo ─────────────────────────────────────────────
     _ND_CFG = {
@@ -198,10 +202,11 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         'traf_wow_type': 'pct',
         'wow_col':       'NoDispo_WoW_pp',
         'wow_is_pos':    False,            # NoDispo: bajar = mejorar
-        'grid_cols':     'minmax(0,1fr) 76px 52px 44px 54px 36px',
+        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
+        'show_severity': False,
     }
-    _ND_HDR = {'headers': ['Severity','Tráfico','WoW','%NoDispo','WoW'],
-               'widths':  'minmax(0,1fr) 76px 52px 44px 54px 36px'}
+    _ND_HDR = {'headers': ['Tráfico','WoW','%NoDispo','WoW'],
+               'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''
@@ -225,13 +230,9 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
             if _hcol in _df.columns:
                 _ND_CFG['hist_prev_col'] = _hcol
                 break
-        panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR)
+        panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR, default_tab='pais')
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
-<input checked="" id="tab-nd-pais" name="tabs-nd" style="display:none;" type="radio"/>
-<input id="tab-nd-destino" name="tabs-nd" style="display:none;" type="radio"/>
-<input id="tab-nd-corp" name="tabs-nd" style="display:none;" type="radio"/>
-<input id="tab-nd-hotel" name="tabs-nd" style="display:none;" type="radio"/>
+    return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
@@ -245,7 +246,9 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{tabs}</div>
+<div id="kpi-nd-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
+<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
 {render_historico('rnd', 'nodispo', banda, pct_w18, 'hrnd-global-nd')}
 </div>'''
@@ -270,9 +273,13 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     _tr17 = M.get('global_w17', {}).get('trafico', 0)
     _traf_line = render_traf_line_rnd(_tr18, _tr17)
     
+    # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
+    _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;'
+    _PILL_INACT  = 'border:1px solid var(--rule);background:transparent;color:var(--ink-muted);'
+    _PILL_STYLE  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
-    for t_key, t_label in [('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]:
-        tabs += f'<label class="tab-label" for="tab-rpm-{t_key}">{t_label}</label>'
+    for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):
+        tabs += _kpi_pill('ipm', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
 
     # ── Config centralizada IPM/RPM ──────────────────────────────────────────────
     _IPM_CFG = {
@@ -289,10 +296,11 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
         'traf_wow_type': 'pct',
         'wow_col':       'IPM_WoW_pp',     # fallback: RPM_WoW_pct
         'wow_is_pos':    True,             # IPM: subir = mejorar
-        'grid_cols':     'minmax(0,1fr) 76px 52px 44px 54px 36px',
+        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
+        'show_severity': False,
     }
-    _IPM_HDR = {'headers': ['Severity','Tráfico','WoW','IPM','WoW'],
-                'widths':  'minmax(0,1fr) 76px 52px 44px 54px 36px'}
+    _IPM_HDR = {'headers': ['Tráfico','WoW','IPM','WoW'],
+                'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''
@@ -319,13 +327,9 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
             if _hcol in _df.columns:
                 _IPM_CFG['hist_prev_col'] = _hcol
                 break
-        panels += build_kpi_tab_panel(_df, t_key, _IPM_CFG, _IPM_HDR)
+        panels += build_kpi_tab_panel(_df, t_key, _IPM_CFG, _IPM_HDR, default_tab='pais')
     
-    return f'''<div class="kpi-card" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
-<input checked="" id="tab-rpm-pais" name="tabs-rpm" style="display:none;" type="radio"/>
-<input id="tab-rpm-destino" name="tabs-rpm" style="display:none;" type="radio"/>
-<input id="tab-rpm-corp" name="tabs-rpm" style="display:none;" type="radio"/>
-<input id="tab-rpm-hotel" name="tabs-rpm" style="display:none;" type="radio"/>
+    return f'''<div class="kpi-card" id="kpicard-ipm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
@@ -339,7 +343,9 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 </div>
 {gauge}
 {wow_block}
-<div class="tabs-row" style="display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);padding:0 0 0 4px;align-items:flex-end;">{tabs}{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{tabs}</div>
+<div id="kpi-ipm-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
+<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
 <div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
 {render_historico('rnd', 'ipm', banda, rpm_w18, 'hrnd-global-ipm')}
 </div>'''
@@ -454,6 +460,9 @@ def _build_rnd_card_tabs_json():
                 bnd      = banda_nodispo(nd)
                 bc       = BANDA_COLORS.get(bnd, {})
                 traf_str = fmt_big(traf) if traf else '0'
+                _cfc = str(r.get('CorpName', '') or '')
+                _cfd = str(r.get('Destino', '') or '')
+                _cfp = str(r.get('PaisDestino', '') or '')
                 nd_tab.append([
                     lab,
                     '',              # r[1] sub
@@ -461,9 +470,10 @@ def _build_rnd_card_tabs_json():
                     traf_str,        # r[5] tráfico abreviado (6,9M)
                     round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
                     round(nd * 100, 2),   # r[7] val_pct
-                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
-                    None, '—', '—',
-                    w21, round((nd - r.get('%NoDispo_W18', nd)) * 100, 4)
+                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,  # r[8] wow val
+                    w21,                                                # r[9]  hist_w21
+                    round((nd - r.get('%NoDispo_W18', nd)) * 100, 4),   # r[10] hist_w20
+                    _cfc, _cfd, _cfp,                                   # r[11] corp, r[12] dest, r[13] pais
                 ])
             # IPM rows: ordenar peor primero (menor IPM)
             df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(500)
@@ -484,9 +494,10 @@ def _build_rnd_card_tabs_json():
                     traf_str,        # r[5] tráfico abreviado
                     round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
                     round(ipm, 2),   # r[7] val_pct
-                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,
-                    None, '—', '—',
-                    round(ipm, 4), 0
+                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,  # r[8] wow val
+                    round(ipm, 4),   # r[9]  hist_w21
+                    0,               # r[10] hist_w20
+                    str(r.get('CorpName','') or ''), str(r.get('Destino','') or ''), str(r.get('PaisDestino','') or ''),  # r[11,12,13]
                 ])
             nd_rows_map  = nd_rows if t_key == 'hotel' else None
             ipm_rows_map = ipm_rows if t_key == 'hotel' else None
@@ -494,12 +505,44 @@ def _build_rnd_card_tabs_json():
             result.setdefault(canasta_key, {}).setdefault('ipm', {})[t_key] = ipm_tab
     return f'\n<script>\nvar RND_CARD_TABS={_json_rnd.dumps(result, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 
+def _build_rnd_membership_json():
+    """Mapa de membresía corp→destinos y corp→países (relación muchos-a-muchos).
+    Permite el cross-filter Corp→Destino / Corp→País / Destino→Corp / País→Corp
+    en las cards KPI (un destino tiene muchos corps, así que el data-cf-corp por fila
+    no alcanza). Se construye desde g_hotel (TODOS los hoteles, no solo top-500)."""
+    corp_dest, corp_pais = {}, {}
+    dest_pais = {}
+    try:
+        gh = g_hotel[['CorpName', 'Destino', 'PaisDestino']].copy()
+        for _, r in gh.iterrows():
+            c = str(r.get('CorpName', '') or '').strip()
+            d = str(r.get('Destino', '') or '').strip()
+            p = str(r.get('PaisDestino', '') or '').strip()
+            if d and p:
+                dest_pais[d] = p          # cada destino tiene 1 país
+            if not c:
+                continue
+            if d:
+                corp_dest.setdefault(c, set()).add(d)
+            if p:
+                corp_pais.setdefault(c, set()).add(p)
+    except Exception:
+        pass
+    corp_dest = {k: sorted(v) for k, v in corp_dest.items()}
+    corp_pais = {k: sorted(v) for k, v in corp_pais.items()}
+    payload = {'corpDest': corp_dest, 'corpPais': corp_pais, 'destPais': dest_pais}
+    return ('\n<script>\nvar RND_MEMBERSHIP='
+            + _json_rnd.dumps(payload, ensure_ascii=False)
+            + ';\n</script>\n')
+
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN RND ═══════════════ -->\n'
     '<section id="section-rnd" class="section-rnd">\n'
     + render_masthead()
     + HERO
     + _build_rnd_card_tabs_json()
+    + _build_rnd_membership_json()
     + '''
 <script>
 // HIST_DATA: datos históricos RND W17-W21

@@ -1,6 +1,6 @@
 /* Reset filtros cruzados al cambiar canasta */
 if (typeof _arCrossFilter !== 'undefined') {
-  _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
+  _arCrossFilter = {1:{corp:null,dest:null,pais:null,hotel:null}, 2:{corp:null,dest:null,pais:null,hotel:null}};
   if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
 }
 /* Semanas históricas — definida aquí para garantizar disponibilidad antes de cualquier uso */
@@ -9,8 +9,10 @@ var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];
 /* Parchear w22_redrawCanvas para incluir HIST_RND */
 var _origRedraw = w22_redrawCanvas;
 w22_redrawCanvas = function(accent){
-  /* Dibujar canvas CR (original) */
-  _origRedraw(accent);
+ try {
+  /* Dibujar canvas CR (original) — protegido: un canvas null/problemático
+     NUNCA debe cortar la cadena de w22_setMode (rompía pills KPI + labels AR en RND) */
+  try { _origRedraw(accent); } catch(_e) { if(window.console&&console.warn) console.warn('w22_redrawCanvas orig:', _e.message); }
   /* Dibujar canvas RND si modo es rnd */
   if(W.mode === 'rnd'){
     var rgb = RGB[accent] || '234,0,116';
@@ -81,6 +83,7 @@ w22_redrawCanvas = function(accent){
       }
     });
   }
+ } catch(_eAll) { if(window.console&&console.warn) console.warn('w22_redrawCanvas patch:', _eAll.message); }
 };
 
 /* Patch cv() y data() para que usen las vars correctas según modo */
@@ -372,7 +375,7 @@ w22_setMode = function(m, el) {
   if (typeof _SS !== 'undefined') _SS = {};
   /* Reset filtros cruzados al cambiar modo CR↔RND */
   if (typeof _arCrossFilter !== 'undefined') {
-    _arCrossFilter = {1:{corp:null,dest:null}, 2:{corp:null,dest:null}};
+    _arCrossFilter = {1:{corp:null,dest:null,pais:null,hotel:null}, 2:{corp:null,dest:null,pais:null,hotel:null}};
     if (typeof _arCrossFilterPillsRender === 'function') { _arCrossFilterPillsRender(1); _arCrossFilterPillsRender(2); }
   }
   /* Reset panel selection */
@@ -854,7 +857,7 @@ function w22_renderRNDCardTabs(canasta) {
   var grids = { 'nd': 'minmax(0,1fr) 76px 52px 44px 54px 36px', 'ipm': 'minmax(0,1fr) 76px 52px 44px 54px 36px' };
   var hdrs  = { 'nd': ['Severity','Tráfico','WoW','%NoDispo','WoW'], 'ipm': ['Severity','Tráfico','WoW','IPM','WoW'] };
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
-  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   ['nd','ipm'].forEach(function(metric) {
     var tabPrefix = metric === 'nd' ? 'nd' : 'rpm';
     ['pais','destino','corp','hotel'].forEach(function(tkey) {
@@ -929,10 +932,11 @@ function _cardRow(r, idx, isEf, grid){
     +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
   var _display = (typeof arguments[4]==='string') ? arguments[4] : 'grid';
   var _cls = (typeof arguments[5]==='string') ? ' class="'+arguments[5]+'"' : '';
-  /* Cross-filter (vista hotel): corp/dest crudos en r[11]/r[12] */
+  /* Cross-filter (vista hotel/destino): corp/dest/pais crudos en r[11]/r[12]/r[13] */
   var _cf_corp = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
   var _cf_dest = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
-  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-label="'+lab+'" data-cf-corp="'+_cf_corp+'" data-cf-dest="'+_cf_dest+'"'
+  var _cf_pais = (r[13]!=null) ? String(r[13]).replace(/"/g,'&quot;') : '';
+  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-wow="'+(wow_pp!=null?wow_pp:'')+'" data-hist-label="'+lab+'" data-cf-corp="'+_cf_corp+'" data-cf-dest="'+_cf_dest+'" data-cf-pais="'+_cf_pais+'"'
     +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
@@ -1105,7 +1109,7 @@ function _arRows(n, tab) {
       var extras = sbRows.filter(function(r){ return !p80Names[r[0]]; });
       rows = rows.concat(extras);
     }
-    return _arFilterApply(rows || [], n);
+    return _arFilterApply(rows || [], n, 'hotel');
   } else {
     /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
     var rows2;
@@ -1121,9 +1125,10 @@ function _arRows(n, tab) {
               tab === 'sc' ? _sc2 :
               (dd.hotels_cv || dd.hotels_crit || dd.hotels);
     } else {
-      rows2 = tab === 'br' ? (dd.hotels_br  || dd.hotels) :
-              tab === 'sc' ? (dd.hotels_sc  || dd.hotels) :
-              (dd.hotels_dnc || dd.hotels_crit || dd.hotels);
+      /* Card 2 RND (IPM): pools propios por banda IPM (distintos a NoDispo) */
+      rows2 = tab === 'br' ? (dd.hotels_ipm_br  || dd.hotels_br || dd.hotels) :
+              tab === 'sc' ? (dd.hotels_ipm_sc  || dd.hotels_sc || dd.hotels) :
+              (dd.hotels_ipm_dnc || dd.hotels_dnc || dd.hotels);
     }
     /* Ampliar card 2 con pool _sb */
     var sbKey2 = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
@@ -1134,7 +1139,7 @@ function _arRows(n, tab) {
       var extras2 = sbRows2.filter(function(r){ return !p80Names2[r[0]]; });
       rows2 = (rows2 || []).concat(extras2);
     }
-    return _arFilterApply(rows2 || [], n);
+    return _arFilterApply(rows2 || [], n, 'hotel');
   }
 }
 
@@ -1181,15 +1186,28 @@ function _arRenderChan(n) {
 function _arDimRows(n, dim) {
   var dd = data();
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
-  if (dim === 'chan') return dd.chans || dd.dims || [];
-  if (dim === 'dest') {
+  var base;
+  if (dim === 'chan') base = dd.chans || dd.dims || [];
+  else if (dim === 'dest') {
     /* Card 2 en CR: destinos por ConvRate ASC */
-    if (n === 2 && isCR && dd.dests_cv) return dd.dests_cv;
-    return dd.dests || dd.dims || [];
+    if (n === 2 && isCR && dd.dests_cv) base = dd.dests_cv;
+    else base = dd.dests || dd.dims || [];
+  } else {
+    /* Corp */
+    if (n === 2 && isCR && dd.corps_cv) base = dd.corps_cv;
+    else base = dd.corps || dd.dims || [];
   }
-  /* Corp */
-  if (n === 2 && isCR && dd.corps_cv) return dd.corps_cv;
-  return dd.corps || dd.dims || [];
+  /* Card 2 en RND (IPM): reordenar por IPM DESC (r[6] es "$611"/"$0"). Card 1 queda por NoDispo. */
+  if (n === 2 && !isCR && base && base.length) {
+    var _parseIpm = function(s){
+      if (s == null) return -1;
+      var v = parseFloat(String(s).replace(/[^0-9.\-]/g,''));
+      return isNaN(v) ? -1 : v;
+    };
+    base = base.slice().sort(function(a,b){ return _parseIpm(b[6]) - _parseIpm(a[6]); });
+  }
+  /* Aplicar cross-filter (corp/dest/pais con membership) también a las vistas dim — W24 */
+  return _arFilterApply(base || [], n, dim);
 }
 
 /* Render tabla de una card */
@@ -1306,6 +1324,19 @@ function ar_updateLabels() {
   [1,2].forEach(function(n){
     var el = document.getElementById('ar'+n+'-dim-chan');
     if (el) el.textContent = chanLabel;
+    /* La pill de vista real es ar{n}-v-chan — su texto debe reflejar Channel/País */
+    var pill = document.getElementById('ar'+n+'-v-chan');
+    if (pill) pill.textContent = chanLabel;
+    /* Orden de pills de vista: RND = País·Destino·Corp·Hotel · CR = Hotel·Corp·Destino·Channel */
+    var pHotel = document.getElementById('ar'+n+'-v-hotel');
+    var pCorp  = document.getElementById('ar'+n+'-v-corp');
+    var pDest  = document.getElementById('ar'+n+'-v-dest');
+    var pChan  = document.getElementById('ar'+n+'-v-chan');
+    if (pHotel && pCorp && pDest && pChan && pHotel.parentNode) {
+      var cont = pHotel.parentNode;
+      var order = isCR ? [pHotel, pCorp, pDest, pChan] : [pChan, pDest, pCorp, pHotel];
+      order.forEach(function(p){ cont.appendChild(p); });
+    }
   });
   /* Canvas hist: mostrar CR o RND según modo */
   ['ar1-hist-cr','ar2-hist-cr'].forEach(function(id){
@@ -1378,7 +1409,9 @@ function trow_ar(r, card, idx) {
  var isUp = wowStr.charAt(0)==='▲';
  var delta = parseFloat(String(wowStr).replace(/[^0-9,.]/g,'').replace(',','.')) || 0;
  var w20num = (wowStr && wowStr!=='—') ? (isUp ? metNum-delta : metNum+delta) : metNum;
- var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'"';
+ var _cfc = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
+ var _cfd = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
+ var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'" data-cf-corp="'+_cfc+'" data-cf-dest="'+_cfd+'"';
  /* Grid 5 cols: nombre · tráfico · wow · métrica · wow — igual KPI */
  var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
  var num = idx != null ? (idx<10?'0':'')+idx+'. ' : '';
@@ -1494,14 +1527,23 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
    var clrN = document.getElementById('sb-ar'+n+'-clear');
    sbN.oninput = function() {
      var q = sbN.value.toLowerCase();
-     container.querySelectorAll('[data-hist-label]').forEach(function(row) {
+     /* Re-obtener el tbody vigente por ID (las filas se re-renderizan dentro) */
+     var _c = document.getElementById('ar'+n+'-th') || container;
+     _c.querySelectorAll('[data-hist-label]').forEach(function(row) {
        var lbl = (row.getAttribute('data-hist-label')||'').toLowerCase();
        var match = lbl.indexOf(q) >= 0;
        if (!q) {
-         /* Sin filtro: restaurar visibilidad original */
-         row.style.display = (row.classList.contains('rows-more') || row.classList.contains('sb-hidden')) ? 'none' : 'grid';
+         /* Sin filtro: visibles a grid (no removeProperty: volvería a block), paginadas que la clase las oculte */
+         row.classList.remove('sb-search-hit');
+         if (!row.classList.contains('sb-hidden') && !row.classList.contains('rows-more')) row.style.setProperty('display', 'grid');
+         else row.style.removeProperty('display');
+       } else if (match) {
+         /* Mostrar match aunque esté paginado (sb-hidden/rows-more tienen display:none !important) */
+         row.classList.add('sb-search-hit');
+         row.style.setProperty('display', 'grid', 'important');
        } else {
-         row.style.display = match ? 'grid' : 'none';
+         row.classList.remove('sb-search-hit');
+         row.style.setProperty('display', 'none', 'important');
        }
      });
      if (clrN) clrN.style.display = q ? 'inline' : 'none';
@@ -1750,7 +1792,7 @@ function ar_updateKPIs() {
    Reset: cambio de modo CR↔RND o de canasta.
    ══════════════════════════════════════════════════════════════ */
 
-var _arCrossFilter = {1: {corp:null, dest:null}, 2: {corp:null, dest:null}};
+var _arCrossFilter = {1: {corp:null, dest:null, pais:null, hotel:null}, 2: {corp:null, dest:null, pais:null, hotel:null}};
 
 function _arNormCF(s) {
   return String(s||'').trim().toLowerCase()
@@ -1759,12 +1801,48 @@ function _arNormCF(s) {
     .replace(/[úùü]/g,'u').replace(/ñ/g,'n');
 }
 
-function _arFilterApply(rows, n) {
+function _arFilterApply(rows, n, viewOverride) {
   var f = _arCrossFilter[n];
-  if (!f || (!f.corp && !f.dest)) return rows;
+  if (!f || (!f.corp && !f.dest && !f.pais && !f.hotel)) return rows;
+  var view = viewOverride || ((typeof _arPillView !== 'undefined') ? (_arPillView[n] || 'hotel') : 'hotel');
+  var MEM = (typeof RND_MEMBERSHIP !== 'undefined') ? RND_MEMBERSHIP : {corpDest:{}, corpPais:{}};
+  function _memArr(map, corp){ var a=map[corp]; if(a) return a; for(var k in map){ if(_arNormCF(k)===_arNormCF(corp)) return map[k]; } return null; }
+  function _corpHasDest(corp, dest){ var a=_memArr(MEM.corpDest||{}, corp); if(!a) return false; for(var i=0;i<a.length;i++){ if(_arNormCF(a[i])===_arNormCF(dest)) return true; } return false; }
+  function _corpHasPais(corp, pais){ var a=_memArr(MEM.corpPais||{}, corp); if(!a) return false; for(var i=0;i<a.length;i++){ if(_arNormCF(a[i])===_arNormCF(pais)) return true; } return false; }
+  function _destInPais(dest, pais){
+    var dp = MEM.destPais || {};
+    var v = dp[dest];
+    if (v == null) { for (var k in dp){ if(_arNormCF(k)===_arNormCF(dest)){ v=dp[k]; break; } } }
+    return v != null && _arNormCF(v) === _arNormCF(pais);
+  }
   return rows.filter(function(r) {
-    if (f.corp && _arNormCF(r[11]||'').indexOf(_arNormCF(f.corp)) < 0) return false;
-    if (f.dest && _arNormCF(r[12]||'').indexOf(_arNormCF(f.dest)) < 0) return false;
+    var label = r[0] || '';
+    if (view === 'hotel') {
+      /* Hotel: corp/dest/pais bien definidos (valor único por hotel) */
+      if (f.corp  && _arNormCF(r[11]||'').indexOf(_arNormCF(f.corp)) < 0) return false;
+      if (f.dest  && _arNormCF(r[12]||'').indexOf(_arNormCF(f.dest)) < 0) return false;
+      if (f.pais  && _arNormCF(r[13]||'').indexOf(_arNormCF(f.pais)) < 0) return false;
+      if (f.hotel && _arNormCF(label).indexOf(_arNormCF(f.hotel)) < 0) return false;
+    } else if (view === 'dest') {
+      /* Destino: NO auto-filtro. País→Destino (membership destPais) + Corp→Destino (membership) */
+      if (f.pais && !_destInPais(label, f.pais)) return false;
+      if (f.corp && !_corpHasDest(f.corp, label)) return false;
+    } else if (view === 'corp') {
+      /* Corp: NO auto-filtro (no filtrar por f.corp). Destino→Corp / País→Corp (membership) */
+      if (f.dest && !_corpHasDest(label, f.dest)) return false;
+      if (f.pais && !_corpHasPais(label, f.pais)) return false;
+    } else if (view === 'chan') {
+      var _isCRmode = (typeof W !== 'undefined') && W.mode === 'cr';
+      if (_isCRmode) return true;   /* CR canal: no es dimensión de cross-filter → mostrar todos */
+      /* RND país: NO auto-filtro por país. Cross: Corp→País / Destino→País (membership) */
+      if (f.corp && !_corpHasPais(f.corp, label)) return false;
+      if (f.dest && !_destInPais(f.dest, label)) return false;
+    } else {
+      /* fallback otras vistas: filtro por valor único */
+      if (f.corp  && _arNormCF(r[11]||'').indexOf(_arNormCF(f.corp)) < 0) return false;
+      if (f.dest  && _arNormCF(r[12]||'').indexOf(_arNormCF(f.dest)) < 0) return false;
+      if (f.pais  && _arNormCF(r[13]||'').indexOf(_arNormCF(f.pais)) < 0) return false;
+    }
     return true;
   });
 }
@@ -1773,19 +1851,20 @@ function _arCrossFilterPillsRender(n) {
   var container = document.getElementById('ar'+n+'-cross-pills');
   if (!container) return;
   var f = _arCrossFilter[n];
-  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
-  var acc = isCR ? '#5C469C' : '#EA0074';
-  var accBg = isCR ? '#EDE8F7' : '#FCE4F1';
   var html = '';
-  var _pill = function(type, label, bg, fg, border) {
+  /* Cross-pills (corp/dest/pais/hotel) SIEMPRE en verde — igual que KPI cards (W24) */
+  var GR_BG = '#E1F5EE', GR_FG = '#1A6B4A', GR_BD = '#1A6B4A';
+  var _pill = function(type, label) {
     return '<span class="ar-cross-pill" data-cross-n="'+n+'" data-cross-type="'+type+'"'
       +' style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 10px;'
-      +'border-radius:20px;font-size:9px;font-weight:700;background:'+bg+';color:'+fg+';'
-      +'border:1px solid '+border+';white-space:nowrap;cursor:pointer;">'
+      +'border-radius:20px;font-size:9px;font-weight:700;background:'+GR_BG+';color:'+GR_FG+';'
+      +'border:1px solid '+GR_BD+';white-space:nowrap;cursor:pointer;">'
       +label+' <span style="font-size:11px;opacity:.65;">&#x00D7;</span></span>';
   };
-  if (f.corp) html += _pill('corp', 'Corp: '+f.corp, accBg, acc, acc);
-  if (f.dest) html += _pill('dest', 'Dest: '+f.dest, '#E1F5EE', '#2F6C34', '#2F6C34');
+  if (f.corp)  html += _pill('corp',  f.corp);
+  if (f.dest)  html += _pill('dest',  f.dest);
+  if (f.pais)  html += _pill('pais',  f.pais);
+  if (f.hotel) html += _pill('hotel', f.hotel);
   container.innerHTML = html;
   container.style.display = html ? 'flex' : 'none';
 }
@@ -1793,7 +1872,12 @@ function _arCrossFilterPillsRender(n) {
 /* Limpiar un filtro */
 function _arCrossFilterClear(n, type) {
   if (type) { _arCrossFilter[n][type] = null; }
-  else       { _arCrossFilter[n] = {corp:null, dest:null}; }
+  else       { _arCrossFilter[n] = {corp:null, dest:null, pais:null, hotel:null}; }
+  /* Limpiar resaltado de filas seleccionadas de esta card */
+  ['ar'+n+'-th','ar'+n+'-td'].forEach(function(id){
+    var c = document.getElementById(id);
+    if (c) c.querySelectorAll('[data-selected]').forEach(function(r){ r.style.background=''; r.style.boxShadow=''; r.removeAttribute('data-selected'); });
+  });
   _arCrossFilterPillsRender(n);
   _arPillRender(n);
 }
@@ -1818,15 +1902,53 @@ document.addEventListener('click', function(e) {
     if (_c && _c.contains(dimRow)) { cn = ni; break; }
   }
   if (!cn) return;
-  /* Solo actuar si la vista activa es corp o dest */
+  /* Solo actuar si la vista activa es corp, dest, pais (chan en RND) o hotel */
   var view = (typeof _arPillView !== 'undefined') ? (_arPillView[cn] || 'hotel') : 'hotel';
-  if (view !== 'corp' && view !== 'dest') return;
+  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  /* En RND la vista 'chan' es realmente País. En CR 'chan' es Channel (no cross-filter). */
+  var cfKey = null;
+  if (view === 'corp') cfKey = 'corp';
+  else if (view === 'dest') cfKey = 'dest';
+  else if (view === 'hotel') cfKey = 'hotel';
+  else if (view === 'chan' && !isCR) cfKey = 'pais';  /* País solo en RND */
+  /* CR channel: no es dimensión de cross-filter. La selección + gráfica del panel AR
+     ya la maneja _handleKpiCardHistClick (path genérico ar1→hcr-panel-ef). No interferir. */
+  if (view === 'chan' && isCR) return;
+  if (!cfKey) return;
   var val = dimRow.getAttribute('data-hist-label') || '';
   if (!val) return;
   /* Toggle: si ya está activo con ese valor, quitar */
-  _arCrossFilter[cn][view] = (_arCrossFilter[cn][view] === val) ? null : val;
+  var _wasSel = (_arCrossFilter[cn][cfKey] === val);
+  _arCrossFilter[cn][cfKey] = _wasSel ? null : val;
   _arCrossFilterPillsRender(cn);
   _arPillRender(cn);
+  /* Selección + actualización de gráfica (igual que KPI) — re-aplicar tras el re-render destructivo */
+  var _cid = isCR ? (cn===1?'hcr-panel-ef':'hcr-panel-cv') : (cn===1?'hrnd-panel-nd':'hrnd-panel-ipm');
+  if (_wasSel) {
+    document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_cid}}));
+    var _lblR = document.getElementById('hist-'+_cid+'-label'); if (_lblR) _lblR.textContent = 'Global';
+  } else {
+    var _cont2 = document.getElementById('ar'+cn+'-th');
+    if (_cont2) {
+      var _newRow = Array.prototype.slice.call(_cont2.querySelectorAll('[data-hist-label]'))
+        .filter(function(r){ return r.getAttribute('data-hist-label') === val; })[0];
+      _cont2.querySelectorAll('[data-selected]').forEach(function(r){ r.style.background=''; r.style.boxShadow=''; r.removeAttribute('data-selected'); });
+      if (_newRow) {
+        var _acc   = isCR ? '#5C469C' : '#EA0074';
+        var _alpha = isCR ? 'rgba(92,70,156,0.12)' : 'rgba(234,0,116,0.12)';
+        _newRow.style.background = _alpha;
+        _newRow.style.boxShadow  = 'inset 3px 0 0 ' + _acc;
+        _newRow.setAttribute('data-selected', '1');
+        var _wc = parseFloat(_newRow.getAttribute('data-hist-w21'));
+        var _wp = parseFloat(_newRow.getAttribute('data-hist-w20'));
+        if (!isNaN(_wc)) {
+          if (isNaN(_wp)) _wp = _wc;
+          document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_cid, w_curr:_wc, w_prev:_wp, label:val}}));
+          var _lblU = document.getElementById('hist-'+_cid+'-label'); if (_lblU) _lblU.textContent = val;
+        }
+      }
+    }
+  }
 });
 
 /* ══════════════════════════════════════════════════
@@ -1973,8 +2095,8 @@ var _KPI_RCOLS = _KPI_RCOLS_CR;
 var _KPI_GRID = {
   ef:  'minmax(0,1fr) 80px 56px 54px 48px',
   cv:  'minmax(0,1fr) 80px 56px 68px 40px',
-  nd:  'minmax(0,1fr) 76px 52px 44px 54px 36px',
-  ipm: 'minmax(0,1fr) 76px 52px 44px 54px 36px',
+  nd:  'minmax(0,1fr) 72px 52px 74px 46px',
+  ipm: 'minmax(0,1fr) 72px 52px 74px 46px',
   bk:  'minmax(0,1fr) 80px 56px 54px 48px',
 };
 
@@ -2052,18 +2174,18 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
   if (!rc) return;
   var metricKey = key.split('_')[1] || 'ef';
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
-  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;';
+  var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   var hdrLabels = {
     ef:  ['Tráfico','WoW','Eficacia','WoW'],
     cv:  ['Tráfico','WoW','Conv Rate','WoW'],
-    nd:  ['Severity','Tráfico','WoW','%NoDispo','WoW'],
-    ipm: ['Severity','Tráfico','WoW','IPM','WoW'],
+    nd:  ['Tráfico','WoW','%NoDispo','WoW'],
+    ipm: ['Tráfico','WoW','IPM','WoW'],
     bk:  ['Trx','WoW','BK%','WoW'],
   };
   var labels = hdrLabels[metricKey] || hdrLabels.ef;
   var hdrSpans = '<span></span>' + labels.map(function(h, i){
     var isActive = (i+1 === activeCol) && dir && dir !== 'orig';
-    var baseStyle = h === 'Severity' ? _ll : _lr;
+    var baseStyle = _lr;
     var extra = isActive ? 'color:var(--accent);' : '';
     var arrow = isActive
       ? ' <em class="kpi-sort-arrow" style="font-style:normal;opacity:1;color:var(--accent);">'+(dir==='desc'?'↓':'↑')+'</em>'
@@ -2078,6 +2200,17 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
   }).join('');
   rc.innerHTML = hdrHtml + rowsHtml;
   _moreBtn(rc);
+  /* Re-aplicar cross-filter activo tras re-render (el sort NO debe pisar el filtro) — W24 */
+  try {
+    var _cardEl = panel.closest('.kpi-card');
+    if (_cardEl && _cardEl.id) {
+      var _ck = _cardEl.id.replace('kpicard-','');
+      if (typeof _kpiCrossFilter !== 'undefined' && _kpiCrossFilter[_ck]) {
+        var _f = _kpiCrossFilter[_ck];
+        if ((_f.corp || _f.dest || _f.pais) && typeof _kpiPillRender === 'function') _kpiPillRender(_ck);
+      }
+    }
+  } catch(e) {}
 }
 
 /* Mapeo de metricKey → sufijo de tab ID y clave en TABS */
@@ -2126,20 +2259,15 @@ function _initAllSort() {
       }
     }
   } else {
-    /* RND: cards NoDispo + IPM — buscar tabs en los panels RND */
-    /* Los tabs RND usan IDs tab-nd-* y tab-rpm-* */
+    /* RND: cards NoDispo + IPM — refactor pills W24: buscar card por ID
+       (kpicard-nd / kpicard-ipm) en vez de radios tab-nd-* inexistentes */
     var RND_TABS = (typeof RND_CARD_TABS!=='undefined') ? RND_CARD_TABS : null;
-    /* Si RND_CARD_TABS no existe, intentar enganchar directamente del DOM */
-    ['nd','rpm'].forEach(function(tabPrefix){
-      var metricKey = tabPrefix === 'nd' ? 'nd' : 'ipm';
+    [['nd','nd'],['ipm','ipm']].forEach(function(pair){
+      var cardId = pair[0], metricKey = pair[1];
+      var card = document.getElementById('kpicard-'+cardId);
+      if (!card) return;
       ['pais','destino','corp','hotel'].forEach(function(tkey){
-        var radioEl = document.getElementById('tab-'+tabPrefix+'-'+tkey);
-        if (!radioEl) return;
-        var card = radioEl.closest('.kpi-card');
-        if (!card) return;
-        /* allRows: leer de RND_CARD_TABS si existe, sino tabla vacía */
         var allRows = RND_TABS ? ((RND_TABS[canasta]||RND_TABS['global']||{})[metricKey]||{})[tkey]||[] : [];
-        /* Con allRows vacío el sort opera sobre el DOM pero sin re-render JS */
         _kpiSortAttach(card, tkey, metricKey, allRows);
       });
     });

@@ -230,7 +230,7 @@ _HIST_INIT_JS = (
 )
 
 FOOTER_JS = (
-    '<style>\n' + open('demo_css_w22.css', encoding='utf-8').read() + '\n' + '\n/* ═══════════════════════════════════════════════════\n   MOBILE RESPONSIVE · W22+\n   Breakpoints: 600px (teléfono), 400px (teléfono chico)\n   ═══════════════════════════════════════════════════ */\n@media (max-width: 600px) {\n\n  /* Shell */\n  .shell { padding: 0 16px; }\n\n  /* Masthead */\n  .hero h1 { font-size: clamp(24px, 7vw, 32px) !important; }\n  .hero-brand { flex-wrap: wrap; gap: 8px; }\n  .hero-brand-logo { max-width: 140px; }\n  .hero-brand-title { font-size: clamp(13px, 3.5vw, 18px); }\n\n  /* Switcher CR/RND */\n  .report-switcher { padding: 10px 16px 0; margin: 0 -16px; }\n  .switcher-btn { padding: 8px 14px; font-size: 10px; letter-spacing: .07em; }\n  .back-hub { font-size: 10px; padding: 6px 10px; }\n\n  /* Canasta tabs — scroll horizontal sin corte */\n  .canasta-tabs .tabs-row {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n    padding-bottom: 1px;\n  }\n  .canasta-tabs .tabs-row::-webkit-scrollbar { display: none; }\n  .canasta-tabs .tab-label {\n    padding: 8px 12px;\n    font-size: 9px;\n    white-space: nowrap;\n    flex-shrink: 0;\n  }\n\n  /* KPI cards — apilar verticalmente */\n  .kpis-hero { grid-template-columns: 1fr !important; gap: 12px !important; }\n  .kpi-card { padding: 16px; }\n  .kpi-val { font-size: clamp(32px, 10vw, 52px) !important; }\n\n  /* Tabs de dim (DESTINO/CORP/HOTEL/CHANNEL) */\n  .kpi-tab-labels {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n  }\n  .kpi-tab-labels::-webkit-scrollbar { display: none; }\n  .kpi-tab-label { font-size: 9px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }\n\n  /* Tabla AR — ocultar col WoW en mobile para que quepan las celdas clave */\n  .ar-table td:nth-child(4),\n  .ar-table th:nth-child(4),\n  .ar-table td:nth-child(6),\n  .ar-table th:nth-child(6) { display: none; }\n  .ar-table td, .ar-table th { font-size: 10px; padding: 5px 4px; }\n  .sev-badge { font-size: 8px; padding: 2px 5px; }\n\n  /* Canvas histórico */\n  canvas { max-width: 100%; }\n  .hist-canvas-wrap { overflow-x: auto; }\n\n  /* Hero meta */\n  .hero-meta { grid-template-columns: 1fr 1fr !important; }\n\n  /* Searchbox */\n  .sb-wrap { max-width: 100%; }\n  .sb-input { font-size: 12px; }\n\n  /* Section head */\n  .section-head { flex-wrap: wrap; gap: 8px; }\n  .section-title { font-size: clamp(16px, 5vw, 22px); }\n\n  /* Masthead flex — mobile */\n  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 8px; }\n  .masthead-left { min-width: 0; }\n  .masthead-left > div:first-child { font-size: 22px !important; white-space: nowrap; }\n  .masthead-right { flex-shrink: 0; }\n  .masthead-logo { height: 32px !important; }\n  .masthead-sub { font-size: 9px; }\n\n  /* Footer descargas — apilar botones */\n  .footer-downloads { flex-direction: column; gap: 8px; }\n  .footer-downloads a { width: 100%; text-align: center; box-sizing: border-box; }\n\n  /* Severity row — mobile: ocultar col rango */\n  .sev-row { grid-template-columns: minmax(90px,auto) 1fr 52px 40px !important; }\n  .sev-row span:nth-child(2) { display: none; }\n\n  /* Evitar scroll horizontal global */\n  body, .shell { overflow-x: hidden; }\n}\n\n@media (max-width: 400px) {\n  .shell { padding: 0 12px; }\n  .report-switcher { padding: 8px 12px 0; margin: 0 -12px; }\n  .switcher-btn { padding: 7px 10px; font-size: 9px; }\n  .kpi-val { font-size: clamp(28px, 9vw, 40px) !important; }\n  .canasta-tabs .tab-label { padding: 7px 10px; font-size: 8.5px; }\n}\n' + '\n/* ── Card BK Availability sync · CSS puro (W23+) ── */\nbody[data-ar-mode=\'rnd\'] #kpicard-ar3 { display: none !important; }\nbody[data-ar-mode=\'rnd\'] .ar-cards-grid { grid-template-columns: 1fr 1fr !important; }\n\n/* ── KPI Cards EF/CV: panels controlados por JS pills (W24+) ── */\n#kpi-ef-panels .tab-panel,\n#kpi-cv-panels .tab-panel,\n#kpi-bk-panels .tab-panel { display: none !important; }\n#kpi-ef-panels .tab-panel[data-tab=\'destino\'],\n#kpi-cv-panels .tab-panel[data-tab=\'destino\'],\n#kpi-bk-panels .tab-panel[data-tab=\'destino\'] { display: block !important; }\n\n</style>\n'
+    '<style>\n' + open('demo_css_w22.css', encoding='utf-8').read() + '\n' + '\n/* ═══════════════════════════════════════════════════\n   MOBILE RESPONSIVE · W22+\n   Breakpoints: 600px (teléfono), 400px (teléfono chico)\n   ═══════════════════════════════════════════════════ */\n@media (max-width: 600px) {\n\n  /* Shell */\n  .shell { padding: 0 16px; }\n\n  /* Masthead */\n  .hero h1 { font-size: clamp(24px, 7vw, 32px) !important; }\n  .hero-brand { flex-wrap: wrap; gap: 8px; }\n  .hero-brand-logo { max-width: 140px; }\n  .hero-brand-title { font-size: clamp(13px, 3.5vw, 18px); }\n\n  /* Switcher CR/RND */\n  .report-switcher { padding: 10px 16px 0; margin: 0 -16px; }\n  .switcher-btn { padding: 8px 14px; font-size: 10px; letter-spacing: .07em; }\n  .back-hub { font-size: 10px; padding: 6px 10px; }\n\n  /* Canasta tabs — scroll horizontal sin corte */\n  .canasta-tabs .tabs-row {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n    padding-bottom: 1px;\n  }\n  .canasta-tabs .tabs-row::-webkit-scrollbar { display: none; }\n  .canasta-tabs .tab-label {\n    padding: 8px 12px;\n    font-size: 9px;\n    white-space: nowrap;\n    flex-shrink: 0;\n  }\n\n  /* KPI cards — apilar verticalmente */\n  .kpis-hero { grid-template-columns: 1fr !important; gap: 12px !important; }\n  .kpi-card { padding: 16px; }\n  .kpi-val { font-size: clamp(32px, 10vw, 52px) !important; }\n\n  /* Tabs de dim (DESTINO/CORP/HOTEL/CHANNEL) */\n  .kpi-tab-labels {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n  }\n  .kpi-tab-labels::-webkit-scrollbar { display: none; }\n  .kpi-tab-label { font-size: 9px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }\n\n  /* Tabla AR — ocultar col WoW en mobile para que quepan las celdas clave */\n  .ar-table td:nth-child(4),\n  .ar-table th:nth-child(4),\n  .ar-table td:nth-child(6),\n  .ar-table th:nth-child(6) { display: none; }\n  .ar-table td, .ar-table th { font-size: 10px; padding: 5px 4px; }\n  .sev-badge { font-size: 8px; padding: 2px 5px; }\n\n  /* Canvas histórico */\n  canvas { max-width: 100%; }\n  .hist-canvas-wrap { overflow-x: auto; }\n\n  /* Hero meta */\n  .hero-meta { grid-template-columns: 1fr 1fr !important; }\n\n  /* Searchbox */\n  .sb-wrap { max-width: 100%; }\n  .sb-input { font-size: 12px; }\n\n  /* Section head */\n  .section-head { flex-wrap: wrap; gap: 8px; }\n  .section-title { font-size: clamp(16px, 5vw, 22px); }\n\n  /* Masthead flex — mobile */\n  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 8px; }\n  .masthead-left { min-width: 0; }\n  .masthead-left > div:first-child { font-size: 22px !important; white-space: nowrap; }\n  .masthead-right { flex-shrink: 0; }\n  .masthead-logo { height: 32px !important; }\n  .masthead-sub { font-size: 9px; }\n\n  /* Footer descargas — apilar botones */\n  .footer-downloads { flex-direction: column; gap: 8px; }\n  .footer-downloads a { width: 100%; text-align: center; box-sizing: border-box; }\n\n  /* Severity row — mobile: ocultar col rango */\n  .sev-row { grid-template-columns: minmax(90px,auto) 1fr 52px 40px !important; }\n  .sev-row span:nth-child(2) { display: none; }\n\n  /* Evitar scroll horizontal global */\n  body, .shell { overflow-x: hidden; }\n}\n\n@media (max-width: 400px) {\n  .shell { padding: 0 12px; }\n  .report-switcher { padding: 8px 12px 0; margin: 0 -12px; }\n  .switcher-btn { padding: 7px 10px; font-size: 9px; }\n  .kpi-val { font-size: clamp(28px, 9vw, 40px) !important; }\n  .canasta-tabs .tab-label { padding: 7px 10px; font-size: 8.5px; }\n}\n' + '\n/* ── Card BK Availability sync · CSS puro (W23+) ── */\nbody[data-ar-mode=\'rnd\'] #kpicard-ar3 { display: none !important; }\nbody[data-ar-mode=\'rnd\'] .ar-cards-grid { grid-template-columns: 1fr 1fr !important; }\n\n/* ── KPI Cards EF/CV: panels controlados por JS pills (W24+) ── */\n#kpi-ef-panels .tab-panel,\n#kpi-cv-panels .tab-panel,\n#kpi-bk-panels .tab-panel { display: none !important; }\n#kpi-ef-panels .tab-panel[data-tab=\'destino\'],\n#kpi-cv-panels .tab-panel[data-tab=\'destino\'],\n#kpi-bk-panels .tab-panel[data-tab=\'destino\'] { display: block !important; }\n\n/* RND NoDispo/IPM panels (W24+) · default pais */\n#kpi-nd-panels .tab-panel,\n#kpi-ipm-panels .tab-panel { display: none !important; }\n#kpi-nd-panels .tab-panel[data-tab=\'pais\'],\n#kpi-ipm-panels .tab-panel[data-tab=\'pais\'] { display: block !important; }\n\n/* Searchbox AR/KPI: el match supera la paginacion (sb-hidden/rows-more) - W24 */\n.sb-hidden.sb-search-hit, .rows-more.sb-search-hit, .sb-search-hit { display: grid !important; }\n\n</style>\n'
     + '<script>\n'
     + _cr_data_js + '\n'
     + _rnd_data_js + '\n'
@@ -319,12 +319,12 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var card = row.closest('.kpi-card');
   if (!card) return;
   var cardId = card.id || '';
-  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : null;
+  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
   if (cardKey && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
-    if (view === 'corp' || view === 'destino') {
-      /* Delegar al filtro cruzado */
-      var cfKey = (view === 'corp') ? 'corp' : 'dest';
+    if (view === 'corp' || view === 'destino' || view === 'pais') {
+      /* Delegar al filtro cruzado (corp/dest/pais) */
+      var cfKey = (view === 'corp') ? 'corp' : (view === 'pais') ? 'pais' : 'dest';
       var val   = row.getAttribute('data-hist-label') || '';
       if (val && typeof _kpiCrossFilter !== 'undefined') {
         var isAlreadySel = (_kpiCrossFilter[cardKey][cfKey] === val);
@@ -335,17 +335,38 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         if (isAlreadySel) { if (_oi >= 0) _o.splice(_oi, 1); }       /* deselect → quitar */
         else { if (_oi >= 0) _o.splice(_oi, 1); _o.push(cfKey); }    /* select → al final */
         /* Paint de fila — igual que histórico */
-        var _accent = (cardKey === 'bk') ? '#333132' : '#5C469C';
-        var _accentAlpha = (cardKey === 'bk') ? 'rgba(51,49,50,0.07)' : 'rgba(92,70,156,0.07)';
+        var _accent = (cardKey === 'bk') ? '#333132' : (cardKey === 'nd' || cardKey === 'ipm') ? '#EA0074' : '#5C469C';
+        var _accentAlpha = (cardKey === 'bk') ? 'rgba(51,49,50,0.07)' : (cardKey === 'nd' || cardKey === 'ipm') ? 'rgba(234,0,116,0.07)' : 'rgba(92,70,156,0.07)';
         kpiRows.querySelectorAll('[data-hist-w21]').forEach(function(r) {
-          r.style.background = ''; r.removeAttribute('data-selected');
+          r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
         });
         if (!isAlreadySel) {
           row.style.background = _accentAlpha;
+          row.style.boxShadow = 'inset 3px 0 0 ' + _accent;
           row.setAttribute('data-selected', '1');
         }
         _kpiCrossFilterPillsRender(cardKey);
         _kpiPillRender(cardKey);
+        /* Bug 5: al seleccionar una dimensión (país/corp/destino), actualizar la gráfica histórica
+           con el valor de esa entidad (W24 = hist_w21, W23 = W24 − WoW). */
+        var _cidMap = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
+        var _cid2 = _cidMap[cardKey];
+        if (_cid2) {
+          if (isAlreadySel) {
+            document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: _cid2}}));
+            var _lblR = document.getElementById('hist-' + _cid2 + '-label');
+            if (_lblR) _lblR.textContent = 'Global';
+          } else {
+            var _wc = parseFloat(row.getAttribute('data-hist-w21'));
+            var _wowAttr = parseFloat(row.getAttribute('data-hist-wow'));
+            if (!isNaN(_wc)) {
+              var _wp = !isNaN(_wowAttr) ? (_wc - _wowAttr) : _wc;
+              document.dispatchEvent(new CustomEvent('hist-update', {detail: {cid: _cid2, w_curr: _wc, w_prev: _wp, label: val}}));
+              var _lblU = document.getElementById('hist-' + _cid2 + '-label');
+              if (_lblU) _lblU.textContent = val;
+            }
+          }
+        }
       }
       return; /* No continuar con el histórico */
     }
@@ -358,6 +379,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if      (cardId === 'kpicard-ef')  cid = 'hcr-global-ef';
   else if (cardId === 'kpicard-cv')  cid = 'hcr-global-cv';
   else if (cardId === 'kpicard-bk')  cid = 'h-bk-global';
+  else if (cardId === 'kpicard-nd')  cid = 'hrnd-global-nd';
+  else if (cardId === 'kpicard-ipm') cid = 'hrnd-global-ipm';
   /* Cards AR de Rendimiento */
   else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
   else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
@@ -373,7 +396,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   /* Toggle: segundo click en la misma fila → volver a Global */
   var isSelected = row.getAttribute('data-selected') === '1';
   kpiRows.querySelectorAll('[data-hist-w21]').forEach(function(r){
-    r.style.background = ''; r.removeAttribute('data-selected');
+    r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
   });
 
   if (isSelected) {
@@ -382,11 +405,16 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   }
 
   /* Color de acento según card */
-  var accent = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? '#333132' : '#5C469C';
-  var accentAlpha = accent === '#333132' ? 'rgba(51,49,50,0.07)' : 'rgba(92,70,156,0.07)';
+  var accent = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? '#333132'
+             : (cardId === 'kpicard-nd' || cardId === 'kpicard-ipm') ? '#EA0074'
+             : '#5C469C';
+  var accentAlpha = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? 'rgba(51,49,50,0.12)'
+                  : (cardId === 'kpicard-nd' || cardId === 'kpicard-ipm') ? 'rgba(234,0,116,0.12)'
+                  : 'rgba(92,70,156,0.12)';
 
   row.setAttribute('data-selected', '1');
   row.style.background = accentAlpha;
+  row.style.boxShadow = 'inset 3px 0 0 ' + accent;
 
   /* Disparar hist-update para que historico_module redibuje el canvas global */
   document.dispatchEvent(new CustomEvent('hist-update', {
@@ -414,9 +442,9 @@ function ar_setPillView(n, view, el) {
     pill.style.color       = active ? acc_fg : 'var(--ink-muted)';
     pill.style.borderColor = active ? acc_bd : 'var(--rule)';
   });
-  /* Fila de filtro: solo visible en vista Hotel */
+  /* Fila de filtro de severidad (Críticos/Bajo Rend./Sin Conv.): solo visible en vista Hotel */
   var hfilt = document.getElementById('ar'+n+'-hfilt');
-  if (hfilt) hfilt.style.display = 'none';  /* KPI cards no usan filtro de severidad (es de AR) */
+  if (hfilt) hfilt.style.display = (view === 'hotel') ? '' : 'none';
   _arPillRender(n);
 }
 
@@ -479,15 +507,18 @@ function ar_setDim(n, dim, el_unused) {
    Misma lógica que ar_setPillFilt/ar_setPillView
    ══════════════════════════════════════════════════ */
 
-var _kpiView = {ef: 'destino', cv: 'destino'};
+var _kpiView = {ef: 'destino', cv: 'destino', bk: 'destino', nd: 'pais', ipm: 'pais'};
 
 function kpi_setView(card, view, el) {
   _kpiView[card] = view;
-  /* Pills de vista activas en verde (decisión W24) */
-  var acc_bg = '#E1F5EE', acc_fg = '#1A6B4A', acc_bd = '#1A6B4A';
+  /* Pill de vista activa: magenta en RND (nd/ipm), verde en CR (ef/cv/bk) — W24 */
+  var _isRnd = (card === 'nd' || card === 'ipm');
+  var acc_bg = _isRnd ? '#FCE4F1' : '#E1F5EE';
+  var acc_fg = _isRnd ? '#EA0074' : '#1A6B4A';
+  var acc_bd = _isRnd ? '#EA0074' : '#1A6B4A';
 
-  /* Actualizar estilos de pills de vista */
-  ['destino','corp','hotel','channel'].forEach(function(v) {
+  /* Actualizar estilos de pills de vista (CR: destino/corp/hotel/channel · RND: pais/destino/corp/hotel) */
+  ['pais','destino','corp','hotel','channel'].forEach(function(v) {
     var pill = document.getElementById('kpi-'+card+'-v-'+v);
     if (!pill) return;
     var active = (v === view);
@@ -527,10 +558,117 @@ function kpi_setPillFilt(card, filt, el) {
   _kpiPillRender(card);
 }
 
+/* ── Paginación del subconjunto filtrado por cross-filter (W24) ──
+   Cuando hay filtro cruzado activo, mostramos top N de los que matchean y
+   ocultamos el resto bajo un botón "Ver más" dedicado (clase cf-extra). */
+function _cfSetupMoreBtn(container, extra) {
+  if (!container) return;
+  var norm = container.querySelector('.kpi-more-btn');
+  if (norm) norm.style.display = 'none';   /* ocultar paginación normal mientras hay filtro */
+  var btn = container.querySelector('.cf-more-btn');
+  if (extra <= 0) { if (btn) btn.style.display = 'none'; return; }
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.className = 'cf-more-btn';
+    btn.style.cssText = "display:block;width:100%;margin-top:4px;margin-bottom:18px;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;user-select:none;";
+    container.appendChild(btn);
+  }
+  btn.style.display = '';
+  btn.textContent = 'Ver más \u25BE';
+  btn.setAttribute('data-exp', '0');
+  btn.onclick = function() {
+    var exp = btn.getAttribute('data-exp') !== '1';
+    btn.setAttribute('data-exp', exp ? '1' : '0');
+    container.querySelectorAll('.cf-extra').forEach(function(r) {
+      r.style.setProperty('display', exp ? 'grid' : 'none', 'important');
+    });
+    btn.textContent = exp ? 'Ver menos \u25B4' : 'Ver más \u25BE';
+  };
+}
+function _cfRestoreMoreBtn(container) {
+  if (!container) return;
+  var btn = container.querySelector('.cf-more-btn');
+  if (btn) btn.style.display = 'none';
+  container.querySelectorAll('.cf-extra').forEach(function(r) { r.classList.remove('cf-extra'); });
+  var norm = container.querySelector('.kpi-more-btn');
+  if (norm) { norm.style.display = ''; norm.setAttribute('data-exp', '0'); norm.textContent = 'Ver más \u25BE'; }
+}
+
 function _kpiPillRender(card) {
   /* Tab activa: leer del estado _kpiView (refactor pills W24 — ya no hay radios) */
   var activeTab = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'hotel';
   /* normalizar 'destino' (las vistas usan destino/corp/hotel/channel) */
+
+  /* ── Cross-filter en vistas NO-hotel (corp/destino/pais) — W24 RND ──
+     Cuando la vista activa es corp/destino/pais y hay un cross-filter activo
+     (incluido País→Destino), filtrar las filas de ESE panel. */
+  (function _crossFilterNonHotel(){
+    if (activeTab === 'hotel' || activeTab === 'channel') return;
+    var _cf = (typeof _kpiCrossFilter !== 'undefined') ? (_kpiCrossFilter[card] || {}) : {};
+    var _panelsEl = document.getElementById('kpi-' + card + '-panels');
+    if (!_panelsEl) return;
+    var _panel = _panelsEl.querySelector('[data-tab="' + activeTab + '"]');
+    if (!_panel) return;
+    var _N = _kpiNormCF;
+    var _MEM = (typeof RND_MEMBERSHIP !== 'undefined') ? RND_MEMBERSHIP : {corpDest:{}, corpPais:{}};
+    function _memArr(mapObj, corp){
+      var arr = mapObj[corp];
+      if (arr) return arr;
+      for (var k in mapObj){ if (_N(k) === _N(corp)) return mapObj[k]; }
+      return null;
+    }
+    function _corpHasDest(corp, dest){
+      var arr = _memArr(_MEM.corpDest||{}, corp); if(!arr) return false;
+      for (var i=0;i<arr.length;i++){ if(_N(arr[i]) === _N(dest)) return true; } return false;
+    }
+    function _corpHasPais(corp, pais){
+      var arr = _memArr(_MEM.corpPais||{}, corp); if(!arr) return false;
+      for (var i=0;i<arr.length;i++){ if(_N(arr[i]) === _N(pais)) return true; } return false;
+    }
+    /* NO auto-filtro: la dimensión propia NO se filtra a sí misma (se resalta la fila seleccionada
+       pero las demás siguen visibles). Solo filtran las dimensiones CRUZADAS. */
+    var _anyFilter = (activeTab === 'destino' && (_cf.pais || _cf.corp))
+                  || (activeTab === 'pais'    && _cf.corp)
+                  || (activeTab === 'corp'    && (_cf.dest || _cf.pais));
+    var _rows = _panel.querySelectorAll('[data-hist-label]');
+    var _rowsContainer = _panel.querySelector('.kpi-tab-rows') || _panel;
+    if (!_anyFilter) {
+      /* sin filtro cruzado → restaurar paginación normal y limpiar marcas de filtro */
+      _rows.forEach(function(row){
+        row.classList.remove('cf-extra');
+        var _isSb = row.classList.contains('sb-hidden');
+        if (!_isSb && !row.classList.contains('rows-more')) row.style.setProperty('display', 'grid');
+        else row.style.removeProperty('display');
+      });
+      _cfRestoreMoreBtn(_rowsContainer);
+      return;
+    }
+    /* Con filtro cruzado → paginar el subconjunto que matchea */
+    var _shown = 0, _extra = 0;
+    _rows.forEach(function(row){
+      row.classList.remove('cf-extra');
+      var _label = row.getAttribute('data-hist-label') || '';
+      var _rowPais = row.getAttribute('data-cf-pais') || '';
+      var _ok = true;
+      if (activeTab === 'destino') {
+        if (_cf.pais) _ok = _ok && (_N(_rowPais).indexOf(_N(_cf.pais)) >= 0);   /* País→Destino */
+        if (_cf.corp) _ok = _ok && _corpHasDest(_cf.corp, _label);              /* Corp→Destino */
+      } else if (activeTab === 'pais') {
+        if (_cf.corp) _ok = _ok && _corpHasPais(_cf.corp, _label);              /* Corp→País */
+      } else if (activeTab === 'corp') {
+        if (_cf.dest) _ok = _ok && _corpHasDest(_label, _cf.dest);              /* Destino→Corp */
+        if (_cf.pais) _ok = _ok && _corpHasPais(_label, _cf.pais);              /* País→Corp */
+      }
+      if (_ok) {
+        _shown++;
+        if (_shown <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
+        else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _extra++; }
+      } else {
+        row.style.setProperty('display', 'none', 'important');
+      }
+    });
+    _cfSetupMoreBtn(_rowsContainer, _extra);
+  })();
 
   /* Filtros de banda para el tab hotel */
   var filt = _kpiPillFilt[card] || 'crit';
@@ -567,37 +705,50 @@ function _kpiPillRender(card) {
 
   /* Cross filter activo */
   var cf = (typeof _kpiCrossFilter !== 'undefined') ? (_kpiCrossFilter[card] || {}) : {};
+  var _hotelCont = hotelPanel.querySelector('.kpi-tab-rows') || hotelPanel;
 
-  rows.forEach(function(row) {
-    var isSbHidden = row.classList.contains('sb-hidden');
-    if (activeTab !== 'hotel') {
-      /* En tabs corp/destino: filtrar por cross filter del mismo tipo */
-      var cfKey = (activeTab === 'corp') ? 'corp' : (activeTab === 'destino') ? 'dest' : null;
-      if (!cfKey || !cf[cfKey]) { if (isSbHidden) return; return; }  /* sin filtro → respetar paginación */
-      if (isSbHidden) return;
-      if (row.classList.contains('rows-more')) return;
-      var label = row.getAttribute('data-hist-label') || '';
-      var visible = _kpiNormCF(label).indexOf(_kpiNormCF(cf[cfKey])) >= 0;
-      row.style.setProperty('display', visible ? 'grid' : 'none', 'important');
-      return;
-    }
-    /* Vista hotel: filtrar por cross filter corp Y dest (los que estén activos). */
-    if (!cf.corp && !cf.dest) {
-      if (isSbHidden) return;  /* sin filtro → respetar paginación */
-      return;
-    }
-    /* Con cross-filter activo: evaluar TODAS las filas (incluso rows-more/sb-hidden)
-       para poder mostrar matches que estaban ocultos por paginación */
-    var rowCorp = row.getAttribute('data-cf-corp') || '';
-    var rowDest = row.getAttribute('data-cf-dest') || '';
-    var okCorp = !cf.corp || _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0;
-    var okDest = !cf.dest || _kpiNormCF(rowDest).indexOf(_kpiNormCF(cf.dest)) >= 0;
-    if (okCorp && okDest) {
-      row.style.setProperty('display', 'grid', 'important');
+  /* Solo manipular las filas del panel hotel cuando la vista activa ES hotel.
+     En otras vistas el panel hotel está oculto y se recalcula al cambiar de vista. */
+  if (activeTab === 'hotel') {
+    var _hasCf = !!(cf.corp || cf.dest || cf.pais);
+    var _hasBand = !!(activeBands && activeBands.length);
+    if (!_hasCf) {
+      /* Sin cross-filter → comportamiento original (filtro de banda CR o paginación normal) */
+      _cfRestoreMoreBtn(_hotelCont);
+      rows.forEach(function(row) {
+        row.classList.remove('cf-extra');
+        var isSbHidden = row.classList.contains('sb-hidden');
+        if (_hasBand) {
+          var banda = row.getAttribute('data-banda') || '';
+          row.style.setProperty('display', activeBands.indexOf(banda) >= 0 ? 'grid' : 'none', 'important');
+        } else {
+          if (!isSbHidden && !row.classList.contains('rows-more')) row.style.setProperty('display', 'grid');
+          else row.style.removeProperty('display');
+        }
+      });
     } else {
-      row.style.setProperty('display', 'none', 'important');
+      /* Con cross-filter → mostrar TODOS los hoteles del corp/dest/país (ignorar banda,
+         igual que RND No Dispo). Paginar el subconjunto que matchea. */
+      var _sh = 0, _ex = 0;
+      rows.forEach(function(row) {
+        row.classList.remove('cf-extra');
+        var rowCorp = row.getAttribute('data-cf-corp') || '';
+        var rowDest = row.getAttribute('data-cf-dest') || '';
+        var rowPais2 = row.getAttribute('data-cf-pais') || '';
+        var okCf = (!cf.corp || _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0)
+                && (!cf.dest || _kpiNormCF(rowDest).indexOf(_kpiNormCF(cf.dest)) >= 0)
+                && (!cf.pais || _kpiNormCF(rowPais2).indexOf(_kpiNormCF(cf.pais)) >= 0);
+        if (okCf) {
+          _sh++;
+          if (_sh <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
+          else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex++; }
+        } else {
+          row.style.setProperty('display', 'none', 'important');
+        }
+      });
+      _cfSetupMoreBtn(_hotelCont, _ex);
     }
-  });
+  }
 
   /* cntEl del searchbox se maneja por el SB nativo — no intervenir */
 }
@@ -646,9 +797,11 @@ document.addEventListener('change', function(e) {
    ══════════════════════════════════════════════════ */
 
 var _kpiCrossFilter = {
-  ef: {corp: null, dest: null, _order: []},
-  cv: {corp: null, dest: null, _order: []},
-  bk: {corp: null, dest: null, _order: []}
+  ef: {corp: null, dest: null, channel: null, _order: []},
+  cv: {corp: null, dest: null, channel: null, _order: []},
+  bk: {corp: null, dest: null, channel: null, _order: []},
+  nd: {corp: null, dest: null, pais: null, channel: null, _order: []},
+  ipm: {corp: null, dest: null, pais: null, channel: null, _order: []}
 };
 
 function _kpiNormCF(s) {
@@ -664,8 +817,12 @@ function _kpiCrossFilterPillsRender(card) {
   var f = _kpiCrossFilter[card];
   if (!f) return;
 
-  /* Cross-pills siempre en verde (decisión W24) */
-  var GR_BG = '#E1F5EE', GR_FG = '#1A6B4A', GR_BD = '#1A6B4A';
+  /* Cross-pills: en CR (Connectivities: ef/cv/bk) van en VIOLETA (acento CR);
+     en RND (nd/ipm) van en VERDE. El magenta/violeta de nav queda para la pill activa. */
+  var _isCR = (card === 'ef' || card === 'cv' || card === 'bk');
+  var GR_BG = _isCR ? '#EDE8F7' : '#E1F5EE';
+  var GR_FG = _isCR ? '#5C469C' : '#1A6B4A';
+  var GR_BD = _isCR ? '#5C469C' : '#1A6B4A';
 
   var _pill = function(type, label) {
     return '<span class="kpi-cross-pill"'
@@ -676,12 +833,14 @@ function _kpiCrossFilterPillsRender(card) {
       +label+' <span style="font-size:11px;opacity:.65;">&#x00D7;</span></span>';
   };
 
-  /* Orden de selección: recorrer _order (orden de click). Fallback: corp, dest */
+  /* Orden de selección: recorrer _order (orden de click). Fallback: corp, dest, pais, channel */
   var html = '';
-  var order = (f._order && f._order.length) ? f._order : ['corp','dest'];
+  var order = (f._order && f._order.length) ? f._order : ['corp','dest','pais','channel'];
   order.forEach(function(type){
     if (type === 'corp' && f.corp) html += _pill('corp', f.corp);
     if (type === 'dest' && f.dest) html += _pill('dest', f.dest);
+    if (type === 'pais' && f.pais) html += _pill('pais', f.pais);
+    if (type === 'channel' && f.channel) html += _pill('channel', f.channel);
   });
 
   container.innerHTML = html;
@@ -696,7 +855,21 @@ function _kpiCrossFilterClear(card, type) {
     var _oi = _o.indexOf(type);
     if (_oi >= 0) _o.splice(_oi, 1);
   } else {
-    _kpiCrossFilter[card] = {corp: null, dest: null, _order: []};
+    _kpiCrossFilter[card] = {corp: null, dest: null, pais: null, channel: null, _order: []};
+  }
+  /* Limpiar el resaltado de las filas seleccionadas de esta card (quedaban marcadas al quitar la pill) */
+  var _panelsEl = document.getElementById('kpi-' + card + '-panels');
+  if (_panelsEl) {
+    _panelsEl.querySelectorAll('[data-selected]').forEach(function(r){
+      r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
+    });
+  }
+  /* Resetear la gráfica histórica de esta card a Global (W24) — al deseleccionar */
+  var _cidMapClr = {ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global', nd:'hrnd-global-nd', ipm:'hrnd-global-ipm'};
+  var _cidClr = _cidMapClr[card];
+  if (_cidClr) {
+    try { document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_cidClr}})); } catch(e){}
+    var _lblClr = document.getElementById('hist-' + _cidClr + '-label'); if (_lblClr) _lblClr.textContent = 'Global';
   }
   _kpiCrossFilterPillsRender(card);
   _kpiPillRender(card);
@@ -710,6 +883,49 @@ document.addEventListener('click', function(e) {
   var ct = cpill.getAttribute('data-cross-type');
   if (cc && ct) _kpiCrossFilterClear(cc, ct);
 });
+
+/* ── Selección de CHANNEL en cards KPI (ef/cv/nd/ipm) — W24 ──
+   Las filas channel (.chan-wrap .bk-row) no están en .kpi-tab-rows ni en -chan-div,
+   así que el listener global no las cubría. Aquí: actualizar gráfica global + pill + highlight. */
+document.addEventListener('click', function(e) {
+  if (e.target.closest('[data-sort-key]')) return;            /* ignorar headers de sort */
+  var row = e.target.closest('.chan-wrap .bk-row');
+  if (!row) row = e.target.closest('.chan-wrap [data-hist-w21]');
+  if (!row) return;
+  var cardEl = row.closest('[id^="kpicard-"]');
+  if (!cardEl) return;
+  var ck = cardEl.id.replace('kpicard-','');
+  if (['ef','cv','nd','ipm'].indexOf(ck) < 0) return;         /* solo cards KPI (bk y AR tienen su propio handler) */
+  /* Evitar que historico_module (bubble) re-limpie la selección de la fila channel */
+  e.stopPropagation();
+  var gmap = {ef:'hcr-global-ef', cv:'hcr-global-cv', nd:'hrnd-global-nd', ipm:'hrnd-global-ipm'};
+  var cid = gmap[ck];
+  var chanWrap = row.closest('.chan-wrap');
+  var label = row.getAttribute('data-hist-label') || row.getAttribute('data-lbl') || '';
+  var w21 = parseFloat(row.getAttribute('data-hist-w21'));
+  var w20 = parseFloat(row.getAttribute('data-hist-w20'));
+  if (isNaN(w21)) return;
+  if (isNaN(w20)) w20 = w21;
+  var already = row.getAttribute('data-selected') === '1';
+  if (chanWrap) chanWrap.querySelectorAll('.bk-row, [data-hist-w21]').forEach(function(r){ r.style.background=''; r.removeAttribute('data-selected'); });
+  var _f = (typeof _kpiCrossFilter !== 'undefined') ? _kpiCrossFilter[ck] : null;
+  if (already) {
+    if (_f) { _f.channel = null; var _o = _f._order || []; var _i = _o.indexOf('channel'); if (_i >= 0) _o.splice(_i,1); _kpiCrossFilterPillsRender(ck); }
+    document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:cid}}));
+    var lblR = document.getElementById('hist-'+cid+'-label'); if (lblR) lblR.textContent = 'Global';
+    return;
+  }
+  row.style.background = 'var(--accent-soft)';
+  row.setAttribute('data-selected','1');
+  if (_f) {
+    _f.channel = label;
+    var _o2 = _f._order || (_f._order = []);
+    if (_o2.indexOf('channel') < 0) _o2.push('channel');
+    _kpiCrossFilterPillsRender(ck);
+  }
+  document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid, w_curr:w21, w_prev:w20, label:label}}));
+  var lblU = document.getElementById('hist-'+cid+'-label'); if (lblU) lblU.textContent = label;
+}, true);
 
 /* El filtro cruzado persiste al cambiar de vista — igual que AR */
 
@@ -766,7 +982,7 @@ document.addEventListener('click', function(e) {
   /* Segundo click → deseleccionar y volver a Global */
   var isAlreadySelected = row.getAttribute('data-selected') === '1';
   container.querySelectorAll('[data-hist-w21]').forEach(function(r){
-    r.style.background = ''; r.removeAttribute('data-selected');
+    r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
   });
 
   if (isAlreadySelected) {
@@ -1283,7 +1499,7 @@ AR3_CANVAS_JS = '''
     if (!card) return;
     var lblEl = document.getElementById('hist-'+CID+'-label');
     if (lblEl) lblEl.addEventListener('click', function() {
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
+      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected'); });
       drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
       lblEl.textContent = 'Global';
     });
@@ -1373,19 +1589,35 @@ AR_SB_PATCH_JS = '''
   function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
   function _attachArSb(inputId, containerId) {
     var input = document.getElementById(inputId);
-    var container = document.getElementById(containerId);
-    if (!input || !container) return;
+    if (!input) return;
     var clearBtn = document.getElementById(input.getAttribute('data-sb-clear-id')||inputId+'-clear');
+    /* Re-obtener el container por ID en cada operación (las filas se re-renderizan dentro) */
+    function _cont() { return document.getElementById(containerId); }
     function filter() {
+      var container = _cont();
+      if (!container) return;
       var q = norm(input.value.trim());
       container.querySelectorAll('[data-hist-label]').forEach(function(r) {
         var match = !q || norm(r.getAttribute('data-hist-label')||'').indexOf(q) >= 0;
-        if (q) { r.style.setProperty('display', match ? 'grid' : 'none', 'important'); }
-        else { r.style.setProperty('display', (r.classList.contains('sb-hidden')||r.classList.contains('rows-more')) ? 'none' : 'grid', 'important'); }
+        if (q) {
+          if (match) {
+            r.classList.add('sb-search-hit');
+            r.style.setProperty('display', 'grid', 'important');
+          } else {
+            r.classList.remove('sb-search-hit');
+            r.style.setProperty('display', 'none', 'important');
+          }
+        } else {
+          r.classList.remove('sb-search-hit');
+          if (!r.classList.contains('sb-hidden') && !r.classList.contains('rows-more')) r.style.setProperty('display', 'grid');
+          else r.style.removeProperty('display');
+        }
       });
       if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
     }
     function buildDD(q) {
+      var container = _cont();
+      if (!container) return;
       var qn = norm(q);
       var dd = document.getElementById(inputId+'-dd');
       if (!dd) { dd=document.createElement('div'); dd.id=inputId+'-dd'; dd.style.cssText="position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;"; document.body.appendChild(dd); }
@@ -1474,7 +1706,7 @@ CHAN_SORT_EFCV_JS = '''
           if (panel2 && panel2.getAttribute('data-tab') === 'channel') {
             var wasSel = row.getAttribute('data-selected') === '1';
             card.querySelectorAll('.bk-row').forEach(function(r){
-              r.style.background = ''; r.removeAttribute('data-selected');
+              r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
             });
             if (!wasSel) {
               row.style.background = '#EDE8F7';

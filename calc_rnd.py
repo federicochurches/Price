@@ -52,6 +52,9 @@ def load_rnd(path, week):
     df['Hotel']   = df['Hotel'].astype(str).str.strip().str.replace(r'\t','',regex=True).str.strip()
     df['CorpName']= df['CorpName'].astype(str).str.strip()
     df['Destino'] = df['Destino'].astype(str).str.strip()
+    # Limpieza de destinos: quitar sufijo " Area" y eliminar "SinClasificar"
+    df['Destino'] = df['Destino'].str.replace(r'\s+Area\b', '', regex=True).str.strip()
+    df = df[df['Destino'].str.lower().str.replace(' ', '') != 'sinclasificar'].copy()
     df['%NoDispo'] = pd.to_numeric(df['%NoDispo'], errors='coerce').fillna(0)
     df['Trafico']  = pd.to_numeric(df['Trafico'],  errors='coerce').fillna(0)
     df['Bookings'] = pd.to_numeric(df['Bookings'], errors='coerce').fillna(0)
@@ -220,6 +223,14 @@ df17_p80 = df17[df17['Hotel'].isin(hotel_p80_names)].copy()
 g_corp  = agg_dim(df18_p80,'CorpName').merge(g_corp_w17, on='CorpName', how='left')
 g_dest  = agg_dim(df18_p80,'Destino').merge(g_dest_w17, on='Destino', how='left')
 g_pais  = agg_dim(df18_p80,'PaisDestino').merge(g_pais_w17, on='PaisDestino', how='left')
+# Mapa destino→país (cada destino pertenece mayoritariamente a un país) — para cross-filter País→Destino
+try:
+    _dest_pais_map = (df18_p80.groupby('Destino')['PaisDestino']
+                      .agg(lambda s: s.mode().iloc[0] if len(s.mode()) else (s.iloc[0] if len(s) else ''))
+                      .to_dict())
+    g_dest['PaisDestino'] = g_dest['Destino'].map(_dest_pais_map).fillna('')
+except Exception:
+    g_dest['PaisDestino'] = ''
 # Drop duplicados post-merge
 for g in [g_corp, g_dest, g_pais]:
     g.drop_duplicates(subset=[g.columns[0]], keep='first', inplace=True)

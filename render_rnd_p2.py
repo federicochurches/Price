@@ -65,10 +65,11 @@ def build_hotel_row_rnd(row):
     else:
         sign = '▲' if wow_traf >= 0 else '▼'
         wow_traf_str = f'{sign}{abs(round(wow_traf,1))}'.replace('.', ',') + '%'
-    # r[11]=CorpName, r[12]=Destino — para filtro cruzado en JS
+    # r[11]=CorpName, r[12]=Destino, r[13]=PaisDestino — para filtro cruzado en JS
     corp_name = str(row.get('CorpName', '') or '')
     dest_name = str(row.get('Destino',  '') or '')
-    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str, corp_name, dest_name]
+    pais_name = str(row.get('PaisDestino', '') or '')
+    return [name, bbg, bfg, banda, traf, nd, ipm, wow_up, wow_nd_str, wow_ipm_str, wow_traf_str, corp_name, dest_name, pais_name]
 
 # ── RND_CV ────────────────────────────────────────────────────────────────────
 def build_rnd_cv():
@@ -211,6 +212,26 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     hotels_br_rows   = rnd_hotel_rows_from(df_br)
     hotels_sc_rows   = rnd_hotel_rows_from(df_sc)
 
+    # ── Pools por banda IPM (card 2 — diferentes a los de NoDispo) ──
+    _bk_mask = (df_hotel.get('Bookings', pd.Series([0]*len(df_hotel))) > 0) if 'Bookings' in df_hotel.columns else pd.Series([True]*len(df_hotel))
+    df_hotel_bk = df_hotel[_bk_mask]
+    if 'IPM' in df_hotel.columns:
+        # Críticos IPM: con bookings, peor IPM primero (ascendente)
+        df_dnc_ipm = df_hotel_bk.sort_values('IPM', ascending=True).head(1000)
+        # Bajo Rendimiento IPM: banda Revisar/Aceptable, peor IPM primero
+        if 'BandaRPM' in df_hotel_bk.columns:
+            df_br_ipm = df_hotel_bk[df_hotel_bk['BandaRPM'].isin(['Revisar','Aceptable'])].sort_values('IPM', ascending=True).head(1000)
+        else:
+            df_br_ipm = df_hotel_bk.sort_values('IPM', ascending=True).head(1000)
+    else:
+        df_dnc_ipm = df_dnc
+        df_br_ipm  = df_br
+    # Sin Conversión IPM: Bookings = 0 (igual criterio que NoDispo)
+    df_sc_ipm = df_sc
+    hotels_ipm_dnc_rows = rnd_hotel_rows_from(df_dnc_ipm)
+    hotels_ipm_br_rows  = rnd_hotel_rows_from(df_br_ipm)
+    hotels_ipm_sc_rows  = rnd_hotel_rows_from(df_sc_ipm)
+
     # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
     SB_N = 1000
     try:
@@ -348,7 +369,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
                  'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
                  't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
+    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_ipm_sc': hotels_ipm_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': dim_rows, 'corps': corps_rows, 'dests': dest_rows, 'chans': pais_rows, 'plan': plan, 'co': []}
 
 
 def build_rnd_d():

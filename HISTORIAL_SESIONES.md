@@ -5,6 +5,68 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-cr-kpi-ar · 20 Jun 2026 · CR/Connectivity: cross-pills, channel, corp→hotel + análisis unificación
+
+### Contexto
+Continuación de W24-rnd-kpi. Federico reporta 4 temas en las cards de Connectivity (CR) y pide un análisis de unificación CR/RND × KPI/AR para estandarizar comportamientos. Validación con jsdom headless (V8 = Chrome para lógica JS).
+
+### Bugs y fixes cerrados
+
+| # | Descripción | Fix |
+|---|---|---|
+| C1 | Cross-pills en CR salían verdes; deben ser lila (acento CR) | `_kpiCrossFilterPillsRender` (assemble): color condicional `_isCR = card in ('ef','cv','bk')` → violeta `#EDE8F7`/`#5C469C`; RND queda verde `#E1F5EE`/`#1A6B4A` |
+| C2 | corp→hotel en CR no mostraba hoteles | Lógica: el branch `_hasCf` del loop hotel combinaba banda + cross-filter, y la vista hotel CR tiene filtro de banda por defecto (Críticos). Fix: ignorar banda cuando hay cross-filter (igual que RND). **PERO** queda P15 (cobertura de pool): corps de buena eficacia no están en el pool de 1000 peores → sigue dando 0. Decisión de pipeline pendiente |
+| C3 | Validar base del searchbox CR | Diagnóstico: KPI CR busca sobre el pool del panel hotel (~1000 peores por Eficacia); AR busca sobre `ar{n}-th` (P80 + extendido `_sb`). Mismo root cause que C2 (P15) |
+| C4 | Channel: KPI no actualizaba gráfica ni mostraba pill; AR no dejaba seleccionar | KPI: las filas `.bk-row` del channel están en `.chan-wrap` (sin id, sin `.kpi-tab-rows` ni `-chan-div`) → el listener global las ignoraba. Handler nuevo dedicado (capture + `stopPropagation`) → canvas global + pill violeta (`channel` agregado a `_kpiCrossFilter`) + highlight. AR: el handler de dim retornaba temprano en `view==='chan' && isCR`; `_handleKpiCardHistClick` (path genérico ar1→`hcr-panel-ef`) YA lo maneja — se quitó un bloque AR redundante que causaba doble-fire (upd+reset) |
+
+### Análisis de unificación CR/RND × KPI/AR (entregado a Federico)
+- **Selección de fila:** corp/dest/país y channel ahora se comportan igual (selección + gráfica + pill). Canvas: KPI→global, AR→panel.
+- **Cross-pills:** decisión canónica = color por sección (CR violeta, RND verde). Opción A elegida (verde se confundía con barra "Exitosa").
+- **Cross-filter:** dimensión propia no se auto-filtra; cruzadas filtran + paginan. Membership corp↔dest↔país (RND); CR solo corp↔dest.
+- **P15 · cobertura de pool (la divergencia estructural):** CR KPI hotel = ~1000-2300 peores por Eficacia; RND KPI = top 500 por NoDispo; AR = P80 + extendido. Por eso corp→hotel y searchbox no alcanzan corps de buena eficacia en CR. Propuesta: incluir pool extendido `sb-hidden` en panel hotel CR (como AR), o limitar vista Corp/Destino a entidades en pool. Pendiente decisión.
+
+### Archivos modificados
+`assemble_unified.py` (cross-pill color, channel KPI handler, corp→hotel band-ignore, `channel` en `_kpiCrossFilter`), `js_override.js` (AR channel: quitado bloque redundante). Sin cambios en `render_cr_p1.py`.
+
+### Validación jsdom
+CR cross-pill violeta ✓ · KPI channel (gráfica `hcr-global-ef` + pill "DerbySoft ×" + highlight persistente) ✓ · AR channel (1er click selecciona+grafica, 2º resetea) ✓ · regresión RND 5/5 (país no auto-filtra, cross-pill verde, país→destino pagina, limpiar→reset) ✓.
+
+---
+
+## Sesión W24-rnd-kpi · 20 Jun 2026 · Migración KPI cards RND + 6 bugs cross-filter/searchbox
+
+### Contexto
+Continuación de W24-kpi-unify. Migración de las 2 KPI cards de RND (NoDispo + IPM) del sistema viejo de radios CSS al sistema de pills de CR, y resolución de 6 bugs reportados con screenshots (cross-filter País→Destino, searchbox AR en vistas dim, etc.). Validación con jsdom headless.
+
+### Causa raíz transversal (índices del array RND_CARD_TABS)
+El array de filas de `RND_CARD_TABS` (en `render_rnd_p1.py · _build_rnd_card_tabs_json`) estaba **desalineado** respecto al de CR (`build_card_rows` en `render_helpers.py`). `_cardRow` (js_override.js) lee `hist_w21=r[9]`, `hist_w20=r[10]`, `cf_corp=r[11]`, `cf_dest=r[12]`, `cf_pais=r[13]`. El array RND tenía `None,'—','—'` en 9-11 y el histórico en 12-13 → al re-renderizar en JS, los `data-cf-*` salían corridos (país mostraba un número). **Fix:** reordenar nd_tab e ipm_tab al layout canónico `[lab,sub,bbg,bfg,banda,traf,traf_wow,val,wow,hist21(9),hist20(10),cf_corp(11),cf_dest(12),cf_pais(13)]`. El HTML estático (Python) estaba bien; el bug aparecía solo tras el re-render JS — por eso jsdom (que ejecuta JS) lo detectó y el grep del HTML inicial no.
+
+### Bugs y fixes cerrados
+
+| # | Descripción | Fix |
+|---|---|---|
+| B1 | KPI filtro País→Destino no filtraba (seleccionar Dinamarca seguía mostrando destinos de España) | Triple causa: (a) `g_dest` no conservaba país — agregado mapa destino→país en `calc_rnd.py` (`df18_p80.groupby('Destino')['PaisDestino'].agg(mode)`); (b) `build_kpi_tab_rows` no emitía `data-cf-*` — agregados; (c) `_kpiPillRender` solo filtraba panel hotel — agregado IIFE `_crossFilterNonHotel` que filtra el panel de la vista activa (corp/destino/pais) + filtro País→Destino vía `data-cf-pais`, evaluando TODAS las filas (ignora paginación) |
+| B2 | Pill País sin nombre | Resuelto colateralmente al alinear índices (la pill lee del estado, ya mostraba "Dinamarca ×") |
+| B3 | KPI: click en hotel buscado no selecciona ni grafica | `_handleKpiCardHistClick` no mapeaba nd/ipm a canvas — agregado `kpicard-nd→hrnd-global-nd`, `kpicard-ipm→hrnd-global-ipm` |
+| B4 | AR Hotel sin pills Críticos/Bajo Rend/Sin Conv | `ar_setPillView` siempre ocultaba `ar{n}-hfilt` — cambiado a `display = (view==='hotel') ? '' : 'none'` |
+| B5 | AR card 1 (%NoDispo) y card 2 (IPM) mostraban las mismas filas en dim | `_arDimRows`: card 2 RND reordena `base` por IPM DESC parseando r[6] ("$611") |
+| B6 | AR searchbox no buscaba en Corporativo (match paginado quedaba oculto) | Dos handlers `oninput` competían (assemble `_attachArSb` + js_override L1526). Ambos usaban `display` sin `!important` → no ganaban a `.sb-hidden{display:none !important}`. Unificados con clase `.sb-search-hit{display:grid !important}` (mayor especificidad) + re-obtención del tbody por ID en cada filter |
+
+### Migración KPI cards RND (NoDispo + IPM)
+- `assemble_unified.py`: `_kpiView` ahora incluye `nd`/`ipm` (default 'pais'); CSS panels controlados por JS. `_kpiPillRender` extendido a vistas no-hotel.
+- `render_helpers.py`: `_kpi_pill` compartido CR+RND; `build_kpi_tab_panel(default_tab=...)`; `build_kpi_tab_rows` emite `data-cf-corp/dest/pais`.
+- `render_rnd_p1.py`: ambas cards migradas de radios `tab-nd-*`/`tab-rpm-*` a pills verdes; array RND_CARD_TABS alineado a índices canónicos.
+- `js_override.js`: rama RND de `_initAllSort` por ID `kpicard-nd`/`kpicard-ipm`.
+
+### Fix crítico del canvas (causa de "pills RND no clickeables")
+Un error en `w22_redrawCanvas` (vía `w22_update`←`w22_setMode`) cortaba TODA la cadena al entrar a modo RND, dejando pills KPI sin enganchar. Solución: envolver el wrapper de `w22_redrawCanvas` (js_override.js) en try/catch global. **Regla:** un canvas problemático NUNCA debe cortar `w22_setMode`.
+
+### Aprendizajes
+- **jsdom parsea mal `data-*` tras re-render JS en algunos casos** pero ejecuta la lógica fielmente — verificar atributos con grep del HTML real, confiar en jsdom para el flujo.
+- **Dos handlers de searchbox** (assemble + js_override) coexistían; siempre revisar si hay un segundo `oninput` que pise antes de declarar un fix de searchbox.
+- **`.sb-hidden{display:none !important}` gana sobre inline sin important** → para mostrar un match paginado hay que usar una clase de mayor especificidad, no `style.display`.
+
+
 ## Sesión W24-kpi-unify · 20 Jun 2026 · KPI cards — unificación total de las 3 cards
 
 ### Contexto

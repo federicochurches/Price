@@ -168,6 +168,8 @@ if __name__ == '__main__':
     # assemble escribe SUPPLY_WNN.html en OUTPUTS_DIR. Buscar en las ubicaciones
     # posibles (raíz del repo en local; /mnt/user-data/outputs en Claude).
     _candidates = [
+        # El staging Price_W{NN}/ es la fuente autoritativa (es la que se empaca en el ZIP).
+        script_dir.parent / f'Price_W{VOL_NUM}' / 'reports' / f'week-{wn}' / f'SUPPLY_W{VOL_NUM}.html',
         Path(os.getenv('OUTPUTS_DIR', str(script_dir))) / f'SUPPLY_W{VOL_NUM}.html',
         script_dir / f'SUPPLY_W{VOL_NUM}.html',
         Path('/mnt/user-data/outputs') / f'SUPPLY_W{VOL_NUM}.html',

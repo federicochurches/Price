@@ -41,6 +41,10 @@ def load_and_clean(path):
     df = pd.read_excel(path)
     df.rename(columns={'Corporate':'CorpName', 'CheckRates Únicos':'CR_Unicos'}, inplace=True)
     df = df[df['DistributionCategory'].isin(CANAL_VALIDO)].copy()
+    # Limpieza de destinos: quitar sufijo " Area" y eliminar "SinClasificar"
+    if 'Destino' in df.columns:
+        df['Destino'] = df['Destino'].astype(str).str.strip().str.replace(r'\s+Area\b', '', regex=True).str.strip()
+        df = df[df['Destino'].str.lower().str.replace(' ', '') != 'sinclasificar'].copy()
     # Compatibilidad W22+: dataset puede no tener 'Successful UniqueChkRts'
     # En ese caso, derivar de 'Efectividad en CheckRates' * CR_Unicos
     if 'Successful UniqueChkRts' not in df.columns:

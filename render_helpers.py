@@ -347,8 +347,8 @@ def tab_column_header(cols, widths):
         tab_column_header(['Severity','Eficacia','WoW'], 'minmax(0,1fr) 80px 54px 40px')
         tab_column_header(['Severity','%NoDispo','WoW'],  'minmax(0,1fr) 72px 54px 40px')
     """
-    _lbl_left  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;'
-    _lbl_right = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;'
+    _lbl_left  = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;white-space:nowrap;'
+    _lbl_right = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;'
     _LEFT_COLS = {'Severity','severity'}
     spans = '<span></span>' + ''.join(
         f'<span style="{_lbl_left if c in _LEFT_COLS else _lbl_right}">{c}</span>' for c in cols
@@ -749,8 +749,14 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
             _cls = 'sb-hidden'
             _display = 'grid'  # display controlado por sb-hidden CSS
 
+        # Cross-filter: corp/dest/pais crudos del row (escapar comillas)
+        _cf_corp_v = str(r.get('CorpName', '') or '').replace('"', '&quot;') if 'CorpName' in r.index else ''
+        _cf_dest_v = str(r.get('Destino', '') or '').replace('"', '&quot;') if 'Destino' in r.index else ''
+        _cf_pais_v = str(r.get('PaisDestino', '') or '').replace('"', '&quot;') if 'PaisDestino' in r.index else ''
+
         _row = (
             f'<div class="{_cls}" data-row-idx="{i}"'
+            f' data-cf-corp="{_cf_corp_v}" data-cf-dest="{_cf_dest_v}" data-cf-pais="{_cf_pais_v}"'
             f' data-hist-w21="{_hist_w21}" data-hist-w20="{_hist_w20}" data-hist-label="{raw_lab}"'
             f' style="display:{_display};grid-template-columns:{grid_cols};align-items:center;gap:6px;'
             f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);'
@@ -782,7 +788,7 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
     return top_html, rest_html
 
 
-def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
+def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None, default_tab='destino'):
     """Construye el <div class="tab-panel"> completo para un tab de KPI card.
 
     Si t_key no es 'channel' ni 'canasta', agrega el tab_column_header.
@@ -791,6 +797,7 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
     panel_tabs_spec : dict con claves opcionales:
         'headers' : list[str] — encabezados de columna
         'widths'  : str       — grid-template-columns para el header
+    default_tab : cuál panel se muestra inicialmente (CR='destino', RND='pais')
     Por defecto se infieren de cfg['grid_cols'] + cfg['col_labels'].
     """
     if t_key == 'channel':
@@ -809,7 +816,7 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None):
     else:
         panel_html = top_html + rest_html
 
-    hidden_style = ' style="display:none;"' if t_key not in ('destino',) else ''
+    hidden_style = ' style="display:none;"' if t_key != default_tab else ''
     return f'<div class="tab-panel" data-tab="{t_key}"{hidden_style}>{panel_html}</div>'
 
 
@@ -1145,15 +1152,25 @@ def build_card_rows(df, t_key, cfg):
                 if not _m.isnan(_pf): hist_w20 = val_scale(_pf)
             except (TypeError, ValueError): pass
 
-        # Cross-filter (vista hotel): corp y destino crudos para matchear los pills
+        # Cross-filter (vista hotel/destino): corp, destino y país crudos para matchear los pills
         _cf_corp = str(r.get('CorpName', '')) if 'CorpName' in r.index else ''
         _cf_dest = str(r.get('Destino', '')) if 'Destino' in r.index else ''
+        _cf_pais = str(r.get('PaisDestino', '')) if 'PaisDestino' in r.index else ''
 
         rows.append([
             lab, sub,
             bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
             traf, traf_wow, val_pct, wow,
             round(hist_w21, 4), round(hist_w20, 4),
-            _cf_corp, _cf_dest,
+            _cf_corp, _cf_dest, _cf_pais,
         ])
     return rows
+
+
+def _kpi_pill(card, key, label, base_style, active_style):
+    """Genera un span pill de vista para cards KPI con onclick correcto.
+    Compartido entre CR (ef/cv) y RND (nd/ipm)."""
+    onclick = "kpi_setView('" + card + "','" + key + "',this)"
+    return ('<span id="kpi-' + card + '-v-' + key + '" class="kpi-' + card + '-vpill"'
+            ' onclick="' + onclick + '"'
+            ' style="' + base_style + active_style + '">' + label + '</span>')
