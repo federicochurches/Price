@@ -5,6 +5,28 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-A-dedup · 21 Jun 2026 · Elimina duplicación CR_HOTELS (−0,87MB) + tabla histórica W24
+
+### Contexto
+Pendiente #1 (lazy-ificar AR cards CR). Al scopearlo se vio que es grande: los arrays hotel de `CR_D` (1,93MB) se leen vía el accessor genérico `data()` en 15+ sitios de js_override (AR cards `_arRows` + variantes `hotels_ipm_*` + pools `_sb`), y `CR_HOTELS` (0,84MB) es un duplicado parcial. Se partió en **A** (matar la duplicación, seguro) + **B** (portar `CR_D` al pool, grande, sesión dedicada). Esta sesión = **Opción A** + el cosmético #4.
+
+### Opción A — eliminar CR_HOTELS
+`CR_HOTELS` se extraía de `CR_D` en render_cr_p2 (copia de hotels/crit/br/sc/cv). Su único consumidor era el `getRows` del panel w22 "Análisis de Rendimiento" en assemble — **panel que ya no existe en el DOM** (reemplazado por las AR cards; jsdom confirma `w22-th` no existe). Las AR cards y `data()` ya leían `CR_D` directo.
+- `assemble_unified.py`: quitado el branch `if (CR_HOTELS...)` del `getRows`; queda `d2[key2] || dg[key2] || d2.hotels` (con fallback global de la key, preservando la semántica de `CR_HOTELS.global[key]`).
+- `render_cr_p2.py`: eliminada la extracción + `CR_HOTELS_JSON` + `var CR_HOTELS=...` del PART2.
+- `demo_js_main.js`: quitado `CR_HOTELS` del comentario de vars inyectadas.
+
+### #4 — tabla "Datos históricos reales"
+Header `W16-W22`→`W16-W24` + fila W24 (95,57% · 0,82% · 3,04% · $611, de `M.global_w24` de los pickles) + nota de que la ventana viva del módulo es móvil.
+
+### Validación
+jsdom t8: 0 errores · `typeof CR_HOTELS`=undefined · `CR_D.global` intacto (crit=110/br=405/sc=443/cv=1000) · `data()===CR_D.global` · `_arRows(1,*)`=180/645/968/1000 · `_arRows(2,crit)`=1000 · per-canasta b2c OK. HTML 18,78→17,87MB (−0,87MB). + visual Fede "Todo ok".
+
+### Pendiente — Opción B (sesión dedicada)
+Portar arrays hotel de `CR_D` (~1,9MB) al pool: enriquecer `CR_HOTEL_POOL` con `_sb`/`ipm`/campos que esperan los renderers + recablear los 15+ sitios `data().hotels_*`. Riesgo medio (toca AR cards validadas). RND (`RND_D` ~5,6MB) es un follow-up análogo.
+
+---
+
 ## Sesión W24-hist-semanas · 21 Jun 2026 · Histórico W17-W24 dinámico + serie BK alineada al dato real
 
 ### Contexto

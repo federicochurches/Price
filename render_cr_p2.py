@@ -803,17 +803,8 @@ CR_D  = build_cr_d()
 print('Calculando CR_AL...')
 CR_AL = build_cr_al()
 
-# Extraer datos de hoteles desde CR_D para inyectarlos en CR_CV
-CR_HOTELS = {}
-for canasta in ['global', 'b2c', 'op', 'cug']:
-    if canasta in CR_D and 'hotels_crit' in CR_D[canasta]:
-        CR_HOTELS[canasta] = {
-            'hotels': CR_D[canasta].get('hotels', []),
-            'hotels_crit': CR_D[canasta].get('hotels_crit', []),
-            'hotels_br': CR_D[canasta].get('hotels_br', []),
-            'hotels_sc': CR_D[canasta].get('hotels_sc', []),
-            'hotels_cv': CR_D[canasta].get('hotels_cv', []),
-        }
+# CR_HOTELS eliminado (W24-A): era un duplicado de los arrays hotel de CR_D
+# (hotels/hotels_crit/hotels_br/hotels_sc/hotels_cv). Los consumidores leen CR_D directo.
 
 # Serializar JSON
 def safe_json(obj):
@@ -825,11 +816,10 @@ def safe_json(obj):
 CR_CV_JSON = json.dumps(CR_CV, ensure_ascii=False, default=safe_json)
 CR_D_JSON  = json.dumps(CR_D,  ensure_ascii=False, default=safe_json)
 CR_AL_JSON = json.dumps(CR_AL, ensure_ascii=False, default=safe_json)
-CR_HOTELS_JSON = json.dumps(CR_HOTELS, ensure_ascii=False, default=safe_json)
 
 PART2 = (
     '<div id="w22-sev-cr">\n' + render_severity() + '\n</div>\n' +
-    f'\n<script>\nvar CR_CV={CR_CV_JSON};\nvar CR_D={CR_D_JSON};\nvar CR_AL={CR_AL_JSON};\nvar CR_HOTELS={CR_HOTELS_JSON};\n</script>\n'
+    f'\n<script>\nvar CR_CV={CR_CV_JSON};\nvar CR_D={CR_D_JSON};\nvar CR_AL={CR_AL_JSON};\n</script>\n'
 )
 
 with open('part2_cr.html', 'w', encoding='utf-8') as f:

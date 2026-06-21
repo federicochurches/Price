@@ -1,6 +1,6 @@
 
 var W={mode:'cr',canasta:'global',view:'hotel',dim:'corp',reOpen:false};
-/* CR_CV, RND_CV, CR_D, RND_D, CR_AL, RND_AL, CR_HOTELS se inyectan desde part2_cr/part2_rnd */
+/* CR_CV, RND_CV, CR_D, RND_D, CR_AL, RND_AL se inyectan desde part2_cr/part2_rnd */
 
 function g(id){return document.getElementById(id);}
 function cv(){return W.mode==='cr'?CR_CV[W.canasta]:RND_CV[W.canasta];}

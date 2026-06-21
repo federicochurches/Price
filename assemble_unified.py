@@ -1278,14 +1278,11 @@ TAB_BINDING_JS = '''
             var key = (tabMapRND[idx] || tabMapRND[0]).dataKey;
             return d[key] || d.hotels || [];
         } else {
-            /* CR: usar CR_HOTELS para tabs filtrados */
-            if (typeof CR_HOTELS !== 'undefined' && CR_HOTELS[canasta]) {
-                var key = (tabMapCR[idx] || tabMapCR[0]).dataKey;
-                return CR_HOTELS[canasta][key] || CR_HOTELS.global[key] || [];
-            }
+            /* CR: leer de CR_D (CR_HOTELS eliminado — era duplicado de estos mismos arrays) */
             var d2 = (typeof CR_D !== 'undefined') ? (CR_D[canasta] || CR_D.global || {}) : {};
+            var dg = (typeof CR_D !== 'undefined') ? (CR_D.global || {}) : {};
             var key2 = (tabMapCR[idx] || tabMapCR[0]).dataKey;
-            return d2[key2] || d2.hotels || [];
+            return d2[key2] || dg[key2] || d2.hotels || [];
         }
     }
     
