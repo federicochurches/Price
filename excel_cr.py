@@ -1,7 +1,9 @@
 """
-excel_cr.py · W21+ · 44 hojas (11 × 4 canastas)
-Por canasta: Severity | Top Destinos | Top Corp | Hot Críticos | Hot Bajo Rend |
-             Hot Sin Conv | Hot Menor CV | Channel | Dim Corp | Dim Dest | (WoW KPIs en Severity)
+excel_cr.py · W24+ · Excel CheckRates · 28 hojas (7 × 4 canastas)
+Por canasta (7 hojas): Severity | Destinos | Corp | Hot Críticos | Hot Bajo Rend |
+             Hot Sin Conv | Channel
+Hoteles: 3 bandas AR (banda por Eficacia) desde el df hotel completo por canasta · Top 500
+Dim Corp/Dest eliminadas (duplicaban Corp/Destinos tras el refactor AR solo-hotel).
 """
 import pickle, os, re
 import pandas as pd
@@ -160,9 +162,9 @@ COLS_COMBINED = ['Nombre','Sev Eficacia','Sev Conv Rate','CR Únicos','Bookings'
 
 def write_combined(ws, df_ef, df_name_col, title_str, extra_cols=None, df_cv=None):
     """Top 100 ordenado por Eficacia ASC con ambas métricas + severity coloreada."""
-    title(ws, title_str, 'Ordenado por Eficacia ASC (peor primero) · Top 100')
+    title(ws, title_str, 'Ordenado por Eficacia ASC (peor primero) · Top 500')
     if df_ef is None or len(df_ef)==0: ws.cell(4,1,'Sin datos'); return
-    df_s = df_ef.sort_values('Eficacia', ascending=True).head(100).copy()
+    df_s = df_ef.sort_values('Eficacia', ascending=True).head(500).copy()
     # Mergear ConvRate_WoW_pp desde df_cv si no está en df_ef
     if df_cv is not None and 'ConvRate_WoW_pp' not in df_s.columns and 'ConvRate_WoW_pp' in df_cv.columns:
         key_col = df_name_col
@@ -240,6 +242,21 @@ def write_channel(ws, df_ef, df_cv, can_label):
         r+=1
     autofit(ws,[22,16,16,10,10,10,10,10,10])
 
+# ── Split por banda AR (Críticos / Bajo Rendimiento / Sin Conversión) ──────────
+# Banda por Eficacia (métrica primaria del reporte). Sin Conversión = Bookings==0.
+def band_split_ef(df):
+    empty = pd.DataFrame()
+    if df is None or len(df)==0: return empty, empty, empty
+    d = df.copy()
+    bk = d['Bookings'].fillna(0) if 'Bookings' in d.columns else pd.Series(0, index=d.index)
+    # Recalcular la banda igual que el display (banda_eficacia sobre Eficacia redondeada a 4)
+    # para que la hoja de banda y la columna Severity coincidan siempre.
+    bcol = d['Eficacia'].apply(lambda v: banda_eficacia(round(float(v), 4)) if pd.notna(v) else '—')
+    crit = d[(bk>0) & bcol.isin(['Crítica','Súper Crítica'])]
+    bajo = d[(bk>0) & bcol.isin(['Revisar','Aceptable'])]
+    sinc = d[bk==0]
+    return crit, bajo, sinc
+
 # ── Canastas ──────────────────────────────────────────────────────────────────
 CANASTAS = [
     ('global', 'Global',     None,      'global',   'global_w21',    'global_w20'),
@@ -284,34 +301,19 @@ for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
     ws=wb.create_sheet(f'{px}-Corp'); ws.sheet_properties.tabColor=CR
     write_combined(ws, tab_ef.get('corp'), 'CorpName', f'{can_label} · Top Corporativos W{VOL_NUM}', df_cv=tab_cv.get('corp'))
 
-    # 4-7. Hotel por categoría (EF+CV+Channel)
+    # 4-6. Hotel por banda AR (Críticos / Bajo Rendimiento / Sin Conversión) · banda por Eficacia
     extra = {'Channel':'Channel','Destino':'Destino','Corp':'CorpName'}
-    cat_map = [
-        ('top_crit','Hot Críticos',   'Críticos'),
-        ('top_br',  'Hot Bajo Rend',  'Bajo Rendimiento'),
-        ('top_sc',  'Hot Sin Conv',   'Sin Conversión'),
-        ('top_mcv', 'Hot Menor CV',   'Menor Conv Rate'),
-    ]
-    for cat_key_h, tab_name, cat_label in cat_map:
-        df_cat = can.get(cat_key_h, tab_ef.get('hotel'))
-        df_cat = add_ch(df_cat)
-        ws=wb.create_sheet(f'{px}-{tab_name}'); ws.sheet_properties.tabColor=CR
-        write_combined(ws, df_cat, 'Hotel',
-                       f'{can_label} · Hotel {cat_label} W{VOL_NUM}', extra_cols=extra, df_cv=tab_cv.get('hotel'))
+    hotel_src = p80_all if can_id is None else (can.get('p80_hotel') if can.get('p80_hotel') is not None else can.get('p80'))
+    hotel_src = add_ch(hotel_src if hotel_src is not None else p80_all)
+    crit, bajo, sinc = band_split_ef(hotel_src)
+    for df_b, blabel in [(crit, 'Críticos'), (bajo, 'Bajo Rend'), (sinc, 'Sin Conv')]:
+        ws=wb.create_sheet(f'{px}-Hot {blabel}'); ws.sheet_properties.tabColor=CR
+        write_combined(ws, df_b, 'Hotel',
+                       f'{can_label} · Hotel {blabel} (banda Eficacia) W{VOL_NUM}', extra_cols=extra, df_cv=tab_cv.get('hotel'))
 
     # 8. Channel unificado
     ws=wb.create_sheet(f'{px}-Channel'); ws.sheet_properties.tabColor=CR
     write_channel(ws, tab_ef.get('channel'), tab_cv.get('channel'), can_label)
-
-    # 9. Dim Corp (EF+CV)
-    ws=wb.create_sheet(f'{px}-Dim Corp'); ws.sheet_properties.tabColor=CR
-    write_combined(ws, tab_ef.get('corp'), 'CorpName',
-                   f'{can_label} · AR Dim Corporativo W{VOL_NUM}', df_cv=tab_cv.get('corp'))
-
-    # 10. Dim Destino (EF+CV)
-    ws=wb.create_sheet(f'{px}-Dim Dest'); ws.sheet_properties.tabColor=CR
-    write_combined(ws, tab_ef.get('destino'), 'Destino',
-                   f'{can_label} · AR Dim Destino W{VOL_NUM}', df_cv=tab_cv.get('destino'))
 
 out = f'{OUTPUTS}/Analisis_CheckRates_W{VOL_NUM}.xlsx'
 wb.save(out)

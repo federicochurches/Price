@@ -439,14 +439,22 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - `index.html` nunca se edita manualmente — siempre vía `build_package.py`
 - `SUPPLY_WNN.html` nunca se edita manualmente — siempre vía `assemble_unified.py`
 
-### Excels · Reglas canónicas (W21+)
+### Excels · Reglas canónicas (W24+)
 
 | Parámetro | RND | CR |
 |---|---|---|
 | **Archivo output** | `Analisis_RatesNoDispo_WNN.xlsx` | `Analisis_CheckRates_WNN.xlsx` |
-| **Hojas** | Global · B2C · Opaco · Ultra Opaco | Global · B2C · Opaco · Ultra Opaco |
+| **Canastas** | Global · B2C · Opaco · Ultra Opaco | Global · B2C · Opaco · Ultra Opaco |
+| **Hojas/canasta** | 10: Severity · País ND · País IPM · Dest ND · Dest IPM · Corp ND · Corp IPM · Hot Críticos · Hot Bajo Rend · Hot Sin Conv | 7: Severity · Destinos · Corp · Hot Críticos · Hot Bajo Rend · Hot Sin Conv · Channel |
+| **Total hojas** | 40 (10×4) | 28 (7×4) |
 | **Orden hotel** | `%NoDispo DESC` | `Eficacia ASC` (menor = peor primero) |
-| **Top N** | 100 en todas las secciones | 100 en todas las secciones |
+| **Top N** | 500 en todas las secciones | 500 en todas las secciones |
+
+**Hojas de hotel = 3 bandas del AR** (W24+): se band-filtran del df hotel completo (Global `p80_hotel` · canasta `CANASTA[c]['p80_hotel']`/`['p80']`), banda por la **métrica primaria** (%NoDispo RND · Eficacia CR), la otra métrica en columnas.
+- **Críticos** = Crítica + Súper Crítica (Bookings>0) · **Bajo Rend** = Revisar + Aceptable (Bookings>0) · **Sin Conv** = Bookings=0.
+- El split (`band_split_nd`/`band_split_ef`) **recalcula la banda igual que el display** (misma función + redondeo) → la hoja y la columna Severity siempre coinciden. Nunca usar la columna `BandaX` pre-calculada para el split.
+- **Hojas Dim eliminadas** (duplicaban Corp/Dest tras el refactor AR solo-hotel). No reintroducir.
+- Solo 3 hojas de hotel (banda por métrica primaria); no hay hoja de hotel rankeada por IPM/CV. Si se piden las 3 bandas por la secundaria → 6 hojas.
 
 ---
 

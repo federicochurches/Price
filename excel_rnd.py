@@ -1,9 +1,9 @@
 """
-excel_rnd.py · W21+ · Excel Rates No Dispo estructura completa
-Por canasta: Severity | País ND | País IPM | Dest ND | Dest IPM |
-             Corp ND | Corp IPM | Hotel ND Críticos | Hotel ND Bajo Rend |
-             Hotel ND Sin Conv | Hotel ND Súper Crítica | Hotel IPM |
-             Dim Corp ND | Dim Corp IPM | Dim Dest ND | Dim Dest IPM
+excel_rnd.py · W24+ · Excel Rates No Dispo
+Por canasta (10 hojas): Severity | País ND | País IPM | Dest ND | Dest IPM |
+             Corp ND | Corp IPM | Hot Críticos | Hot Bajo Rend | Hot Sin Conv
+Hoteles: 3 bandas AR (banda por %NoDispo) desde el df hotel completo por canasta · Top 500
+Dim Corp/Dest eliminadas (eran duplicados de Corp/Dest tras el refactor AR solo-hotel).
 """
 import pickle, os
 import pandas as pd
@@ -147,9 +147,9 @@ ND_COLS = ['Nombre','Severity NoDispo','Severity IPM','Tráfico','Bookings',
            '%NoDispo','WoW ND','IPM','WoW IPM','GB USD']
 
 def write_nd(ws, df, t, name_col):
-    title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 100')
+    title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 500')
     if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
-    df_s = df.sort_values('%NoDispo', ascending=False).head(1000)
+    df_s = df.sort_values('%NoDispo', ascending=False).head(500)
     r = mk_hdr(ws, 4, ND_COLS)
     for _, row in df_s.iterrows():
         nd  = sf(row.get('%NoDispo')); ipm = sf(row.get('IPM',row.get('RPM')))
@@ -180,10 +180,10 @@ IPM_COLS = ['Nombre','Severity IPM','Severity NoDispo','Tráfico','Bookings',
             'IPM','WoW IPM','%NoDispo','WoW ND','GB USD']
 
 def write_ipm(ws, df, t, name_col):
-    title(ws, t, 'Ordenado por IPM ASC (peor primero) · Top 100')
+    title(ws, t, 'Ordenado por IPM ASC (peor primero) · Top 500')
     if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
     ipm_col='IPM' if 'IPM' in df.columns else 'RPM'
-    df_s = df[df['Bookings']>0].sort_values(ipm_col, ascending=True).head(1000)
+    df_s = df[df['Bookings']>0].sort_values(ipm_col, ascending=True).head(500)
     r = mk_hdr(ws, 4, IPM_COLS)
     for _, row in df_s.iterrows():
         nd  = sf(row.get('%NoDispo')); ipm = sf(row.get(ipm_col))
@@ -207,6 +207,29 @@ def write_ipm(ws, df, t, name_col):
         apply_wow(ws,r,9,nd_wow_v,invert=True)
         r+=1
     autofit(ws,[35,14,18,12,10,10,10,10,10,10])
+
+# ── Split por banda AR (Críticos / Bajo Rendimiento / Sin Conversión) ──────────
+# Banda por %NoDispo (métrica primaria del reporte). Sin Conversión = Bookings==0.
+def band_split_nd(df):
+    empty = pd.DataFrame()
+    if df is None or len(df)==0: return empty, empty, empty
+    d = df.copy()
+    bk = d['Bookings'].fillna(0) if 'Bookings' in d.columns else pd.Series(0, index=d.index)
+    # Recalcular la banda igual que el display (banda_nodispo sobre sf(%NoDispo))
+    # para que la hoja de banda y la columna Severity coincidan siempre.
+    bcol = d['%NoDispo'].apply(lambda v: banda_nodispo(sf(v)) if sf(v) is not None else '—')
+    crit = d[(bk>0) & bcol.isin(['Crítica','Súper Crítica'])]
+    bajo = d[(bk>0) & bcol.isin(['Revisar','Aceptable'])]
+    sinc = d[bk==0]
+    return crit, bajo, sinc
+
+def hotel_source_rnd(can, can_id):
+    """df hotel completo (con bandas+WoW): Global = p80_hotel · canasta = CANASTA[c]['p80_hotel']/['p80']."""
+    if can_id is None:
+        return D.get('p80_hotel', pd.DataFrame())
+    src = can.get('p80_hotel')
+    if src is None: src = can.get('p80')
+    return src if src is not None else TAB_ND.get('hotel', pd.DataFrame())
 
 # ── Canastas ──────────────────────────────────────────────────────────────────
 CANASTAS = [
@@ -278,31 +301,12 @@ for can_key, can_label, can_id in CANASTAS:
     ws=wb.create_sheet(f'{px}-Corp IPM'); ws.sheet_properties.tabColor=RND
     write_ipm(ws, df_corp, f'{can_label} · Top Corp IPM W{VOL_NUM}', 'CorpName')
 
-    # ── 8-11. Hotel por categoría
-    hotel_cats_nd = [
-        ('top_dnc',  'ND Sin Conv'),
-        ('top_br',   'ND Bajo Rend'),
-        ('top_sc',   'ND Súper Crítica'),
-        ('top_hot',  'ND Top %NoDispo'),
-    ]
-    for cat_key, cat_label in hotel_cats_nd:
-        df_cat = can.get(cat_key, TAB_ND.get('hotel', pd.DataFrame()))
-        ws=wb.create_sheet(f'{px}-{cat_label[:12]}'); ws.sheet_properties.tabColor=RND
-        write_nd(ws, df_cat, f'{can_label} · Hotel {cat_label} W{VOL_NUM}', 'Hotel')
-
-    ws=wb.create_sheet(f'{px}-Hot IPM'); ws.sheet_properties.tabColor=RND
-    write_ipm(ws, can.get('top_hot_rpm', TAB_IPM.get('hotel', pd.DataFrame())),
-              f'{can_label} · Hotel Top IPM W{VOL_NUM}', 'Hotel')
-
-    # ── 12-15. Dimensión Corp y Dest
-    for df_nd, df_ipm, nc, suf in [
-        (df_dim_corp_nd, df_dim_corp_ipm, 'CorpName', 'Corp'),
-        (df_dim_dest_nd, df_dim_dest_ipm, 'Destino', 'Dest'),
-    ]:
-        ws=wb.create_sheet(f'{px}-Dim {suf} ND'); ws.sheet_properties.tabColor=RND
-        write_nd(ws, df_nd, f'{can_label} · AR Dim {suf} %NoDispo W{VOL_NUM}', nc)
-        ws=wb.create_sheet(f'{px}-Dim {suf} IPM'); ws.sheet_properties.tabColor=RND
-        write_ipm(ws, df_ipm, f'{can_label} · AR Dim {suf} IPM W{VOL_NUM}', nc)
+    # ── 8-10. Hotel por banda AR (Críticos / Bajo Rendimiento / Sin Conversión) · banda por %NoDispo
+    hotel_src = hotel_source_rnd(can, can_id)
+    crit, bajo, sinc = band_split_nd(hotel_src)
+    for df_b, blabel in [(crit, 'Críticos'), (bajo, 'Bajo Rend'), (sinc, 'Sin Conv')]:
+        ws=wb.create_sheet(f'{px}-Hot {blabel}'); ws.sheet_properties.tabColor=RND
+        write_nd(ws, df_b, f'{can_label} · Hotel {blabel} (banda %NoDispo) W{VOL_NUM}', 'Hotel')
 
 out = f'{OUTPUTS}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx'
 wb.save(out)

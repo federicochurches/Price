@@ -5,6 +5,34 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-excel-bands · 21 Jun 2026 · Refactor generadores de Excel (excel_cr.py · excel_rnd.py)
+
+### Contexto
+Revisión de la generación de Excels de Análisis tras el refactor AR solo-hotel (3 bandas). Federico pidió validar cuántos elementos se generaban por dimensión y alinear las hojas a las 3 bandas del AR. Tres decisiones: (1) eliminar hojas Dim duplicadas, (2) dejar las 3 bandas del AR, (3) unificar Top-N a **500**.
+
+### Diagnóstico (data real del pickle)
+- **24 hojas Dim duplicadas**: `Dim Corp`/`Dim Dest` (CR) y `Dim Corp/Dest ND/IPM` (RND) eran copias exactas de las hojas Corp/Dest tras el refactor AR solo-hotel.
+- **Bug grave en Global**: `CANASTA` no tiene entrada `'global'` → para la canasta Global las hojas de hotel caían al fallback (`TAB_ND['hotel']`/`tab_ef['hotel']`) y las 4 mostraban **data idéntica**. La separación por banda no existía en Global.
+- **Categorización vieja ≠ bandas del AR**: RND usaba `top_dnc`/`top_br`/`top_sc` (demanda no convertida / IPM Crítica-Revisar / Bookings=0), capeados a 10-50 filas; CR usaba `top_crit/br/sc/mcv` a 100. No coincidían con Críticos=Crítica+SúperCrítica / BajoRend=Revisar+Aceptable / SinConv=Bookings=0.
+- **Títulos mentían**: RND `write_nd`/`write_ipm` decían "Top 100" pero hacían `head(1000)`.
+
+### Hallazgo clave (no hubo que tocar calc)
+El df hotel completo **por canasta ya estaba en el pickle**: `CANASTA[c]['p80_hotel']` (RND: B2C 5979 · OP 23669 · CUG 18242) y `CANASTA[c]['p80']` (CR: 515/1011/1548), ambos con bandas (`BandaNoDispo`/`BandaRPM` · `BandaEficacia`/`BandaConvRate`) **y WoW**. Global en `D['p80_hotel']` (RND 21183) / `p80_all` (CR 2116). Todo lo necesario para band-filtrar uniforme a 500 con WoW, sin re-correr calc.
+
+### Cambios aplicados
+**excel_rnd.py:** `write_nd`/`write_ipm` → título "Top 500" + `head(500)`. Nuevos helpers `band_split_nd(df)` (3 bandas, recalcula banda vía `banda_nodispo(sf(v))` igual que el display) y `hotel_source_rnd(can, can_id)`. Reemplazadas 4 hojas hotel + Hot IPM + 4 Dim por **3 hojas de banda** (`Hot Críticos`/`Hot Bajo Rend`/`Hot Sin Conv`, banda por %NoDispo). 64→**40 hojas** (10×4).
+
+**excel_cr.py:** `write_combined` → "Top 500" + `head(500)`. Nuevo `band_split_ef(df)` (recalcula vía `banda_eficacia(round(v,4))` igual que el display). Reemplazadas 4 hojas hotel por **3 de banda** (banda por Eficacia, extra cols Channel/Destino/Corp). Eliminadas `Dim Corp`/`Dim Dest`. 40→**28 hojas** (7×4).
+
+### Lección
+El split de banda DEBE recalcular con la misma función + redondeo que el display, no usar la columna `BandaX` pre-calculada. Síntoma del mismatch: 1 fila "Exitosa" en la hoja "Bajo Rend" (borde Aceptable/Exitosa por redondeo a 4 decimales). Tras alinear: bandas 100% limpias.
+
+### Validación
+openpyxl: 0 hojas Dim · bandas difieren en Global (RND Crít44/Bajo500/Sin500 · CR Crít110/Bajo404/Sin443) y por canasta · spot-check de columnas Severity/Bookings correcto. Federico validó visual → commit.
+
+---
+
+
 ## Sesión W24-rnd-pool-B · 21 Jun 2026 · C/D resueltos — cross-filter →hotel en RND vía pool completo lazy + cap-10
 
 ### Contexto
