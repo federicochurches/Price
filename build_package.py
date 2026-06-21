@@ -35,6 +35,7 @@ PERIODO_PREV2    = '5–11 may 2026'  # Fallback simple
 
 PICKLE_RND  = os.getenv('PICKLE_RND', f'rnd_w{WEEK}_data.pkl')
 PICKLE_CR   = os.getenv('PICKLE_CR', f'cr_w{WEEK}_data.pkl')
+PICKLE_BK   = os.getenv('PICKLE_BK', f'bk_w{WEEK}_data.pkl')
 
 OUTPUTS     = Path(os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs'))
 SCRIPT_DIR  = Path(__file__).parent
@@ -53,6 +54,15 @@ with open(PICKLE_RND, 'rb') as f:
     DR = pickle.load(f)
 with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
+
+try:
+    with open(PICKLE_BK, 'rb') as f:
+        DB = pickle.load(f)
+    bk_global = DB.get('bk_global', None)
+    bk_wow    = DB.get('bk_wow', None)
+except Exception:
+    bk_global = None
+    bk_wow    = None
 
 mr   = DR['M'][f'global_w{WEEK}']
 mr17 = DR['M'][f'global_w{WEEK_PREV}']
@@ -111,11 +121,29 @@ def build_index():
     wow_cv  = _wb(cr_cv_wow,  cr_cv_wow_str)
     wow_nd  = _wb(rnd_wow,    rnd_wow_str)
     wow_ipm = _wb(rnd_ipm_wow, rnd_ipm_wow_str)
+    # BK WoW (graceful — solo si el pickle está disponible)
+    if bk_global is not None and bk_wow is not None:
+        bk_wow_pp  = bk_wow * 100
+        bk_wow_str = f'+{bk_wow_pp:.2f}pp' if bk_wow_pp >= 0 else f'{bk_wow_pp:.2f}pp'
+        wow_bk     = _wb(bk_wow_pp, bk_wow_str)
+        bk_val_str = f'{bk_global*100:.1f}%'
+    else:
+        wow_bk     = ''
+        bk_val_str = '—'
 
-    # Inventory KPIs (static fallback — update when pickle available)
-    inv_n      = '309.591'
-    inv_pp_n   = '53.097'
-    inv_gap    = '16.903'
+    # Inventory KPIs W24 (from INVENTORY_W24.html / calc_inv.py run)
+    inv_n      = '309.016'   # Sistema W24
+    inv_pp_n   = '58.895'    # Producto Propio (Solo Propio + Hybrid)
+    inv_gap    = '11.105'    # Gap vs Target 70K
+
+    # Inventory WoW (W24 vs W23 · valores absolutos)
+    _inv_n_d   = 309016 - 309052   # −36
+    _inv_pp_d  = 58895  - 58888    # +7
+    _inv_gap_d = 11105  - 11112    # −7  (negativo = gap cierra = bueno)
+    def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
+    wow_inv_n   = _wb(_inv_n_d,    _inv_fmt(_inv_n_d))
+    wow_inv_pp  = _wb(_inv_pp_d,   _inv_fmt(_inv_pp_d))
+    wow_inv_gap = _wb(-_inv_gap_d, _inv_fmt(_inv_gap_d))  # invertido: gap ↓ = verde
 
 
     html = f"""<!DOCTYPE html>
@@ -163,7 +191,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 .rpt-card.card-inactive{{background:#F0EBE2;cursor:default;}}
 .rpt-card.card-inactive .rpt-card-top,.rpt-card.card-inactive .rpt-pills{{position:relative;z-index:0;}}
 .dim-overlay{{position:absolute;inset:0;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);background:rgba(240,235,226,0.35);z-index:1;pointer-events:none;}}
-.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;border:none;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#FAEEDA;color:#633806;}}.lock-chip-gray{{background:#F1EFE8;color:#444441;}}
+.lock-chip{{position:absolute;top:10px;right:10px;z-index:3;border:none;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#EDEAE4;color:#6B6861;}}.lock-chip-gray{{background:#EDEAE4;color:#6B6861;}}
 .rpt-card-top{{padding:18px 18px 14px;flex:1;}}
 .rpt-accent{{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;border-radius:3px;}}
 .rpt-kpis{{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}}
@@ -230,15 +258,15 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#E1F5EE;color:#085041;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-right:5px;vertical-align:middle;"></span>Activo</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
-        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val" style="color:var(--cr);">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val" style="color:var(--rnd);">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
+        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label" style="font-weight:700;">BK</div><div class="rpt-kpi-val">{bk_val_str}</div>{wow_bk}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
           <span class="rpt-pills-label">Historial</span>
-          <span class="pill active" style="background:var(--rnd);border-color:var(--rnd);">{SEMANA}</span>
+          <span class="pill active" style="background:var(--ink);border-color:var(--ink);">{SEMANA}</span>
           <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
           <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
         </div>
@@ -248,19 +276,19 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-active" onclick="location.href='inventory/{WEEK_STR}/INVENTORY_W{WEEK}.html'" style="cursor:pointer;">
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#EAF3DE;color:#27500A;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#639922;margin-right:5px;vertical-align:middle;"></span>Beta</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Beta</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">State of PriceTravel Product</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val" style="color:var(--inv);">{inv_n}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div></div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val" style="color:#FF3B30;">{inv_gap}</div></div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val">{inv_n}</div>{wow_inv_n}</div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div>{wow_inv_pp}</div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val">{inv_gap}</div>{wow_inv_gap}</div>
         </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
           <span class="rpt-pills-label">Historial</span>
-          <span class="pill active" style="background:var(--inv);border-color:var(--inv);">{SEMANA}</span>
+          <span class="pill active" style="background:var(--ink);border-color:var(--ink);">{SEMANA}</span>
           <a href="inventory/{WEEK_PREV_STR}/INVENTORY_W{WEEK_PREV}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
           <a href="inventory/{WEEK_PREV2_STR}/INVENTORY_W{WEEK_PREV2}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
         </div>
@@ -272,13 +300,13 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#BA7517;margin-right:4px;vertical-align:middle;"></span>En construcción</div>
+      <div class="lock-chip">En construcción</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#FAEEDA;color:#633806;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#BA7517;margin-right:5px;vertical-align:middle;"></span>En construcción &nbsp;·&nbsp; RateCode Inventory</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">En construcción &nbsp;·&nbsp; RateCode Inventory</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">RateCode Inventory</div>
         <div class="rpt-desc">Inventario de rate codes por hotel y channel. Paridad y cobertura tarifaria.</div>
         <div class="rpt-progress">
-          <div class="rpt-progress-bar"><div class="rpt-progress-fill" style="width:15%;background:#EF9F27;"></div></div>
+          <div class="rpt-progress-bar"><div class="rpt-progress-fill" style="width:15%;background:var(--muted);"></div></div>
           <div class="rpt-progress-label">Definición de scope en progreso</div>
         </div>
       </div>
@@ -287,13 +315,13 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive">
       <div class="dim-overlay"></div>
-      <div class="lock-chip"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#BA7517;margin-right:4px;vertical-align:middle;"></span>En construcción</div>
+      <div class="lock-chip">En construcción</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#FAEEDA;color:#633806;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#BA7517;margin-right:5px;vertical-align:middle;"></span>En construcción &nbsp;·&nbsp; Troubleshooting</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">En construcción &nbsp;·&nbsp; Troubleshooting</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Supply Troubleshooting</div>
         <div class="rpt-desc">Dashboard tickets Rocket Chat · 75 tickets · Feb–May 2026 · 4 tipos de cuenta · 8 tipos de consulta.</div>
         <div class="rpt-progress">
-          <div class="rpt-progress-bar"><div class="rpt-progress-fill" style="width:60%;background:#EF9F27;"></div></div>
+          <div class="rpt-progress-bar"><div class="rpt-progress-fill" style="width:60%;background:var(--muted);"></div></div>
           <div class="rpt-progress-label">Dashboard listo · pendiente integración Hub</div>
         </div>
       </div>
@@ -304,9 +332,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip lock-chip-gray"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#888780;margin-right:4px;vertical-align:middle;"></span>Backlog</div>
+      <div class="lock-chip lock-chip-gray">Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#F1EFE8;color:#444441;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#888780;margin-right:5px;vertical-align:middle;"></span>Backlog · Strategy</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Backlog · Strategy</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Optimization Strategy Layer</div>
         <div class="rpt-desc">Síntesis cross-módulo · recomendaciones priorizadas · cruza CR, RND e Inventory.</div>
       </div>
@@ -315,9 +343,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 
     <div class="rpt-card card-inactive" style="opacity:.55;">
       <div class="dim-overlay"></div>
-      <div class="lock-chip lock-chip-gray"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#888780;margin-right:4px;vertical-align:middle;"></span>Backlog</div>
+      <div class="lock-chip lock-chip-gray">Backlog</div>
       <div class="rpt-card-top">
-        <span class="rpt-accent" style="background:#F1EFE8;color:#444441;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#888780;margin-right:5px;vertical-align:middle;"></span>Backlog · Alertas</span>
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Backlog · Alertas</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Alertas</div>
         <div class="rpt-desc">Alertas proactivas automáticas · hoteles bajo threshold · flags por canal y corporativo.</div>
       </div>
@@ -359,6 +387,8 @@ document.addEventListener('keydown', e => {{ if (e.key === 'Enter') checkAuth();
 index_html = build_index()
 index_path = OUTPUTS / 'index.html'
 index_path.write_text(index_html, encoding='utf-8')
+# Copia en SCRIPT_DIR para que el ZIP builder la encuentre (y persista para commit)
+(SCRIPT_DIR / 'index.html').write_text(index_html, encoding='utf-8')
 print(f'✅ index.html generado · {len(index_html):,} chars')
 
 
