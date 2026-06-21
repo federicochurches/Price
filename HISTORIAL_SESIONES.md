@@ -5,6 +5,32 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-cr-lazy-unify · 21 Jun 2026 · CR sobre el motor lazy de RND (−4MB)
+
+### Contexto
+Tras cerrar B (RND KPI sobre pool lazy), el hotel de las KPI cards CR (ef/cv) seguía volcado al DOM (P15: 3.582 filas estáticas + `CR_CARD_TABS` hotel) ≈ ~4MB. Objetivo: unificar CR sobre la MISMA función lazy de RND y recuperar el peso. Continuación de sesión (post-refactor de Excels).
+
+### Cambios aplicados
+**Motor genérico (assemble_unified.py):** `_lazyHotelRender(report, card, cf, container)` + config `_HOTEL_POOL_CFG` {cr, rnd} (índices de campo/métrica/orden/grid por reporte) + `_poolToCardRow(h, report, metric)`. Los `_rndLazyHotelRender`/`_rndPoolToCardRow` quedaron como wrappers (cableado B intacto). El motor filtra por **cross-filter** (corp/dest/país), **banda** (`cf.bands`, vista sin cf) y **hotel exacto** (`cf.hotel`, searchbox).
+
+**Pool CR (render_cr_p1.py):** `_build_cr_hotel_pool_json()` emite `CR_HOTEL_POOL` (3.582, ~0,39MB, 11 campos) + `_CR_BAND_NAMES`. `cru_wow` corregido a `/100` (paridad con `build_card_rows`).
+
+**Cableado CR (`_kpiPillRender`):** rama `_isCR` con guarda `_canG` (solo canasta global usa pool) → con cross-filter `_lazyHotelRender('cr',...,cf)`, sin cf `{bands: activeBands}`. Per-canasta (b2c/op/cug) cae al manejo DOM viejo (CR_CARD_TABS[canasta], ~100 c/u).
+
+**Searchbox pool-aware (`_kpiSbBuildDD`/`_kpiSbSelect` + `_kpiSbPoolFor`):** en vista hotel + canasta global, el dropdown sugiere desde el pool (CR y RND) y al seleccionar renderiza el hotel desde el pool si no está en el DOM, luego dispara su click + lo fija. Recupera lo que P15 habilitaba (buscar cualquier hotel) sin el DOM pesado.
+
+**Recorte (render_cr_p1.py):** estático hotel `head(1000)→head(5)` (solo estructura/fallback) + hotel **global** de `CR_CARD_TABS` `3582→banda crit` (ef 281 / cv 867 — el default que `_kpiSortAttach` renderiza en carga y cambio de canasta; `w22_renderCardTabs` no llama `_kpiPillRender`, por eso el default no puede vaciarse). Per-canasta intacto.
+
+### Decisión clave (per-canasta)
+El pool es solo GLOBAL. `w22_renderCardTabs` delega en `_kpiSortAttach`, que **saltea si la lista está vacía** y NO dispara `_kpiPillRender`. Por eso: (a) el lazy corre solo en canasta global (guarda `_canG`); (b) el hotel global de `CR_CARD_TABS` se reduce a la banda crit (no se vacía) para que `_kpiSortAttach` tenga el default en carga/cambio de canasta. Las per-canasta siguen 100% por DOM.
+
+### Validación (jsdom + visual Fede)
+Paridad exacta de bandas vs `CR_CARD_TABS` (ef crit 281 / br 823 / sc 0 — Eficacia no tiene Sin Conversión; cv crit 867 / br 1168 / sc 968). Cross-filter (Iberostar 4 · Cancun 78 · Hilton 300). Per-canasta b2c 100 filas DOM (no pool). Switch global↔b2c OK. Searchbox alcanza+renderiza hotel Exitosa fuera del crit ("Hyatt Regency Vancouver"). RND intacto (nd Iberostar 46) + RND searchbox ahora también pool-aware (21K). **HTML 22→17,9MB (−4,1MB).**
+
+### Pendiente (no en este refactor)
+Lazy-ificar AR cards CR (`CR_D` 2,0MB + `CR_HOTELS` 0,88MB ≈ ~3MB más; B tampoco lo hizo en RND) · `_SEMANAS_HIST` stale js_override.js L7 (W16-W23→W17-W24) · reconciliar `PROMPT_INV`/`calc_inv` · cleanup A2b handlers dim muertos AR · `Mail_W24`/`index.html` no se generan (fallo silencioso).
+
+
 ## Sesión W24-excel-bands · 21 Jun 2026 · Refactor generadores de Excel (excel_cr.py · excel_rnd.py)
 
 ### Contexto

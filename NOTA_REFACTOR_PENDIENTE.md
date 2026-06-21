@@ -74,3 +74,27 @@ Los tabs `channel` (CR) y `canasta` (ambos) conservan su lógica ad-hoc porque:
 - Para B2C/OP/CUG: usar `can.get('agg_pais')`, `can.get('agg_dest')`, `can.get('agg_corp')` del pickle
 - `calc_rnd.py` ya calcula estas dimensiones por canasta en `CANASTA_DATA`
 
+---
+
+## Motor lazy de hoteles · Patrón unificado CR+RND (W24)
+
+Las KPI cards sirven el panel hotel desde un **pool compacto** (NO en DOM) en vez de volcar miles de filas. Una sola función para ambos reportes.
+
+### Dónde tocar qué
+| Pieza | Archivo | Qué hace |
+|---|---|---|
+| `_HOTEL_POOL_CFG` {cr, rnd} | `assemble_unified.py` | Config por reporte: `poolVar`, `bandNamesVar`, índices corp/dest/país, y `metrics[card]` con `valIdx`/`bandIdx`/`wowIdx`/`sortDesc`/`requireVal`/`grid` |
+| `_poolToCardRow(h, report, metric)` | `assemble_unified.py` | Convierte fila de pool → fila de `_cardRow` |
+| `_lazyHotelRender(report, card, cf, container)` | `assemble_unified.py` | Filtra el pool (`cf.corp/dest/pais` cross-filter · `cf.bands` banda · `cf.hotel` exacto) → ordena → reconstruye panel (5 vis + 5 cf-extra + resto `sb-hidden`, cap 300) |
+| `CR_HOTEL_POOL` (`_build_cr_hotel_pool_json`) | `render_cr_p1.py` | 3.582 hoteles CR, 11 campos `[lab,corp,dest,cru,cru_wow,ef_pct,ef_b,ef_wow,cv_pct,cv_b,cv_wow]` |
+| `RND_HOTEL_POOL` (`_build_rnd_hotel_pool_json`) | `render_rnd_p1.py` | 21.183 hoteles RND, 12 campos (incluye país) |
+
+### Reglas del patrón
+- **Solo canasta global usa pool.** Per-canasta (b2c/op/cug) van por DOM con `CR_CARD_TABS[canasta]` (~100 c/u). Guarda `_canG` en `_kpiPillRender` (rama `_isCR`) y en `_kpiSbPoolFor`. Motivo: el pool es global; `w22_renderCardTabs`→`_kpiSortAttach` saltea listas vacías y NO llama `_kpiPillRender`.
+- **El default no se vacía, se reduce a banda crit.** `CR_CARD_TABS['global'][ef/cv]['hotel']` = solo crit (el `_kpiSortAttach` lo necesita en carga y cambio de canasta). El estático de `render_cr_p1.py` es `head(5)` (solo estructura). El lazy reemplaza al entrar al tab / cross-filter / searchbox.
+- **Searchbox pool-aware:** `_kpiSbBuildDD` sugiere desde el pool; `_kpiSbSelect` renderiza el hotel desde el pool si falta en el DOM. Aplica a CR y RND en vista hotel + canasta global.
+- **Wrappers RND** (`_rndLazyHotelRender`/`_rndPoolToCardRow`) delegan en las genéricas — no duplicar lógica.
+
+### Pendiente (opcional)
+Lazy-ificar las **AR cards CR** (`CR_D` ~2,0MB + `CR_HOTELS` ~0,88MB ≈ ~3MB) — tienen su propio searchbox y estructura; B tampoco lo hizo en RND.
+

@@ -202,7 +202,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     for t_key, df_t in [
         ('destino', TAB_EF['destino']),
         ('corp', TAB_EF['corp']),
-        ('hotel', TAB_EF['hotel'].head(1000)),  # static: cap 1000 (JS re-renderiza desde JSON completo)
+        ('hotel', TAB_EF['hotel'].head(5)),  # static: solo estructura+fallback; _kpiSortAttach(crit) + motor lazy (pool) re-renderizan
         ('channel', TAB_EF['channel']),
         ('canasta', TAB_EF['canasta']),
     ]:
@@ -370,7 +370,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     for t_key, df_t in [
         ('destino', TAB_CV['destino']),
         ('corp', TAB_CV['corp']),
-        ('hotel', TAB_CV['hotel'][TAB_CV['hotel']['Bookings'] > 0].sort_values('ConvRate').reset_index(drop=True).head(1000)),  # static: cap 1000 (JS re-renderiza desde JSON completo)
+        ('hotel', TAB_CV['hotel'][TAB_CV['hotel']['Bookings'] > 0].sort_values('ConvRate').reset_index(drop=True).head(5)),  # static: solo estructura+fallback; _kpiSortAttach(crit) + motor lazy (pool) re-renderizan
         ('channel', TAB_CV['channel']),
         ('canasta', TAB_CV['canasta']),
     ]:
@@ -872,13 +872,23 @@ def _build_cr_card_tabs_json():
     """Genera JSON con los datos de las cards KPI por canasta."""
     TAB_EF_BY = D.get('TAB_EF_BY_CANASTA', {'global': TAB_EF})
     TAB_CV_BY = D.get('TAB_CV_BY_CANASTA', {'global': TAB_CV})
+    _CRIT = {'Crítica', 'Súper Crítica'}
     tabs = {}
     for canasta in ['global', 'b2c', 'op', 'cug']:
         tab_ef = TAB_EF_BY.get(canasta, TAB_EF)
         tab_cv = TAB_CV_BY.get(canasta, TAB_CV)
+        ef_tabs = {t: _build_card_rows_ef(tab_ef, t) for t in ['destino','corp','hotel']}
+        cv_tabs = {t: _build_card_rows_cv(tab_cv, t) for t in ['destino','corp','hotel']}
+        if canasta == 'global':
+            # W24: el hotel GLOBAL se sirve del motor lazy (CR_HOTEL_POOL, ~3.582). En
+            # CR_CARD_TABS dejamos solo la banda crit (el default que _kpiSortAttach renderiza
+            # en carga y al cambiar de canasta); el lazy cubre cross-filter + searchbox (pool).
+            # Las per-canasta (b2c/op/cug, ~100 c/u) siguen completas por el camino DOM.
+            ef_tabs['hotel'] = [r for r in ef_tabs['hotel'] if (r[4] if len(r) > 4 else '') in _CRIT]
+            cv_tabs['hotel'] = [r for r in cv_tabs['hotel'] if (r[4] if len(r) > 4 else '') in _CRIT]
         tabs[canasta] = {
-            'ef': {t: _build_card_rows_ef(tab_ef, t) for t in ['destino','corp','hotel']},
-            'cv': {t: _build_card_rows_cv(tab_cv, t) for t in ['destino','corp','hotel']},
+            'ef': ef_tabs,
+            'cv': cv_tabs,
             'ef_chan': _build_card_rows_chan(tab_ef, 'Eficacia', 'Eficacia_WoW_pp'),
             'cv_chan': _build_card_rows_chan(tab_cv, 'ConvRate', 'ConvRate_WoW_pp'),
         }
@@ -923,6 +933,51 @@ def _build_bk_card_tabs_json():
     return f'\n<script>\nvar BK_CARD_TABS={_json.dumps(tabs, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 
 
+def _build_cr_hotel_pool_json():
+    """Pool COMPLETO de hoteles CR (~3.582) para el cross-filter →hotel y searchbox en
+    las KPI cards CR (ef/cv). Unifica CR sobre el motor lazy de RND (W24): el pool vive
+    compacto en CR_HOTEL_POOL (NO se vuelca al DOM) y el JS arma el subconjunto cruzado
+    on-demand. Reemplaza las ~2.6K filas estáticas + el hotel de CR_CARD_TABS (~4MB).
+    Formato fila (11 campos):
+      [label, corp, dest, cru, cru_wow, ef_pct, ef_bidx, ef_wow, cv_pct, cv_bidx, cv_wow]
+    Banda como índice 0-5 → _CR_BAND_NAMES → _AR_BANDA_C (colores) en JS."""
+    _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
+             'Súper Crítica': 4, 'Sin Conversión': 5}
+
+    def _num(v, ndig=2):
+        try:
+            f = float(v)
+            if _math_glob.isnan(f) or _math_glob.isinf(f):
+                return None
+            return round(f, ndig)
+        except (TypeError, ValueError):
+            return None
+
+    pool = []
+    for _, r in TAB_EF['hotel'].iterrows():
+        lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
+        corp = str(r.get('CorpName', '') or '')
+        dest = str(r.get('Destino', '') or '')
+        cru = int(r.get('CR_Unicos', 0) or 0)
+        _cw = r.get('CR_Unicos_WoW_pp')
+        cru_wow = _num(float(_cw) / 100, 0) if _cw is not None and not pd.isna(_cw) else None
+        ef = r.get('Eficacia')
+        ef_pct = _num(ef * 100) if ef is not None else None
+        ef_band = _BIDX.get(r.get('BandaEficacia') or (banda_eficacia(ef) if ef is not None else 'Sin Conversión'), 5)
+        ef_wow = _num(r.get('Eficacia_WoW_pp'))
+        cv = r.get('ConvRate')
+        bk = int(r.get('Bookings', 0) or 0)
+        cv_pct = _num(cv * 100) if cv is not None else None
+        cv_band = _BIDX.get(r.get('BandaConvRate') or (banda_convrate(cv, bk) if cv is not None else 'Sin Conversión'), 5)
+        cv_wow = _num(r.get('ConvRate_WoW_pp'))
+        pool.append([lab, corp, dest, cru, cru_wow,
+                     ef_pct, ef_band, ef_wow, cv_pct, cv_band, cv_wow])
+    return ('\n<script>\nvar CR_HOTEL_POOL='
+            + _json.dumps(pool, ensure_ascii=False, default=lambda x: None)
+            + ';\nvar _CR_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\\u00edtica",'
+              '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
+
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN CR ═══════════════ -->\n'
     '<section id="section-cr" class="section-cr">\n'
@@ -952,6 +1007,7 @@ window.HIST_DATA = HIST_DATA;
 </script>
 '''
     + _build_cr_card_tabs_json()
+    + _build_cr_hotel_pool_json()
     + _build_bk_card_tabs_json()
 )
 

@@ -615,52 +615,90 @@ function _cfRestoreMoreBtn(container) {
    cross-filter se restaura el estático cacheado. Resuelve C/D. */
 var _rndHotelOrigHTML = {};   /* cache del innerHTML estático por card (nd/ipm) */
 
-function _rndPoolToCardRow(h, metric) {
-  /* h = [lab,corp,dest,pais,traf_str,traf_wow, nd_pct,nd_b,nd_wow, ipm_val,ipm_b,ipm_wow]
-     → array de 14 campos que entiende _cardRow */
-  var isNd = (metric === 'nd');
-  var val  = isNd ? h[6] : h[9];
-  var bidx = isNd ? h[7] : h[10];
-  var wow  = isNd ? h[8] : h[11];
-  var bname = (typeof _RND_BAND_NAMES !== 'undefined' && _RND_BAND_NAMES[bidx] != null)
-              ? _RND_BAND_NAMES[bidx] : 'Sin Conversión';
+/* ── Config del motor lazy de hoteles · genérico CR + RND (W24) ──────────────
+   Layout del pool por reporte (índices de campo) + métricas (val/banda/wow,
+   orden, grid). CR unifica sobre este motor — antes el pool de CR vivía en el
+   DOM (~4MB); ahora compacto en CR_HOTEL_POOL y on-demand igual que RND. */
+var _HOTEL_POOL_CFG = {
+  rnd: {
+    poolVar:'RND_HOTEL_POOL', bandNamesVar:'_RND_BAND_NAMES',
+    corpIdx:1, destIdx:2, paisIdx:3, trafIdx:4, trafWowIdx:5,
+    metrics:{
+      nd: {valIdx:6, bandIdx:7,  wowIdx:8,  sortDesc:true,  requireVal:false, grid:'minmax(0,1fr) 72px 52px 74px 46px'},
+      ipm:{valIdx:9, bandIdx:10, wowIdx:11, sortDesc:false, requireVal:true,  grid:'minmax(0,1fr) 72px 52px 74px 46px'}
+    }
+  },
+  cr: {
+    poolVar:'CR_HOTEL_POOL', bandNamesVar:'_CR_BAND_NAMES',
+    corpIdx:1, destIdx:2, paisIdx:-1, trafIdx:3, trafWowIdx:4,
+    metrics:{
+      ef:{valIdx:5, bandIdx:6, wowIdx:7,  sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 56px 54px 48px'},
+      cv:{valIdx:8, bandIdx:9, wowIdx:10, sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 56px 68px 40px'}
+    }
+  }
+};
+
+function _poolToCardRow(h, report, metric) {
+  /* pool row compacto → array de 14 campos que entiende _cardRow */
+  var cfg = _HOTEL_POOL_CFG[report], m = cfg.metrics[metric];
+  var val = h[m.valIdx], bidx = h[m.bandIdx], wow = h[m.wowIdx];
+  var bnames = (typeof window !== 'undefined') ? window[cfg.bandNamesVar] : null;
+  var bname = (bnames && bnames[bidx] != null) ? bnames[bidx] : 'Sin Conversión';
   var bc = (typeof _AR_BANDA_C !== 'undefined' && _AR_BANDA_C[bname])
            ? _AR_BANDA_C[bname] : {bg:'#F2EEE6', fg:'#5F5E5A'};
-  return [ h[0], h[1], bc.bg, bc.fg, bname,
-           h[4], h[5], val, wow, val, val,
-           h[1], h[2], h[3] ];
+  var corp = h[cfg.corpIdx], dest = h[cfg.destIdx];
+  var pais = (cfg.paisIdx >= 0) ? h[cfg.paisIdx] : '';
+  return [ h[0], corp, bc.bg, bc.fg, bname,
+           h[cfg.trafIdx], h[cfg.trafWowIdx], val, wow, val, val,
+           corp, dest, pais ];
 }
 
-function _rndLazyHotelRender(card, cf, container) {
-  if (typeof RND_HOTEL_POOL === 'undefined' || !container) return false;
-  var isNd = (card === 'nd');
+/* Wrapper RND (back-compat con el cableado B existente) */
+function _rndPoolToCardRow(h, metric) { return _poolToCardRow(h, 'rnd', metric); }
+
+function _lazyHotelRender(report, card, cf, container) {
+  var cfg = _HOTEL_POOL_CFG[report];
+  if (!cfg || !container) return false;
+  var pool = (typeof window !== 'undefined') ? window[cfg.poolVar] : null;
+  if (!pool || !pool.length) return false;
+  var m = cfg.metrics[card];
+  if (!m) return false;
   var _N = _kpiNormCF;
   var nCorp = cf.corp ? _N(cf.corp) : '';
   var nDest = cf.dest ? _N(cf.dest) : '';
-  var nPais = cf.pais ? _N(cf.pais) : '';
-  /* 1· filtrar el pool por el cross-filter */
+  var nPais = (cfg.paisIdx >= 0 && cf.pais) ? _N(cf.pais) : '';
+  var bands = cf.bands || null;                  /* filtro por banda (vista sin cross-filter, CR) */
+  var nHotel = cf.hotel ? _N(cf.hotel) : '';     /* hotel exacto (selección del searchbox) */
+  var bnames = (typeof window !== 'undefined') ? window[cfg.bandNamesVar] : null;
+  /* 1· filtrar el pool */
   var matched = [];
-  for (var i = 0; i < RND_HOTEL_POOL.length; i++) {
-    var h = RND_HOTEL_POOL[i];
-    if (!isNd && h[9] == null) continue;                 /* IPM: solo hoteles con IPM */
-    if (nCorp && _N(h[1]).indexOf(nCorp) < 0) continue;
-    if (nDest && _N(h[2]).indexOf(nDest) < 0) continue;
-    if (nPais && _N(h[3]).indexOf(nPais) < 0) continue;
+  for (var i = 0; i < pool.length; i++) {
+    var h = pool[i];
+    if (m.requireVal && h[m.valIdx] == null) continue;
+    if (nHotel) { if (_N(h[0]) !== nHotel) continue; }
+    if (bands) {
+      var _bn = (bnames && bnames[h[m.bandIdx]] != null) ? bnames[h[m.bandIdx]] : 'Sin Conversión';
+      if (bands.indexOf(_bn) < 0) continue;
+    }
+    if (nCorp && _N(h[cfg.corpIdx]).indexOf(nCorp) < 0) continue;
+    if (nDest && _N(h[cfg.destIdx]).indexOf(nDest) < 0) continue;
+    if (nPais && _N(h[cfg.paisIdx]).indexOf(nPais) < 0) continue;
     matched.push(h);
   }
-  /* 2· ordenar peor primero (nd: %NoDispo desc · ipm: IPM asc) */
-  matched.sort(isNd
-    ? function(a,b){ return (b[6]||0) - (a[6]||0); }
-    : function(a,b){ return (a[9]||0) - (b[9]||0); });
-  /* 3· cachear el estático una vez para poder restaurar al limpiar el filtro */
+  /* 2· ordenar peor primero (sortDesc por métrica en config) */
+  var vi = m.valIdx;
+  matched.sort(m.sortDesc
+    ? function(a,b){ return (b[vi]||0) - (a[vi]||0); }
+    : function(a,b){ return (a[vi]||0) - (b[vi]||0); });
+  /* 3· cachear el estático una vez para restaurar al limpiar el filtro */
   if (_rndHotelOrigHTML[card] == null) _rndHotelOrigHTML[card] = container.innerHTML;
-  /* 4· construir filas: 5 visibles + 5 cf-extra (cap 10) + resto sb-hidden (buscable, tope 300) */
-  var grid = 'minmax(0,1fr) 72px 52px 74px 46px';
+  /* 4· filas: 5 visibles + 5 cf-extra (cap 10) + resto sb-hidden (buscable, tope 300) */
+  var grid = m.grid;
   var SEARCH_CAP = 300;
   var lim = Math.min(matched.length, SEARCH_CAP);
   var html = '';
   for (var k = 0; k < lim; k++) {
-    var arr = _rndPoolToCardRow(matched[k], card);
+    var arr = _poolToCardRow(matched[k], report, card);
     var disp, cls;
     if (k < _KPI_TOP_N) { disp = 'grid'; cls = ''; }
     else if (k < _KPI_TOP_N + 5) { disp = 'none'; cls = 'cf-extra'; }
@@ -678,6 +716,9 @@ function _rndLazyHotelRender(card, cf, container) {
   _cfSetupMoreBtn(container, nExtra);
   return true;
 }
+
+/* Wrapper RND (back-compat con el cableado B existente) */
+function _rndLazyHotelRender(card, cf, container) { return _lazyHotelRender('rnd', card, cf, container); }
 
 function _rndHotelRestore(card, container) {
   if (_rndHotelOrigHTML[card] != null && container) {
@@ -822,6 +863,18 @@ function _kpiPillRender(card) {
     var _isRnd = (card === 'nd' || card === 'ipm');
     if (_isRnd && _hasCf) { _rndLazyHotelRender(card, cf, _hotelCont); return; }
     if (_isRnd && _rndHotelOrigHTML[card] != null) { _rndHotelRestore(card, _hotelCont); return; }
+    /* CR (W24): ef/cv unifican sobre el MISMO motor lazy que RND. Con cross-filter →
+       subconjunto cruzado del pool (ignora banda); sin cross-filter → vista por banda
+       (crit/br/sc) desde el pool. Reemplaza el manejo de filas en-DOM (P15, ~4MB). */
+    var _isCR = (card === 'ef' || card === 'cv');
+    /* Solo la canasta GLOBAL usa el pool lazy (3582 hoteles). Las per-canasta (b2c/op/cug)
+       siguen por el camino DOM con sus ~100 filas de CR_CARD_TABS[canasta]. */
+    var _canG = (typeof W === 'undefined') || !W.canasta || W.canasta === 'global';
+    if (_isCR && _canG) {
+      if (_hasCf) { _lazyHotelRender('cr', card, cf, _hotelCont); }
+      else { _lazyHotelRender('cr', card, {bands: activeBands}, _hotelCont); }
+      return;
+    }
     if (!_hasCf) {
       /* Sin cross-filter → comportamiento original (filtro de banda CR o paginación normal) */
       _cfRestoreMoreBtn(_hotelCont);
@@ -1811,14 +1864,35 @@ AR_SB_PATCH_JS = '''
     if (clearBtn) clearBtn.style.display = q ? 'inline-block' : 'none';
   }
   function _kpiSbDD(card) { return document.getElementById('sb-kpi-' + card + '-dd'); }
+  /* W24: el searchbox en vista hotel sugiere desde el pool completo (CR/RND), no solo el DOM */
+  function _kpiSbPoolFor(card) {
+    /* solo canasta global usa el pool (per-canasta van por DOM con CR_CARD_TABS[canasta]) */
+    var _canG = (typeof W === 'undefined') || !W.canasta || W.canasta === 'global';
+    if (!_canG) return null;
+    if (card === 'ef' || card === 'cv') return 'cr';
+    if (card === 'nd' || card === 'ipm') return 'rnd';
+    return null;
+  }
   function _kpiSbBuildDD(card, input) {
     var qn = norm(input.value);
     var dd = _kpiSbDD(card);
     if (!dd) { dd = document.createElement('div'); dd.id = 'sb-kpi-' + card + '-dd'; dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;"; document.body.appendChild(dd); }
     if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
-    var seen = {}, labels = [];
-    _kpiSbRows(card).forEach(function(r) { var l = r.getAttribute('data-hist-label'); if (l && !seen[l]) { seen[l] = true; labels.push(l); } });
-    var matches = labels.filter(function(l) { return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
+    var view = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
+    var _pc = (view === 'hotel') ? _kpiSbPoolFor(card) : null;
+    var matches = [];
+    if (_pc && typeof _HOTEL_POOL_CFG !== 'undefined' && window[_HOTEL_POOL_CFG[_pc].poolVar]) {
+      /* vista hotel → sugerir desde el pool completo (alcanza CUALQUIER hotel, no solo el DOM) */
+      var pool = window[_HOTEL_POOL_CFG[_pc].poolVar], seen = {};
+      for (var i = 0; i < pool.length && matches.length < 8; i++) {
+        var l = pool[i][0];
+        if (l && !seen[l] && norm(l).indexOf(qn) >= 0) { seen[l] = true; matches.push(l); }
+      }
+    } else {
+      var seen2 = {}, labels = [];
+      _kpiSbRows(card).forEach(function(r) { var l = r.getAttribute('data-hist-label'); if (l && !seen2[l]) { seen2[l] = true; labels.push(l); } });
+      matches = labels.filter(function(l) { return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
+    }
     if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
     dd.innerHTML = matches.map(function(l) { return '<div class="sb-suggestion" data-kpi-card="' + card + '" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + l + '</div>'; }).join('');
     var rect = input.getBoundingClientRect(); dd.style.left = rect.left + 'px'; dd.style.top = (rect.bottom + 4) + 'px'; dd.style.width = Math.max(rect.width + 60, 200) + 'px'; dd.style.display = 'block';
@@ -1828,28 +1902,41 @@ AR_SB_PATCH_JS = '''
     if (input) input.value = '';
     var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
     var p = _kpiSbPanel(card); if (!p) return;
+    var view = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
+    var _pc = (view === 'hotel') ? _kpiSbPoolFor(card) : null;
     var target = null;
-    p.querySelectorAll('[data-hist-label]').forEach(function(r) { if (!target && r.getAttribute('data-hist-label') === label) target = r; });
+    function _find() { target = null; p.querySelectorAll('[data-hist-label]').forEach(function(r) { if (!target && r.getAttribute('data-hist-label') === label) target = r; }); }
+    _find();
+    /* vista hotel + pool: si el hotel no está en el DOM (lazy), renderizarlo desde el pool */
+    if (!target && _pc) {
+      var cont = p.querySelector('.kpi-tab-rows') || p;
+      _lazyHotelRender(_pc, card, { hotel: label }, cont);
+      _find();
+    }
     if (!target) return;
     /* disparar el click real de la fila (cross-filter en otras vistas + pill + highlight + gráfica) */
     target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     /* Filtrar el panel activo a SOLO la fila elegida. Evita la "lista enorme" y la deja
-       SIEMPRE visible sin pelear con la paginación (que es lo que re-colapsaba la fila 6-10).
-       _showOnly se re-aplica tras el re-render del click; el observer (_kpiSbRepin) la mantiene. */
+       SIEMPRE visible sin pelear con la paginación. _showOnly se re-aplica tras el re-render
+       del click; el observer (_kpiSbRepin) la mantiene. */
     _kpiSbPinned[card] = label;
     function _showOnly() {
       var p2 = _kpiSbPanel(card); if (!p2) return;
+      /* si el hotel no quedó tras el re-render del click, re-renderizarlo desde el pool */
+      var has = false;
+      p2.querySelectorAll('[data-hist-label]').forEach(function(r) { if (r.getAttribute('data-hist-label') === label) has = true; });
+      if (!has && _pc) { var c2 = p2.querySelector('.kpi-tab-rows') || p2; _lazyHotelRender(_pc, card, { hotel: label }, c2); }
       p2.querySelectorAll('[data-hist-label]').forEach(function(r) {
         if (r.getAttribute('data-hist-label') === label) {
           r.classList.add('sb-search-hit');
           r.style.setProperty('display', 'grid', 'important');
+          if (r.scrollIntoView) try { r.scrollIntoView({ block: 'nearest' }); } catch (e) {}
         } else {
           r.classList.remove('sb-search-hit');
           r.style.setProperty('display', 'none', 'important');
         }
       });
       var cb = document.getElementById('sb-kpi-' + card + '-clear'); if (cb) cb.style.display = 'inline-block';
-      if (target.scrollIntoView) try { target.scrollIntoView({ block: 'nearest' }); } catch (e) {}
     }
     _showOnly();
     setTimeout(_showOnly, 80);
