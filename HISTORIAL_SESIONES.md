@@ -5,6 +5,26 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-B-sbdedup · 21 Jun 2026 · Dedup de los pools _sb del searchbox (−0,84MB)
+
+### Contexto
+Opción B del lazy AR CR (portar arrays hotel de `CR_D` al pool). Al medir `CR_D` por canasta se vio que el bloat real **no** eran los band arrays sino los `_sb` (pools del searchbox): `hotels_crit_sb` (180) / `hotels_br_sb` (645) / `hotels_sc_sb` (968) aparecían con **el mismo conteo y md5 en las 4 canastas** → duplicados 4× (~277KB × 4, ~840KB redundantes). Causa: se construyen de `g_hotel` (pool global, L281-286 de render_cr_p2), no de la canasta → globales por diseño.
+
+### Cambios
+- `render_cr_p2.py`: tras `CR_D = build_cr_d()`, borra los `_SB_KEYS` (`hotels_crit_sb`/`br_sb`/`sc_sb`/`dnc_sb`) de `CR_D['b2c'/'op'/'cug']`; quedan solo en `['global']`.
+- `js_override.js` `_arRows`: `var _sbData = (isCR && CR_D.global) ? CR_D.global : dd;` y los dos reads (`sbRows` card1 L1120, `sbRows2` card2 L1151) usan `_sbData[sbKey] || dd[sbKey]`. RND sin tocar (lee su propio `_sb` de `RND_D[canasta]`).
+
+### Validación
+jsdom t9: 0 errores · `_sb` solo en global (180/645/968), AUSENTE en b2c/op/cug · `_arRows` global idéntico (crit=180/br=645/sc=968) · per-canasta lee `_sb` de global (b2c crit=180, 175 extras "Los Aluxes Hotel") · RND nd crit=1000 intacto. HTML 17,87→16,99MB. + visual Fede.
+
+### Decisión — resto de B NO se hace
+Los band arrays globales (~318KB) serían lo único más portable al pool (per-canasta 538KB se queda en DOM igual que las KPI cards). 318KB a cambio de tocar el formato de fila de las AR cards validadas = mala relación riesgo/beneficio. Se cierra B con la dedup. RND `_sb` probablemente tiene el mismo patrón 4× → follow-up de bajo riesgo cuando se ataque `RND_D` (5,6MB).
+
+### Meta — cómo evitar acumular esto (planteado por Fede)
+Propuesto `check_html.py` post-assemble: reporte de composición (peso de cada var top-level), detector de blobs byte-idénticos (md5), presupuesto de tamaño con delta vs build previo, y chequeo de huérfanos (IDs/`onclick` que el JS espera pero no están en el DOM). Más barrido único para inventariar lo existente. **Pendiente de construir** (Fede iba a decidir; quedó en standby tras "avanza con el commit").
+
+---
+
 ## Sesión W24-A-dedup · 21 Jun 2026 · Elimina duplicación CR_HOTELS (−0,87MB) + tabla histórica W24
 
 ### Contexto

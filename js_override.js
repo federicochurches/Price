@@ -1109,6 +1109,9 @@ var _arDim   = {1:'corp',  2:'corp'};
 function _arRows(n, tab) {
   var dd = data();
   var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
+  /* _sb dedup (W24-B): los pools del searchbox son globales; en CR viven solo en
+     CR_D.global. Para cualquier canasta CR se leen de ahí. RND sin cambios. */
+  var _sbData = (isCR && typeof CR_D !== 'undefined' && CR_D.global) ? CR_D.global : dd;
   if (n === 1) {
     /* Card 1: Eficacia (CR) / NoDispo (RND) — usa hotels_crit/br/sc/cv */
     var rows = tab === 'br' ? (dd.hotels_br || dd.hotels) :
@@ -1117,7 +1120,7 @@ function _arRows(n, tab) {
                (dd.hotels_crit || dd.hotels);
     /* Ampliar con pool extendido (_sb) para el searchbox — hoteles fuera del P80 */
     var sbKey = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
-    var sbRows = dd[sbKey];
+    var sbRows = _sbData[sbKey] || dd[sbKey];
     if (sbRows && sbRows.length > rows.length) {
       /* Índices de nombres ya presentes en el pool P80 */
       var p80Names = {};
@@ -1148,7 +1151,7 @@ function _arRows(n, tab) {
     }
     /* Ampliar card 2 con pool _sb */
     var sbKey2 = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
-    var sbRows2 = dd[sbKey2];
+    var sbRows2 = _sbData[sbKey2] || dd[sbKey2];
     if (sbRows2 && sbRows2.length > (rows2 || []).length) {
       var p80Names2 = {};
       (rows2 || []).forEach(function(r){ p80Names2[r[0]] = true; });

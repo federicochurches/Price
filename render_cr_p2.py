@@ -800,6 +800,16 @@ CR_CV = build_cr_cv()
 print('Calculando CR_D...')
 CR_D  = build_cr_d()
 
+# ── Dedup _sb (W24-B): los pools del searchbox (_sb) son GLOBALES — se construyen
+# de g_hotel (no de la canasta), idénticos en las 4 canastas (verificado por md5).
+# Se emiten solo en CR_D['global']; el JS (_arRows) los lee de CR_D.global para
+# cualquier canasta. Elimina 3 copias redundantes (~840KB de HTML).
+_SB_KEYS = ('hotels_crit_sb', 'hotels_br_sb', 'hotels_sc_sb', 'hotels_dnc_sb')
+for _can in ('b2c', 'op', 'cug'):
+    if isinstance(CR_D.get(_can), dict):
+        for _k in _SB_KEYS:
+            CR_D[_can].pop(_k, None)
+
 print('Calculando CR_AL...')
 CR_AL = build_cr_al()
 
