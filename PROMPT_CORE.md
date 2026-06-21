@@ -508,6 +508,21 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
+## 📋 Pendientes próxima sesión (anotados 21-06-2026, post W24-rnd-percanasta)
+
+Nada urgente — bugs de lógica todos cerrados. Por valor/orden sugerido:
+
+1. **Enriquecer WoW per-canasta de RND** (`calc_rnd.py`) — los `agg_pais`/`agg_dest`/`agg_corp`/`agg_hotel` per-canasta no traen `Trafico_WoW_pct` (ni `agg_hotel` el `%NoDispo_W18`) → en las KPI cards RND per-canasta el badge de WoW de tráfico (r[6]) y el mini-hist (r[10]) salen vacíos. Agregar esas cols al merge per-canasta = paridad total de WoW. *(Quick.)*
+2. **Dups intra-canasta de `RND_D`** (~700KB) — `check_html` reporta `hotels==hotels_dnc` y `hotels_sc==hotels_ipm_sc` byte-idénticos en cada canasta (la vista IPM quedó igual a la de NoDispo). Más delicado: distintas keys, distintos consumidores en `_arRows`. Investigar si son alias referenciables o data legítimamente repetida.
+3. **Cleanup #4 — código muerto** (panel `w22-*` completo + handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.). Ahora **trazable**: `check_html` lista 32 IDs huérfanos. Hacerlo junto al refactor AR cards (#1); tras limpiar, esos IDs deben desaparecer del reporte de huérfanos.
+4. **Reconciliar `PROMPT_INV.md` / `calc_inv.py`** (proyecto vs repo) — independiente de Supply (Inventory).
+5. **Fallo silencioso `Mail_W24.html` / `index.html`** — no se generan; revisar antes de publicar la semana (el `SUPPLY_WNN.html` y los Excels sí salen).
+6. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB (¿optimizable?).
+
+**Cómo retomar:** correr el pipeline → leer el reporte de `check_html` del final (composición · duplicados · huérfanos · Δtamaño vs baseline) → atacar lo de arriba.
+
+---
+
 ## 🐛 Bugs pendientes
 
 > **P1–P14 cerrados · B68–B69 cerrados W24 — no quedan bugs de lógica abiertos.**
