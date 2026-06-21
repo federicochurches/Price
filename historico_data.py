@@ -59,8 +59,9 @@ HIST_DATA = {
 
     'bk': {
         'bookability': {
-            # Bookability global ponderada (%) W17-W23 — W24 se agrega dinámicamente
-            'global': [98.22, 98.26, 98.17, 98.25, 98.40, 98.43, 98.43],
+            # Bookability global ponderada (%) W17-W23 — W24 se agrega dinámicamente.
+            # Alineada al dato real por semana (hist_by_week del pickle): W17=98.44 ... W23=98.43.
+            'global': [98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43],
         },
     },
 

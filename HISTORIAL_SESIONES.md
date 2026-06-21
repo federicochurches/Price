@@ -5,6 +5,29 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-hist-semanas · 21 Jun 2026 · Histórico W17-W24 dinámico + serie BK alineada al dato real
+
+### Contexto
+Pendiente #2 ("`_SEMANAS_HIST` stale W16-W23→W17-W24"). Resultó multi-punto: `_SEMANAS_HIST` (js_override.js L7, hardcodeado W16-W23) PISA los labels de TODOS los tooltips de canvas históricos por diseño ("SIEMPRE usar `_SEMANAS_HIST`"), aunque los datos ya eran W17-W24. Además se detectó que la serie BK de `historico_data.py` estaba **corrida una semana** vs `hist_by_week` del pickle (dato real): `historico_data W17=98.22` = `hist_by_week W18`; faltaba el W17 real (98.44). Las series CR ef/cv y RND nd/ipm SÍ estaban bien.
+
+### Decisión
+La última semana debe ser **W24** (8-14 jun) en TODAS las series; W25 (15-21 jun) aún no corrió. → ventana **W17-W24**, fuente BK autoritativa = `hist_by_week` (dato real, W24=98.67). Semanas dinámicas (ventana móvil): el año que viene W25 se auto-ajusta a W18-W25 sin tocar código.
+
+### Cambios aplicados
+**assemble_unified.py:** import `SEMANAS as _HSEM` de historico_data. Cómputo dinámico: `_SEM_JS`, `_SEM_BASE`, `_AR3_BK=[round(DB['hist_by_week'][w]['bk']*100,2) for w in _HSEM …]`. En FOOTER_JS (al embeber js_override): `.replace('var _SEMANAS_HIST = ["W16"…];', 'var _SEMANAS_HIST = {_SEM_JS};')`. Antes de GLOBAL_PANEL_SCRIPT: `AR3_CANVAS_JS` (histórico BK duplicado, era stale W16-W23 + VALS_DEF hardcodeado) → `SEMANAS` y `VALS_DEF` inyectados dinámicos desde `hist_by_week`.
+
+**historico_data.py:** BK global `[98.22,98.26,98.17,98.25,98.40,98.43,98.43]` → `[98.44,98.22,98.26,98.17,98.25,98.40,98.43]` (W17-W23 real de `hist_by_week`; W24 dinámico).
+
+**render_cr_p1.py (OUTPUT):** la card BK `h-bk-global` (L773, `_rh('bk',…)`) importa `historico_data` → regenerar part1_cr tomó el BK corregido. (SOURCE de render_cr_p1.py sin cambios en esta sesión.)
+
+### Validación
+jsdom (t7.js): los 10 canvas en `_HIST_CANON` con sem=W17-W24. BK consistente: `h-bk-global` y `h-ar3-bk-global` ambos `vals[0]=98.44 vals[-1]=98.67`. `_SEMANAS_HIST`=W17-W24. CR/RND sin cambios (t4: lazy 281/867, cross-filter OK, per-canasta 100, RND nd 46). Tamaño 17,91MB. + visual Fede "Todo correcto".
+
+### Pendiente
+**#4** (cleanup A2b handlers dim muertos de AR) diferido al refactor AR cards **#1**: aunque NO hay pills dim en el DOM, el código dim está entrelazado con funciones vivas (`_arRenderTable` corre en init y elige hotel/dim por `_arView[n]`; ramas dim condicionalmente muertas; `_arDimRows`/`_arRenderChan`/`_arCrossFilter` llamados desde esas ramas + L2317/L2347/L2399; `_arDim='corp'` inicial). La data dim YA está vacía (−952KB ya capturado) → es solo limpieza de código sin beneficio de tamaño/función, con riesgo de romper las cards AR validadas. El #1 reescribe ese código → lugar natural y seguro.
+
+---
+
 ## Sesión W24-cr-lazy-unify · 21 Jun 2026 · CR sobre el motor lazy de RND (−4MB)
 
 ### Contexto

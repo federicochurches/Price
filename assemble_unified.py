@@ -133,8 +133,20 @@ _rnd_data_js = _extract_last_script(p2_rnd)
 
 # ── Pre-definir HIST_CR y HIST_RND con datos históricos ──────────────────────
 # Se inyectan ANTES de demo_js_main.js para que w22_redrawCanvas los encuentre
-from historico_data import HIST_DATA as _HD
+from historico_data import HIST_DATA as _HD, SEMANAS as _HSEM
 import json as _json
+
+# ── Semanas históricas dinámicas (ventana móvil, última = semana actual) ──
+# Fuente única de verdad: historico_data.SEMANAS (p.ej. W17-W24). Reemplaza los
+# hardcodeos W16-W23 de _SEMANAS_HIST / AR3 / fallbacks (se auto-ajusta cada semana).
+_SEM_JS = _json.dumps(list(_HSEM))
+_SEM_BASE = int(str(_HSEM[0])[1:]) if _HSEM else 17
+# Serie BK real por semana (W17-W24) desde el pickle — fuente autoritativa, última = W24
+try:
+    _AR3_BK = [round(DB['hist_by_week'][w]['bk'] * 100, 2) for w in _HSEM if DB and w in DB.get('hist_by_week', {})]
+except Exception:
+    _AR3_BK = []
+_AR3_BK_JS = _json.dumps(_AR3_BK) if _AR3_BK else None
 
 def _hist_vals(mode, metric, canasta, actual_val=None):
     """Retorna array de 7 valores [W16,W17,W18,W19,W20,W21,W22] para canvas."""
@@ -237,7 +249,9 @@ FOOTER_JS = (
     + _rnd_data_js + '\n'
     + _HIST_INIT_JS + '\n'      # ← HIST_CR y HIST_RND definidos ANTES de demo_js_main.js
     + open('demo_js_main.js', encoding='utf-8').read() + '\n'
-    + open('js_override.js', encoding='utf-8').read()
+    + open('js_override.js', encoding='utf-8').read().replace(
+        'var _SEMANAS_HIST = ["W16","W17","W18","W19","W20","W21","W22","W23"];',
+        f'var _SEMANAS_HIST = {_SEM_JS};')
     + '\n</script>'
 )
 
@@ -2075,6 +2089,13 @@ CHAN_SORT_EFCV_JS = '''
   })();
 })();
 '''
+
+# AR3 histórico BK: inyectar semanas dinámicas + serie BK real (W17-W24, última = W24)
+# Reemplaza el hardcodeo W16-W23 (labels stale) y la serie BK vieja por el dato real del pickle.
+if _AR3_BK_JS:
+    AR3_CANVAS_JS = AR3_CANVAS_JS.replace(
+        'var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43]',
+        f'var SEMANAS = {_SEM_JS}, VALS_DEF = {_AR3_BK_JS}')
 
 GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_TRX_WOW_JS + '</script>\n<script>' + BK_SORT_JS + '</script>\n<script>' + CHAN_SORT_EFCV_JS + '</script>\n'
 
