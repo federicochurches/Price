@@ -425,3 +425,11 @@ out = Path(OUT_FILE)
 out.write_text(mail_html, encoding='utf-8')
 print(f'Mail {WEEK} v4.0: {out}')
 print(f'Tamaño: {len(mail_html):,} chars')
+
+# Copia en _email/week-NN/ para que build_package.py lo incluya en el ZIP
+_script_dir = Path(__file__).parent
+_email_dir  = _script_dir / '_email' / f'week-{WEEK_NUM}'
+_email_dir.mkdir(parents=True, exist_ok=True)
+_email_dst  = _email_dir / f'Mail_{WEEK}.html'
+_email_dst.write_text(mail_html, encoding='utf-8')
+print(f'  \u2192 copia en _email/week-{WEEK_NUM}/ \u2713')

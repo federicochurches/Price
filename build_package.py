@@ -472,7 +472,11 @@ files = {
         ZIP_ROOT / 'index.html',
 
     # ── _email ──────────────────────────────────────────────────────────────
-    SCRIPT_DIR / '_email' / WEEK_STR / f'Mail_W{WEEK}.html':
+    # render_mail_v3.py escribe a _email/week-NN/ directamente (W25+);
+    # fallback: raíz del repo (corridas anteriores donde OUT_FILE era la raíz)
+    (SCRIPT_DIR / '_email' / WEEK_STR / f'Mail_W{WEEK}.html'
+     if (SCRIPT_DIR / '_email' / WEEK_STR / f'Mail_W{WEEK}.html').exists()
+     else OUTPUTS / f'Mail_W{WEEK}.html'):
         ZIP_ROOT / '_email' / WEEK_STR / f'Mail_W{WEEK}.html',
 
     # ── _seguimiento ────────────────────────────────────────────────────────
