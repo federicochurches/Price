@@ -18,12 +18,12 @@ METRIC_CONFIGS = {
 }
 
 _BANDA_COLORS = {
-    'Exitosa': {'bg': '#E1F5EE', 'fg': '#1A6B4A', 'bd': '#1D9E75', 'footer': '#1A6B4A'},
-    'Aceptable': {'bg': '#FEF9C3', 'fg': '#713F12', 'bd': '#FCD34D', 'footer': '#713F12'},
-    'Revisar': {'bg': '#FED7AA', 'fg': '#C2410C', 'bd': '#F97316', 'footer': '#C2410C'},
-    'Crítica': {'bg': '#FCE4F1', 'fg': '#99162B', 'bd': '#C0392B', 'footer': '#99162B'},
-    'Súper Crítica': {'bg': '#EDECEC', 'fg': '#4A3F3F', 'bd': '#9B2222', 'footer': '#4A3F3F'},
-    'Sin Conversión': {'bg': '#F2EEE6', 'fg': '#5F5E5A', 'bd': '#8A8377', 'footer': '#5F5E5A'},
+    'Exitosa': {'bg': '#1A6B4A', 'fg': '#FFFFFF', 'bd': '#1A6B4A', 'footer': '#FFFFFF'},
+    'Aceptable': {'bg': '#FBBF24', 'fg': '#FFFFFF', 'bd': '#FBBF24', 'footer': '#FFFFFF'},
+    'Revisar': {'bg': '#F97316', 'fg': '#FFFFFF', 'bd': '#F97316', 'footer': '#FFFFFF'},
+    'Crítica': {'bg': '#C0392B', 'fg': '#FFFFFF', 'bd': '#C0392B', 'footer': '#FFFFFF'},
+    'Súper Crítica': {'bg': '#2D2828', 'fg': '#FFFFFF', 'bd': '#2D2828', 'footer': '#FFFFFF'},
+    'Sin Conversión': {'bg': '#8A8377', 'fg': '#FFFFFF', 'bd': '#8A8377', 'footer': '#FFFFFF'},
 }
 _BANDA_COLORS_JS = {k: {'bg': v['bg'], 'fg': v['fg'], 'footer': v['footer']} for k, v in _BANDA_COLORS.items()}
 

@@ -1396,7 +1396,7 @@ var BK_DATA = {{
   hotel: {_json2.dumps(_bk_hotel_rows, ensure_ascii=False)},
   banda_colors: {{
     'exitosa':   ['#1A6B4A','#FFFFFF'],
-    'aceptable': ['#FBBF24','#5C3A00'],
+    'aceptable': ['#FBBF24','#FFFFFF'],
     'revisar':   ['#F97316','#FFFFFF'],
     'critica':   ['#C0392B','#FFFFFF'],
     'sc':        ['#2D2828','#FFFFFF'],
@@ -1485,7 +1485,7 @@ window.bkSort = function(el) {
 AR3_CANVAS_JS = '''
 (function(){
   var CID = 'h-ar3-bk-global', IS_INVERTED = false, METRIC = 'bookability', TARGET = 97.0, BAR_CEIL = 100.0, SCALE_FLOOR = 93.0;
-  var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43], BC = {"Exitosa": {"bg": "#E1F5EE", "fg": "#1A6B4A", "footer": "#1A6B4A"}, "Aceptable": {"bg": "#FEF9C3", "fg": "#713F12", "footer": "#713F12"}, "Revisar": {"bg": "#FED7AA", "fg": "#C2410C", "footer": "#C2410C"}, "Cr\u00edtica": {"bg": "#FCE4F1", "fg": "#99162B", "footer": "#99162B"}, "S\u00faper Cr\u00edtica": {"bg": "#EDECEC", "fg": "#4A3F3F", "footer": "#4A3F3F"}, "Sin Conversi\u00f3n": {"bg": "#F2EEE6", "fg": "#5F5E5A", "footer": "#5F5E5A"}};
+  var SEMANAS = ["W16", "W17", "W18", "W19", "W20", "W21", "W22", "W23"], VALS_DEF = [98.28, 98.44, 98.22, 98.26, 98.17, 98.25, 98.40, 98.43], BC = {"Exitosa": {"bg": "#1A6B4A", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Aceptable": {"bg": "#FBBF24", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Revisar": {"bg": "#F97316", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Cr\u00edtica": {"bg": "#C0392B", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "S\u00faper Cr\u00edtica": {"bg": "#2D2828", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Sin Conversi\u00f3n": {"bg": "#8A8377", "fg": "#FFFFFF", "footer": "#FFFFFF"}};
   /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
      El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
   if (typeof window !== 'undefined') {

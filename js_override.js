@@ -1606,7 +1606,7 @@ var _AR_MODE_CFG = {
 /* Paleta de bandas compartida */
 var _AR_BANDA_C = {
   'Exitosa':       {bg:'#1A6B4A', fg:'#FFFFFF'},
-  'Aceptable':     {bg:'#FBBF24', fg:'#5C3A00'},
+  'Aceptable':     {bg:'#FBBF24', fg:'#FFFFFF'},
   'Revisar':       {bg:'#F97316', fg:'#FFFFFF'},
   'Crítica':       {bg:'#C0392B', fg:'#FFFFFF'},
   'Súper Crítica': {bg:'#2D2828', fg:'#FFFFFF'},
@@ -1778,7 +1778,7 @@ function ar_updateKPIs() {
     var p = val / 100;
     if (metric === 'ef' || metric === 'bk') {
       if (p >= 0.97) return {lbl:'Exitosa',     bg:'#1A6B4A',fg:'#FFFFFF'};
-      if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FBBF24',fg:'#5C3A00'};
+      if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FBBF24',fg:'#FFFFFF'};
       if (p >= 0.85) return {lbl:'Revisar',     bg:'#F97316',fg:'#FFFFFF'};
       if (p >= 0.60) return {lbl:'Crítica',     bg:'#C0392B',fg:'#FFFFFF'};
       return               {lbl:'Súper Crítica',bg:'#2D2828',fg:'#FFFFFF'};
@@ -1787,7 +1787,7 @@ function ar_updateKPIs() {
       if (p <= 0)     return {lbl:'Sin Conv.',  bg:'#8A8377',fg:'#FFFFFF'};
       if (p < 0.008)  return {lbl:'Crítica',    bg:'#C0392B',fg:'#FFFFFF'};
       if (p < 0.015)  return {lbl:'Revisar',    bg:'#F97316',fg:'#FFFFFF'};
-      if (p <= 0.025) return {lbl:'Aceptable',  bg:'#FBBF24',fg:'#5C3A00'};
+      if (p <= 0.025) return {lbl:'Aceptable',  bg:'#FBBF24',fg:'#FFFFFF'};
       return               {lbl:'Exitosa',    bg:'#1A6B4A',fg:'#FFFFFF'};
     }
     return {lbl:'—',bg:'#8A8377',fg:'#FFFFFF'};
@@ -2709,7 +2709,7 @@ function ar3_bandColors(banda) {
   var k = (banda||'').toLowerCase().replace(/[áàä]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i').replace(/[ó]/g,'o').replace(/[ú]/g,'u').replace(/\s+/g,'').replace('crítica','critica').replace('superc','sc').replace('súperc','sc').replace('sincon','sinconv').replace('sinconv.','sinconv');
   var map = {
     exitosa:   ['#1A6B4A','#FFFFFF'],
-    aceptable: ['#FBBF24','#5C3A00'],
+    aceptable: ['#FBBF24','#FFFFFF'],
     revisar:   ['#F97316','#FFFFFF'],
     critica:   ['#C0392B','#FFFFFF'],
     sc:        ['#2D2828','#FFFFFF'],
@@ -3057,7 +3057,7 @@ function ar3_showMore() {
     var banda = _getBandaForMetric(val, metric);
     var colors = {
       'Exitosa': {bg:'#1A6B4A', fg:'#FFFFFF'},
-      'Aceptable': {bg:'#FBBF24', fg:'#5C3A00'},
+      'Aceptable': {bg:'#FBBF24', fg:'#FFFFFF'},
       'Revisar': {bg:'#F97316', fg:'#FFFFFF'},
       'Crítica': {bg:'#C0392B', fg:'#FFFFFF'},
       'Súper Crítica': {bg:'#FFCCCC', fg:'#D32F2F'},

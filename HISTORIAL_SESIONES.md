@@ -5,6 +5,28 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-histbadges · 22 Jun 2026 · Propagación Opción B a histórico + severity + AR · Aceptable blanco · git troubleshooting
+
+**Contexto:** Fede señaló (con screenshot) que los badges del panel **Evolución Histórica** seguían pálidos pese al fix de Opción B del W24-layout. Al investigar aparecieron **3 superficies** que no se habían cubierto, cada una con su propio mapa/part.
+
+**Diagnóstico — por qué quedaron pálidas:**
+- **Panel histórico:** `historico_module.py` `_BANDA_COLORS` YA estaba en Opción B en la fuente (working tree), pero **nunca se commiteó ni se regeneró el HTML con él** — el commit W24-layout (`9d2c043`) no incluyó `historico_module.py` y horneó part1 con el módulo viejo. Mismo patrón "fix en fuente, no propagado al artefacto" que ya nos mordió antes.
+- **Tablas de severity** (`render_severity` en p2 vía `banda_colors()`) y **cards AR** (`sev_badge_html_p2`): part2 se generó **antes** de migrar `BANDA_COLORS` y nunca se regeneró → colores viejos horneados.
+- **`BC` de `AR3_CANVAS_JS`** (assemble) seguía con la paleta pálida + semanas stale W16-W23.
+
+**Cambios:**
+1. Migrado `BC` de `AR3_CANVAS_JS` a Opción B (assemble). (Las semanas W16-W23 stale quedaron como pendiente aparte — no se tocaron.)
+2. **Aceptable fg `#5C3A00` → `#FFFFFF`** (blanco) en los **8 mapas** (los 6 previos + `historico_module._BANDA_COLORS` + `BC` de AR3). Fede lo pidió "blanco como las otras". **Caveat documentado:** blanco sobre el ámbar `#FBBF24` tiene contraste bajo (se lee flojo); se dejó así por pedido explícito, con la opción de oscurecer el bg a ~`#D97706` si molesta.
+3. Regenerado **part1 + part2** CR/RND con **`VOL_NUM=24`** + reensamblado. (Casi se cuela una regresión: regeneré part1 sin `VOL_NUM` la primera vez → `wow_box` salió W19/W20; el diff tag-por-tag contra el publicado lo cazó. `VOL_NUM=24` es obligatorio al regenerar parts.)
+
+**Validación:** diff tag-por-tag contra el HTML publicado (`8e1788f4`) = **236 líneas, 100% colores de banda**, sin tocar datos/métricas/labels (filtro de no-color → vacío). Visual de Fede ("Todo ok").
+
+**git troubleshooting (máquina de Fede):** los commits por Git Tree API van directo al remoto y no tocan el git local, así que su working tree quedó "detrás" + a mitad de un merge conflictivo. Clave: su `inventory/calc_inv.py` LOCAL tenía trabajo W24 (UTF-8 stdout, `DEST_RENAME` Mexico City, ancla histórica) que NO estaba en el remoto (el repo tenía la versión W23). Se commiteó la versión W24 del proyecto (`/mnt/project/calc_inv.py`, md5 idéntico) al repo (commit `1a698eb0`) ANTES de que Fede resetee, para que `git reset --hard origin/main` no la pierda. Pendiente del lado de Fede: confirmar diff de `calc_supply.py` (se le abrió `less`; salir con `q`, usar `git --no-pager diff`) antes del reset.
+
+**Archivos:** `historico_module.py`, `render_helpers.py`, `js_override.js`, `assemble_unified.py`, `reports/week-24/SUPPLY_W24.html` + docs · commits `1a698eb0` (calc_inv) + el de esta sesión.
+
+---
+
 ## Sesión W24-layout · 21 Jun 2026 · Ajustes de layout: badges sólidos + pills 2-líneas + tabs simétricas
 
 **Contexto:** tanda de ajustes visuales pedidos por Fede sobre `SUPPLY_W24.html`, iterando con validación visual. Hubo dos malentendidos de terminología resueltos en el camino (Fede usó "chips" para los badges de severity, no los chips de canasta; y "pills activas en verde" se refería a la segunda línea de cross-pills, no a la primera línea de dimensión).

@@ -57,7 +57,7 @@ BANDA_COLORS = {
     # Paleta D · única fuente de verdad · sincronizada con BANDAS.md
     # bg=fondo badge · fg=texto badge · bd=borde badge · bar=color barra de progreso severity
     'Exitosa':       {'bg':'#1A6B4A', 'fg':'#FFFFFF', 'bd':'#1D9E75', 'bar':'#1A6B4A'},
-    'Aceptable':     {'bg':'#FBBF24', 'fg':'#5C3A00', 'bd':'#FCD34D', 'bar':'#FCD34D'},
+    'Aceptable':     {'bg':'#FBBF24', 'fg':'#FFFFFF', 'bd':'#FCD34D', 'bar':'#FCD34D'},
     'Revisar':       {'bg':'#F97316', 'fg':'#FFFFFF', 'bd':'#F97316', 'bar':'#F97316'},
     'Crítica':       {'bg':'#C0392B', 'fg':'#FFFFFF', 'bd':'#C0392B', 'bar':'#C0392B'},
     'Súper Crítica': {'bg':'#2D2828',  'fg':'#FFFFFF', 'bd':'#9B2222', 'bar':'#8A8377'},
