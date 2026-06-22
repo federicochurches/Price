@@ -21,14 +21,14 @@ VOL_NUM   = os.getenv('VOL_NUM', '23')
 PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
 PICKLE_CR  = os.getenv('PICKLE_CR',  f'cr_w{VOL_NUM}_data.pkl')
 
-# ── Inventory — completar cada semana (igual que PERIODO/VOL_NUM) ──────────
-INV_PP         = 0        # Producto Propio esta semana
-INV_PP_PREV    = 0        # PP semana anterior (0 = omitir WoW)
-INV_GAP        = 0        # Gap al target
-INV_PCT_AVANCE = 0.0      # % avance, ej. 75.9
-INV_RITMO      = 0        # hoteles/sem necesarios
-INV_SEMANAS    = 0        # semanas restantes en 2026
-INV_TARGET     = 70_000   # target anual fijo
+# ── Inventory — se pasan por env (pipeline) o fallback 0 (omite el bloque) ──
+INV_PP         = int(os.getenv('INV_PP', '0'))            # Producto Propio esta semana
+INV_PP_PREV    = int(os.getenv('INV_PP_PREV', '0'))       # PP semana anterior (0 = omitir WoW)
+INV_GAP        = int(os.getenv('INV_GAP', '0'))           # Gap al target
+INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE', '0'))  # % avance, ej. 84.1
+INV_RITMO      = int(os.getenv('INV_RITMO', '0'))         # hoteles/sem necesarios
+INV_SEMANAS    = int(os.getenv('INV_SEMANAS', '0'))       # semanas restantes en 2026
+INV_TARGET     = int(os.getenv('INV_TARGET', '70000'))    # target anual fijo
 
 # Derivar número de semana
 WEEK_NUM      = WEEK.replace('W','').zfill(2)
@@ -49,6 +49,19 @@ with open(PICKLE_RND, 'rb') as f:
     DR = pickle.load(f)
 with open(PICKLE_CR, 'rb') as f:
     DC = pickle.load(f)
+
+# ── BK (Bookability · Connectivities) ──────────────────────────────────────
+PICKLE_BK = os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+try:
+    with open(PICKLE_BK, 'rb') as f:
+        DB = pickle.load(f)
+    bk_val   = float(DB['bk_global']) * 100
+    bk_prev  = float(DB['bk_prev'])   * 100
+    bk_wow   = bk_val - bk_prev
+    bk_banda = DB.get('banda_global', 'Exitosa')
+    HAS_BK   = True
+except Exception:
+    HAS_BK = False
 
 # === RND (Availability) ===
 mr18  = DR['M'][f'global_w{WEEK_NUM_INT}']
@@ -171,6 +184,20 @@ ef_label = _ef_label(cr_ef)
 cv_color, cv_pct_gauge = _cv_banda(cr_cv)
 cv_label = _cv_label(cr_cv)
 
+# ── Pre-cálculo BK (Bookability · card full-width en Connectivities) ──────────
+if HAS_BK:
+    bk_color, bk_pct_gauge = _ef_banda(bk_val)   # BK usa las bandas de Eficacia
+    bk_card = f'''
+        <div class="kpi-card cr" style="grid-column:1/-1;">
+          <div class="kpi-label">Bookability</div>
+          <div class="kpi-value cr-color">{es(bk_val,2)}%</div>
+          {wow_str(bk_wow)}
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{bk_pct_gauge}%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda {bk_banda} · salud de interfaces cross-canasta · Target ≥ 97%</div>
+        </div>'''
+else:
+    bk_card = ''
+
 # ── Pre-cálculo INV ───────────────────────────────────────────────────────────
 if HAS_INV:
     inv_pct_gauge = min(int(INV_PCT_AVANCE), 100)
@@ -187,7 +214,7 @@ if HAS_INV:
           <div class="kpi-label">Producto Propio</div>
           <div class="kpi-value inv-color">{es(INV_PP, 0)}</div>
           {inv_wow_html}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{inv_pct_gauge}%;background:#1A6B4A;"></div></div>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{inv_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">{es(INV_PCT_AVANCE, 1)}% de avance · Target {es(INV_TARGET, 0)} · 2026</div>
         </div>
         <div class="kpi-card inv">
@@ -247,10 +274,10 @@ mail_html = f'''<!DOCTYPE html>
   .kpi-card.inv::before {{ background: #4FC3F4; }}
   .kpi-label {{ font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #8A8377; margin-bottom: 5px; }}
   .kpi-value {{ font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: #161616; margin-bottom: 5px; }}
-  .kpi-value.rnd-color {{ color: #EA0074; }}
-  .kpi-value.cr-color  {{ color: #5C469C; }}
-  .kpi-value.inv-color {{ color: #4FC3F4; }}
-  .kpi-value.inv-red   {{ color: #FF3B30; }}
+  .kpi-value.rnd-color {{ color: #161616; }}
+  .kpi-value.cr-color  {{ color: #161616; }}
+  .kpi-value.inv-color {{ color: #161616; }}
+  .kpi-value.inv-red   {{ color: #161616; }}
   .kpi-wow {{ display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 2px; }}
   .wow-down {{ background: #FDE8E8; color: #C0392B; }}
   .wow-up   {{ background: #E2F5E9; color: #1A6B4A; }}
@@ -335,14 +362,14 @@ mail_html = f'''<!DOCTYPE html>
           <div class="kpi-label">% No Disponibilidad</div>
           <div class="kpi-value rnd-color">{es(rnd_pct,2)}%</div>
           {wow_str(rnd_pct_wow, invert=True)}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{nd_pct_gauge}%;background:{nd_color};"></div></div>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{nd_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {nd_label} · {rnd_n_supc} Súper Críticos · {rnd_n_critmas} Críticos o peor</div>
         </div>
         <div class="kpi-card rnd">
           <div class="kpi-label">IPM (USD / millón búsquedas)</div>
           <div class="kpi-value">${es(rnd_ipm_w18,0)}</div>
           {wow_str(rnd_ipm_wow, decimals=1, suffix='%', invert=False)}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ipm_pct_gauge}%;background:{ipm_color};"></div></div>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ipm_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {ipm_label} · Target ≥ $650</div>
         </div>
       </div>
@@ -359,16 +386,17 @@ mail_html = f'''<!DOCTYPE html>
           <div class="kpi-label">Eficacia</div>
           <div class="kpi-value cr-color">{es(cr_ef,2)}%</div>
           {wow_str(cr_ef_wow)}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ef_pct_gauge}%;background:{ef_color};"></div></div>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ef_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {ef_label} · {cr_n_supc} Súper Críticos · Target ≥ 97%</div>
         </div>
         <div class="kpi-card cr">
           <div class="kpi-label">Conv Rate</div>
           <div class="kpi-value">{es(cr_cv,2)}%</div>
           {wow_str(cr_cv_wow)}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{cv_pct_gauge}%;background:{cv_color};"></div></div>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{cv_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {cv_label} · TP: {es(g_tp["ConvRate"]*100,2)}% vs PP: {es(g_pp["ConvRate"]*100,2)}%</div>
         </div>
+        {bk_card}
       </div>
     </div>
     {inv_section}
@@ -396,4 +424,4 @@ mail_html = f'''<!DOCTYPE html>
 out = Path(OUT_FILE)
 out.write_text(mail_html, encoding='utf-8')
 print(f'Mail {WEEK} v4.0: {out}')
-print(f'Tamaño: {{len(mail_html):,}} chars')
+print(f'Tamaño: {len(mail_html):,} chars')

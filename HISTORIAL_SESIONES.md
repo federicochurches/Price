@@ -5,6 +5,22 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-mail · 22 Jun 2026 · Mail con Bookability + Inventory · KPIs en neutro
+
+**Contexto:** Fede pidió regenerar el Mail con Bookability + Inventory. La "falla silenciosa" de W24 no era un crash — `render_mail_v3.py` genera bien, simplemente **no se corría** en el pipeline.
+
+**Cambios en `render_mail_v3.py`:**
+- Carga `PICKLE_BK` y agrega **Bookability** (98,67%, banda Exitosa via bandas de Eficacia) como **card full-width** en la sección Connectivities.
+- **Inventory:** los `INV_*` (antes hardcodeados a 0 → bloque omitido) ahora se leen por **env var** (`INV_PP`/`INV_GAP`/`INV_PCT_AVANCE`/`INV_RITMO`/`INV_SEMANAS`/`INV_TARGET`). Para W24 se pasaron los números del `INVENTORY_W24.html` publicado: PP 58.895 · gap 11.105 · avance 84,1% · 28 sem · ritmo ~397.
+- **KPIs en neutro** (pedido de Fede): los 6 gauges → gris `#8A8377` (sin band-color verde/ámbar/rojo) · números KPI → `#161616` (las 4 clases `.X-color` apuntan a neutro; identidad de sección queda en el borde izquierdo + dot). **WoW mantiene color** verde/rojo (señal direccional; Fede lo aprobó así).
+- Fix cosmético: el `print` del tamaño tenía `{{ }}` escapados (imprimía literal).
+
+**Pendiente:** engancharlo a `calc_supply.py` para que el Mail se genere solo cada semana (pasándole `PICKLE_BK` + los `INV_*`); para INV totalmente automático faltaría wirear los números del pipeline de Inventory.
+
+**Validado:** visual de Fede ("Perfecto"). El Mail es un artefacto de email (no se commitea al repo) — se entrega `Mail_W24.html`; se commitea solo `render_mail_v3.py`.
+
+---
+
 ## Sesión W24-histbadges · 22 Jun 2026 · Propagación Opción B a histórico + severity + AR · Aceptable blanco · git troubleshooting
 
 **Contexto:** Fede señaló (con screenshot) que los badges del panel **Evolución Histórica** seguían pálidos pese al fix de Opción B del W24-layout. Al investigar aparecieron **3 superficies** que no se habían cubierto, cada una con su propio mapa/part.
