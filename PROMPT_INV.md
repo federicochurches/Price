@@ -444,7 +444,7 @@ INPUT_FILE    = "dataHoteles_contratos.xlsx"
 
 ---
 
-**Última actualización:** v15.1 · W23 · 11 Jun 2026
+**Última actualización:** v16.1 · W25 · 22 Jun 2026
 
 **Cambios v13:**
 - Masthead idéntico al Supply (shell padding-top, masthead-inner, border-bottom rule, logo 40px)

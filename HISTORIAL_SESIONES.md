@@ -1,3 +1,52 @@
+## Sesión W25-pipeline · 22-06-2026
+
+**Contexto:** Pipeline W25 completo + fixes mail + diagnóstico y fix calc_inv.
+
+### Supply — cambios de código
+
+**`calc_supply.py`** — CONFIG actualizado a W25 (WEEK/VOL_NUM/PERIODO/FECHA_PUB).
+
+**`historico_data.py`** — ventana rotada W17-W24 → W18-W25. Drop W17, add W24 en todos los scopes (global/op/cug/b2c). W24 global desde PROMPT_CORE; per-canasta desde M[canasta_w24] del pickle W25. `SEMANAS=['W18'...'W25']`. Bug resuelto: gráficas históricas mostraban W24 como último punto.
+
+**`calc_bk.py`** — fix `agg_dim_wow`: cuando `df_prev` está vacío (dataset BK solo trae W25, sin W24), retorna cur con WoW=0 en vez de romper con KeyError en `g_prev[[col,...]]`. Fix adicional en global: `bk_prev < 0.1` → WoW = None (evita mostrar +98pp).
+
+**`render_mail_v3.py`** — múltiples mejoras en una sola sesión:
+- **Card IPM eliminada** — NoDispo ocupa full-width (`grid-column:1/-1`).
+- **BK WoW correcto** — cuando `bk_prev=0` (sin semana anterior en pickle) usa `historico_data.HIST_DATA['bk']['bookability']['global'][-1]` como fallback (W24=98.67%). Badge muestra −0.25pp.
+- **Inventory habilitado** — valores W25 reales: PP=58.892, GAP=11.108, Avance=84.1%, Ritmo=411/sem, Semanas=27. Extraídos automáticamente del INVENTORY_W25.html en GitHub.
+- **Auto-fetch `INV_PP_PREV`** — `urllib.request` lee `actual` del HTML de la semana anterior desde GitHub. Elimina la necesidad de hardcodear el valor cada semana. Funciona desde W26 en adelante sin config manual.
+- **Gap card**: gauge añadido + badge WoW (delta invertido: gap baja = verde). Badge no aparece cuando WoW=0.
+- **Gauge Gap**: color neutro `#8A8377` (era cyan).
+
+**Métricas W25 confirmadas:**
+- CR Eficacia: 95.68% (+0.11pp) · CR ConvRate: 0.75% (−0.07pp)
+- RND %NoDispo: 3.34% (+0.30pp) · BK: 98.42% (−0.25pp vs W24 histórico)
+- Inventory PP: 58.892 (0 netnew en W25 — ver nota abajo)
+
+### Inventory — diagnóstico y fix
+
+**Diagnóstico `FechaCreacion`:** investigación completa del 0 netnew en W25.
+- Campo usado: `FechaCreacion` (rename automático a `FechaCreación` en línea 109 del NUEVO_FORMATO block — ya estaba manejado).
+- Diagnóstico: ningún PP hotel tiene `FechaCreacion` entre 15-21 jun en el dataset.
+- Causa raíz: **el dataset se genera el lunes 22** (hoy, W26 ISO). Los hoteles nuevos tienen `FechaCreacion=2026-06-22`, fuera del corte `_snap_date = domingo(W25) = 21 jun`.
+
+**`inventory/calc_inv.py`** — fix snap_date:
+- `_snap_date = date.today()` en lugar de `date.fromisocalendar(YEAR_ACTUAL, WEEK_NUM, 7)`.
+- Línea de reatribución: hoteles con `fecha_dt > _week_sunday` → `yw = snapshot_yw` (atribuidos al WEEK_NUM actual, no a W26).
+- Esto garantiza que hoteles creados el lunes siguiente al cierre de semana siempre se cuenten en el reporte correcto.
+- **Config también actualizado:** WEEK="W25", WEEK_NUM=25, VOL_NUM="25", SNAPSHOT_DATE="22 de Junio de 2026".
+
+**Pendiente inmediato:** re-run `python run_inv.py --commit` con el fix para generar INVENTORY_W25.html correcto (con netnew reales del 22 jun) → luego regenerar Mail_W25.html con WoW de Inventory real.
+
+### Commits de sesión
+- `59722b4d` — Supply W25 + Excels
+- `409444f3` — docs W25
+- `faa23555` — calc_inv CONFIG W25
+- `a1bac8d5` — render_mail_v3 todos los fixes
+- `2a17315c` — calc_inv snap_date fix
+
+---
+
 ## Sesión W25 · 22-06-2026
 
 **Contexto:** Pipeline W25 completo. Datasets: CR W25, RND W25, BK W25, CR W24, RND W24.

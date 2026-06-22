@@ -515,18 +515,17 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (anotados 21-06-2026, post W24-rnd-percanasta)
+## 📋 Pendientes próxima sesión (actualizados 22-06-2026, post W25)
 
-Nada urgente — bugs de lógica todos cerrados. Por valor/orden sugerido:
+Por valor/orden sugerido:
 
-1. **Enriquecer WoW per-canasta de RND** (`calc_rnd.py`) — los `agg_pais`/`agg_dest`/`agg_corp`/`agg_hotel` per-canasta no traen `Trafico_WoW_pct` (ni `agg_hotel` el `%NoDispo_W18`) → en las KPI cards RND per-canasta el badge de WoW de tráfico (r[6]) y el mini-hist (r[10]) salen vacíos. Agregar esas cols al merge per-canasta = paridad total de WoW. *(Quick.)*
-2. **Dups intra-canasta de `RND_D`** (~700KB) — `check_html` reporta `hotels==hotels_dnc` y `hotels_sc==hotels_ipm_sc` byte-idénticos en cada canasta (la vista IPM quedó igual a la de NoDispo). Más delicado: distintas keys, distintos consumidores en `_arRows`. Investigar si son alias referenciables o data legítimamente repetida.
-3. **Cleanup #4 — código muerto** (panel `w22-*` completo + handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.). Ahora **trazable**: `check_html` lista 32 IDs huérfanos. Hacerlo junto al refactor AR cards (#1); tras limpiar, esos IDs deben desaparecer del reporte de huérfanos.
-4. **Reconciliar `PROMPT_INV.md`** (proyecto vs repo) — independiente de Supply (Inventory). ✅ `calc_inv.py` ya reconciliado a W24 (commit `1a698eb0`); falta revisar `PROMPT_INV.md`.
-5. **`index.html` no se genera** — revisar antes de publicar (el `SUPPLY_WNN.html` y los Excels sí salen). ✅ **Mail RESUELTO**: `render_mail_v3.py` genera bien (no era un crash, simplemente no se corría); ahora incluye **Bookability** (carga `PICKLE_BK`, card full-width en Connectivities) + **Inventory** (los `INV_*` se leen por **env var**, no hardcodeados → pasarlos al correr). KPIs en **neutro** (gauges gris `#8A8377` + números `#161616`; WoW mantiene color). **Falta:** engancharlo al pipeline `calc_supply.py` para que no se saltee (y, para INV automático, wirear los números del Inventory).
-6. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB (¿optimizable?).
+1. **Re-run `calc_inv.py` W25** con fix snap_date — el HTML actual muestra 0 hoteles en W25 porque el dataset se generó el lunes 22 (fuera del corte). Con el fix (`date.today()` + reatribución) aparecerán los hoteles del 22 jun. Correr `python run_inv.py --commit` desde `inventory/`.
+2. **Mail W25 final** — re-generar tras el re-run de Inventory; el WoW de Inventory quedará correcto. El auto-fetch de `INV_PP_PREV` ya está operativo.
+3. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.). Hacerlo junto al refactor AR; tras limpiar deben desaparecer del reporte.
+4. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25, snap_date fix, auto-fetch PP_PREV en mail.
+5. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB.
 
-**Cómo retomar:** correr el pipeline → leer el reporte de `check_html` del final (composición · duplicados · huérfanos · Δtamaño vs baseline) → atacar lo de arriba.
+**Cómo retomar:** (1) re-run inv W25 → (2) regenerar mail → (3) correr pipeline W26 normal.
 
 ---
 
