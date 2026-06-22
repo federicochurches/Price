@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Weekly KPIs Supply · W25</title>
+<style>
+  /* ── CHROME PREVISUALIZACIÓN ── */
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 24px; color: #161616; line-height: 1.55; background: #E8E2DA; }
+  .instructions { background: #FFF8E1; border-left: 4px solid #F2B90B; padding: 14px 18px; margin-bottom: 20px; font-size: 12px; line-height: 1.55; }
+  .instructions strong { color: #8A6300; }
+  .field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #8A8377; margin: 14px 0 5px; }
+  .field-box { background: #fff; border: 1px solid #C9C1B0; padding: 11px 15px; font-size: 14px; }
+  .field-box.subject { font-size: 15px; font-weight: 600; }
+  hr.divider { border: none; border-top: 2px dashed #C9C1B0; margin: 28px 0; }
+  .copy-tip { font-size: 11px; color: #8A8377; margin: 6px 0 16px; font-style: italic; }
+
+  /* ── MAIL ── */
+  .mail-wrap { box-shadow: 0 4px 20px rgba(0,0,0,.12); }
+
+  .mail-header { background: #161616; padding: 20px 30px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 12px; }
+  .mail-logo { font-size: 17px; font-weight: 800; letter-spacing: -.02em; color: #fff; flex-shrink: 0; }
+  .mail-header-right { text-align: right; }
+  .mail-header-week { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #8A8377; }
+  .mail-header-period { font-size: 10px; color: #5A5550; margin-top: 2px; }
+  .accent-stripe { height: 3px; background: linear-gradient(90deg, #EA0074 0%, #5C469C 100%); }
+
+  .mail-body { background: #fff; padding: 30px 30px 26px; font-size: 14px; line-height: 1.6; color: #161616; }
+  .mail-lede { margin: 0 0 26px; font-size: 13px; color: #444; border-left: 3px solid #E0D9CF; padding-left: 14px; line-height: 1.6; }
+
+  .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: #8A8377; margin: 0 0 12px; padding-bottom: 7px; border-bottom: 1px solid #E0D9CF; display: flex; align-items: center; gap: 7px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-rnd { background: #EA0074; }
+  .dot-cr  { background: #5C469C; }
+  .dot-inv { background: #4FC3F4; }
+
+  .kpi-section { margin-bottom: 28px; }
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi-card { border: 1px solid #E5E0D2; padding: 15px 17px; background: #FAFAF8; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+  .kpi-card.rnd::before { background: #EA0074; }
+  .kpi-card.cr::before  { background: #5C469C; }
+  .kpi-card.inv::before { background: #4FC3F4; }
+  .kpi-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: #8A8377; margin-bottom: 5px; }
+  .kpi-value { font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: #161616; margin-bottom: 5px; }
+  .kpi-value.rnd-color { color: #161616; }
+  .kpi-value.cr-color  { color: #161616; }
+  .kpi-value.inv-color { color: #161616; }
+  .kpi-value.inv-red   { color: #161616; }
+  .kpi-wow { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 2px; }
+  .wow-down { background: #FDE8E8; color: #C0392B; }
+  .wow-up   { background: #E2F5E9; color: #1A6B4A; }
+  .kpi-gauge { margin-top: 9px; height: 4px; background: #E8E2DA; border-radius: 2px; overflow: hidden; }
+  .kpi-gauge-fill { height: 100%; border-radius: 2px; }
+  .kpi-sub { margin-top: 5px; font-size: 11px; color: #8A8377; line-height: 1.4; }
+
+  .cta-section { background: #F5F1EB; border: 1px solid #E0D9CF; padding: 18px 20px; margin-top: 24px; }
+  .cta-section p { margin: 0 0 13px; font-size: 13px; color: #555; line-height: 1.55; }
+  .cta { display: inline-block; padding: 10px 18px; font-size: 11px; font-weight: 700; text-decoration: none; letter-spacing: .04em; color: #fff !important; background: #161616; }
+
+  .mail-footer { background: #F5F1EB; border-top: 1px solid #C9C1B0; padding: 14px 30px; font-size: 11px; color: #8A8377; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+  .mail-footer strong { color: #5A5550; }
+
+  @media (max-width: 480px) {
+    body { padding: 12px 8px 40px; }
+    .mail-header { padding: 14px 18px 12px; gap: 8px; }
+    .mail-logo { font-size: 15px; }
+    .mail-header-week { font-size: 9px; white-space: nowrap; }
+    .mail-header-period { font-size: 9px; white-space: nowrap; }
+    .mail-body { padding: 18px 16px 18px; }
+    .mail-lede { font-size: 13px; padding-left: 12px; margin-bottom: 20px; }
+    .section-title { font-size: 9px; margin-bottom: 10px; }
+    .kpi-grid { grid-template-columns: 1fr; gap: 8px; }
+    .kpi-card { padding: 13px 15px; }
+    .kpi-value { font-size: 24px; }
+    .kpi-sub { font-size: 11px; }
+    .kpi-section { margin-bottom: 20px; }
+    .cta-section { padding: 14px 15px; margin-top: 18px; }
+    .cta-section p { font-size: 12px; }
+    .cta { display: block; text-align: center; padding: 12px 16px; font-size: 12px; }
+    .mail-footer { padding: 11px 18px; flex-direction: column; gap: 2px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  <strong>Cómo enviar:</strong>
+  Click adentro del área blanca · Ctrl+A · Ctrl+C · pegar en Gmail/Outlook. El formato se preserva.<br>
+  Verificá la URL del botón y agregá destinatarios en CCO antes de enviar.
+</div>
+
+<div class="field-label">Asunto</div>
+<div class="field-box subject">Weekly KPIs Supply · W25 · Connectivities &amp; Hotel Availability</div>
+
+<div class="field-label">Preheader</div>
+<div class="field-box">Availability 3,43% NoDispo · IPM $908 · Connectivities Eficacia 95,68% · Conv Rate 0,75%</div>
+
+<hr class="divider">
+
+<div class="field-label">Cuerpo (copiar desde acá ↓)</div>
+<p class="copy-tip">Click adentro del recuadro blanco · Ctrl+A · Ctrl+C · Ctrl+V en el compose.</p>
+
+<!-- DRAFT_BODY_START -->
+<div class="mail-wrap">
+
+  <div class="mail-header">
+    <div class="mail-logo">PriceTravel</div>
+    <div class="mail-header-right">
+      <div class="mail-header-week">Weekly KPIs W25</div>
+      <div class="mail-header-period">15 – 21 jun 2026 · Vol. 25</div>
+    </div>
+  </div>
+  <div class="accent-stripe"></div>
+
+  <div class="mail-body">
+
+    <p class="mail-lede">
+      Resumen de KPIs Connectivities + Availability + Conv Rate W25.
+      El detalle completo — incluyendo descarga del Excel con el Top 500 de hoteles — está disponible en el Hub de Supply Optimization.
+    </p>
+
+    <!-- Availability (RND) -->
+    <div class="kpi-section">
+      <div class="section-title">
+        <span class="dot dot-rnd"></span>
+        Availability · Métricas globales
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card rnd">
+          <div class="kpi-label">% No Disponibilidad</div>
+          <div class="kpi-value rnd-color">3,43%</div>
+          <span class="kpi-wow wow-down">▼ 0,40pp WoW</span>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:45%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda Aceptable · 39 Súper Críticos · 456 Críticos o peor</div>
+        </div>
+        <div class="kpi-card rnd">
+          <div class="kpi-label">IPM (USD / millón búsquedas)</div>
+          <div class="kpi-value">$908</div>
+          <span class="kpi-wow wow-up">▲ 35,6% WoW</span>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:60%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda Aceptable · Target ≥ $650</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connectivities (CR) -->
+    <div class="kpi-section">
+      <div class="section-title">
+        <span class="dot dot-cr"></span>
+        Connectivities · Métricas globales
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card cr">
+          <div class="kpi-label">Eficacia</div>
+          <div class="kpi-value cr-color">95,68%</div>
+          <span class="kpi-wow wow-down">▼ 0,12pp WoW</span>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:60%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda Aceptable · 42 Súper Críticos · Target ≥ 97%</div>
+        </div>
+        <div class="kpi-card cr">
+          <div class="kpi-label">Conv Rate</div>
+          <div class="kpi-value">0,75%</div>
+          <span class="kpi-wow wow-down">▼ 0,10pp WoW</span>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:20%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda Crítica · TP: 0,20% vs PP: 0,75%</div>
+        </div>
+        
+        <div class="kpi-card cr" style="grid-column:1/-1;">
+          <div class="kpi-label">Bookability</div>
+          <div class="kpi-value cr-color">98,42%</div>
+          <span class="kpi-wow wow-up">▲ 98,42pp WoW</span>
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:90%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Banda Exitosa · salud de interfaces cross-canasta · Target ≥ 97%</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="cta-section">
+      <p>Findings completos, Hoteles, Corporativos, Destinos y Análisis por Canasta en el Hub.
+      Desde el reporte podés descargar el <strong>Excel con el Top 500 de hoteles</strong> para cada métrica.</p>
+      <a href="https://analytics-desk.netlify.app/reports/week-25/supply_w25" class="cta">→ Connectivities &amp; Hotel Availability W25</a>
+    </div>
+
+  </div>
+
+  <div class="mail-footer">
+    <span>PriceTravel · Supply Optimization · <strong>W25</strong> · 15 – 21 jun 2026</span>
+    <span>Vol. 25</span>
+  </div>
+
+</div>
+<!-- DRAFT_BODY_END -->
+
+</body>
+</html>

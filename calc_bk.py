@@ -190,8 +190,18 @@ def agg_dim(df, col, min_books=MIN_BOOKS):
     return g.sort_values('Bookability')
 
 def agg_dim_wow(df_cur, df_prev, col, min_books=MIN_BOOKS):
-    """Agrega con WoW vs semana anterior."""
-    g_cur  = agg_dim(df_cur,  col, min_books=0)
+    """Agrega con WoW vs semana anterior. Si df_prev está vacío, retorna cur sin WoW."""
+    g_cur = agg_dim(df_cur, col, min_books=0)
+    # Sin datos previos → WoW = 0 / N/A
+    if df_prev is None or len(df_prev) == 0:
+        g_cur['Bookability_prev'] = float('nan')
+        g_cur['Books_prev']       = float('nan')
+        g_cur['BK_WoW_pp']        = 0.0
+        g_cur['Books_WoW_abs']    = 0.0
+        g_cur['Books_WoW_pct']    = 0.0
+        g = g_cur[g_cur['Books'] >= min_books].copy()
+        g['BandaBK'] = g['Bookability'].apply(banda_bk)
+        return g.sort_values('Bookability')
     g_prev = agg_dim(df_prev, col, min_books=0)
     g = g_cur.merge(
         g_prev[[col, 'Bookability', 'Books']].rename(columns={
