@@ -24,11 +24,11 @@ except Exception:
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W25"
-WEEK_NUM      = 25
-VOL_NUM       = "25"
+WEEK          = "W24"
+WEEK_NUM      = 24
+VOL_NUM       = "24"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "22 de Junio de 2026"
+SNAPSHOT_DATE = "14 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -430,14 +430,18 @@ df_hist = df[df['FechaCreación'].notna() & (df['FechaCreación'] != '-')].copy(
 df_hist['fecha_dt'] = pd.to_datetime(df_hist['FechaCreación'].str.slice(0,19), errors='coerce')
 df_hist = df_hist[df_hist['fecha_dt'].notna()]
 # Include all hotel types — 'Producto Propio' filter is applied via pills in the UI
-# Filtrar hasta el fin de la semana del snapshot (último día de WEEK_NUM)
+# Filtrar hasta hoy (el dataset puede generarse el lunes de la semana siguiente)
 from datetime import date, timedelta
-_snap_date = date.fromisocalendar(YEAR_ACTUAL, WEEK_NUM, 7)  # domingo de la semana
+_snap_date     = date.today()
+_week_sunday   = date.fromisocalendar(YEAR_ACTUAL, WEEK_NUM, 7)  # último día canónico de WEEK_NUM
+_snapshot_yw   = f"{YEAR_ACTUAL}-W{WEEK_NUM:02d}"
 df_hist = df_hist[df_hist['fecha_dt'] <= pd.Timestamp(_snap_date)].copy()
 print(f"    Hoteles PP con fecha hasta {_snap_date}: {len(df_hist[df_hist['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])])}")
 df_hist['year']  = df_hist['fecha_dt'].dt.year
 df_hist['month'] = df_hist['fecha_dt'].dt.month
 df_hist['yw']    = df_hist['year'].astype(str) + '-W' + df_hist['fecha_dt'].dt.isocalendar().week.astype(int).astype(str).str.zfill(2)
+# Hoteles creados después del domingo (ej: lunes de la semana siguiente) → atribuir a WEEK_NUM
+df_hist.loc[df_hist['fecha_dt'].dt.date > _week_sunday, 'yw'] = _snapshot_yw
 df_hist['ym']    = df_hist['year'].astype(str) + '-' + df_hist['month'].astype(str).str.zfill(2)
 df_hist['ch']    = df_hist['TipoHotel'].map({'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid'}).fillna('Third Party')
 
