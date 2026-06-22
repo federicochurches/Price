@@ -207,7 +207,6 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     # Sin Conversión: Bookings = 0
     df_sc   = df_hotel[df_hotel.get('Bookings', pd.Series([1]*len(df_hotel))) == 0].sort_values('Trafico', ascending=False).head(1000) if 'Bookings' in df_hotel.columns else pd.DataFrame()
 
-    hotel_rows       = rnd_hotel_rows_from(df_dnc)
     hotels_dnc_rows  = rnd_hotel_rows_from(df_dnc)
     hotels_br_rows   = rnd_hotel_rows_from(df_br)
     hotels_sc_rows   = rnd_hotel_rows_from(df_sc)
@@ -226,11 +225,10 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
     else:
         df_dnc_ipm = df_dnc
         df_br_ipm  = df_br
-    # Sin Conversión IPM: Bookings = 0 (igual criterio que NoDispo)
-    df_sc_ipm = df_sc
+    # Sin Conversión IPM: Bookings = 0 — mismo criterio que NoDispo.
+    # hotels_ipm_sc omitido (idéntico a hotels_sc_rows); JS cae a hotels_sc fallback.
     hotels_ipm_dnc_rows = rnd_hotel_rows_from(df_dnc_ipm)
     hotels_ipm_br_rows  = rnd_hotel_rows_from(df_br_ipm)
-    hotels_ipm_sc_rows  = rnd_hotel_rows_from(df_sc_ipm)
 
     # ── Searchbox extended pool (500 hoteles sin filtro P80) ──────────────────
     SB_N = 1000
@@ -369,7 +367,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
                  'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
                  't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
 
-    return {'re': re_items, 'hotels': hotel_rows, 'hotels_dnc': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_ipm_sc': hotels_ipm_sc_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': []}
+    return {'re': re_items, 'hotels': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': []}
 
 
 def build_rnd_d():
