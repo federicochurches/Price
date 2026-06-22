@@ -14,14 +14,21 @@ from pathlib import Path
 from datetime import datetime, date
 import json, sys
 
+# Forzar UTF-8 en stdout/stderr (Windows usa cp1252 por defecto y rompe con emojis/acentos)
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W23"
-WEEK_NUM      = 23
-VOL_NUM       = "23"
+WEEK          = "W24"
+WEEK_NUM      = 24
+VOL_NUM       = "24"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "7 de Junio de 2026"
+SNAPSHOT_DATE = "14 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -63,6 +70,9 @@ df_raw['Hotel'] = df_raw['Hotel'].str.strip()
 # Limpiar " Area" del nombre de destino
 if 'Destino' in df_raw.columns:
     df_raw['Destino'] = df_raw['Destino'].str.replace(r'\s+Area$', '', regex=True).str.strip()
+    # Rename canónico de destinos
+    DEST_RENAME = {'Mexico City - Central Mexico': 'Mexico City'}
+    df_raw['Destino'] = df_raw['Destino'].replace(DEST_RENAME)
 df_raw['HtActive'] = pd.to_numeric(df_raw['HtActive'], errors='coerce').fillna(0).astype(int)
 
 # Compatibilidad: dataset nuevo usa tipo_Ht_contrato_2, dataset viejo usa TipoHotel + Prpios/Terceros
@@ -435,11 +445,15 @@ df_hist['ch']    = df_hist['TipoHotel'].map({'sólo propio':'Solo Propio','Propi
 df_hist_pp = df_hist[df_hist['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])].copy()
 
 # Acumulado por año (global)
+# El último año se ajusta para que acum final == pp real (ancla al KPI del dataset)
 by_year_g = df_hist_pp.groupby('year').size().reset_index(name='netnew').sort_values('year')
 cum = 0; acum_years = []
 for _, r in by_year_g.iterrows():
     cum += int(r['netnew'])
     acum_years.append({'year': int(r['year']), 'netnew': int(r['netnew']), 'acum': cum})
+# Anclar último acumulado al pp real (línea), pero NO inflar la barra (netnew real)
+if acum_years:
+    acum_years[-1]['acum'] = pp
 
 # Acumulado por mes (global) — con fill hasta el mes del snapshot
 by_month_g = df_hist_pp.groupby('ym').size().reset_index(name='netnew').sort_values('ym')
@@ -466,6 +480,9 @@ cum = 0; acum_months = []
 for r in all_months:
     cum += r['netnew']
     acum_months.append({'ym': r['ym'], 'netnew': r['netnew'], 'acum': cum})
+# Anclar último acumulado al pp real (línea), pero NO inflar la barra (netnew real)
+if acum_months:
+    acum_months[-1]['acum'] = pp
 
 # Acumulado por semana ISO (global) — con fill de semanas sin datos
 by_week_g = df_hist_pp.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
@@ -500,6 +517,9 @@ cum = 0; acum_weeks = []
 for r in all_weeks:
     cum += r['netnew']
     acum_weeks.append({'yw': r['yw'], 'ym': r['ym'], 'netnew': r['netnew'], 'acum': cum})
+# Anclar último acumulado al pp real (línea), pero NO inflar la barra (netnew real)
+if acum_weeks:
+    acum_weeks[-1]['acum'] = pp
 
 # Sets de años y meses — from acum_weeks (includes fill weeks)
 years_available = sorted(set(int(r['yw'][:4]) for r in acum_weeks))
@@ -548,6 +568,8 @@ def ch_active(val):
 
 # Índice dimensional nivel hotel (para filtros de región/corp/tipo — sin duplicar por channel)
 df_dim_hotel = df_hist[['yw','ym','Region_display','Corporativo','Destino','TipoHotel','Hotel']].copy()
+# Excluir destinos sin clasificar (nan/vacíos) del breakdown dimensional
+df_dim_hotel = df_dim_hotel[df_dim_hotel['Destino'].notna() & (df_dim_hotel['Destino'].astype(str).str.strip() != '') & (df_dim_hotel['Destino'].astype(str) != 'nan')]
 df_dim_hotel['corp']    = df_dim_hotel['Corporativo'].where(df_dim_hotel['Corporativo'].isin(top_corps), 'Otros')
 df_dim_hotel['ch_tipo'] = df_dim_hotel['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
@@ -594,7 +616,32 @@ dim_hotel_rows = dim_hotel_idx.to_dict('records')
 for r in dim_hotel_rows:
     for k, v in r.items():
         if hasattr(v, 'item'): r[k] = v.item()
-dim_hotel_compact = [{'w':r['yw'],'m':r['ym'],'r':r['region'],'c':r['corp'],'d':r['dest'],'t':r['ch_tipo'],'n':r['n']} for r in dim_hotel_rows]
+
+# OPTIMIZACIÓN DE PESO (W24): formato array compacto + tablas de lookup.
+# En vez de [{"w":"2026-W24","m":"2026-06","r":"México","c":"AA","d":"Acapulco","t":"Third Party","n":2}, ...]
+# (7 keys repetidas × 79K registros = ~9.9MB), se emite:
+#   _W = [semanas únicas]  ·  _M = [meses únicos]  ·  _R = [regiones]  ·  _T = [tipos]
+#   data = [[w_idx, m_idx, r_idx, c, d, t_idx, n], ...]
+# El JS rehidrata a objetos {w,m,r,c,d,t,n} una sola vez al cargar (función _expandDimHotel).
+# El mes se incluye como índice (NO se deriva de la semana — una semana ISO puede cruzar 2 meses).
+_dh_weeks = sorted(set(r['yw'] for r in dim_hotel_rows))
+_dh_months= sorted(set(r['ym'] for r in dim_hotel_rows))
+_dh_regs  = sorted(set(r['region'] for r in dim_hotel_rows))
+_dh_tipos = sorted(set(r['ch_tipo'] for r in dim_hotel_rows))
+_wi = {w:i for i,w in enumerate(_dh_weeks)}
+_mi = {m:i for i,m in enumerate(_dh_months)}
+_ri = {r:i for i,r in enumerate(_dh_regs)}
+_ti = {t:i for i,t in enumerate(_dh_tipos)}
+dim_hotel_packed = {
+    'W': _dh_weeks,
+    'M': _dh_months,
+    'R': _dh_regs,
+    'T': _dh_tipos,
+    'data': [[_wi[r['yw']], _mi[r['ym']], _ri[r['region']], r['corp'], r['dest'], _ti[r['ch_tipo']], r['n']]
+             for r in dim_hotel_rows],
+}
+# Mantener el formato viejo disponible por compatibilidad (vacío — el JS lo rehidrata)
+dim_hotel_compact = []
 
 # Índice por tipo solamente (sin duplicar por corp/región) — para filtro solo-tipo
 # Keys cortas: w=yw, m=ym, t=ch_tipo, n=n
@@ -639,7 +686,8 @@ hist_data = {
     'months_by_year': months_by_year,
     'dim_ch':     dim_ch_compact,      # COMPACT: w,m,t,ch,n (sin región/corp) — reemplaza dim completo
     'dim_tipo':   dim_tipo_compact,    # COMPACT: w,m,t,n
-    'dim_hotel':  dim_hotel_compact,   # COMPACT: w,m,r,c,t,n
+    'dim_hotel':  dim_hotel_compact,   # COMPACT: w,m,r,c,t,n (vacío — rehidratado de dim_hotel_packed)
+    'dim_hotel_packed': dim_hotel_packed,  # PACKED: {W,R,T,data:[[w_idx,r_idx,c,d,t_idx,n]]} — JS rehidrata
     'hist_regions':          hist_regions,
     'hist_corps':            hist_corps,
     'hist_channels_propio':  hist_channels_propio,
@@ -951,6 +999,18 @@ canvas{display:block;}
 
 JS = f"""
 const HIST = {json.dumps(hist_data, cls=NpEncoder)};
+// Rehidratar dim_hotel desde el formato packed (optimización de peso W24).
+// packed: {{W:[semanas], M:[meses], R:[regiones], T:[tipos], data:[[w_idx,m_idx,r_idx,c,d,t_idx,n]]}}
+// Se expande UNA vez a [{{w,m,r,c,d,t,n}}] para que el resto del código lo lea sin cambios.
+(function _expandDimHotel() {{
+  const p = HIST.dim_hotel_packed;
+  if (!p || !p.data) return;
+  const W = p.W, M = p.M, R = p.R, T = p.T;
+  HIST.dim_hotel = p.data.map(function(a) {{
+    return {{ w: W[a[0]], m: M[a[1]], r: R[a[2]], c: a[3], d: a[4], t: T[a[5]], n: a[6] }};
+  }});
+  HIST.dim_hotel_packed = null; // liberar memoria
+}})();
 const CORP_DATA     = {json.dumps(corp_json, cls=NpEncoder)};
 const DEST_DATA     = {json.dumps(dest_json, cls=NpEncoder)};
 const REG_TOTALS    = {json.dumps({r['region']: r for r in reg_stats}, cls=NpEncoder)};
@@ -1308,12 +1368,18 @@ function udToggleDim(dim, btn) {{
   const isOn = btn.classList.contains('on');
   // If already the active dim, do nothing — cannot deselect current dimension
   if (isOn) return;
+  // Bloquear CHANNEL cuando hay drill de semana activo (channel+semana no soportado)
+  const _swDim = document.getElementById('sel-week');
+  if (dim === 'chan' && _swDim && _swDim.value) {{
+    return; // no permitir cambiar a channel con semana activa
+  }}
   document.querySelectorAll('#ud-dim-pills .pill').forEach(p=>p.classList.remove('on'));
   // Switching dimension never generates an active pill — only table row values do
   udActiveFilters = udActiveFilters.filter(f=>f.type!=='dim');
   btn.classList.add('on');
   udSetDim(dim, btn);
   hRenderActivePills();
+  // Nota: udSetDim ya re-drilla si hay semana activa (no duplicar aquí)
 }}
 
 function udToggleContent(id, btn) {{
@@ -1608,10 +1674,36 @@ function udRowClick(type, value, el) {{
     }}
   }}
 
-  hApplyFilter();
+  // Si hay semana activa, re-aplicar drill con los filtros actualizados
+  const _wselRC = document.getElementById('sel-week');
+  const _activeYwRC = _wselRC && _wselRC.value ? _wselRC.value : null;
+  if (_activeYwRC) {{
+    // Selección en la MISMA dimensión (ej. click región en vista región):
+    // solo resaltar, NO filtrar — las demás filas siguen visibles.
+    // El filtro queda guardado en hFRegion/hFCorp para cuando se cambie de dimensión.
+    const _sameDimSel = (type==='region' && udDim==='reg') || (type==='corp' && udDim==='corp') || (type==='dest' && udDim==='dest');
+    if (_sameDimSel) {{
+      // Solo actualizar el highlight de filas (ya hecho arriba con ud-filter-active)
+      // Quitar highlight de las demás filas del mismo tipo y marcar solo la activa
+      const _cls = type==='region' ? 'ud-reg-row' : type==='corp' ? 'ud-corp-row' : 'ud-dest-row';
+      document.querySelectorAll('#ud-tbody .'+_cls).forEach(r => {{
+        const isActive = udActiveFilters.some(f=>f.type===type && f.value===(r.dataset.drillVal||r.cells[0]?.textContent.trim()));
+        r.classList.toggle('ud-filter-active', isActive);
+      }});
+      hRenderActivePills();
+    }} else {{
+      // Cross-dimensión — re-drillar con el filtro aplicado
+      window._tbodyOrig = null;
+      hActiveDrillYw = null;
+      hDrillWeek(_activeYwRC);
+      hRenderActivePills();
+    }}
+  }} else {{
+    hApplyFilter();
+  }}
   const _gd = document.getElementById('ud-gap-content');
   if (_gd && _gd.style.display !== 'none') gapSyncDim();
-  hRenderActivePills();
+  if (!_activeYwRC) hRenderActivePills();
 }}
 
 function udShowActiveFilterBadge(value) {{
@@ -1711,7 +1803,17 @@ function udSetDim(dim, btn) {{
                 _fSr.placeholder = dim==='corp' ? 'Buscar corporativo...' : 'Buscar destino...';
                 _fSr.value=''; }}
   // Apply active region/corp filter to newly visible rows
-  hApplyFilter();
+  // Si hay una semana seleccionada en el selector, re-renderizar con esa semana
+  const _wsel = document.getElementById('sel-week');
+  const _activeYw = _wsel && _wsel.value ? _wsel.value : null;
+  if (_activeYw) {{
+    // Limpiar snap anterior para que hDrillWeek tome el DOM actual del nuevo dim
+    window._tbodyOrig = null;
+    hActiveDrillYw = null;
+    hDrillWeek(_activeYw);
+  }} else {{
+    hApplyFilter();
+  }}
 }}
 
 function udFilter() {{
@@ -1853,6 +1955,7 @@ function _destApplyFilter() {{
   const q   = _destActiveName;
   const hasFilter = !!(reg || q);
   rows.forEach(r => {{
+    if (r.classList.contains('drill-dim-row')) return;
     const rReg = (r.dataset.region||'').toLowerCase();
     const txt  = (r.cells[0]?.textContent||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const mR   = !reg || rReg.startsWith(reg);
@@ -2176,17 +2279,47 @@ let hActiveDrillYw = null;
 function hDrillWeek(yw) {{
   if (!yw) return;
   _snapTbody();
-  if (hActiveDrillYw === yw) {{ hDrillWeekReset(); return; }}
+  if (hActiveDrillYw === yw && !udActiveFilters.length) {{ hDrillWeekReset(); return; }}
   hActiveDrillYw = yw;
   // dim activa actual de la tabla de distribución: 'reg' | 'corp' | 'dest'
+  // Si estamos en modo channel, forzar a 'dest' (channel+semana no soportado)
+  if (udDim === 'chan') {{
+    udDim = 'dest';
+    // Activar visualmente el botón DESTINO y mostrar la tabla dimensional
+    document.querySelectorAll('#ud-dim-pills .pill').forEach(p=>p.classList.remove('on'));
+    const _destBtn = document.querySelector('#ud-dim-pills .pill[data-dim="dest"]')
+                  || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/destino/i.test(b.textContent));
+    if (_destBtn) {{ _destBtn.classList.add('on'); udSetDim('dest', _destBtn); }}
+  }}
   const dim = (typeof udDim !== 'undefined' && udDim) ? udDim : 'reg';
-  // Filtrar dim_hotel por la semana clickeada (keys compactas: w/m/r/c/d/t/n)
-  const rows = (HIST.dim_hotel || []).filter(r => (r.w||r.yw) === yw);
+  // Filtrar dim_hotel por semana + filtros activos de región/corp/tipo
+  // Región y corp viven en hFRegion/hFCorp (no en udActiveFilters)
+  const _drRegions = hFRegion ? [hFRegion] : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
+  const _drCorps   = hFCorp   ? [hFCorp]   : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
+  const _drTipos   = hFTipo   ? [hFTipo]   : (udActiveFilters||[]).filter(f=>f.type==='tipo').map(f=>f.value);
+  // Dim activa: udDim es la fuente de verdad (se actualiza en udToggleDim)
+  const _dimKey = (typeof udDim !== 'undefined' && udDim) ? udDim : 'reg';
+  let rows = (HIST.dim_hotel || []).filter(r => (r.w||r.yw) === yw);
+  if (_drRegions.length) rows = rows.filter(r => _drRegions.includes(r.r));
+  if (_drCorps.length)   rows = rows.filter(r => _drCorps.includes(r.c));
+  if (_drTipos.length)   rows = rows.filter(r => {{
+    const t = r.t || '';
+    return _drTipos.some(at =>
+      (at === 'Prod. Propio' && (t === 'Solo Propio' || t === 'Hybrid')) ||
+      (at === 'Solo Propio'  && t === 'Solo Propio') ||
+      (at === 'Hybrid'       && t === 'Hybrid') ||
+      (at === 'Third Party'  && t === 'Third Party')
+    );
+  }});
   const wn = yw.split('-W')[1];
   const yr = yw.split('-W')[0];
   const label = 'W' + wn + ' · ' + yr;
-  if (!rows.length) {{ hDrillWeekReset(); return; }}
-  _renderDrillTable(rows, label, dim);
+  // Atenuar botón CHANNEL mientras hay drill de semana (no disponible en este modo)
+  const _chanBtn = document.querySelector('#ud-dim-pills .pill[data-dim="chan"]')
+                || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/channel/i.test(b.textContent));
+  if (_chanBtn) {{ _chanBtn.style.opacity = '0.4'; _chanBtn.style.pointerEvents = 'none'; _chanBtn.title = 'No disponible con semana seleccionada'; }}
+  if (!rows.length) {{ _renderDrillTable([], label, _dimKey); _renderDrillPill(label); return; }}
+  _renderDrillTable(rows, label, _dimKey);
   _renderDrillPill(label);
   if (hChart) hChart.update();
 }}
@@ -2251,9 +2384,15 @@ function _renderDrillTable(rows, label, dim) {{
   // Modo normal: tabla principal → Dimensión | Total | PP | SP | HY | TP | % | vs
   const tbody = document.getElementById('ud-tbody');
   if (!tbody) return;
+  // Clases y onclick según la dimensión activa — para que el click en fila funcione
+  const _dimClass = dim==='reg' ? 'ud-reg-row' : dim==='corp' ? 'ud-corp-row' : 'ud-dest-row';
+  const _dimType  = dim==='reg' ? 'region' : dim==='corp' ? 'corp' : 'dest';
   const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(tot.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(tot.hy)+'</td><td class="td-tp">'+fmt(tot.tp)+'</td><td>'+pctBar(tot.pp,tot.total)+'</td><td class="td-vs">—</td></tr>';
-  const dataRows = sorted.map(([k,v]) => '<tr><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>').join('');
-  tbody.innerHTML = globalRow + dataRows;
+  const dataRows = sorted.map(([k,v],i) => {{
+    const esc = k.replace(/"/g,'&quot;');
+    return '<tr class="'+_dimClass+' drill-dim-row" data-row-idx="'+i+'" data-drill-type="'+_dimType+'" data-drill-val="'+esc+'" style="cursor:pointer;" onclick="udRowClick(this.dataset.drillType,this.dataset.drillVal,this)"><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>';
+  }}).join('');
+  tbody.innerHTML = (sorted.length > 0 ? '' : globalRow) + dataRows;
 }}
 
 function _renderDrillPill(label) {{
@@ -2273,15 +2412,32 @@ function _renderDrillPill(label) {{
 function hDrillWeekReset() {{
   hActiveDrillYw = null;
   window._drillYw = null;
+  // Limpiar el selector de semana
+  const _swReset = document.getElementById('sel-week');
+  if (_swReset) {{ _swReset.value = ''; hUpdateComboStyle('sel-week'); }}
+  // Restaurar botón CHANNEL (re-habilitar)
+  const _chanBtn = document.querySelector('#ud-dim-pills .pill[data-dim="chan"]')
+                || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/channel/i.test(b.textContent));
+  if (_chanBtn) {{ _chanBtn.style.opacity = ''; _chanBtn.style.pointerEvents = ''; _chanBtn.title = ''; }}
   // Restaurar la tabla principal si fue modificada
   const tb = document.getElementById('ud-tbody');
-  if (tb && window._tbodyOrig) {{ tb.innerHTML = window._tbodyOrig; window._tbodyOrig = null; }}
+  if (tb && window._tbodyOrig) {{
+    tb.innerHTML = window._tbodyOrig; window._tbodyOrig = null;
+  }} else if (tb) {{
+    // Snapshot perdido — regenerar la tabla desde cero según la dim activa
+    const _curDim = (typeof udDim !== 'undefined' && udDim) ? udDim : 'reg';
+    const _dimBtn = [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>b.classList.contains('on'))
+                 || document.querySelector('#ud-dim-pills .pill');
+    if (_dimBtn) udSetDim(_curDim, _dimBtn);
+  }}
   // Restaurar la tabla GAP si fue modificada
   const gtb = document.getElementById('gap-tbody');
   if (gtb && window._gapTbodyOrig) {{ gtb.innerHTML = window._gapTbodyOrig; window._gapTbodyOrig = null; }}
   const pill = document.querySelector('.drill-pill');
   if (pill) pill.remove();
   if (hChart) hChart.update();
+  // Re-aplicar filtros activos sobre la tabla restaurada
+  hApplyFilter();
 }}
 
 // Called when any filter changes
@@ -2315,7 +2471,9 @@ function hApplyFilter() {{
   // Only apply region cross-filter when in corp or dest dim.
   const activeRegion = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
   // Corp rows — only show when udDim === 'corp'
+  // Saltear filas generadas por drill de semana (.drill-dim-row) — ya están filtradas
   document.querySelectorAll('.ud-corp-row[data-row-idx]').forEach(r => {{
+    if (r.classList.contains('drill-dim-row')) return;
     if (udDim !== 'corp') {{ r.style.display = 'none'; return; }}
     if (!activeRegion) {{
       r.style.display = parseInt(r.dataset.rowIdx||'999') < 10 ? '' : 'none';
@@ -2326,6 +2484,7 @@ function hApplyFilter() {{
   }});
   // Dest rows — only show when udDim === 'dest'
   document.querySelectorAll('.ud-dest-row[data-row-idx]').forEach(r => {{
+    if (r.classList.contains('drill-dim-row')) return;
     if (udDim !== 'dest') {{ r.style.display = 'none'; return; }}
     // If there are active dest filters, show only matching rows
     const activeDestFilters = udActiveFilters.filter(f=>f.type==='dest');
@@ -2372,8 +2531,21 @@ function hPillRegion(btn) {{
       if (name===val) r.classList.add('ud-filter-active');
     }});
   }}
-  hApplyFilter();
-  hRenderActivePills();
+  // Si hay semana activa, re-aplicar drill con el nuevo filtro de región
+  const _wselPR = document.getElementById('sel-week');
+  const _activeYwPR = _wselPR && _wselPR.value ? _wselPR.value : null;
+  if (_activeYwPR) {{
+    const _savedDim = udDim; // capturar dim activo antes de hRender
+    hRender();
+    udDim = _savedDim;       // restaurar dim después de hRender
+    window._tbodyOrig = null;
+    hActiveDrillYw = null;
+    hDrillWeek(_activeYwPR);
+    hRenderActivePills();
+  }} else {{
+    hApplyFilter();
+    hRenderActivePills();
+  }}
 }}
 
 function hOnChannelChange(val) {{
@@ -2458,7 +2630,10 @@ function hRenderActivePills() {{
 
   const container = document.getElementById('hf-active-pills');
   if (!container) return;
+  // Preservar la drill-pill de semana antes de limpiar (sobrevive a cambios de dimensión)
+  const _existingDrillPill = container.querySelector('.drill-pill');
   container.innerHTML = '';
+  if (_existingDrillPill) container.appendChild(_existingDrillPill);
 
   function mkPill(label, onX) {{
     const pill = document.createElement('span');
@@ -2501,7 +2676,15 @@ function hRenderActivePills() {{
           const firstDim = document.querySelector('#ud-dim-pills .pill');
           if (firstDim) {{ firstDim.classList.add('on'); udSetDim('reg', firstDim); }}
         }}
-        hApplyFilter(); hRenderActivePills();
+        // Si hay semana activa, re-drill con filtros actualizados
+        const _swPill = document.getElementById('sel-week');
+        const _ywPill = _swPill && _swPill.value ? _swPill.value : null;
+        if (_ywPill) {{
+          window._tbodyOrig = null; hActiveDrillYw = null;
+          hDrillWeek(_ywPill); hRenderActivePills();
+        }} else {{
+          hApplyFilter(); hRenderActivePills();
+        }}
       }});
     }});
   }}
@@ -2601,6 +2784,11 @@ function hGoLevel(level) {{
 }}
 
 function hSetLevel(level) {{
+  // Al cambiar de nivel de tiempo, limpiar cualquier drill de semana activo
+  // (la tabla de distribución vuelve a su estado global)
+  if (typeof hActiveDrillYw !== 'undefined' && hActiveDrillYw) {{
+    hDrillWeekReset();
+  }}
   if ((level === 'mes' || level === 'sem') && !hYear) {{
     // No year selected — default to most recent
     const yrs = Object.keys(HIST.months_by_year).map(Number).sort((a,b)=>b-a);
@@ -2667,6 +2855,24 @@ function hSelMonth(m) {{
   hUpdateComboStyle('sel-month');
   if (hLevel === 'sem') hPopulateWeeks(hYear, hMonth);
   hGoLevel('sem');
+}}
+
+function hSelWeek(yw) {{
+  // Al cambiar el selector de semana, re-renderizar gráfico + tabla dimensional
+  hUpdateComboStyle('sel-week');
+  hBreadcrumb();
+  hRender();
+  if (yw) {{
+    // Limpiar snap anterior y re-renderizar con la semana seleccionada
+    window._tbodyOrig = null;
+    hActiveDrillYw = null;
+    hDrillWeek(yw);
+  }} else {{
+    // Sin semana — restaurar tabla global y limpiar drill
+    hDrillWeekReset();
+    hApplyFilter();
+  }}
+  udSyncBadges();
 }}
 
 function hRender() {{
@@ -2840,6 +3046,9 @@ function hRender() {{
       const idx = el.index;
       const row = d[idx];
       if (!row || !row.yw) return;
+      // Sincronizar sel-week para que udRowClick/hPillRegion detecten la semana activa
+      const _swChart = document.getElementById('sel-week');
+      if (_swChart) {{ _swChart.value = row.yw; hUpdateComboStyle('sel-week'); }}
       hDrillWeek(row.yw);
     }};
   }}
@@ -3330,7 +3539,8 @@ def build_gap_tab():
         pct=r['pct_penetracion']
         vs = vs_val(pct)
         dest_rows += (
-            f'<tr class="gap-dest-row {cls}" style="{sty}" data-row-idx="{i}" data-region="{r["Region_display"]}" data-con-directo="{con_d}" data-sin-directo="{sin_d}">'
+            f'<tr class="gap-dest-row {cls}" style="{sty};cursor:pointer" data-row-idx="{i}" data-region="{r["Region_display"]}" data-con-directo="{con_d}" data-sin-directo="{sin_d}"'
+            f' onclick="udRowClick(&quot;dest&quot;,&quot;{str(r["Destino"]).replace(chr(34),chr(39))}&quot;,this)">'
             f'<td><strong>{r["Destino"]}</strong>'
             f'<div style="font-size:10px;color:var(--ink-muted);line-height:1.3;margin-top:1px;">{r["Region_display"]}</div></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
@@ -3632,7 +3842,7 @@ def build_html():
       <select class="f-select" id="sel-month" disabled onchange="hSelMonth(this.value);hUpdateComboStyle('sel-month')" title="Mes">
         <option value="">Todos</option>
       </select>
-      <select class="f-select" id="sel-week" title="Semana" style="min-width:80px;" onchange="hUpdateComboStyle('sel-week')">
+      <select class="f-select" id="sel-week" title="Semana" style="min-width:80px;" onchange="hSelWeek(this.value)">
         <option value="">Sem.</option>
       </select>
     </div>
