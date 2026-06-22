@@ -407,6 +407,7 @@ Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
 | W22 | 94,21% | 1,00% | 2,61% | $653 |
 | W23 | 94,53% | 0,84% | 2,87% | $534 |
 | W24 | 95,57% | 0,82% | 3,04% | $611 |
+| W25 | 95,68% | 0,75% | 3,34% | — |
 
 ### Canvas IDs · Módulo Histórico
 

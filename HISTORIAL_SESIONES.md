@@ -1,3 +1,34 @@
+## Sesión W25 · 22-06-2026
+
+**Contexto:** Pipeline W25 completo. Datasets: CR W25, RND W25, BK W25, CR W24, RND W24.
+
+**Cambios de código:**
+- `historico_data.py` — ventana histórica rotada W17-W24 → W18-W25 (drop W17, add W24 per-canasta y global). SEMANAS=['W18'...'W25']. Valores W24 global desde PROMPT_CORE; per-canasta desde M[canasta_w24] del pickle W25.
+- `calc_bk.py` — fix `agg_dim_wow` para manejar `df_prev` vacío (Dataset_bookability_W25.xlsx solo contiene W25, sin historial W24). WoW BK = N/A esta semana.
+- `calc_supply.py` — CONFIG actualizado a W25 (PERIODO 15-21 jun 2026, FECHA_PUB 22 jun 2026).
+
+**Métricas W25:**
+- CR Eficacia: 95.68% (+0.11pp vs W24) — Exitosa
+- CR ConvRate: 0.75% (-0.07pp vs W24) — Crítica
+- RND %NoDispo: 3.34% (+0.30pp vs W24) — Aceptable
+- BK Global: 98.42% (sin WoW — dataset solo W25)
+- HTML: 13.57MB
+
+**Issues resueltos en sesión:**
+- BK df_prev vacío → pipeline rompía en agg_dim_wow (fix graceful no-WoW)
+- Gráficas históricas mostraban W24 como última semana → SEMANAS no rotada
+
+**3 fixes de deuda técnica pre-W25 verificados visualmente (todos OK):**
+1. WoW per-canasta RND — badge WoW tráfico en KPI cards b2c/op/cug
+2. Dedup RND_D ~700KB — check_html confirma 0 dups intra-canasta RND
+3. Mail en _email/week-25/ — incluido en ZIP correctamente
+
+**Commit:** 59722b4de7a2 · feat: Week 25 · Supply unificado + Excels consolidados · 15-21 jun 2026
+
+**Archivos modificados:** historico_data.py · calc_bk.py · calc_supply.py · reports/week-25/SUPPLY_W25.html · checkrates/week-25/* · rates-nodispo/week-25/* · _email/week-25/Mail_W25.html · index.html
+
+---
+
 # 📚 HISTORIAL DE SESIONES · Proyecto PRICE
 **Arqueología de sesiones W16-W20 · Solo consultar ante bugs misteriosos o decisiones de contexto histórico**
 
