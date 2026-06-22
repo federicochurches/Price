@@ -551,7 +551,7 @@ function kpi_setView(card, view, el) {
     pill.style.background    = active ? sec_bg : 'transparent';
     pill.style.color         = sec_col;
     pill.style.borderColor   = sec_col;
-    pill.style.textTransform = active ? 'uppercase' : 'none';
+    pill.style.textTransform = 'uppercase';
   });
 
   /* Mostrar/ocultar paneles */

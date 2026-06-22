@@ -182,7 +182,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     
     # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
     _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;text-transform:uppercase;'
-    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:none;'
+    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:uppercase;'
     _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
     for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):
@@ -275,7 +275,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
     
     # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
     _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;text-transform:uppercase;'
-    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:none;'
+    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:uppercase;'
     _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     tabs = ''
     for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):

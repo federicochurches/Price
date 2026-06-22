@@ -5,6 +5,27 @@
 > Para el contexto operativo vigente → ver `PROMPT_CORE.md`.
 
 
+## Sesión W24-pills · 22 Jun 2026 · Pills de dimensión inactivas → MAYÚSCULA
+
+**Problema (3er intento):** Fede reportó por tercera vez que "las pills siguen en minúscula en la versión commiteada". Los dos misses previos fueron por buscar en el set equivocado (badges de severity, que ya estaban uppercase vía `text-transform`). Esta vez se cazó en el HTML committeado: las pills del **selector de dimensión** (Destino/Corp/Hotel/Channel en CR · País/Destino/Corp/Hotel en RND) usaban `text-transform:none` en la **inactiva** — decisión del W24-layout (activa MAYÚS / inactiva title-case). Eso renderizaba "Corp", "Hotel", "Channel", "País" en title-case = lo que se veía "en minúscula".
+
+**Decisión Fede:** todas las pills en MAYÚSCULA; la activa se distingue por el **relleno** (claro) + borde, no por el case.
+
+**Cambios:**
+- `render_cr_p1.py`: `text-transform:none → uppercase` en las 3 pills inactivas (`_PI` L55, `_PILL_INACT` L170/L338).
+- `render_rnd_p1.py`: idem en las 2 pills inactivas (`_PILL_INACT` L185/L278).
+- `assemble_unified.py`: `kpi_setView` L554 — `pill.style.textTransform = active ? 'uppercase' : 'none'` → **siempre** `'uppercase'`. Sin esto, al cambiar de dimensión el JS volvía a poner title-case en las inactivas.
+
+**⚠️ Casi-regresión cazada por el grep de contexto:** el `sed` global `s/text-transform:none;/.../g` tocó por error un 3er `text-transform:none` en `render_rnd_p1.py` L334 que **no es pill** — es el subtítulo del IPM (`· Income Per Million · GB USD por millón`), que va en minúscula a propósito (el padre es uppercase). Revertido a `none` con `str_replace`. **Aprendizaje:** `text-transform:none` no es exclusivo de pills; antes de un sed global verificar contexto de cada ocurrencia.
+
+**No se tocaron:** tabs de canasta (`.c-chip`, ya uppercase en `demo_css_w22.css`) ni pills de banda AR (Críticos/Bajo Rendimiento/Sin Conversión).
+
+**Verificación:** 0 pills inactivas con `none`, 5 con `uppercase`, subtítulo IPM con `none` intacto (1). Regenerado part1 CR+RND (`VOL_NUM=24`) + reensamblado (`/tmp/SUPPLY_W24.html`, 15.717.287 B). Validado visual Fede. `PROMPT_CORE.md` regla de pills actualizada (inactiva ahora uppercase, ⚠️ no volver a `none`).
+
+**Q clone repo local:** Fede preguntó si conviene reclonar el repo local. Respuesta: no necesario — el `git reset --hard origin/main` previo ya dejó el working tree idéntico al remoto; un clon no trae los gitignored (datasets, tokens, `_seguimiento/`). Recomendado quedarse con el repo actual.
+
+---
+
 ## Sesión W24-mail · 22 Jun 2026 · Mail con Bookability + Inventory · KPIs en neutro
 
 **Contexto:** Fede pidió regenerar el Mail con Bookability + Inventory. La "falla silenciosa" de W24 no era un crash — `render_mail_v3.py` genera bien, simplemente **no se corría** en el pipeline.
