@@ -326,10 +326,11 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     cs = gh['Trafico'].cumsum(); tot = gh['Trafico'].sum()
     p80c = gh[cs<=tot*0.90].copy()
     # WoW por hotel en canasta
-    gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['Hotel','%NoDispo_W18','IPM_W18']]
+    gh17 = agg_hotel(sub17).rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})[['Hotel','%NoDispo_W18','IPM_W18','Trafico_W18']]
     p80c = p80c.merge(gh17, on='Hotel', how='left')
-    p80c['NoDispo_WoW_pp'] = (p80c['%NoDispo'] - p80c['%NoDispo_W18']) * 100
-    p80c['IPM_WoW_pp']     = p80c['IPM'] - p80c['IPM_W18']
+    p80c['NoDispo_WoW_pp']  = (p80c['%NoDispo'] - p80c['%NoDispo_W18']) * 100
+    p80c['IPM_WoW_pp']      = p80c['IPM'] - p80c['IPM_W18']
+    p80c['Trafico_WoW_pct'] = ((p80c['Trafico'] - p80c['Trafico_W18']) / p80c['Trafico_W18'].replace(0, float('nan')) * 100).fillna(float('nan'))
     p80c['RPM'] = p80c['IPM']
     proc_c = p80c[p80c['Bookings']>0]
     nc_c   = p80c[p80c['Bookings']==0]
@@ -340,13 +341,13 @@ for c_key, c_filter, c_name, c_short, c_weight in [
     sub18_p80 = sub18[sub18['Hotel'].isin(p80c_hotels)].copy()
     sub17_p80 = sub17[sub17['Hotel'].isin(p80c_hotels)].copy()
     ac = agg_dim(sub18_p80,'CorpName').merge(
-        agg_dim(sub17_p80,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['CorpName','%NoDispo_W18','IPM_W18']],
+        agg_dim(sub17_p80,'CorpName').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})[['CorpName','%NoDispo_W18','IPM_W18','Trafico_W18']],
         on='CorpName', how='left')
     ad = agg_dim(sub18_p80,'Destino').merge(
-        agg_dim(sub17_p80,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['Destino','%NoDispo_W18','IPM_W18']],
+        agg_dim(sub17_p80,'Destino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})[['Destino','%NoDispo_W18','IPM_W18','Trafico_W18']],
         on='Destino', how='left')
     ap = agg_dim(sub18_p80,'PaisDestino').merge(
-        agg_dim(sub17_p80,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18'})[['PaisDestino','%NoDispo_W18','IPM_W18']],
+        agg_dim(sub17_p80,'PaisDestino').rename(columns={'%NoDispo':'%NoDispo_W18','IPM':'IPM_W18','Trafico':'Trafico_W18'})[['PaisDestino','%NoDispo_W18','IPM_W18','Trafico_W18']],
         on='PaisDestino', how='left')
     # Drop duplicados post-merge
     for g in [ac, ad, ap]:
@@ -355,6 +356,8 @@ for c_key, c_filter, c_name, c_short, c_weight in [
         g['NoDispo_WoW_pp'] = (g['%NoDispo'] - g.get('%NoDispo_W18', g['%NoDispo'])) * 100
         if 'IPM_W18' in g.columns:
             g['IPM_WoW_pp'] = g['IPM'] - g['IPM_W18']
+        if 'Trafico_W18' in g.columns:
+            g['Trafico_WoW_pct'] = ((g['Trafico'] - g['Trafico_W18']) / g['Trafico_W18'].replace(0, float('nan')) * 100).fillna(float('nan'))
     top_dnc = proc_c.sort_values('TraficoNoDispo',ascending=False).head(50).reset_index(drop=True)
     top_br  = proc_c[proc_c['BandaRPM'].isin(['Crítica','Revisar'])].sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
     top_sc  = nc_c.sort_values('Trafico',ascending=False).head(50).reset_index(drop=True)
