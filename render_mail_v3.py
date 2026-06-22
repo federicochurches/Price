@@ -22,18 +22,36 @@ PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
 PICKLE_CR  = os.getenv('PICKLE_CR',  f'cr_w{VOL_NUM}_data.pkl')
 
 # ── Inventory — se pasan por env (pipeline) o fallback 0 (omite el bloque) ──
-INV_PP         = int(os.getenv('INV_PP', '0'))            # Producto Propio esta semana
-INV_PP_PREV    = int(os.getenv('INV_PP_PREV', '0'))       # PP semana anterior (0 = omitir WoW)
-INV_GAP        = int(os.getenv('INV_GAP', '0'))           # Gap al target
-INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE', '0'))  # % avance, ej. 84.1
-INV_RITMO      = int(os.getenv('INV_RITMO', '0'))         # hoteles/sem necesarios
-INV_SEMANAS    = int(os.getenv('INV_SEMANAS', '0'))       # semanas restantes en 2026
-INV_TARGET     = int(os.getenv('INV_TARGET', '70000'))    # target anual fijo
+INV_PP         = int(os.getenv('INV_PP',         '58892'))   # Producto Propio W25
+INV_PP_PREV    = int(os.getenv('INV_PP_PREV',    '0'))       # PP semana anterior (0 = auto-fetch)
+INV_GAP        = int(os.getenv('INV_GAP',        '11108'))   # Gap al target
+INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE','84.1'))   # % avance
+INV_RITMO      = int(os.getenv('INV_RITMO',      '411'))     # hoteles/sem necesarios
+INV_SEMANAS    = int(os.getenv('INV_SEMANAS',    '27'))      # semanas restantes en 2026
+INV_TARGET     = int(os.getenv('INV_TARGET',     '70000'))   # target anual fijo
 
 # Derivar número de semana
 WEEK_NUM      = WEEK.replace('W','').zfill(2)
 WEEK_NUM_INT  = int(VOL_NUM)
 WEEK_PREV_INT = WEEK_NUM_INT - 1
+
+# Auto-fetch INV_PP_PREV desde GitHub si no viene por env var
+if INV_PP > 0 and INV_PP_PREV == 0:
+    try:
+        import urllib.request, re as _re
+        _prev_wn  = f'{WEEK_PREV_INT:02d}'
+        _prev_url = (
+            f'https://raw.githubusercontent.com/federicochurches/Price/main/'
+            f'inventory/week-{_prev_wn}/INVENTORY_W{WEEK_PREV_INT}.html'
+        )
+        with urllib.request.urlopen(_prev_url, timeout=6) as _r:
+            _html_prev = _r.read().decode('utf-8', errors='ignore')
+        _m = _re.search(r'"actual"\s*:\s*(\d+)', _html_prev)
+        if _m:
+            INV_PP_PREV = int(_m.group(1))
+            print(f'  → INV_PP_PREV auto-fetch W{WEEK_PREV_INT}: {INV_PP_PREV:,}')
+    except Exception as _e:
+        print(f'  ⚠ Auto-fetch INV_PP_PREV falló: {_e}')
 
 # Output path
 OUTPUTS_DIR = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
@@ -57,7 +75,14 @@ try:
         DB = pickle.load(f)
     bk_val   = float(DB['bk_global']) * 100
     bk_prev  = float(DB['bk_prev'])   * 100
-    bk_wow   = bk_val - bk_prev
+    if bk_prev < 0.1:   # dataset sin semana anterior → usar último histórico (W24)
+        try:
+            import historico_data as _hd
+            _bk_hist = _hd.HIST_DATA.get('bk', {}).get('bookability', {}).get('global', [])
+            bk_prev  = _bk_hist[-1] if _bk_hist else 0.0
+        except Exception:
+            bk_prev = 0.0
+    bk_wow   = (bk_val - bk_prev) if bk_prev > 0.1 else None  # None si no hay semana anterior
     bk_banda = DB.get('banda_global', 'Exitosa')
     HAS_BK   = True
 except Exception:
@@ -191,7 +216,7 @@ if HAS_BK:
         <div class="kpi-card cr" style="grid-column:1/-1;">
           <div class="kpi-label">Bookability</div>
           <div class="kpi-value cr-color">{es(bk_val,2)}%</div>
-          {wow_str(bk_wow)}
+          {wow_str(bk_wow) if bk_wow is not None else ''}
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{bk_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {bk_banda} · salud de interfaces cross-canasta · Target ≥ 97%</div>
         </div>'''
@@ -201,7 +226,10 @@ else:
 # ── Pre-cálculo INV ───────────────────────────────────────────────────────────
 if HAS_INV:
     inv_pct_gauge = min(int(INV_PCT_AVANCE), 100)
-    inv_wow_html  = wow_str(INV_PP - INV_PP_PREV, decimals=0, suffix='') if INV_PP_PREV > 0 else ''
+    inv_wow_html  = wow_str(INV_PP - INV_PP_PREV, decimals=0, suffix='') if INV_PP_PREV > 0 and INV_PP != INV_PP_PREV else ''
+    # Gap WoW: baja cuando PP sube (invert=True → negativo = bueno = verde)
+    _gap_delta    = INV_PP_PREV - INV_PP   # negativo si PP creció (gap bajó)
+    inv_gap_wow_html = wow_str(_gap_delta, decimals=0, suffix='', invert=True) if INV_PP_PREV > 0 and INV_PP != INV_PP_PREV else ''
     inv_section   = f'''
     <!-- State of PriceTravel Product · Inventory -->
     <div class="kpi-section">
@@ -220,7 +248,9 @@ if HAS_INV:
         <div class="kpi-card inv">
           <div class="kpi-label">Gap al Target</div>
           <div class="kpi-value inv-red">{es(INV_GAP, 0)}</div>
-          <div class="kpi-sub" style="margin-top:10px;">Ritmo necesario: ~{es(INV_RITMO, 0)} / sem · <strong>{INV_SEMANAS}</strong> sem. restantes</div>
+          {inv_gap_wow_html}
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{inv_pct_gauge}%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Ritmo necesario: ~{es(INV_RITMO, 0)} / sem · <strong>{INV_SEMANAS}</strong> sem. restantes</div>
         </div>
       </div>
     </div>'''
@@ -358,19 +388,12 @@ mail_html = f'''<!DOCTYPE html>
         Availability · Métricas globales
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card rnd">
+        <div class="kpi-card rnd" style="grid-column:1/-1;">
           <div class="kpi-label">% No Disponibilidad</div>
           <div class="kpi-value rnd-color">{es(rnd_pct,2)}%</div>
           {wow_str(rnd_pct_wow, invert=True)}
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{nd_pct_gauge}%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda {nd_label} · {rnd_n_supc} Súper Críticos · {rnd_n_critmas} Críticos o peor</div>
-        </div>
-        <div class="kpi-card rnd">
-          <div class="kpi-label">IPM (USD / millón búsquedas)</div>
-          <div class="kpi-value">${es(rnd_ipm_w18,0)}</div>
-          {wow_str(rnd_ipm_wow, decimals=1, suffix='%', invert=False)}
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ipm_pct_gauge}%;background:#8A8377;"></div></div>
-          <div class="kpi-sub">Banda {ipm_label} · Target ≥ $650</div>
         </div>
       </div>
     </div>

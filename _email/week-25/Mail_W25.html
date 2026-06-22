@@ -90,10 +90,10 @@
 </div>
 
 <div class="field-label">Asunto</div>
-<div class="field-box subject">Weekly KPIs Supply · W25 · Connectivities &amp; Hotel Availability</div>
+<div class="field-box subject">Weekly KPIs Supply · W25 · Connectivities &amp; Hotel Availability &amp; Inventory</div>
 
 <div class="field-label">Preheader</div>
-<div class="field-box">Availability 3,43% NoDispo · IPM $908 · Connectivities Eficacia 95,68% · Conv Rate 0,75%</div>
+<div class="field-box">Availability 3,43% NoDispo · IPM $908 · Connectivities Eficacia 95,68% · Conv Rate 0,75% · PP 58.892 hoteles</div>
 
 <hr class="divider">
 
@@ -115,7 +115,7 @@
   <div class="mail-body">
 
     <p class="mail-lede">
-      Resumen de KPIs Connectivities + Availability + Conv Rate W25.
+      Resumen de KPIs Connectivities + Availability + Conv Rate + State of PriceTravel Product W25.
       El detalle completo — incluyendo descarga del Excel con el Top 500 de hoteles — está disponible en el Hub de Supply Optimization.
     </p>
 
@@ -126,19 +126,12 @@
         Availability · Métricas globales
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card rnd">
+        <div class="kpi-card rnd" style="grid-column:1/-1;">
           <div class="kpi-label">% No Disponibilidad</div>
           <div class="kpi-value rnd-color">3,43%</div>
           <span class="kpi-wow wow-down">▼ 0,40pp WoW</span>
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:45%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda Aceptable · 39 Súper Críticos · 456 Críticos o peor</div>
-        </div>
-        <div class="kpi-card rnd">
-          <div class="kpi-label">IPM (USD / millón búsquedas)</div>
-          <div class="kpi-value">$908</div>
-          <span class="kpi-wow wow-up">▲ 35,6% WoW</span>
-          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:60%;background:#8A8377;"></div></div>
-          <div class="kpi-sub">Banda Aceptable · Target ≥ $650</div>
         </div>
       </div>
     </div>
@@ -168,18 +161,42 @@
         <div class="kpi-card cr" style="grid-column:1/-1;">
           <div class="kpi-label">Bookability</div>
           <div class="kpi-value cr-color">98,42%</div>
-          <span class="kpi-wow wow-up">▲ 98,42pp WoW</span>
+          <span class="kpi-wow wow-down">▼ 0,25pp WoW</span>
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:90%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Banda Exitosa · salud de interfaces cross-canasta · Target ≥ 97%</div>
         </div>
       </div>
     </div>
     
+    <!-- State of PriceTravel Product · Inventory -->
+    <div class="kpi-section">
+      <div class="section-title">
+        <span class="dot dot-inv"></span>
+        State of PriceTravel Product · Inventory
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card inv">
+          <div class="kpi-label">Producto Propio</div>
+          <div class="kpi-value inv-color">58.892</div>
+          
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:84%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">84,1% de avance · Target 70.000 · 2026</div>
+        </div>
+        <div class="kpi-card inv">
+          <div class="kpi-label">Gap al Target</div>
+          <div class="kpi-value inv-red">11.108</div>
+          
+          <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:84%;background:#8A8377;"></div></div>
+          <div class="kpi-sub">Ritmo necesario: ~411 / sem · <strong>27</strong> sem. restantes</div>
+        </div>
+      </div>
+    </div>
     <!-- CTA -->
     <div class="cta-section">
       <p>Findings completos, Hoteles, Corporativos, Destinos y Análisis por Canasta en el Hub.
       Desde el reporte podés descargar el <strong>Excel con el Top 500 de hoteles</strong> para cada métrica.</p>
       <a href="https://analytics-desk.netlify.app/reports/week-25/supply_w25" class="cta">→ Connectivities &amp; Hotel Availability W25</a>
+      <a href="https://analytics-desk.netlify.app/inventory/week-25/INVENTORY_W25.html" class="cta" style="display:block;margin-top:8px;background:#333132;">→ State of PriceTravel Product W25</a>
     </div>
 
   </div>
