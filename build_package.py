@@ -135,6 +135,7 @@ def build_index():
     inv_n      = '305.764'   # Sistema W25
     inv_pp_n   = '58.990'    # Producto Propio (Solo Propio + Hybrid)
     inv_gap    = '11.010'    # Gap vs Target 70K
+    inv_avance = f'{round(58990/70000*100, 1):.1f}%'  # % avance = 84.3%
 
     # Inventory WoW (W25 vs W24 · netnew real del chart = 44 hoteles nuevos en W25)
     _inv_n_d   = 305764 - 309016   # −3252
@@ -282,7 +283,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <div class="rpt-kpis">
           <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val">{inv_n}</div>{wow_inv_n}</div>
           <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div>{wow_inv_pp}</div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Gap 2026</div><div class="rpt-kpi-val">{inv_gap}</div>{wow_inv_gap}</div>
+          <div class="rpt-kpi"><div class="rpt-kpi-label">Avance 2026</div><div class="rpt-kpi-val">{inv_avance}</div>{wow_inv_gap}</div>
         </div>
       </div>
       <div class="rpt-pills">
