@@ -131,15 +131,15 @@ def build_index():
         wow_bk     = ''
         bk_val_str = '—'
 
-    # Inventory KPIs W24 (from INVENTORY_W24.html / calc_inv.py run)
-    inv_n      = '309.016'   # Sistema W24
-    inv_pp_n   = '58.895'    # Producto Propio (Solo Propio + Hybrid)
-    inv_gap    = '11.105'    # Gap vs Target 70K
+    # Inventory KPIs W25 (from INVENTORY_W25.html · calc_inv.py run)
+    inv_n      = '305.764'   # Sistema W25
+    inv_pp_n   = '58.990'    # Producto Propio (Solo Propio + Hybrid)
+    inv_gap    = '11.010'    # Gap vs Target 70K
 
-    # Inventory WoW (W24 vs W23 · valores absolutos)
-    _inv_n_d   = 309016 - 309052   # −36
-    _inv_pp_d  = 58895  - 58888    # +7
-    _inv_gap_d = 11105  - 11112    # −7  (negativo = gap cierra = bueno)
+    # Inventory WoW (W25 vs W24 · valores absolutos)
+    _inv_n_d   = 305764 - 309016   # −3252
+    _inv_pp_d  = 58990  - 58892    # +98
+    _inv_gap_d = 11010  - 11108    # −98  (negativo = gap cierra = bueno)
     def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
     wow_inv_n   = _wb(_inv_n_d,    _inv_fmt(_inv_n_d))
     wow_inv_pp  = _wb(_inv_pp_d,   _inv_fmt(_inv_pp_d))

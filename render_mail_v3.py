@@ -22,11 +22,11 @@ PICKLE_RND = os.getenv('PICKLE_RND', f'rnd_w{VOL_NUM}_data.pkl')
 PICKLE_CR  = os.getenv('PICKLE_CR',  f'cr_w{VOL_NUM}_data.pkl')
 
 # ── Inventory — se pasan por env (pipeline) o fallback 0 (omite el bloque) ──
-INV_PP         = int(os.getenv('INV_PP',         '58892'))   # Producto Propio W25
+INV_PP         = int(os.getenv('INV_PP',         '58990'))   # Producto Propio W25
 INV_PP_PREV    = int(os.getenv('INV_PP_PREV',    '0'))       # PP semana anterior (0 = auto-fetch)
-INV_GAP        = int(os.getenv('INV_GAP',        '11108'))   # Gap al target
-INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE','84.1'))   # % avance
-INV_RITMO      = int(os.getenv('INV_RITMO',      '411'))     # hoteles/sem necesarios
+INV_GAP        = int(os.getenv('INV_GAP',        '11010'))   # Gap al target
+INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE','84.3'))   # % avance
+INV_RITMO      = int(os.getenv('INV_RITMO',      '408'))     # hoteles/sem necesarios
 INV_SEMANAS    = int(os.getenv('INV_SEMANAS',    '27'))      # semanas restantes en 2026
 INV_TARGET     = int(os.getenv('INV_TARGET',     '70000'))   # target anual fijo
 
