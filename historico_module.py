@@ -363,11 +363,9 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var w24 = isNaN(w_p) ? w25 : w_p;
 
     if (hist_arr && hist_arr.length === n) {{
-      /* Usar datos reales; rellenar nulls con interpolación simple */
+      /* hist_arr ya tiene W18-W(N-1) reales + W(N) concatenado — NO sobrescribir.
+         Solo completar nulls por interpolación. */
       var s = hist_arr.slice();
-      /* Asegurar W24 y W25 desde los atributos de la fila (más precisos) */
-      if (!isNaN(w24) && w24 !== null) s[n-2] = w24;
-      if (!isNaN(w25) && w25 !== null) s[n-1] = w25;
       /* Rellenar nulls: buscar vecino más cercano conocido */
       for (var i = 0; i < n; i++) {{
         if (s[i] === null || isNaN(s[i])) {{
