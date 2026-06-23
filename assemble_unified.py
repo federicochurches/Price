@@ -381,9 +381,17 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             if (!isNaN(_wc)) {
               var _wp = !isNaN(_wowAttr) ? (_wc - _wowAttr) : _wc;
               var _wa = parseFloat(row.getAttribute('data-hist-curr'));
-              _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-update', {detail: {cid: cid, w_curr: _wc, w_prev: _wp, w_actual: _wa, label: val}})); });
-              var _lblU = document.getElementById('hist-' + _cid2 + '-label');
-              if (_lblU) _lblU.textContent = val;
+              /* Disparar DESPUÉS de que _kpiPillRender termine su trabajo (evita race con w22_redrawCanvas) */
+              var _histDetail = {w_curr: _wc, w_prev: _wp, w_actual: _wa, label: val};
+              var _cidsCopy = _cids.slice();
+              var _cid2Copy = _cid2; var _valCopy = val;
+              setTimeout(function() {
+                _cidsCopy.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-update', {detail: Object.assign({cid: cid}, _histDetail)})); });
+                var _lblU = document.getElementById('hist-' + _cid2Copy + '-label');
+                var _sems2 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
+                  ? SEMANAS[SEMANAS.length-2] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W24\u2013W25';
+                if (_lblU) _lblU.textContent = _valCopy + ' \u00b7 ' + _sems2;
+              }, 100);
             }
           }
         }
