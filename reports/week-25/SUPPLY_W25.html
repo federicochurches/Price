@@ -10007,7 +10007,7 @@ function _kpiPillRender(card) {
        pero las demás siguen visibles). Solo filtran las dimensiones CRUZADAS. */
     var _anyFilter = (activeTab === 'destino' && (_cf.pais || _cf.corp))
                   || (activeTab === 'pais'    && _cf.corp)
-                  || (activeTab === 'corp'    && (_cf.dest || _cf.pais));
+                  || (activeTab === 'corp'    && (_cf.dest || _cf.pais || _cf.corp));
     var _rows = _panel.querySelectorAll('[data-hist-label]');
     var _rowsContainer = _panel.querySelector('.kpi-tab-rows') || _panel;
     if (!_anyFilter) {
@@ -10047,6 +10047,7 @@ function _kpiPillRender(card) {
       } else if (activeTab === 'corp') {
         if (_cf.dest) _ok = _ok && _corpHasDest(_label, _cf.dest);              /* Destino→Corp */
         if (_cf.pais) _ok = _ok && _corpHasPais(_label, _cf.pais);              /* País→Corp */
+        if (_cf.corp) _ok = _ok && (_kpiNormCF(_label) === _kpiNormCF(_cf.corp)); /* Corp→Corp: muestra solo el corp seleccionado */
       }
       if (_ok) {
         _shown++;
