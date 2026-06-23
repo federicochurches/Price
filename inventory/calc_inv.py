@@ -228,7 +228,7 @@ df_pp = df[df['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])].copy()
 # KPIs globales
 market_total   = N                          # 309,509
 market_pp      = pp                         # 52,491 con directo
-market_tp      = int(solo_terc)             # 257,018 sin directo
+market_tp      = int(solo_terc)             # 257,018 con terceros
 market_share   = pp / N * 100              # 17.0%
 
 # Sin contratación directa por corporativo (excluye AA-Independent)
@@ -318,7 +318,7 @@ for r in indep_dest_json:
         if hasattr(v,'item'): r[k] = v.item()
 
 n_indep_sin = int(df_tp_indep['IdHotel'].count()) if 'IdHotel' in df_tp_indep.columns else int(len(df_tp_indep))
-print(f"    Independientes sin directo: {fmt_n(n_indep_sin)} | Destinos: {len(indep_dest)}")
+print(f"    Independientes con terceros: {fmt_n(n_indep_sin)} | Destinos: {len(indep_dest)}")
 def channel_stats_propio(dataframe):
     channels = [('DerbySoft','DerbySoft'),('HBSI','HBSI'),('Internal','Internal'),
                 ('Omnibees','Omnibees'),('Siteminder','Siteminder'),('SynXis','SynXis'),('Travelclick','Travelclick')]
@@ -525,20 +525,6 @@ for r in all_weeks:
 if acum_weeks:
     acum_weeks[-1]['acum'] = pp
 
-# by_week_all — todos los tipos (PP + Third Party, excl. sin_contrato)
-# Se usa cuando ningún filtro de tipo está activo (vista "CONTRATACIÓN")
-by_week_g_all   = df_hist.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
-week_netnew_all = {r['yw']: int(r['netnew']) for _, r in by_week_g_all.iterrows()}
-N_con_contrato  = int(pp) + int(solo_terc)  # PP + Third Party (sin sin_contrato)
-acum_weeks_all  = []
-cum_all = 0
-for entry in all_weeks:
-    nw = week_netnew_all.get(entry['yw'], 0)
-    cum_all += nw
-    acum_weeks_all.append({'yw': entry['yw'], 'ym': entry['ym'], 'netnew': nw, 'acum': cum_all})
-if acum_weeks_all:
-    acum_weeks_all[-1]['acum'] = N_con_contrato
-
 # Sets de años y meses — from acum_weeks (includes fill weeks)
 years_available = sorted(set(int(r['yw'][:4]) for r in acum_weeks))
 months_by_year  = {}
@@ -620,7 +606,7 @@ hist_regions          = sorted(df_hist['Region_display'].unique().tolist())
 hist_corps            = sorted(top_corps)
 hist_channels_propio  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
 hist_channels_tercero = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
-hist_tipos            = ['Solo Propio','Hybrid','Third Party']
+hist_tipos            = ['Solo Propio','Hybrid']
 
 # Serializar dim_ch con keys cortas: w=yw, m=ym, t=ch_tipo, ch=channel, n=n
 dim_ch_rows = dim_ch_idx.to_dict('records')
@@ -696,10 +682,9 @@ class NpEncoder(json.JSONEncoder):
         return super().default(obj)
 
 hist_data = {
-    'by_year':     acum_years,
-    'by_month':    acum_months,
-    'by_week':     acum_weeks,
-    'by_week_all': acum_weeks_all,   # todos los tipos (PP + Third Party)
+    'by_year':  acum_years,
+    'by_month': acum_months,
+    'by_week':  acum_weeks,
     'weeks_by_ym': weeks_by_ym,
     'years':    years_available,
     'months_by_year': months_by_year,
@@ -1484,7 +1469,7 @@ function udContent(id, btn) {{
     if (btn) btn.classList.add('on');
     udToggleGap(btn);
     hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
-    // Resaltar SIN DIRECTO en tabla gap
+    // Resaltar CON TERCEROS en tabla gap
     const tbl2 = document.querySelector('#gap-tbody')?.closest('table');
     if (tbl2) {{
       tbl2.className = tbl2.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
@@ -2384,10 +2369,10 @@ function _renderDrillTable(rows, label, dim) {{
   }};
 
   if (_gapMode()) {{
-    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Sin Directo | Con Directo | % Propio | vs Global
+    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Con Terceros | Con Directo | % Propio | vs Global
     const tbody = document.getElementById('gap-tbody');
     if (!tbody) return;
-    // En GAP: Sin Directo = Third Party (tp), Con Directo = Prod Propio (pp)
+    // En GAP: Con Terceros = Third Party (tp), Con Directo = Prod Propio (pp)
     const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td>'
       + '<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.tp)+'</td>'
       + '<td style="color:#6A6A6A;">'+fmt(tot.pp)+'</td>'
@@ -2777,8 +2762,7 @@ function hBreadcrumb() {{
 
 function hPopulateWeeks(yr, mo) {{
   const prefix = yr ? String(yr)+'-W' : '';
-  const _srcW2 = (!hFTipo && HIST.by_week_all) ? HIST.by_week_all : HIST.by_week;
-  let weeks = _srcW2.filter(r => r.yw.startsWith(prefix));
+  let weeks = HIST.by_week.filter(r => r.yw.startsWith(prefix));
   if (mo) {{
     const ymKey = String(yr)+'-'+(mo<10?'0':'')+mo;
     weeks = weeks.filter(r => r.ym === ymKey);
@@ -2985,15 +2969,13 @@ function hRender() {{
     // ── Por Semana: TODAS las semanas del período incluyendo vacías ──
     // Referencia: HIST.by_week tiene fill completo hasta W21 para todas las semanas
     let refWeeks;
-    // Sin filtro de tipo → mostrar todos los tipos (by_week_all); con filtro → solo PP (by_week)
-    const _srcWeek = (!hFTipo && HIST.by_week_all) ? HIST.by_week_all : HIST.by_week;
     if (hMonth) {{
       const ymKey = String(hYear)+'-'+String(hMonth).padStart(2,'0');
-      refWeeks = _srcWeek.filter(r=>r.ym===ymKey);
+      refWeeks = HIST.by_week.filter(r=>r.ym===ymKey);
     }} else if (hYear) {{
-      refWeeks = _srcWeek.filter(r=>r.yw.startsWith(String(hYear)+'-W'));
+      refWeeks = HIST.by_week.filter(r=>r.yw.startsWith(String(hYear)+'-W'));
     }} else {{
-      refWeeks = _srcWeek;
+      refWeeks = HIST.by_week;
     }}
 
     let d;
@@ -3502,7 +3484,7 @@ def build_channel_tab():
 def build_gap_tab():
     """Sin Contratación Directa — misma estructura que tabla unificada."""
     # Rows by current dim (reg / corp / dest) — uses corp_mkt and reg_mkt
-    # Show: Sin Directo | Con Directo | Total | % Penetración
+    # Show: Con Terceros | Con Directo | Total | % Penetración
 
     def vs_val(pct_pen):
         return pct_pen - (pp/N*100)
@@ -3593,7 +3575,7 @@ def build_gap_tab():
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th class="th-pp" style="color:#4FC3F4;">Sin Directo</th>
+        <th class="th-pp" style="color:#4FC3F4;">Con Terceros</th>
         <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
         <th class="th-vs">vs Global</th>

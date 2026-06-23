@@ -1277,16 +1277,16 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -1647,16 +1647,16 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -1998,16 +1998,16 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -2441,16 +2441,16 @@ var BK_CARD_TABS={"global": {"bk": {"destino": [["Rome", "", "#F97316", "#FFFFFF
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -2810,16 +2810,16 @@ var BK_CARD_TABS={"global": {"bk": {"destino": [["Rome", "", "#F97316", "#FFFFFF
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -3282,16 +3282,16 @@ window.HIST_DATA['rnd'] = {
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -3632,16 +3632,16 @@ window.HIST_DATA['rnd'] = {
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -4022,16 +4022,16 @@ window.HIST_DATA['rnd'] = {
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -4372,16 +4372,16 @@ window.HIST_DATA['rnd'] = {
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
@@ -4760,16 +4760,16 @@ window.HIST_DATA['rnd'] = {
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {
-    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
-       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
-       W23: corp W23 (w_p)
-       W24: corp W24 (w_c)
-       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
+    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
+       W23-W25: datos reales del corp/hotel.
+       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
+       Evita mezclar datos globales (~94%) con datos del corp específico. */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
+    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
+    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
+    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
     return s;
   }
   
