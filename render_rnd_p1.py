@@ -11,6 +11,7 @@ from render_helpers import *
 from render_helpers import _kpi_pill
 
 from historico_module import render_historico
+from render_historico_svg import render_historico_svg as _rhs
 
 def _mini_badge(bnd):
     if not bnd or not isinstance(bnd, str): return ''
@@ -250,7 +251,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div id="kpi-nd-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
 <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
-{render_historico('rnd', 'nodispo', banda, pct_w18, 'hrnd-global-nd')}
+<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}</div>
 </div>'''
 
 def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
@@ -347,7 +348,7 @@ def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
 <div id="kpi-ipm-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
 <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
 <div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
-{render_historico('rnd', 'ipm', banda, rpm_w18, 'hrnd-global-ipm')}
+<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-ipm-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','ipm',banda,rpm_w18,'hrnd-panel-ipm')}</div>
 </div>'''
 
 def render_alerts_block():

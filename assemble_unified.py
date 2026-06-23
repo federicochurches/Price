@@ -45,10 +45,10 @@ _ipm_val = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('rpm', 834.0)
 
 from engine import banda_convrate as _bcv, banda_rpm as _brpm
 
-HIST_CR_PANEL     = _rh_svg('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-panel-ef')
-HIST_CR_PANEL_CV  = _rh_svg('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-panel-cv')
-HIST_RND_PANEL    = _rh_svg('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-panel-nd')
-HIST_RND_PANEL_IPM= _rh_svg('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-panel-ipm')
+HIST_CR_PANEL     = _rh_svg('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-ar-ef')
+HIST_CR_PANEL_CV  = _rh_svg('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-ar-cv')
+HIST_RND_PANEL    = _rh_svg('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-ar-nd')
+HIST_RND_PANEL_IPM= _rh_svg('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-ar-ipm')
 HIST_CR_DIM       = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
 HIST_CR_DIM_CV    = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-dim-cv')
 HIST_RND_DIM      = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
@@ -369,7 +369,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         /* Actualizar AMBAS canvas (global + panel) para que la visible siempre se redibuje */
         var _cidMapG = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
         var _cidMapP = {nd:'hrnd-panel-nd',  ipm:'hrnd-panel-ipm',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-global'};
-        var _cids = [_cidMapG[cardKey], _cidMapP[cardKey]].filter(function(x){ return x; });
+        var _cidMapAR = {nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm', ef:'hcr-ar-ef', cv:'hcr-ar-cv'};
+        var _cids = [_cidMapG[cardKey], _cidMapP[cardKey], _cidMapAR[cardKey]].filter(function(x){ return x; });
         _cids = _cids.filter(function(x,i){ return _cids.indexOf(x) === i; }); /* dedup */
         var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */
         if (_cids.length) {

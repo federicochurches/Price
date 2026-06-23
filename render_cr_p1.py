@@ -133,6 +133,7 @@ def render_hero():
 CR_ACCENT = '#5C469C'
 
 from historico_module import render_historico
+from render_historico_svg import render_historico_svg as _rhs
 
 def _cr_trafico_line():
     """Mini-fila con CR Únicos globales y WoW — delegada al helper centralizado."""
@@ -312,7 +313,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 <div id="kpi-ef-hfilt" style="display:none;"></div>
 <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ef', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-ef')}</div>
 <div id="kpi-ef-panels" class="tab-panels">{panels}</div>
-{render_historico('cr', 'eficacia', banda, ef_w18, 'hcr-global-ef')}
+<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hcr-panel-ef-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C469C;display:block;margin-bottom:6px;'>Global</span>{_rhs('cr','eficacia',banda,ef_w18,'hcr-panel-ef')}</div>
 </div>'''
 
 def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}', week_prev=f'W{WEEK_PREV_INT}'):
@@ -474,7 +475,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 <div id="kpi-cv-hfilt" style="display:none;"></div>
 <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-cv', accent_color='#5C469C', placeholder='Buscar…', count_id='cnt-kpi-cv')}</div>
 <div id="kpi-cv-panels" class="tab-panels">{panels}</div>
-{render_historico('cr', 'convrate', banda, cv_w18, 'hcr-global-cv')}
+<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hcr-panel-cv-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C469C;display:block;margin-bottom:6px;'>Global</span>{_rhs('cr','convrate',banda,cv_w18,'hcr-panel-cv')}</div>
 </div>'''
 
 def render_alerts_block():
