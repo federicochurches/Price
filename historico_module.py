@@ -462,5 +462,13 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   }};
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {{
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  }};
 }})();
 </script>'''

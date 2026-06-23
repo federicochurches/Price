@@ -381,17 +381,18 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             if (!isNaN(_wc)) {
               var _wp = !isNaN(_wowAttr) ? (_wc - _wowAttr) : _wc;
               var _wa = parseFloat(row.getAttribute('data-hist-curr'));
-              /* Disparar DESPUÉS de que _kpiPillRender termine su trabajo (evita race con w22_redrawCanvas) */
-              var _histDetail = {w_curr: _wc, w_prev: _wp, w_actual: _wa, label: val};
-              var _cidsCopy = _cids.slice();
-              var _cid2Copy = _cid2; var _valCopy = val;
+              /* Llamada directa a histUpdate_ (bypasea event system — más confiable que dispatch) */
+              var _wc2 = _wc, _wp2 = _wp, _wa2 = _wa, _val2 = val, _cids2 = _cids.slice();
+              var _sems3 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
+                ? SEMANAS[SEMANAS.length-2] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W24\u2013W25';
+              var _lbl3 = _val2 + ' \u00b7 ' + _sems3;
               setTimeout(function() {
-                _cidsCopy.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-update', {detail: Object.assign({cid: cid}, _histDetail)})); });
-                var _lblU = document.getElementById('hist-' + _cid2Copy + '-label');
-                var _sems2 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
-                  ? SEMANAS[SEMANAS.length-2] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W24\u2013W25';
-                if (_lblU) _lblU.textContent = _valCopy + ' \u00b7 ' + _sems2;
-              }, 100);
+                _cids2.forEach(function(cid) {
+                  var fn = window['histUpdate_' + cid];
+                  if (fn) { fn(_wc2, _wp2, _wa2, _lbl3); }
+                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_wc2,w_prev:_wp2,w_actual:_wa2,label:_val2}})); }
+                });
+              }, 50);
             }
           }
         }

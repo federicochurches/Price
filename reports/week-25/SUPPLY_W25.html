@@ -1384,6 +1384,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  };
 })();
 </script>
 </div>
@@ -1759,6 +1767,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  };
 })();
 </script>
 </div>
@@ -2114,6 +2130,14 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
   };
 })();
 </script></div>
@@ -2563,6 +2587,14 @@ var BK_CARD_TABS={"global": {"bk": {"destino": [["Rome", "", "#F97316", "#FFFFFF
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  };
 })();
 </script>
 </div>
@@ -2936,6 +2968,14 @@ var BK_CARD_TABS={"global": {"bk": {"destino": [["Rome", "", "#F97316", "#FFFFFF
     }
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
   };
 })();
 </script>
@@ -3414,6 +3454,14 @@ window.HIST_DATA['rnd'] = {
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  };
 })();
 </script></div>
       <div id="ar1-hist-rnd" style="margin-top:12px;display:none;"><div id="hist-hrnd-panel-nd" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
@@ -3768,6 +3816,14 @@ window.HIST_DATA['rnd'] = {
     }
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
   };
 })();
 </script></div>
@@ -4164,6 +4220,14 @@ window.HIST_DATA['rnd'] = {
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
   };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
+  };
 })();
 </script></div>
       <div id="ar2-hist-rnd" style="margin-top:12px;display:none;"><div id="hist-hrnd-panel-ipm" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
@@ -4518,6 +4582,14 @@ window.HIST_DATA['rnd'] = {
     }
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
   };
 })();
 </script></div>
@@ -4911,6 +4983,14 @@ window.HIST_DATA['rnd'] = {
     }
     var vals = newVals || currentVals;
     drawCanvas(vals); updateMetrics(vals, 'Global');
+  };
+  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {
+    var s = buildSerie(w_c, w_p, w_a);
+    drawCanvas(s);
+    updateMetrics(s, lbl || '');
+    var lblEl = document.getElementById('hist-'+CID+'-label');
+    if (lblEl && lbl) lblEl.textContent = lbl;
   };
 })();
 </script></div>
@@ -9656,17 +9736,18 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             if (!isNaN(_wc)) {
               var _wp = !isNaN(_wowAttr) ? (_wc - _wowAttr) : _wc;
               var _wa = parseFloat(row.getAttribute('data-hist-curr'));
-              /* Disparar DESPUÉS de que _kpiPillRender termine su trabajo (evita race con w22_redrawCanvas) */
-              var _histDetail = {w_curr: _wc, w_prev: _wp, w_actual: _wa, label: val};
-              var _cidsCopy = _cids.slice();
-              var _cid2Copy = _cid2; var _valCopy = val;
+              /* Llamada directa a histUpdate_ (bypasea event system — más confiable que dispatch) */
+              var _wc2 = _wc, _wp2 = _wp, _wa2 = _wa, _val2 = val, _cids2 = _cids.slice();
+              var _sems3 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
+                ? SEMANAS[SEMANAS.length-2] + '–' + SEMANAS[SEMANAS.length-1] : 'W24–W25';
+              var _lbl3 = _val2 + ' · ' + _sems3;
               setTimeout(function() {
-                _cidsCopy.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-update', {detail: Object.assign({cid: cid}, _histDetail)})); });
-                var _lblU = document.getElementById('hist-' + _cid2Copy + '-label');
-                var _sems2 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
-                  ? SEMANAS[SEMANAS.length-2] + '–' + SEMANAS[SEMANAS.length-1] : 'W24–W25';
-                if (_lblU) _lblU.textContent = _valCopy + ' · ' + _sems2;
-              }, 100);
+                _cids2.forEach(function(cid) {
+                  var fn = window['histUpdate_' + cid];
+                  if (fn) { fn(_wc2, _wp2, _wa2, _lbl3); }
+                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_wc2,w_prev:_wp2,w_actual:_wa2,label:_val2}})); }
+                });
+              }, 50);
             }
           }
         }
