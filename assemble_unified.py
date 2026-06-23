@@ -364,11 +364,15 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         _kpiPillRender(cardKey);
         /* Bug 5: al seleccionar una dimensión (país/corp/destino), actualizar la gráfica histórica
            con el valor de esa entidad (W24 = hist_w21, W23 = W24 − WoW). */
-        var _cidMap = {nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm', ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-global'};
-        var _cid2 = _cidMap[cardKey];
-        if (_cid2) {
+        /* Actualizar AMBAS canvas (global + panel) para que la visible siempre se redibuje */
+        var _cidMapG = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
+        var _cidMapP = {nd:'hrnd-panel-nd',  ipm:'hrnd-panel-ipm',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-global'};
+        var _cids = [_cidMapG[cardKey], _cidMapP[cardKey]].filter(function(x){ return x; });
+        _cids = _cids.filter(function(x,i){ return _cids.indexOf(x) === i; }); /* dedup */
+        var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */
+        if (_cids.length) {
           if (isAlreadySel) {
-            document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: _cid2}}));
+            _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}})); });
             var _lblR = document.getElementById('hist-' + _cid2 + '-label');
             if (_lblR) _lblR.textContent = 'Global';
           } else {
@@ -376,7 +380,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             var _wowAttr = parseFloat(row.getAttribute('data-hist-wow'));
             if (!isNaN(_wc)) {
               var _wp = !isNaN(_wowAttr) ? (_wc - _wowAttr) : _wc;
-              document.dispatchEvent(new CustomEvent('hist-update', {detail: {cid: _cid2, w_curr: _wc, w_prev: _wp, label: val}}));
+              var _wa = parseFloat(row.getAttribute('data-hist-curr'));
+              _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-update', {detail: {cid: cid, w_curr: _wc, w_prev: _wp, w_actual: _wa, label: val}})); });
               var _lblU = document.getElementById('hist-' + _cid2 + '-label');
               if (_lblU) _lblU.textContent = val;
             }
