@@ -29,6 +29,7 @@ INV_PCT_AVANCE = float(os.getenv('INV_PCT_AVANCE','84.3'))   # % avance
 INV_RITMO      = int(os.getenv('INV_RITMO',      '408'))     # hoteles/sem necesarios
 INV_SEMANAS    = int(os.getenv('INV_SEMANAS',    '27'))      # semanas restantes en 2026
 INV_TARGET     = int(os.getenv('INV_TARGET',     '70000'))   # target anual fijo
+INV_NETNEW     = int(os.getenv('INV_NETNEW',     '44'))      # hoteles nuevos reales (netnew del chart)
 
 # Derivar número de semana
 WEEK_NUM      = WEEK.replace('W','').zfill(2)
@@ -226,7 +227,9 @@ else:
 # ── Pre-cálculo INV ───────────────────────────────────────────────────────────
 if HAS_INV:
     inv_pct_gauge = min(int(INV_PCT_AVANCE), 100)
-    inv_wow_html  = wow_str(INV_PP - INV_PP_PREV, decimals=0, suffix='') if INV_PP_PREV > 0 and INV_PP != INV_PP_PREV else ''
+    # WoW PP: usa INV_NETNEW si está seteado (netnew real del chart), si no PP diff vs semana anterior
+    _inv_pp_wow = INV_NETNEW if INV_NETNEW > 0 else (INV_PP - INV_PP_PREV if INV_PP_PREV > 0 else 0)
+    inv_wow_html = wow_str(_inv_pp_wow, decimals=0, suffix='') if _inv_pp_wow != 0 else ''
     # Gap WoW: baja cuando PP sube (invert=True → negativo = bueno = verde)
     _gap_delta    = INV_PP_PREV - INV_PP   # negativo si PP creció (gap bajó)
     inv_gap_wow_html = wow_str(_gap_delta, decimals=0, suffix='', invert=True) if INV_PP_PREV > 0 and INV_PP != INV_PP_PREV else ''

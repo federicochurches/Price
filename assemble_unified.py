@@ -417,6 +417,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var label = row.getAttribute('data-hist-label') || '';
   var w_curr = parseFloat(row.getAttribute('data-hist-w21'));
   var w_prev = parseFloat(row.getAttribute('data-hist-w20'));
+  var w_actual = parseFloat(row.getAttribute('data-hist-curr'));  /* valor W25 real del hotel */
   if (isNaN(w_curr)) return;
   if (isNaN(w_prev)) w_prev = w_curr;
 
@@ -445,7 +446,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
 
   /* Disparar hist-update para que historico_module redibuje el canvas global */
   document.dispatchEvent(new CustomEvent('hist-update', {
-    detail: {cid: cid, w_curr: w_curr, w_prev: w_prev, label: label}
+    detail: {cid: cid, w_curr: w_curr, w_prev: w_prev, w_actual: w_actual, label: label}
   }));
   var lblEl = document.getElementById('hist-' + cid + '-label');
   if (lblEl) lblEl.textContent = label;

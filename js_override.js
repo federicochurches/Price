@@ -952,7 +952,7 @@ function _cardRow(r, idx, isEf, grid){
   var _cf_corp = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
   var _cf_dest = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
   var _cf_pais = (r[13]!=null) ? String(r[13]).replace(/"/g,'&quot;') : '';
-  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-wow="'+(wow_pp!=null?wow_pp:'')+'" data-hist-label="'+lab+'" data-cf-corp="'+_cf_corp+'" data-cf-dest="'+_cf_dest+'" data-cf-pais="'+_cf_pais+'"'
+  return '<div'+_cls+' data-row-idx="'+idx+'" data-hist-w21="'+hist_w21+'" data-hist-w20="'+hist_w20+'" data-hist-curr="'+(val_pct!=null?val_pct:'')+'" data-hist-wow="'+(wow_pp!=null?wow_pp:'')+'" data-hist-label="'+lab+'" data-cf-corp="'+_cf_corp+'" data-cf-dest="'+_cf_dest+'" data-cf-pais="'+_cf_pais+'"'
     +' style="display:'+_display+';grid-template-columns:'+gridCols+';align-items:center;gap:6px;'
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'

@@ -229,8 +229,10 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
     var cw = W-pL-pR, ch = H-pT-pB;
     /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var i_min = Math.min(Math.min.apply(null, vals), TARGET, SCALE_FLOOR);
-    var i_max = Math.max(Math.max.apply(null, vals), TARGET);
+    var validVals = vals.filter(function(v) {{ return v !== null && !isNaN(v); }});
+    if (!validVals.length) return;  /* nada que dibujar */
+    var i_min = Math.min(Math.min.apply(null, validVals), TARGET, SCALE_FLOOR);
+    var i_max = Math.max(Math.max.apply(null, validVals), TARGET);
     var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
     var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
     var below = ths_s.filter(function(t) {{ return t < i_min; }});
@@ -274,31 +276,47 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
     ctx.restore();
-    /* Area fill gradiente en color de la serie */
+    /* Area fill gradiente en color de la serie (solo puntos válidos) */
     ctx.save();
     var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
     grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
     grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.moveTo(xOf(0), yOf(vals[0]));
-    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
-    ctx.lineTo(xOf(n-1), pT+ch); ctx.lineTo(xOf(0), pT+ch);
-    ctx.closePath(); ctx.fill(); ctx.restore();
-    /* Línea de datos */
+    var _areaStarted = false;
+    for (var i=0; i<n; i++) {{
+      if (vals[i] === null || isNaN(vals[i])) continue;
+      if (!_areaStarted) {{ ctx.moveTo(xOf(i), yOf(vals[i])); _areaStarted = true; }}
+      else ctx.lineTo(xOf(i), yOf(vals[i]));
+    }}
+    if (_areaStarted) {{
+      /* cerrar el area hasta el baseline */
+      var _lastIdx = n-1; while (_lastIdx > 0 && (vals[_lastIdx] === null || isNaN(vals[_lastIdx]))) _lastIdx--;
+      var _firstIdx = 0; while (_firstIdx < n && (vals[_firstIdx] === null || isNaN(vals[_firstIdx]))) _firstIdx++;
+      ctx.lineTo(xOf(_lastIdx), pT+ch); ctx.lineTo(xOf(_firstIdx), pT+ch);
+      ctx.closePath(); ctx.fill();
+    }}
+    ctx.restore();
+    /* Línea de datos (saltar nulls) */
     ctx.save();
     ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath(); ctx.moveTo(xOf(0), yOf(vals[0]));
-    for (var i=1; i<n; i++) ctx.lineTo(xOf(i), yOf(vals[i]));
+    ctx.beginPath();
+    var _lineStarted = false;
+    for (var i=0; i<n; i++) {{
+      if (vals[i] === null || isNaN(vals[i])) {{ _lineStarted = false; continue; }}
+      if (!_lineStarted) {{ ctx.moveTo(xOf(i), yOf(vals[i])); _lineStarted = true; }}
+      else ctx.lineTo(xOf(i), yOf(vals[i]));
+    }}
     ctx.stroke(); ctx.restore();
-    /* Puntos en la serie — todos visibles */
-    for (var i = 0; i < n; i++) {{ 
-      var isLast = (i === n - 1); 
+    /* Puntos en la serie — solo puntos válidos */
+    for (var i = 0; i < n; i++) {{
+      if (vals[i] === null || isNaN(vals[i])) continue;
+      var isLast = (i === n - 1);
       ctx.fillStyle = ACCENT_HEX;
-      ctx.globalAlpha = 1.0; 
-      ctx.beginPath(); 
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI); 
-      ctx.fill(); 
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI);
+      ctx.fill();
       if (isLast) {{ ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }}
     }}
     /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
@@ -310,7 +328,11 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   }}
   
   function updateMetrics(vals, lbl) {{
-    var vMin = Math.min.apply(null, vals), vMax = Math.max.apply(null, vals), vAvg = vals.reduce(function(a,b){{return a+b;}},0)/vals.length, vCurr = vals[vals.length-1];
+    var validVals = vals.filter(function(v) {{ return v !== null && !isNaN(v); }});
+    if (!validVals.length) return;
+    var vMin = Math.min.apply(null, validVals), vMax = Math.max.apply(null, validVals);
+    var vAvg = validVals.reduce(function(a,b){{return a+b;}},0)/validVals.length;
+    var vCurr = validVals[validVals.length-1];
     var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
     var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
     el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
@@ -332,7 +354,17 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   }}
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p) {{ var s = VALS_DEF.slice(); s[s.length-1] = w_c; s[s.length-2] = w_p; return s; }}
+  function buildSerie(w_c, w_p, w_a) {{
+    /* w_c = hotel W24, w_p = hotel W23, w_a = hotel W25 actual
+       Para cross-filter de hotel: null en W18-W22, datos reales en W23-W25.
+       Evita mezclar datos globales (W18-W22) con datos específicos del hotel. */
+    var n = VALS_DEF.length;
+    var s = new Array(n).fill(null);
+    s[n-3] = isNaN(w_p) ? null : w_p;  /* W23 = hotel W23 */
+    s[n-2] = isNaN(w_c) ? null : w_c;  /* W24 = hotel W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 = hotel actual */
+    return s;
+  }}
   
   function attachListeners() {{
     /* Solo maneja click en el label del histórico para volver a Global.
@@ -392,7 +424,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   document.addEventListener('hist-update', function(e) {{
     if (e.detail.cid !== CID) return;
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev);
+    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual);
     var lbl = e.detail.label || '';
     /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
     requestAnimationFrame(function() {{

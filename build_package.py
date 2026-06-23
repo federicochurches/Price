@@ -136,10 +136,10 @@ def build_index():
     inv_pp_n   = '58.990'    # Producto Propio (Solo Propio + Hybrid)
     inv_gap    = '11.010'    # Gap vs Target 70K
 
-    # Inventory WoW (W25 vs W24 · valores absolutos)
+    # Inventory WoW (W25 vs W24 · netnew real del chart = 44 hoteles nuevos en W25)
     _inv_n_d   = 305764 - 309016   # −3252
-    _inv_pp_d  = 58990  - 58892    # +98
-    _inv_gap_d = 11010  - 11108    # −98  (negativo = gap cierra = bueno)
+    _inv_pp_d  = 44                # netnew W25 real (no PP diff que incluye cambios de dataset)
+    _inv_gap_d = -44               # gap cierra en 44
     def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
     wow_inv_n   = _wb(_inv_n_d,    _inv_fmt(_inv_n_d))
     wow_inv_pp  = _wb(_inv_pp_d,   _inv_fmt(_inv_pp_d))
