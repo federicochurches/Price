@@ -1,3 +1,41 @@
+## Sesión W25-hist-corp-fix · 23-06-2026
+
+**Contexto:** Bug report de Fede: el canvas histórico de `hcr-global-ef` no actualizaba visualmente al seleccionar un corp diferente (GRUPO POSADAS después de Iberostar). La sesión consistió en diagnóstico sistemático del mecanismo histUpdate_.
+
+### Root cause encontrado
+El canvas SÍ actualizaba correctamente. El `window['histUpdate_'+CID]` en el IIFE funciona bien. El problema de diagnóstico fue que `hcr-global-ef` vive en **Part 1** (render_cr_p1.py), y cuando se agregaron console.logs a `historico_module.py`, solo se regeneró `assemble_unified.py` (Part 3/panel) — Part 1 quedó con la versión **anterior sin logs**. Así los logs de `hcr-global-ef` nunca aparecían, dando la ilusión de que la función no se ejecutaba.
+
+**Solución:** al agregar el diagnostic log y regenerar TANTO `render_cr_p1.py` como `assemble_unified.py`, los logs confirmaron el funcionamiento correcto:
+```
+[histUpdate_] CID=hcr-global-ef w_c=78.65 w_p=97.11 → s[0]=97.11, s[last]=78.65 ✓
+[histUpdate_] CID=hcr-panel-ef w_c=78.65 w_p=97.11 → s[0]=97.11, s[last]=78.65 ✓
+```
+
+**Por qué "no se veía el cambio":** los screenshots mostraron la curva del canvas con valores 81.26% → drop. Esto ES el dato real de GRUPO POSADAS (W24≈81.26%, W25≈78.65%). Visualmente parece similar a Iberostar (W24≈81.60%, W25≈70.75%) porque ambos son corps "Crítica" con rango de eficacia parecido. No era un bug — era similitud de datos.
+
+### Cambios de código (permanentes)
+- **`historico_module.py`:** expone `window['histUpdate_'+CID]` desde cada canvas IIFE. Función recibe (w_c, w_p, w_a, lbl), llama buildSerie + drawCanvas internamente. Bypasea el event system (que tenía race conditions con _kpiPillRender).
+- **`assemble_unified.py`:** corp handler usa `window['histUpdate_'+cid]` directo con setTimeout(50ms) en lugar de dispatch de evento `hist-update`. Esto elimina la race condition entre el event listener asíncrono y la ejecución sync de _kpiPillRender.
+
+### Lección aprendida crítica
+**Al modificar `historico_module.py`, regenerar TODOS los scripts que lo importan**, no solo uno:
+- `assemble_unified.py` genera los canvases del panel (`hcr-panel-ef`, etc.)
+- `render_cr_p1.py` genera los canvases globales (`hcr-global-ef`, etc.)
+- `render_rnd_p1.py` genera los canvases RND
+Si solo se regenera uno, los canvases del otro quedan con la versión vieja del módulo.
+
+### Commits de esta sesión
+- `632fc3ab` — diag: console.log en histUpdate_ y corp handler
+- `980f76988c1e` — diag: console.log en hcr-global-ef (regenerado Part1 CR)
+- `e9e7e393761c` — fix: histórico corp funcional · histUpdate_ directo · sin logs diagnóstico
+
+### Archivos modificados (permanentes en repo)
+- `historico_module.py` — expone histUpdate_
+- `assemble_unified.py` — corp handler con histUpdate_ directo
+- `reports/week-25/SUPPLY_W25.html` — regenerado (13,915 KB)
+
+---
+
 ## Sesión W25-continuación · 22-06-2026
 
 **Contexto:** Continuación de la sesión W25. Fixes de mail, diagnóstico Inventory, auto-config.
