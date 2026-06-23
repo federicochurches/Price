@@ -525,6 +525,20 @@ for r in all_weeks:
 if acum_weeks:
     acum_weeks[-1]['acum'] = pp
 
+# by_week_all — todos los tipos (PP + Third Party, excl. sin_contrato)
+# Se usa cuando ningún filtro de tipo está activo (vista "CONTRATACIÓN")
+by_week_g_all   = df_hist.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
+week_netnew_all = {r['yw']: int(r['netnew']) for _, r in by_week_g_all.iterrows()}
+N_con_contrato  = int(pp) + int(solo_terc)  # PP + Third Party (sin sin_contrato)
+acum_weeks_all  = []
+cum_all = 0
+for entry in all_weeks:
+    nw = week_netnew_all.get(entry['yw'], 0)
+    cum_all += nw
+    acum_weeks_all.append({'yw': entry['yw'], 'ym': entry['ym'], 'netnew': nw, 'acum': cum_all})
+if acum_weeks_all:
+    acum_weeks_all[-1]['acum'] = N_con_contrato
+
 # Sets de años y meses — from acum_weeks (includes fill weeks)
 years_available = sorted(set(int(r['yw'][:4]) for r in acum_weeks))
 months_by_year  = {}
@@ -606,7 +620,7 @@ hist_regions          = sorted(df_hist['Region_display'].unique().tolist())
 hist_corps            = sorted(top_corps)
 hist_channels_propio  = ['DerbySoft','HBSI','Internal','Omnibees','Siteminder','SynXis','Travelclick']
 hist_channels_tercero = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
-hist_tipos            = ['Solo Propio','Hybrid']
+hist_tipos            = ['Solo Propio','Hybrid','Third Party']
 
 # Serializar dim_ch con keys cortas: w=yw, m=ym, t=ch_tipo, ch=channel, n=n
 dim_ch_rows = dim_ch_idx.to_dict('records')
@@ -682,9 +696,10 @@ class NpEncoder(json.JSONEncoder):
         return super().default(obj)
 
 hist_data = {
-    'by_year':  acum_years,
-    'by_month': acum_months,
-    'by_week':  acum_weeks,
+    'by_year':     acum_years,
+    'by_month':    acum_months,
+    'by_week':     acum_weeks,
+    'by_week_all': acum_weeks_all,   # todos los tipos (PP + Third Party)
     'weeks_by_ym': weeks_by_ym,
     'years':    years_available,
     'months_by_year': months_by_year,
@@ -2762,7 +2777,8 @@ function hBreadcrumb() {{
 
 function hPopulateWeeks(yr, mo) {{
   const prefix = yr ? String(yr)+'-W' : '';
-  let weeks = HIST.by_week.filter(r => r.yw.startsWith(prefix));
+  const _srcW2 = (!hFTipo && HIST.by_week_all) ? HIST.by_week_all : HIST.by_week;
+  let weeks = _srcW2.filter(r => r.yw.startsWith(prefix));
   if (mo) {{
     const ymKey = String(yr)+'-'+(mo<10?'0':'')+mo;
     weeks = weeks.filter(r => r.ym === ymKey);
@@ -2969,13 +2985,15 @@ function hRender() {{
     // ── Por Semana: TODAS las semanas del período incluyendo vacías ──
     // Referencia: HIST.by_week tiene fill completo hasta W21 para todas las semanas
     let refWeeks;
+    // Sin filtro de tipo → mostrar todos los tipos (by_week_all); con filtro → solo PP (by_week)
+    const _srcWeek = (!hFTipo && HIST.by_week_all) ? HIST.by_week_all : HIST.by_week;
     if (hMonth) {{
       const ymKey = String(hYear)+'-'+String(hMonth).padStart(2,'0');
-      refWeeks = HIST.by_week.filter(r=>r.ym===ymKey);
+      refWeeks = _srcWeek.filter(r=>r.ym===ymKey);
     }} else if (hYear) {{
-      refWeeks = HIST.by_week.filter(r=>r.yw.startsWith(String(hYear)+'-W'));
+      refWeeks = _srcWeek.filter(r=>r.yw.startsWith(String(hYear)+'-W'));
     }} else {{
-      refWeeks = HIST.by_week;
+      refWeeks = _srcWeek;
     }}
 
     let d;
