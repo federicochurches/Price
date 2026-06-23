@@ -355,16 +355,21 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {{
-    /* w_c = corp W24, w_p = corp W23, w_a = corp W25 actual
-       W23-W25: datos reales del corp/hotel.
-       W18-W22: usa w_p (W23 del corp) como línea plana — el dato más antiguo disponible.
-       Evita mezclar datos globales (~94%) con datos del corp específico. */
+    /* Mapeo CORRECTO de atributos:
+       w_c = data-hist-w21 = W25_ef (semana ACTUAL)
+       w_p = data-hist-w20 = W24_ef (semana ANTERIOR)
+       w_a = data-hist-curr = W25_ef para hotel rows (NaN para corp rows)
+
+       Posiciones canvas (n=8, SEMANAS=['W18'..'W25']):
+       s[n-1] (W25) = W25_ef  →  la caída aparece aquí (correcto)
+       s[n-2] (W24) = W24_ef
+       s[0..n-3] (W18-W23) = W24_ef plano como baseline */
     var n = VALS_DEF.length;
-    var baseline = isNaN(w_p) ? (isNaN(w_c) ? null : w_c) : w_p; /* W23 del corp */
-    var s = new Array(n).fill(baseline);  /* W18-W22 = nivel W23 del corp (plano) */
-    s[n-3] = isNaN(w_p) ? baseline : w_p;   /* W23 */
-    s[n-2] = isNaN(w_c) ? baseline : w_c;   /* W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? baseline : w_c); /* W25 */
+    var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
+    var w24 = isNaN(w_p) ? w25 : w_p;
+    var s = new Array(n).fill(w24);   /* W18-W23: plano al nivel W24 */
+    s[n-2] = w24;   /* W24 */
+    s[n-1] = w25;   /* W25 */
     return s;
   }}
   
