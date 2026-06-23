@@ -533,7 +533,7 @@ canvas{display:block;}
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th class="th-pp" style="color:#4FC3F4;">Sin Directo</th>
+        <th class="th-pp" style="color:#4FC3F4;">Con Terceros</th>
         <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
         <th class="th-vs">vs Global</th>
@@ -1087,7 +1087,7 @@ function udContent(id, btn) {
     if (btn) btn.classList.add('on');
     udToggleGap(btn);
     hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
-    // Resaltar SIN DIRECTO en tabla gap
+    // Resaltar CON TERCEROS en tabla gap
     const tbl2 = document.querySelector('#gap-tbody')?.closest('table');
     if (tbl2) {
       tbl2.className = tbl2.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
@@ -1987,10 +1987,10 @@ function _renderDrillTable(rows, label, dim) {
   };
 
   if (_gapMode()) {
-    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Sin Directo | Con Directo | % Propio | vs Global
+    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Con Terceros | Con Directo | % Propio | vs Global
     const tbody = document.getElementById('gap-tbody');
     if (!tbody) return;
-    // En GAP: Sin Directo = Third Party (tp), Con Directo = Prod Propio (pp)
+    // En GAP: Con Terceros = Third Party (tp), Con Directo = Prod Propio (pp)
     const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td>'
       + '<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.tp)+'</td>'
       + '<td style="color:#6A6A6A;">'+fmt(tot.pp)+'</td>'
@@ -2014,7 +2014,7 @@ function _renderDrillTable(rows, label, dim) {
     const esc = k.replace(/"/g,'&quot;');
     return '<tr class="'+_dimClass+' drill-dim-row" data-row-idx="'+i+'" data-drill-type="'+_dimType+'" data-drill-val="'+esc+'" style="cursor:pointer;" onclick="udRowClick(this.dataset.drillType,this.dataset.drillVal,this)"><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>';
   }).join('');
-  tbody.innerHTML = (sorted.length > 0 ? '' : globalRow) + dataRows;
+  tbody.innerHTML = globalRow + dataRows;
 }
 
 function _renderDrillPill(label) {
