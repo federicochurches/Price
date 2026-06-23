@@ -2204,6 +2204,9 @@ body[data-ar-mode='rnd'] .ar-cards-grid { grid-template-columns: 1fr 1fr !import
 /* Searchbox AR/KPI: el match supera la paginacion (sb-hidden/rows-more) - W24 */
 .sb-hidden.sb-search-hit, .rows-more.sb-search-hit, .sb-search-hit { display: grid !important; }
 
+/* Fila seleccionada: padding-left para que box-shadow inset no pise el ranking (W25+) */
+[data-selected] { padding-left: 6px !important; }
+
 </style>
 <script>
 var _VOL_NUM = 25;
