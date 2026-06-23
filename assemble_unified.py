@@ -58,7 +58,7 @@ if DB is not None:
     _bk_vals = [DB['hist_by_week'][w]['bk'] * 100 for w in ['W16','W17','W18','W19','W20','W21','W22','W23'] if w in DB['hist_by_week']]
     _bk_val_curr = _bk_vals[-1] if _bk_vals else 98.43
     _bk_banda_str = DB.get('banda_global', 'Exitosa').capitalize()
-    HIST_BK_PANEL = _rh('bk', 'bookability', _bk_banda_str, DB.get('bk_global', 0), 'h-ar3-bk-global')
+    HIST_BK_PANEL = _rh_svg('bk', 'bookability', _bk_banda_str, DB.get('bk_global', 0), 'h-bk-ar')
 else:
     HIST_BK_PANEL = ''
 
@@ -368,8 +368,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
            con el valor de esa entidad (W24 = hist_w21, W23 = W24 − WoW). */
         /* Actualizar AMBAS canvas (global + panel) para que la visible siempre se redibuje */
         var _cidMapG = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
-        var _cidMapP = {nd:'hrnd-panel-nd',  ipm:'hrnd-panel-ipm',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-global'};
-        var _cidMapAR = {nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm', ef:'hcr-ar-ef', cv:'hcr-ar-cv'};
+        var _cidMapP = {nd:'hrnd-panel-nd',  ipm:'hrnd-panel-ipm',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-panel'};
+        var _cidMapAR = {nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm', ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar'};
         var _cids = [_cidMapG[cardKey], _cidMapP[cardKey], _cidMapAR[cardKey]].filter(function(x){ return x; });
         _cids = _cids.filter(function(x,i){ return _cids.indexOf(x) === i; }); /* dedup */
         var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */

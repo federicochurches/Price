@@ -771,7 +771,7 @@ def render_kpi_card_bookability():
     panels += _panel('hotel',   DB.get('TOP_HOTEL', DB.get('g_hotel', None)), 'Hotel',    'Hotel')
 
     # ── Histórico ─────────────────────────────────────────────────────────────
-    hist_bk = _rh('bk', 'bookability', banda, bk_val, 'h-bk-global')
+    hist_bk = _rhs('bk', 'bookability', banda, bk_val, 'h-bk-panel')
 
     # ── HTML final ────────────────────────────────────────────────────────────
     _sb = searchbox_pill_html('sb-kpi-bk', accent_color='#5C469C',
@@ -796,7 +796,7 @@ def render_kpi_card_bookability():
         f'<div id="kpi-bk-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>'
         f'<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{_sb}</div>'
         f'<div id="kpi-bk-panels" class="tab-panels">{panels}</div>'
-        f'{hist_bk}'
+        f'<div style="margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;"><span id="hist-h-bk-panel-label" style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#333132;display:block;margin-bottom:6px;">Global</span>{hist_bk}</div>'
         f'</div>'
     )
 
