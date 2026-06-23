@@ -9589,7 +9589,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         _kpiPillRender(cardKey);
         /* Bug 5: al seleccionar una dimensión (país/corp/destino), actualizar la gráfica histórica
            con el valor de esa entidad (W24 = hist_w21, W23 = W24 − WoW). */
-        var _cidMap = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
+        var _cidMap = {nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm', ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-global'};
         var _cid2 = _cidMap[cardKey];
         if (_cid2) {
           if (isAlreadySel) {
@@ -10279,6 +10279,27 @@ function _kpiCrossFilterClear(card, type) {
   if (_cidClr) {
     try { document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_cidClr}})); } catch(e){}
     var _lblClr = document.getElementById('hist-' + _cidClr + '-label'); if (_lblClr) _lblClr.textContent = 'Global';
+  }
+  /* Limpiar estado del searchbox para que al deseleccionar no quede la lista inmensa.
+     _kpiSbPinned mantiene el pin del searchbox — hay que borrarlo al limpiar el CF. */
+  if (typeof _kpiSbPinned !== 'undefined') _kpiSbPinned[card] = null;
+  var _sbInp = document.getElementById('sb-kpi-' + card);
+  if (_sbInp && _sbInp.value) { _sbInp.value = ''; }
+  var _sbClear = document.getElementById('sb-kpi-' + card + '-clear');
+  if (_sbClear) _sbClear.style.display = 'none';
+  /* Limpiar rows que el searchbox haya mostrado/ocultado (sb-search-hit con !important) */
+  var _sbPanelEl = document.getElementById('kpi-' + card + '-panels');
+  if (_sbPanelEl) {
+    _sbPanelEl.querySelectorAll('.sb-search-hit').forEach(function(r) {
+      r.classList.remove('sb-search-hit');
+      r.style.removeProperty('display');
+    });
+    /* Restaurar display de todas las filas no-sb-hidden y no-rows-more */
+    _sbPanelEl.querySelectorAll('[data-hist-label]').forEach(function(r) {
+      var isSbH = r.classList.contains('sb-hidden');
+      var isMore = r.classList.contains('rows-more');
+      if (isSbH || isMore) r.style.removeProperty('display');
+    });
   }
   _kpiCrossFilterPillsRender(card);
   _kpiPillRender(card);
