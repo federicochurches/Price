@@ -132,13 +132,13 @@ def build_index():
         bk_val_str = '—'
 
     # Inventory KPIs W25 (from INVENTORY_W25.html · calc_inv.py run)
-    inv_n      = '305.764'   # Sistema W25
+    inv_n      = '305.567'   # Sistema W25 (tipificados: PP + Third Party, excl. sin_contrato)
     inv_pp_n   = '58.990'    # Producto Propio (Solo Propio + Hybrid)
     inv_gap    = '11.010'    # Gap vs Target 70K
     inv_avance = f'{round(58990/70000*100, 1):.1f}%'  # % avance = 84.3%
 
     # Inventory WoW (W25 vs W24 · netnew real del chart = 44 hoteles nuevos en W25)
-    _inv_n_d   = 305764 - 309016   # −3252
+    _inv_n_d   = 305567 - 309016   # −3449 (cambio en total tipificados)
     _inv_pp_d  = 44                # netnew W25 real (no PP diff que incluye cambios de dataset)
     _inv_gap_d = -44               # gap cierra en 44
     def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
