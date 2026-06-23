@@ -142,9 +142,18 @@ def build_index():
     _inv_pp_d  = 44                # netnew W25 real (no PP diff que incluye cambios de dataset)
     _inv_gap_d = -44               # gap cierra en 44
     def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
-    wow_inv_n   = _wb(_inv_n_d,    _inv_fmt(_inv_n_d))
-    wow_inv_pp  = _wb(_inv_pp_d,   _inv_fmt(_inv_pp_d))
-    wow_inv_gap = _wb(-_inv_gap_d, _inv_fmt(_inv_gap_d))  # invertido: gap ↓ = verde
+    # PP badge: % de crecimiento = 44 nuevos / PP semana anterior (58.892)
+    _pp_prev   = 58892
+    _pp_pct    = round(_inv_pp_d / _pp_prev * 100, 2) if _pp_prev else 0
+    _pp_pct_str = f'+{_pp_pct:.2f}%' if _pp_pct >= 0 else f'{_pp_pct:.2f}%'
+    wow_inv_pp  = _wb(_inv_pp_d, _pp_pct_str)
+    # Avance badge: delta en pp de avance % (84.27% - 84.13% = +0.14pp)
+    _av_prev   = round(_pp_prev / 70000 * 100, 2)   # avance W24 = 84.13%
+    _av_curr   = round(58990    / 70000 * 100, 2)    # avance W25 = 84.27%
+    _av_delta  = round(_av_curr - _av_prev, 2)
+    _av_str    = f'+{_av_delta:.2f}pp' if _av_delta >= 0 else f'{_av_delta:.2f}pp'
+    wow_inv_gap = _wb(_av_delta, _av_str)
+    wow_inv_n   = _wb(_inv_n_d, _inv_fmt(_inv_n_d))
 
 
     html = f"""<!DOCTYPE html>
