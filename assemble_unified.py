@@ -449,7 +449,12 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     detail: {cid: cid, w_curr: w_curr, w_prev: w_prev, w_actual: w_actual, label: label}
   }));
   var lblEl = document.getElementById('hist-' + cid + '-label');
-  if (lblEl) lblEl.textContent = label;
+  /* Mostrar rango disponible: solo las últimas 3 semanas son corp/hotel-específicas */
+  if (lblEl) {
+    var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
+      ? SEMANAS[SEMANAS.length-3] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W23\u2013W25';
+    lblEl.textContent = label + ' \u00b7 ' + _sems;
+  }
 }
 
 /* ── Pills de navegación para cards AR (Vista + Filtro) ──────────────── */

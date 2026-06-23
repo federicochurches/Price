@@ -355,16 +355,16 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {{
-    /* w_c = hotel W24, w_p = hotel W23, w_a = hotel W25 actual
-       W18-W22: datos globales de historico_data (contexto visual)
-       W23: hotel W23 (w_p)
-       W24: hotel W24 (w_c)
-       W25: hotel W25 actual (w_a), con fallback a w_c si no disponible */
+    /* w_c = corp/hotel W24, w_p = corp/hotel W23, w_a = corp/hotel W25 actual
+       W18-W22: null (no hay datos históricos por corp/hotel para esas semanas)
+       W23: corp W23 (w_p)
+       W24: corp W24 (w_c)
+       W25: corp W25 actual (w_a), fallback a w_c si no disponible */
     var n = VALS_DEF.length;
-    var s = VALS_DEF.slice();   /* base: datos globales para W18-W22 */
-    s[n-3] = isNaN(w_p) ? s[n-3] : w_p;   /* W23 = hotel W23 */
-    s[n-2] = isNaN(w_c) ? s[n-2] : w_c;   /* W24 = hotel W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? s[n-1] : w_c); /* W25 actual */
+    var s = new Array(n).fill(null);
+    s[n-3] = isNaN(w_p) ? null : w_p;   /* W23 */
+    s[n-2] = isNaN(w_c) ? null : w_c;   /* W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 */
     return s;
   }}
   
