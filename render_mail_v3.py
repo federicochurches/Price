@@ -420,6 +420,8 @@ mail_html = f'''<!DOCTYPE html>
         Connectivities · Métricas globales
       </div>
       <div class="kpi-grid-3">
+        <div class="kpi-card cr">
+          <div class="kpi-label">Eficacia</div>
           <div class="kpi-value cr-color">{es(cr_ef,2)}%</div>
           {wow_str(cr_ef_wow)}
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:{ef_pct_gauge}%;background:#8A8377;"></div></div>
