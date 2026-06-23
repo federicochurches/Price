@@ -1243,9 +1243,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -1649,9 +1649,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2036,9 +2036,9 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2521,9 +2521,9 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2926,9 +2926,9 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -3439,9 +3439,9 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -3825,9 +3825,9 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -4251,9 +4251,9 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -4637,9 +4637,9 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -5061,9 +5061,9 @@ window.HIST_DATA['rnd'] = {
     }
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
+    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -6460,16 +6460,16 @@ function _patchCanvasTooltips() {
     /* addEventListener('mousemove', ..., true) en CAPTURE phase + stopImmediatePropagation
        para ganar a CUALQUIER otro listener registrado en el canvas */
     el.addEventListener('mousemove', function(e) {
-      /* Leer de _kpiHist cuando hay corp/dest activo — inmune a rebinds de canasta */
+      /* Fuente de verdad: el._v (setea drawCanvas) > _kpiHist > W22_CANVAS_CFG */
       var _kh = window._kpiHist && window._kpiHist[cid];
-      var cfg = _kh ? {vals: _kh.vals, semanas: _kh.sems} : W22_CANVAS_CFG[cid];
-      if (!cfg || !cfg.vals) return;
+      var _vv = el._v || (_kh && _kh.vals) || (W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].vals);
+      if (!_vv) return;
       var rect = el.getBoundingClientRect();
       if (!rect || rect.width === 0) return;
       var mx = e.clientX - rect.left;
       var tip = (typeof w22_getTooltip === 'function') ? w22_getTooltip() : null;
       if (!tip) return;
-      var vals = cfg.vals;
+      var vals = _vv;
       var w = rect.width;
       var best = -1, bestDx = 9999;
       vals.forEach(function(v, i) {

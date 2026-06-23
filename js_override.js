@@ -492,16 +492,16 @@ function _patchCanvasTooltips() {
     /* addEventListener('mousemove', ..., true) en CAPTURE phase + stopImmediatePropagation
        para ganar a CUALQUIER otro listener registrado en el canvas */
     el.addEventListener('mousemove', function(e) {
-      /* Leer de _kpiHist cuando hay corp/dest activo — inmune a rebinds de canasta */
+      /* Fuente de verdad: el._v (setea drawCanvas) > _kpiHist > W22_CANVAS_CFG */
       var _kh = window._kpiHist && window._kpiHist[cid];
-      var cfg = _kh ? {vals: _kh.vals, semanas: _kh.sems} : W22_CANVAS_CFG[cid];
-      if (!cfg || !cfg.vals) return;
+      var _vv = el._v || (_kh && _kh.vals) || (W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].vals);
+      if (!_vv) return;
       var rect = el.getBoundingClientRect();
       if (!rect || rect.width === 0) return;
       var mx = e.clientX - rect.left;
       var tip = (typeof w22_getTooltip === 'function') ? w22_getTooltip() : null;
       if (!tip) return;
-      var vals = cfg.vals;
+      var vals = _vv;
       var w = rect.width;
       var best = -1, bestDx = 9999;
       vals.forEach(function(v, i) {

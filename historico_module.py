@@ -321,9 +321,9 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     }}
     /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {{vals: vals, semanas: SEMANAS, metric: METRIC}};
-    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
     var _tipEl = document.getElementById(CID);
-    if (_tipEl) _tipEl._tipCfg = {{vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}};
+    if (_tipEl) {{ _tipEl._v = vals; _tipEl._tipCfg = {{vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}}; }}
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {{
       window._HIST_CANON[CID].vals = vals.slice();
