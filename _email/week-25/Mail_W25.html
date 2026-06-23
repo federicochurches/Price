@@ -35,6 +35,7 @@
 
   .kpi-section { margin-bottom: 28px; }
   .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .kpi-card { border: 1px solid #E5E0D2; padding: 15px 17px; background: #FAFAF8; position: relative; overflow: hidden; }
   .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
   .kpi-card.rnd::before { background: #EA0074; }
@@ -142,9 +143,7 @@
         <span class="dot dot-cr"></span>
         Connectivities · Métricas globales
       </div>
-      <div class="kpi-grid">
-        <div class="kpi-card cr">
-          <div class="kpi-label">Eficacia</div>
+      <div class="kpi-grid-3">
           <div class="kpi-value cr-color">95,68%</div>
           <span class="kpi-wow wow-down">▼ 0,12pp WoW</span>
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:60%;background:#8A8377;"></div></div>
@@ -158,7 +157,7 @@
           <div class="kpi-sub">Banda Crítica · TP: 0,20% vs PP: 0,75%</div>
         </div>
         
-        <div class="kpi-card cr" style="grid-column:1/-1;">
+        <div class="kpi-card cr">
           <div class="kpi-label">Bookability</div>
           <div class="kpi-value cr-color">98,42%</div>
           <span class="kpi-wow wow-down">▼ 0,25pp WoW</span>
@@ -174,6 +173,17 @@
         <span class="dot dot-inv"></span>
         State of PriceTravel Product · Inventory
       </div>
+      <!-- Primera línea: resumen global PP W25 -->
+      <div style="background:#F5F4F0;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;color:#333132;text-transform:uppercase;letter-spacing:.08em;">PP W25</span>
+        <span style="font-size:13px;font-weight:700;color:#1E6A4A;">58.990 hoteles</span>
+        <span style="color:#ccc;">·</span>
+        <span style="font-size:12px;color:#555;">Avance <strong style="color:#1E6A4A;">84,3%</strong> al target 70.000</span>
+        <span style="color:#ccc;">·</span>
+        <span style="font-size:12px;color:#555;">Gap <strong>11.010</strong></span>
+        <span style="color:#ccc;">·</span>
+        <span style="font-size:12px;color:#555;">Ritmo ~<strong>408/sem</strong> · 27 sem restantes</span>
+      </div>
       <div class="kpi-grid">
         <div class="kpi-card inv">
           <div class="kpi-label">Producto Propio</div>
@@ -185,7 +195,7 @@
         <div class="kpi-card inv">
           <div class="kpi-label">Gap al Target</div>
           <div class="kpi-value inv-red">11.010</div>
-          <span class="kpi-wow wow-up">▲ 98 WoW</span>
+          <span class="kpi-wow wow-up">▲ 44 WoW</span>
           <div class="kpi-gauge"><div class="kpi-gauge-fill" style="width:84%;background:#8A8377;"></div></div>
           <div class="kpi-sub">Ritmo necesario: ~408 / sem · <strong>27</strong> sem. restantes</div>
         </div>
