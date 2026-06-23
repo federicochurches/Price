@@ -386,11 +386,15 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _sems3 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
                 ? SEMANAS[SEMANAS.length-2] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W24\u2013W25';
               var _lbl3 = _val2 + ' \u00b7 ' + _sems3;
+              /* Lock: bloquea override de hcr-panel-ef por hotel auto-select durante 300ms */
+              window._corpHistLock = Date.now();
+              var _lockCids = _cids2.slice();
+              var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2};
               setTimeout(function() {
-                _cids2.forEach(function(cid) {
+                _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];
-                  if (fn) { fn(_wc2, _wp2, _wa2, _lbl3); }
-                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_wc2,w_prev:_wp2,w_actual:_wa2,label:_val2}})); }
+                  if (fn) { fn(_lockDetail.wc, _lockDetail.wp, _lockDetail.wa, _lockDetail.lbl); }
+                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_lockDetail.wc,w_prev:_lockDetail.wp,w_actual:_lockDetail.wa,label:_lockDetail.val}})); }
                 });
               }, 50);
             }
@@ -1222,10 +1226,13 @@ document.addEventListener('click', function(e) {
   row.setAttribute('data-selected', '1');
   row.style.background = accentAlpha;
 
-  /* Disparar hist-update para el canvas del panel */
-  document.dispatchEvent(new CustomEvent('hist-update', {
-    detail: {cid: cid, w_curr: w21, w_prev: w20, label: label}
-  }));
+  /* Disparar hist-update para el canvas del panel
+     (respetar _corpHistLock: si se acaba de seleccionar un corp, no pisar con hotel) */
+  if (!window._corpHistLock || (Date.now() - window._corpHistLock) > 300) {
+    document.dispatchEvent(new CustomEvent('hist-update', {
+      detail: {cid: cid, w_curr: w21, w_prev: w20, label: label}
+    }));
+  }
 
   /* Redibujar canvas del panel con color de canasta activa */
   var fnPanel = window['histRedraw_' + cid];
