@@ -23,7 +23,12 @@ _REPORTE_MAP = {'cr': 'cr', 'rnd': 'rnd', 'bk': 'bk'}
 def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
     """Genera panel histórico SVG con valores siempre visibles. Sin canvas, sin tooltip."""
     semanas = list(_SEMANAS_DEF)
-    serie = get_serie(reporte, metrica, 'global', val_actual)
+    # Escalar val_actual igual que historico_module.py
+    if metrica in ('eficacia', 'convrate', 'nodispo', 'bookability'):
+        val_scaled = round(float(val_actual) * 100, 2)
+    else:
+        val_scaled = round(float(val_actual), 1)
+    serie = get_serie(reporte, metrica, 'global', val_scaled)
     vals_def = []
     for v in serie:
         vals_def.append(round(float(v), 4) if v is not None else None)
