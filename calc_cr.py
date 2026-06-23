@@ -571,6 +571,16 @@ for _ck, _cd in CANASTA.items():
         _df2 = _df.drop(columns=_drop).merge(_wow_lkp_c, on='Hotel', how='left')
         _cd[_sk] = _df2
 
+# ── Histórico real por corp/dest (W18 … VOL_NUM-1) ───────────────────────────
+try:
+    from build_hist_entity import build_cr_hist
+    _base = os.path.dirname(os.path.abspath(__file__))
+    D['CR_HIST'] = build_cr_hist(range(18, int(VOL_NUM)), base_dir=_base)
+    print(f"   CR_HIST corps: {len(D['CR_HIST']['corp'])}  dests: {len(D['CR_HIST']['dest'])}")
+except Exception as _e:
+    print(f"   [warn] CR_HIST no generado: {_e}")
+    D['CR_HIST'] = {'corp': {}, 'dest': {}}
+
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'cr_w{VOL_NUM}_data.pkl'),'wb') as f:
     pickle.dump(D, f)
 

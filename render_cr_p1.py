@@ -978,6 +978,79 @@ def _build_cr_hotel_pool_json():
               '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
 
 
+def _build_cr_hist_json():
+    """Emite CR_CORP_HIST y CR_DEST_HIST con datos reales W18-W(N-1) por corp/dest."""
+    hist = D.get('CR_HIST', {})
+    semanas_prev = [f'W{n:02d}' for n in range(18, WEEK_NUM_INT)]  # W18…W(N-1)
+
+    def _entity_dict(bucket):
+        out = {}
+        for name, wdict in hist.get(bucket, {}).items():
+            ef_vals = [wdict.get(w, {}).get('ef') for w in semanas_prev]
+            cv_vals = [wdict.get(w, {}).get('cv') for w in semanas_prev]
+            # Solo incluir si hay al menos 1 dato real
+            if any(v is not None for v in ef_vals):
+                out[name] = {
+                    'ef': [round(v * 100, 2) if v is not None else None for v in ef_vals],
+                    'cv': [round(v * 100, 4) if v is not None else None for v in cv_vals],
+                }
+        return out
+
+    import json
+    corp_js = json.dumps(_entity_dict('corp'), ensure_ascii=False, separators=(',', ':'))
+    dest_js = json.dumps(_entity_dict('dest'), ensure_ascii=False, separators=(',', ':'))
+    sem_js  = json.dumps(semanas_prev, ensure_ascii=False)
+    return (
+        f'\n<script>\nvar CR_CORP_HIST={corp_js};\n'
+        f'var CR_DEST_HIST={dest_js};\n'
+        f'var _HIST_SEMANAS_PREV={sem_js};\n</script>\n'
+    )
+
+
+    """Pool COMPLETO de hoteles CR (~3.582) para el cross-filter →hotel y searchbox en
+    las KPI cards CR (ef/cv). Unifica CR sobre el motor lazy de RND (W24): el pool vive
+    compacto en CR_HOTEL_POOL (NO se vuelca al DOM) y el JS arma el subconjunto cruzado
+    on-demand. Reemplaza las ~2.6K filas estáticas + el hotel de CR_CARD_TABS (~4MB).
+    Formato fila (11 campos):
+      [label, corp, dest, cru, cru_wow, ef_pct, ef_bidx, ef_wow, cv_pct, cv_bidx, cv_wow]
+    Banda como índice 0-5 → _CR_BAND_NAMES → _AR_BANDA_C (colores) en JS."""
+    _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
+             'Súper Crítica': 4, 'Sin Conversión': 5}
+
+    def _num(v, ndig=2):
+        try:
+            f = float(v)
+            if _math_glob.isnan(f) or _math_glob.isinf(f):
+                return None
+            return round(f, ndig)
+        except (TypeError, ValueError):
+            return None
+
+    pool = []
+    for _, r in TAB_EF['hotel'].iterrows():
+        lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
+        corp = str(r.get('CorpName', '') or '')
+        dest = str(r.get('Destino', '') or '')
+        cru = int(r.get('CR_Unicos', 0) or 0)
+        _cw = r.get('CR_Unicos_WoW_pp')
+        cru_wow = _num(float(_cw) / 100, 0) if _cw is not None and not pd.isna(_cw) else None
+        ef = r.get('Eficacia')
+        ef_pct = _num(ef * 100) if ef is not None else None
+        ef_band = _BIDX.get(r.get('BandaEficacia') or (banda_eficacia(ef) if ef is not None else 'Sin Conversión'), 5)
+        ef_wow = _num(r.get('Eficacia_WoW_pp'))
+        cv = r.get('ConvRate')
+        bk = int(r.get('Bookings', 0) or 0)
+        cv_pct = _num(cv * 100) if cv is not None else None
+        cv_band = _BIDX.get(r.get('BandaConvRate') or (banda_convrate(cv, bk) if cv is not None else 'Sin Conversión'), 5)
+        cv_wow = _num(r.get('ConvRate_WoW_pp'))
+        pool.append([lab, corp, dest, cru, cru_wow,
+                     ef_pct, ef_band, ef_wow, cv_pct, cv_band, cv_wow])
+    return ('\n<script>\nvar CR_HOTEL_POOL='
+            + _json.dumps(pool, ensure_ascii=False, default=lambda x: None)
+            + ';\nvar _CR_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\\u00edtica",'
+              '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
+
+
 PART1 = (
     '\n<!-- ═══════════════ SECCIÓN CR ═══════════════ -->\n'
     '<section id="section-cr" class="section-cr">\n'
@@ -1009,6 +1082,7 @@ window.HIST_DATA = HIST_DATA;
     + _build_cr_card_tabs_json()
     + _build_cr_hotel_pool_json()
     + _build_bk_card_tabs_json()
+    + _build_cr_hist_json()
 )
 
 with open('part1_cr.html', 'w', encoding='utf-8') as f:

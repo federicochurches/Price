@@ -389,12 +389,26 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               /* Lock: bloquea override de hcr-panel-ef por hotel auto-select durante 300ms */
               window._corpHistLock = Date.now();
               var _lockCids = _cids2.slice();
-              var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2};
+              /* Lookup histórico real W18-W(N-1) para corp/dest desde CR_CORP_HIST/RND_CORP_HIST */
+              var _isCR2 = (typeof W !== 'undefined') && W.mode === 'cr';
+              var _dimV2 = _kpiView[card];
+              var _hDict = null;
+              if (_isCR2)  { _hDict = (_dimV2 === 'dest') ? window.CR_DEST_HIST : window.CR_CORP_HIST; }
+              else         { _hDict = (_dimV2 === 'dest') ? window.RND_DEST_HIST : window.RND_CORP_HIST; }
+              var _eName = row.getAttribute('data-hist-label') || _val2;
+              var _histArr2 = null;
+              if (_hDict && _hDict[_eName]) {
+                var _hw = _hDict[_eName][cardKey];  /* cardKey: 'ef'|'cv'|'nd'|'ipm' */
+                if (_hw && _hw.length > 0) {
+                  _histArr2 = _hw.concat([_wc2]);   /* W18-W(N-1) + W(N) = 8 puntos */
+                }
+              }
+              var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2, ha:_histArr2};
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];
-                  if (fn) { fn(_lockDetail.wc, _lockDetail.wp, _lockDetail.wa, _lockDetail.lbl); }
-                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_lockDetail.wc,w_prev:_lockDetail.wp,w_actual:_lockDetail.wa,label:_lockDetail.val}})); }
+                  if (fn) { fn(_lockDetail.wc, _lockDetail.wp, _lockDetail.wa, _lockDetail.lbl, _lockDetail.ha); }
+                  else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_lockDetail.wc,w_prev:_lockDetail.wp,w_actual:_lockDetail.wa,label:_lockDetail.val,hist_arr:_lockDetail.ha}})); }
                 });
               }, 50);
             }

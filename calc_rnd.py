@@ -416,6 +416,16 @@ D = {
     'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
     'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
 }
+# ── Histórico real por corp/dest (W18 … VOL_NUM-1) ───────────────────────────
+try:
+    from build_hist_entity import build_rnd_hist
+    _base = os.path.dirname(os.path.abspath(__file__))
+    D['RND_HIST'] = build_rnd_hist(range(18, int(VOL_NUM)), base_dir=_base)
+    print(f"   RND_HIST corps: {len(D['RND_HIST']['corp'])}  dests: {len(D['RND_HIST']['dest'])}")
+except Exception as _e:
+    print(f"   [warn] RND_HIST no generado: {_e}")
+    D['RND_HIST'] = {'corp': {}, 'dest': {}}
+
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), f'rnd_w{VOL_NUM}_data.pkl'),'wb') as f: pickle.dump(D, f)
 
 t18=df18['Trafico'].sum(); nd18=df18['TraficoNoDispo'].sum()

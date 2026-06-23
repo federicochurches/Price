@@ -354,20 +354,33 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   }}
   
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p, w_a) {{
-    /* Mapeo CORRECTO de atributos:
-       w_c = data-hist-w21 = W25_ef (semana ACTUAL)
-       w_p = data-hist-w20 = W24_ef (semana ANTERIOR)
-       w_a = data-hist-curr = W25_ef para hotel rows (NaN para corp rows)
-
-       Posiciones canvas (n=8, SEMANAS=['W18'..'W25']):
-       s[n-1] (W25) = W25_ef  →  la caída aparece aquí (correcto)
-       s[n-2] (W24) = W24_ef
-       s[0..n-3] (W18-W23) = W24_ef plano como baseline */
+  function buildSerie(w_c, w_p, w_a, hist_arr) {{
+    /* hist_arr (opcional): array de n valores reales [W18..W25].
+       Cuando se pasa, se usa directamente (datos históricos reales por corp/dest).
+       Nulls dentro del array → interpolados con el valor más cercano disponible. */
     var n = VALS_DEF.length;
     var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
     var w24 = isNaN(w_p) ? w25 : w_p;
-    var s = new Array(n).fill(w24);   /* W18-W24: baseline plana en nivel W24 (solo W24/W25 son datos reales) */
+
+    if (hist_arr && hist_arr.length === n) {{
+      /* Usar datos reales; rellenar nulls con interpolación simple */
+      var s = hist_arr.slice();
+      /* Asegurar W24 y W25 desde los atributos de la fila (más precisos) */
+      if (!isNaN(w24) && w24 !== null) s[n-2] = w24;
+      if (!isNaN(w25) && w25 !== null) s[n-1] = w25;
+      /* Rellenar nulls: buscar vecino más cercano conocido */
+      for (var i = 0; i < n; i++) {{
+        if (s[i] === null || isNaN(s[i])) {{
+          var left = null, right = null;
+          for (var l = i-1; l >= 0; l--) {{ if (s[l] !== null && !isNaN(s[l])) {{ left = s[l]; break; }} }}
+          for (var r2 = i+1; r2 < n; r2++) {{ if (s[r2] !== null && !isNaN(s[r2])) {{ right = s[r2]; break; }} }}
+          s[i] = left !== null ? left : (right !== null ? right : w24);
+        }}
+      }}
+      return s;
+    }}
+    /* Fallback: baseline plana en nivel W24 (2 datos reales: W24 y W25) */
+    var s = new Array(n).fill(w24);
     s[n-2] = w24;   /* W24 */
     s[n-1] = w25;   /* W25 */
     return s;
@@ -431,7 +444,7 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   document.addEventListener('hist-update', function(e) {{
     if (e.detail.cid !== CID) return;
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual);
+    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
     var lbl = e.detail.label || '';
     /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
     requestAnimationFrame(function() {{
@@ -463,8 +476,8 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     drawCanvas(vals); updateMetrics(vals, 'Global');
   }};
   /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
-  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl) {{
-    var s = buildSerie(w_c, w_p, w_a);
+  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl, hist_arr) {{
+    var s = buildSerie(w_c, w_p, w_a, hist_arr);
     drawCanvas(s);
     updateMetrics(s, lbl || '');
     var lblEl = document.getElementById('hist-'+CID+'-label');
