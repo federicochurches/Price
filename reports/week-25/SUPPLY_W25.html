@@ -10014,6 +10014,18 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               /* Guardar en _kpiHist para que el tooltip lo lea DIRECTAMENTE (inmune a rebinds) */
               window._kpiHist = window._kpiHist || {};
               if (_histArr2) _lockCids.forEach(function(c2){ window._kpiHist[c2] = {vals:_histArr2, sems:_SEMANAS_HIST}; });
+              /* DEBUG VISUAL — toast que muestra W18/W24/W25 del _kpiHist */
+              (function(){
+                var a = _histArr2;
+                if (!a || a.length < 8) return;
+                var t = document.getElementById('_dbg_hist_toast');
+                if (!t) { t = document.createElement('div'); t.id='_dbg_hist_toast';
+                  t.style.cssText='position:fixed;bottom:80px;left:10px;right:10px;background:#222;color:#FFD700;padding:10px;font-size:13px;font-family:monospace;z-index:99999;border-radius:8px;text-align:center';
+                  document.body.appendChild(t); }
+                t.textContent = 'DEBUG _kpiHist: W18='+a[0].toFixed(2)+' W19='+a[1].toFixed(2)+' W24='+a[6].toFixed(2)+' W25='+a[7].toFixed(2);
+                t.style.display='block';
+                setTimeout(function(){t.style.display='none';},8000);
+              })();
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];
