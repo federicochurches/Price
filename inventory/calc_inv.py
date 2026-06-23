@@ -2396,7 +2396,7 @@ function _renderDrillTable(rows, label, dim) {{
     const esc = k.replace(/"/g,'&quot;');
     return '<tr class="'+_dimClass+' drill-dim-row" data-row-idx="'+i+'" data-drill-type="'+_dimType+'" data-drill-val="'+esc+'" style="cursor:pointer;" onclick="udRowClick(this.dataset.drillType,this.dataset.drillVal,this)"><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>';
   }}).join('');
-  tbody.innerHTML = (sorted.length > 0 ? '' : globalRow) + dataRows;
+  tbody.innerHTML = globalRow + dataRows;  /* GLOBAL siempre visible */
 }}
 
 function _renderDrillPill(label) {{
