@@ -3227,778 +3227,134 @@ window.HIST_DATA['rnd'] = {
     </div>
         <!-- Canvas histórico card 1 -->
     <div style="padding:0 16px 16px;">
-      <div id="ar1-hist-cr" style="margin-top:12px;display:block;"><div id="hist-hcr-panel-ef" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
-  <div style="height:8px;"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-hcr-panel-ef-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
-    </span>
-  </div>
-  <div style="width:100%;height:100px;"><canvas id="hcr-panel-ef" style="display:block;width:100%;height:100px;"></canvas></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-hcr-panel-ef-actual" style="font-size:13px;font-weight:700;color:#5C469C;margin-top:2px;">95.68%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hcr-panel-ef-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">95.68%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hcr-panel-ef-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">93.15%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hcr-panel-ef-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">94.19%</div>
-    </div>
-    <div id="hist-hcr-panel-ef-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FBBF24;border:1px solid #FBBF24;">
-      <div id="hist-hcr-panel-ef-banda" style="font-size:11px;font-weight:700;color:#FFFFFF;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">ACEPTABLE</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;">
-    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-hcr-panel-ef-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(92,70,156,0.4);height:7px;border-radius:1px 1px 0 0;" title="W18: 93.71%"></div><div style="flex:1;background:rgba(92,70,156,0.29);height:4px;border-radius:1px 1px 0 0;" title="W19: 93.30%"></div><div style="flex:1;background:rgba(92,70,156,0.3);height:5px;border-radius:1px 1px 0 0;" title="W20: 93.34%"></div><div style="flex:1;background:rgba(92,70,156,0.25);height:4px;border-radius:1px 1px 0 0;" title="W21: 93.15%"></div><div style="flex:1;background:rgba(92,70,156,0.54);height:9px;border-radius:1px 1px 0 0;" title="W22: 94.21%"></div><div style="flex:1;background:rgba(92,70,156,0.63);height:11px;border-radius:1px 1px 0 0;" title="W23: 94.53%"></div><div style="flex:1;background:rgba(92,70,156,0.92);height:17px;border-radius:1px 1px 0 0;" title="W24: 95.57%"></div><div style="flex:1;background:#5C469C;height:18px;border-radius:1px 1px 0 0;" title="W25: 95.68%"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W18</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W25</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-panel-ef-banda-footer" style="font-size:8px;font-weight:700;color:#FFFFFF;background:#FBBF24;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">ACEPTABLE</span>
-    <span id="hist-hcr-panel-ef-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 97%</span>
-  </div>
-</div>
-
-<script>
-(function(){
-  var CID = 'hcr-panel-ef', IS_INVERTED = false, METRIC = 'eficacia', TARGET = 97.0, BAR_CEIL = 97.0, SCALE_FLOOR = 90.0;
-  var SEMANAS = ["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"], VALS_DEF = [93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68], BC = {"Exitosa": {"bg": "#1A6B4A", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Aceptable": {"bg": "#FBBF24", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Revisar": {"bg": "#F97316", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Cr\u00edtica": {"bg": "#C0392B", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "S\u00faper Cr\u00edtica": {"bg": "#2D2828", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Sin Conversi\u00f3n": {"bg": "#8A8377", "fg": "#FFFFFF", "footer": "#FFFFFF"}};
-  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
-     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
-  if (typeof window !== 'undefined') {
-    if (!window._HIST_CANON) window._HIST_CANON = {};
-    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
-  }
-  var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
-  
-  function getBanda(v) {
-    if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
-    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
-  }
-  
-  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
-  
-  /* Thresholds por métrica */
-  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
-            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
-            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
-  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
-  
-  /* Distancia ordinal: cuántas bandas de distancia al target */
-  function ordinalDist(mid, target, thresholds, invert) {
-    if (!invert) {
-      if (mid >= target) return 0;
-      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
-    } else {
-      if (mid <= target) return 0;
-      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
-    }
-  }
-  
-  /* Color de semáforo por distancia ordinal */
-  var SEMAFORO_PALETTE = [
-    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
-    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
-    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
-    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
-  ];
-  function getSemaforoColor(dist) {
-    return SEMAFORO_PALETTE[Math.min(dist, 3)];
-  }
-  
-  /* Formato de label de threshold */
-  function fmtThLabel(t) {
-    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
-  }
-  
-  /* Formato de label de target */
-  function fmtTarget() {
-    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
-  }
-  
-  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
-  function drawCanvas(vals) {
-    currentVals = vals;  /* recordar último estado para re-draws automáticos */
-    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
-    if (!ctx) return;
-    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
-    var _ow = el.offsetWidth;
-    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
-    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
-    if (!_ow) _ow = 360;          /* fallback absoluto */
-    _lastWidth = _ow;             /* guardar para próxima vez */
-    var _oh = el.offsetHeight || 100;
-    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
-    var W = el.width, H = el.height, n = vals.length;
-    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
-    var cw = W-pL-pR, ch = H-pT-pB;
-    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;  /* nada que dibujar */
-    var i_min = Math.min(Math.min.apply(null, validVals), TARGET, SCALE_FLOOR);
-    var i_max = Math.max(Math.max.apply(null, validVals), TARGET);
-    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
-    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
-    var below = ths_s.filter(function(t) { return t < i_min; });
-    var above = ths_s.filter(function(t) { return t > i_max; });
-    var adj_below = below.length ? below[below.length-1] : null;
-    var adj_above = above.length ? above[0] : null;
-    var anchor_min = i_min, anchor_max = i_max;
-    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
-    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
-    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
-    var dR = canvas_max - canvas_min + 0.0001;
-    var xOf = function(i) { return pL + (i/(n-1))*cw; };
-    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
-    /* Líneas de umbral visibles (sin fondos de banda) */
-    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
-    visible_ths.forEach(function(t) {
-      var ty = yOf(t);
-      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
-      var sc = getSemaforoColor(dist);
-      ctx.save();
-      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font = '6.5px Geist,system-ui,sans-serif';
-      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
-      ctx.restore();
-    });
-    /* Línea target verde */
-    var tY = yOf(TARGET);
-    ctx.save();
-    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
-    ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
-    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
-    ctx.restore();
-    /* Area fill gradiente en color de la serie (solo puntos válidos) */
-    ctx.save();
-    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
-    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
-    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    var _areaStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      if (!_areaStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _areaStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    if (_areaStarted) {
-      /* cerrar el area hasta el baseline */
-      var _lastIdx = n-1; while (_lastIdx > 0 && (vals[_lastIdx] === null || isNaN(vals[_lastIdx]))) _lastIdx--;
-      var _firstIdx = 0; while (_firstIdx < n && (vals[_firstIdx] === null || isNaN(vals[_firstIdx]))) _firstIdx++;
-      ctx.lineTo(xOf(_lastIdx), pT+ch); ctx.lineTo(xOf(_firstIdx), pT+ch);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-    /* Línea de datos (saltar nulls) */
-    ctx.save();
-    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    var _lineStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) { _lineStarted = false; continue; }
-      if (!_lineStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _lineStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    ctx.stroke(); ctx.restore();
-    /* Puntos en la serie — solo puntos válidos */
-    for (var i = 0; i < n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      var isLast = (i === n - 1);
-      ctx.fillStyle = ACCENT_HEX;
-      ctx.globalAlpha = 1.0;
-      ctx.beginPath();
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
-    }
-    /* Actualizar W22_CANVAS_CFG */
-    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
-    var _tipEl = document.getElementById(CID);
-    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
-    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
-    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
-      window._HIST_CANON[CID].vals = vals.slice();
-    }
-  }
-  
-  function updateMetrics(vals, lbl) {
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;
-    var vMin = Math.min.apply(null, validVals), vMax = Math.max.apply(null, validVals);
-    var vAvg = validVals.reduce(function(a,b){return a+b;},0)/validVals.length;
-    var vCurr = validVals[validVals.length-1];
-    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
-    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
-    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
-    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
-    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
-    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
-    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
-    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
-    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
-    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
-    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
-    var kvId = kvMap[CID];
-    if (kvId) {
-      var kvEl = document.getElementById(kvId);
-      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
-    }
-  }
-  
-  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p, w_a, hist_arr) {
-    /* hist_arr (opcional): array de n valores reales [W18..W25].
-       Cuando se pasa, se usa directamente (datos históricos reales por corp/dest).
-       Nulls dentro del array → interpolados con el valor más cercano disponible. */
-    var n = VALS_DEF.length;
-    var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
-    var w24 = isNaN(w_p) ? w25 : w_p;
-
-    if (hist_arr && hist_arr.length === n) {
-      /* hist_arr ya tiene W18-W(N-1) reales + W(N) concatenado — NO sobrescribir.
-         Solo completar nulls por interpolación. */
-      var s = hist_arr.slice();
-      /* Rellenar nulls: buscar vecino más cercano conocido */
-      for (var i = 0; i < n; i++) {
-        if (s[i] === null || isNaN(s[i])) {
-          var left = null, right = null;
-          for (var l = i-1; l >= 0; l--) { if (s[l] !== null && !isNaN(s[l])) { left = s[l]; break; } }
-          for (var r2 = i+1; r2 < n; r2++) { if (s[r2] !== null && !isNaN(s[r2])) { right = s[r2]; break; } }
-          s[i] = left !== null ? left : (right !== null ? right : w24);
+      <div id="ar1-hist-cr" style="margin-top:12px;display:block;"><div id="hcr-panel-ef" style="width:100%;"></div>
+<script>(function(){var CID='hcr-panel-ef';var VD=[93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 0.9568];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#5C469C';var el=document.getElementById(CID);var getBanda=function(v){if(v>=97)return{c:'#1A6B4A',k:'Exitosa'};if(v>=93)return{c:'#FBBF24',k:'Aceptable'};if(v>=85)return{c:'#F97316',k:'Revisar'};if(v>=60)return{c:'#C0392B',k:'Cr\u00edtica'};return{c:'#2D2828',k:'S\u00fap. Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
+    var n=VD.length;
+    if(ha&&ha.length===n){
+      var s=ha.slice();
+      for(var i=0;i<n;i++){
+        if(s[i]===null||isNaN(s[i])){
+          var l=null,r=null;
+          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
+          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
+          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
         }
       }
       return s;
     }
-    /* Fallback: baseline plana en nivel W24 (2 datos reales: W24 y W25) */
-    var s = new Array(n).fill(w24);
-    s[n-2] = w24;   /* W24 */
-    s[n-1] = w25;   /* W25 */
-    return s;
-  }
-  
-  function attachListeners() {
-    /* Solo maneja click en el label del histórico para volver a Global.
-       La selección de filas la maneja js_override document-level listener
-       que dispara hist-update/hist-reset correctamente. */
-    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
-    if (!card) return;
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl) lblEl.addEventListener('click', function() {
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
-      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
-      lblEl.textContent = 'Global';
-    });
-  }
-  
-  function _cardWidth() {
-    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
-    var el = document.getElementById(CID);
-    if (!el) return 0;
-    var p = el.parentElement;
-    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
-    return 0;
-  }
-
-  function _tryDraw() {
-    var el = document.getElementById(CID);
-    if (!el) return false;
-    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
-    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
-    return false;
-  }
-
-  function init() {
-    updateMetrics(VALS_DEF, 'Global'); attachListeners();
-    var el = document.getElementById(CID);
-    if (el) {
-      var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
-      var drawn = false;
-      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
-      var anchor = el.closest('.kpi-card') || el.parentElement;
-      if (typeof IntersectionObserver !== 'undefined' && anchor) {
-        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
-          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
-        }); }, {threshold: 0.01}).observe(anchor);
-      }
-      /* Fallback por si el observer no dispara */
-      [300, 800, 2000].forEach(function(d) {
-        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
-      });
-    }
-    document.addEventListener('change', function(e) {
-      if (e.target.type !== 'radio') return;
-      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
-    });
-  }
-  
-  document.addEventListener('hist-update', function(e) {
-    if (e.detail.cid !== CID) return;
-    /* Guard: si hay historia de corp activa y el evento NO trae hist_arr → re-pintar corp */
-    if (!e.detail.hist_arr && window._corpHist && window._corpHist[CID]) {
-      var _chd = window._corpHist[CID];
-      var _cs = buildSerie(0, 0, 0, _chd.arr);
-      requestAnimationFrame(function() { requestAnimationFrame(function() {
-        drawCanvas(_cs); updateMetrics(_cs, _chd.lbl || '');
-      }); });
-      return;
-    }
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
-    var lbl = e.detail.label || '';
-    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        drawCanvas(s);
-        updateMetrics(s, lbl);
-      });
-    });
-  });
-  document.addEventListener('hist-reset', function(e) {
-    if (e.detail.cid !== CID) return;
-    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
-  });
-  
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else requestAnimationFrame(init);
-  
-  /* Exponer función de redraw con nuevo accent para cambio de canasta */
-  window['histRedraw_'+CID] = function(newAccent, newVals) {
-    if (newAccent) {
-      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
-        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
-        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
-      };
-      ACCENT_HEX = newAccent;
-      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
-    }
-    var vals = newVals || currentVals;
-    drawCanvas(vals); updateMetrics(vals, 'Global');
-  };
-  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
-  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl, hist_arr) {
-    var s = buildSerie(w_c, w_p, w_a, hist_arr);
-    drawCanvas(s);
-    updateMetrics(s, lbl || '');
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl && lbl) lblEl.textContent = lbl;
-  };
-})();
-</script></div>
-      <div id="ar1-hist-rnd" style="margin-top:12px;display:none;"><div id="hist-hrnd-panel-nd" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
-  <div style="height:8px;"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-hrnd-panel-nd-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
-    </span>
-  </div>
-  <div style="width:100%;height:100px;"><canvas id="hrnd-panel-nd" style="display:block;width:100%;height:100px;"></canvas></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-hrnd-panel-nd-actual" style="font-size:13px;font-weight:700;color:#EA0074;margin-top:2px;">3.43%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-panel-nd-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">2.31%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-panel-nd-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">3.43%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-panel-nd-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">2.79%</div>
-    </div>
-    <div id="hist-hrnd-panel-nd-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#FBBF24;border:1px solid #FBBF24;">
-      <div id="hist-hrnd-panel-nd-banda" style="font-size:11px;font-weight:700;color:#FFFFFF;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">ACEPTABLE</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;">
-    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Severidad vs universo global (↑ más NoDispo)</div>
-    <div id="hist-hrnd-panel-nd-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(234,0,116,0.58);height:10px;border-radius:1px 1px 0 0;" title="W18: 2.84%"></div><div style="flex:1;background:rgba(234,0,116,0.25);height:4px;border-radius:1px 1px 0 0;" title="W19: 2.31%"></div><div style="flex:1;background:rgba(234,0,116,0.42);height:7px;border-radius:1px 1px 0 0;" title="W20: 2.59%"></div><div style="flex:1;background:rgba(234,0,116,0.45);height:7px;border-radius:1px 1px 0 0;" title="W21: 2.63%"></div><div style="flex:1;background:rgba(234,0,116,0.44);height:7px;border-radius:1px 1px 0 0;" title="W22: 2.61%"></div><div style="flex:1;background:rgba(234,0,116,0.6);height:11px;border-radius:1px 1px 0 0;" title="W23: 2.87%"></div><div style="flex:1;background:rgba(234,0,116,0.71);height:13px;border-radius:1px 1px 0 0;" title="W24: 3.04%"></div><div style="flex:1;background:#EA0074;height:18px;border-radius:1px 1px 0 0;" title="W25: 3.43%"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W18</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W25</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-panel-nd-banda-footer" style="font-size:8px;font-weight:700;color:#FFFFFF;background:#FBBF24;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">ACEPTABLE</span>
-    <span id="hist-hrnd-panel-nd-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: < 5%</span>
-  </div>
+    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
+    var w24=isNaN(wp)?w25:wp;
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
+  }function renderPanel(vals,lbl){
+    if(!el)return;
+    var n=vals.length,W=320,SH=58;
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
+    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
+    function xOf(i){return (i/(n-1))*W;}
+    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
+    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
+            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    var dots=vals.map(function(v,i){
+      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
+      var r=last?5.5:4,sw=last?2:1.5;
+      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
+      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
+      return d;
+    }).join('');
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dots+'</svg>';
+    var cells=vals.map(function(v,i){
+      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
+        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
+        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
+        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
+        '</div>';
+    }).join('');
+    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
+    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
+    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
+    function sb(lb,v,col){return '<div style="flex:1;background:#F5F3EE;border-radius:5px;padding:4px 2px;text-align:center">'+
+      '<div style="font-size:8px;color:#8A8377;text-transform:uppercase;letter-spacing:.03em">'+lb+'</div>'+
+      '<div style="font-size:11.5px;font-weight:700;color:'+col+'">'+fmtVal(v)+'</div></div>';}
+    var sf='<div style="display:flex;gap:4px;border-top:1px solid #E8E4DC;padding-top:8px">'+
+      sb('Actual',cur,bC.c)+sb('Máx',hi,bH.c)+sb('Mín',lo,bL.c)+sb('Prom',avg,'#333132')+
+      '<div style="flex:1;border-radius:5px;padding:4px 2px;text-align:center;display:flex;align-items:center;justify-content:center;background:'+bC.c+'">'+
+        '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div></div>'+
+      '</div>';
+    var lblEl=document.getElementById('hist-'+CID+'-label');
+    if(lblEl&&lbl)lblEl.textContent=lbl;
+    el.innerHTML=svg+dr+sf;
+  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
 </div>
-
-<script>
-(function(){
-  var CID = 'hrnd-panel-nd', IS_INVERTED = true, METRIC = 'nodispo', TARGET = 0.05, BAR_CEIL = 0.6, SCALE_FLOOR = 0.0;
-  var SEMANAS = ["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"], VALS_DEF = [2.84, 2.31, 2.59, 2.63, 2.61, 2.87, 3.04, 3.43], BC = {"Exitosa": {"bg": "#1A6B4A", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Aceptable": {"bg": "#FBBF24", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Revisar": {"bg": "#F97316", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Cr\u00edtica": {"bg": "#C0392B", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "S\u00faper Cr\u00edtica": {"bg": "#2D2828", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Sin Conversi\u00f3n": {"bg": "#8A8377", "fg": "#FFFFFF", "footer": "#FFFFFF"}};
-  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
-     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
-  if (typeof window !== 'undefined') {
-    if (!window._HIST_CANON) window._HIST_CANON = {};
-    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
-  }
-  var ACCENT_HEX = '#EA0074', ACCENT_RGB = '234,0,116';
-  
-  function getBanda(v) {
-    if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
-    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
-  }
-  
-  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
-  
-  /* Thresholds por métrica */
-  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
-            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
-            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
-  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
-  
-  /* Distancia ordinal: cuántas bandas de distancia al target */
-  function ordinalDist(mid, target, thresholds, invert) {
-    if (!invert) {
-      if (mid >= target) return 0;
-      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
-    } else {
-      if (mid <= target) return 0;
-      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
-    }
-  }
-  
-  /* Color de semáforo por distancia ordinal */
-  var SEMAFORO_PALETTE = [
-    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
-    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
-    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
-    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
-  ];
-  function getSemaforoColor(dist) {
-    return SEMAFORO_PALETTE[Math.min(dist, 3)];
-  }
-  
-  /* Formato de label de threshold */
-  function fmtThLabel(t) {
-    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
-  }
-  
-  /* Formato de label de target */
-  function fmtTarget() {
-    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
-  }
-  
-  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
-  function drawCanvas(vals) {
-    currentVals = vals;  /* recordar último estado para re-draws automáticos */
-    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
-    if (!ctx) return;
-    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
-    var _ow = el.offsetWidth;
-    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
-    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
-    if (!_ow) _ow = 360;          /* fallback absoluto */
-    _lastWidth = _ow;             /* guardar para próxima vez */
-    var _oh = el.offsetHeight || 100;
-    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
-    var W = el.width, H = el.height, n = vals.length;
-    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
-    var cw = W-pL-pR, ch = H-pT-pB;
-    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;  /* nada que dibujar */
-    var i_min = Math.min(Math.min.apply(null, validVals), TARGET, SCALE_FLOOR);
-    var i_max = Math.max(Math.max.apply(null, validVals), TARGET);
-    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
-    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
-    var below = ths_s.filter(function(t) { return t < i_min; });
-    var above = ths_s.filter(function(t) { return t > i_max; });
-    var adj_below = below.length ? below[below.length-1] : null;
-    var adj_above = above.length ? above[0] : null;
-    var anchor_min = i_min, anchor_max = i_max;
-    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
-    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
-    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
-    var dR = canvas_max - canvas_min + 0.0001;
-    var xOf = function(i) { return pL + (i/(n-1))*cw; };
-    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
-    /* Líneas de umbral visibles (sin fondos de banda) */
-    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
-    visible_ths.forEach(function(t) {
-      var ty = yOf(t);
-      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
-      var sc = getSemaforoColor(dist);
-      ctx.save();
-      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font = '6.5px Geist,system-ui,sans-serif';
-      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
-      ctx.restore();
-    });
-    /* Línea target verde */
-    var tY = yOf(TARGET);
-    ctx.save();
-    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
-    ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
-    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
-    ctx.restore();
-    /* Area fill gradiente en color de la serie (solo puntos válidos) */
-    ctx.save();
-    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
-    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
-    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    var _areaStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      if (!_areaStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _areaStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    if (_areaStarted) {
-      /* cerrar el area hasta el baseline */
-      var _lastIdx = n-1; while (_lastIdx > 0 && (vals[_lastIdx] === null || isNaN(vals[_lastIdx]))) _lastIdx--;
-      var _firstIdx = 0; while (_firstIdx < n && (vals[_firstIdx] === null || isNaN(vals[_firstIdx]))) _firstIdx++;
-      ctx.lineTo(xOf(_lastIdx), pT+ch); ctx.lineTo(xOf(_firstIdx), pT+ch);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-    /* Línea de datos (saltar nulls) */
-    ctx.save();
-    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    var _lineStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) { _lineStarted = false; continue; }
-      if (!_lineStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _lineStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    ctx.stroke(); ctx.restore();
-    /* Puntos en la serie — solo puntos válidos */
-    for (var i = 0; i < n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      var isLast = (i === n - 1);
-      ctx.fillStyle = ACCENT_HEX;
-      ctx.globalAlpha = 1.0;
-      ctx.beginPath();
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
-    }
-    /* Actualizar W22_CANVAS_CFG */
-    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
-    var _tipEl = document.getElementById(CID);
-    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
-    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
-    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
-      window._HIST_CANON[CID].vals = vals.slice();
-    }
-  }
-  
-  function updateMetrics(vals, lbl) {
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;
-    var vMin = Math.min.apply(null, validVals), vMax = Math.max.apply(null, validVals);
-    var vAvg = validVals.reduce(function(a,b){return a+b;},0)/validVals.length;
-    var vCurr = validVals[validVals.length-1];
-    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
-    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
-    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
-    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
-    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
-    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
-    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
-    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
-    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
-    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
-    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
-    var kvId = kvMap[CID];
-    if (kvId) {
-      var kvEl = document.getElementById(kvId);
-      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
-    }
-  }
-  
-  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p, w_a, hist_arr) {
-    /* hist_arr (opcional): array de n valores reales [W18..W25].
-       Cuando se pasa, se usa directamente (datos históricos reales por corp/dest).
-       Nulls dentro del array → interpolados con el valor más cercano disponible. */
-    var n = VALS_DEF.length;
-    var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
-    var w24 = isNaN(w_p) ? w25 : w_p;
-
-    if (hist_arr && hist_arr.length === n) {
-      /* hist_arr ya tiene W18-W(N-1) reales + W(N) concatenado — NO sobrescribir.
-         Solo completar nulls por interpolación. */
-      var s = hist_arr.slice();
-      /* Rellenar nulls: buscar vecino más cercano conocido */
-      for (var i = 0; i < n; i++) {
-        if (s[i] === null || isNaN(s[i])) {
-          var left = null, right = null;
-          for (var l = i-1; l >= 0; l--) { if (s[l] !== null && !isNaN(s[l])) { left = s[l]; break; } }
-          for (var r2 = i+1; r2 < n; r2++) { if (s[r2] !== null && !isNaN(s[r2])) { right = s[r2]; break; } }
-          s[i] = left !== null ? left : (right !== null ? right : w24);
+      <div id="ar1-hist-rnd" style="margin-top:12px;display:none;"><div id="hrnd-panel-nd" style="width:100%;"></div>
+<script>(function(){var CID='hrnd-panel-nd';var VD=[2.84, 2.31, 2.59, 2.63, 2.61, 2.87, 3.04, 0.0343];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#EA0074';var el=document.getElementById(CID);var getBanda=function(v){if(v<3)return{c:'#1A6B4A',k:'Exitosa'};if(v<5)return{c:'#FBBF24',k:'Aceptable'};if(v<20)return{c:'#F97316',k:'Revisar'};if(v<60)return{c:'#C0392B',k:'Cr\u00edtica'};return{c:'#2D2828',k:'S\u00fap. Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
+    var n=VD.length;
+    if(ha&&ha.length===n){
+      var s=ha.slice();
+      for(var i=0;i<n;i++){
+        if(s[i]===null||isNaN(s[i])){
+          var l=null,r=null;
+          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
+          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
+          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
         }
       }
       return s;
     }
-    /* Fallback: baseline plana en nivel W24 (2 datos reales: W24 y W25) */
-    var s = new Array(n).fill(w24);
-    s[n-2] = w24;   /* W24 */
-    s[n-1] = w25;   /* W25 */
-    return s;
-  }
-  
-  function attachListeners() {
-    /* Solo maneja click en el label del histórico para volver a Global.
-       La selección de filas la maneja js_override document-level listener
-       que dispara hist-update/hist-reset correctamente. */
-    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
-    if (!card) return;
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl) lblEl.addEventListener('click', function() {
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
-      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
-      lblEl.textContent = 'Global';
-    });
-  }
-  
-  function _cardWidth() {
-    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
-    var el = document.getElementById(CID);
-    if (!el) return 0;
-    var p = el.parentElement;
-    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
-    return 0;
-  }
-
-  function _tryDraw() {
-    var el = document.getElementById(CID);
-    if (!el) return false;
-    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
-    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
-    return false;
-  }
-
-  function init() {
-    updateMetrics(VALS_DEF, 'Global'); attachListeners();
-    var el = document.getElementById(CID);
-    if (el) {
-      var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
-      var drawn = false;
-      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
-      var anchor = el.closest('.kpi-card') || el.parentElement;
-      if (typeof IntersectionObserver !== 'undefined' && anchor) {
-        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
-          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
-        }); }, {threshold: 0.01}).observe(anchor);
-      }
-      /* Fallback por si el observer no dispara */
-      [300, 800, 2000].forEach(function(d) {
-        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
-      });
-    }
-    document.addEventListener('change', function(e) {
-      if (e.target.type !== 'radio') return;
-      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
-    });
-  }
-  
-  document.addEventListener('hist-update', function(e) {
-    if (e.detail.cid !== CID) return;
-    /* Guard: si hay historia de corp activa y el evento NO trae hist_arr → re-pintar corp */
-    if (!e.detail.hist_arr && window._corpHist && window._corpHist[CID]) {
-      var _chd = window._corpHist[CID];
-      var _cs = buildSerie(0, 0, 0, _chd.arr);
-      requestAnimationFrame(function() { requestAnimationFrame(function() {
-        drawCanvas(_cs); updateMetrics(_cs, _chd.lbl || '');
-      }); });
-      return;
-    }
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
-    var lbl = e.detail.label || '';
-    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        drawCanvas(s);
-        updateMetrics(s, lbl);
-      });
-    });
-  });
-  document.addEventListener('hist-reset', function(e) {
-    if (e.detail.cid !== CID) return;
-    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
-  });
-  
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else requestAnimationFrame(init);
-  
-  /* Exponer función de redraw con nuevo accent para cambio de canasta */
-  window['histRedraw_'+CID] = function(newAccent, newVals) {
-    if (newAccent) {
-      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
-        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
-        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
-      };
-      ACCENT_HEX = newAccent;
-      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
-    }
-    var vals = newVals || currentVals;
-    drawCanvas(vals); updateMetrics(vals, 'Global');
-  };
-  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
-  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl, hist_arr) {
-    var s = buildSerie(w_c, w_p, w_a, hist_arr);
-    drawCanvas(s);
-    updateMetrics(s, lbl || '');
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl && lbl) lblEl.textContent = lbl;
-  };
-})();
-</script></div>
+    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
+    var w24=isNaN(wp)?w25:wp;
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
+  }function renderPanel(vals,lbl){
+    if(!el)return;
+    var n=vals.length,W=320,SH=58;
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
+    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
+    function xOf(i){return (i/(n-1))*W;}
+    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
+    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
+            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    var dots=vals.map(function(v,i){
+      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
+      var r=last?5.5:4,sw=last?2:1.5;
+      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
+      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
+      return d;
+    }).join('');
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dots+'</svg>';
+    var cells=vals.map(function(v,i){
+      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
+        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
+        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
+        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
+        '</div>';
+    }).join('');
+    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
+    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
+    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
+    function sb(lb,v,col){return '<div style="flex:1;background:#F5F3EE;border-radius:5px;padding:4px 2px;text-align:center">'+
+      '<div style="font-size:8px;color:#8A8377;text-transform:uppercase;letter-spacing:.03em">'+lb+'</div>'+
+      '<div style="font-size:11.5px;font-weight:700;color:'+col+'">'+fmtVal(v)+'</div></div>';}
+    var sf='<div style="display:flex;gap:4px;border-top:1px solid #E8E4DC;padding-top:8px">'+
+      sb('Actual',cur,bC.c)+sb('Máx',hi,bH.c)+sb('Mín',lo,bL.c)+sb('Prom',avg,'#333132')+
+      '<div style="flex:1;border-radius:5px;padding:4px 2px;text-align:center;display:flex;align-items:center;justify-content:center;background:'+bC.c+'">'+
+        '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div></div>'+
+      '</div>';
+    var lblEl=document.getElementById('hist-'+CID+'-label');
+    if(lblEl&&lbl)lblEl.textContent=lbl;
+    el.innerHTML=svg+dr+sf;
+  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
+</div>
     </div>
   </div>
 
@@ -4039,778 +3395,134 @@ window.HIST_DATA['rnd'] = {
     </div>
         <!-- Canvas histórico card 2 -->
     <div style="padding:0 16px 16px;">
-      <div id="ar2-hist-cr" style="margin-top:12px;display:block;"><div id="hist-hcr-panel-cv" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
-  <div style="height:8px;"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-hcr-panel-cv-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
-    </span>
-  </div>
-  <div style="width:100%;height:100px;"><canvas id="hcr-panel-cv" style="display:block;width:100%;height:100px;"></canvas></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-hcr-panel-cv-actual" style="font-size:13px;font-weight:700;color:#5C469C;margin-top:2px;">0.75%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hcr-panel-cv-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">1.63%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hcr-panel-cv-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">0.75%</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hcr-panel-cv-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">1.10%</div>
-    </div>
-    <div id="hist-hcr-panel-cv-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#C0392B;border:1px solid #C0392B;">
-      <div id="hist-hcr-panel-cv-banda" style="font-size:11px;font-weight:700;color:#FFFFFF;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">CRÍTICA</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;">
-    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-hcr-panel-cv-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(92,70,156,0.46);height:8px;border-radius:1px 1px 0 0;" title="W18: 1.02%"></div><div style="flex:1;background:rgba(92,70,156,0.56);height:10px;border-radius:1px 1px 0 0;" title="W19: 1.14%"></div><div style="flex:1;background:rgba(92,70,156,0.95);height:18px;border-radius:1px 1px 0 0;" title="W20: 1.63%"></div><div style="flex:1;background:rgba(92,70,156,0.9);height:17px;border-radius:1px 1px 0 0;" title="W21: 1.57%"></div><div style="flex:1;background:rgba(92,70,156,0.45);height:7px;border-radius:1px 1px 0 0;" title="W22: 1.00%"></div><div style="flex:1;background:rgba(92,70,156,0.32);height:5px;border-radius:1px 1px 0 0;" title="W23: 0.84%"></div><div style="flex:1;background:rgba(92,70,156,0.31);height:5px;border-radius:1px 1px 0 0;" title="W24: 0.82%"></div><div style="flex:1;background:#5C469C;height:4px;border-radius:1px 1px 0 0;" title="W25: 0.75%"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W18</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W25</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hcr-panel-cv-banda-footer" style="font-size:8px;font-weight:700;color:#FFFFFF;background:#C0392B;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">CRÍTICA</span>
-    <span id="hist-hcr-panel-cv-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ 2,5%</span>
-  </div>
-</div>
-
-<script>
-(function(){
-  var CID = 'hcr-panel-cv', IS_INVERTED = false, METRIC = 'convrate', TARGET = 2.5, BAR_CEIL = 2.5, SCALE_FLOOR = 0.0;
-  var SEMANAS = ["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"], VALS_DEF = [1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.75], BC = {"Exitosa": {"bg": "#1A6B4A", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Aceptable": {"bg": "#FBBF24", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Revisar": {"bg": "#F97316", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Cr\u00edtica": {"bg": "#C0392B", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "S\u00faper Cr\u00edtica": {"bg": "#2D2828", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Sin Conversi\u00f3n": {"bg": "#8A8377", "fg": "#FFFFFF", "footer": "#FFFFFF"}};
-  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
-     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
-  if (typeof window !== 'undefined') {
-    if (!window._HIST_CANON) window._HIST_CANON = {};
-    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
-  }
-  var ACCENT_HEX = '#5C469C', ACCENT_RGB = '92,70,156';
-  
-  function getBanda(v) {
-    if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
-    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
-  }
-  
-  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
-  
-  /* Thresholds por métrica */
-  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
-            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
-            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
-  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
-  
-  /* Distancia ordinal: cuántas bandas de distancia al target */
-  function ordinalDist(mid, target, thresholds, invert) {
-    if (!invert) {
-      if (mid >= target) return 0;
-      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
-    } else {
-      if (mid <= target) return 0;
-      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
-    }
-  }
-  
-  /* Color de semáforo por distancia ordinal */
-  var SEMAFORO_PALETTE = [
-    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
-    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
-    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
-    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
-  ];
-  function getSemaforoColor(dist) {
-    return SEMAFORO_PALETTE[Math.min(dist, 3)];
-  }
-  
-  /* Formato de label de threshold */
-  function fmtThLabel(t) {
-    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
-  }
-  
-  /* Formato de label de target */
-  function fmtTarget() {
-    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
-  }
-  
-  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
-  function drawCanvas(vals) {
-    currentVals = vals;  /* recordar último estado para re-draws automáticos */
-    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
-    if (!ctx) return;
-    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
-    var _ow = el.offsetWidth;
-    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
-    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
-    if (!_ow) _ow = 360;          /* fallback absoluto */
-    _lastWidth = _ow;             /* guardar para próxima vez */
-    var _oh = el.offsetHeight || 100;
-    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
-    var W = el.width, H = el.height, n = vals.length;
-    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
-    var cw = W-pL-pR, ch = H-pT-pB;
-    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;  /* nada que dibujar */
-    var i_min = Math.min(Math.min.apply(null, validVals), TARGET, SCALE_FLOOR);
-    var i_max = Math.max(Math.max.apply(null, validVals), TARGET);
-    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
-    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
-    var below = ths_s.filter(function(t) { return t < i_min; });
-    var above = ths_s.filter(function(t) { return t > i_max; });
-    var adj_below = below.length ? below[below.length-1] : null;
-    var adj_above = above.length ? above[0] : null;
-    var anchor_min = i_min, anchor_max = i_max;
-    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
-    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
-    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
-    var dR = canvas_max - canvas_min + 0.0001;
-    var xOf = function(i) { return pL + (i/(n-1))*cw; };
-    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
-    /* Líneas de umbral visibles (sin fondos de banda) */
-    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
-    visible_ths.forEach(function(t) {
-      var ty = yOf(t);
-      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
-      var sc = getSemaforoColor(dist);
-      ctx.save();
-      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font = '6.5px Geist,system-ui,sans-serif';
-      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
-      ctx.restore();
-    });
-    /* Línea target verde */
-    var tY = yOf(TARGET);
-    ctx.save();
-    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
-    ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
-    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
-    ctx.restore();
-    /* Area fill gradiente en color de la serie (solo puntos válidos) */
-    ctx.save();
-    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
-    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
-    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    var _areaStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      if (!_areaStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _areaStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    if (_areaStarted) {
-      /* cerrar el area hasta el baseline */
-      var _lastIdx = n-1; while (_lastIdx > 0 && (vals[_lastIdx] === null || isNaN(vals[_lastIdx]))) _lastIdx--;
-      var _firstIdx = 0; while (_firstIdx < n && (vals[_firstIdx] === null || isNaN(vals[_firstIdx]))) _firstIdx++;
-      ctx.lineTo(xOf(_lastIdx), pT+ch); ctx.lineTo(xOf(_firstIdx), pT+ch);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-    /* Línea de datos (saltar nulls) */
-    ctx.save();
-    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    var _lineStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) { _lineStarted = false; continue; }
-      if (!_lineStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _lineStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    ctx.stroke(); ctx.restore();
-    /* Puntos en la serie — solo puntos válidos */
-    for (var i = 0; i < n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      var isLast = (i === n - 1);
-      ctx.fillStyle = ACCENT_HEX;
-      ctx.globalAlpha = 1.0;
-      ctx.beginPath();
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
-    }
-    /* Actualizar W22_CANVAS_CFG */
-    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
-    var _tipEl = document.getElementById(CID);
-    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
-    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
-    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
-      window._HIST_CANON[CID].vals = vals.slice();
-    }
-  }
-  
-  function updateMetrics(vals, lbl) {
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;
-    var vMin = Math.min.apply(null, validVals), vMax = Math.max.apply(null, validVals);
-    var vAvg = validVals.reduce(function(a,b){return a+b;},0)/validVals.length;
-    var vCurr = validVals[validVals.length-1];
-    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
-    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
-    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
-    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
-    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
-    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
-    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
-    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
-    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
-    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
-    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
-    var kvId = kvMap[CID];
-    if (kvId) {
-      var kvEl = document.getElementById(kvId);
-      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
-    }
-  }
-  
-  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p, w_a, hist_arr) {
-    /* hist_arr (opcional): array de n valores reales [W18..W25].
-       Cuando se pasa, se usa directamente (datos históricos reales por corp/dest).
-       Nulls dentro del array → interpolados con el valor más cercano disponible. */
-    var n = VALS_DEF.length;
-    var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
-    var w24 = isNaN(w_p) ? w25 : w_p;
-
-    if (hist_arr && hist_arr.length === n) {
-      /* hist_arr ya tiene W18-W(N-1) reales + W(N) concatenado — NO sobrescribir.
-         Solo completar nulls por interpolación. */
-      var s = hist_arr.slice();
-      /* Rellenar nulls: buscar vecino más cercano conocido */
-      for (var i = 0; i < n; i++) {
-        if (s[i] === null || isNaN(s[i])) {
-          var left = null, right = null;
-          for (var l = i-1; l >= 0; l--) { if (s[l] !== null && !isNaN(s[l])) { left = s[l]; break; } }
-          for (var r2 = i+1; r2 < n; r2++) { if (s[r2] !== null && !isNaN(s[r2])) { right = s[r2]; break; } }
-          s[i] = left !== null ? left : (right !== null ? right : w24);
+      <div id="ar2-hist-cr" style="margin-top:12px;display:block;"><div id="hcr-panel-cv" style="width:100%;"></div>
+<script>(function(){var CID='hcr-panel-cv';var VD=[1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.0075];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#5C469C';var el=document.getElementById(CID);var getBanda=function(v){if(v>=2.5)return{c:'#1A6B4A',k:'Exitosa'};if(v>=1.5)return{c:'#FBBF24',k:'Aceptable'};if(v>=0.8)return{c:'#F97316',k:'Revisar'};return{c:'#C0392B',k:'Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
+    var n=VD.length;
+    if(ha&&ha.length===n){
+      var s=ha.slice();
+      for(var i=0;i<n;i++){
+        if(s[i]===null||isNaN(s[i])){
+          var l=null,r=null;
+          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
+          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
+          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
         }
       }
       return s;
     }
-    /* Fallback: baseline plana en nivel W24 (2 datos reales: W24 y W25) */
-    var s = new Array(n).fill(w24);
-    s[n-2] = w24;   /* W24 */
-    s[n-1] = w25;   /* W25 */
-    return s;
-  }
-  
-  function attachListeners() {
-    /* Solo maneja click en el label del histórico para volver a Global.
-       La selección de filas la maneja js_override document-level listener
-       que dispara hist-update/hist-reset correctamente. */
-    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
-    if (!card) return;
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl) lblEl.addEventListener('click', function() {
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
-      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
-      lblEl.textContent = 'Global';
-    });
-  }
-  
-  function _cardWidth() {
-    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
-    var el = document.getElementById(CID);
-    if (!el) return 0;
-    var p = el.parentElement;
-    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
-    return 0;
-  }
-
-  function _tryDraw() {
-    var el = document.getElementById(CID);
-    if (!el) return false;
-    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
-    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
-    return false;
-  }
-
-  function init() {
-    updateMetrics(VALS_DEF, 'Global'); attachListeners();
-    var el = document.getElementById(CID);
-    if (el) {
-      var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
-      var drawn = false;
-      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
-      var anchor = el.closest('.kpi-card') || el.parentElement;
-      if (typeof IntersectionObserver !== 'undefined' && anchor) {
-        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
-          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
-        }); }, {threshold: 0.01}).observe(anchor);
-      }
-      /* Fallback por si el observer no dispara */
-      [300, 800, 2000].forEach(function(d) {
-        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
-      });
-    }
-    document.addEventListener('change', function(e) {
-      if (e.target.type !== 'radio') return;
-      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
-    });
-  }
-  
-  document.addEventListener('hist-update', function(e) {
-    if (e.detail.cid !== CID) return;
-    /* Guard: si hay historia de corp activa y el evento NO trae hist_arr → re-pintar corp */
-    if (!e.detail.hist_arr && window._corpHist && window._corpHist[CID]) {
-      var _chd = window._corpHist[CID];
-      var _cs = buildSerie(0, 0, 0, _chd.arr);
-      requestAnimationFrame(function() { requestAnimationFrame(function() {
-        drawCanvas(_cs); updateMetrics(_cs, _chd.lbl || '');
-      }); });
-      return;
-    }
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
-    var lbl = e.detail.label || '';
-    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        drawCanvas(s);
-        updateMetrics(s, lbl);
-      });
-    });
-  });
-  document.addEventListener('hist-reset', function(e) {
-    if (e.detail.cid !== CID) return;
-    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
-  });
-  
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else requestAnimationFrame(init);
-  
-  /* Exponer función de redraw con nuevo accent para cambio de canasta */
-  window['histRedraw_'+CID] = function(newAccent, newVals) {
-    if (newAccent) {
-      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
-        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
-        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
-      };
-      ACCENT_HEX = newAccent;
-      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
-    }
-    var vals = newVals || currentVals;
-    drawCanvas(vals); updateMetrics(vals, 'Global');
-  };
-  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
-  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl, hist_arr) {
-    var s = buildSerie(w_c, w_p, w_a, hist_arr);
-    drawCanvas(s);
-    updateMetrics(s, lbl || '');
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl && lbl) lblEl.textContent = lbl;
-  };
-})();
-</script></div>
-      <div id="ar2-hist-rnd" style="margin-top:12px;display:none;"><div id="hist-hrnd-panel-ipm" style="margin-top:auto;padding:10px 8px;background:var(--paper-soft);border:1px solid var(--rule);border-radius:4px;width:100%;box-sizing:border-box;">
-  <div style="height:8px;"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--ink-muted);">
-      Evolución Histórica · <span id="hist-hrnd-panel-ipm-label" style="color:var(--ink-muted);font-weight:600;">Global</span>
-    </span>
-  </div>
-  <div style="width:100%;height:100px;"><canvas id="hrnd-panel-ipm" style="display:block;width:100%;height:100px;"></canvas></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;">
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Actual</div>
-      <div id="hist-hrnd-panel-ipm-actual" style="font-size:13px;font-weight:700;color:#4FC3F4;margin-top:2px;">$908</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Máx 5W</div>
-      <div id="hist-hrnd-panel-ipm-best" style="font-size:13px;font-weight:700;color:#2F6C34;margin-top:2px;">$908</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Mín 5W</div>
-      <div id="hist-hrnd-panel-ipm-worst" style="font-size:13px;font-weight:700;color:#C0392B;margin-top:2px;">$499</div>
-    </div>
-    <div style="text-align:center;padding:6px 2px;background:var(--paper);border-radius:3px;border:1px solid var(--rule-soft);">
-      <div style="font-size:8px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Prom 5W</div>
-      <div id="hist-hrnd-panel-ipm-avg" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:2px;">$655</div>
-    </div>
-    <div id="hist-hrnd-panel-ipm-banda-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:6px 2px;border-radius:3px;background:#1A6B4A;border:1px solid #1A6B4A;">
-      <div id="hist-hrnd-panel-ipm-banda" style="font-size:11px;font-weight:700;color:#FFFFFF;margin-top:2px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;">
-    <div style="font-size:7px;color:var(--ink-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Posición vs target global</div>
-    <div id="hist-hrnd-panel-ipm-spark" style="display:flex;align-items:flex-end;gap:2px;height:18px;"><div style="flex:1;background:rgba(79,195,244,0.29);height:4px;border-radius:1px 1px 0 0;" title="W18: $524"></div><div style="flex:1;background:rgba(79,195,244,0.25);height:4px;border-radius:1px 1px 0 0;" title="W19: $499"></div><div style="flex:1;background:rgba(79,195,244,0.55);height:10px;border-radius:1px 1px 0 0;" title="W20: $677"></div><div style="flex:1;background:rgba(79,195,244,0.82);height:15px;border-radius:1px 1px 0 0;" title="W21: $834"></div><div style="flex:1;background:rgba(79,195,244,0.51);height:9px;border-radius:1px 1px 0 0;" title="W22: $653"></div><div style="flex:1;background:rgba(79,195,244,0.31);height:5px;border-radius:1px 1px 0 0;" title="W23: $534"></div><div style="flex:1;background:rgba(79,195,244,0.44);height:7px;border-radius:1px 1px 0 0;" title="W24: $611"></div><div style="flex:1;background:#4FC3F4;height:18px;border-radius:1px 1px 0 0;" title="W25: $908"></div></div>
-    <div style="position:relative;height:14px;margin-top:2px;">
-      <span style="position:absolute;left:0.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink-muted);">W18</span><span style="position:absolute;left:100.0%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--ink);">W25</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);">
-    <span id="hist-hrnd-panel-ipm-banda-footer" style="font-size:8px;font-weight:700;color:#FFFFFF;background:#1A6B4A;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em;">EXITOSA</span>
-    <span id="hist-hrnd-panel-ipm-trend-footer" style="font-size:8px;color:var(--ink-muted);">Target: ≥ $650</span>
-  </div>
+    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
+    var w24=isNaN(wp)?w25:wp;
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
+  }function renderPanel(vals,lbl){
+    if(!el)return;
+    var n=vals.length,W=320,SH=58;
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
+    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
+    function xOf(i){return (i/(n-1))*W;}
+    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
+    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
+            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    var dots=vals.map(function(v,i){
+      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
+      var r=last?5.5:4,sw=last?2:1.5;
+      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
+      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
+      return d;
+    }).join('');
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dots+'</svg>';
+    var cells=vals.map(function(v,i){
+      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
+        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
+        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
+        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
+        '</div>';
+    }).join('');
+    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
+    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
+    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
+    function sb(lb,v,col){return '<div style="flex:1;background:#F5F3EE;border-radius:5px;padding:4px 2px;text-align:center">'+
+      '<div style="font-size:8px;color:#8A8377;text-transform:uppercase;letter-spacing:.03em">'+lb+'</div>'+
+      '<div style="font-size:11.5px;font-weight:700;color:'+col+'">'+fmtVal(v)+'</div></div>';}
+    var sf='<div style="display:flex;gap:4px;border-top:1px solid #E8E4DC;padding-top:8px">'+
+      sb('Actual',cur,bC.c)+sb('Máx',hi,bH.c)+sb('Mín',lo,bL.c)+sb('Prom',avg,'#333132')+
+      '<div style="flex:1;border-radius:5px;padding:4px 2px;text-align:center;display:flex;align-items:center;justify-content:center;background:'+bC.c+'">'+
+        '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div></div>'+
+      '</div>';
+    var lblEl=document.getElementById('hist-'+CID+'-label');
+    if(lblEl&&lbl)lblEl.textContent=lbl;
+    el.innerHTML=svg+dr+sf;
+  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
 </div>
-
-<script>
-(function(){
-  var CID = 'hrnd-panel-ipm', IS_INVERTED = false, METRIC = 'ipm', TARGET = 650.0, BAR_CEIL = 3000.0, SCALE_FLOOR = 0.0;
-  var SEMANAS = ["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"], VALS_DEF = [524.0, 499.0, 677.0, 834.0, 653.0, 534.0, 611.0, 907.9], BC = {"Exitosa": {"bg": "#1A6B4A", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Aceptable": {"bg": "#FBBF24", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Revisar": {"bg": "#F97316", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Cr\u00edtica": {"bg": "#C0392B", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "S\u00faper Cr\u00edtica": {"bg": "#2D2828", "fg": "#FFFFFF", "footer": "#FFFFFF"}, "Sin Conversi\u00f3n": {"bg": "#8A8377", "fg": "#FFFFFF", "footer": "#FFFFFF"}};
-  /* W23+: Registrar la serie canónica (8 puntos correctos) en objeto global dedicado.
-     El tooltip OVERRIDE lee de aquí con máxima prioridad, evitando datos viejos de W22_CANVAS_CFG. */
-  if (typeof window !== 'undefined') {
-    if (!window._HIST_CANON) window._HIST_CANON = {};
-    window._HIST_CANON[CID] = { semanas: SEMANAS.slice(), vals: VALS_DEF.slice(), metric: METRIC };
-  }
-  var ACCENT_HEX = '#4FC3F4', ACCENT_RGB = '79,195,244';
-  
-  function getBanda(v) {
-    if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
-    if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
-  }
-  
-  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
-  
-  /* Thresholds por métrica */
-  var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
-            METRIC === 'convrate' ? [2.5, 1.5, 0.8] :
-            METRIC === 'nodispo' ? [3.0, 5.0, 20.0, 60.0] : [650, 500, 199];
-  var THS_SORTED = THS.slice().sort(function(a, b) { return a - b; });
-  
-  /* Distancia ordinal: cuántas bandas de distancia al target */
-  function ordinalDist(mid, target, thresholds, invert) {
-    if (!invert) {
-      if (mid >= target) return 0;
-      return thresholds.filter(function(t) { return t > mid && t <= target; }).length;
-    } else {
-      if (mid <= target) return 0;
-      return thresholds.filter(function(t) { return t < mid && t >= target; }).length;
-    }
-  }
-  
-  /* Color de semáforo por distancia ordinal */
-  var SEMAFORO_PALETTE = [
-    {line: '#1A6B4A', fg: '#0F5132', label: '≥ target'},
-    {line: '#D97706', fg: '#92400E', label: '–1 banda'},
-    {line: '#C2410C', fg: '#9A3412', label: '–2 bandas'},
-    {line: '#BE123C', fg: '#9F1239', label: '–3+ bandas'}
-  ];
-  function getSemaforoColor(dist) {
-    return SEMAFORO_PALETTE[Math.min(dist, 3)];
-  }
-  
-  /* Formato de label de threshold */
-  function fmtThLabel(t) {
-    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
-  }
-  
-  /* Formato de label de target */
-  function fmtTarget() {
-    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
-  }
-  
-  var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
-  function drawCanvas(vals) {
-    currentVals = vals;  /* recordar último estado para re-draws automáticos */
-    var el = document.getElementById(CID), ctx = el ? el.getContext('2d', {willReadFrequently: false}) : null;
-    if (!ctx) return;
-    /* W23: usar offsetWidth medido ahora; si es 0, reutilizar el último válido o el del padre */
-    var _ow = el.offsetWidth;
-    if (!_ow && el.parentElement) _ow = el.parentElement.offsetWidth;
-    if (!_ow) _ow = _lastWidth;   /* último ancho válido */
-    if (!_ow) _ow = 360;          /* fallback absoluto */
-    _lastWidth = _ow;             /* guardar para próxima vez */
-    var _oh = el.offsetHeight || 100;
-    el.width = _ow; el.height = _oh; ctx.clearRect(0, 0, el.width, el.height);
-    var W = el.width, H = el.height, n = vals.length;
-    var pL=6, pR=4, pT=8, pB=18;  /* pR mínimo — labels de target se dibujan dentro del área */
-    var cw = W-pL-pR, ch = H-pT-pB;
-    /* Escala v5: umbral adyacente incluido solo si dist ≤ 1×i_range */
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;  /* nada que dibujar */
-    var i_min = Math.min(Math.min.apply(null, validVals), TARGET, SCALE_FLOOR);
-    var i_max = Math.max(Math.max.apply(null, validVals), TARGET);
-    var i_range = (i_max - i_min) || (i_max * 0.05) || 1.0;
-    var ths_s = THS_SORTED.slice();  /* thresholds ordenados */
-    var below = ths_s.filter(function(t) { return t < i_min; });
-    var above = ths_s.filter(function(t) { return t > i_max; });
-    var adj_below = below.length ? below[below.length-1] : null;
-    var adj_above = above.length ? above[0] : null;
-    var anchor_min = i_min, anchor_max = i_max;
-    if (adj_below !== null && (i_min - adj_below) <= i_range) anchor_min = adj_below;
-    if (adj_above !== null && (adj_above - i_max) <= i_range) anchor_max = adj_above;
-    var pad = i_range * 0.35;  /* W23+: más padding para que puntos abruptos no queden pegados al borde */
-    var canvas_min = anchor_min - pad, canvas_max = anchor_max + pad;
-    var dR = canvas_max - canvas_min + 0.0001;
-    var xOf = function(i) { return pL + (i/(n-1))*cw; };
-    var yOf = function(v) { return pT + ch - (v-canvas_min)/dR*ch; };
-    /* Líneas de umbral visibles (sin fondos de banda) */
-    var visible_ths = THS.filter(function(t) { return t > canvas_min && t < canvas_max && t !== TARGET; }).sort(function(a,b){return b-a;});
-    visible_ths.forEach(function(t) {
-      var ty = yOf(t);
-      var dist = ordinalDist(t+(IS_INVERTED?-0.001:0.001), TARGET, THS, IS_INVERTED);
-      var sc = getSemaforoColor(dist);
-      ctx.save();
-      ctx.strokeStyle = sc.line; ctx.lineWidth = 0.75; ctx.globalAlpha = 0.60;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(pL, ty); ctx.lineTo(pL+cw, ty); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.font = '6.5px Geist,system-ui,sans-serif';
-      ctx.fillStyle = sc.fg; ctx.globalAlpha = 0.85;
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.textAlign = 'right'; ctx.fillText(fmtThLabel(t), W-2, ty); ctx.textAlign = 'left';
-      ctx.restore();
-    });
-    /* Línea target verde */
-    var tY = yOf(TARGET);
-    ctx.save();
-    ctx.strokeStyle = '#1A6B4A'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.80;
-    ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(pL, tY); ctx.lineTo(pL+cw, tY); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font = 'bold 7px Geist,system-ui,sans-serif';
-    ctx.fillStyle = '#1A6B4A'; ctx.globalAlpha = 0.95;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.textAlign = 'right'; ctx.fillText(fmtTarget(), W-2, tY); ctx.textAlign = 'left';
-    ctx.restore();
-    /* Area fill gradiente en color de la serie (solo puntos válidos) */
-    ctx.save();
-    var grad = ctx.createLinearGradient(0, pT, 0, pT+ch);
-    grad.addColorStop(0, 'rgba('+ACCENT_RGB+',0.40)');
-    grad.addColorStop(1, 'rgba('+ACCENT_RGB+',0.04)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    var _areaStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      if (!_areaStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _areaStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    if (_areaStarted) {
-      /* cerrar el area hasta el baseline */
-      var _lastIdx = n-1; while (_lastIdx > 0 && (vals[_lastIdx] === null || isNaN(vals[_lastIdx]))) _lastIdx--;
-      var _firstIdx = 0; while (_firstIdx < n && (vals[_firstIdx] === null || isNaN(vals[_firstIdx]))) _firstIdx++;
-      ctx.lineTo(xOf(_lastIdx), pT+ch); ctx.lineTo(xOf(_firstIdx), pT+ch);
-      ctx.closePath(); ctx.fill();
-    }
-    ctx.restore();
-    /* Línea de datos (saltar nulls) */
-    ctx.save();
-    ctx.strokeStyle = ACCENT_HEX; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.beginPath();
-    var _lineStarted = false;
-    for (var i=0; i<n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) { _lineStarted = false; continue; }
-      if (!_lineStarted) { ctx.moveTo(xOf(i), yOf(vals[i])); _lineStarted = true; }
-      else ctx.lineTo(xOf(i), yOf(vals[i]));
-    }
-    ctx.stroke(); ctx.restore();
-    /* Puntos en la serie — solo puntos válidos */
-    for (var i = 0; i < n; i++) {
-      if (vals[i] === null || isNaN(vals[i])) continue;
-      var isLast = (i === n - 1);
-      ctx.fillStyle = ACCENT_HEX;
-      ctx.globalAlpha = 1.0;
-      ctx.beginPath();
-      ctx.arc(xOf(i), yOf(vals[i]), isLast ? 3.5 : 2.5, 0, 2 * Math.PI);
-      ctx.fill();
-      if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
-    }
-    /* Actualizar W22_CANVAS_CFG */
-    if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
-    /* Guardar vals directamente en el elemento — fuente más directa para el tooltip */
-    var _tipEl = document.getElementById(CID);
-    if (_tipEl) { _tipEl._v = vals; _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID}; }
-    /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
-    if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
-      window._HIST_CANON[CID].vals = vals.slice();
-    }
-  }
-  
-  function updateMetrics(vals, lbl) {
-    var validVals = vals.filter(function(v) { return v !== null && !isNaN(v); });
-    if (!validVals.length) return;
-    var vMin = Math.min.apply(null, validVals), vMax = Math.max.apply(null, validVals);
-    var vAvg = validVals.reduce(function(a,b){return a+b;},0)/validVals.length;
-    var vCurr = validVals[validVals.length-1];
-    var banda = getBanda(vCurr), bc = BC[banda] || BC['Sin Conversión'];
-    var el = document.getElementById('hist-'+CID+'-label'); if (el) el.textContent = lbl || 'Global';
-    el = document.getElementById('hist-'+CID+'-actual'); if (el) el.textContent = fmtVal(vCurr);
-    el = document.getElementById('hist-'+CID+'-best'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMin : vMax);
-    el = document.getElementById('hist-'+CID+'-worst'); if (el) el.textContent = fmtVal(IS_INVERTED ? vMax : vMin);
-    el = document.getElementById('hist-'+CID+'-avg'); if (el) el.textContent = fmtVal(vAvg);
-    var bbEl = document.getElementById('hist-'+CID+'-banda-box'), bEl = document.getElementById('hist-'+CID+'-banda');
-    if (bbEl) { bbEl.style.background = bc.bg; bbEl.style.borderColor = bc.fg; bbEl.style.color = bc.fg; }
-    if (bEl) { bEl.textContent = banda; bEl.style.color = bc.fg; }
-    el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
-    /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
-    var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
-    var kvId = kvMap[CID];
-    if (kvId) {
-      var kvEl = document.getElementById(kvId);
-      if (kvEl) { kvEl.textContent = fmtVal(vCurr); }
-    }
-  }
-  
-  var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
-  function buildSerie(w_c, w_p, w_a, hist_arr) {
-    /* hist_arr (opcional): array de n valores reales [W18..W25].
-       Cuando se pasa, se usa directamente (datos históricos reales por corp/dest).
-       Nulls dentro del array → interpolados con el valor más cercano disponible. */
-    var n = VALS_DEF.length;
-    var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
-    var w24 = isNaN(w_p) ? w25 : w_p;
-
-    if (hist_arr && hist_arr.length === n) {
-      /* hist_arr ya tiene W18-W(N-1) reales + W(N) concatenado — NO sobrescribir.
-         Solo completar nulls por interpolación. */
-      var s = hist_arr.slice();
-      /* Rellenar nulls: buscar vecino más cercano conocido */
-      for (var i = 0; i < n; i++) {
-        if (s[i] === null || isNaN(s[i])) {
-          var left = null, right = null;
-          for (var l = i-1; l >= 0; l--) { if (s[l] !== null && !isNaN(s[l])) { left = s[l]; break; } }
-          for (var r2 = i+1; r2 < n; r2++) { if (s[r2] !== null && !isNaN(s[r2])) { right = s[r2]; break; } }
-          s[i] = left !== null ? left : (right !== null ? right : w24);
+      <div id="ar2-hist-rnd" style="margin-top:12px;display:none;"><div id="hrnd-panel-ipm" style="width:100%;"></div>
+<script>(function(){var CID='hrnd-panel-ipm';var VD=[524.0, 499.0, 677.0, 834.0, 653.0, 534.0, 611.0, 907.8778];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#EA0074';var el=document.getElementById(CID);var getBanda=function(v){if(v>=1500)return{c:'#1A6B4A',k:'Exitosa'};if(v>=650)return{c:'#FBBF24',k:'Aceptable'};if(v>=200)return{c:'#F97316',k:'Revisar'};return{c:'#C0392B',k:'Cr\u00edtica'};};var fmtVal=function(v){return '$'+Math.round(v);};function buildSerie(wc,wp,wa,ha){
+    var n=VD.length;
+    if(ha&&ha.length===n){
+      var s=ha.slice();
+      for(var i=0;i<n;i++){
+        if(s[i]===null||isNaN(s[i])){
+          var l=null,r=null;
+          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
+          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
+          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
         }
       }
       return s;
     }
-    /* Fallback: baseline plana en nivel W24 (2 datos reales: W24 y W25) */
-    var s = new Array(n).fill(w24);
-    s[n-2] = w24;   /* W24 */
-    s[n-1] = w25;   /* W25 */
-    return s;
-  }
-  
-  function attachListeners() {
-    /* Solo maneja click en el label del histórico para volver a Global.
-       La selección de filas la maneja js_override document-level listener
-       que dispara hist-update/hist-reset correctamente. */
-    var hEl = document.getElementById('hist-'+CID), card = hEl ? hEl.closest('.kpi-card') : null;
-    if (!card) return;
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl) lblEl.addEventListener('click', function() {
-      card.querySelectorAll('[data-hist-w20],[data-hist-w21]').forEach(function(r) { r.style.background = ''; r.removeAttribute('data-selected'); });
-      drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global');
-      lblEl.textContent = 'Global';
-    });
-  }
-  
-  function _cardWidth() {
-    /* Ancho de la kpi-card que contiene el canvas — visible aunque canvas esté en display:none */
-    var el = document.getElementById(CID);
-    if (!el) return 0;
-    var p = el.parentElement;
-    while (p) { if (p.offsetWidth > 50) return p.offsetWidth; p = p.parentElement; }
-    return 0;
-  }
-
-  function _tryDraw() {
-    var el = document.getElementById(CID);
-    if (!el) return false;
-    var ow = el.offsetWidth || _cardWidth() || _lastWidth;
-    if (ow > 50) { _lastWidth = ow; drawCanvas(currentVals); return true; }
-    return false;
-  }
-
-  function init() {
-    updateMetrics(VALS_DEF, 'Global'); attachListeners();
-    var el = document.getElementById(CID);
-    if (el) {
-      var det = el.closest('details');
-      if (det) det.addEventListener('toggle', function() { if (det.open) requestAnimationFrame(_tryDraw); });
-      var drawn = false;
-      /* Observar la CARD (que sí es visible) no el canvas (que está en display:none) */
-      var anchor = el.closest('.kpi-card') || el.parentElement;
-      if (typeof IntersectionObserver !== 'undefined' && anchor) {
-        new IntersectionObserver(function(entries) { entries.forEach(function(entry) {
-          if (entry.isIntersecting) { requestAnimationFrame(function() { if(_tryDraw()) drawn=true; }); }
-        }); }, {threshold: 0.01}).observe(anchor);
-      }
-      /* Fallback por si el observer no dispara */
-      [300, 800, 2000].forEach(function(d) {
-        setTimeout(function() { if (!drawn && _tryDraw()) drawn = true; }, d);
-      });
-    }
-    document.addEventListener('change', function(e) {
-      if (e.target.type !== 'radio') return;
-      requestAnimationFrame(function() { requestAnimationFrame(_tryDraw); });
-    });
-  }
-  
-  document.addEventListener('hist-update', function(e) {
-    if (e.detail.cid !== CID) return;
-    /* Guard: si hay historia de corp activa y el evento NO trae hist_arr → re-pintar corp */
-    if (!e.detail.hist_arr && window._corpHist && window._corpHist[CID]) {
-      var _chd = window._corpHist[CID];
-      var _cs = buildSerie(0, 0, 0, _chd.arr);
-      requestAnimationFrame(function() { requestAnimationFrame(function() {
-        drawCanvas(_cs); updateMetrics(_cs, _chd.lbl || '');
-      }); });
-      return;
-    }
-    var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
-    var lbl = e.detail.label || '';
-    /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        drawCanvas(s);
-        updateMetrics(s, lbl);
-      });
-    });
-  });
-  document.addEventListener('hist-reset', function(e) {
-    if (e.detail.cid !== CID) return;
-    requestAnimationFrame(function() { drawCanvas(VALS_DEF); updateMetrics(VALS_DEF, 'Global'); });
-  });
-  
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else requestAnimationFrame(init);
-  
-  /* Exponer función de redraw con nuevo accent para cambio de canasta */
-  window['histRedraw_'+CID] = function(newAccent, newVals) {
-    if (newAccent) {
-      var _rgbMap = (typeof RGB !== 'undefined') ? RGB : {
-        '#5C469C':'92,70,156','#EA0074':'234,0,116','#FCB000':'252,176,0',
-        '#4FC3F4':'79,195,244','#1A6B4A':'26,107,74','#333132':'51,49,50'
-      };
-      ACCENT_HEX = newAccent;
-      ACCENT_RGB = _rgbMap[newAccent] || '92,70,156';
-    }
-    var vals = newVals || currentVals;
-    drawCanvas(vals); updateMetrics(vals, 'Global');
-  };
-  /* Exponer histUpdate_ para actualización directa desde corp handler (bypasea event system) */
-  window['histUpdate_'+CID] = function(w_c, w_p, w_a, lbl, hist_arr) {
-    var s = buildSerie(w_c, w_p, w_a, hist_arr);
-    drawCanvas(s);
-    updateMetrics(s, lbl || '');
-    var lblEl = document.getElementById('hist-'+CID+'-label');
-    if (lblEl && lbl) lblEl.textContent = lbl;
-  };
-})();
-</script></div>
+    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
+    var w24=isNaN(wp)?w25:wp;
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
+  }function renderPanel(vals,lbl){
+    if(!el)return;
+    var n=vals.length,W=320,SH=58;
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
+    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
+    function xOf(i){return (i/(n-1))*W;}
+    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
+    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
+            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    var dots=vals.map(function(v,i){
+      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
+      var r=last?5.5:4,sw=last?2:1.5;
+      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
+      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
+      return d;
+    }).join('');
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dots+'</svg>';
+    var cells=vals.map(function(v,i){
+      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
+        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
+        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
+        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
+        '</div>';
+    }).join('');
+    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
+    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
+    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
+    function sb(lb,v,col){return '<div style="flex:1;background:#F5F3EE;border-radius:5px;padding:4px 2px;text-align:center">'+
+      '<div style="font-size:8px;color:#8A8377;text-transform:uppercase;letter-spacing:.03em">'+lb+'</div>'+
+      '<div style="font-size:11.5px;font-weight:700;color:'+col+'">'+fmtVal(v)+'</div></div>';}
+    var sf='<div style="display:flex;gap:4px;border-top:1px solid #E8E4DC;padding-top:8px">'+
+      sb('Actual',cur,bC.c)+sb('Máx',hi,bH.c)+sb('Mín',lo,bL.c)+sb('Prom',avg,'#333132')+
+      '<div style="flex:1;border-radius:5px;padding:4px 2px;text-align:center;display:flex;align-items:center;justify-content:center;background:'+bC.c+'">'+
+        '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div></div>'+
+      '</div>';
+    var lblEl=document.getElementById('hist-'+CID+'-label');
+    if(lblEl&&lbl)lblEl.textContent=lbl;
+    el.innerHTML=svg+dr+sf;
+  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
+</div>
     </div>
   </div>
 
@@ -10014,18 +8726,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               /* Guardar en _kpiHist para que el tooltip lo lea DIRECTAMENTE (inmune a rebinds) */
               window._kpiHist = window._kpiHist || {};
               if (_histArr2) _lockCids.forEach(function(c2){ window._kpiHist[c2] = {vals:_histArr2, sems:_SEMANAS_HIST}; });
-              /* DEBUG VISUAL — toast que muestra W18/W24/W25 del _kpiHist */
-              (function(){
-                var a = _histArr2;
-                if (!a || a.length < 8) return;
-                var t = document.getElementById('_dbg_hist_toast');
-                if (!t) { t = document.createElement('div'); t.id='_dbg_hist_toast';
-                  t.style.cssText='position:fixed;bottom:80px;left:10px;right:10px;background:#222;color:#FFD700;padding:10px;font-size:13px;font-family:monospace;z-index:99999;border-radius:8px;text-align:center';
-                  document.body.appendChild(t); }
-                t.textContent = 'DEBUG _kpiHist: W18='+a[0].toFixed(2)+' W19='+a[1].toFixed(2)+' W24='+a[6].toFixed(2)+' W25='+a[7].toFixed(2);
-                t.style.display='block';
-                setTimeout(function(){t.style.display='none';},8000);
-              })();
+
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];

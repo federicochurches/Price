@@ -34,6 +34,7 @@ WK      = f'W{VOL_NUM}'
 import sys as _sys
 _sys.path.insert(0, str(SCRIPT_DIR))
 from historico_module import render_historico as _rh
+from render_historico_svg import render_historico_svg as _rh_svg
 from engine import banda_eficacia as _bef, banda_nodispo as _bnd
 from render_helpers import searchbox_pill_html as _sbph
 
@@ -44,10 +45,10 @@ _ipm_val = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('rpm', 834.0)
 
 from engine import banda_convrate as _bcv, banda_rpm as _brpm
 
-HIST_CR_PANEL     = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-panel-ef')
-HIST_CR_PANEL_CV  = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-panel-cv')
-HIST_RND_PANEL    = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-panel-nd')
-HIST_RND_PANEL_IPM= _rh('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-panel-ipm')
+HIST_CR_PANEL     = _rh_svg('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-panel-ef')
+HIST_CR_PANEL_CV  = _rh_svg('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-panel-cv')
+HIST_RND_PANEL    = _rh_svg('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-panel-nd')
+HIST_RND_PANEL_IPM= _rh_svg('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-panel-ipm')
 HIST_CR_DIM       = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
 HIST_CR_DIM_CV    = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-dim-cv')
 HIST_RND_DIM      = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
@@ -412,18 +413,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               /* Guardar en _kpiHist para que el tooltip lo lea DIRECTAMENTE (inmune a rebinds) */
               window._kpiHist = window._kpiHist || {};
               if (_histArr2) _lockCids.forEach(function(c2){ window._kpiHist[c2] = {vals:_histArr2, sems:_SEMANAS_HIST}; });
-              /* DEBUG VISUAL — toast que muestra W18/W24/W25 del _kpiHist */
-              (function(){
-                var a = _histArr2;
-                if (!a || a.length < 8) return;
-                var t = document.getElementById('_dbg_hist_toast');
-                if (!t) { t = document.createElement('div'); t.id='_dbg_hist_toast';
-                  t.style.cssText='position:fixed;bottom:80px;left:10px;right:10px;background:#222;color:#FFD700;padding:10px;font-size:13px;font-family:monospace;z-index:99999;border-radius:8px;text-align:center';
-                  document.body.appendChild(t); }
-                t.textContent = 'DEBUG _kpiHist: W18='+a[0].toFixed(2)+' W19='+a[1].toFixed(2)+' W24='+a[6].toFixed(2)+' W25='+a[7].toFixed(2);
-                t.style.display='block';
-                setTimeout(function(){t.style.display='none';},8000);
-              })();
+
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];

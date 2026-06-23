@@ -495,3 +495,4 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   }};
 }})();
 </script>'''
+
