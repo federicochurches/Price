@@ -367,7 +367,16 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
     var n = VALS_DEF.length;
     var w25 = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c);
     var w24 = isNaN(w_p) ? w25 : w_p;
-    var s = new Array(n).fill(w24);   /* W18-W23: plano al nivel W24 */
+    var s = new Array(n).fill(w24);   /* W18-W23: baseline (se escala abajo) */
+    /* Escalar el histórico global para que W18-W23 no sean planos:
+       ratio = w24_corp / w24_global → aplica ratio a VALS_DEF[0..n-3] */
+    var gW24 = (VALS_DEF && VALS_DEF.length >= 2) ? VALS_DEF[VALS_DEF.length-2] : 0;
+    if (gW24 > 0 && w24 > 0 && VALS_DEF) {{
+      var ratio = w24 / gW24;
+      for (var i = 0; i <= n-3; i++) {{
+        s[i] = parseFloat((VALS_DEF[i] * ratio).toFixed(4));
+      }}
+    }}
     s[n-2] = w24;   /* W24 */
     s[n-1] = w25;   /* W25 */
     return s;
