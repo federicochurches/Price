@@ -6327,13 +6327,17 @@ function _patchCanvasTooltips() {
       if (best < 0 || bestDx > 40) { tip.style.display = 'none'; return; }
       /* SIEMPRE usar _SEMANAS_HIST — todos los canvas comparten las mismas 8 semanas (W16-W23).
          cfg.semanas puede estar desfasado por timing de registro, así que lo ignoramos. */
-      var sems = (_SEMANAS_HIST && _SEMANAS_HIST.length === vals.length) ? _SEMANAS_HIST
-               : (cfg.semanas && cfg.semanas.length === vals.length ? cfg.semanas : _SEMANAS_HIST);
+      /* Calcular label robusto: vals[n-1] es siempre la semana actual.
+         Funciona con cualquier longitud de vals (7 u 8 elementos). */
+      var _lastSemNum = (function() {
+        var ls = _SEMANAS_HIST && _SEMANAS_HIST[_SEMANAS_HIST.length - 1] || 'W25';
+        return parseInt(ls.replace('W', '')) || 25;
+      })();
       var val = vals[best];
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
         : val.toFixed(2) + '%';
-      var semLabel = sems[best] || ('W' + (16 + best));
+      var semLabel = 'W' + (_lastSemNum - (vals.length - 1 - best));
       tip.textContent = semLabel + ': ' + fmtVal;
       tip.style.display = 'block';
       tip.style.left = (e.clientX + 10) + 'px';
