@@ -302,8 +302,9 @@ window._injectHistAttrs = function(tbodyId, rows) {
       var mx = e.clientX - rect.left;
       var tip = (typeof w22_getTooltip === 'function') ? w22_getTooltip() : null;
       if (!tip) return;
-      var tipCfg = el._tipCfg || cfg;
-      var vals = tipCfg.vals;
+      /* Leer LIVE de W22_CANVAS_CFG — siempre actualizado por drawCanvas. Fallback a el._tipCfg/cfg */
+      var liveCfg = (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid]) || el._tipCfg || cfg;
+      var vals = liveCfg.vals || [];
       var w = rect.width;
       var livePts = vals.map(function(v,i){
         return {x: (i/(vals.length-1)) * w};
@@ -311,9 +312,9 @@ window._injectHistAttrs = function(tbodyId, rows) {
       var best = -1, bestDx = 9999;
       livePts.forEach(function(p,i){ var dx=Math.abs(p.x-mx); if(dx<bestDx){bestDx=dx;best=i;} });
       if (best < 0 || bestDx > 60) { tip.style.display='none'; return; }
-      var sem = (tipCfg.semanas && tipCfg.semanas.length === vals.length) ? tipCfg.semanas[best] : (_SEMANAS_HIST[best] || ('W'+(16+best)));
+      var sem = (liveCfg.semanas && tipCfg.semanas.length === vals.length) ? tipCfg.semanas[best] : (_SEMANAS_HIST[best] || ('W'+(16+best)));
       var val = vals[best];
-      var fmtVal = tipCfg.metric === 'ipm'
+      var fmtVal = liveCfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
         : val.toFixed(2) + '%';
       tip.textContent = sem + ': ' + fmtVal;
@@ -372,7 +373,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */
         if (_cids.length) {
           if (isAlreadySel) {
-            _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}})); });
+            _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}})); if (window._corpHist) window._corpHist[cid] = null; });
             var _lblR = document.getElementById('hist-' + _cid2 + '-label');
             if (_lblR) _lblR.textContent = 'Global';
           } else {
@@ -388,6 +389,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _lbl3 = _val2 + ' \u00b7 ' + _sems3;
               /* Lock: bloquea override de hcr-panel-ef por hotel auto-select durante 300ms */
               window._corpHistLock = Date.now();
+              /* Guardar historia del corp para proteger el canvas de hotel auto-select */
+              window._corpHist = window._corpHist || {};
               var _lockCids = _cids2.slice();
               /* Lookup histórico real W18-W(N-1) para corp/dest desde CR_CORP_HIST/RND_CORP_HIST */
               var _isCR2 = (typeof W !== 'undefined') && W.mode === 'cr';
@@ -404,6 +407,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
                 }
               }
               var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2, ha:_histArr2};
+              /* Guardar para el guard de re-draw */
+              if (_histArr2) _lockCids.forEach(function(c2){ window._corpHist[c2] = {arr:_histArr2, lbl:_lbl3}; });
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];

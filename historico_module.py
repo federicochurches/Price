@@ -445,6 +445,15 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   
   document.addEventListener('hist-update', function(e) {{
     if (e.detail.cid !== CID) return;
+    /* Guard: si hay historia de corp activa y el evento NO trae hist_arr → re-pintar corp */
+    if (!e.detail.hist_arr && window._corpHist && window._corpHist[CID]) {{
+      var _chd = window._corpHist[CID];
+      var _cs = buildSerie(0, 0, 0, _chd.arr);
+      requestAnimationFrame(function() {{ requestAnimationFrame(function() {{
+        drawCanvas(_cs); updateMetrics(_cs, _chd.lbl || '');
+      }}); }});
+      return;
+    }}
     var s = buildSerie(e.detail.w_curr, e.detail.w_prev, e.detail.w_actual, e.detail.hist_arr || null);
     var lbl = e.detail.label || '';
     /* Doble rAF: el primer frame inicia el layout, el segundo lo tiene disponible */
