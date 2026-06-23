@@ -356,13 +356,15 @@ def render_historico(reporte, metrica, banda_actual, val_actual, canvas_id, glob
   var currentVals = VALS_DEF.slice();  /* mutable — guarda el último estado dibujado */
   function buildSerie(w_c, w_p, w_a) {{
     /* w_c = hotel W24, w_p = hotel W23, w_a = hotel W25 actual
-       Para cross-filter de hotel: null en W18-W22, datos reales en W23-W25.
-       Evita mezclar datos globales (W18-W22) con datos específicos del hotel. */
+       W18-W22: datos globales de historico_data (contexto visual)
+       W23: hotel W23 (w_p)
+       W24: hotel W24 (w_c)
+       W25: hotel W25 actual (w_a), con fallback a w_c si no disponible */
     var n = VALS_DEF.length;
-    var s = new Array(n).fill(null);
-    s[n-3] = isNaN(w_p) ? null : w_p;  /* W23 = hotel W23 */
-    s[n-2] = isNaN(w_c) ? null : w_c;  /* W24 = hotel W24 */
-    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? null : w_c); /* W25 = hotel actual */
+    var s = VALS_DEF.slice();   /* base: datos globales para W18-W22 */
+    s[n-3] = isNaN(w_p) ? s[n-3] : w_p;   /* W23 = hotel W23 */
+    s[n-2] = isNaN(w_c) ? s[n-2] : w_c;   /* W24 = hotel W24 */
+    s[n-1] = (!isNaN(w_a) && w_a > 0) ? w_a : (isNaN(w_c) ? s[n-1] : w_c); /* W25 actual */
     return s;
   }}
   

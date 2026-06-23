@@ -287,6 +287,18 @@ def main():
 
     week, week_num, src = validate_environment()
     verify_script_version(src)
+
+    # Backup automático del dataset (copia local con número de semana)
+    import shutil as _shutil
+    _inp = _cfg("INPUT_FILE") if True else "dataHoteles_contratos.xlsx"
+    _backup = Path(f"dataHoteles_contratos_{week}.xlsx")
+    _inp_path = Path(_inp)
+    if _inp_path.exists() and not _backup.exists():
+        _shutil.copy2(_inp_path, _backup)
+        ok(f"Backup creado: {_backup.name} ({_backup.stat().st_size/1024/1024:.1f} MB)")
+    elif _backup.exists():
+        ok(f"Backup ya existe: {_backup.name}")
+
     out_dir, out_html = clean_old_output(week, week_num)
     run_calc()
     size_mb = verify_output(out_html)
