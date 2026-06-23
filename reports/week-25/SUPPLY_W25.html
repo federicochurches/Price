@@ -1241,8 +1241,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -1635,8 +1638,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2010,8 +2016,11 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2483,8 +2492,11 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -2876,8 +2888,11 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -3377,8 +3392,11 @@ window.HIST_DATA['rnd'] = {
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -3751,8 +3769,11 @@ window.HIST_DATA['rnd'] = {
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -4165,8 +4186,11 @@ window.HIST_DATA['rnd'] = {
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -4539,8 +4563,11 @@ window.HIST_DATA['rnd'] = {
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
@@ -4951,8 +4978,11 @@ window.HIST_DATA['rnd'] = {
       ctx.fill();
       if (isLast) { ctx.strokeStyle = '#FDFCF9'; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
-    /* Actualizar W22_CANVAS_CFG para que el tooltip use vals correctos */
+    /* Actualizar W22_CANVAS_CFG */
     if (typeof W22_CANVAS_CFG !== 'undefined') W22_CANVAS_CFG[CID] = {vals: vals, semanas: SEMANAS, metric: METRIC};
+    /* Actualizar el._tipCfg directamente — el tooltip de assemble usa el._tipCfg y no lo actualiza drawCanvas */
+    var _tipEl = document.getElementById(CID);
+    if (_tipEl) _tipEl._tipCfg = {vals: vals, semanas: SEMANAS, metric: METRIC, id: CID};
     /* Actualizar también _HIST_CANON con los vals actuales (puede ser una serie de item específico) */
     if (typeof window !== 'undefined' && window._HIST_CANON && window._HIST_CANON[CID]) {
       window._HIST_CANON[CID].vals = vals.slice();
