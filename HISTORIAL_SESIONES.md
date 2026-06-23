@@ -1,3 +1,39 @@
+## Sesión W25-continuación · 22-06-2026
+
+**Contexto:** Continuación de la sesión W25. Fixes de mail, diagnóstico Inventory, auto-config.
+
+### Supply
+
+**`calc_supply.py` — paso 11:** al terminar el pipeline, actualiza automáticamente `inventory/calc_inv.py` CONFIG (WEEK / WEEK_NUM / VOL_NUM / SNAPSHOT_DATE). Para W26+ el flujo es: correr Supply → `git checkout origin/main -- calc_inv.py` → `python run_inv.py --commit`. Sin edición manual del CONFIG nunca más.
+
+**`render_mail_v3.py` — fixes adicionales:**
+- Auto-fetch `INV_PP_PREV` desde HTML de semana anterior en GitHub (urllib.request) — funciona desde W26 sin config manual.
+- Gap card: gauge añadido + badge WoW (delta invertido: gap baja = verde). Gauge neutro `#8A8377`.
+- BK WoW fallback desde `historico_data.HIST_DATA['bk']['bookability']['global'][-1]` cuando pickle no tiene semana anterior. W25: −0.25pp (98.42% vs 98.67% W24).
+- IPM card eliminada. NoDispo full-width (`grid-column:1/-1`).
+
+### Inventory — diagnóstico completo
+
+**FechaCreacion (sin acento):** el NUEVO_FORMATO rename en línea 109 ya lo manejaba — no era el bug.
+
+**Diagnóstico definitivo:** el dataset `dataHoteles_contratos.xlsx` original no incluía los 44 hoteles nuevos de W25 (IDs 692116-692199). Los hoteles no existían en el archivo → netnew=0 es correcto para ese dataset. Fede actualizó el dataset con los 44 hoteles.
+
+**snap_date fix (`calc_inv.py`):** `_snap_date = date.today()` en lugar de `date.fromisocalendar(YEAR_ACTUAL, WEEK_NUM, 7)` (domingo). Los hoteles creados el lunes de generación del dataset (W26 ISO) se reatribuyen al WEEK_NUM del CONFIG. Garantiza cobertura completa independientemente del día en que se corra.
+
+**Bug descubierto en sesión:** el commit del snap_date fix usó como base `/mnt/project/calc_inv.py` (con CONFIG W24) en vez del archivo ya actualizado → el snap_date fix sobrescribió el CONFIG W25 con W24. Fix: commitear `inventory/calc_inv.py` con WEEK=W25 + snap_date fix en un solo commit correcto (`ebeece5385a7`). Luego paso 11 de calc_supply.py lo mantiene actualizado automáticamente.
+
+**Aprendizaje:** al combinar CONFIG + código fix en calc_inv.py, siempre usar la versión del repo como base (git checkout del archivo) para no pisar cambios previos.
+
+### Commits de continuación
+- `a1bac8d5` — render_mail_v3 todos los fixes
+- `2a17315c` — calc_inv snap_date fix (CONFIG W24 — incorrecto)
+- `ebeece5385a7` — calc_inv CONFIG W25 + snap_date fix (correcto)
+- `1944877e` — calc_supply paso 11 auto-update inv CONFIG
+- `0ef7cac1` — PROMPT_CORE + PROMPT_INV + HISTORIAL W25
+- `1fe08a23` — index.html W25 badge correcto
+
+---
+
 ## Sesión W25-pipeline · 22-06-2026
 
 **Contexto:** Pipeline W25 completo + fixes mail + diagnóstico y fix calc_inv.

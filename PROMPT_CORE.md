@@ -519,13 +519,13 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 
 Por valor/orden sugerido:
 
-1. **Re-run `calc_inv.py` W25** con fix snap_date — el HTML actual muestra 0 hoteles en W25 porque el dataset se generó el lunes 22 (fuera del corte). Con el fix (`date.today()` + reatribución) aparecerán los hoteles del 22 jun. Correr `python run_inv.py --commit` desde `inventory/`.
+1. **Re-run `calc_inv.py` W25** con dataset actualizado — el dataset original no tenía los 44 hoteles nuevos. Con el nuevo dataset + snap_date fix + CONFIG correcto (ya en repo), correr `python run_inv.py --commit` desde `inventory/`.
 2. **Mail W25 final** — re-generar tras el re-run de Inventory; el WoW de Inventory quedará correcto. El auto-fetch de `INV_PP_PREV` ya está operativo.
 3. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.). Hacerlo junto al refactor AR; tras limpiar deben desaparecer del reporte.
-4. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25, snap_date fix, auto-fetch PP_PREV en mail.
+4. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales (post re-run), snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
 5. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB.
 
-**Cómo retomar:** (1) re-run inv W25 → (2) regenerar mail → (3) correr pipeline W26 normal.
+**Cómo retomar:** (1) re-run inv W25 con dataset correcto → (2) regenerar mail → (3) pipeline W26 normal (paso 11 auto-actualiza inv CONFIG).
 
 ---
 
