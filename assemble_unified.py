@@ -373,7 +373,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */
         if (_cids.length) {
           if (isAlreadySel) {
-            _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}})); if (window._corpHist) window._corpHist[cid] = null; });
+            _cids.forEach(function(cid){ document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}})); if (window._corpHist) window._corpHist[cid] = null; if (window._kpiHist) window._kpiHist[cid] = null; });
             var _lblR = document.getElementById('hist-' + _cid2 + '-label');
             if (_lblR) _lblR.textContent = 'Global';
           } else {
@@ -409,6 +409,9 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2, ha:_histArr2};
               /* Guardar para el guard de re-draw */
               if (_histArr2) _lockCids.forEach(function(c2){ window._corpHist[c2] = {arr:_histArr2, lbl:_lbl3}; });
+              /* Guardar en _kpiHist para que el tooltip lo lea DIRECTAMENTE (inmune a rebinds) */
+              window._kpiHist = window._kpiHist || {};
+              if (_histArr2) _lockCids.forEach(function(c2){ window._kpiHist[c2] = {vals:_histArr2, sems:_SEMANAS_HIST}; });
               setTimeout(function() {
                 _lockCids.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];

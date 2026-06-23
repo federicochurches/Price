@@ -492,7 +492,9 @@ function _patchCanvasTooltips() {
     /* addEventListener('mousemove', ..., true) en CAPTURE phase + stopImmediatePropagation
        para ganar a CUALQUIER otro listener registrado en el canvas */
     el.addEventListener('mousemove', function(e) {
-      var cfg = W22_CANVAS_CFG[cid];
+      /* Leer de _kpiHist cuando hay corp/dest activo — inmune a rebinds de canasta */
+      var _kh = window._kpiHist && window._kpiHist[cid];
+      var cfg = _kh ? {vals: _kh.vals, semanas: _kh.sems} : W22_CANVAS_CFG[cid];
       if (!cfg || !cfg.vals) return;
       var rect = el.getBoundingClientRect();
       if (!rect || rect.width === 0) return;
