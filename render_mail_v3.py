@@ -230,9 +230,11 @@ if HAS_INV:
     # WoW PP: usa INV_NETNEW si está seteado (netnew real del chart), si no PP diff vs semana anterior
     _inv_pp_wow = INV_NETNEW if INV_NETNEW > 0 else (INV_PP - INV_PP_PREV if INV_PP_PREV > 0 else 0)
     inv_wow_html = wow_str(_inv_pp_wow, decimals=0, suffix='') if _inv_pp_wow != 0 else ''
-    # Gap WoW: usa INV_NETNEW (PP subió 44 → gap bajó 44)
-    _gap_netnew   = INV_NETNEW if INV_NETNEW > 0 else abs(INV_PP - INV_PP_PREV)
-    inv_gap_wow_html = wow_str(-_gap_netnew, decimals=0, suffix='', invert=True) if _gap_netnew > 0 else ''
+    # Gap WoW: muestra delta de avance % (ej: +0.14pp) — más informativo que repetir los 44
+    _av_prev_mail = round(INV_PP_PREV / INV_TARGET * 100, 2) if INV_TARGET and INV_PP_PREV > 0 else 0
+    _av_curr_mail = round(INV_PP      / INV_TARGET * 100, 2) if INV_TARGET else 0
+    _av_delta_mail = round(_av_curr_mail - _av_prev_mail, 2)
+    inv_gap_wow_html = wow_str(_av_delta_mail, decimals=2, suffix='pp') if abs(_av_delta_mail) > 0.01 else ''
     inv_section   = f'''
     <!-- State of PriceTravel Product · Inventory -->
     <div class="kpi-section">
@@ -240,17 +242,7 @@ if HAS_INV:
         <span class="dot dot-inv"></span>
         State of PriceTravel Product · Inventory
       </div>
-      <!-- Primera línea: resumen global PP W{WEEK.replace("W","")} -->
-      <div style="background:#F5F4F0;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
-        <span style="font-size:11px;font-weight:700;color:#333132;text-transform:uppercase;letter-spacing:.08em;">PP {WEEK}</span>
-        <span style="font-size:13px;font-weight:700;color:#1E6A4A;">{es(INV_PP,0)} hoteles</span>
-        <span style="color:#ccc;">·</span>
-        <span style="font-size:12px;color:#555;">Avance <strong style="color:#1E6A4A;">{es(INV_PCT_AVANCE,1)}%</strong> al target {es(INV_TARGET,0)}</span>
-        <span style="color:#ccc;">·</span>
-        <span style="font-size:12px;color:#555;">Gap <strong>{es(INV_GAP,0)}</strong></span>
-        <span style="color:#ccc;">·</span>
-        <span style="font-size:12px;color:#555;">Ritmo ~<strong>{es(INV_RITMO,0)}/sem</strong> · {INV_SEMANAS} sem restantes</span>
-      </div>
+
       <div class="kpi-grid">
         <div class="kpi-card inv">
           <div class="kpi-label">Producto Propio</div>
@@ -400,7 +392,7 @@ mail_html = f'''<!DOCTYPE html>
     <div class="kpi-section">
       <div class="section-title">
         <span class="dot dot-rnd"></span>
-        Availability · Métricas globales
+        Availability
       </div>
       <div class="kpi-grid">
         <div class="kpi-card rnd" style="grid-column:1/-1;">
@@ -417,7 +409,7 @@ mail_html = f'''<!DOCTYPE html>
     <div class="kpi-section">
       <div class="section-title">
         <span class="dot dot-cr"></span>
-        Connectivities · Métricas globales
+        Connectivities
       </div>
       <div class="kpi-grid-3">
         <div class="kpi-card cr">
