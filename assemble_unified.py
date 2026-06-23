@@ -386,9 +386,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _sems3 = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 2)
                 ? SEMANAS[SEMANAS.length-2] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W24\u2013W25';
               var _lbl3 = _val2 + ' \u00b7 ' + _sems3;
+              console.log('[CORP] val=' + _val2 + ' wc=' + _wc2 + ' wp=' + _wp2 + ' isNaN_wc=' + isNaN(_wc));
               setTimeout(function() {
                 _cids2.forEach(function(cid) {
                   var fn = window['histUpdate_' + cid];
+                  console.log('[CORP setTimeout] cid=' + cid + ' fn=' + (typeof fn) + ' wc=' + _wc2 + ' wp=' + _wp2);
                   if (fn) { fn(_wc2, _wp2, _wa2, _lbl3); }
                   else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid,w_curr:_wc2,w_prev:_wp2,w_actual:_wa2,label:_val2}})); }
                 });
