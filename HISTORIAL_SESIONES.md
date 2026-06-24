@@ -3693,3 +3693,67 @@ Pipeline W24 (8–14 jun 2026). Métricas: CR Eficacia 95.55% (Aceptable, +0.75p
 - **Script 17 en W24 creció 2MB** (4.5MB → 6.5MB) por más hoteles/datos — cambió el contexto de parseo de Chrome y expuso el bug latente de B68 que en W23 era inofensivo.
 - **`ar_renderTable()` es la única fuente de verdad** para los botones Ver más de las cards AR 1/2. `_moreBtnAll` no debe interferir con AR.
 - **Netlify delay:** cuando hay múltiples commits seguidos, Netlify puede omitir deploys intermedios. Forzar redeploy con commit explícito del `index.html`.
+
+---
+
+## Sesión W25-hist-entity · 24-06-2026
+
+### Contexto
+Sesión de debugging intensivo de sparklines W19-W23 en KPI cards, AR cards y channel view. Todos los bugs se originaban en que el historial W19-W23 usaba proxy corp (igual para todos los hoteles/providers del mismo corp).
+
+### Bugs resueltos
+
+#### BK sparkline arriba de la tabla
+- **Síntoma:** El sparkline `h-bk-panel` aparecía encima de la tabla de destinos en la card Bookability.
+- **Root cause:** El outer div del sparkline (`<div style="margin-top:12px;border-top...">`) envolvía a `kpi-bk-panels` — era su padre, no su hermano. El CSS del div se aplicaba sobre el container de toda la tabla.
+- **Fix:** Reorder quirúrgico en el HTML: mover el contenido del sparkline (label + canvas + IIFE) para que quede DESPUÉS del cierre de `kpi-bk-panels`, dentro del mismo outer div pero al final. También corregido en `render_cr_p1.py`.
+- **Commits:** `99bfac2b` (intento fallido que rompió el HTML) → `7b12215d` (revert) → `08ce1f33` (fix correcto con balance de divs verificado, net=1)
+
+#### Bug 1 — BK KPI channel sparkline visible desde cualquier tab
+- **Síntoma:** El sparkline de Bookability no era visible en la vista Channel.
+- **Root cause:** `h-bk-panel` estaba en el tab `hotel` (display:none en otras vistas).
+- **Fix:** Mover el sparkline fuera de los tabs. Commits `99bfac2b`, `7b12215d`.
+
+#### Bug 2 — AR1/AR2 hotel view doble-toggle cancelaba selección
+- **Root cause:** Dos listeners bubble registraban el mismo click. El de `assemble_unified.py` seleccionaba (data-selected='1'). El de `js_override.js` lo veía como ya seleccionado y deseleccionaba en el mismo frame. El usuario no veía nada.
+- **Fix:** Eliminar el bloque `if (view === 'hotel')` del listener de `js_override.js` — solo `_handleKpiCardHistClick` maneja hotel view en AR. Commit `8b65087c`.
+
+#### Bug 3 — AR1/AR2 KPI value y WoW box no actualizaban
+- **Síntoma:** Al seleccionar un hotel en AR, el número grande y el bloque W24/W25/WoW no cambiaban.
+- **Root cause:** El handler solo actualizaba el sparkline pero no los elementos estáticos de la card.
+- **Fix:** Agregar actualización de `ar-kpi-N` y `ar-N-wowbox` al seleccionar hotel; `_arPillRender` al deseleccionar. Commit `5fc55f92`.
+
+#### Bug 4 — Destinos sin historial W19-W23 (Medellin, El Cairo, Bávaro)
+- **Root cause:** Mismatch de nombre: el label del HTML era `"Medellin"` pero `CR_DEST_HIST` tenía `"Medellin Area"`. El 87% de los destinos en el dict histórico tienen sufijo ` Area` que el pickle actual no tiene.
+- **Fix:** Lookup con fallback `+Area`/`-Area` en `_handleKpiCardHistClick`. Commit `7b12215d`.
+
+#### Bug 5 — Historial W19-W23 igual para todos los hoteles/providers del mismo corp
+- **Root cause estructural:** El historial W19-W23 usaba `CR_CORP_HIST[corp][metric]` como proxy para todos los hoteles de un corp → Holiday Inn Madrid e Holiday Inn Roma mostraban la misma curva (IHG). Igual para channels (DerbySoft, SynXis, etc. usaban el global).
+- **Fix pipeline:** `build_hist_entity.py` extendido para agregar dimensiones `hotel` y `provider` en `build_cr_hist` (6024 hoteles, 10 providers W18-W24) y `hotel` en `build_rnd_hist`.
+- **Fix render:** `render_cr_p1.py` emite `CR_HOTEL_HIST` y `CR_PROVIDER_HIST`; `render_rnd_p1.py` emite `RND_HOTEL_HIST`.
+- **Fix handler:** `assemble_unified.py` usa `CR_HOTEL_HIST[nombre]` primero, fallback corp. Channel usa `CR_PROVIDER_HIST[label][ck]` para historial real. AR hotel view: mismo patrón.
+- **Para W25 sin re-pipeline:** los dicts inyectados directamente en el HTML (CR_HOTEL_HIST 818KB, 6024 hoteles; CR_PROVIDER_HIST 1KB, 10 providers). Commits `f78b53b0` → `e0fe5465`.
+
+#### Bug 6 — Doble-listener en _handleKpiCardHistClick para AR
+- **Root cause:** El listener global de `assemble_unified.py` capturaba clicks en `ar1-th` (kpi-tab-rows) y llamaba `_handleKpiCardHistClick` que tenía un `return` vacío para hotel view. El handler real de `js_override.js` L1957 nunca llegaba.
+- **Fix:** `_handleKpiCardHistClick` ahora hace el trabajo completo para AR hotel view (ya no return vacío). Commit `8b43f01c`.
+
+### Scripts modificados
+- `build_hist_entity.py` — agrega hotel+provider en build_cr_hist, hotel en build_rnd_hist
+- `render_cr_p1.py` — emite CR_HOTEL_HIST, CR_PROVIDER_HIST; sparkline BK al final
+- `render_rnd_p1.py` — emite RND_HOTEL_HIST
+- `assemble_unified.py` — lookup hotel→corp fallback, channel CR_PROVIDER_HIST, AR hotel view completo, KPI+wowbox update, +Area fallback
+- `js_override.js` — elimina bloque HOTEL VIEW duplicado
+- `SUPPLY_W25.html` — múltiples patches directos (sin re-pipeline disponible)
+
+### Lecciones aprendidas
+- **Cambios en `assemble_unified.py` no se reflejan en HTML existentes** — siempre aplicar también el patch directo al HTML cuando no hay pickles para regenerar.
+- **Reorder de divs en HTML generado** — respetar la jerarquía de divs: un div con `net=1` (sin cierre propio) envuelve al siguiente elemento. Verificar siempre con conteo de opens/closes.
+- **Dos listeners bubble en el mismo elemento** — el registrado primero en el tiempo gana. Si `assemble_unified.py` y `js_override.js` ambos escuchan el mismo click, el de assemble siempre ejecuta primero.
+- **`CR_HOTEL_HIST` key format** — los nombres en el pool tienen prefijo `(ID) - Nombre` pero `build_hist_entity.py` ya los limpia. Los nombres en `hotels_br` de `CR_D` NO tienen el prefijo. El regex `replace(/^\(\d+\)\s*-\s*/, '')` es idempotente (no cambia si no hay prefijo).
+
+### Cobertura histórica final W25
+- Corp: 63 CR / 111 RND / 124 BK
+- Dest: 1054 CR / 3052 RND / 2485 BK
+- Hotel: 6024 CR / en pipeline RND (pendiente re-run)
+- Provider/Channel: 10 CR (DerbySoft, SynXis, HBSI, Expedia, HotelBeds Apitude, Internal, Siteminder, Travelclick, Hotel Unico V2, Omnibees)

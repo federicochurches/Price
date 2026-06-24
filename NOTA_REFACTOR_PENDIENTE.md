@@ -98,3 +98,30 @@ Las KPI cards sirven el panel hotel desde un **pool compacto** (NO en DOM) en ve
 ### Pendiente (opcional)
 Lazy-ificar las **AR cards CR** (`CR_D` ~2,0MB + `CR_HOTELS` ~0,88MB ≈ ~3MB) — tienen su propio searchbox y estructura; B tampoco lo hizo en RND.
 
+
+
+## W25-hist-entity · 24-06-2026
+
+### Nuevos dicts históricos por entidad
+- `build_hist_entity.py` ahora genera: corp, dest, **hotel**, **provider** para CR; corp, dest, **hotel** para RND
+- `CR_HOTEL_HIST`: 6024 hoteles W18-W24; clave = nombre sin prefijo `(ID) -`
+- `CR_PROVIDER_HIST`: 10 providers W18-W24 (DerbySoft, SynXis, HBSI, etc.)
+- `RND_HOTEL_HIST`: hoteles RND (generado en pipeline, no en W25 directo)
+- Para W26+: pipeline los genera automáticamente; no requiere intervención manual
+
+### Lookup histórico — prioridad en handlers
+```
+Hotel view (KPI + AR):  CR_HOTEL_HIST[nombre] → fallback CR_CORP_HIST[corp]
+Channel view (EF/CV):   CR_PROVIDER_HIST[label][ck].concat([w25])
+Dest view:              CR_DEST_HIST[nombre] o CR_DEST_HIST[nombre + ' Area']
+Corp view:              CR_CORP_HIST[corp]
+```
+
+### Pattern: lookup con fallback +Area
+El 87% de `CR_DEST_HIST` tiene sufijo ` Area` que los labels del HTML no tienen.
+Solución en `assemble_unified.py`:
+```javascript
+var _eKey = _hDict[_eName] ? _eName
+           : (_hDict[_eName + ' Area'] ? _eName + ' Area'
+           : (_hDict[_eName.replace(/ Area$/, '')] ? _eName.replace(/ Area$/, '') : null));
+```
