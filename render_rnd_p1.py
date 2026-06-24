@@ -10,7 +10,7 @@ from engine import *
 from render_helpers import *
 from render_helpers import _kpi_pill
 
-from historico_module import render_historico
+from historico_module import render_historico, get_serie, SEMANAS as _HIST_SEMANAS
 from render_historico_svg import render_historico_svg as _rhs
 
 def _mini_badge(bnd):
@@ -233,6 +233,36 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                 break
         panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR, default_tab='pais')
     
+    # ── Stats históricos para celda del medio (Opción C) ──────────────────────
+    _nd_vals = get_serie('rnd', 'nodispo', 'global', round(pct_w18 * 100, 2))
+    _nd_vals = [round(v, 2) for v in _nd_vals]
+    _nd_curr = _nd_vals[-1]
+    _nd_min  = min(_nd_vals)
+    _nd_max  = max(_nd_vals)
+    _nd_avg  = round(sum(_nd_vals) / len(_nd_vals), 2)
+    from engine import banda_nodispo as _bnd
+    _nd_banda_curr = _bnd(pct_w18)
+    from render_helpers import banda_colors as _bc
+    _nd_bc = _bc(_nd_banda_curr)
+    def _stat_cell(label, val_str, color='var(--ink)'):
+        return (f'<div style="text-align:center;padding:6px 2px;background:var(--paper);'
+                f'border-radius:3px;border:1px solid var(--rule-soft);">'
+                f'<div style="font-size:7px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{label}</div>'
+                f'<div style="font-size:12px;font-weight:700;color:{color};margin-top:2px;">{val_str}</div>'
+                f'</div>')
+    _stats_html = (
+        _stat_cell('Actual', f'{_nd_curr:.2f}%'.replace('.', ','), '#EA0074') +
+        _stat_cell('Máx',    f'{_nd_max:.2f}%'.replace('.', ','), '#C0392B') +
+        _stat_cell('Mín',    f'{_nd_min:.2f}%'.replace('.', ','), '#1A6B4A') +
+        _stat_cell('Prom',   f'{_nd_avg:.2f}%'.replace('.', ','), 'var(--ink)')
+    )
+    _banda_cell = (f'<div style="display:flex;align-items:center;justify-content:center;text-align:center;'
+                   f'padding:6px 2px;border-radius:3px;background:{_nd_bc[0]};border:1px solid {_nd_bc[0]};">'
+                   f'<div style="font-size:9px;font-weight:700;color:{_nd_bc[1]};text-transform:uppercase;letter-spacing:.04em;">{_nd_banda_curr.upper()}</div>'
+                   f'</div>')
+    _stats_full = f'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">{_stats_html}{_banda_cell}</div>'
+    # ──────────────────────────────────────────────────────────────────────────
+
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
 <!-- Fila 1: valor full-width -->
 <div style="padding:12px 16px 8px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -253,7 +283,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     {wow_block}
   </div>
   <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
-    <div id="hrnd-nd-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;"></div>
+    {_stats_full}
   </div>
   <div style="padding:10px 14px;">
     <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
