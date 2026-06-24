@@ -500,6 +500,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_arHCid}}));
         var _arHLe0 = document.getElementById('hist-'+_arHCid+'-label');
         if (_arHLe0) _arHLe0.textContent = 'Global';
+        /* Reset KPI value + WoW box al global (re-aplicar _arApplyCard) */
+        if (typeof _arPillRender === 'function') _arPillRender(_arN);
       } else {
         var _arHAcc   = isCR ? '#5C469C' : '#EA0074';
         var _arHAlpha = isCR ? 'rgba(92,70,156,0.12)' : 'rgba(234,0,116,0.12)';
@@ -526,6 +528,27 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
           else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arHCid, w_curr:_arHWc, w_prev:_arHWp, hist_arr:_arHHistArr, label:_arHVal}})); }
           var _arHLe1 = document.getElementById('hist-'+_arHCid+'-label');
           if (_arHLe1) _arHLe1.textContent = _arHVal;
+          /* Actualizar KPI value + WoW box con los datos del hotel seleccionado */
+          var _arHKpiId  = 'ar-kpi-' + _arN;
+          var _arHWbId   = 'ar' + _arN + '-wowbox';
+          var _arHKpiEl  = document.getElementById(_arHKpiId);
+          var _arHWbEl   = document.getElementById(_arHWbId);
+          var _arHIsEf   = (_arN === 1 && isCR) || (_arN === 1 && !isCR);
+          var _arHFmtWc  = isCR ? (_arHWc.toFixed(1).replace('.',',') + '%') : (_arN===1 ? (_arHWc.toFixed(1).replace('.',',')+'%') : ('$'+Math.round(_arHWc)));
+          var _arHFmtWp  = isCR ? (_arHWp.toFixed(1).replace('.',',') + '%') : (_arN===1 ? (_arHWp.toFixed(1).replace('.',',')+'%') : ('$'+Math.round(_arHWp)));
+          var _arHWow    = _arHWc - _arHWp;
+          var _arHAcc2   = isCR ? '#5C469C' : '#EA0074';
+          var _arHVn     = (typeof _VOL_NUM !== 'undefined') ? _VOL_NUM : 25;
+          if (_arHKpiEl) _arHKpiEl.textContent = _arHFmtWc;
+          if (_arHWbEl) {
+            var _arHWowGood = (_arN===1) ? (_arHWow > 0) : (_arHWow < 0);
+            var _arHWbg = _arHWowGood ? '#E0F0E2' : '#FCE8E6';
+            var _arHWfg = _arHWowGood ? '#2F6C34' : '#C0392B';
+            var _arHWTxt = (_arHWow > 0 ? '↑ +' : '↓ ') + Math.abs(_arHWow).toFixed(2).replace('.',',');
+            _arHWbEl.innerHTML = '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W'+(_arHVn-1)+'</div><div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+_arHFmtWp+'</div></div>'
+              +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W'+_arHVn+'</div><div style="font-size:14px;font-weight:700;margin-top:2px;color:'+_arHAcc2+';">'+_arHFmtWc+'</div></div>'
+              +'<div style="flex:1;text-align:center;background:'+_arHWbg+';padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+_arHWfg+';font-weight:700;">WoW</div><div style="font-size:14px;font-weight:700;color:'+_arHWfg+';margin-top:2px;">'+_arHWTxt+'</div></div>';
+          }
         }
       }
       return;
