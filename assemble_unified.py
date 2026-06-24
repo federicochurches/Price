@@ -344,15 +344,10 @@ window._injectHistAttrs = function(tbodyId, rows) {
     if (!dc[dest]) dc[dest] = [];
     if (dc[dest].indexOf(corp) < 0) dc[dest].push(corp);
   });
-  /* Merge RND_MEMBERSHIP para cobertura ampliada (ej: Las Vegas en RND pero no en CR) */
-  if (typeof RND_MEMBERSHIP !== 'undefined') {
-    var _rcd = RND_MEMBERSHIP.corpDest || {};
-    for (var _k in _rcd) {
-      var _dests = _rcd[_k];
-      if (!cd[_k]) cd[_k] = [];
-      _dests.forEach(function(_d) { if (cd[_k].indexOf(_d) < 0) cd[_k].push(_d); });
-    }
-  }
+  /* NO merge RND: CR_MEMBERSHIP solo desde CR pool.
+     El merge causaba falsos positivos: Grupo Posadas aparecía en corp tab para Merida
+     (porque RND los incluye) pero CR no tiene esos hoteles → 'Sin hoteles para esta combinación'.
+     Las Vegas ya está en CR pool (53 hoteles) → no necesita el merge. */
   window.CR_MEMBERSHIP = {corpDest: cd, destCorp: dc};
 })();
 

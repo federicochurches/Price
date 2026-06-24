@@ -1048,13 +1048,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1147,13 +1144,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1227,13 +1221,10 @@ em.wow-pill.nd{background:#F2EEE6 !important;color:#8A8377 !important;}
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1405,13 +1396,10 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1503,13 +1491,10 @@ var _HIST_SEMANAS_PREV=["W18", "W19", "W20", "W21", "W22", "W23", "W24"];
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1709,13 +1694,10 @@ window.HIST_DATA['rnd'] = {
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1788,13 +1770,10 @@ window.HIST_DATA['rnd'] = {
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1907,13 +1886,10 @@ window.HIST_DATA['rnd'] = {
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -1986,13 +1962,10 @@ window.HIST_DATA['rnd'] = {
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -2103,13 +2076,10 @@ window.HIST_DATA['rnd'] = {
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }function renderPanel(vals,lbl){
     if(!el)return;
     var n=vals.length,W=320,SH=58;
@@ -6946,15 +6916,10 @@ window._injectHistAttrs = function(tbodyId, rows) {
     if (!dc[dest]) dc[dest] = [];
     if (dc[dest].indexOf(corp) < 0) dc[dest].push(corp);
   });
-  /* Merge RND_MEMBERSHIP para cobertura ampliada (ej: Las Vegas en RND pero no en CR) */
-  if (typeof RND_MEMBERSHIP !== 'undefined') {
-    var _rcd = RND_MEMBERSHIP.corpDest || {};
-    for (var _k in _rcd) {
-      var _dests = _rcd[_k];
-      if (!cd[_k]) cd[_k] = [];
-      _dests.forEach(function(_d) { if (cd[_k].indexOf(_d) < 0) cd[_k].push(_d); });
-    }
-  }
+  /* NO merge RND: CR_MEMBERSHIP solo desde CR pool.
+     El merge causaba falsos positivos: Grupo Posadas aparecía en corp tab para Merida
+     (porque RND los incluye) pero CR no tiene esos hoteles → 'Sin hoteles para esta combinación'.
+     Las Vegas ya está en CR pool (53 hoteles) → no necesita el merge. */
   window.CR_MEMBERSHIP = {corpDest: cd, destCorp: dc};
 })();
 

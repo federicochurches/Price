@@ -62,13 +62,10 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
     }
     var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
     var w24=isNaN(wp)?w25:wp;
-    /* Sin historia completa del hotel (solo tenemos W24-W25):
-       usar el valor actual como baseline para W18-W23, así el gráfico
-       cambia COMPLETAMENTE al ir hotel por hotel — no solo los últimos 2 pts. */
-    var base=!isNaN(w25)?w25:VD[VD.length-1];
-    var s=[];
-    for(var i=0;i<VD.length-2;i++){s.push(base);}
-    s.push(w24);s.push(w25);return s;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
   }"""
 
     render_panel_js = """function renderPanel(vals,lbl){
