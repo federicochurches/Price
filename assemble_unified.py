@@ -423,13 +423,16 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _isCR2 = (typeof W !== 'undefined') && W.mode === 'cr';
               var _dimV2 = _kpiView[cardKey];
               var _hDict = null;
-              /* BK card usa BK_CORP_HIST (array directo, no sub-key por métrica) */
+              /* BK: corp view → BK_CORP_HIST, dest view → BK_DEST_HIST */
               if (cardKey === 'bk') {
-                _hDict = (typeof window.BK_CORP_HIST !== 'undefined') ? window.BK_CORP_HIST : null;
+                var _bkIsDest = (_dimV2 === 'dest' || _dimV2 === 'destino');
+                _hDict = _bkIsDest
+                  ? ((typeof window.BK_DEST_HIST !== 'undefined') ? window.BK_DEST_HIST : null)
+                  : ((typeof window.BK_CORP_HIST  !== 'undefined') ? window.BK_CORP_HIST  : null);
               } else if (_isCR2) {
-                _hDict = (_dimV2 === 'dest') ? window.CR_DEST_HIST : window.CR_CORP_HIST;
+                _hDict = (_dimV2 === 'dest' || _dimV2 === 'destino') ? window.CR_DEST_HIST : window.CR_CORP_HIST;
               } else {
-                _hDict = (_dimV2 === 'dest') ? window.RND_DEST_HIST : window.RND_CORP_HIST;
+                _hDict = (_dimV2 === 'dest' || _dimV2 === 'destino') ? window.RND_DEST_HIST : window.RND_CORP_HIST;
               }
               var _eName = row.getAttribute('data-hist-label') || _val2;
               var _histArr2 = null;
@@ -473,7 +476,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (cardId === 'kpicard-ar1' || cardId === 'kpicard-ar2') {
     var _arN = (cardId === 'kpicard-ar1') ? 1 : 2;
     var _arV = (typeof _arPillView !== 'undefined') ? (_arPillView[_arN] || 'hotel') : 'hotel';
-    /* W25+: hotel view de AR1/AR2 se maneja aquí (hist update con corp hist) — no retornar */
+    /* Hotel view: manejado por el handler AR de js_override (evitar conflicto de estado) */
+    if (_arV === 'hotel') return;
     /* corp/dest/pais/chan en AR: manejados por _arCrossFilter */
     if (_arV === 'corp' || _arV === 'dest' || (_arV === 'chan' && !isCR)) return;
   }

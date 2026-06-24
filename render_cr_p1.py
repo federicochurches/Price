@@ -1040,6 +1040,18 @@ def _build_bk_hotel_hist_json():
     return f'\n<script>\nvar BK_HOTEL_HIST={hotel_js};\n</script>\n'
 
 
+def _build_bk_dest_hist_json():
+    """Emite BK_DEST_HIST con bookability histórica W18-W(N-1) por destino."""
+    import json as _json, pickle as _pk, os as _os
+    bk_path = _os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+    if not _os.path.exists(bk_path): return ''
+    with open(bk_path,'rb') as _f: _BKD = _pk.load(_f)
+    dest_hist = _BKD.get('dest_hist_bk', {})
+    if not dest_hist: return ''
+    js = _json.dumps(dest_hist, ensure_ascii=False, separators=(',',':'))
+    return f'\n<script>\nvar BK_DEST_HIST={js};\n</script>\n'
+
+
     """Pool COMPLETO de hoteles CR (~3.582) para el cross-filter →hotel y searchbox en
     las KPI cards CR (ef/cv). Unifica CR sobre el motor lazy de RND (W24): el pool vive
     compacto en CR_HOTEL_POOL (NO se vuelca al DOM) y el JS arma el subconjunto cruzado
@@ -1118,6 +1130,7 @@ window.HIST_DATA = HIST_DATA;
     + _build_cr_hist_json()
     + _build_bk_hist_json()
     + _build_bk_hotel_hist_json()
+    + _build_bk_dest_hist_json()
 )
 
 with open('part1_cr.html', 'w', encoding='utf-8') as f:

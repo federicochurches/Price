@@ -1985,23 +1985,23 @@ document.addEventListener('click', function(e) {
      ya la maneja _handleKpiCardHistClick (path genérico ar1→hcr-panel-ef). No interferir. */
   if (view === 'chan' && isCR) return;
 
-  /* HOTEL VIEW (W25+): no aplicar cross-filter al hotel (self-filter rule: dimensión
-     propia no se auto-filtra). Solo destacar la fila y actualizar la sparkline AR. */
+  /* HOTEL VIEW (W25+): self-filter rule → NO auto-filtro en dimensión propia.
+     Solo highlight + sparkline AR. No toca _arCrossFilter.hotel (causaba BR/SC vacío). */
   if (view === 'hotel') {
     var _arVal = dimRow.getAttribute('data-hist-label') || '';
     if (!_arVal) return;
-    /* Bug 2 fix: el _cid para el sparkline AR es el ID del sparkline AR, no del panel KPI */
     var _arCid = isCR ? (cn===1?'hcr-ar-ef':'hcr-ar-cv') : (cn===1?'hrnd-ar-nd':'hrnd-ar-ipm');
-    var _wSel = (_arCrossFilter[cn].hotel === _arVal);
-    /* Limpiar selecciones previas */
+    /* Toggle por data-selected (no por _arCrossFilter.hotel — ese solo se usa en dims cruzadas) */
+    var _wasSelected = dimRow.getAttribute('data-selected') === '1';
     var _arCont = document.getElementById('ar'+cn+'-th');
     if (_arCont) _arCont.querySelectorAll('[data-selected]').forEach(function(r){ r.style.background=''; r.style.boxShadow=''; r.removeAttribute('data-selected'); });
-    if (_wSel) {
-      _arCrossFilter[cn].hotel = null;
+    if (_wasSelected) {
+      /* Deseleccionar → reset sparkline */
+      if (window._corpHist) window._corpHist[_arCid] = null;
       document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_arCid}}));
       var _le0 = document.getElementById('hist-'+_arCid+'-label'); if (_le0) _le0.textContent = 'Global';
     } else {
-      _arCrossFilter[cn].hotel = _arVal;
+      /* Seleccionar → highlight + sparkline con corp hist */
       var _arAcc   = isCR ? '#5C469C' : '#EA0074';
       var _arAlpha = isCR ? 'rgba(92,70,156,0.12)' : 'rgba(234,0,116,0.12)';
       dimRow.style.background = _arAlpha; dimRow.style.boxShadow = 'inset 3px 0 0 '+_arAcc; dimRow.setAttribute('data-selected','1');
@@ -2009,10 +2009,18 @@ document.addEventListener('click', function(e) {
       var _arWp = parseFloat(dimRow.getAttribute('data-hist-w20'));
       if (!isNaN(_arWc)) {
         if (isNaN(_arWp)) _arWp = _arWc;
-        /* Bug 2 fix: usar histUpdate_ directo (no evento) para evitar guard _corpHist */
+        /* Lookup corp hist (W18-W(N-1)) */
+        var _arHistArr = null;
+        var _arCorpK = dimRow.getAttribute('data-cf-corp') || '';
+        var _arMetric = isCR ? (cn===1?'ef':'cv') : (cn===1?'nd':'ipm');
+        var _arDictH = (typeof window !== 'undefined') ? (isCR ? window.CR_CORP_HIST : window.RND_CORP_HIST) : null;
+        if (_arDictH && _arCorpK && _arDictH[_arCorpK] && _arDictH[_arCorpK][_arMetric]) {
+          var _arHw = _arDictH[_arCorpK][_arMetric];
+          if (_arHw && _arHw.length > 0) _arHistArr = _arHw.concat([_arWc]);
+        }
         var _fnAR = window['histUpdate_' + _arCid];
-        if (_fnAR) { _fnAR(_arWc, _arWp, null, _arVal, null); }
-        else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arCid, w_curr:_arWc, w_prev:_arWp, label:_arVal}})); }
+        if (_fnAR) { _fnAR(_arWc, _arWp, null, _arVal, _arHistArr); }
+        else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arCid, w_curr:_arWc, w_prev:_arWp, hist_arr:_arHistArr, label:_arVal}})); }
         var _le1 = document.getElementById('hist-'+_arCid+'-label'); if (_le1) _le1.textContent = _arVal;
       }
     }
