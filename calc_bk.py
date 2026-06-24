@@ -340,6 +340,30 @@ if _acumulado_path:
 else:
     print("   BK corp hist: no hay acumulado disponible")
 
+# ── HISTÓRICO POR PROVIDER/CHANNEL (BK_PROVIDER_HIST para sparklines channel) ──
+# Construye {ProviderName: [bk_W18, ..., bk_W24]} desde el acumulado.
+# Mismo patrón que corp_hist_bk pero agrupando por Provider.
+provider_hist_bk = {}
+if _acumulado_path:
+    _df_prov = df_all.copy()
+    _df_prov['Bookability'] = pd.to_numeric(_df_prov['Bookability'], errors='coerce').fillna(0).clip(0, 1)
+    _df_prov['Books'] = pd.to_numeric(_df_prov['Books'], errors='coerce').fillna(0).astype(int)
+    _semanas_prov = sorted([int(s) for s in _df_prov['Semana'].unique() if int(s) < WEEK_NUM])
+    for _prov, _grp in _df_prov[_df_prov['Semana'].isin(_semanas_prov)].groupby('Provider'):
+        _serie = []
+        for _s in _semanas_prov:
+            _ds = _grp[_grp['Semana'] == _s]
+            if len(_ds) == 0 or _ds['Books'].sum() == 0:
+                _serie.append(None)
+            else:
+                _bkv = float((_ds['Bookability'] * _ds['Books']).sum() / _ds['Books'].sum())
+                _serie.append(round(_bkv * 100, 2))
+        if any(v is not None for v in _serie):
+            provider_hist_bk[str(_prov)] = _serie
+    print(f"   BK provider hist: {len(provider_hist_bk)} providers, semanas W{_semanas_prov[0] if _semanas_prov else '?'}-W{_semanas_prov[-1] if _semanas_prov else '?'}")
+else:
+    print("   BK provider hist: no hay acumulado disponible")
+
 # ── PICKLE ────────────────────────────────────────────────────────────────────
 D = {
     'WEEK':        WEEK,
@@ -374,6 +398,7 @@ D = {
     # Histórico por semana
     'hist_by_week': hist_by_week,
     'corp_hist_bk': corp_hist_bk,
+    'provider_hist_bk': provider_hist_bk,
 }
 
 out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'bk_w{VOL_NUM}_data.pkl')

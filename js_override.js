@@ -658,6 +658,11 @@ document.addEventListener('click', function(e) {
     var _bkHw = window.BK_HOTEL_HIST[label];
     if (_bkHw && _bkHw.length > 0) { _bkHistArr = _bkHw.concat([_bkWc]); }
   }
+  /* Lookup histórico para channel/provider → BK_PROVIDER_HIST (channel view) */
+  if (!_bkHistArr && typeof window.BK_PROVIDER_HIST !== 'undefined' && window.BK_PROVIDER_HIST[label]) {
+    var _bkPh = window.BK_PROVIDER_HIST[label];
+    if (_bkPh && _bkPh.length > 0) { _bkHistArr = _bkPh.concat([_bkWc]); }
+  }
   _bkCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
     if (fn) { fn(_bkWc, _bkWp, null, label, _bkHistArr); }
@@ -1991,6 +1996,7 @@ document.addEventListener('click', function(e) {
     var _arVal = dimRow.getAttribute('data-hist-label') || '';
     if (!_arVal) return;
     var _arCid = isCR ? (cn===1?'hcr-ar-ef':'hcr-ar-cv') : (cn===1?'hrnd-ar-nd':'hrnd-ar-ipm');
+    console.log('[AR hotel click] card='+cn+' cid='+_arCid+' hotel='+_arVal+' w21='+dimRow.getAttribute('data-hist-w21'));
     /* Toggle por data-selected (no por _arCrossFilter.hotel — ese solo se usa en dims cruzadas) */
     var _wasSelected = dimRow.getAttribute('data-selected') === '1';
     var _arCont = document.getElementById('ar'+cn+'-th');
@@ -2019,6 +2025,7 @@ document.addEventListener('click', function(e) {
           if (_arHw && _arHw.length > 0) _arHistArr = _arHw.concat([_arWc]);
         }
         var _fnAR = window['histUpdate_' + _arCid];
+        console.log('[AR hotel sparkline] fn='+!!_fnAR+' wc='+_arWc+' hist='+(!!_arHistArr)+' cid='+_arCid);
         if (_fnAR) { _fnAR(_arWc, _arWp, null, _arVal, _arHistArr); }
         else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arCid, w_curr:_arWc, w_prev:_arWp, hist_arr:_arHistArr, label:_arVal}})); }
         var _le1 = document.getElementById('hist-'+_arCid+'-label'); if (_le1) _le1.textContent = _arVal;
