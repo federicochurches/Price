@@ -1008,6 +1008,17 @@ def _build_cr_hist_json():
     )
 
 
+def _build_bk_hist_json():
+    """Emite BK_CORP_HIST con bookability histórica W18-W(N-1) por corp.
+    Requiere corp_hist_bk en el pickle BK (calc_bk.py con dataset acumulado)."""
+    import json as _json
+    corp_hist = D.get('corp_hist_bk', {})
+    if not corp_hist:
+        return ''  # Sin datos históricos por corp (dataset acumulado no disponible)
+    corp_js = _json.dumps(corp_hist, ensure_ascii=False, separators=(',', ':'))
+    return f'\n<script>\nvar BK_CORP_HIST={corp_js};\n</script>\n'
+
+
     """Pool COMPLETO de hoteles CR (~3.582) para el cross-filter →hotel y searchbox en
     las KPI cards CR (ef/cv). Unifica CR sobre el motor lazy de RND (W24): el pool vive
     compacto en CR_HOTEL_POOL (NO se vuelca al DOM) y el JS arma el subconjunto cruzado
@@ -1084,6 +1095,7 @@ window.HIST_DATA = HIST_DATA;
     + _build_cr_hotel_pool_json()
     + _build_bk_card_tabs_json()
     + _build_cr_hist_json()
+    + _build_bk_hist_json()
 )
 
 with open('part1_cr.html', 'w', encoding='utf-8') as f:

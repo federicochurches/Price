@@ -314,6 +314,32 @@ hist_by_week[f'W{WEEK_NUM}'] = {
 }
 print(f"\n   Histórico por semana: {list(hist_by_week.keys())}")
 
+# ── HISTÓRICO POR CORPORATIVO (BK_CORP_HIST para sparklines KPI) ─────────────
+# Construye {CorpName: [bk_W18, bk_W19, ..., bk_W24]} desde el acumulado.
+# El render lee BK_CORP_HIST y lo usa en histUpdate_ al seleccionar un corp.
+corp_hist_bk = {}  # {corp: [val_W_min, ..., val_W_max-1]}  (sin semana actual)
+if _acumulado_path:
+    # df_all ya está cargado arriba; usar todas las semanas previas
+    _df_all_corp = pd.read_excel(_acumulado_path) if 'df_all' not in dir() else df_all
+    _df_all_corp['Bookability'] = pd.to_numeric(_df_all_corp['Bookability'], errors='coerce').fillna(0).clip(0, 1)
+    _df_all_corp['Books'] = pd.to_numeric(_df_all_corp['Books'], errors='coerce').fillna(0).astype(int)
+    _semanas_ord = sorted([int(s) for s in _df_all_corp['Semana'].unique() if int(s) < WEEK_NUM])
+    # Por cada corp calcular bookability ponderada en cada semana histórica
+    for _corp, _grp in _df_all_corp[_df_all_corp['Semana'].isin(_semanas_ord)].groupby('CorpName'):
+        _serie = []
+        for _s in _semanas_ord:
+            _ds = _grp[_grp['Semana'] == _s]
+            if len(_ds) == 0 or _ds['Books'].sum() == 0:
+                _serie.append(None)
+            else:
+                _bkv = float((_ds['Bookability'] * _ds['Books']).sum() / _ds['Books'].sum())
+                _serie.append(round(_bkv * 100, 2))
+        if any(v is not None for v in _serie):
+            corp_hist_bk[str(_corp)] = _serie
+    print(f"   BK corp hist: {len(corp_hist_bk)} corps, semanas W{_semanas_ord[0] if _semanas_ord else '?'}-W{_semanas_ord[-1] if _semanas_ord else '?'}")
+else:
+    print("   BK corp hist: no hay acumulado disponible")
+
 # ── PICKLE ────────────────────────────────────────────────────────────────────
 D = {
     'WEEK':        WEEK,
@@ -347,6 +373,7 @@ D = {
     'df_prev':     df_prev,
     # Histórico por semana
     'hist_by_week': hist_by_week,
+    'corp_hist_bk': corp_hist_bk,
 }
 
 out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'bk_w{VOL_NUM}_data.pkl')
