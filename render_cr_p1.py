@@ -1010,11 +1010,16 @@ def _build_cr_hist_json():
 
 def _build_bk_hist_json():
     """Emite BK_CORP_HIST con bookability histórica W18-W(N-1) por corp.
-    Requiere corp_hist_bk en el pickle BK (calc_bk.py con dataset acumulado)."""
-    import json as _json
-    corp_hist = D.get('corp_hist_bk', {})
+    Requiere corp_hist_bk en el pickle BK."""
+    import json as _json, pickle as _pk, os as _os
+    bk_path = _os.getenv('PICKLE_BK', f'bk_w{VOL_NUM}_data.pkl')
+    if not _os.path.exists(bk_path):
+        return ''
+    with open(bk_path, 'rb') as _f:
+        _BKD = _pk.load(_f)
+    corp_hist = _BKD.get('corp_hist_bk', {})
     if not corp_hist:
-        return ''  # Sin datos históricos por corp (dataset acumulado no disponible)
+        return ''  # Sin datos históricos por corp
     corp_js = _json.dumps(corp_hist, ensure_ascii=False, separators=(',', ':'))
     return f'\n<script>\nvar BK_CORP_HIST={corp_js};\n</script>\n'
 
