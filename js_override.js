@@ -598,6 +598,29 @@ document.addEventListener('click', function(e) {
         if (!_isAlreadySel) { row.style.background = 'rgba(51,49,50,0.07)'; row.setAttribute('data-selected','1'); }
         _kpiCrossFilterPillsRender('bk');
         if (typeof _kpiPillRender === 'function') _kpiPillRender('bk');
+        /* Actualizar sparklines con los valores del corp/dest seleccionado */
+        if (!_isAlreadySel) {
+          var _bkH21 = parseFloat(row.getAttribute('data-hist-w21'));
+          var _bkH20 = parseFloat(row.getAttribute('data-hist-w20'));
+          var _bkBk  = parseFloat(row.getAttribute('data-bk') || '0') * 100;
+          var _bkWow = parseFloat(row.getAttribute('data-bk-wow') || '0') * 100;
+          var _bkWc = (!isNaN(_bkH21) && _bkH21 > 0) ? _bkH21 : _bkBk;
+          var _bkWp = (!isNaN(_bkH20) && _bkH20 > 0) ? _bkH20 : (_bkBk - _bkWow);
+          var _bkLbl = row.getAttribute('data-lbl') || row.getAttribute('data-hist-label') || '';
+          ['h-bk-panel', 'h-bk-ar'].forEach(function(hcid) {
+            var fn = window['histUpdate_' + hcid];
+            if (fn) { fn(_bkWc, _bkWp, null, _bkLbl, null); }
+            var _le = document.getElementById('hist-' + hcid + '-label');
+            if (_le) _le.textContent = _bkLbl;
+          });
+        } else {
+          /* deselección: volver a global */
+          ['h-bk-panel', 'h-bk-ar'].forEach(function(hcid) {
+            document.dispatchEvent(new CustomEvent('hist-reset', { detail: { cid: hcid } }));
+            var _le = document.getElementById('hist-' + hcid + '-label');
+            if (_le) _le.textContent = 'Global';
+          });
+        }
         return;
       }
     }

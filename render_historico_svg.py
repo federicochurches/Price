@@ -131,7 +131,7 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
         "var fmtVal=" + fmt_val + ";"
         + build_serie_js
         + render_panel_js
-        + "window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};"
+        + "window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){el=document.getElementById(CID);renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};"
         "document.addEventListener('hist-update',function(e){"
           "if(e.detail.cid!==CID)return;"
           "if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){"
