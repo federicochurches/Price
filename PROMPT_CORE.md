@@ -505,9 +505,16 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 32. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
 33. Crear el channel de las KPI cards sin sort/selección o con render distinto entre EF/CV y BK — las 3 usan filas `.bk-row` (con `data-lbl`/`data-trx`/`data-bk`/`data-bk-wow`) + header `data-sort-key`, reusando `window.bkSort`. EF/CV en JS (`_buildChanRow`, `_mkHdr` de `w22_renderCardTabs`) y Python (`chan_row`/`chan_row_cv`); BK en Python (`_hdr`/`_row`). El listener sort+selección de EF/CV es `CHAN_SORT_EFCV_JS` (script separado en `GLOBAL_PANEL_SCRIPT`). Layout flex-column (PP arriba, TP abajo), catálogo canónico con "Sin Actividad" para faltantes.
 34. Asumir que la primera definición de `w22_setMode` es la que ejecuta el browser — puede haber N redefiniciones encadenadas; verificar cuál es la última antes de añadir lógica que dependa de ella. Imprimir `w22_setMode.toString()` en consola para ver la real.
-35. Pisar un CSS con `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
+35. Pisar un CSS con
+36. Calcular corp hist en `_build_bk_*_hist_json` usando `D` global (CR pickle) — cargar siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`
+ `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
 
 ---
+
+36. Calcular hist BK en `_build_bk_*_hist_json()` usando `D` (pickle CR) — estas funciones cargan siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`
+37. Usar `=== 'dest'` para comparar `_dimV2` en el lookup hist — la vista destino se guarda como `'destino'` en `_kpiView`. Usar `=== 'dest' || _dimV2 === 'destino'`
+38. Setear `_arCrossFilter[n].hotel` en el hotel handler de AR (self-filter rule) — causó BR/SC vacío al filtrar por hotel fuera de su banda. El toggle usa `data-selected`, no el cross-filter
+39. Regenerar solo `render_cr_p1.py` al modificar `render_historico_svg.py` — también regenerar `render_rnd_p1.py` (ambos importan el SVG render)
 
 ## ⚠️ Nota sobre git pull local
 - `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
@@ -515,18 +522,20 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 22-06-2026, post W25)
+## 📋 Pendientes próxima sesión (actualizados 23-06-2026, post sesión sparkline-hist)
 
 Por valor/orden sugerido:
 
-1. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.). Hacerlo junto al refactor AR; tras limpiar deben desaparecer del reporte.
-2. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales, snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
-3. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB.
+1. **Validación visual sparklines W19-W23** — probar corp/dest/hotel en EF/CV/ND/IPM KPI + AR1/AR2 + BK KPI + BK AR. Confirmar fill coloreado en RND Availability.
+2. **Re-run `calc_inv.py` W25** con dataset actualizado — con el nuevo dataset + snap_date fix + CONFIG correcto, correr `python run_inv.py --commit`.
+3. **Mail W25 final** — re-generar tras el re-run de Inventory. Auto-fetch `INV_PP_PREV` ya operativo.
+4. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
+5. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales (post re-run), snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
+6. *(declinado, bajo valor)* band arrays globales de `CR_D` ~318KB → pool · `RND_HOTEL_POOL` 2,83MB.
 
-**Cómo retomar W26:** (1) Supply pipeline normal → paso 11 auto-actualiza inv CONFIG → (2) `git checkout origin/main -- calc_inv.py` → `python run_inv.py --commit` → (3) Mail se auto-fetcha INV_PP_PREV.
+**Dataset histórico BK reutilizable:** en W26+, si hay nuevo acumulado, subir `Dataset_bookability_historico.xlsx` y correr `calc_bk.py` (o pipeline lo hace solo con dataset acumulado).
 
----
-
+**Cómo retomar:** (1) validar sparklines → (2) re-run inv W25 → (3) pipeline W26 normal.
 ## 🐛 Bugs pendientes
 
 > **P1–P14 cerrados · B68–B69 cerrados W24 — no quedan bugs de lógica abiertos.**
@@ -612,7 +621,9 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W25-hist-corp-fix · 23-06-2026 (**canvas histórico corp funcional** — `window['histUpdate_'+CID]` expuesto desde cada canvas IIFE en `historico_module.py`; corp handler en `assemble_unified.py` lo llama con setTimeout(50ms) en lugar de dispatch de evento. Root cause del diagnóstico lento: al modificar `historico_module.py`, regenerar **TODOS** los scripts que lo importan (`render_cr_p1.py`, `render_rnd_p1.py`, `assemble_unified.py`) — si solo se regenera uno, los canvases del otro quedan con la versión vieja. El canvas SÍ actualizaba; la ilusión de "no cambio" era similitud de datos entre corps en el mismo rango de eficacia.)
+**Última actualización:** W25-sparkline-hist · 23-06-2026 (**Sparklines W19-W23 reales en todas las cards + fill coloreado por banda** — (1) `BK_CORP_HIST` 124 corps + `BK_HOTEL_HIST` 2.964 hoteles + `BK_DEST_HIST` 2.485 destinos generados desde dataset histórico BK (W18-W24); `render_cr_p1.py` los emite en 3 funciones separadas que cargan desde PICKLE_BK (no `D` que es CR). (2) `render_historico_svg.py`: fill coloreado por banda — n-1 segmentos trapezoidales con `getBanda(vals[i]).c` al 13% opacidad, reemplaza fill neutro ACCENT. Regenerar TANTO `render_cr_p1.py` como `render_rnd_p1.py` al modificar. (3) `_isHotelRow = data-cf-corp !== '' && data-cf-corp !== data-hist-label` en `_handleKpiCardHistClick` — detecta hotel rows y saltea el bloque cross-filter (que trataba nombre de hotel como corp → lookup fallaba → solo W24-W25 actualizaban). Para hotel view: usa `CR_CORP_HIST/RND_CORP_HIST[data-cf-corp][metric]` como proxy. (4) Fix `'destino' vs 'dest'`: `_kpiView` guarda `'destino'` pero lookup comparaba `=== 'dest'` — corregido con `=== 'dest' || === 'destino'` en CR, RND y BK. (5) AR hotel handler en `js_override.js`: toggle usa `data-selected` en lugar de `_arCrossFilter.hotel` (self-filter rule — setear cross-filter.hotel causaba BR/SC vacío al filtrar por hotel fuera de su banda); agrega lookup `CR_CORP_HIST[data-cf-corp][metric]`. (6) AR1/AR2 early return restaurado en `_handleKpiCardHistClick` para hotel view — evita conflicto entre los dos handlers (comportamiento invertido del doble click). Cobertura hist W18-W24: corp (63 CR / 111 RND / 124 BK) · dest (1054 CR / 3052 RND / 2485 BK) · hotel (proxy corp CR/RND · directo BK_HOTEL_HIST 2964 hoteles).)
+
+**Última actualización previa:** W25-hist-corp-fix · 23-06-2026 (**canvas histórico corp funcional** — `window['histUpdate_'+CID]` expuesto desde cada canvas IIFE en `historico_module.py`; corp handler en `assemble_unified.py` lo llama con setTimeout(50ms) en lugar de dispatch de evento. Root cause del diagnóstico lento: al modificar `historico_module.py`, regenerar **TODOS** los scripts que lo importan (`render_cr_p1.py`, `render_rnd_p1.py`, `assemble_unified.py`) — si solo se regenera uno, los canvases del otro quedan con la versión vieja. El canvas SÍ actualizaba; la ilusión de "no cambio" era similitud de datos entre corps en el mismo rango de eficacia.)
 **Anterior:** W24-pills · 22-06-2026 (**pills de dimensión inactivas → MAYÚSCULA** — las pills del selector de dimensión (Destino/Corp/Hotel/Channel · País/Destino/Corp/Hotel) usaban `text-transform:none` en la **inactiva** (decisión W24-layout: activa MAYÚS / inactiva title-case), lo que Fede veía "en minúscula". Pidió **todas en mayúscula**; la activa se distingue por el **relleno**, no por el case. Cambiado `text-transform:none → uppercase` en `_PILL_INACT`/`_PI` de `render_cr_p1.py` (3) y `render_rnd_p1.py` (2) + `kpi_setView` en `assemble_unified.py` (`textTransform` ya no `active ? 'uppercase' : 'none'`, **siempre** `'uppercase'` — si no, al cambiar de dimensión volvían a title-case). ⚠️ **Casi-regresión:** el `sed` tocó por error el subtítulo del IPM (`render_rnd_p1.py` L334, `· Income Per Million · GB USD por millón`, que va en `none` a propósito) → **revertido a `none`**. Verificado: 0 pills inactivas con `none`, subtítulo IPM intacto. Regenerado part1 CR+RND (`VOL_NUM=24`) + reensamblado. NO se tocaron las tabs de canasta (`.c-chip`, ya uppercase) ni las pills de banda AR (Críticos/Bajo Rend/Sin Conv). Validado visual Fede. Archivos: `render_cr_p1.py`, `render_rnd_p1.py`, `assemble_unified.py`, `reports/week-24/SUPPLY_W24.html`.)
 
 **Última actualización previa:** W24-histbadges · 22-06-2026 (**badges Opción B propagados al panel histórico + tablas de severity + cards AR · Aceptable texto blanco · calc_inv reconciliado** — el fix de Opción B se había aplicado a las KPI cards pero **faltaban 3 superficies** que usan mapas/parts distintos: (1) **panel histórico** — `historico_module.py` `_BANDA_COLORS` ya estaba en Opción B en la fuente pero **nunca se commiteó ni se regeneró el HTML** (el commit W24-layout horneó part1 con el módulo viejo); regenerado part1 → badges box+footer sólidos. (2) **tablas de severity** (`render_severity` en p2, vía `banda_colors()`) y **cards AR** (`sev_badge_html_p2`) — part2 se había generado **antes** de migrar `BANDA_COLORS` y no se regeneró; regenerado part2. (3) **`BC` de `AR3_CANVAS_JS`** (`assemble_unified.py`) seguía pálido — migrado a Opción B. Además **Aceptable fg #5C3A00 → #FFFFFF (blanco)** en los 8 mapas (Fede lo pidió "blanco como las otras"; **ojo:** blanco sobre el ámbar `#FBBF24` es contraste bajo, queda flojo — si molesta, oscurecer el bg a ~`#D97706`). Todo uppercase (ya tenían `text-transform`). Diff vs publicado: **236 líneas, 100% colores de banda**, sin tocar datos/métricas/labels. **Aprendizaje:** cambiar un mapa de banda exige regenerar los parts que lo hornean (part1 histórico / part2 severity+AR) + reensamblar (AR3); olvidarlo deja badges pálidos solo en esas superficies — y **`VOL_NUM=24` es obligatorio al regenerar parts** (si no, `wow_box` sale W19/W20). En paralelo: `inventory/calc_inv.py` repo reconciliado a W24 (commit `1a698eb0`, cierra pendiente de divergencia). Validado: diff quirúrgico + visual Fede. Archivos: `historico_module.py`, `render_helpers.py`, `js_override.js`, `assemble_unified.py`, `reports/week-24/SUPPLY_W24.html`.)
@@ -679,4 +690,23 @@ Al terminar cualquier sesión con cambios, Claude debe verificar:
 que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
+
+
+**Última actualización:** W25-sparkline-hist · 23-06-2026 (**Sparklines W19-W23 reales en todas las cards + fill coloreado por banda**
+
+**Hist datasets (BK):** `BK_CORP_HIST` (124 corps) + `BK_HOTEL_HIST` (2.964 hoteles) + `BK_DEST_HIST` (2.485 destinos) generados desde `Dataset_bookability_historico.xlsx`. Emitidos por `render_cr_p1.py` (_build_bk_*_hist_json, cada uno carga desde PICKLE_BK). En W26+: `calc_bk.py` los genera automáticamente del dataset acumulado.
+
+**Fill coloreado (`render_historico_svg.py`):** en lugar de fill neutro ACCENT+7%, ahora n-1 segmentos trapezoidales coloreados con `getBanda(vals[i]).c` al 13% opacidad. Aplica a todos los SVG sparklines: `h-bk-*`, `hcr-*`, `hrnd-*`. Regenerar `render_cr_p1.py` Y `render_rnd_p1.py` al cambiar este archivo.
+
+**_isHotelRow (`assemble_unified.py`):** `data-cf-corp !== '' && data-cf-corp !== data-hist-label` detecta hotel rows. Si es hotel, se saltea el bloque cross-filter (que trataba el nombre del hotel como corp → lookup fallaba). Para hotel view en cualquier card KPI: usa `CR_CORP_HIST/RND_CORP_HIST[data-cf-corp][metric]` como proxy histórico.
+
+**'destino' vs 'dest' mismatch:** `_kpiView` guarda `'destino'` pero el lookup comparaba `=== 'dest'`. Fix: `(_dimV2 === 'dest' || _dimV2 === 'destino')` en los lookups de CR, RND y BK.
+
+**AR hotel handler (`js_override.js`):** toggle usa `data-selected` (no `_arCrossFilter.hotel`). Self-filter rule: hotel view NO setea cross-filter hotel (causaba BR/SC vacío). Lookup corp hist: `CR_CORP_HIST/RND_CORP_HIST[data-cf-corp][metric]` en el handler.
+
+**AR1/AR2 early return:** restaurado en `_handleKpiCardHistClick` para hotel view (evita conflicto con el handler de js_override → comportamiento invertido del doble click).
+
+**Cobertura hist W18-W24:** Corp (63 CR / 111 RND / 124 BK) · Dest (1054 CR / 3052 RND / 2485 BK) · Hotel (proxy corp para CR/RND · directo BK_HOTEL_HIST).
+
+)
 

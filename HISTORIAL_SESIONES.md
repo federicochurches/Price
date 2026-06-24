@@ -1,3 +1,73 @@
+## Sesión W25-sparkline-hist · 23-06-2026
+
+**Contexto:** Feature request + bug fixes masivos: rellenar W19-W23 en todos los sparklines de las 3 cards KPI y AR con datos históricos reales (corpus pickling de dataset histórico de Bookability). Fill coloreado por banda.
+
+### Cambios principales
+
+**1. BK_CORP_HIST / BK_HOTEL_HIST / BK_DEST_HIST (nuevo)**
+- Dataset `Dataset_bookability_historico.xlsx` (157.910 filas, W16-W24, 128 corps, 30K hoteles) procesado.
+- `calc_bk.py`: calcula `corp_hist_bk` + `hotel_hist_bk` + `dest_hist_bk` (weighted avg por Books).
+- `render_cr_p1.py`: emite `BK_CORP_HIST` (124 corps, 7 vals W18-W24), `BK_HOTEL_HIST` (2.964 hoteles, 237 KB), `BK_DEST_HIST` (2.485 destinos, 142 KB). Cada función carga desde PICKLE_BK (no D global que es CR).
+- `js_override.js`: KPI BK hotel view usa `BK_HOTEL_HIST[label]`; cross-filter BK dest usa `BK_DEST_HIST[dest]`.
+- `assemble_unified.py`: AR3 hotel usa `BK_HOTEL_HIST[label]`; cross-filter BK usa `BK_DEST_HIST` cuando vista es destino.
+
+**2. Fill coloreado por banda en sparklines SVG (`render_historico_svg.py`)**
+- Antes: área bajo la curva = fill neutro ACCENT + 7% opacidad.
+- Ahora: n-1 segmentos trapezoidales, cada uno coloreado con `getBanda(vals[i]).c` al 13% de opacidad. Aplicado en CR y RND (regenerar ambos part1).
+- Afecta: `h-bk-panel`, `h-bk-ar`, `hcr-panel-ef`, `hcr-panel-cv`, `hrnd-panel-nd`, `hrnd-panel-ipm`, `hcr-ar-ef`, `hcr-ar-cv`, `hrnd-ar-nd`, `hrnd-ar-ipm`.
+
+**3. Sparklines W19-W23 — fix definitivo para KPI cards EF/CV/ND/IPM**
+- Root cause: cuando `view === 'corp'` y el usuario hacía click en un hotel cargado lazily, el cross-filter usaba el nombre del hotel como corp → lookup fallaba → solo W24-W25 actualizaban.
+- Fix `assemble_unified.py`: agregar `_isHotelRow = data-cf-corp !== '' && data-cf-corp !== data-hist-label`. Si es hotel row, saltear el bloque cross-filter.
+- Lookup por corp hist: `CR_CORP_HIST[data-cf-corp][cardKeyH]` o `RND_CORP_HIST[data-cf-corp][cardKeyH]` concatenado con W25 actual.
+
+**4. Fix 'destino' vs 'dest' mismatch**
+- `_kpiView` guarda `'destino'` pero el lookup comparaba `=== 'dest'`.
+- Fix: `(_dimV2 === 'dest' || _dimV2 === 'destino')` en CR y RND lookup. También en BK cross-filter.
+- Resultado: clickear un destino en EF/CV/ND/IPM KPI ahora muestra W18-W24 reales de ese destino.
+
+**5. AR1/AR2 handler conflict + BR/SC vacío**
+- Root cause: el handler de `js_override.js` seteaba `_arCrossFilter[n].hotel = hotelName` al hacer click. Al cambiar a "Bajo Rend.", `_arFilterApply` filtraba por ese hotel (que estaba en Críticos, no en BR → 0 resultados).
+- Fix: cambiar toggle de cross-filter a `data-selected` attribute. NO setear `_arCrossFilter.hotel` para hotel view (self-filter rule: dimensión propia no se auto-filtra).
+- También: re-agregar early return en `_handleKpiCardHistClick` para AR1/AR2 hotel (evitar conflicto entre los dos handlers que generaba comportamiento invertido de doble click).
+- AR1/AR2 sparkline con hist: la función JS del handler AR ahora busca `CR_CORP_HIST[data-cf-corp][metric]` con métricas `ef/cv` (CR) o `nd/ipm` (RND).
+
+### Cobertura de hist W18-W24 por dimensión
+
+| Dimensión | CR EF/CV | RND ND/IPM | BK |
+|---|---|---|---|
+| Corp | `CR_CORP_HIST` 63 corps | `RND_CORP_HIST` 111 corps | `BK_CORP_HIST` 124 corps |
+| Dest | `CR_DEST_HIST` 1054 dests | `RND_DEST_HIST` 3052 dests | `BK_DEST_HIST` 2485 dests |
+| Hotel | proxy corp (data-cf-corp) | proxy corp (data-cf-corp) | `BK_HOTEL_HIST` 2964 hoteles |
+| AR3 | — | — | `BK_HOTEL_HIST` (directo) |
+
+### Commits de esta sesión
+- `9cc7d1db` — fix: corp self-filter eliminado · BK early return eliminado
+- `8c2aea1a` — fix: cf.hotel en hasCf · CR_MEMBERSHIP · poolToCardRow prevVal
+- `2115885e` — fix: CR_MEMBERSHIP solo CR pool · buildSerie endpoint
+- `236c08ed` — fix: AR hotel self-filter + sparkline AR CIDs correctos
+- `98cd4558` — fix: hist-reset despacha a panel+AR+global
+- `f701a50b` — feat: BK_CORP_HIST W18-W24 · 124 corps (dataset histórico)
+- `b4453609` — feat: BK_HOTEL_HIST AR3 + fill coloreado por banda sparkline
+- `7fc2cf54` — feat: KPI hotel view usa corp hist W18-W23
+- `a587241e` — fix: W19-W23 sparklines todas las cards · fill coloreado RND · AR1/AR2
+- `315ac456` — fix: destinos W19-W23 · AR BR/SC vacío · AR doble click · BK_DEST_HIST
+
+### Archivos modificados (repo)
+- `render_historico_svg.py` — fill coloreado por banda
+- `render_cr_p1.py` — BK_CORP_HIST / BK_HOTEL_HIST / BK_DEST_HIST (3 funciones nuevas)
+- `assemble_unified.py` — _isHotelRow, 'destino' fix, AR1/AR2 early return, BK_DEST_HIST cross-filter
+- `js_override.js` — AR hotel handler: toggle data-selected, sin cross-filter self, corp hist
+- `calc_bk.py` — corp_hist_bk, hotel_hist_bk, dest_hist_bk desde dataset acumulado
+- `reports/week-25/SUPPLY_W25.html` — regenerado (14.614 KB)
+
+### Pendientes próxima sesión
+- Validar visualmente todos los fixes de sparkline (corp/dest/hotel en las 3 cards + AR)
+- Verificar fill coloreado en RND Availability
+- Seguir con el flujo normal W26 cuando lleguen los datasets
+
+---
+
 ## Sesión W25-hist-corp-fix · 23-06-2026
 
 **Contexto:** Bug report de Fede: el canvas histórico de `hcr-global-ef` no actualizaba visualmente al seleccionar un corp diferente (GRUPO POSADAS después de Iberostar). La sesión consistió en diagnóstico sistemático del mecanismo histUpdate_.
