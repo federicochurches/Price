@@ -519,16 +519,29 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         var _arHWp = parseFloat(row.getAttribute('data-hist-w20'));
         if (!isNaN(_arHWc)) {
           if (isNaN(_arHWp)) _arHWp = _arHWc;
-          /* Lookup historial real por corp (proxy hotel) */
+          /* Lookup historial real: 1) por hotel individual, 2) fallback corp */
           var _arHHistArr = null;
-          var _arHCorpK = row.getAttribute('data-cf-corp') || '';
-          var _arHMetric = isCR ? (_arN===1?'ef':'cv') : (_arN===1?'nd':'ipm');
-          var _arHDict = isCR
-            ? (typeof window.CR_CORP_HIST !== 'undefined' ? window.CR_CORP_HIST : null)
-            : (typeof window.RND_CORP_HIST !== 'undefined' ? window.RND_CORP_HIST : null);
-          if (_arHDict && _arHCorpK && _arHDict[_arHCorpK] && _arHDict[_arHCorpK][_arHMetric]) {
-            var _arHHw = _arHDict[_arHCorpK][_arHMetric];
-            if (_arHHw && _arHHw.length > 0) _arHHistArr = _arHHw.concat([_arHWc]);
+          var _arHCorpK   = row.getAttribute('data-cf-corp') || '';
+          var _arHMetric  = isCR ? (_arN===1?'ef':'cv') : (_arN===1?'nd':'ipm');
+          /* Nombre del hotel: limpiar prefijo "(ID) - " si existe */
+          var _arHHotelName = (_arHVal || '').replace(/^\(\d+\)\s*-\s*/, '').trim();
+          /* 1. Hotel individual */
+          var _arHDictHotel = isCR
+            ? (typeof window.CR_HOTEL_HIST !== 'undefined' ? window.CR_HOTEL_HIST : null)
+            : (typeof window.RND_HOTEL_HIST !== 'undefined' ? window.RND_HOTEL_HIST : null);
+          if (_arHDictHotel && _arHHotelName && _arHDictHotel[_arHHotelName] && _arHDictHotel[_arHHotelName][_arHMetric]) {
+            var _arHHwH = _arHDictHotel[_arHHotelName][_arHMetric];
+            if (_arHHwH && _arHHwH.length > 0) _arHHistArr = _arHHwH.concat([_arHWc]);
+          }
+          /* 2. Fallback corp */
+          if (!_arHHistArr && _arHCorpK) {
+            var _arHDict = isCR
+              ? (typeof window.CR_CORP_HIST !== 'undefined' ? window.CR_CORP_HIST : null)
+              : (typeof window.RND_CORP_HIST !== 'undefined' ? window.RND_CORP_HIST : null);
+            if (_arHDict && _arHDict[_arHCorpK] && _arHDict[_arHCorpK][_arHMetric]) {
+              var _arHHw = _arHDict[_arHCorpK][_arHMetric];
+              if (_arHHw && _arHHw.length > 0) _arHHistArr = _arHHw.concat([_arHWc]);
+            }
           }
           var _arHFn = window['histUpdate_' + _arHCid];
           if (_arHFn) { _arHFn(_arHWc, _arHWp, null, _arHVal, _arHHistArr); }
@@ -661,19 +674,37 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
       if (cardId === 'kpicard-ar1') _hMetric = _isCR3 ? 'ef' : 'nd';
       else if (cardId === 'kpicard-ar2') _hMetric = _isCR3 ? 'cv' : 'ipm';
     }
-    /* Corp: preferir data-cf-corp del row (hotel rows), sino label (AR rows con corp) */
+    /* Lookup historial real por hotel (CR_HOTEL_HIST / RND_HOTEL_HIST) usando el
+       nombre del hotel (data-hist-label, sin prefijo ID). Fallback: proxy por corp. */
+    var _hHotelName = row.getAttribute('data-hist-label') || label;
+    /* Los nombres de hotel en el pool tienen formato "(ID) - Nombre" → limpiar */
+    _hHotelName = _hHotelName.replace(/^\(\d+\)\s*-\s*/, '').trim();
     var _hCorp2 = row.getAttribute('data-cf-corp') || '';
-    if (!_hCorp2 || _hCorp2 === _rLabel) _hCorp2 = _rCorp; /* usar _rCorp definido arriba */
-    if (_hMetric && _hCorp2) {
-      var _hDictH = null;
+    if (!_hCorp2 || _hCorp2 === _rLabel) _hCorp2 = _rCorp;
+    if (_hMetric) {
+      /* 1. Intentar historial individual por hotel */
+      var _hDictHotel = null;
       if (_hMetric === 'ef' || _hMetric === 'cv') {
-        _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
+        _hDictHotel = (typeof window.CR_HOTEL_HIST !== 'undefined') ? window.CR_HOTEL_HIST : null;
       } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
-        _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
+        _hDictHotel = (typeof window.RND_HOTEL_HIST !== 'undefined') ? window.RND_HOTEL_HIST : null;
       }
-      if (_hDictH && _hDictH[_hCorp2] && _hDictH[_hCorp2][_hMetric]) {
-        var _hwH = _hDictH[_hCorp2][_hMetric];
-        if (_hwH && _hwH.length > 0) { _arHistArr = _hwH.concat([w_curr]); }
+      if (_hDictHotel && _hHotelName && _hDictHotel[_hHotelName] && _hDictHotel[_hHotelName][_hMetric]) {
+        var _hwHotel = _hDictHotel[_hHotelName][_hMetric];
+        if (_hwHotel && _hwHotel.length > 0) { _arHistArr = _hwHotel.concat([w_curr]); }
+      }
+      /* 2. Fallback: proxy corp (igual que antes si no hay historial individual) */
+      if (!_arHistArr && _hCorp2) {
+        var _hDictH = null;
+        if (_hMetric === 'ef' || _hMetric === 'cv') {
+          _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
+        } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
+          _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
+        }
+        if (_hDictH && _hDictH[_hCorp2] && _hDictH[_hCorp2][_hMetric]) {
+          var _hwH = _hDictH[_hCorp2][_hMetric];
+          if (_hwH && _hwH.length > 0) { _arHistArr = _hwH.concat([w_curr]); }
+        }
       }
     }
   }
@@ -1406,6 +1437,12 @@ document.addEventListener('click', function(e) {
     if (_o2.indexOf('channel') < 0) _o2.push('channel');
     _kpiCrossFilterPillsRender(ck);
   }
+  /* Lookup historial real por provider (CR_PROVIDER_HIST para ef/cv) */
+  var _chanHistArr = null;
+  if ((ck === 'ef' || ck === 'cv') && typeof window.CR_PROVIDER_HIST !== 'undefined' && window.CR_PROVIDER_HIST[label]) {
+    var _chPh = window.CR_PROVIDER_HIST[label];
+    if (_chPh && _chPh[ck] && _chPh[ck].length > 0) { _chanHistArr = _chPh[ck].concat([w21]); }
+  }
   /* Dispatch a los 3 canvas: global + panel KPI + AR sparkline */
   var _chanMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
   var _chanMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
@@ -1414,8 +1451,8 @@ document.addEventListener('click', function(e) {
   _chanCids = _chanCids.filter(function(x,i){ return _chanCids.indexOf(x)===i; });
   _chanCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
-    if (fn) { fn(w21, w20, null, label, null); }
-    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w21, w_prev:w20, label:label}})); }
+    if (fn) { fn(w21, w20, null, label, _chanHistArr); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w21, w_prev:w20, label:label, hist_arr:_chanHistArr}})); }
     var _le = document.getElementById('hist-' + hcid + '-label');
     if (_le) _le.textContent = label;
   });

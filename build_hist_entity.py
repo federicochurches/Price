@@ -65,7 +65,7 @@ def _load_cr_week(path):
 
 def build_cr_hist(week_nums, base_dir='.'):
     """Eficacia y ConvRate reales por corp/dest, semanas week_nums (excluye la semana actual)."""
-    result = {'corp': {}, 'dest': {}}
+    result = {'corp': {}, 'dest': {}, 'hotel': {}, 'provider': {}}
 
     for wn in week_nums:
         path = os.path.join(base_dir,
@@ -80,17 +80,23 @@ def build_cr_hist(week_nums, base_dir='.'):
 
         wk = _wkey(wn)
 
-        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest')]:
+        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest'),
+                                 ('Hotel', 'hotel'), ('ExternalProviderName', 'provider')]:
             if dim_col not in df.columns:
                 continue
+            min_cr_dim = MIN_CR if bucket != 'hotel' else 50  # hoteles: umbral más bajo
             grp = df.groupby(dim_col, as_index=False).agg(
                 CR_Unicos  = ('CR_Unicos',  'sum'),
                 Successful = ('Successful', 'sum'),
                 Bookings   = ('Bookings',   'sum'),
             )
-            grp = grp[grp['CR_Unicos'] >= MIN_CR]
+            grp = grp[grp['CR_Unicos'] >= min_cr_dim]
             for _, row in grp.iterrows():
                 name = str(row[dim_col]).strip()
+                # Hoteles: limpiar prefijo "(ID) - " → solo nombre
+                if bucket == 'hotel' and name.startswith('('):
+                    import re as _re
+                    name = _re.sub(r'^\(\d+\)\s*-\s*', '', name).strip()
                 ef = _safe_div(row['Successful'], row['CR_Unicos'])
                 cv = _safe_div(row['Bookings'],   row['CR_Unicos'])
                 result[bucket].setdefault(name, {})[wk] = {
@@ -98,7 +104,7 @@ def build_cr_hist(week_nums, base_dir='.'):
                     'cv': round(cv, 6) if cv is not None else None,
                 }
 
-    print(f"  [hist CR] corps={len(result['corp'])}  dests={len(result['dest'])}")
+    print(f"  [hist CR] corps={len(result['corp'])}  dests={len(result['dest'])}  hotels={len(result.get('hotel',{}))}  providers={len(result.get('provider',{}))}")
     return result
 
 
@@ -156,7 +162,7 @@ def _load_rnd_week(path, wn):
 
 def build_rnd_hist(week_nums, base_dir='.'):
     """%NoDispo e IPM reales por corp/dest, semanas week_nums."""
-    result = {'corp': {}, 'dest': {}}
+    result = {'corp': {}, 'dest': {}, 'hotel': {}}
 
     for wn in week_nums:
         path = os.path.join(base_dir,
@@ -171,7 +177,7 @@ def build_rnd_hist(week_nums, base_dir='.'):
 
         wk = _wkey(wn)
 
-        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest')]:
+        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest'), ('Hotel', 'hotel')]:
             if dim_col not in df.columns:
                 continue
             grp = df.groupby(dim_col, as_index=False).agg(
@@ -180,9 +186,13 @@ def build_rnd_hist(week_nums, base_dir='.'):
                 Bookings       = ('Bookings',        'sum'),
                 gb_usd         = ('gb_usd',          'sum'),
             )
-            grp = grp[grp['Trafico'] >= MIN_TRAFICO]
+            min_traf_dim = MIN_TRAFICO if bucket != 'hotel' else 50_000
+            grp = grp[grp['Trafico'] >= min_traf_dim]
             for _, row in grp.iterrows():
                 name = str(row[dim_col]).strip()
+                if bucket == 'hotel' and name.startswith('('):
+                    import re as _re_rnd
+                    name = _re_rnd.sub(r'^\(\d+\)\s*-\s*', '', name).strip()
                 nd  = _safe_div(row['TraficoNoDispo'], row['Trafico'])
                 ipm = _safe_div(row['gb_usd'],         row['Trafico'])
                 if ipm is not None:
@@ -193,5 +203,5 @@ def build_rnd_hist(week_nums, base_dir='.'):
                     'ipm': round(ipm, 0) if (ipm is not None and ipm >= 0) else None,
                 }
 
-    print(f"  [hist RND] corps={len(result['corp'])}  dests={len(result['dest'])}")
+    print(f"  [hist RND] corps={len(result['corp'])}  dests={len(result['dest'])}  hotels={len(result.get('hotel', {}))}")
     return result

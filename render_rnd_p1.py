@@ -613,11 +613,13 @@ def _build_rnd_hist_json():
         return out
 
     import json
-    corp_js = json.dumps(_entity_dict('corp'), ensure_ascii=False, separators=(',', ':'))
-    dest_js = json.dumps(_entity_dict('dest'), ensure_ascii=False, separators=(',', ':'))
+    corp_js  = json.dumps(_entity_dict('corp'),  ensure_ascii=False, separators=(',', ':'))
+    dest_js  = json.dumps(_entity_dict('dest'),  ensure_ascii=False, separators=(',', ':'))
+    hotel_js = json.dumps(_entity_dict('hotel'), ensure_ascii=False, separators=(',', ':'))
     return (
         f'\n<script>\nvar RND_CORP_HIST={corp_js};\n'
-        f'var RND_DEST_HIST={dest_js};\n</script>\n'
+        f'var RND_DEST_HIST={dest_js};\n'
+        f'var RND_HOTEL_HIST={hotel_js};\n</script>\n'
     )
 
 

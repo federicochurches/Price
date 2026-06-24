@@ -1002,12 +1002,16 @@ def _build_cr_hist_json():
         return out
 
     import json
-    corp_js = json.dumps(_entity_dict('corp'), ensure_ascii=False, separators=(',', ':'))
-    dest_js = json.dumps(_entity_dict('dest'), ensure_ascii=False, separators=(',', ':'))
-    sem_js  = json.dumps(semanas_prev, ensure_ascii=False)
+    corp_js     = json.dumps(_entity_dict('corp'),     ensure_ascii=False, separators=(',', ':'))
+    dest_js     = json.dumps(_entity_dict('dest'),     ensure_ascii=False, separators=(',', ':'))
+    hotel_js    = json.dumps(_entity_dict('hotel'),    ensure_ascii=False, separators=(',', ':'))
+    provider_js = json.dumps(_entity_dict('provider'), ensure_ascii=False, separators=(',', ':'))
+    sem_js      = json.dumps(semanas_prev, ensure_ascii=False)
     return (
         f'\n<script>\nvar CR_CORP_HIST={corp_js};\n'
         f'var CR_DEST_HIST={dest_js};\n'
+        f'var CR_HOTEL_HIST={hotel_js};\n'
+        f'var CR_PROVIDER_HIST={provider_js};\n'
         f'var _HIST_SEMANAS_PREV={sem_js};\n</script>\n'
     )
 
