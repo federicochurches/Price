@@ -7207,11 +7207,28 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   }
   var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
     ? SEMANAS[SEMANAS.length-3] + '–' + SEMANAS[SEMANAS.length-1] : 'W23–W25';
-  /* Lookup histórico real para AR3 (BK) → BK_HOTEL_HIST por nombre de hotel */
+  /* Lookup histórico real W18-W(N-1) para rellenar la sparkline con datos corp/hotel */
   var _arHistArr = null;
+  /* AR3 (BK) → BK_HOTEL_HIST por nombre de hotel */
   if (cardId === 'kpicard-ar3' && typeof window.BK_HOTEL_HIST !== 'undefined' && window.BK_HOTEL_HIST[label]) {
     var _arHw = window.BK_HOTEL_HIST[label];
     if (_arHw && _arHw.length > 0) { _arHistArr = _arHw.concat([w_curr]); }
+  }
+  /* KPI cards EF/CV/ND/IPM en hotel view → CR_CORP_HIST / RND_CORP_HIST por corp del hotel */
+  if (!_arHistArr && _cardKeyH && typeof _kpiView !== 'undefined' && _kpiView[_cardKeyH] === 'hotel') {
+    var _hCorp = row.getAttribute('data-cf-corp') || '';
+    if (_hCorp) {
+      var _hDictH = null;
+      if (_cardKeyH === 'ef' || _cardKeyH === 'cv') {
+        _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
+      } else if (_cardKeyH === 'nd' || _cardKeyH === 'ipm') {
+        _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
+      }
+      if (_hDictH && _hDictH[_hCorp] && _hDictH[_hCorp][_cardKeyH]) {
+        var _hwH = _hDictH[_hCorp][_cardKeyH];
+        if (_hwH && _hwH.length > 0) { _arHistArr = _hwH.concat([w_curr]); }
+      }
+    }
   }
   _allHistCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
