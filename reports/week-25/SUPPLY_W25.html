@@ -6862,11 +6862,6 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (!card) return;
   var cardId = card.id || '';
   var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
-  /* BK card: el handler de .bk-row en js_override.js ya cubre todas las vistas
-     (hotel/channel/corp/dest). Si llegamos aquí para BK, salir — evita conflicto
-     donde _handleKpiCardHistClick ve data-selected='1' y dispara hist-reset. */
-  if (cardKey === 'bk') return;
-
   if (cardKey && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
     if (view === 'corp' || view === 'destino' || view === 'pais') {
@@ -7370,9 +7365,11 @@ function _kpiPillRender(card) {
     }
     /* NO auto-filtro: la dimensión propia NO se filtra a sí misma (se resalta la fila seleccionada
        pero las demás siguen visibles). Solo filtran las dimensiones CRUZADAS. */
+    /* Corp→Corp self-filter ELIMINADO: al seleccionar un corp en la vista corp,
+       la lista de corps sigue visible completa (solo se resalta la fila). */
     var _anyFilter = (activeTab === 'destino' && (_cf.pais || _cf.corp))
                   || (activeTab === 'pais'    && _cf.corp)
-                  || (activeTab === 'corp'    && (_cf.dest || _cf.pais || _cf.corp));
+                  || (activeTab === 'corp'    && (_cf.dest || _cf.pais));
     var _rows = _panel.querySelectorAll('[data-hist-label]');
     var _rowsContainer = _panel.querySelector('.kpi-tab-rows') || _panel;
     if (!_anyFilter) {
@@ -7412,7 +7409,7 @@ function _kpiPillRender(card) {
       } else if (activeTab === 'corp') {
         if (_cf.dest) _ok = _ok && _corpHasDest(_label, _cf.dest);              /* Destino→Corp */
         if (_cf.pais) _ok = _ok && _corpHasPais(_label, _cf.pais);              /* País→Corp */
-        if (_cf.corp) _ok = _ok && (_kpiNormCF(_label) === _kpiNormCF(_cf.corp)); /* Corp→Corp: muestra solo el corp seleccionado */
+        /* Corp→Corp self-filter eliminado: al seleccionar corp, la lista no se filtra */
       }
       if (_ok) {
         _shown++;
