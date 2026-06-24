@@ -6815,6 +6815,23 @@ window._injectHistAttrs = function(tbodyId, rows) {
   };
 })();
 
+/* CR_MEMBERSHIP: construido desde CR_HOTEL_POOL (W25+).
+   Proporciona corp→dest y dest→corp para CR (EF/CV) que es distinto de RND_MEMBERSHIP.
+   BK también usa esta membresía (mismo contexto de corporativos). */
+(function() {
+  if (typeof CR_HOTEL_POOL === 'undefined') return;
+  var cd = {}, dc = {};
+  CR_HOTEL_POOL.forEach(function(h) {
+    var corp = h[1], dest = h[2];
+    if (!corp || !dest) return;
+    if (!cd[corp]) cd[corp] = [];
+    if (cd[corp].indexOf(dest) < 0) cd[corp].push(dest);
+    if (!dc[dest]) dc[dest] = [];
+    if (dc[dest].indexOf(corp) < 0) dc[dest].push(corp);
+  });
+  window.CR_MEMBERSHIP = {corpDest: cd, destCorp: dc};
+})();
+
 /* W23+: Manejar click en filas de cards KPI (EF/CV/BK) para actualizar su histórico global */
 function _handleKpiCardHistClick(e, row, kpiRows) {
   /* Si la vista activa es corp/destino → filtro cruzado, no histórico */
@@ -7116,12 +7133,6 @@ function kpi_setView(card, view, el) {
   /* Mostrar pills de filtro solo en vista hotel */
   var hfilt = document.getElementById('kpi-'+card+'-hfilt');
   if (hfilt) hfilt.style.display = 'none';  /* KPI cards no usan filtro de severidad (es de AR) */
-  /* BK hotel: los datos son globales (no corp×hotel). Al entrar en hotel,
-     limpiar corp/dest del cross-filter para que no queden pills fantasma. */
-  if (card === 'bk' && view === 'hotel' && typeof _kpiCrossFilter !== 'undefined') {
-    var _bkCf = _kpiCrossFilter['bk'];
-    if (_bkCf) { _bkCf.corp = null; _bkCf.dest = null; _bkCf._order = []; _kpiCrossFilterPillsRender('bk'); }
-  }
   /* Aplicar cross-filter (corp/dest) en la vista recién mostrada */
   if (typeof _kpiPillRender === 'function') _kpiPillRender(card);
   /* Botón Ver más es estático (onclick inline) — no requiere JS dinámico */
@@ -7314,7 +7325,12 @@ function _kpiPillRender(card) {
     var _panel = _panelsEl.querySelector('[data-tab="' + activeTab + '"]');
     if (!_panel) return;
     var _N = _kpiNormCF;
-    var _MEM = (typeof RND_MEMBERSHIP !== 'undefined') ? RND_MEMBERSHIP : {corpDest:{}, corpPais:{}};
+    /* CR cards usan CR_MEMBERSHIP (construida desde CR_HOTEL_POOL).
+       RND cards usan RND_MEMBERSHIP (construida desde g_hotel RND). */
+    var _isCRcard = (card === 'ef' || card === 'cv' || card === 'bk');
+    var _MEM = _isCRcard
+      ? (typeof CR_MEMBERSHIP !== 'undefined' ? CR_MEMBERSHIP : {corpDest:{}, corpPais:{}})
+      : (typeof RND_MEMBERSHIP !== 'undefined' ? RND_MEMBERSHIP : {corpDest:{}, corpPais:{}});
     function _memArr(mapObj, corp){
       var arr = mapObj[corp];
       if (arr) return arr;
@@ -7432,18 +7448,36 @@ function _kpiPillRender(card) {
     /* B (W24): RND nd/ipm → el panel hotel se sirve del pool completo on-demand.
        Con cross-filter: render lazy del subconjunto cruzado (cubre los 21K).
        Sin cross-filter: si antes se reemplazó, restaurar el estático y salir. */
-    /* BK (W25): los datos de hotel son globales (no existe breakdown corp×hotel en BK).
-       Si hay cross-filter activo, mostramos todos los hoteles igual que sin filtro.
-       Los datos de corp/dest ya son visibles en sus propios tabs. */
+    /* BK (W25): hotel rows tienen data-cf-corp (corp name) pero data-cf-dest vacío.
+       Solo el filtro por corp funciona en hotel view. Dest filter se ignora. */
     if (card === 'bk') {
-      _cfRestoreMoreBtn(_hotelCont);
-      rows.forEach(function(row) {
-        var isSbH = row.classList.contains('sb-hidden');
-        var isMre = row.classList.contains('rows-more');
-        if (!isSbH && !isMre) { row.style.setProperty('display', 'grid', 'important'); }
-        else { row.style.removeProperty('display'); }
-        row.classList.remove('cf-extra');
-      });
+      if (_hasCf && cf.corp) {
+        /* Filtrar por corp (único filtro disponible en BK hotel) */
+        var _sh2 = 0, _ex2 = 0;
+        rows.forEach(function(row) {
+          row.classList.remove('cf-extra');
+          var rowCorp = row.getAttribute('data-cf-corp') || '';
+          var okCorp = _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0;
+          if (okCorp) {
+            _sh2++;
+            if (_sh2 <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
+            else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex2++; }
+          } else {
+            row.style.setProperty('display', 'none', 'important');
+          }
+        });
+        _cfSetupMoreBtn(_hotelCont, _ex2);
+      } else {
+        /* Sin corp filter: mostrar todos */
+        _cfRestoreMoreBtn(_hotelCont);
+        rows.forEach(function(row) {
+          var isSbH = row.classList.contains('sb-hidden');
+          var isMre = row.classList.contains('rows-more');
+          if (!isSbH && !isMre) { row.style.setProperty('display', 'grid', 'important'); }
+          else { row.style.removeProperty('display'); }
+          row.classList.remove('cf-extra');
+        });
+      }
       return;
     }
     var _isRnd = (card === 'nd' || card === 'ipm');
