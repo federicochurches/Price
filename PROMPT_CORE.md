@@ -522,18 +522,19 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post sesión hist-entity)
+## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post cierre W25)
 
 Por valor/orden sugerido:
 
-1. **Re-run `calc_inv.py` W25** con dataset actualizado — con el nuevo dataset + snap_date fix + CONFIG correcto, correr `python run_inv.py --commit`.
-2. **Mail W25 final** — re-generar tras el re-run de Inventory. Auto-fetch `INV_PP_PREV` ya operativo.
-3. **Pipeline W26 normal** — `calc_bk.py` ya genera `provider_hist_bk` para el historial real de channels BK.
-4. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
-5. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales (post re-run), snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
-6. **Remover console.log de diagnóstico** del HTML W26 (están en `SUPPLY_W25.html` y en `js_override.js` — el pipeline los limpiará automáticamente al regenerar).
+1. **Pipeline W26 normal** — `build_hist_entity.py` ya genera hotel+provider; `calc_bk.py` genera `provider_hist_bk`. Pipeline completo 8 pasos.
+2. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
+3. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
+4. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales (re-run ya corrido), snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
 
-**Cómo retomar:** (1) re-run inv W25 → (2) pipeline W26 normal (build_hist_entity ya genera hotel+provider).
+✅ **Re-run `calc_inv.py` W25** — completado.
+✅ **Mail W25** — enviado, no requiere acción.
+
+**Cómo retomar:** recibir datasets W26 → pipeline completo.
 
 **Dataset histórico BK reutilizable:** en W26+, si hay nuevo acumulado, subir `Dataset_bookability_historico.xlsx` y correr `calc_bk.py`.
 ## 🐛 Bugs pendientes
