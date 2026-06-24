@@ -1034,7 +1034,7 @@ function w22_renderCardTabs(canasta){
     var acc = (typeof cv==='function') ? cv().col : '#5C469C';
     var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
-    var _mkHdr = function(label){return '<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Tráfico <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;cursor:pointer;user-select:none;">'+label+' <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'</div>';};
+    var _mkHdr = function(label){return '<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Tráfico <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;cursor:pointer;user-select:none;">'+label+' <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'</div>';};
     /* Label de métrica según card (Eficacia / Conv Rate) */
     var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Eficacia';
     /* Layout BK style: PP arriba, TP abajo (flex column) */
@@ -1109,8 +1109,8 @@ function _buildChanRow(r, i, opts) {
   if (opts.cardN) histAttrs += ' data-hist-card="'+opts.cardN+'"';
   /* Grid 4 cols como BK: nombre · TRX · valor · WoW (sin WoW Trx, no disponible aquí) */
   var rowStyle = isInactive
-    ? 'display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
-    : 'display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
+    ? 'display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);width:100%;opacity:0.45;'
+    : 'display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;';
   var nameStyle = 'font-size:11px;font-weight:600;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;';
   var trxStyle  = 'text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';font-variant-numeric:tabular-nums;';
   var valStyle  = 'text-align:right;font-size:11px;font-weight:700;color:'+(isInactive?'var(--ink-muted)':'var(--ink)')+';white-space:nowrap;font-variant-numeric:tabular-nums;';
@@ -1216,7 +1216,7 @@ function _arRenderChan(n) {
   if (isCR) metricLbl = (n === 1) ? 'Eficacia' : 'Conv Rate';
   else      metricLbl = (n === 1) ? '%NoDispo' : 'IPM';
   var _mkHdr = function(lbl){
-    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 72px 48px;'
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;'
       +'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'
       +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Channel</span>'
       +'<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;">Trx</span>'
@@ -2922,7 +2922,7 @@ function _ar3_renderChan() {
   var tp = provs.filter(function(r){ return THIRD.indexOf(r.lab) >= 0; });
 
   var acc  = '#333132', cyan = '#4FC3F4';
-  var grid = 'minmax(0,1fr) 56px 72px 48px';
+  var grid = 'minmax(0,1fr) 68px 72px 48px';
   var _s   = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);';
 
   function mkHdr(lbl) {

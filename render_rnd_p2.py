@@ -490,33 +490,21 @@ def render_severity():
                 f'</div>').replace(',', '.')
 
     total_nd  = sum(sev_nd.values())
-    total_rpm = sum(sev_rpm.values())
 
     rows_nd = ''
     for banda, rng in [('Súper Crítica','>60%'),('Crítica','20–60%'),
                         ('Revisar','5–20%'),('Aceptable','3–5%'),('Exitosa','<3%')]:
         rows_nd += sev_row(banda, rng, int(sev_nd.get(banda,0)), total_nd)
 
-    rows_rpm = ''
-    for banda, rng in [('Sin Conversión','BKGS=0'),('Crítica','<$200'),
-                        ('Revisar','$200–$650'),('Aceptable','$650–$1.500'),('Exitosa','≥$1.500')]:
-        rows_rpm += sev_row(banda, rng, int(sev_rpm.get(banda,0)), total_rpm)
-
     return f'''<section id="severity-combinada" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Severity</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80)} hoteles · {len(p80.get("DistributionCategory", p80).drop_duplicates() if "DistributionCategory" in p80.columns else p80)} registros</span>
-<p class="section-kicker">Distribución global del P80 por banda de %NoDispo (target < 3%) e IPM (target ≥ $650). Sin Conversión = BKGS=0, cohorte estructural separada.</p>
+<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80)} hoteles · distribución por banda de %NoDispo</span>
+<p class="section-kicker">Distribución global del P80 por banda de %NoDispo (target &lt; 3%).</p>
 </div></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
-<div>
+<div style="max-width:520px;">
 <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">%NoDispo</h3>
 {rows_nd}
-</div>
-<div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#A86A1D;margin:0 0 12px;">IPM (Income Per Million USD)</h3>
-{rows_rpm}
-</div>
 </div>
 </section>'''
 
