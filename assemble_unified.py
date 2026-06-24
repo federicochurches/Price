@@ -626,6 +626,12 @@ function kpi_setView(card, view, el) {
   /* Mostrar pills de filtro solo en vista hotel */
   var hfilt = document.getElementById('kpi-'+card+'-hfilt');
   if (hfilt) hfilt.style.display = 'none';  /* KPI cards no usan filtro de severidad (es de AR) */
+  /* BK hotel: los datos son globales (no corp×hotel). Al entrar en hotel,
+     limpiar corp/dest del cross-filter para que no queden pills fantasma. */
+  if (card === 'bk' && view === 'hotel' && typeof _kpiCrossFilter !== 'undefined') {
+    var _bkCf = _kpiCrossFilter['bk'];
+    if (_bkCf) { _bkCf.corp = null; _bkCf.dest = null; _bkCf._order = []; _kpiCrossFilterPillsRender('bk'); }
+  }
   /* Aplicar cross-filter (corp/dest) en la vista recién mostrada */
   if (typeof _kpiPillRender === 'function') _kpiPillRender(card);
   /* Botón Ver más es estático (onclick inline) — no requiere JS dinámico */
@@ -1197,8 +1203,19 @@ document.addEventListener('click', function(e) {
     if (_o2.indexOf('channel') < 0) _o2.push('channel');
     _kpiCrossFilterPillsRender(ck);
   }
-  document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:cid, w_curr:w21, w_prev:w20, label:label}}));
-  var lblU = document.getElementById('hist-'+cid+'-label'); if (lblU) lblU.textContent = label;
+  /* Dispatch a los 3 canvas: global + panel KPI + AR sparkline */
+  var _chanMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
+  var _chanMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+  var _chanCids = [cid, _chanMapP[ck], _chanMapAR[ck]].filter(function(x){ return x && x !== cid; });
+  _chanCids.unshift(cid);
+  _chanCids = _chanCids.filter(function(x,i){ return _chanCids.indexOf(x)===i; });
+  _chanCids.forEach(function(hcid) {
+    var fn = window['histUpdate_' + hcid];
+    if (fn) { fn(w21, w20, null, label, null); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w21, w_prev:w20, label:label}})); }
+    var _le = document.getElementById('hist-' + hcid + '-label');
+    if (_le) _le.textContent = label;
+  });
 }, true);
 
 /* El filtro cruzado persiste al cambiar de vista — igual que AR */

@@ -686,7 +686,7 @@ def render_kpi_card_bookability():
         _bk_wow_v  = wpp if (wpp is not None and not _pd.isna(wpp)) else 0
         _ridx = f' data-row-idx="{idx-1}"' if idx is not None else ''
         return (f'<div class="bk-row{extra_cls}"{_ridx} '
-                f'data-lbl="{lbl}" data-hist-label="{lbl}" data-trx="{_trx_int}" '
+                f'data-lbl="{lbl}" data-hist-label="{lbl}" data-hist-w21="{round(bkr*100,2)}" data-hist-w20="{round((bkr - (wpp/100 if (wpp is not None and not _pd.isna(wpp)) else 0))*100,2)}" data-trx="{_trx_int}" '
                 f'data-trx-wow="{_trx_wow_v:.4f}" '
                 f'data-bk="{bkr:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
                 f'style="{"" if "display:none" in extra_style else "display:grid;"}grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'

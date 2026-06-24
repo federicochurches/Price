@@ -618,13 +618,20 @@ document.addEventListener('click', function(e) {
   row.style.background = 'var(--accent-soft)';
   row.setAttribute('data-selected', '1');
 
-  /* Disparar hist-update para el canvas BK */
-  document.dispatchEvent(new CustomEvent('hist-update', {
-    detail: { cid: 'h-bk-global', w_curr: bkPct, w_prev: bkPrev, label: label }
-  }));
-
-  var labelEl = document.getElementById('hist-h-bk-global-label');
-  if (labelEl) labelEl.textContent = label;
+  /* Disparar hist-update a los 3 canvas BK: panel KPI + AR + (legacy global) */
+  var _bkCids = ['h-bk-panel', 'h-bk-ar'];
+  /* Intentar leer data-hist-w21 si está disponible (hotel/dest/corp .bk-row con el attr) */
+  var _bkHist21 = parseFloat(row.getAttribute('data-hist-w21'));
+  var _bkHist20 = parseFloat(row.getAttribute('data-hist-w20'));
+  var _bkWc = (!isNaN(_bkHist21) && _bkHist21 > 0) ? _bkHist21 : bkPct;
+  var _bkWp = (!isNaN(_bkHist20) && _bkHist20 > 0) ? _bkHist20 : bkPrev;
+  _bkCids.forEach(function(hcid) {
+    var fn = window['histUpdate_' + hcid];
+    if (fn) { fn(_bkWc, _bkWp, null, label, null); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', { detail: { cid: hcid, w_curr: _bkWc, w_prev: _bkWp, label: label } })); }
+    var _le = document.getElementById('hist-' + hcid + '-label');
+    if (_le) _le.textContent = label;
+  });
 
   /* #1: si la vista activa es channel, crear también la cross-pill (como ef/cv) */
   if (typeof _kpiView !== 'undefined' && _kpiView['bk'] === 'channel' && typeof _kpiCrossFilter !== 'undefined') {
