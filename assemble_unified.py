@@ -477,15 +477,59 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
      el handler dim AR ya hace pill + selección + gráfica. No duplicar acá — si seguimos,
      el chequeo de data-selected confunde la selección recién puesta con un segundo click
      y resetea todo (bug: pill aparece pero fila/gráfica se borran). */
-  /* AR1/AR2 hotel view: el handler de js_override.js ya maneja highlight + sparkline AR.
-     Este path solo cubre casos residuales (canal en CR que js_override no toma). */
   if (cardId === 'kpicard-ar1' || cardId === 'kpicard-ar2') {
     var _arN = (cardId === 'kpicard-ar1') ? 1 : 2;
     var _arV = (typeof _arPillView !== 'undefined') ? (_arPillView[_arN] || 'hotel') : 'hotel';
-    /* Hotel view: manejado por el handler AR de js_override (evitar conflicto de estado) */
-    if (_arV === 'hotel') return;
-    /* corp/dest/pais/chan en AR: manejados por _arCrossFilter */
+    /* corp/dest/pais/chan en AR: manejados por _arCrossFilter (js_override) */
     if (_arV === 'corp' || _arV === 'dest' || (_arV === 'chan' && !isCR)) return;
+    /* Hotel view: este listener intercepta el click antes de que llegue al handler
+       de js_override.js (ambos son bubble, pero este se registró primero en el tiempo).
+       Por eso hacemos el trabajo directamente aquí: highlight + sparkline AR. */
+    if (_arV === 'hotel') {
+      var _arHVal = row.getAttribute('data-hist-label') || '';
+      if (!_arHVal) return;
+      var _arHCid = isCR ? (_arN===1?'hcr-ar-ef':'hcr-ar-cv') : (_arN===1?'hrnd-ar-nd':'hrnd-ar-ipm');
+      /* Toggle: segundo click = reset */
+      var _arHWas = row.getAttribute('data-selected') === '1';
+      var _arHCont = document.getElementById('ar'+_arN+'-th');
+      if (_arHCont) _arHCont.querySelectorAll('[data-selected]').forEach(function(r){
+        r.style.background=''; r.style.boxShadow=''; r.removeAttribute('data-selected');
+      });
+      if (_arHWas) {
+        if (window._corpHist) window._corpHist[_arHCid] = null;
+        document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_arHCid}}));
+        var _arHLe0 = document.getElementById('hist-'+_arHCid+'-label');
+        if (_arHLe0) _arHLe0.textContent = 'Global';
+      } else {
+        var _arHAcc   = isCR ? '#5C469C' : '#EA0074';
+        var _arHAlpha = isCR ? 'rgba(92,70,156,0.12)' : 'rgba(234,0,116,0.12)';
+        row.style.background = _arHAlpha;
+        row.style.boxShadow  = 'inset 3px 0 0 ' + _arHAcc;
+        row.setAttribute('data-selected', '1');
+        var _arHWc = parseFloat(row.getAttribute('data-hist-w21'));
+        var _arHWp = parseFloat(row.getAttribute('data-hist-w20'));
+        if (!isNaN(_arHWc)) {
+          if (isNaN(_arHWp)) _arHWp = _arHWc;
+          /* Lookup historial real por corp (proxy hotel) */
+          var _arHHistArr = null;
+          var _arHCorpK = row.getAttribute('data-cf-corp') || '';
+          var _arHMetric = isCR ? (_arN===1?'ef':'cv') : (_arN===1?'nd':'ipm');
+          var _arHDict = isCR
+            ? (typeof window.CR_CORP_HIST !== 'undefined' ? window.CR_CORP_HIST : null)
+            : (typeof window.RND_CORP_HIST !== 'undefined' ? window.RND_CORP_HIST : null);
+          if (_arHDict && _arHCorpK && _arHDict[_arHCorpK] && _arHDict[_arHCorpK][_arHMetric]) {
+            var _arHHw = _arHDict[_arHCorpK][_arHMetric];
+            if (_arHHw && _arHHw.length > 0) _arHHistArr = _arHHw.concat([_arHWc]);
+          }
+          var _arHFn = window['histUpdate_' + _arHCid];
+          if (_arHFn) { _arHFn(_arHWc, _arHWp, null, _arHVal, _arHHistArr); }
+          else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arHCid, w_curr:_arHWc, w_prev:_arHWp, hist_arr:_arHHistArr, label:_arHVal}})); }
+          var _arHLe1 = document.getElementById('hist-'+_arHCid+'-label');
+          if (_arHLe1) _arHLe1.textContent = _arHVal;
+        }
+      }
+      return;
+    }
   }
 
   /* Mapear card → canvas histórico global */
