@@ -2448,6 +2448,37 @@ if _AR3_BK_JS:
         f'var SEMANAS = {_SEM_JS}, VALS_DEF = {_AR3_BK_JS}')
 
 GLOBAL_PANEL_SCRIPT = '<script>' + AR3_MODE_JS + '</script>\n<script>' + AR3_CANVAS_JS + '</script>\n<script>' + AR_SB_PATCH_JS + '</script>\n<script>' + TAB_BINDING_JS + '</script>\n<script>' + PANEL_LISTENER_JS + '</script>\n<script>' + BK_JS_DATA + '</script>\n<script>' + BK_TRX_WOW_JS + '</script>\n<script>' + BK_SORT_JS + '</script>\n<script>' + CHAN_SORT_EFCV_JS + '</script>\n'
+GLOBAL_PANEL_SCRIPT += '''<script>
+/* ── Layout C NoDispo: copiar stats del canvas al div del medio ── */
+(function(){
+  function _initNdStats(){
+    var statsDiv = document.getElementById('hrnd-nd-stats');
+    var canvasPanelStats = document.getElementById('hrnd-panel-nd');
+    if (!statsDiv || !canvasPanelStats) return;
+    var grid = canvasPanelStats.querySelector('[style*="grid-template-columns:repeat(5"]');
+    if (!grid) return;
+    statsDiv.innerHTML = grid.outerHTML;
+    statsDiv.style.pointerEvents = 'none';
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(_initNdStats,300); });
+  else setTimeout(_initNdStats,300);
+  window._initNdStats = _initNdStats;
+})();
+/* ── AR1 hist-wrap: oculto en CR, visible en RND ── */
+(function(){
+  var _origSetMode = window.w22_setMode;
+  if (!_origSetMode) return;
+  window.w22_setMode = function(mode, btn){
+    var hw = document.getElementById('ar1-hist-wrap');
+    if (hw) hw.style.display = (mode === 'rnd') ? 'flex' : 'none';
+    return _origSetMode.apply(this, arguments);
+  };
+  /* Estado inicial */
+  var hw0 = document.getElementById('ar1-hist-wrap');
+  if (hw0) hw0.style.display = 'none';
+})();
+</script>
+'''
 
 SECTION_DIVIDER = ''  # W21+ — sin divisor
 

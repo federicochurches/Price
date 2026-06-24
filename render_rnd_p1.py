@@ -234,28 +234,33 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR, default_tab='pais')
     
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
-<div style="padding:12px 16px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;align-items:center;border-bottom:1px solid var(--rule-soft);">
-  <div style="padding-right:16px;border-right:1px solid var(--rule-soft);">
+<!-- Fila 1: valor full-width -->
+<div style="padding:12px 16px 8px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+  <div>
     <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:3px;">
-      <div id="w21-kv-nd" style="font-size:34px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+      <div id="w21-kv-nd" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
       <div style="padding-top:2px;">{pill_with_target}</div>
     </div>
-    <div style="margin-top:4px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink-muted);flex-wrap:wrap;">
-      <span>vs sem. ant. {_wow_pill_nd}</span>
-      <span style="color:var(--rule);">|</span>
-      {_traf_line}
-    </div>
   </div>
-  <div style="padding:0 16px;border-right:1px solid var(--rule-soft);">
+  <div style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
+  <div style="font-size:10px;color:var(--ink-muted);">{_traf_line}</div>
+</div>
+<!-- Fila 2: gauge+wowbox | stats | sparkline -->
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 200px;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;">
+  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
     {gauge}
     {wow_block}
   </div>
-  <div style="padding-left:16px;">
+  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
+    <div id="hrnd-nd-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;"></div>
+  </div>
+  <div style="padding:10px 14px;">
     <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
     {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
   </div>
 </div>
+<!-- Fila 3: pills + tabla -->
 <div style="padding:8px 16px 12px;">
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;margin-bottom:2px;">{tabs}</div>
   <div id="kpi-nd-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
