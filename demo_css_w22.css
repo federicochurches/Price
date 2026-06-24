@@ -35,3 +35,9 @@
 .p-tag{font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-soft);padding:2px 7px;border-radius:2px;font-size:9px;}
 /* Modo RND oculto por defecto */
 #w22-rnd-block{display:none;}
+
+/* ── AR1 RND: tabla + sparkline side-by-side (W26+) ── */
+body[data-ar-mode='rnd'] #kpicard-ar1 > div:last-child { display: flex; flex-direction: row; align-items: center; gap: 0; }
+body[data-ar-mode='rnd'] #ar1-rows-wrap { flex: 1; min-width: 0; border-right: 1px solid var(--rule-soft); }
+body[data-ar-mode='rnd'] #ar1-hist-cr { display: none !important; }
+body[data-ar-mode='rnd'] #ar1-hist-rnd { display: block !important; margin-top: 0 !important; width: 200px; flex-shrink: 0; padding: 0 14px; }
