@@ -76,8 +76,16 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
     function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
     function xOf(i){return (i/(n-1))*W;}
     var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
-    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
-            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
+    var segs='';
+    for(var si=0;si<n-1;si++){
+      var bL=getBanda(vals[si]),bR=getBanda(vals[si+1]);
+      /* Gradiente de color entre los dos extremos del segmento — usar el color del medio si cambia */
+      var sCol=bL.c;  /* color del punto izquierdo */
+      var x0=xOf(si).toFixed(1),x1=xOf(si+1).toFixed(1);
+      var y0=yOf(vals[si]).toFixed(1),y1=yOf(vals[si+1]).toFixed(1);
+      segs+='<path d="M'+x0+','+y0+' L'+x1+','+y1+' L'+x1+','+SH+' L'+x0+','+SH+' Z" fill="'+sCol+'" fill-opacity="0.13"/>';
+    }
     var dots=vals.map(function(v,i){
       var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
       var r=last?5.5:4,sw=last?2:1.5;
@@ -86,7 +94,7 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
       return d;
     }).join('');
     var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
-      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      segs+
       '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       dots+'</svg>';
     var cells=vals.map(function(v,i){

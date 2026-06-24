@@ -652,10 +652,16 @@ document.addEventListener('click', function(e) {
   var _bkHist20 = parseFloat(row.getAttribute('data-hist-w20'));
   var _bkWc = (!isNaN(_bkHist21) && _bkHist21 > 0) ? _bkHist21 : bkPct;
   var _bkWp = (!isNaN(_bkHist20) && _bkHist20 > 0) ? _bkHist20 : bkPrev;
+  /* Lookup histórico real para hotel en BK card → BK_HOTEL_HIST por nombre */
+  var _bkHistArr = null;
+  if (typeof window.BK_HOTEL_HIST !== 'undefined' && window.BK_HOTEL_HIST[label]) {
+    var _bkHw = window.BK_HOTEL_HIST[label];
+    if (_bkHw && _bkHw.length > 0) { _bkHistArr = _bkHw.concat([_bkWc]); }
+  }
   _bkCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
-    if (fn) { fn(_bkWc, _bkWp, null, label, null); }
-    else { document.dispatchEvent(new CustomEvent('hist-update', { detail: { cid: hcid, w_curr: _bkWc, w_prev: _bkWp, label: label } })); }
+    if (fn) { fn(_bkWc, _bkWp, null, label, _bkHistArr); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', { detail: { cid: hcid, w_curr: _bkWc, w_prev: _bkWp, label: label, hist_arr: _bkHistArr } })); }
     var _le = document.getElementById('hist-' + hcid + '-label');
     if (_le) _le.textContent = label;
   });

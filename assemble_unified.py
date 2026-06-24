@@ -557,10 +557,16 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   }
   var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
     ? SEMANAS[SEMANAS.length-3] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W23\u2013W25';
+  /* Lookup histórico real para AR3 (BK) → BK_HOTEL_HIST por nombre de hotel */
+  var _arHistArr = null;
+  if (cardId === 'kpicard-ar3' && typeof window.BK_HOTEL_HIST !== 'undefined' && window.BK_HOTEL_HIST[label]) {
+    var _arHw = window.BK_HOTEL_HIST[label];
+    if (_arHw && _arHw.length > 0) { _arHistArr = _arHw.concat([w_curr]); }
+  }
   _allHistCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
-    if (fn) { fn(w_curr, w_prev, w_actual, label + ' \u00b7 ' + _sems, null); }
-    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w_curr, w_prev:w_prev, w_actual:w_actual, label:label}})); }
+    if (fn) { fn(w_curr, w_prev, w_actual, label + ' \u00b7 ' + _sems, _arHistArr); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w_curr, w_prev:w_prev, w_actual:w_actual, label:label, hist_arr:_arHistArr}})); }
     var _le = document.getElementById('hist-' + hcid + '-label');
     if (_le) _le.textContent = label + ' \u00b7 ' + _sems;
   });
