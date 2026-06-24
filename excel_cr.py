@@ -315,6 +315,53 @@ for can_key, can_label, can_id, can_tab, m_curr_key, m_prev_key in CANASTAS:
     ws=wb.create_sheet(f'{px}-Channel'); ws.sheet_properties.tabColor=CR
     write_channel(ws, tab_ef.get('channel'), tab_cv.get('channel'), can_label)
 
+# ── Tab final: AR Consolidado CR — top 500 de las 3 bandas en una sola hoja ──
+ws_ar = wb.create_sheet('AR Consolidado'); ws_ar.sheet_properties.tabColor=CR
+title(ws_ar, f'AR Consolidado · Análisis de Rendimiento CR W{VOL_NUM}',
+      'Global · Top 500 por banda (Críticos / Bajo Rendimiento / Sin Conversión)')
+
+hotel_src_global = add_ch(p80_all.copy())
+crit_g, bajo_g, sinc_g = band_split_ef(hotel_src_global)
+AR_COLS = COLS_COMBINED + ['Channel','Destino','Corp']
+
+r_ar = 4
+for df_b, blabel, color in [(crit_g,'CRÍTICOS','C0392B'), (bajo_g,'BAJO RENDIMIENTO','F97316'), (sinc_g,'SIN CONVERSIÓN','8A8377')]:
+    if df_b is None or len(df_b)==0: continue
+    cell = ws_ar.cell(r_ar, 1, f'▌ {blabel}')
+    cell.font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+    cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+    ws_ar.merge_cells(start_row=r_ar, start_column=1, end_row=r_ar, end_column=len(AR_COLS))
+    r_ar += 1
+    r_ar = mk_hdr(ws_ar, r_ar, AR_COLS)
+    df_s = df_b.sort_values('Eficacia', ascending=True).head(500).copy()
+    if 'ConvRate_WoW_pp' not in df_s.columns:
+        tab_cv_g = TAB_CV.get('global', {})
+        if tab_cv_g.get('hotel') is not None and 'ConvRate_WoW_pp' in tab_cv_g['hotel'].columns:
+            df_s = df_s.merge(tab_cv_g['hotel'][['Hotel','ConvRate_WoW_pp']], on='Hotel', how='left')
+    for _, row in df_s.iterrows():
+        ef = fmt_pct(row.get('Eficacia'))
+        cv = fmt_pct(row.get('ConvRate'))
+        bk = int(row.get('Bookings',0)) if pd.notna(row.get('Bookings',0)) else 0
+        cru= int(row.get('CR_Unicos',0)) if pd.notna(row.get('CR_Unicos',0)) else 0
+        bef= banda_eficacia(ef) if ef is not None else '—'
+        bcv= banda_convrate(cv,bk) if cv is not None else '—'
+        mk_cell(ws_ar,r_ar,1, clean(str(row.get('Hotel','—'))), align='left')
+        mk_cell(ws_ar,r_ar,2, bef, bef, is_sev=True)
+        mk_cell(ws_ar,r_ar,3, bcv, bcv, is_sev=True)
+        mk_cell(ws_ar,r_ar,4, cru); mk_cell(ws_ar,r_ar,5, bk)
+        c=ws_ar.cell(r_ar,6,ef); c.border=BD; c.alignment=Alignment(horizontal='center')
+        if ef: ws_ar.cell(r_ar,6).number_format='0.00%'
+        apply_wow(ws_ar,r_ar,7, fmt_wow_str(row.get('Eficacia_WoW_pp')), invert=False)
+        c2=ws_ar.cell(r_ar,8,cv); c2.border=BD; c2.alignment=Alignment(horizontal='center')
+        if cv: ws_ar.cell(r_ar,8).number_format='0.00%'
+        apply_wow(ws_ar,r_ar,9, fmt_wow_str(row.get('ConvRate_WoW_pp')), invert=False)
+        mk_cell(ws_ar,r_ar,10, str(row.get('Channel','—')), align='left')
+        mk_cell(ws_ar,r_ar,11, str(row.get('Destino','—')), align='left')
+        mk_cell(ws_ar,r_ar,12, str(row.get('CorpName','—')), align='left')
+        r_ar += 1
+    r_ar += 1
+autofit(ws_ar, [40,16,16,10,10,10,10,10,10,15,22,22])
+
 out = f'{OUTPUTS}/Analisis_CheckRates_W{VOL_NUM}.xlsx'
 wb.save(out)
 print(f'✅ Excel CR: {out}')

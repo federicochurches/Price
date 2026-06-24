@@ -121,6 +121,29 @@ def write_severity(ws, df, can_label, m_curr=None, m_prev=None):
 
 # ── Top ND ────────────────────────────────────────────────────────────────────
 ND_COLS = ['Nombre','Severity NoDispo','Tráfico','Bookings','%NoDispo','WoW ND','GB USD']
+ND_HOTEL_COLS = ['Hotel','Severity NoDispo','Corp','Destino','Tráfico','Bookings','%NoDispo','WoW ND','GB USD']
+
+def write_nd_hotel(ws, df, t):
+    """Escribe tab de hoteles con columnas Corp y Destino adicionales."""
+    title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 500')
+    if df is None or len(df)==0: ws.cell(1,1,'Sin datos'); return
+    df_s = df.sort_values('%NoDispo', ascending=False).head(500)
+    r = mk_hdr(ws, 4, ND_HOTEL_COLS)
+    for _, row in df_s.iterrows():
+        nd  = sf(row.get('%NoDispo'))
+        bk  = int(sf(row.get('Bookings')) or 0); trf = int(sf(row.get('Trafico')) or 0)
+        gb  = sf(row.get('gb_usd')); wow_nd = sf(row.get('NoDispo_WoW_pp'))
+        bnd = banda_nodispo(nd) if nd is not None else '—'
+        nm  = str(row.get('Hotel','—'))
+        corp = str(row.get('CorpName', row.get('Corp','—')))
+        dest = str(row.get('Destino','—'))
+        vals=[nm, bnd, corp, dest, trf, bk, round(nd,4) if nd else None,
+              fmt_wow(wow_nd), round(gb,2) if gb else None]
+        mk_row(ws, r, vals, 2, bnd)
+        if nd: ws.cell(r,7).number_format='0.00%'
+        apply_wow(ws,r,8, sf(row.get('NoDispo_WoW_pp')), invert=True)
+        r+=1
+    autofit(ws,[40,18,22,22,12,10,10,10,10])
 
 def write_nd(ws, df, t, name_col):
     title(ws, t, 'Ordenado por %NoDispo DESC (peor primero) · Top 500')
@@ -226,7 +249,43 @@ for can_key, can_label, can_id in CANASTAS:
     crit, bajo, sinc = band_split_nd(hotel_src)
     for df_b, blabel in [(crit, 'Críticos'), (bajo, 'Bajo Rend'), (sinc, 'Sin Conv')]:
         ws=wb.create_sheet(f'{px}-Hot {blabel}'); ws.sheet_properties.tabColor=RND
-        write_nd(ws, df_b, f'{can_label} · Hotel {blabel} (banda %NoDispo) W{VOL_NUM}', 'Hotel')
+        write_nd_hotel(ws, df_b, f'{can_label} · Hotel {blabel} (banda %NoDispo) W{VOL_NUM}')
+
+# ── Tab final: AR Consolidado RND — top 500 de las 3 bandas en una sola hoja ──
+ws_ar = wb.create_sheet('AR Consolidado'); ws_ar.sheet_properties.tabColor=RND
+title(ws_ar, f'AR Consolidado · Análisis de Rendimiento RND W{VOL_NUM}', 
+      'Global · Top 500 por banda (Críticos / Bajo Rendimiento / Sin Conversión)')
+
+hotel_src_global = D.get('p80_hotel', pd.DataFrame())
+crit_g, bajo_g, sinc_g = band_split_nd(hotel_src_global)
+
+r_ar = 4
+for df_b, blabel, color in [(crit_g,'CRÍTICOS','C0392B'), (bajo_g,'BAJO RENDIMIENTO','F97316'), (sinc_g,'SIN CONVERSIÓN','8A8377')]:
+    if df_b is None or len(df_b)==0: continue
+    # Subheader de sección
+    cell = ws_ar.cell(r_ar, 1, f'▌ {blabel}')
+    cell.font = Font(name='Arial', size=11, bold=True, color='FFFFFF')
+    cell.fill = PatternFill(start_color=color, end_color=color, fill_type='solid')
+    ws_ar.merge_cells(start_row=r_ar, start_column=1, end_row=r_ar, end_column=len(ND_HOTEL_COLS))
+    r_ar += 1
+    # Header de columnas
+    r_ar = mk_hdr(ws_ar, r_ar, ND_HOTEL_COLS)
+    for _, row in df_b.sort_values('%NoDispo', ascending=False).head(500).iterrows():
+        nd  = sf(row.get('%NoDispo'))
+        bk  = int(sf(row.get('Bookings')) or 0); trf = int(sf(row.get('Trafico')) or 0)
+        gb  = sf(row.get('gb_usd'))
+        bnd = banda_nodispo(nd) if nd is not None else '—'
+        nm  = str(row.get('Hotel','—'))
+        corp = str(row.get('CorpName', row.get('Corp','—')))
+        dest = str(row.get('Destino','—'))
+        vals=[nm, bnd, corp, dest, trf, bk, round(nd,4) if nd else None,
+              fmt_wow(sf(row.get('NoDispo_WoW_pp'))), round(gb,2) if gb else None]
+        mk_row(ws_ar, r_ar, vals, 2, bnd)
+        if nd: ws_ar.cell(r_ar,7).number_format='0.00%'
+        apply_wow(ws_ar, r_ar, 8, sf(row.get('NoDispo_WoW_pp')), invert=True)
+        r_ar += 1
+    r_ar += 1  # fila vacía entre bandas
+autofit(ws_ar, [40,18,22,22,12,10,10,10,10])
 
 out = f'{OUTPUTS}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx'
 wb.save(out)
