@@ -7070,7 +7070,27 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   });
 
   if (isSelected) {
-    document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: cid}}));
+    /* Reset: despachar a cid primario + panel + AR para limpiar todas las sparklines */
+    var _rHMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
+    var _rHMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+    var _rCardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv'
+                  : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd'
+                  : cardId === 'kpicard-ipm' ? 'ipm' : null;
+    var _rCids = [cid];
+    if (_rCardKey) {
+      if (_rHMapP[_rCardKey] && _rHMapP[_rCardKey] !== cid) _rCids.push(_rHMapP[_rCardKey]);
+      if (_rHMapAR[_rCardKey] && _rHMapAR[_rCardKey] !== cid) _rCids.push(_rHMapAR[_rCardKey]);
+    }
+    _rCids.forEach(function(rcid) {
+      var _rfn = window['histUpdate_' + rcid];
+      if (_rfn) { /* reset via direct call: re-fetch el y renderPanel con VD global */
+        document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: rcid}}));
+      } else {
+        document.dispatchEvent(new CustomEvent('hist-reset', {detail: {cid: rcid}}));
+      }
+      var _rl = document.getElementById('hist-' + rcid + '-label');
+      if (_rl) _rl.textContent = 'Global';
+    });
     return;
   }
 
