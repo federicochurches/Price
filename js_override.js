@@ -969,34 +969,12 @@ function _wowPct(pp){ if(pp==null) return null; var abs=Math.abs(pp); return (pp
 function _cardRow(r, idx, isEf, grid){
   /* r: [lab,sub,bbg,bfg,banda, cr_u,cr_wow_delta, val_pct, wow_pp, hist_w21, hist_w20] */
   var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
-  var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
+  var cr_u=r[5], val_pct=r[7], wow_pp=r[8];
   var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
-  /* Vista hotel: sub != '' — quitar col WoW tráfico → 4 cols (más espacio para nombre) */
-  var isHotelView = sub && sub.length > 0;
-  var gridCols;
-  if (grid) {
-    gridCols = grid;
-  } else if (isHotelView) {
-    gridCols = isEf ? 'minmax(0,1fr) 80px 54px 48px' : 'minmax(0,1fr) 72px 74px 46px';
-  } else {
-    gridCols = isEf ? 'minmax(0,1fr) 80px 56px 54px 48px' : 'minmax(0,1fr) 80px 56px 68px 40px';
-  }
+  /* W26+: sin columna WoW tráfico en ninguna vista — 4 cols */
+  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 54px 48px'
+                                : 'minmax(0,1fr) 72px 74px 46px');
   var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtCompact(cr_u);
-  /* WoW tráfico — solo en vistas no-hotel */
-  var tw_pill = '';
-  if (!isHotelView) {
-    var tw, tw_bg, tw_fg;
-    if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
-      var tw_up = cr_wow_delta > 0;
-      tw_bg = tw_up ? '#EAF3DE' : '#FCE8E6';
-      tw_fg = tw_up ? '#2F6C34' : '#C0392B';
-      var tw_abs = Math.abs(cr_wow_delta);
-      tw = (tw_up?'▲':'▼') + _fmtCompact(tw_abs);
-      tw_pill = _pill(tw, tw_bg, tw_fg);
-    } else {
-      tw_pill = _pill(null, '', '');
-    }
-  }
   /* WoW métrica */
   var mw = _wowPct(wow_pp);
   var mw_up = wow_pp!=null && wow_pp>0;
@@ -1015,7 +993,6 @@ function _cardRow(r, idx, isEf, grid){
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
-    +(isHotelView ? '' : '<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>')
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+_fmtPct(val_pct)+'</span>'
     +'<div style="text-align:right;white-space:nowrap;">'+mw_pill+'</div>'
     +'</div>';

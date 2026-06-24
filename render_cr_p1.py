@@ -192,11 +192,11 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         'traf_wow_type': 'abs',     # viene escalado ×100, reescalamos /100 → abs delta
         'wow_col':       'Eficacia_WoW_pp',
         'wow_is_pos':    True,
-        'grid_cols':     'minmax(0,1fr) 80px 56px 54px 48px',
+        'grid_cols':     'minmax(0,1fr) 80px 54px 48px',
         'show_severity': False,
     }
-    _EF_HDR = {'headers': ['Tráfico','WoW','Eficacia','WoW'],
-               'widths':  'minmax(0,1fr) 80px 56px 54px 48px'}
+    _EF_HDR = {'headers': ['Tráfico','Eficacia','WoW'],
+               'widths':  'minmax(0,1fr) 80px 54px 48px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''
@@ -362,11 +362,11 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         'traf_wow_type': 'abs',
         'wow_col':       'ConvRate_WoW_pp',
         'wow_is_pos':    True,
-        'grid_cols':     'minmax(0,1fr) 80px 56px 68px 40px',
+        'grid_cols':     'minmax(0,1fr) 80px 68px 40px',
         'show_severity': False,
     }
-    _CV_HDR = {'headers': ['Tráfico','WoW','Conv Rate','WoW'],
-               'widths':  'minmax(0,1fr) 80px 56px 68px 40px'}
+    _CV_HDR = {'headers': ['Tráfico','Conv Rate','WoW'],
+               'widths':  'minmax(0,1fr) 80px 68px 40px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''

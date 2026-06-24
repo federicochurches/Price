@@ -203,11 +203,11 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         'traf_wow_type': 'pct',
         'wow_col':       'NoDispo_WoW_pp',
         'wow_is_pos':    False,            # NoDispo: bajar = mejorar
-        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
+        'grid_cols':     'minmax(0,1fr) 72px 74px 46px',
         'show_severity': False,
     }
-    _ND_HDR = {'headers': ['Tráfico','WoW','%NoDispo','WoW'],
-               'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
+    _ND_HDR = {'headers': ['Tráfico','%NoDispo','WoW'],
+               'widths':  'minmax(0,1fr) 72px 74px 46px'}
     # ────────────────────────────────────────────────────────────────────────────
 
     panels = ''

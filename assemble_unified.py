@@ -890,16 +890,16 @@ var _HOTEL_POOL_CFG = {
     poolVar:'RND_HOTEL_POOL', bandNamesVar:'_RND_BAND_NAMES',
     corpIdx:1, destIdx:2, paisIdx:3, trafIdx:4, trafWowIdx:5,
     metrics:{
-      nd: {valIdx:6, bandIdx:7,  wowIdx:8,  sortDesc:true,  requireVal:false, grid:'minmax(0,1fr) 72px 52px 74px 46px'},
-      ipm:{valIdx:9, bandIdx:10, wowIdx:11, sortDesc:false, requireVal:true,  grid:'minmax(0,1fr) 72px 52px 74px 46px'}
+      nd: {valIdx:6, bandIdx:7,  wowIdx:8,  sortDesc:true,  requireVal:false, grid:'minmax(0,1fr) 72px 74px 46px'},
+      ipm:{valIdx:9, bandIdx:10, wowIdx:11, sortDesc:false, requireVal:true,  grid:'minmax(0,1fr) 72px 74px 46px'}
     }
   },
   cr: {
     poolVar:'CR_HOTEL_POOL', bandNamesVar:'_CR_BAND_NAMES',
     corpIdx:1, destIdx:2, paisIdx:-1, trafIdx:3, trafWowIdx:4,
     metrics:{
-      ef:{valIdx:5, bandIdx:6, wowIdx:7,  sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 56px 54px 48px'},
-      cv:{valIdx:8, bandIdx:9, wowIdx:10, sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 56px 68px 40px'}
+      ef:{valIdx:5, bandIdx:6, wowIdx:7,  sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 54px 48px'},
+      cv:{valIdx:8, bandIdx:9, wowIdx:10, sortDesc:false, requireVal:false, grid:'minmax(0,1fr) 80px 68px 40px'}
     }
   }
 };

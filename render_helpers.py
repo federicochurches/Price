@@ -805,10 +805,9 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None, default_tab='des
     if t_key != 'canasta' and panel_tabs_spec:
         headers = panel_tabs_spec.get('headers', [])
         widths  = panel_tabs_spec.get('widths', cfg['grid_cols'])
-        # Vista hotel: quitar col WoW tráfico (2ª col) → 4 cols más espacio para nombre
-        if t_key == 'hotel' and headers and len(headers) >= 4:
+        # W26+: quitar col WoW tráfico (2ª col) en todas las vistas → 4 cols uniformes
+        if headers and len(headers) >= 4:
             headers = [headers[0], headers[2], headers[3]]   # Tráfico · Val · WoW (sin WoW tráfico)
-            # Recalcular widths: quitar la segunda anchura fija
             import re as _re
             _parts = widths.split()
             if len(_parts) >= 5:
