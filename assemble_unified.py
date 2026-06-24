@@ -2464,19 +2464,7 @@ GLOBAL_PANEL_SCRIPT += '''<script>
   else setTimeout(_initNdStats,300);
   window._initNdStats = _initNdStats;
 })();
-/* ── AR1 hist-wrap: oculto en CR, visible en RND ── */
-(function(){
-  var _origSetMode = window.w22_setMode;
-  if (!_origSetMode) return;
-  window.w22_setMode = function(mode, btn){
-    var hw = document.getElementById('ar1-hist-wrap');
-    if (hw) hw.style.display = (mode === 'rnd') ? 'flex' : 'none';
-    return _origSetMode.apply(this, arguments);
-  };
-  /* Estado inicial */
-  var hw0 = document.getElementById('ar1-hist-wrap');
-  if (hw0) hw0.style.display = 'none';
-})();
+/* ── AR1 hist-wrap: siempre visible (CR muestra hist-cr, RND muestra hist-rnd vía CSS) ── */
 </script>
 '''
 
