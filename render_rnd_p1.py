@@ -245,7 +245,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
 </div>
-</div>
 {gauge}
 {wow_block}
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{tabs}</div>

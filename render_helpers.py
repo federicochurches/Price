@@ -768,7 +768,6 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
                if show_severity else '')
             + f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
             f'font-variant-numeric:tabular-nums;white-space:nowrap;">{traf_str}</span>'
-            f'<div style="text-align:right;white-space:nowrap;">{traf_wow_pill}</div>'
             f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
             f'font-variant-numeric:tabular-nums;white-space:nowrap;">{val_str}</span>'
             f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
