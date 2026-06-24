@@ -234,8 +234,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR, default_tab='pais')
     
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
-<div style="padding:12px 16px 10px;display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--rule-soft);flex-wrap:wrap;">
-  <div style="flex-shrink:0;">
+<div style="padding:12px 16px 10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;align-items:center;border-bottom:1px solid var(--rule-soft);">
+  <div style="padding-right:16px;border-right:1px solid var(--rule-soft);">
     <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:3px;">
       <div id="w21-kv-nd" style="font-size:34px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
@@ -247,13 +247,11 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
       {_traf_line}
     </div>
   </div>
-  <div style="width:1px;height:52px;background:var(--rule-soft);flex-shrink:0;"></div>
-  <div style="flex:1;min-width:140px;">
+  <div style="padding:0 16px;border-right:1px solid var(--rule-soft);">
     {gauge}
     {wow_block}
   </div>
-  <div style="width:1px;height:52px;background:var(--rule-soft);flex-shrink:0;"></div>
-  <div style="flex-shrink:0;">
+  <div style="padding-left:16px;">
     <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
     {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
   </div>

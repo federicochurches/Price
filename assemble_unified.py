@@ -2543,15 +2543,15 @@ SHARED_CONTAINERS = f'''
       </div>
     </div>
     <!-- Filas -->
-    <div id="ar1-body" style="display:contents;">
-    <div id="ar1-rows-wrap" style="padding:0 16px 0;">
+    <div id="ar1-body" style="display:flex;flex-direction:row;align-items:stretch;">
+    <div id="ar1-rows-wrap" style="padding:0 16px 0;flex:1;min-width:0;">
       <div id="ar1-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"><button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button></div>
     </div>
         <!-- Canvas histórico card 1 -->
-    <div id="ar1-hist-wrap" style="padding:0 16px 16px;">
-      <div id="ar1-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL}</div>
-      <div id="ar1-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL}</div>
+    <div id="ar1-hist-wrap" style="padding:12px 14px 16px;flex-shrink:0;width:210px;display:flex;align-items:center;border-left:1px solid var(--rule-soft);">
+      <div id="ar1-hist-cr" style="display:block;width:100%;">{HIST_CR_PANEL}</div>
+      <div id="ar1-hist-rnd" style="display:none;width:100%;">{HIST_RND_PANEL}</div>
     </div>
     </div>
   </div>

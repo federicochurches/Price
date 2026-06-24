@@ -2820,7 +2820,7 @@ function ar3_renderTable(view, htab) {
   var filtered = filteredWithPos;
 
   /* Grid igual a cards 1/2: nombre · Books · WoW · BK% · WoW */
-  var grid = 'minmax(0,1fr) 56px 44px 72px 48px';
+  var grid = 'minmax(0,1fr) 68px 72px 48px';
   var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
   var _mk3SH = function(lbl, col, acc) {
     var state = _ar3SortState || {};
@@ -2832,7 +2832,6 @@ function ar3_renderTable(view, htab) {
   var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
     +'<span></span>'
     +_mk3SH('Trx','trx',false)
-    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
     +_mk3SH('BK%','bk',true)
     +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
     +'</div>';
@@ -2857,7 +2856,6 @@ function ar3_renderTable(view, htab) {
         +(String(item.origPos).padStart(2,'0'))+'. '+r.lab
       +'</span></div>'
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r.books+'</span>'
-      +wPill((typeof _BK_TRX_WOW !== 'undefined' && _BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view] && _BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab] !== undefined) ? (parseFloat(_BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab]) >= 0 ? '▲' : '▼') + Math.abs(parseFloat(_BK_TRX_WOW[_ar3_view === 'dest' ? 'destino' : _ar3_view][r.lab])).toFixed(1).replace('.',',') + '%' : '—')
       +'<span style="text-align:right;font-size:11px;font-weight:700;color:#333132;font-variant-numeric:tabular-nums;">'+r.val+'</span>'
       +wPill(r.wow||'—')
       +'</div>';
