@@ -487,17 +487,29 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   row.style.background = accentAlpha;
   row.style.boxShadow = 'inset 3px 0 0 ' + accent;
 
-  /* Disparar hist-update para que historico_module redibuje el canvas global */
-  document.dispatchEvent(new CustomEvent('hist-update', {
-    detail: {cid: cid, w_curr: w_curr, w_prev: w_prev, w_actual: w_actual, label: label}
-  }));
-  var lblEl = document.getElementById('hist-' + cid + '-label');
-  /* Mostrar rango disponible: solo las últimas 3 semanas son corp/hotel-específicas */
-  if (lblEl) {
-    var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
-      ? SEMANAS[SEMANAS.length-3] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W23\u2013W25';
-    lblEl.textContent = label + ' \u00b7 ' + _sems;
+  /* Disparar hist-update a los 3 canvas: global + panel (KPI sparkline) + AR sparkline */
+  var _hMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
+  var _hMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+  var _cardKeyH = cardId === 'kpicard-ef'  ? 'ef'
+               : cardId === 'kpicard-cv'  ? 'cv'
+               : cardId === 'kpicard-bk'  ? 'bk'
+               : cardId === 'kpicard-nd'  ? 'nd'
+               : cardId === 'kpicard-ipm' ? 'ipm' : null;
+  var _allHistCids = [cid];
+  if (_cardKeyH) {
+    var _pc = _hMapP[_cardKeyH],  _arc = _hMapAR[_cardKeyH];
+    if (_pc && _pc !== cid) _allHistCids.push(_pc);
+    if (_arc && _arc !== cid) _allHistCids.push(_arc);
   }
+  var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
+    ? SEMANAS[SEMANAS.length-3] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W23\u2013W25';
+  _allHistCids.forEach(function(hcid) {
+    var fn = window['histUpdate_' + hcid];
+    if (fn) { fn(w_curr, w_prev, w_actual, label + ' \u00b7 ' + _sems, null); }
+    else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:hcid, w_curr:w_curr, w_prev:w_prev, w_actual:w_actual, label:label}})); }
+    var _le = document.getElementById('hist-' + hcid + '-label');
+    if (_le) _le.textContent = label + ' \u00b7 ' + _sems;
+  });
 }
 
 /* ── Pills de navegación para cards AR (Vista + Filtro) ──────────────── */
@@ -924,6 +936,20 @@ function _kpiPillRender(card) {
     /* B (W24): RND nd/ipm → el panel hotel se sirve del pool completo on-demand.
        Con cross-filter: render lazy del subconjunto cruzado (cubre los 21K).
        Sin cross-filter: si antes se reemplazó, restaurar el estático y salir. */
+    /* BK (W25): los datos de hotel son globales (no existe breakdown corp×hotel en BK).
+       Si hay cross-filter activo, mostramos todos los hoteles igual que sin filtro.
+       Los datos de corp/dest ya son visibles en sus propios tabs. */
+    if (card === 'bk') {
+      _cfRestoreMoreBtn(_hotelCont);
+      rows.forEach(function(row) {
+        var isSbH = row.classList.contains('sb-hidden');
+        var isMre = row.classList.contains('rows-more');
+        if (!isSbH && !isMre) { row.style.setProperty('display', 'grid', 'important'); }
+        else { row.style.removeProperty('display'); }
+        row.classList.remove('cf-extra');
+      });
+      return;
+    }
     var _isRnd = (card === 'nd' || card === 'ipm');
     if (_isRnd && _hasCf) { _rndLazyHotelRender(card, cf, _hotelCont); return; }
     if (_isRnd && _rndHotelOrigHTML[card] != null) { _rndHotelRestore(card, _hotelCont); return; }

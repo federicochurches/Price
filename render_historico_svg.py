@@ -98,14 +98,23 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
     var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
     var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
     var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
-    function sb(lb,v,col){return '<div style="flex:1;background:#F5F3EE;border-radius:5px;padding:4px 2px;text-align:center">'+
-      '<div style="font-size:8px;color:#8A8377;text-transform:uppercase;letter-spacing:.03em">'+lb+'</div>'+
-      '<div style="font-size:11.5px;font-weight:700;color:'+col+'">'+fmtVal(v)+'</div></div>';}
-    var sf='<div style="display:flex;gap:4px;border-top:1px solid #E8E4DC;padding-top:8px">'+
-      sb('Actual',cur,bC.c)+sb('M\u00e1x',hi,bH.c)+sb('M\u00edn',lo,bL.c)+sb('Prom',avg,'#333132')+
-      '<div style="flex:1;border-radius:5px;padding:4px 2px;text-align:center;display:flex;align-items:center;justify-content:center;background:'+bC.c+'">'+
-        '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div></div>'+
-      '</div>';
+    /* Stat badge: estilo inspirado en el pill WoW de las cards */
+    function sb(lb,v,bg,fg){
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'+
+        '<div style="font-size:7.5px;color:#B0A898;text-transform:uppercase;letter-spacing:.06em">'+lb+'</div>'+
+        '<div style="background:'+bg+';color:'+fg+';border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;white-space:nowrap">'+fmtVal(v)+'</div>'+
+        '</div>';}
+    /* Soft backgrounds: hex con 20% opacidad simulado mezclando con #FDFCF9 */
+    function _soften(hex){
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var br=253,bg_=252,bb=249; /* #FDFCF9 */
+      return 'rgb('+Math.round(r*.22+br*.78)+','+Math.round(g*.22+bg_*.78)+','+Math.round(b*.22+bb*.78)+')';}
+    var sfBg=_soften(bC.c),mxBg=_soften(bH.c),mnBg=_soften(bL.c);
+    var sf='<div style="display:flex;gap:5px;border-top:1px solid #E8E4DC;padding-top:8px;align-items:flex-end">'+
+      sb('Actual',cur,sfBg,bC.c)+sb('M\u00e1x',hi,mxBg,bH.c)+sb('M\u00edn',lo,mnBg,bL.c)+sb('Prom',avg,'#EEE9E2','#333132')+
+      '<div style="flex:1;display:flex;align-items:flex-end;justify-content:flex-end">'+
+        '<div style="background:'+bC.c+';color:#fff;border-radius:4px;padding:2px 7px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div>'+
+      '</div></div>';
     var lblEl=document.getElementById('hist-'+CID+'-label');
     if(lblEl&&lbl)lblEl.textContent=lbl;
     el.innerHTML=svg+dr+sf;
