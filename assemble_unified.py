@@ -867,7 +867,12 @@ function _kpiPillRender(card) {
     }
     function _corpHasDest(corp, dest){
       var arr = _memArr(_MEM.corpDest||{}, corp); if(!arr) return false;
-      for (var i=0;i<arr.length;i++){ if(_N(arr[i]) === _N(dest)) return true; } return false;
+      var nd = _N(dest);
+      for (var i=0;i<arr.length;i++){
+        var na = _N(arr[i]);
+        /* Substring bidireccional: 'Las Vegas' ↔ 'Las Vegas (and vicinity), NV, US' */
+        if (na === nd || na.indexOf(nd) >= 0 || nd.indexOf(na) >= 0) return true;
+      } return false;
     }
     function _corpHasPais(corp, pais){
       var arr = _memArr(_MEM.corpPais||{}, corp); if(!arr) return false;
@@ -1054,7 +1059,8 @@ function _kpiPillRender(card) {
         if (okCf) {
           _sh++;
           if (_sh <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
-          else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex++; }
+          else if (_sh <= _KPI_TOP_N + 5) { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex++; }
+          else { row.style.setProperty('display', 'none', 'important'); }  /* cap: más allá → oculto no expandible */
         } else {
           row.style.setProperty('display', 'none', 'important');
         }
