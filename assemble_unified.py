@@ -462,12 +462,15 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
      el handler dim AR ya hace pill + selección + gráfica. No duplicar acá — si seguimos,
      el chequeo de data-selected confunde la selección recién puesta con un segundo click
      y resetea todo (bug: pill aparece pero fila/gráfica se borran). */
+  /* AR1/AR2 hotel view: el handler de js_override.js ya maneja highlight + sparkline AR.
+     Este path solo cubre casos residuales (canal en CR que js_override no toma). */
   if (cardId === 'kpicard-ar1' || cardId === 'kpicard-ar2') {
     var _arN = (cardId === 'kpicard-ar1') ? 1 : 2;
     var _arV = (typeof _arPillView !== 'undefined') ? (_arPillView[_arN] || 'hotel') : 'hotel';
-    if (_arV === 'corp' || _arV === 'dest' || _arV === 'hotel' || (_arV === 'chan' && !isCR)) {
-      return;
-    }
+    /* hotel view: ya manejado por _arRowClick en js_override → no duplicar */
+    if (_arV === 'hotel') return;
+    /* corp/dest/pais/chan en AR: ya manejados por _arCrossFilter */
+    if (_arV === 'corp' || _arV === 'dest' || (_arV === 'chan' && !isCR)) return;
   }
 
   /* Mapear card → canvas histórico global */
@@ -478,9 +481,12 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   else if (cardId === 'kpicard-nd')  cid = 'hrnd-global-nd';
   else if (cardId === 'kpicard-ipm') cid = 'hrnd-global-ipm';
   /* Cards AR de Rendimiento */
-  else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
-  else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
-  else if (cardId === 'kpicard-ar3') cid = 'h-bk-global';
+  /* AR cards: usar el sparkline AR específico (hcr-ar-ef, hcr-ar-cv, h-bk-ar)
+     La fila se maneja por js_override.js _arRow handler para hotel view.
+     Este path cubre casos residuales (canal en CR, etc.) */
+  else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-ar-ef' : 'hrnd-ar-nd';
+  else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-ar-cv' : 'hrnd-ar-ipm';
+  else if (cardId === 'kpicard-ar3') cid = 'h-bk-ar';
   else return;
 
   var label = row.getAttribute('data-hist-label') || '';
