@@ -190,7 +190,11 @@ def agg_dim(df, col, min_books=MIN_BOOKS):
     return g.sort_values('Bookability')
 
 def agg_dim_wow(df_cur, df_prev, col, min_books=MIN_BOOKS):
-    """Agrega con WoW vs semana anterior. Si df_prev está vacío, retorna cur sin WoW."""
+    """Agrega con WoW vs semana anterior. Si df_cur está vacío, retorna df vacío con columnas correctas."""
+    if df_cur is None or len(df_cur) == 0:
+        return pd.DataFrame(columns=[col, 'Bookability', 'Books', 'Hoteles', 'BandaBK',
+                                     'Bookability_prev', 'Books_prev', 'BK_WoW_pp',
+                                     'Books_WoW_abs', 'Books_WoW_pct'])
     g_cur = agg_dim(df_cur, col, min_books=0)
     # Sin datos previos → WoW = 0 / N/A
     if df_prev is None or len(df_prev) == 0:
@@ -236,11 +240,13 @@ _hotel_corp = (df_cur.groupby('Hotel', as_index=False)
                      .reset_index())
 _hotel_corp.columns = ['idx_drop', 'Hotel', 'CorpName'] if len(_hotel_corp.columns) == 3 else _hotel_corp.columns
 # Forma alternativa más robusta
-if 'CorpName' in df_cur.columns:
+if 'CorpName' in df_cur.columns and len(df_cur) > 0:
     _hc = df_cur.groupby('Hotel').apply(lambda x: x.loc[x['Books'].idxmax(), 'CorpName']).reset_index()
     _hc.columns = ['Hotel', 'CorpName']
     g_hotel = g_hotel.merge(_hc, on='Hotel', how='left')
     g_hotel['CorpName'] = g_hotel['CorpName'].fillna('')
+elif len(g_hotel) > 0:
+    g_hotel['CorpName'] = ''
 
 print(f"\n   Providers: {len(g_provider)}")
 print(f"   Destinos:  {len(g_dest)}")
@@ -321,6 +327,8 @@ corp_hist_bk = {}  # {corp: [val_W_min, ..., val_W_max-1]}  (sin semana actual)
 if _acumulado_path:
     # df_all ya está cargado arriba; usar todas las semanas previas
     _df_all_corp = pd.read_excel(_acumulado_path) if 'df_all' not in dir() else df_all
+    if 'Corporate' in _df_all_corp.columns and 'CorpName' not in _df_all_corp.columns:
+        _df_all_corp.rename(columns={'Corporate': 'CorpName'}, inplace=True)
     _df_all_corp['Bookability'] = pd.to_numeric(_df_all_corp['Bookability'], errors='coerce').fillna(0).clip(0, 1)
     _df_all_corp['Books'] = pd.to_numeric(_df_all_corp['Books'], errors='coerce').fillna(0).astype(int)
     _semanas_ord = sorted([int(s) for s in _df_all_corp['Semana'].unique() if int(s) < WEEK_NUM])
