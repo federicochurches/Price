@@ -3783,8 +3783,8 @@ function w22_renderRNDCardTabs(canasta) {
   var RND_TABS = (typeof RND_CARD_TABS !== 'undefined') ? RND_CARD_TABS : null;
   if (!RND_TABS) return;
   var tabs = RND_TABS[canasta] || RND_TABS['global'] || {};
-  var grids = { 'nd': 'minmax(0,1fr) 76px 52px 44px 54px 36px', 'ipm': 'minmax(0,1fr) 76px 52px 44px 54px 36px' };
-  var hdrs  = { 'nd': ['Severity','Tráfico','WoW','%NoDispo','WoW'], 'ipm': ['Severity','Tráfico','WoW','IPM','WoW'] };
+  var grids = { 'nd': 'minmax(0,1fr) 72px 74px 46px', 'ipm': 'minmax(0,1fr) 72px 74px 46px' };
+  var hdrs  = { 'nd': ['Tráfico','%NoDispo','WoW'], 'ipm': ['Tráfico','IPM','WoW'] };
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
   var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   ['nd','ipm'].forEach(function(metric) {
@@ -4992,21 +4992,20 @@ function _renderAllRows(rows, renderFn) {
 
 /* ══ SORT CARDS KPI — sobre CR_CARD_TABS / RND_CARD_TABS (100 rows) ══ */
 /* Row CR y RND: [lab, sub, bbg, bfg, banda, traf(r[5]), cr_wow(r[6]), val(r[7]), wow_pp(r[8]), ...] */
-/* W23+: mapeo col header → índice en array r.
-   Header EF/CV: [<span vacío=nombre>, Tráfico(col1), WoW(col2), Métrica(col3), WoW(col4)]
-   Array r: [nombre(0), sub(1), bbg(2), bfg(3), banda(4), traf(5), traf_wow(6), val(7), val_wow(8), ...]
-   El nombre (span vacío) NO tiene data-sort-col, así que col1 = primera columna visible = Tráfico = r[5] */
-var _KPI_RCOLS_CR  = {1:5, 2:6, 3:7, 4:8};
-var _KPI_RCOLS_RND = {1:5, 2:6, 3:7, 4:8};
+/* W26+: sin col WoW tráfico — 4 cols: nombre · tráfico · métrica · wow
+   Header: [<span vacío=nombre>, Tráfico(col1), Métrica(col2), WoW(col3)]
+   Array r: col1=r[5](traf), col2=r[7](val), col3=r[8](wow_pp) */
+var _KPI_RCOLS_CR  = {1:5, 2:7, 3:8};
+var _KPI_RCOLS_RND = {1:5, 2:7, 3:8};
 var _KPI_RCOLS = _KPI_RCOLS_CR;
 
-/* Grid CSS por métrica — para que _cardRow use el correcto según la card */
+/* Grid CSS por métrica — 4 cols */
 var _KPI_GRID = {
-  ef:  'minmax(0,1fr) 80px 56px 54px 48px',
-  cv:  'minmax(0,1fr) 80px 56px 68px 40px',
-  nd:  'minmax(0,1fr) 72px 52px 74px 46px',
-  ipm: 'minmax(0,1fr) 72px 52px 74px 46px',
-  bk:  'minmax(0,1fr) 80px 56px 54px 48px',
+  ef:  'minmax(0,1fr) 80px 54px 48px',
+  cv:  'minmax(0,1fr) 80px 68px 40px',
+  nd:  'minmax(0,1fr) 72px 74px 46px',
+  ipm: 'minmax(0,1fr) 72px 74px 46px',
+  bk:  'minmax(0,1fr) 80px 54px 48px',
 };
 
 function _kpiSortAttach(card, tkey, metricKey, allRows100) {
@@ -5085,11 +5084,11 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
   var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   var hdrLabels = {
-    ef:  ['Tráfico','WoW','Eficacia','WoW'],
-    cv:  ['Tráfico','WoW','Conv Rate','WoW'],
-    nd:  ['Tráfico','WoW','%NoDispo','WoW'],
-    ipm: ['Tráfico','WoW','IPM','WoW'],
-    bk:  ['Trx','WoW','BK%','WoW'],
+    ef:  ['Tráfico','Eficacia','WoW'],
+    cv:  ['Tráfico','Conv Rate','WoW'],
+    nd:  ['Tráfico','%NoDispo','WoW'],
+    ipm: ['Tráfico','IPM','WoW'],
+    bk:  ['Trx','BK%','WoW'],
   };
   var labels = hdrLabels[metricKey] || hdrLabels.ef;
   var hdrSpans = '<span></span>' + labels.map(function(h, i){
