@@ -23,7 +23,7 @@ def _mini_badge(bnd):
 # Cargar datos
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
-M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
+M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
@@ -34,7 +34,7 @@ M['global_current'] = M['global_current']
 M['global_w17'] = M['global_prev']
 # ─────────────────────────────────────────────────────────────────────────────
 
-CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
+CANASTA = D['CANASTA']
 
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
@@ -257,29 +257,23 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 # render_kpi_card_rpm eliminada — W26: IPM no se muestra en Availability (solo %NoDispo)
 
 def render_alerts_block():
-    """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp"""
-    # Hotel con peor %NoDispo + Hotel con peor RPM (BKGS>0, RPM>0, alto tráfico)
+    """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp · W26: solo %NoDispo"""
+    # Hotel con peor %NoDispo (alto tráfico)
     g_p80 = p80_hotel
     h_nd = g_p80[g_p80['Trafico']>g_p80['Trafico'].quantile(0.50)].sort_values('%NoDispo', ascending=False).iloc[0]
-    h_rpm_pool = g_p80[(g_p80['Bookings']>0) & (g_p80['RPM']>0) & (g_p80['Trafico']>g_p80['Trafico'].quantile(0.50))]
-    h_rpm = h_rpm_pool.sort_values('RPM').iloc[0]
-    
-    # Destinos · filtrar RPM>0 para evitar negativos (refunds)
+
+    # Destino con peor %NoDispo
     d_nd = TAB_NoDispo['destino'].iloc[0]
-    d_rpm_pool = TAB_RPM['destino'][TAB_RPM['destino']['RPM']>0]
-    d_rpm = d_rpm_pool.iloc[0] if len(d_rpm_pool)>0 else TAB_RPM['destino'].iloc[0]
-    
-    # Corp · filtrar RPM>0
+
+    # Corp con peor %NoDispo
     c_nd = TAB_NoDispo['corp'].iloc[0]
-    c_rpm_pool = TAB_RPM['corp'][TAB_RPM['corp']['RPM']>0]
-    c_rpm = c_rpm_pool.iloc[0] if len(c_rpm_pool)>0 else TAB_RPM['corp'].iloc[0]
-    
+
     def alert_card(title, icon, color_b, items):
         cells = ''
         for it in items:
             cells += (f'<div style="background:#FAF7F2;padding:8px 10px;border-radius:3px;border:1px solid var(--rule-soft);">'
                       f'<div style="font-size:9px;font-weight:700;color:{it["pill_color"]};background:{it["pill_bg"]};padding:2px 5px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;display:inline-block;">{it["pill"]}</div>'
-                      f'<div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["name"]}</div>'
+                      f'<div style="font-size:10px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["name"]}</div>'
                       f'<div style="font-size:7px;color:var(--ink-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{it["sub"]}</div>'
                       f'<div style="font-size:18px;font-weight:600;color:{it["pill_color"]};margin-top:6px;letter-spacing:-.02em;line-height:1;">{it["value"]}</div>'
                       f'<div style="font-size:8px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">{it["foot"]}</div>'
@@ -287,33 +281,24 @@ def render_alerts_block():
         return (f'<div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid {color_b};">'
                 f'<div style="font-size:10px;font-weight:700;color:{color_b};letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
                 f'<span>{icon}</span><span>{title}</span></div>'
-                f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">{cells}</div></div>')
-    
+                f'<div style="display:grid;grid-template-columns:1fr;gap:8px;">{cells}</div></div>')
+
     h_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_nd['Hotel']),38),'sub':f'{h_nd["CorpName"]} · {h_nd["Destino"]}',
          'value':fmt_pct2(h_nd['%NoDispo']),'foot':f'{fmt_big(h_nd["Trafico"])} · {int(h_nd["Bookings"])} BKGS'},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(clean_hotel_name(h_rpm['Hotel']),38),'sub':f'{h_rpm["CorpName"]} · {h_rpm["Destino"]}',
-         'value':fmt_num2(h_rpm['RPM']),'foot':f'{fmt_big(h_rpm["Trafico"])} · {int(h_rpm["Bookings"])} BKGS'},
     ]
     d_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_nd['Destino'],38),'sub':f'{fmt_big(d_nd["Trafico"])} · {int(d_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'IPM {fmt_num2(d_nd["RPM"])}'},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(d_rpm['Destino'],38),'sub':f'{fmt_big(d_rpm["Trafico"])} · {int(d_rpm["Bookings"])} BKGS',
-         'value':fmt_num2(d_rpm['RPM']),'foot':f'%ND {fmt_pct2(d_rpm["%NoDispo"])}'},
+         'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'WoW {fmt_num2(d_nd.get("NoDispo_WoW_pp", 0)):+.2f}pp' if d_nd.get('NoDispo_WoW_pp') is not None else ''},
     ]
     c_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_nd['CorpName'],38),'sub':f'{fmt_big(c_nd["Trafico"])} · {int(c_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'IPM {fmt_num2(c_nd["RPM"])}'},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(c_rpm['CorpName'],38),'sub':f'{fmt_big(c_rpm["Trafico"])} · {int(c_rpm["Bookings"])} BKGS',
-         'value':fmt_num2(c_rpm['RPM']),'foot':f'%ND {fmt_pct2(c_rpm["%NoDispo"])}'},
+         'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'WoW {fmt_num2(c_nd.get("NoDispo_WoW_pp", 0)):+.2f}pp' if c_nd.get('NoDispo_WoW_pp') is not None else ''},
     ]
-    
+
     cards = (alert_card('Hoteles','🏨','#EA0074',h_items) +
              alert_card('Destinos','📍','#EA0074',d_items) +
              alert_card('Corp','🏛','#EA0074',c_items))
