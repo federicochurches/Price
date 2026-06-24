@@ -344,6 +344,15 @@ window._injectHistAttrs = function(tbodyId, rows) {
     if (!dc[dest]) dc[dest] = [];
     if (dc[dest].indexOf(corp) < 0) dc[dest].push(corp);
   });
+  /* Merge RND_MEMBERSHIP para cobertura ampliada (ej: Las Vegas en RND pero no en CR) */
+  if (typeof RND_MEMBERSHIP !== 'undefined') {
+    var _rcd = RND_MEMBERSHIP.corpDest || {};
+    for (var _k in _rcd) {
+      var _dests = _rcd[_k];
+      if (!cd[_k]) cd[_k] = [];
+      _dests.forEach(function(_d) { if (cd[_k].indexOf(_d) < 0) cd[_k].push(_d); });
+    }
+  }
   window.CR_MEMBERSHIP = {corpDest: cd, destCorp: dc};
 })();
 
@@ -740,8 +749,11 @@ function _poolToCardRow(h, report, metric) {
            ? _AR_BANDA_C[bname] : {bg:'#8A8377', fg:'#FFFFFF'};
   var corp = h[cfg.corpIdx], dest = h[cfg.destIdx];
   var pais = (cfg.paisIdx >= 0) ? h[cfg.paisIdx] : '';
+  /* r[9]=val(W25), r[10]=val-wow(W24 estimado) — permite que buildSerie
+     muestre la pendiente W24→W25 real del hotel en vez de línea plana */
+  var prevVal = (wow != null && !isNaN(wow)) ? val - wow : val;
   return [ h[0], corp, bc.bg, bc.fg, bname,
-           h[cfg.trafIdx], h[cfg.trafWowIdx], val, wow, val, val,
+           h[cfg.trafIdx], h[cfg.trafWowIdx], val, wow, val, prevVal,
            corp, dest, pais ];
 }
 
@@ -955,7 +967,7 @@ function _kpiPillRender(card) {
   /* Solo manipular las filas del panel hotel cuando la vista activa ES hotel.
      En otras vistas el panel hotel está oculto y se recalcula al cambiar de vista. */
   if (activeTab === 'hotel') {
-    var _hasCf = !!(cf.corp || cf.dest || cf.pais);
+    var _hasCf = !!(cf.corp || cf.dest || cf.pais || cf.hotel);  /* W25: cf.hotel desde searchbox */
     var _hasBand = !!(activeBands && activeBands.length);
     /* B (W24): RND nd/ipm → el panel hotel se sirve del pool completo on-demand.
        Con cross-filter: render lazy del subconjunto cruzado (cubre los 21K).
