@@ -442,11 +442,18 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               }
               var _eName = row.getAttribute('data-hist-label') || _val2;
               var _histArr2 = null;
-              if (_hDict && _hDict[_eName]) {
-                /* BK_CORP_HIST tiene array directo; CR/RND tienen sub-key por métrica */
-                var _hw = (cardKey === 'bk') ? _hDict[_eName] : _hDict[_eName][cardKey];  /* cardKey: 'ef'|'cv'|'nd'|'ipm'|'bk' */
-                if (_hw && _hw.length > 0) {
-                  _histArr2 = _hw.concat([_wc2]);   /* W18-W(N-1) + W(N) = 8 puntos */
+              if (_hDict) {
+                /* Lookup con fallback: el label del HTML puede no tener sufijo " Area"
+                   pero el dict histórico sí (87% de los destinos). Intentar ambas formas. */
+                var _eKey = _hDict[_eName] ? _eName
+                           : (_hDict[_eName + ' Area'] ? _eName + ' Area'
+                           : (_hDict[_eName.replace(/ Area$/, '')] ? _eName.replace(/ Area$/, '') : null));
+                if (_eKey) {
+                  /* BK_CORP_HIST tiene array directo; CR/RND tienen sub-key por métrica */
+                  var _hw = (cardKey === 'bk') ? _hDict[_eKey] : _hDict[_eKey][cardKey];
+                  if (_hw && _hw.length > 0) {
+                    _histArr2 = _hw.concat([_wc2]);   /* W18-W(N-1) + W(N) = 8 puntos */
+                  }
                 }
               }
               var _lockDetail = {wc:_wc2, wp:_wp2, wa:_wa2, lbl:_lbl3, val:_val2, ha:_histArr2};
