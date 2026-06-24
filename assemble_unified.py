@@ -358,7 +358,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (!card) return;
   var cardId = card.id || '';
   var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
-  if (cardKey && typeof _kpiView !== 'undefined') {
+  /* Detectar si el row es un hotel (data-cf-corp distinto de data-hist-label → cross-filter no aplica) */
+  var _rCorp  = row.getAttribute('data-cf-corp') || '';
+  var _rLabel = row.getAttribute('data-hist-label') || '';
+  var _isHotelRow = _rCorp !== '' && _rCorp !== _rLabel;
+  if (cardKey && !_isHotelRow && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
     if (view === 'corp' || view === 'destino' || view === 'pais') {
       /* Delegar al filtro cruzado (corp/dest/pais) */
@@ -469,9 +473,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (cardId === 'kpicard-ar1' || cardId === 'kpicard-ar2') {
     var _arN = (cardId === 'kpicard-ar1') ? 1 : 2;
     var _arV = (typeof _arPillView !== 'undefined') ? (_arPillView[_arN] || 'hotel') : 'hotel';
-    /* hotel view: ya manejado por _arRowClick en js_override → no duplicar */
-    if (_arV === 'hotel') return;
-    /* corp/dest/pais/chan en AR: ya manejados por _arCrossFilter */
+    /* W25+: hotel view de AR1/AR2 se maneja aquí (hist update con corp hist) — no retornar */
+    /* corp/dest/pais/chan en AR: manejados por _arCrossFilter */
     if (_arV === 'corp' || _arV === 'dest' || (_arV === 'chan' && !isCR)) return;
   }
 
@@ -564,18 +567,27 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     var _arHw = window.BK_HOTEL_HIST[label];
     if (_arHw && _arHw.length > 0) { _arHistArr = _arHw.concat([w_curr]); }
   }
-  /* KPI cards EF/CV/ND/IPM en hotel view → CR_CORP_HIST / RND_CORP_HIST por corp del hotel */
-  if (!_arHistArr && _cardKeyH && typeof _kpiView !== 'undefined' && _kpiView[_cardKeyH] === 'hotel') {
-    var _hCorp = row.getAttribute('data-cf-corp') || '';
-    if (_hCorp) {
+  /* Hotel rows (cualquier view) y AR1/AR2 hotel → lookup por corp hist */
+  if (!_arHistArr) {
+    /* Determinar la métrica del card: AR1/AR2 según modo + card number */
+    var _hMetric = _cardKeyH;
+    if (!_hMetric) {
+      var _isCR3 = (typeof W !== 'undefined') && W.mode === 'cr';
+      if (cardId === 'kpicard-ar1') _hMetric = _isCR3 ? 'ef' : 'nd';
+      else if (cardId === 'kpicard-ar2') _hMetric = _isCR3 ? 'cv' : 'ipm';
+    }
+    /* Corp: preferir data-cf-corp del row (hotel rows), sino label (AR rows con corp) */
+    var _hCorp2 = row.getAttribute('data-cf-corp') || '';
+    if (!_hCorp2 || _hCorp2 === _rLabel) _hCorp2 = _rCorp; /* usar _rCorp definido arriba */
+    if (_hMetric && _hCorp2) {
       var _hDictH = null;
-      if (_cardKeyH === 'ef' || _cardKeyH === 'cv') {
+      if (_hMetric === 'ef' || _hMetric === 'cv') {
         _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
-      } else if (_cardKeyH === 'nd' || _cardKeyH === 'ipm') {
+      } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
         _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
       }
-      if (_hDictH && _hDictH[_hCorp] && _hDictH[_hCorp][_cardKeyH]) {
-        var _hwH = _hDictH[_hCorp][_cardKeyH];
+      if (_hDictH && _hDictH[_hCorp2] && _hDictH[_hCorp2][_hMetric]) {
+        var _hwH = _hDictH[_hCorp2][_hMetric];
         if (_hwH && _hwH.length > 0) { _arHistArr = _hwH.concat([w_curr]); }
       }
     }

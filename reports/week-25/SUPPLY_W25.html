@@ -1440,8 +1440,16 @@ var BK_HOTEL_HIST={"Hotel MX Lagunilla":[94.44,100.0,100.0,92.31,50.0,87.5,null]
     function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
     function xOf(i){return (i/(n-1))*W;}
     var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
-    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
-            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
+    var segs='';
+    for(var si=0;si<n-1;si++){
+      var bL=getBanda(vals[si]),bR=getBanda(vals[si+1]);
+      /* Gradiente de color entre los dos extremos del segmento — usar el color del medio si cambia */
+      var sCol=bL.c;  /* color del punto izquierdo */
+      var x0=xOf(si).toFixed(1),x1=xOf(si+1).toFixed(1);
+      var y0=yOf(vals[si]).toFixed(1),y1=yOf(vals[si+1]).toFixed(1);
+      segs+='<path d="M'+x0+','+y0+' L'+x1+','+y1+' L'+x1+','+SH+' L'+x0+','+SH+' Z" fill="'+sCol+'" fill-opacity="0.13"/>';
+    }
     var dots=vals.map(function(v,i){
       var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
       var r=last?5.5:4,sw=last?2:1.5;
@@ -1450,7 +1458,7 @@ var BK_HOTEL_HIST={"Hotel MX Lagunilla":[94.44,100.0,100.0,92.31,50.0,87.5,null]
       return d;
     }).join('');
     var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
-      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      segs+
       '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       dots+'</svg>';
     var cells=vals.map(function(v,i){
@@ -1535,8 +1543,16 @@ var BK_HOTEL_HIST={"Hotel MX Lagunilla":[94.44,100.0,100.0,92.31,50.0,87.5,null]
     function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
     function xOf(i){return (i/(n-1))*W;}
     var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
-    var aD='M'+pp[0]+' '+pp.slice(1).map(function(p){return 'L'+p;}).join(' ')+
-            ' L'+xOf(n-1).toFixed(1)+','+SH+' L0,'+SH+' Z';
+    /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
+    var segs='';
+    for(var si=0;si<n-1;si++){
+      var bL=getBanda(vals[si]),bR=getBanda(vals[si+1]);
+      /* Gradiente de color entre los dos extremos del segmento — usar el color del medio si cambia */
+      var sCol=bL.c;  /* color del punto izquierdo */
+      var x0=xOf(si).toFixed(1),x1=xOf(si+1).toFixed(1);
+      var y0=yOf(vals[si]).toFixed(1),y1=yOf(vals[si+1]).toFixed(1);
+      segs+='<path d="M'+x0+','+y0+' L'+x1+','+y1+' L'+x1+','+SH+' L'+x0+','+SH+' Z" fill="'+sCol+'" fill-opacity="0.13"/>';
+    }
     var dots=vals.map(function(v,i){
       var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
       var r=last?5.5:4,sw=last?2:1.5;
@@ -1545,7 +1561,7 @@ var BK_HOTEL_HIST={"Hotel MX Lagunilla":[94.44,100.0,100.0,92.31,50.0,87.5,null]
       return d;
     }).join('');
     var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
-      '<path d="'+aD+'" fill="'+ACCENT+'" fill-opacity="0.07"/>'+
+      segs+
       '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       dots+'</svg>';
     var cells=vals.map(function(v,i){
@@ -7008,7 +7024,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (!card) return;
   var cardId = card.id || '';
   var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
-  if (cardKey && typeof _kpiView !== 'undefined') {
+  /* Detectar si el row es un hotel (data-cf-corp distinto de data-hist-label → cross-filter no aplica) */
+  var _rCorp  = row.getAttribute('data-cf-corp') || '';
+  var _rLabel = row.getAttribute('data-hist-label') || '';
+  var _isHotelRow = _rCorp !== '' && _rCorp !== _rLabel;
+  if (cardKey && !_isHotelRow && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
     if (view === 'corp' || view === 'destino' || view === 'pais') {
       /* Delegar al filtro cruzado (corp/dest/pais) */
@@ -7119,9 +7139,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (cardId === 'kpicard-ar1' || cardId === 'kpicard-ar2') {
     var _arN = (cardId === 'kpicard-ar1') ? 1 : 2;
     var _arV = (typeof _arPillView !== 'undefined') ? (_arPillView[_arN] || 'hotel') : 'hotel';
-    /* hotel view: ya manejado por _arRowClick en js_override → no duplicar */
-    if (_arV === 'hotel') return;
-    /* corp/dest/pais/chan en AR: ya manejados por _arCrossFilter */
+    /* W25+: hotel view de AR1/AR2 se maneja aquí (hist update con corp hist) — no retornar */
+    /* corp/dest/pais/chan en AR: manejados por _arCrossFilter */
     if (_arV === 'corp' || _arV === 'dest' || (_arV === 'chan' && !isCR)) return;
   }
 
@@ -7214,18 +7233,27 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     var _arHw = window.BK_HOTEL_HIST[label];
     if (_arHw && _arHw.length > 0) { _arHistArr = _arHw.concat([w_curr]); }
   }
-  /* KPI cards EF/CV/ND/IPM en hotel view → CR_CORP_HIST / RND_CORP_HIST por corp del hotel */
-  if (!_arHistArr && _cardKeyH && typeof _kpiView !== 'undefined' && _kpiView[_cardKeyH] === 'hotel') {
-    var _hCorp = row.getAttribute('data-cf-corp') || '';
-    if (_hCorp) {
+  /* Hotel rows (cualquier view) y AR1/AR2 hotel → lookup por corp hist */
+  if (!_arHistArr) {
+    /* Determinar la métrica del card: AR1/AR2 según modo + card number */
+    var _hMetric = _cardKeyH;
+    if (!_hMetric) {
+      var _isCR3 = (typeof W !== 'undefined') && W.mode === 'cr';
+      if (cardId === 'kpicard-ar1') _hMetric = _isCR3 ? 'ef' : 'nd';
+      else if (cardId === 'kpicard-ar2') _hMetric = _isCR3 ? 'cv' : 'ipm';
+    }
+    /* Corp: preferir data-cf-corp del row (hotel rows), sino label (AR rows con corp) */
+    var _hCorp2 = row.getAttribute('data-cf-corp') || '';
+    if (!_hCorp2 || _hCorp2 === _rLabel) _hCorp2 = _rCorp; /* usar _rCorp definido arriba */
+    if (_hMetric && _hCorp2) {
       var _hDictH = null;
-      if (_cardKeyH === 'ef' || _cardKeyH === 'cv') {
+      if (_hMetric === 'ef' || _hMetric === 'cv') {
         _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
-      } else if (_cardKeyH === 'nd' || _cardKeyH === 'ipm') {
+      } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
         _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
       }
-      if (_hDictH && _hDictH[_hCorp] && _hDictH[_hCorp][_cardKeyH]) {
-        var _hwH = _hDictH[_hCorp][_cardKeyH];
+      if (_hDictH && _hDictH[_hCorp2] && _hDictH[_hCorp2][_hMetric]) {
+        var _hwH = _hDictH[_hCorp2][_hMetric];
         if (_hwH && _hwH.length > 0) { _arHistArr = _hwH.concat([w_curr]); }
       }
     }
