@@ -7143,6 +7143,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
       var _arHVal = row.getAttribute('data-hist-label') || '';
       if (!_arHVal) return;
       var _arHCid = isCR ? (_arN===1?'hcr-ar-ef':'hcr-ar-cv') : (_arN===1?'hrnd-ar-nd':'hrnd-ar-ipm');
+      console.log('[AR-BR] click: hotel="'+_arHVal+'" card='+_arN+' cid='+_arHCid+' was_selected='+row.getAttribute('data-selected'));
       var _arHWas = row.getAttribute('data-selected') === '1';
       var _arHCont = document.getElementById('ar'+_arN+'-th');
       if (_arHCont) _arHCont.querySelectorAll('[data-selected]').forEach(function(r){
@@ -7175,8 +7176,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             : (typeof window.RND_HOTEL_HIST !== 'undefined' ? window.RND_HOTEL_HIST : null);
           if (_arHDictH && _arHHotelN && _arHDictH[_arHHotelN] && _arHDictH[_arHHotelN][_arHMetric]) {
             var _arHHwH = _arHDictH[_arHHotelN][_arHMetric];
-            if (_arHHwH && _arHHwH.length > 0) _arHHistArr = _arHHwH.concat([_arHWc]);
-          }
+            if (_arHHwH && _arHHwH.length > 0) { _arHHistArr = _arHHwH.concat([_arHWc]); console.log('[AR-BR] hotel hist found: '+_arHHotelN+' pts='+_arHHistArr.length); }
+          } else { console.log('[AR-BR] hotel NOT in hist: "'+_arHHotelN+'" metric='+_arHMetric); }
           /* 2. Fallback corp */
           if (!_arHHistArr && _arHCorpK) {
             var _arHDict = isCR
@@ -7188,6 +7189,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
             }
           }
           var _arHFn = window['histUpdate_' + _arHCid];
+          console.log('[AR-BR] histUpdate: wc='+_arHWc+' wp='+_arHWp+' hist='+(!!_arHHistArr)+' fn='+(!!_arHFn));
           if (_arHFn) { _arHFn(_arHWc, _arHWp, null, _arHVal, _arHHistArr); }
           else { document.dispatchEvent(new CustomEvent('hist-update', {detail:{cid:_arHCid, w_curr:_arHWc, w_prev:_arHWp, hist_arr:_arHHistArr, label:_arHVal}})); }
           var _arHLe1 = document.getElementById('hist-'+_arHCid+'-label');
