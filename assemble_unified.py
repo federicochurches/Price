@@ -981,17 +981,23 @@ function _kpiPillRender(card) {
     /* BK (W25): hotel rows tienen data-cf-corp (corp name) pero data-cf-dest vacío.
        Solo el filtro por corp funciona en hotel view. Dest filter se ignora. */
     if (card === 'bk') {
-      if (_hasCf && cf.corp) {
-        /* Filtrar por corp (único filtro disponible en BK hotel) */
+      if (_hasCf && (cf.corp || cf.dest)) {
+        /* BK hotel: filtrar por corp Y dest si está disponible.
+           data-cf-dest está vacío en BK hotel rows (g_hotel no tiene Destino).
+           Si dest está seleccionado, ningún hotel matcheará → muestra 'Sin hoteles'.
+           Esto es honesto: evita mostrar hoteles de Mexico cuando se filtró por Roma. */
         var _sh2 = 0, _ex2 = 0;
         rows.forEach(function(row) {
           row.classList.remove('cf-extra');
           var rowCorp = row.getAttribute('data-cf-corp') || '';
-          var okCorp = _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0;
-          if (okCorp) {
+          var rowDest = row.getAttribute('data-cf-dest') || '';
+          var okCorp = !cf.corp || _kpiNormCF(rowCorp).indexOf(_kpiNormCF(cf.corp)) >= 0;
+          var okDest = !cf.dest || _kpiNormCF(rowDest).indexOf(_kpiNormCF(cf.dest)) >= 0;
+          if (okCorp && okDest) {
             _sh2++;
             if (_sh2 <= _KPI_TOP_N) { row.style.setProperty('display', 'grid', 'important'); }
-            else { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex2++; }
+            else if (_sh2 <= _KPI_TOP_N + 5) { row.classList.add('cf-extra'); row.style.setProperty('display', 'none', 'important'); _ex2++; }
+            else { row.style.setProperty('display', 'none', 'important'); }
           } else {
             row.style.setProperty('display', 'none', 'important');
           }
