@@ -6993,10 +6993,10 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _lockCids = _cids2.slice();
               /* Lookup histórico real W18-W(N-1) para corp/dest desde CR_CORP_HIST/RND_CORP_HIST */
               var _isCR2 = (typeof W !== 'undefined') && W.mode === 'cr';
-              var _dimV2 = _kpiView[card];
+              var _dimV2 = _kpiView[cardKey];
               var _hDict = null;
               /* BK card usa BK_CORP_HIST (array directo, no sub-key por métrica) */
-              if (card === 'bk') {
+              if (cardKey === 'bk') {
                 _hDict = (typeof window.BK_CORP_HIST !== 'undefined') ? window.BK_CORP_HIST : null;
               } else if (_isCR2) {
                 _hDict = (_dimV2 === 'dest') ? window.CR_DEST_HIST : window.CR_CORP_HIST;
@@ -7007,7 +7007,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _histArr2 = null;
               if (_hDict && _hDict[_eName]) {
                 /* BK_CORP_HIST tiene array directo; CR/RND tienen sub-key por métrica */
-                var _hw = (card === 'bk') ? _hDict[_eName] : _hDict[_eName][cardKey];  /* cardKey: 'ef'|'cv'|'nd'|'ipm'|'bk' */
+                var _hw = (cardKey === 'bk') ? _hDict[_eName] : _hDict[_eName][cardKey];  /* cardKey: 'ef'|'cv'|'nd'|'ipm'|'bk' */
                 if (_hw && _hw.length > 0) {
                   _histArr2 = _hw.concat([_wc2]);   /* W18-W(N-1) + W(N) = 8 puntos */
                 }
