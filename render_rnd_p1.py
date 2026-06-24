@@ -234,7 +234,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         panels += build_kpi_tab_panel(_df, t_key, _ND_CFG, _ND_HDR, default_tab='pais')
     
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
-<div>
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:0;align-items:start;">
+<div style="padding-right:16px;border-right:1px solid var(--rule-soft);">
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
@@ -251,7 +252,11 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div id="kpi-nd-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
 <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
 <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
-<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}</div>
+</div>
+<div style="padding-left:16px;display:flex;flex-direction:column;justify-content:flex-start;">
+<span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
+</div>
+</div>
 </div>'''
 
 # render_kpi_card_rpm eliminada — W26: IPM no se muestra en Availability (solo %NoDispo)

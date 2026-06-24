@@ -805,6 +805,16 @@ def build_kpi_tab_panel(df_t, t_key, cfg, panel_tabs_spec=None, default_tab='des
     if t_key != 'canasta' and panel_tabs_spec:
         headers = panel_tabs_spec.get('headers', [])
         widths  = panel_tabs_spec.get('widths', cfg['grid_cols'])
+        # Vista hotel: quitar col WoW tráfico (2ª col) → 4 cols más espacio para nombre
+        if t_key == 'hotel' and headers and len(headers) >= 4:
+            headers = [headers[0], headers[2], headers[3]]   # Tráfico · Val · WoW (sin WoW tráfico)
+            # Recalcular widths: quitar la segunda anchura fija
+            import re as _re
+            _parts = widths.split()
+            if len(_parts) >= 5:
+                widths = f'{_parts[0]} {_parts[2]} {_parts[3]} {_parts[4]}'
+            elif len(_parts) == 4:
+                widths = f'{_parts[0]} {_parts[2]} {_parts[3]}'
         _hdr = tab_column_header(headers, widths) if headers else ''
         _more_btn = _kpi_ver_mas_btn(target_class='rows-more') if rest_html else ''
         panel_html = f'<div class="kpi-tab-rows">{_hdr}{top_html}{rest_html}{_more_btn}</div>'

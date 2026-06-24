@@ -971,27 +971,35 @@ function _cardRow(r, idx, isEf, grid){
   var lab=r[0], sub=r[1], bbg=r[2], bfg=r[3], banda=r[4];
   var cr_u=r[5], cr_wow_delta=r[6], val_pct=r[7], wow_pp=r[8];
   var hist_w21=r[9]||0, hist_w20=r[10]||hist_w21;
-  /* W23+: sin columna severity — grid de 5 cols (sin la columna del badge) */
-  var gridCols = grid || (isEf ? 'minmax(0,1fr) 80px 56px 54px 48px'
-                                : 'minmax(0,1fr) 80px 56px 68px 40px');
-  /* badge sev removido — la card no muestra severity en filas */
-  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtCompact(cr_u);
-  /* WoW tráfico — para RND r[6] es % (pct), para CR es delta int */
-  var tw, tw_bg, tw_fg, tw_pill;
-  if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
-    var tw_up = cr_wow_delta > 0;
-    tw_bg = tw_up ? '#EAF3DE' : '#FCE8E6';
-    tw_fg = tw_up ? '#2F6C34' : '#C0392B';
-    /* Si el valor es pequeño (< 100) es un % → mostrar con signo; si es grande es int delta */
-    var tw_abs = Math.abs(cr_wow_delta);
-    tw = (tw_up?'▲':'▼') + _fmtCompact(tw_abs);
-    tw_pill = _pill(tw, tw_bg, tw_fg);
+  /* Vista hotel: sub != '' — quitar col WoW tráfico → 4 cols (más espacio para nombre) */
+  var isHotelView = sub && sub.length > 0;
+  var gridCols;
+  if (grid) {
+    gridCols = grid;
+  } else if (isHotelView) {
+    gridCols = isEf ? 'minmax(0,1fr) 80px 54px 48px' : 'minmax(0,1fr) 72px 74px 46px';
   } else {
-    tw_pill = _pill(null, '', '');
+    gridCols = isEf ? 'minmax(0,1fr) 80px 56px 54px 48px' : 'minmax(0,1fr) 80px 56px 68px 40px';
+  }
+  var cr_str = (typeof cr_u === 'string' && /[KMBkmb]/.test(cr_u)) ? cr_u : _fmtCompact(cr_u);
+  /* WoW tráfico — solo en vistas no-hotel */
+  var tw_pill = '';
+  if (!isHotelView) {
+    var tw, tw_bg, tw_fg;
+    if (cr_wow_delta != null && !isNaN(cr_wow_delta)) {
+      var tw_up = cr_wow_delta > 0;
+      tw_bg = tw_up ? '#EAF3DE' : '#FCE8E6';
+      tw_fg = tw_up ? '#2F6C34' : '#C0392B';
+      var tw_abs = Math.abs(cr_wow_delta);
+      tw = (tw_up?'▲':'▼') + _fmtCompact(tw_abs);
+      tw_pill = _pill(tw, tw_bg, tw_fg);
+    } else {
+      tw_pill = _pill(null, '', '');
+    }
   }
   /* WoW métrica */
   var mw = _wowPct(wow_pp);
-  var mw_up = wow_pp!=null && (isEf ? wow_pp>0 : wow_pp>0);
+  var mw_up = wow_pp!=null && wow_pp>0;
   var mw_bg = wow_pp!=null&&mw_up?'#EAF3DE':'#FCE8E6';
   var mw_fg = wow_pp!=null&&mw_up?'#2F6C34':'#C0392B';
   var mw_pill = _pill(mw, mw_bg, mw_fg);
@@ -999,7 +1007,6 @@ function _cardRow(r, idx, isEf, grid){
     +(sub?'<span style="font-size:9px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+sub+'</span>':'');
   var _display = (typeof arguments[4]==='string') ? arguments[4] : 'grid';
   var _cls = (typeof arguments[5]==='string') ? ' class="'+arguments[5]+'"' : '';
-  /* Cross-filter (vista hotel/destino): corp/dest/pais crudos en r[11]/r[12]/r[13] */
   var _cf_corp = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
   var _cf_dest = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
   var _cf_pais = (r[13]!=null) ? String(r[13]).replace(/"/g,'&quot;') : '';
@@ -1008,7 +1015,7 @@ function _cardRow(r, idx, isEf, grid){
     +'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
     +'<div style="min-width:0;overflow:hidden;">'+nameSpan+'</div>'
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+cr_str+'</span>'
-    +'<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>'
+    +(isHotelView ? '' : '<div style="text-align:right;white-space:nowrap;">'+tw_pill+'</div>')
     +'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;">'+_fmtPct(val_pct)+'</span>'
     +'<div style="text-align:right;white-space:nowrap;">'+mw_pill+'</div>'
     +'</div>';
@@ -1484,46 +1491,29 @@ function trow_ar(r, card, idx) {
  var _cfc = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
  var _cfd = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
  var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'" data-cf-corp="'+_cfc+'" data-cf-dest="'+_cfd+'"';
- /* Grid 5 cols: nombre · tráfico · wow · métrica · wow — igual KPI */
- var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
+ /* Grid 4 cols: nombre · tráfico · métrica · wow (sin WoW tráfico — AR es solo vista hotel) */
+ var grid = 'minmax(0,1fr) 80px 72px 48px';
  var num = idx != null ? (idx<10?'0':'')+idx+'. ' : '';
  /* Nombre */
  var nameSpan = '<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+num+r[0]+'</span>'
    +(r[13]?'<span style="font-size:9px;color:var(--ink-muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r[13]+'</span>':'')+'</div>';
  /* Tráfico */
  var trafSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+r[4]+'</span>';
- /* WoW tráfico */
  function wPill(str, good_if_up) {
   if(!str||str==='—') return '<span style="color:var(--ink-muted);font-size:10px;text-align:right;">—</span>';
   var up = str.charAt(0)==='▲'||str.charAt(0)==='+';
   var good = good_if_up ? up : !up;
-  var lbl = str.replace(/pp$/,'').trim(); /* mantener ▲/▼ */
+  var lbl = str.replace(/pp$/,'').trim();
   return '<em style="font-style:normal;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:'+(good?'#EAF3DE':'#FCE8E6')+';color:'+(good?'#2F6C34':'#C0392B')+';white-space:nowrap;display:block;text-align:right;">'+lbl+'</em>';
- }
- /* WoW tráfico — convertir delta absoluto a % relativo */
- var _wt10 = r[10] || '—';
- var wowTraf;
- if (_wt10 === '—' || !_wt10) {
-   wowTraf = wPill('—', true);
- } else {
-   var _wt_up = _wt10.charAt(0) === '▲';
-   var _wt_delta = parseFloat(_wt10.replace(/[^0-9.,]/g,'').replace(',','.')) || 0;
-   /* Parsear tráfico actual */
-   var _traf_str = String(r[4]||'0').replace(',','.').replace(/K$/i,'000').replace(/M$/i,'000000').replace(/B$/i,'000000000');
-   var _traf_curr = parseFloat(_traf_str.replace(/[^0-9.]/g,'')) || 0;
-   var _traf_prev = _wt_up ? _traf_curr - _wt_delta : _traf_curr + _wt_delta;
-   var _pct = _traf_prev > 0 ? (_wt_delta / _traf_prev * 100) : 0;
-   var _pct_str = (_wt_up ? '▲' : '▼') + _pct.toFixed(1).replace('.',',') + '%';
-   wowTraf = wPill(_pct_str, true);
  }
  /* Métrica */
  var metSpan = '<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">'+(metVal!=null?metVal:'—')+'</span>';
- /* WoW métrica — r[8]=ef_wow, r[9]=cv_wow (strings con ▲/▼) */
+ /* WoW métrica — r[8]=ef_wow/nd_wow, r[9]=cv_wow (strings con ▲/▼) */
  var wowMet = isCR
    ? (card===1 ? wPill(r[8]||'—',true) : wPill(r[9]||'—',true))
    : (card===1 ? wPill(r[8]||'—',false): wPill(r[9]||'—',true));
  return '<div '+histAttr+' style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-   +nameSpan+trafSpan+wowTraf+metSpan+wowMet+'</div>';
+   +nameSpan+trafSpan+metSpan+wowMet+'</div>';
 }
 
 /* Render tabla AR con trow_ar */
@@ -1533,10 +1523,10 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var container = wrap ? wrap.querySelector('#ar'+n+'-th') : document.getElementById(tbodyId);
  if (!container) return;
 
- /* Header de columnas — igual al de KPI */
+ /* Header de columnas — 4 cols (sin WoW tráfico, AR es solo vista hotel) */
  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
  var metLbl = n===1 ? (isCR?'Eficacia':'%NoDispo') : (isCR?'Conv Rate':'IPM');
- var grid = 'minmax(0,1fr) 80px 56px 72px 48px';
+ var grid = 'minmax(0,1fr) 80px 72px 48px';
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
  var _mkSH = function(lbl, col, acc) {
    var state = _arSortState[n] || {};
@@ -1548,7 +1538,6 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var hdr = '<div style="display:grid;grid-template-columns:'+grid+';gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
    +'<span></span>'
    +_mkSH('Tráfico','traf',false)
-   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
    +_mkSH(metLbl,'met',true)
    +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
    +'</div>';
