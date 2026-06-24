@@ -566,10 +566,14 @@ document.addEventListener('click', function(e) {
   /* Función para volver a la serie GLOBAL del histórico BK */
   function _bkResetGlobal() {
     bkCard.querySelectorAll('.bk-row').forEach(function(r){ r.style.background = ''; r.removeAttribute('data-selected'); });
-    /* Disparar hist-reset para que el módulo redibuje con VALS_DEF (global) */
-    document.dispatchEvent(new CustomEvent('hist-reset', { detail: { cid: 'h-bk-global' } }));
-    var lblEl = document.getElementById('hist-h-bk-global-label');
-    if (lblEl) lblEl.textContent = 'Global';
+    /* Disparar hist-reset a los 3 canvas BK (W25+) */
+    ['h-bk-panel','h-bk-ar'].forEach(function(cid) {
+      var fn = window['histUpdate_' + cid];
+      /* hist-reset: llamar con null para volver a Global */
+      document.dispatchEvent(new CustomEvent('hist-reset', { detail: { cid: cid } }));
+      var _le = document.getElementById('hist-' + cid + '-label');
+      if (_le) _le.textContent = 'Global';
+    });
     /* #1: limpiar también la cross-pill de channel si quedó activa */
     if (typeof _kpiCrossFilter !== 'undefined' && _kpiCrossFilter['bk']) {
       _kpiCrossFilter['bk'].channel = null;

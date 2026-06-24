@@ -337,6 +337,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   if (!card) return;
   var cardId = card.id || '';
   var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
+  /* BK card: el handler de .bk-row en js_override.js ya cubre todas las vistas
+     (hotel/channel/corp/dest). Si llegamos aquí para BK, salir — evita conflicto
+     donde _handleKpiCardHistClick ve data-selected='1' y dispara hist-reset. */
+  if (cardKey === 'bk') return;
+
   if (cardKey && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
     if (view === 'corp' || view === 'destino' || view === 'pais') {
