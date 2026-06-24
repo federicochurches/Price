@@ -1758,6 +1758,7 @@ var BK_DATA = {{
 """
 else:
     BK_JS_DATA = "var BK_DATA = null;\n"
+    BK_TRX_WOW_JS = "var _BK_TRX_WOW = {};\n"
 
 BK_SORT_JS = """
 /* bkSort — ordenamiento clickeable de la card BK */

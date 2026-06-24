@@ -57,17 +57,15 @@ def validate_datasets():
         f'Dataset_RatesNoDispo_W{WEEK_NUM - 1}.xlsx',
         f'Dataset_CheckRates_W{WEEK_NUM}.xlsx',
         f'Dataset_CheckRates_W{WEEK_NUM - 1}.xlsx',
-        f'Dataset_Bookability_W{WEEK_NUM}.xlsx',  # acumulado W16-WNN (primer pipeline)
+        # Bookability es opcional si el pickle ya existe (re-pipeline sin nuevo dataset BK)
+        # f'Dataset_Bookability_W{WEEK_NUM}.xlsx',
     ]
     # Aliases aceptados para Bookability (el archivo puede llamarse Dataset_bookability.xlsx)
     bk_aliases = ['Dataset_bookability.xlsx', f'Dataset_Bookability_W{WEEK_NUM}.xlsx']
     search_dirs = [SCRIPT_DIR, PROJECT_DIR, Path('/mnt/user-data/uploads')]
     missing = []
     for name in required:
-        if 'Bookability' in name:
-            found = any((d / alias).exists() for d in search_dirs for alias in bk_aliases)
-        else:
-            found = any((d / name).exists() for d in search_dirs)
+        found = any((d / name).exists() for d in search_dirs)
         if not found:
             missing.append(name)
     if missing:
@@ -134,8 +132,19 @@ if __name__ == '__main__':
     # 2. Calcular CR → pickle
     run_step('2/7', 'calc_cr.py')
 
-    # 3. Calcular Bookability → pickle
-    run_step('3/7', 'calc_bk.py')
+    # 3. Calcular Bookability → pickle (opcional si no hay dataset nuevo)
+    _bk_dataset_found = any(
+        (d / alias).exists()
+        for d in [SCRIPT_DIR, PROJECT_DIR, Path('/mnt/user-data/uploads')]
+        for alias in ['Dataset_bookability.xlsx', f'Dataset_Bookability_W{WEEK_NUM}.xlsx']
+    )
+    _bk_pickle = Path(__file__).parent / f'bk_w{VOL_NUM}_data.pkl'
+    if _bk_dataset_found:
+        run_step('3/7', 'calc_bk.py')
+    elif _bk_pickle.exists():
+        print(f'\n[3/7] calc_bk.py omitido — usando pickle existente {_bk_pickle.name}')
+    else:
+        print(f'\n[3/7] ⚠️  calc_bk.py omitido — sin dataset ni pickle BK (BK quedará vacío en el HTML)')
 
     # 4. Render RND parciales
     for i, script in enumerate(['render_rnd_p1.py', 'render_rnd_p2.py', 'render_rnd_p3.py'], 1):
