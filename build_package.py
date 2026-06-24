@@ -70,7 +70,6 @@ mc   = DC['M'][f'global_w{WEEK}']
 mc17 = DC['M'][f'global_w{WEEK_PREV}']
 
 rnd_pct  = mr['pct_nodispo'] * 100
-rnd_ipm  = mr['ipm']
 cr_ef    = mc['eficacia'] * 100
 cr_cv    = mc['conv_rate'] * 100
 
@@ -94,7 +93,6 @@ def build_index():
     nd_meta = (
         f'{len(DR["p80_hotel"]):,} hoteles P80 · '
         f'%NoDispo {es(rnd_pct)}% · '
-        f'IPM ${es(rnd_ipm, 0)} · '
         f'GB ${es(mr["gb_usd"]/1e6, 2)}M · '
         f'{rnd_supc} Súper Críticos / {rnd_crit} Críticos'
     )
@@ -109,18 +107,15 @@ def build_index():
     rnd_wow      = (rnd_pct - mr17['pct_nodispo']*100)
     cr_ef_wow    = (cr_ef - mc17['eficacia']*100)
     cr_cv_wow    = (cr_cv - mc17['conv_rate']*100)
-    rnd_ipm_wow  = (rnd_ipm - mr17['ipm']) / mr17['ipm'] * 100 if mr17['ipm'] else 0
     rnd_wow_str      = f'+{rnd_wow:.2f}pp'   if rnd_wow >= 0   else f'{rnd_wow:.2f}pp'
     cr_ef_wow_str    = f'+{cr_ef_wow:.2f}pp' if cr_ef_wow >= 0 else f'{cr_ef_wow:.2f}pp'
     cr_cv_wow_str    = f'+{cr_cv_wow:.2f}pp' if cr_cv_wow >= 0 else f'{cr_cv_wow:.2f}pp'
-    rnd_ipm_wow_str  = f'+{rnd_ipm_wow:.1f}%' if rnd_ipm_wow >= 0 else f'{rnd_ipm_wow:.1f}%'
     # Colores WoW pre-calculados
     def _wc(v): return ("#1A6B4A","#E1F5EE") if v>=0 else ("#FF3B30","#FFE5E3")
     def _wb(v,s): fg,bg=_wc(v); return f'<div style="font-size:9px;font-weight:700;color:{fg};background:{bg};padding:1px 6px;border-radius:10px;display:inline-block;margin-top:2px;">{s}</div>'
     wow_ef  = _wb(cr_ef_wow,  cr_ef_wow_str)
     wow_cv  = _wb(cr_cv_wow,  cr_cv_wow_str)
     wow_nd  = _wb(rnd_wow,    rnd_wow_str)
-    wow_ipm = _wb(rnd_ipm_wow, rnd_ipm_wow_str)
     # BK WoW (graceful — solo si el pickle está disponible)
     if bk_global is not None and bk_wow is not None:
         bk_wow_pp  = bk_wow * 100
@@ -271,7 +266,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
-        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label" style="font-weight:700;">BK</div><div class="rpt-kpi-val">{bk_val_str}</div>{wow_bk}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val">{rnd_pct:.2f}%</div>{wow_nd}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">IPM</div><div class="rpt-kpi-val">${rnd_ipm:,.0f}</div>{wow_ipm}</div>\n        </div>
+        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label" style="font-weight:700;">BK</div><div class="rpt-kpi-val">{bk_val_str}</div>{wow_bk}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val">{rnd_pct:.2f}%</div>{wow_nd}</div>\n        </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -407,7 +402,6 @@ SEGUIMIENTO_ITEMS_RND = [
     {'cluster':'QW','report':'RND','text':f'Escalar {rnd_supc} hoteles Súper Críticos %NoDispo (>60%) — remediación técnica urgente'},
     {'cluster':'QW','report':'AMBOS','text':'Diagnóstico técnico Top 10 Sin Conversión de alto tráfico — mapping, paridad, inventario'},
     {'cluster':'MP','report':'RND','text':f'Saneamiento {rnd_crit + rnd_supc} hoteles Crítica/Súper Crítica %NoDispo — priorizar CUG y B2B-OP'},
-    {'cluster':'MP','report':'RND','text':f'Revisión IPM en CUG ({es(rnd_ipm,0)} USD/M) — canasta de mayor weight'},
     {'cluster':'ES','report':'RND','text':'Reducir cohorte Sin Conversión en P80 — proyecto trimestral técnico + comercial'},
     {'cluster':'ES','report':'RND','text':'Definir SLAs de %NoDispo por corporativo — Top 10 corp por tráfico'},
 ]

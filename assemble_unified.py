@@ -41,18 +41,14 @@ from render_helpers import searchbox_pill_html as _sbph
 _ef_val  = DC.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('eficacia', 0.9315)
 _cv_val  = DC.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('conv_rate', 0.0157)
 _nd_val  = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('nodispo', 0.0263)
-_ipm_val = DR.get('M',{}).get(f'global_w{VOL_NUM}',{}).get('rpm', 834.0)
-
-from engine import banda_convrate as _bcv, banda_rpm as _brpm
+from engine import banda_convrate as _bcv
 
 HIST_CR_PANEL     = _rh_svg('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-ar-ef')
 HIST_CR_PANEL_CV  = _rh_svg('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-ar-cv')
 HIST_RND_PANEL    = _rh_svg('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-ar-nd')
-HIST_RND_PANEL_IPM= _rh_svg('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-ar-ipm')
 HIST_CR_DIM       = _rh('cr',  'eficacia', _bef(_ef_val), _ef_val, 'hcr-dim-ef')
 HIST_CR_DIM_CV    = _rh('cr',  'convrate', _bcv(_cv_val, 1), _cv_val, 'hcr-dim-cv')
 HIST_RND_DIM      = _rh('rnd', 'nodispo',  _bnd(_nd_val), _nd_val, 'hrnd-dim-nd')
-HIST_RND_DIM_IPM  = _rh('rnd', 'ipm',      _brpm(_ipm_val, 1), _ipm_val, 'hrnd-dim-ipm')
 # Histórico Bookability para card AR3
 if DB is not None:
     _bk_vals = [DB['hist_by_week'][w]['bk'] * 100 for w in ['W16','W17','W18','W19','W20','W21','W22','W23'] if w in DB['hist_by_week']]
@@ -184,17 +180,11 @@ _HIST_CR_PY = {
 
 _HIST_RND_PY = {
     'hrnd-global-nd':   {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-global-ipm':  {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
     'hrnd-panel-nd':    {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-panel-ipm':   {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
     'hrnd-dim-nd':      {'vals': _hist_vals('rnd','nodispo','global', round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-dim-ipm':     {'vals': _hist_vals('rnd','ipm','global',     round(_M_rnd.get(f'global_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
     'hrnd-op-nd':       {'vals': _hist_vals('rnd','nodispo','op',     round(_M_rnd.get(f'B2B (OP)_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-op-ipm':      {'vals': _hist_vals('rnd','ipm','op',         round(_M_rnd.get(f'B2B (OP)_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
     'hrnd-cug-nd':      {'vals': _hist_vals('rnd','nodispo','cug',    round(_M_rnd.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-cug-ipm':     {'vals': _hist_vals('rnd','ipm','cug',        round(_M_rnd.get(f'CUG (UOP)_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
     'hrnd-b2c-nd':      {'vals': _hist_vals('rnd','nodispo','b2c',    round(_M_rnd.get(f'B2C_w{VOL_NUM}',{}).get('pct_nodispo',0)*100,2)), 'target': 3.0},
-    'hrnd-b2c-ipm':     {'vals': _hist_vals('rnd','ipm','b2c',        round(_M_rnd.get(f'B2C_w{VOL_NUM}',{}).get('rpm',0),0)), 'target': 650.0},
 }
 
 _HIST_CR_BY_CANASTA_PY = {
@@ -219,19 +209,15 @@ _HIST_CR_BY_CANASTA_PY = {
 _HIST_RND_BY_CANASTA_PY = {
     'global': {
         'nd':  _HIST_RND_PY.get('hrnd-global-nd'),
-        'ipm': _HIST_RND_PY.get('hrnd-global-ipm'),
     },
     'b2c': {
         'nd':  _HIST_RND_PY.get('hrnd-b2c-nd'),
-        'ipm': _HIST_RND_PY.get('hrnd-b2c-ipm'),
     },
     'op': {
         'nd':  _HIST_RND_PY.get('hrnd-op-nd'),
-        'ipm': _HIST_RND_PY.get('hrnd-op-ipm'),
     },
     'cug': {
         'nd':  _HIST_RND_PY.get('hrnd-cug-nd'),
-        'ipm': _HIST_RND_PY.get('hrnd-cug-ipm'),
     },
 }
 
@@ -243,7 +229,7 @@ _HIST_INIT_JS = (
 )
 
 FOOTER_JS = (
-    '<style>\n' + open('demo_css_w22.css', encoding='utf-8').read() + '\n' + '\n/* ═══════════════════════════════════════════════════\n   MOBILE RESPONSIVE · W22+\n   Breakpoints: 600px (teléfono), 400px (teléfono chico)\n   ═══════════════════════════════════════════════════ */\n@media (max-width: 600px) {\n\n  /* Shell */\n  .shell { padding: 0 16px; }\n\n  /* Masthead */\n  .hero h1 { font-size: clamp(24px, 7vw, 32px) !important; }\n  .hero-brand { flex-wrap: wrap; gap: 8px; }\n  .hero-brand-logo { max-width: 140px; }\n  .hero-brand-title { font-size: clamp(13px, 3.5vw, 18px); }\n\n  /* Switcher CR/RND */\n  .report-switcher { padding: 10px 16px 0; margin: 0 -16px; }\n  .switcher-btn { padding: 8px 14px; font-size: 10px; letter-spacing: .07em; }\n  .back-hub { font-size: 10px; padding: 6px 10px; }\n\n  /* Canasta tabs — scroll horizontal sin corte */\n  .canasta-tabs .tabs-row {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n    padding-bottom: 1px;\n  }\n  .canasta-tabs .tabs-row::-webkit-scrollbar { display: none; }\n  .canasta-tabs .tab-label {\n    padding: 8px 12px;\n    font-size: 9px;\n    white-space: nowrap;\n    flex-shrink: 0;\n  }\n\n  /* KPI cards — apilar verticalmente */\n  .kpis-hero { grid-template-columns: 1fr !important; gap: 12px !important; }\n  .kpi-card { padding: 16px; }\n  .kpi-val { font-size: clamp(32px, 10vw, 52px) !important; }\n\n  /* Tabs de dim (DESTINO/CORP/HOTEL/CHANNEL) */\n  .kpi-tab-labels {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n  }\n  .kpi-tab-labels::-webkit-scrollbar { display: none; }\n  .kpi-tab-label { font-size: 9px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }\n\n  /* Tabla AR — ocultar col WoW en mobile para que quepan las celdas clave */\n  .ar-table td:nth-child(4),\n  .ar-table th:nth-child(4),\n  .ar-table td:nth-child(6),\n  .ar-table th:nth-child(6) { display: none; }\n  .ar-table td, .ar-table th { font-size: 10px; padding: 5px 4px; }\n  .sev-badge { font-size: 8px; padding: 2px 5px; }\n\n  /* Canvas histórico */\n  canvas { max-width: 100%; }\n  .hist-canvas-wrap { overflow-x: auto; }\n\n  /* Hero meta */\n  .hero-meta { grid-template-columns: 1fr 1fr !important; }\n\n  /* Searchbox */\n  .sb-wrap { max-width: 100%; }\n  .sb-input { font-size: 12px; }\n\n  /* Section head */\n  .section-head { flex-wrap: wrap; gap: 8px; }\n  .section-title { font-size: clamp(16px, 5vw, 22px); }\n\n  /* Masthead flex — mobile */\n  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 8px; }\n  .masthead-left { min-width: 0; }\n  .masthead-left > div:first-child { font-size: 22px !important; white-space: nowrap; }\n  .masthead-right { flex-shrink: 0; }\n  .masthead-logo { height: 32px !important; }\n  .masthead-sub { font-size: 9px; }\n\n  /* Footer descargas — apilar botones */\n  .footer-downloads { flex-direction: column; gap: 8px; }\n  .footer-downloads a { width: 100%; text-align: center; box-sizing: border-box; }\n\n  /* Severity row — mobile: ocultar col rango */\n  .sev-row { grid-template-columns: minmax(90px,auto) 1fr 52px 40px !important; }\n  .sev-row span:nth-child(2) { display: none; }\n\n  /* Evitar scroll horizontal global */\n  body, .shell { overflow-x: hidden; }\n}\n\n@media (max-width: 400px) {\n  .shell { padding: 0 12px; }\n  .report-switcher { padding: 8px 12px 0; margin: 0 -12px; }\n  .switcher-btn { padding: 7px 10px; font-size: 9px; }\n  .kpi-val { font-size: clamp(28px, 9vw, 40px) !important; }\n  .canasta-tabs .tab-label { padding: 7px 10px; font-size: 8.5px; }\n}\n' + '\n/* ── Card BK Availability sync · CSS puro (W23+) ── */\nbody[data-ar-mode=\'rnd\'] #kpicard-ar3 { display: none !important; }\nbody[data-ar-mode=\'rnd\'] .ar-cards-grid { grid-template-columns: 1fr 1fr !important; }\n\n/* ── KPI Cards EF/CV: panels controlados por JS pills (W24+) ── */\n#kpi-ef-panels .tab-panel,\n#kpi-cv-panels .tab-panel,\n#kpi-bk-panels .tab-panel { display: none !important; }\n#kpi-ef-panels .tab-panel[data-tab=\'destino\'],\n#kpi-cv-panels .tab-panel[data-tab=\'destino\'],\n#kpi-bk-panels .tab-panel[data-tab=\'destino\'] { display: block !important; }\n\n/* RND NoDispo/IPM panels (W24+) · default pais */\n#kpi-nd-panels .tab-panel,\n#kpi-ipm-panels .tab-panel { display: none !important; }\n#kpi-nd-panels .tab-panel[data-tab=\'pais\'],\n#kpi-ipm-panels .tab-panel[data-tab=\'pais\'] { display: block !important; }\n\n/* Searchbox AR/KPI: el match supera la paginacion (sb-hidden/rows-more) - W24 */\n.sb-hidden.sb-search-hit, .rows-more.sb-search-hit, .sb-search-hit { display: grid !important; }\n\n/* Fila seleccionada: padding-left para que box-shadow inset no pise el ranking (W25+) */\n[data-selected] { padding-left: 6px !important; }\n\n</style>\n'
+    '<style>\n' + open('demo_css_w22.css', encoding='utf-8').read() + '\n' + '\n/* ═══════════════════════════════════════════════════\n   MOBILE RESPONSIVE · W22+\n   Breakpoints: 600px (teléfono), 400px (teléfono chico)\n   ═══════════════════════════════════════════════════ */\n@media (max-width: 600px) {\n\n  /* Shell */\n  .shell { padding: 0 16px; }\n\n  /* Masthead */\n  .hero h1 { font-size: clamp(24px, 7vw, 32px) !important; }\n  .hero-brand { flex-wrap: wrap; gap: 8px; }\n  .hero-brand-logo { max-width: 140px; }\n  .hero-brand-title { font-size: clamp(13px, 3.5vw, 18px); }\n\n  /* Switcher CR/RND */\n  .report-switcher { padding: 10px 16px 0; margin: 0 -16px; }\n  .switcher-btn { padding: 8px 14px; font-size: 10px; letter-spacing: .07em; }\n  .back-hub { font-size: 10px; padding: 6px 10px; }\n\n  /* Canasta tabs — scroll horizontal sin corte */\n  .canasta-tabs .tabs-row {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n    padding-bottom: 1px;\n  }\n  .canasta-tabs .tabs-row::-webkit-scrollbar { display: none; }\n  .canasta-tabs .tab-label {\n    padding: 8px 12px;\n    font-size: 9px;\n    white-space: nowrap;\n    flex-shrink: 0;\n  }\n\n  /* KPI cards — apilar verticalmente */\n  .kpis-hero { grid-template-columns: 1fr !important; gap: 12px !important; }\n  .kpi-card { padding: 16px; }\n  .kpi-val { font-size: clamp(32px, 10vw, 52px) !important; }\n\n  /* Tabs de dim (DESTINO/CORP/HOTEL/CHANNEL) */\n  .kpi-tab-labels {\n    flex-wrap: nowrap;\n    overflow-x: auto;\n    -webkit-overflow-scrolling: touch;\n    scrollbar-width: none;\n  }\n  .kpi-tab-labels::-webkit-scrollbar { display: none; }\n  .kpi-tab-label { font-size: 9px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }\n\n  /* Tabla AR — ocultar col WoW en mobile para que quepan las celdas clave */\n  .ar-table td:nth-child(4),\n  .ar-table th:nth-child(4),\n  .ar-table td:nth-child(6),\n  .ar-table th:nth-child(6) { display: none; }\n  .ar-table td, .ar-table th { font-size: 10px; padding: 5px 4px; }\n  .sev-badge { font-size: 8px; padding: 2px 5px; }\n\n  /* Canvas histórico */\n  canvas { max-width: 100%; }\n  .hist-canvas-wrap { overflow-x: auto; }\n\n  /* Hero meta */\n  .hero-meta { grid-template-columns: 1fr 1fr !important; }\n\n  /* Searchbox */\n  .sb-wrap { max-width: 100%; }\n  .sb-input { font-size: 12px; }\n\n  /* Section head */\n  .section-head { flex-wrap: wrap; gap: 8px; }\n  .section-title { font-size: clamp(16px, 5vw, 22px); }\n\n  /* Masthead flex — mobile */\n  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 8px; }\n  .masthead-left { min-width: 0; }\n  .masthead-left > div:first-child { font-size: 22px !important; white-space: nowrap; }\n  .masthead-right { flex-shrink: 0; }\n  .masthead-logo { height: 32px !important; }\n  .masthead-sub { font-size: 9px; }\n\n  /* Footer descargas — apilar botones */\n  .footer-downloads { flex-direction: column; gap: 8px; }\n  .footer-downloads a { width: 100%; text-align: center; box-sizing: border-box; }\n\n  /* Severity row — mobile: ocultar col rango */\n  .sev-row { grid-template-columns: minmax(90px,auto) 1fr 52px 40px !important; }\n  .sev-row span:nth-child(2) { display: none; }\n\n  /* Evitar scroll horizontal global */\n  body, .shell { overflow-x: hidden; }\n}\n\n@media (max-width: 400px) {\n  .shell { padding: 0 12px; }\n  .report-switcher { padding: 8px 12px 0; margin: 0 -12px; }\n  .switcher-btn { padding: 7px 10px; font-size: 9px; }\n  .kpi-val { font-size: clamp(28px, 9vw, 40px) !important; }\n  .canasta-tabs .tab-label { padding: 7px 10px; font-size: 8.5px; }\n}\n' + '\n/* ── Card BK + AR2 Availability sync · CSS puro (W26+) ── */\nbody[data-ar-mode=\'rnd\'] #kpicard-ar3 { display: none !important; }\nbody[data-ar-mode=\'rnd\'] #kpicard-ar2 { display: none !important; }\nbody[data-ar-mode=\'rnd\'] .ar-cards-grid { grid-template-columns: 1fr !important; }\n\n/* ── KPI Cards EF/CV: panels controlados por JS pills (W24+) ── */\n#kpi-ef-panels .tab-panel,\n#kpi-cv-panels .tab-panel,\n#kpi-bk-panels .tab-panel { display: none !important; }\n#kpi-ef-panels .tab-panel[data-tab=\'destino\'],\n#kpi-cv-panels .tab-panel[data-tab=\'destino\'],\n#kpi-bk-panels .tab-panel[data-tab=\'destino\'] { display: block !important; }\n\n/* RND NoDispo panels (W26+) · solo nd · default pais */\n#kpi-nd-panels .tab-panel { display: none !important; }\n#kpi-nd-panels .tab-panel[data-tab=\'pais\'] { display: block !important; }\n\n/* Searchbox AR/KPI: el match supera la paginacion (sb-hidden/rows-more) - W24 */\n.sb-hidden.sb-search-hit, .rows-more.sb-search-hit, .sb-search-hit { display: grid !important; }\n\n/* Fila seleccionada: padding-left para que box-shadow inset no pise el ranking (W25+) */\n[data-selected] { padding-left: 6px !important; }\n\n</style>\n'
     + '<script>\n'
     + f'var _VOL_NUM = {int(VOL_NUM)};\n'
     + _cr_data_js + '\n'
@@ -357,7 +343,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var card = row.closest('.kpi-card');
   if (!card) return;
   var cardId = card.id || '';
-  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : cardId === 'kpicard-ipm' ? 'ipm' : null;
+  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : null;
   /* Detectar si el row es un hotel (data-cf-corp distinto de data-hist-label → cross-filter no aplica) */
   var _rCorp  = row.getAttribute('data-cf-corp') || '';
   var _rLabel = row.getAttribute('data-hist-label') || '';
@@ -383,8 +369,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         if (isAlreadySel) { if (_oi >= 0) _o.splice(_oi, 1); }       /* deselect → quitar */
         else { if (_oi >= 0) _o.splice(_oi, 1); _o.push(cfKey); }    /* select → al final */
         /* Paint de fila — igual que histórico */
-        var _accent = (cardKey === 'bk') ? '#333132' : (cardKey === 'nd' || cardKey === 'ipm') ? '#EA0074' : '#5C469C';
-        var _accentAlpha = (cardKey === 'bk') ? 'rgba(51,49,50,0.07)' : (cardKey === 'nd' || cardKey === 'ipm') ? 'rgba(234,0,116,0.07)' : 'rgba(92,70,156,0.07)';
+        var _accent = (cardKey === 'bk') ? '#333132' : cardKey === 'nd' ? '#EA0074' : '#5C469C';
+        var _accentAlpha = (cardKey === 'bk') ? 'rgba(51,49,50,0.07)' : cardKey === 'nd' ? 'rgba(234,0,116,0.07)' : 'rgba(92,70,156,0.07)';
         kpiRows.querySelectorAll('[data-hist-w21]').forEach(function(r) {
           r.style.background = ''; r.style.boxShadow = ''; r.removeAttribute('data-selected');
         });
@@ -398,9 +384,9 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         /* Bug 5: al seleccionar una dimensión (país/corp/destino), actualizar la gráfica histórica
            con el valor de esa entidad (W24 = hist_w21, W23 = W24 − WoW). */
         /* Actualizar AMBAS canvas (global + panel) para que la visible siempre se redibuje */
-        var _cidMapG = {nd:'hrnd-global-nd', ipm:'hrnd-global-ipm', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
-        var _cidMapP = {nd:'hrnd-panel-nd',  ipm:'hrnd-panel-ipm',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-panel'};
-        var _cidMapAR = {nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm', ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar'};
+        var _cidMapG = {nd:'hrnd-global-nd', ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global'};
+        var _cidMapP = {nd:'hrnd-panel-nd',  ef:'hcr-panel-ef',  cv:'hcr-panel-cv',  bk:'h-bk-panel'};
+        var _cidMapAR = {nd:'hrnd-ar-nd', ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar'};
         var _cids = [_cidMapG[cardKey], _cidMapP[cardKey], _cidMapAR[cardKey]].filter(function(x){ return x; });
         _cids = _cids.filter(function(x,i){ return _cids.indexOf(x) === i; }); /* dedup */
         var _cid2 = _cidMapG[cardKey];  /* para el label usamos el global */
@@ -495,7 +481,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     if (_arV === 'hotel') {
       var _arHVal = row.getAttribute('data-hist-label') || '';
       if (!_arHVal) return;
-      var _arHCid = isCR ? (_arN===1?'hcr-ar-ef':'hcr-ar-cv') : (_arN===1?'hrnd-ar-nd':'hrnd-ar-ipm');
+      var _arHCid = isCR ? (_arN===1?'hcr-ar-ef':'hcr-ar-cv') : (_arN===1?'hrnd-ar-nd':'hrnd-ar-nd');
       /* Toggle: segundo click = reset */
       var _arHWas = row.getAttribute('data-selected') === '1';
       var _arHCont = document.getElementById('ar'+_arN+'-th');
@@ -522,7 +508,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
           /* Lookup historial real: 1) por hotel individual, 2) fallback corp */
           var _arHHistArr = null;
           var _arHCorpK   = row.getAttribute('data-cf-corp') || '';
-          var _arHMetric  = isCR ? (_arN===1?'ef':'cv') : (_arN===1?'nd':'ipm');
+          var _arHMetric  = isCR ? (_arN===1?'ef':'cv') : 'nd';
           /* Nombre del hotel: limpiar prefijo "(ID) - " si existe */
           var _arHHotelName = (_arHVal || '').replace(/^\(\d+\)\s*-\s*/, '').trim();
           /* 1. Hotel individual */
@@ -581,13 +567,13 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   else if (cardId === 'kpicard-cv')  cid = 'hcr-global-cv';
   else if (cardId === 'kpicard-bk')  cid = 'h-bk-global';
   else if (cardId === 'kpicard-nd')  cid = 'hrnd-global-nd';
-  else if (cardId === 'kpicard-ipm') cid = 'hrnd-global-ipm';
+  
   /* Cards AR de Rendimiento */
   /* AR cards: usar el sparkline AR específico (hcr-ar-ef, hcr-ar-cv, h-bk-ar)
      La fila se maneja por js_override.js _arRow handler para hotel view.
      Este path cubre casos residuales (canal en CR, etc.) */
   else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-ar-ef' : 'hrnd-ar-nd';
-  else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-ar-cv' : 'hrnd-ar-ipm';
+  else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-ar-cv' : 'hrnd-ar-nd';
   else if (cardId === 'kpicard-ar3') cid = 'h-bk-ar';
   else return;
 
@@ -606,11 +592,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
 
   if (isSelected) {
     /* Reset: despachar a cid primario + panel + AR para limpiar todas las sparklines */
-    var _rHMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
-    var _rHMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+    var _rHMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd'};
+    var _rHMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd'};
     var _rCardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv'
                   : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd'
-                  : cardId === 'kpicard-ipm' ? 'ipm' : null;
+                  : null;
     var _rCids = [cid];
     if (_rCardKey) {
       if (_rHMapP[_rCardKey] && _rHMapP[_rCardKey] !== cid) _rCids.push(_rHMapP[_rCardKey]);
@@ -631,10 +617,10 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
 
   /* Color de acento según card */
   var accent = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? '#333132'
-             : (cardId === 'kpicard-nd' || cardId === 'kpicard-ipm') ? '#EA0074'
+             : cardId === 'kpicard-nd' ? '#EA0074'
              : '#5C469C';
   var accentAlpha = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? 'rgba(51,49,50,0.12)'
-                  : (cardId === 'kpicard-nd' || cardId === 'kpicard-ipm') ? 'rgba(234,0,116,0.12)'
+                  : cardId === 'kpicard-nd' ? 'rgba(234,0,116,0.12)'
                   : 'rgba(92,70,156,0.12)';
 
   row.setAttribute('data-selected', '1');
@@ -642,13 +628,13 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   row.style.boxShadow = 'inset 3px 0 0 ' + accent;
 
   /* Disparar hist-update a los 3 canvas: global + panel (KPI sparkline) + AR sparkline */
-  var _hMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
-  var _hMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+  var _hMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', bk:'h-bk-panel', nd:'hrnd-panel-nd'};
+  var _hMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', bk:'h-bk-ar', nd:'hrnd-ar-nd'};
   var _cardKeyH = cardId === 'kpicard-ef'  ? 'ef'
                : cardId === 'kpicard-cv'  ? 'cv'
                : cardId === 'kpicard-bk'  ? 'bk'
                : cardId === 'kpicard-nd'  ? 'nd'
-               : cardId === 'kpicard-ipm' ? 'ipm' : null;
+               : null;
   var _allHistCids = [cid];
   if (_cardKeyH) {
     var _pc = _hMapP[_cardKeyH],  _arc = _hMapAR[_cardKeyH];
@@ -672,7 +658,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     if (!_hMetric) {
       var _isCR3 = (typeof W !== 'undefined') && W.mode === 'cr';
       if (cardId === 'kpicard-ar1') _hMetric = _isCR3 ? 'ef' : 'nd';
-      else if (cardId === 'kpicard-ar2') _hMetric = _isCR3 ? 'cv' : 'ipm';
+      else if (cardId === 'kpicard-ar2') _hMetric = _isCR3 ? 'cv' : 'nd';
     }
     /* Lookup historial real por hotel (CR_HOTEL_HIST / RND_HOTEL_HIST) usando el
        nombre del hotel (data-hist-label, sin prefijo ID). Fallback: proxy por corp. */
@@ -686,7 +672,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
       var _hDictHotel = null;
       if (_hMetric === 'ef' || _hMetric === 'cv') {
         _hDictHotel = (typeof window.CR_HOTEL_HIST !== 'undefined') ? window.CR_HOTEL_HIST : null;
-      } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
+      } else if (_hMetric === 'nd') {
         _hDictHotel = (typeof window.RND_HOTEL_HIST !== 'undefined') ? window.RND_HOTEL_HIST : null;
       }
       if (_hDictHotel && _hHotelName && _hDictHotel[_hHotelName] && _hDictHotel[_hHotelName][_hMetric]) {
@@ -698,7 +684,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         var _hDictH = null;
         if (_hMetric === 'ef' || _hMetric === 'cv') {
           _hDictH = (typeof window.CR_CORP_HIST !== 'undefined') ? window.CR_CORP_HIST : null;
-        } else if (_hMetric === 'nd' || _hMetric === 'ipm') {
+        } else if (_hMetric === 'nd') {
           _hDictH = (typeof window.RND_CORP_HIST !== 'undefined') ? window.RND_CORP_HIST : null;
         }
         if (_hDictH && _hDictH[_hCorp2] && _hDictH[_hCorp2][_hMetric]) {
@@ -800,12 +786,12 @@ function ar_setDim(n, dim, el_unused) {
    Misma lógica que ar_setPillFilt/ar_setPillView
    ══════════════════════════════════════════════════ */
 
-var _kpiView = {ef: 'destino', cv: 'destino', bk: 'destino', nd: 'pais', ipm: 'pais'};
+var _kpiView = {ef: 'destino', cv: 'destino', bk: 'destino', nd: 'pais'};
 
 function kpi_setView(card, view, el) {
   _kpiView[card] = view;
   /* Primera línea (dimensión): activa = color de sección relleno · inactiva = outline · activa MAYÚSCULA — W24 */
-  var _isRnd = (card === 'nd' || card === 'ipm');
+  var _isRnd = (card === 'nd');
   var sec_col = _isRnd ? '#EA0074' : '#5C469C';   /* violet CR / magenta RND */
   var sec_bg  = _isRnd ? '#FCE4F1' : '#EDE8F7';   /* relleno claro para la activa */
 
@@ -1189,7 +1175,7 @@ function _kpiPillRender(card) {
       }
       return;
     }
-    var _isRnd = (card === 'nd' || card === 'ipm');
+    var _isRnd = (card === 'nd');
     if (_isRnd && _hasCf) { _rndLazyHotelRender(card, cf, _hotelCont); return; }
     if (_isRnd && _rndHotelOrigHTML[card] != null) { _rndHotelRestore(card, _hotelCont); return; }
     /* CR (W24): ef/cv unifican sobre el MISMO motor lazy que RND. Con cross-filter →
@@ -1358,7 +1344,7 @@ function _kpiCrossFilterClear(card, type) {
     });
   }
   /* Resetear la gráfica histórica de esta card a Global (W24) — al deseleccionar */
-  var _cidMapClr = {ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global', nd:'hrnd-global-nd', ipm:'hrnd-global-ipm'};
+  var _cidMapClr = {ef:'hcr-global-ef', cv:'hcr-global-cv', bk:'h-bk-global', nd:'hrnd-global-nd'};
   var _cidClr = _cidMapClr[card];
   if (_cidClr) {
     try { document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_cidClr}})); } catch(e){}
@@ -1398,7 +1384,7 @@ document.addEventListener('click', function(e) {
   if (cc && ct) _kpiCrossFilterClear(cc, ct);
 });
 
-/* ── Selección de CHANNEL en cards KPI (ef/cv/nd/ipm) — W24 ──
+/* ── Selección de CHANNEL en cards KPI (ef/cv/nd) — W24 ──
    Las filas channel (.chan-wrap .bk-row) no están en .kpi-tab-rows ni en -chan-div,
    así que el listener global no las cubría. Aquí: actualizar gráfica global + pill + highlight. */
 document.addEventListener('click', function(e) {
@@ -1409,10 +1395,10 @@ document.addEventListener('click', function(e) {
   var cardEl = row.closest('[id^="kpicard-"]');
   if (!cardEl) return;
   var ck = cardEl.id.replace('kpicard-','');
-  if (['ef','cv','nd','ipm'].indexOf(ck) < 0) return;         /* solo cards KPI (bk y AR tienen su propio handler) */
+  if (['ef','cv','nd'].indexOf(ck) < 0) return;         /* solo cards KPI (bk y AR tienen su propio handler) */
   /* Evitar que historico_module (bubble) re-limpie la selección de la fila channel */
   e.stopPropagation();
-  var gmap = {ef:'hcr-global-ef', cv:'hcr-global-cv', nd:'hrnd-global-nd', ipm:'hrnd-global-ipm'};
+  var gmap = {ef:'hcr-global-ef', cv:'hcr-global-cv', nd:'hrnd-global-nd'};
   var cid = gmap[ck];
   var chanWrap = row.closest('.chan-wrap');
   var label = row.getAttribute('data-hist-label') || row.getAttribute('data-lbl') || '';
@@ -1444,8 +1430,8 @@ document.addEventListener('click', function(e) {
     if (_chPh && _chPh[ck] && _chPh[ck].length > 0) { _chanHistArr = _chPh[ck].concat([w21]); }
   }
   /* Dispatch a los 3 canvas: global + panel KPI + AR sparkline */
-  var _chanMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', nd:'hrnd-panel-nd', ipm:'hrnd-panel-ipm'};
-  var _chanMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', nd:'hrnd-ar-nd', ipm:'hrnd-ar-ipm'};
+  var _chanMapP  = {ef:'hcr-panel-ef', cv:'hcr-panel-cv', nd:'hrnd-panel-nd'};
+  var _chanMapAR = {ef:'hcr-ar-ef', cv:'hcr-ar-cv', nd:'hrnd-ar-nd'};
   var _chanCids = [cid, _chanMapP[ck], _chanMapAR[ck]].filter(function(x){ return x && x !== cid; });
   _chanCids.unshift(cid);
   _chanCids = _chanCids.filter(function(x,i){ return _chanCids.indexOf(x)===i; });
@@ -1512,7 +1498,7 @@ document.addEventListener('click', function(e) {
   if (card === '1') {
     cid = isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd';
   } else if (card === '2') {
-    cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-ipm';
+    cid = isCR ? 'hcr-panel-cv' : 'hrnd-panel-nd';
   } else {
     var isPh = containerId === 'w22-th';
     cid = isPh ? (isCR ? 'hcr-panel-ef' : 'hrnd-panel-nd')
@@ -2020,7 +2006,7 @@ AR3_CANVAS_JS = '''
     el = document.getElementById('hist-'+CID+'-banda-footer'); if (el) { el.textContent = banda.toUpperCase(); el.style.color = bc.footer; el.style.background = bc.bg; }
     /* Actualizar el valor grande de la card siempre — usa vCurr (W21) actual */
     var kvMap = {'hcr-global-ef': 'w21-kv-ef', 'hcr-global-cv': 'w21-kv-cv',
-                 'hrnd-global-nd': 'w21-kv-nd', 'hrnd-global-ipm': 'w21-kv-rpm'};
+                 'hrnd-global-nd': 'w21-kv-nd', };
     var kvId = kvMap[CID];
     if (kvId) {
       var kvEl = document.getElementById(kvId);
@@ -2177,13 +2163,13 @@ AR_SB_PATCH_JS = '''
     if(clearBtn) clearBtn.onclick=function(){input.value='';filter();var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';};
     input.onblur=function(){setTimeout(function(){var dd=document.getElementById(inputId+'-dd');if(dd)dd.style.display='none';},150);};
   }
-  /* W25 (#8): Searchbox de cards KPI (sb-kpi-{ef,cv,bk,nd,ipm}) — DELEGADO.
+  /* W25 (#8): Searchbox de cards KPI (sb-kpi-{ef,cv,bk,nd}) — DELEGADO.
      Antes intentado con input.oninput, pero las cards KPI re-renderizan su región
      (tabs-row) y borraban el handler → oninput quedaba null. Con delegación a nivel
      document sobrevive al re-render. Filtra el panel de la VISTA ACTIVA (_kpiView[card]);
      al seleccionar dispara el click real de la fila (reusa _handleKpiCardHistClick:
      cross-filter + highlight + gráfica), limpia el query, repagina y fija la fila visible. */
-  var _KPI_SB_CARDS = ['ef', 'cv', 'bk', 'nd', 'ipm'];
+  var _KPI_SB_CARDS = ['ef', 'cv', 'bk', 'nd'];
   /* Fix B (#8 rev): la fila seleccionada en posición 6-10 se re-colapsaba porque
      el botón "Ver más" y los re-renders ponen inline display:none !important sobre
      las .rows-more (pisa el sb-search-hit). Pin + MutationObserver: re-fija la fila
@@ -2247,7 +2233,7 @@ AR_SB_PATCH_JS = '''
     var _canG = (typeof W === 'undefined') || !W.canasta || W.canasta === 'global';
     if (!_canG) return null;
     if (card === 'ef' || card === 'cv') return 'cr';
-    if (card === 'nd' || card === 'ipm') return 'rnd';
+    if (card === 'nd') return 'rnd';
     return null;
   }
   function _kpiSbBuildDD(card, input) {
@@ -2605,7 +2591,7 @@ SHARED_CONTAINERS = f'''
         <!-- Canvas histórico card 2 -->
     <div style="padding:0 16px 16px;">
       <div id="ar2-hist-cr" style="margin-top:12px;display:block;">{HIST_CR_PANEL_CV}</div>
-      <div id="ar2-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL_IPM}</div>
+      <div id="ar2-hist-rnd" style="margin-top:12px;display:none;">{HIST_RND_PANEL}</div>
     </div>
   </div>
 
@@ -2743,13 +2729,9 @@ if (typeof HIST_DATA !== 'undefined') {
     // Mapear datos RND
     if (HIST_DATA.rnd && HIST_DATA.rnd.nodispo) {
         window.HIST_RND['hrnd-global-nd'] = { vals: HIST_DATA.rnd.nodispo.global, metric: 'nodispo' };
-        window.HIST_RND['hrnd-global-ipm'] = { vals: HIST_DATA.rnd.ipm.global, metric: 'ipm' };
         window.HIST_RND['hrnd-op-nd'] = { vals: HIST_DATA.rnd.nodispo.op, metric: 'nodispo' };
-        window.HIST_RND['hrnd-op-ipm'] = { vals: HIST_DATA.rnd.ipm.op, metric: 'ipm' };
         window.HIST_RND['hrnd-cug-nd'] = { vals: HIST_DATA.rnd.nodispo.cug, metric: 'nodispo' };
-        window.HIST_RND['hrnd-cug-ipm'] = { vals: HIST_DATA.rnd.ipm.cug, metric: 'ipm' };
         window.HIST_RND['hrnd-b2c-nd'] = { vals: HIST_DATA.rnd.nodispo.b2c, metric: 'nodispo' };
-        window.HIST_RND['hrnd-b2c-ipm'] = { vals: HIST_DATA.rnd.ipm.b2c, metric: 'ipm' };
     }
     
     /* HIST_CR y HIST_RND configurados para tooltip */
@@ -2890,8 +2872,8 @@ if (typeof HIST_DATA !== 'undefined') {
 
   function _bindAll() {
     /* Todos los canvas históricos conocidos */
-    var ids = ['hcr-global-ef','hcr-global-cv','h-bk-global','hrnd-global-nd','hrnd-global-ipm',
-               'hcr-panel-ef','hcr-panel-cv','hrnd-panel-nd','hrnd-panel-ipm',
+    var ids = ['hcr-global-ef','hcr-global-cv','h-bk-global','hrnd-global-nd',
+               'hcr-panel-ef','hcr-panel-cv','hrnd-panel-nd',
                'h-bk-panel','h-bk-dim','hcr-dim-ef','hcr-dim-cv'];
     ids.forEach(function(id) {
       var el = document.getElementById(id);

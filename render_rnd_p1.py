@@ -142,7 +142,7 @@ def render_hero():
     pct_wow = (pct - pct17) * 100
     rpm_wow = (rpm/rpm17 - 1) * 100 if rpm17 else 0
     
-    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad y IPM de {fmt_num2(rpm)} · '
+    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad · '
           f'concentración crítica en <span class="accent">{top_dest[0]}</span>, '
           f'<span class="accent">{top_dest[1]}</span> y <span class="accent">{top_dest[2]}</span>.</span>'
           f'<span style="display:block;margin-top:.3em;">'
@@ -156,7 +156,7 @@ def render_hero():
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</strong> hoteles P80.')
     
-    return h1, subhead, pct, rpm, pct17, rpm17, pct_wow, rpm_wow
+    return h1, subhead, pct, pct17, pct_wow
 
 def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     banda = banda_nodispo(pct_w18)
@@ -254,102 +254,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}</div>
 </div>'''
 
-def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
-    banda = banda_rpm(rpm_w18, M['global_current']['bookings'])
-    target = "≥ $650"
-    pill = banda_pill(banda, target=target)
-    pill_with_target = pill + target_caption(target)
-    gauge = gauge_5levels(banda, 'rpm')
-    
-    wow_color = '#2F6C34' if rpm_wow > 0 else '#C0392B'
-    wow_arrow = '↑' if rpm_wow > 0 else ('↓' if rpm_wow < 0 else '=')
-    wow_str = f'{wow_arrow} {abs(rpm_wow):.1f}'.replace('.', ',')
-    
-    wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
-    # Prop V1: IPM sube = buena → pasar directo, unidad %
-    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='')
-    
-    # Línea de tráfico — helper centralizado
-    _tr18 = M['global_current'].get('trafico', 0)
-    _tr17 = M.get('global_w17', {}).get('trafico', 0)
-    _traf_line = render_traf_line_rnd(_tr18, _tr17)
-    
-    # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
-    _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;text-transform:uppercase;'
-    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:uppercase;'
-    _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
-    tabs = ''
-    for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):
-        tabs += _kpi_pill('ipm', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
-
-    # ── Config centralizada IPM/RPM ──────────────────────────────────────────────
-    _IPM_CFG = {
-        'val_col':       'RPM',            # la col puede ser RPM, rpm, IPM, ipm
-        'val_fmt':       fmt_num2,
-        'val_prefix':    '$',
-        'hist_scale':    lambda v: round(float(v), 2),
-        'hist_prev_col': 'IPM_W17',        # fallback: IPM_W18
-        'banda_fn':      lambda v: banda_rpm(v, 1),
-        'banda_col':     'BandaRPM',
-        'traf_col':      'Trafico',
-        'traf_fmt':      fmt_int_es,
-        'traf_wow_col':  'Trafico_WoW_pct',
-        'traf_wow_type': 'pct',
-        'wow_col':       'IPM_WoW_pp',     # fallback: RPM_WoW_pct
-        'wow_is_pos':    True,             # IPM: subir = mejorar
-        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
-        'show_severity': False,
-    }
-    _IPM_HDR = {'headers': ['Tráfico','WoW','IPM','WoW'],
-                'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
-    # ────────────────────────────────────────────────────────────────────────────
-
-    panels = ''
-    for t_key, t_label, df_t in [
-        ('pais','País', TAB_RPM['pais']),
-        ('destino','Destino', TAB_RPM['destino']),
-        ('corp','Corp', TAB_RPM['corp']),
-        ('hotel','Hotel', TAB_RPM['hotel']),
-    ]:
-        _df = df_t.copy()
-        # Normalizar columna de valor: RPM, rpm, IPM, ipm → siempre 'RPM'
-        for _alt in ('rpm','IPM','ipm'):
-            if 'RPM' not in _df.columns and _alt in _df.columns:
-                _df = _df.rename(columns={_alt: 'RPM'})
-                break
-        # Banda: BandaIPM → BandaRPM si no existe
-        if 'BandaRPM' not in _df.columns and 'BandaIPM' in _df.columns:
-            _df = _df.rename(columns={'BandaIPM': 'BandaRPM'})
-        # WoW col fallback
-        if 'IPM_WoW_pp' not in _df.columns and 'RPM_WoW_pct' in _df.columns:
-            _df = _df.rename(columns={'RPM_WoW_pct': 'IPM_WoW_pp'})
-        # hist_prev fallback
-        for _hcol in ('IPM_W17','IPM_W18','RPM_W17'):
-            if _hcol in _df.columns:
-                _IPM_CFG['hist_prev_col'] = _hcol
-                break
-        panels += build_kpi_tab_panel(_df, t_key, _IPM_CFG, _IPM_HDR, default_tab='pais')
-    
-    return f'''<div class="kpi-card" id="kpicard-ipm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
-<div>
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
-<div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
-<div>
-<div id="w21-kv-rpm" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
-<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ipm}</div>
-{_traf_line}
-</div>
-<div style="padding-top:4px;">{pill_with_target}</div>
-</div>
-</div>
-{gauge}
-{wow_block}
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{tabs}</div>
-<div id="kpi-ipm-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
-<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
-<div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
-<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-ipm-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','ipm',banda,rpm_w18,'hrnd-panel-ipm')}</div>
-</div>'''
+# render_kpi_card_rpm eliminada — W26: IPM no se muestra en Availability (solo %NoDispo)
 
 def render_alerts_block():
     """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp"""
@@ -420,11 +325,10 @@ def render_alerts_block():
 </div>'''
 
 # Build hero
-h1, subhead, pct18, rpm18, pct17, rpm17, pct_wow, rpm_wow = render_hero()
+h1, subhead, pct18, pct17, pct_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin:6px 0 12px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
-{render_kpi_card_rpm(rpm18, rpm17, rpm_wow)}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 </section>
@@ -434,28 +338,25 @@ import json as _json_rnd
 import math as _math_rnd
 
 def _build_rnd_card_tabs_json():
-    """Genera JSON RND_CARD_TABS con datos para sort en cards KPI NoDispo e IPM."""
+    """Genera JSON RND_CARD_TABS con datos para sort en card KPI NoDispo.
+    W26: IPM eliminado de Availability — solo se emite la métrica 'nd'."""
     CANASTA_BY = D.get('CANASTA', {})
     result = {}
     _AGG_BY_TKEY = {'pais':'agg_pais', 'destino':'agg_dest', 'corp':'agg_corp', 'hotel':'agg_hotel'}
     _GLOBAL_SRC = {
-        'pais':    (TAB_NoDispo['pais'],    TAB_RPM['pais']),
-        'destino': (TAB_NoDispo['destino'], TAB_RPM['destino']),
-        'corp':    (TAB_NoDispo['corp'],    TAB_RPM['corp']),
-        'hotel':   (TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
+        'pais':    TAB_NoDispo['pais'],
+        'destino': TAB_NoDispo['destino'],
+        'corp':    TAB_NoDispo['corp'],
+        'hotel':   TAB_NoDispo['hotel'],
     }
     for canasta_key, tab_key in [('global','global'),('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
-        # Desglose per-canasta: cada canasta es un subset del Global (por DistributionCategory).
-        # Global usa TAB_NoDispo/TAB_RPM; las canastas usan sus propios agg_* del pickle
-        # (CANASTA[c]). El row-builder re-ordena cada df (nd por %NoDispo desc · ipm por IPM asc).
         _c = CANASTA_BY.get(canasta_key) if canasta_key != 'global' else None
-        nd_rows, ipm_rows = [], []
         for t_key in ['pais', 'destino', 'corp', 'hotel']:
             _agg = _c.get(_AGG_BY_TKEY[t_key]) if _c is not None else None
             if _agg is not None and len(_agg):
-                df_nd = df_ipm = _agg
+                df_nd = _agg
             else:
-                df_nd, df_ipm = _GLOBAL_SRC[t_key]
+                df_nd = _GLOBAL_SRC[t_key]
             _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
             df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(500)
@@ -485,34 +386,7 @@ def _build_rnd_card_tabs_json():
                     round((nd - r.get('%NoDispo_W18', nd)) * 100, 4),   # r[10] hist_w20
                     _cfc, _cfd, _cfp,                                   # r[11] corp, r[12] dest, r[13] pais
                 ])
-            # IPM rows: ordenar peor primero (menor IPM)
-            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(500)
-            ipm_tab = []
-            for _, r in df_ipm_s.iterrows():
-                lab      = str(r.get(_name_col, '?'))[:60]
-                ipm      = r.get('IPM', r.get('RPM', 0))
-                traf     = r.get('Trafico', 0)
-                traf_wow = r.get('Trafico_WoW_pct', None)
-                wow      = r.get('IPM_WoW_pp', None)
-                bnd      = banda_rpm(ipm, int(r.get('Bookings', 1)))
-                bc       = BANDA_COLORS.get(bnd, {})
-                traf_str = fmt_big(traf) if traf else '0'
-                ipm_tab.append([
-                    lab,
-                    '',              # r[1] sub
-                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
-                    traf_str,        # r[5] tráfico abreviado
-                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
-                    round(ipm, 2),   # r[7] val_pct
-                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,  # r[8] wow val
-                    round(ipm, 4),   # r[9]  hist_w21
-                    0,               # r[10] hist_w20
-                    str(r.get('CorpName','') or ''), str(r.get('Destino','') or ''), str(r.get('PaisDestino','') or ''),  # r[11,12,13]
-                ])
-            nd_rows_map  = nd_rows if t_key == 'hotel' else None
-            ipm_rows_map = ipm_rows if t_key == 'hotel' else None
-            result.setdefault(canasta_key, {}).setdefault('nd', {})[t_key]  = nd_tab
-            result.setdefault(canasta_key, {}).setdefault('ipm', {})[t_key] = ipm_tab
+            result.setdefault(canasta_key, {}).setdefault('nd', {})[t_key] = nd_tab
     return f'\n<script>\nvar RND_CARD_TABS={_json_rnd.dumps(result, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 
 def _build_rnd_membership_json():

@@ -96,27 +96,9 @@ mr17  = DR['M'][f'global_w{WEEK_PREV_INT}']
 rnd_pct     = mr18['pct_nodispo'] * 100
 rnd_pct_wow = (mr18['pct_nodispo'] - mr17['pct_nodispo']) * 100
 
-rnd_ipm_w18 = mr18['ipm']
-rnd_ipm_w17 = mr17['ipm'] if mr17['ipm'] > 0 else 1
-rnd_ipm_wow = (rnd_ipm_w18 / rnd_ipm_w17 - 1) * 100
-
 rnd_p80        = len(DR['p80_hotel'])
 rnd_n_supc     = int(DR['sev_nd'].get('Súper Crítica', 0))
 rnd_n_critmas  = int(DR['sev_nd'].get('Crítica', 0) + DR['sev_nd'].get('Súper Crítica', 0))
-rnd_n_sin_conv = int(DR['sev_rpm'].get('Sin Conversión', 0))
-
-# Banda IPM para gauge
-def _ipm_banda(ipm):
-    if ipm >= 1500: return ('#1A6B4A', 90)
-    if ipm >= 650:  return ('#1A6B4A', 60)
-    if ipm >= 200:  return ('#F97316', 35)
-    return ('#C0392B', 15)
-
-def _ipm_label(ipm):
-    if ipm >= 1500: return 'Exitosa'
-    if ipm >= 650:  return 'Aceptable'
-    if ipm >= 200:  return 'Revisar'
-    return 'Crítica'
 
 # Banda NoDispo para gauge
 def _nd_banda(pct):
@@ -203,8 +185,6 @@ _LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAQMAAAA/CAYAAADkHq2pAAAAAXNSR0IArs4c6QAAAIR
 # Valores calculados para los gauges
 nd_color, nd_pct_gauge = _nd_banda(rnd_pct)
 nd_label = _nd_label(rnd_pct)
-ipm_color, ipm_pct_gauge = _ipm_banda(rnd_ipm_w18)
-ipm_label = _ipm_label(rnd_ipm_w18)
 ef_color, ef_pct_gauge = _ef_banda(cr_ef)
 ef_label = _ef_label(cr_ef)
 cv_color, cv_pct_gauge = _cv_banda(cr_cv)
@@ -362,7 +342,7 @@ mail_html = f'''<!DOCTYPE html>
 <div class="field-box subject">Weekly KPIs Supply · {WEEK} · Connectivities &amp; Hotel Availability{" &amp; Inventory" if HAS_INV else ""}</div>
 
 <div class="field-label">Preheader</div>
-<div class="field-box">Availability {es(rnd_pct,2)}% NoDispo · IPM ${es(rnd_ipm_w18,0)} · Connectivities Eficacia {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}%{f" · PP {es(INV_PP,0)} hoteles" if HAS_INV else ""}</div>
+<div class="field-box">Availability {es(rnd_pct,2)}% NoDispo · Connectivities Eficacia {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}%{f" · PP {es(INV_PP,0)} hoteles" if HAS_INV else ""}</div>
 
 <hr class="divider">
 
