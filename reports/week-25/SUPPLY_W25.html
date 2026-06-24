@@ -7040,6 +7040,12 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var _rCorp  = row.getAttribute('data-cf-corp') || '';
   var _rLabel = row.getAttribute('data-hist-label') || '';
   var _isHotelRow = _rCorp !== '' && _rCorp !== _rLabel;
+  /* BK KPI en vista hotel: los rows de hotel BK no tienen data-cf-corp (solo data-hist-label).
+     Si la card es BK y la vista activa es hotel, tratarlo como hotel row para saltar
+     el bloque de cross-filter y llegar al lookup BK_HOTEL_HIST. */
+  if (!_isHotelRow && cardKey === 'bk' && typeof _kpiView !== 'undefined' && _kpiView['bk'] === 'hotel') {
+    _isHotelRow = true;
+  }
   if (cardKey && !_isHotelRow && typeof _kpiView !== 'undefined') {
     var view = _kpiView[cardKey] || 'destino';
     if (view === 'corp' || view === 'destino' || view === 'pais') {
@@ -7244,8 +7250,9 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
     ? SEMANAS[SEMANAS.length-3] + '–' + SEMANAS[SEMANAS.length-1] : 'W23–W25';
   /* Lookup histórico real W18-W(N-1) para rellenar la sparkline con datos corp/hotel */
   var _arHistArr = null;
-  /* AR3 (BK) → BK_HOTEL_HIST por nombre de hotel */
-  if (cardId === 'kpicard-ar3' && typeof window.BK_HOTEL_HIST !== 'undefined' && window.BK_HOTEL_HIST[label]) {
+  /* AR3 (BK AR card) o BK KPI card en vista hotel → BK_HOTEL_HIST por nombre de hotel */
+  if ((cardId === 'kpicard-ar3' || cardId === 'kpicard-bk') &&
+      typeof window.BK_HOTEL_HIST !== 'undefined' && window.BK_HOTEL_HIST[label]) {
     var _arHw = window.BK_HOTEL_HIST[label];
     if (_arHw && _arHw.length > 0) { _arHistArr = _arHw.concat([w_curr]); }
   }
@@ -8048,6 +8055,16 @@ document.addEventListener('click', function(e) {
 
   /* Inferir card y cid desde el id del contenedor */
   var containerId = container.id;
+
+  /* AR1/AR2 hotel view: js_override.js ya maneja highlight + sparkline AR correcto (hcr-ar-ef/cv).
+     Si este listener continúa, dispara hist-update a hcr-panel-ef (KPI card) en lugar del AR sparkline,
+     pisando el trabajo de js_override. En hotel view, hacer early return aquí. */
+  if ((containerId === 'ar1-th' || containerId === 'ar2-th') &&
+      typeof _arPillView !== 'undefined') {
+    var _arN2 = (containerId === 'ar1-th') ? 1 : 2;
+    if ((_arPillView[_arN2] || 'hotel') === 'hotel') return;
+  }
+
   var cardNum = containerId.indexOf('ar1') === 0 ? '1' :
                 containerId.indexOf('ar2') === 0 ? '2' : null;
   var card = row.getAttribute('data-hist-card') || cardNum;
