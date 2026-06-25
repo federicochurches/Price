@@ -1093,6 +1093,17 @@ const CORP_REG_DATA = {json.dumps(
     },
     cls=NpEncoder
 )};
+const CORP_DEST_DATA = {json.dumps(
+    {
+        f"{corp},{dest}": {
+            'sp': int((grp['TipoHotel']=='sólo propio').sum()),
+            'hy': int((grp['TipoHotel']=='Propio_con_tercero').sum()),
+            'tp': int((grp['TipoHotel']=='sólo terceros').sum()),
+        }
+        for (corp, dest), grp in df.groupby(['Corporativo','Destino'])
+    },
+    cls=NpEncoder
+)};
 const CORP_MKT_DATA = {json.dumps(corp_mkt_json, cls=NpEncoder)};
 const CH_DRILL_DATA = {json.dumps(ch_drill_data, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
