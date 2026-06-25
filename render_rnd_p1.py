@@ -274,7 +274,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     </div>
   </div>
   <div style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
-  <div style="font-size:10px;color:var(--ink-muted);">{_traf_line}</div>
+  <div style="font-size:10px;color:var(--ink-muted);width:100%;">{_traf_line}</div>
 </div>
 <!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales) -->
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:stretch;overflow:hidden;">
