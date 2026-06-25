@@ -8,7 +8,7 @@ import pickle
 import os, pandas as pd, numpy as np
 from engine import *
 from render_helpers import *
-from render_helpers import _kpi_pill
+from render_helpers import _kpi_pill, _kpi_ver_mas_btn
 
 from historico_module import render_historico
 from render_historico_svg import render_historico_svg as _rhs
