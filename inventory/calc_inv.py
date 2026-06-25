@@ -741,7 +741,9 @@ for _, row in df_hist[['yw','Hotel','Corporativo','Destino','Region_display','Ti
 _tipo_order = {'SP': 0, 'HY': 1, 'TP': 2}
 for yw in _hotel_by_week_raw:
     _hotel_by_week_raw[yw].sort(key=lambda r: (_tipo_order.get(r['t'], 9), r['h'].lower()))
-hotel_by_week = _hotel_by_week_raw
+# Filtrar solo semanas YTD del año actual
+_current_year = str(__import__('datetime').date.today().year)
+hotel_by_week = {k: v for k, v in _hotel_by_week_raw.items() if k.startswith(_current_year)}
 _total_hotels_indexed = sum(len(v) for v in hotel_by_week.values())
 print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexed:,} registros")
 
