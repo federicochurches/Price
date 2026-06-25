@@ -285,7 +285,7 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
   <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
     {_stats_full}
   </div>
-  <div style="padding:10px 14px;">
+  <div style="padding:10px 14px;overflow:hidden;">
     <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
     {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
   </div>

@@ -2554,7 +2554,7 @@ SHARED_CONTAINERS = f'''
       <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"><button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button></div>
     </div>
         <!-- Canvas histórico RND — side-by-side (oculto en CR) -->
-    <div id="ar1-hist-wrap" style="display:none;padding:12px 14px 16px;flex-shrink:0;width:210px;align-items:center;border-left:1px solid var(--rule-soft);">
+    <div id="ar1-hist-wrap" style="display:none;padding:12px 14px 16px;flex-shrink:0;width:210px;align-items:center;border-left:1px solid var(--rule-soft);overflow:hidden;">
       <div id="ar1-hist-rnd" style="display:block;width:100%;">{HIST_RND_PANEL}</div>
     </div>
     </div>

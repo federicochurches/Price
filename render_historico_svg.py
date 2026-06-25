@@ -93,7 +93,7 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
       if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
       return d;
     }).join('');
-    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:hidden;margin-bottom:6px">'+
       segs+
       '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
       dots+'</svg>';
@@ -157,4 +157,4 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
         "})();"
     )
 
-    return f'<div id="{cid}" style="width:100%;"></div>\n<script>{iife}</script>\n'
+    return f'<div id="{cid}" style="width:100%;overflow:hidden;"></div>\n<script>{iife}</script>\n'
