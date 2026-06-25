@@ -228,7 +228,7 @@ df_pp = df[df['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])].copy()
 # KPIs globales
 market_total   = N                          # 309,509
 market_pp      = pp                         # 52,491 con directo
-market_tp      = int(solo_terc)             # 257,018 con terceros
+market_tp      = int(solo_terc)             # 257,018 sin directo
 market_share   = pp / N * 100              # 17.0%
 
 # Sin contratación directa por corporativo (excluye AA-Independent)
@@ -318,7 +318,7 @@ for r in indep_dest_json:
         if hasattr(v,'item'): r[k] = v.item()
 
 n_indep_sin = int(df_tp_indep['IdHotel'].count()) if 'IdHotel' in df_tp_indep.columns else int(len(df_tp_indep))
-print(f"    Independientes con terceros: {fmt_n(n_indep_sin)} | Destinos: {len(indep_dest)}")
+print(f"    Independientes sin directo: {fmt_n(n_indep_sin)} | Destinos: {len(indep_dest)}")
 def channel_stats_propio(dataframe):
     channels = [('DerbySoft','DerbySoft'),('HBSI','HBSI'),('Internal','Internal'),
                 ('Omnibees','Omnibees'),('Siteminder','Siteminder'),('SynXis','SynXis'),('Travelclick','Travelclick')]
@@ -721,6 +721,62 @@ hist_data = {
 
 print(f"    Universo: {fmt_n(N)} | PP: {fmt_n(pp)} ({fmt_pct(pct_avance)} avance) | Gap: {fmt_n(gap)} | Ritmo: ~{fmt_n(ritmo_nec)}/sem")
 
+# ── HOTEL_BY_WEEK — lista de hoteles individuales por semana ──────────────
+# Fuente: df_hist (todos los tipos con FechaCreación válida)
+# Keys ultra-cortas: h=Hotel, c=Corporativo, d=Destino, r=Region, t=TipoHotel
+_TIPO_SHORT = {'sólo propio': 'SP', 'Propio_con_tercero': 'HY', 'sólo terceros': 'TP'}
+_hotel_by_week_raw = {}
+for _, row in df_hist[['yw','Hotel','Corporativo','Destino','Region_display','TipoHotel']].iterrows():
+    yw = row['yw']
+    if yw not in _hotel_by_week_raw:
+        _hotel_by_week_raw[yw] = []
+    _hotel_by_week_raw[yw].append({
+        'h': str(row['Hotel']),
+        'c': str(row['Corporativo']),
+        'd': str(row['Destino']),
+        'r': str(row['Region_display']),
+        't': _TIPO_SHORT.get(str(row['TipoHotel']), 'TP')
+    })
+# Ordenar cada semana: PP primero (SP, HY), luego TP; dentro de cada tipo, por nombre
+_tipo_order = {'SP': 0, 'HY': 1, 'TP': 2}
+for yw in _hotel_by_week_raw:
+    _hotel_by_week_raw[yw].sort(key=lambda r: (_tipo_order.get(r['t'], 9), r['h'].lower()))
+hotel_by_week = _hotel_by_week_raw
+_total_hotels_indexed = sum(len(v) for v in hotel_by_week.values())
+print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexed:,} registros")
+
+# ── PP_HOTEL_PACKED — todos los hoteles PP del snapshot actual (Solo Propio + Hybrid) ──────────
+# Formato compacto: índices numéricos + dicts de lookup (igual que dim_hotel_packed)
+# Fuente: df (snapshot actual, no histórico) → solo PP = Solo Propio + Hybrid
+_df_pp = df[df['TipoHotel'].isin(['sólo propio','Propio_con_tercero'])].copy()
+_df_pp['_t'] = _df_pp['TipoHotel'].map({'sólo propio':'SP','Propio_con_tercero':'HY'})
+_df_pp['_c'] = _df_pp['Corporativo'].fillna('—').astype(str)
+_df_pp['_d'] = _df_pp['Destino'].fillna('—').astype(str)
+_df_pp['_r'] = _df_pp['Region_display'].fillna('—').astype(str)
+_df_pp['_h'] = _df_pp['Hotel'].fillna('—').astype(str)
+
+# Lookup tables para comprimir strings repetidos
+_pp_corps  = sorted(_df_pp['_c'].unique())
+_pp_dests  = sorted(_df_pp['_d'].unique())
+_pp_regs   = sorted(_df_pp['_r'].unique())
+_pp_ci = {c:i for i,c in enumerate(_pp_corps)}
+_pp_di = {d:i for i,d in enumerate(_pp_dests)}
+_pp_ri = {r:i for i,r in enumerate(_pp_regs)}
+
+# Ordenar: SP primero, luego HY; dentro de cada tipo por nombre
+_df_pp_sorted = _df_pp.sort_values(['_t','_h'], ascending=[True, True])  # SP < HY alfabéticamente
+
+pp_hotel_packed = {
+    'C': _pp_corps,   # corporativos
+    'D': _pp_dests,   # destinos
+    'R': _pp_regs,    # regiones
+    'data': [
+        [row['_h'], _pp_ci[row['_c']], _pp_di[row['_d']], _pp_ri[row['_r']], row['_t']]
+        for _, row in _df_pp_sorted.iterrows()
+    ]
+}
+print(f"    PP_HOTEL_PACKED: {len(pp_hotel_packed['data']):,} hoteles PP · {len(_pp_corps)} corps · {len(_pp_dests)} destinos · {len(_pp_regs)} regiones")
+
 # ─────────────────────────────────────────────
 # 4. HTML
 # ─────────────────────────────────────────────
@@ -1015,9 +1071,28 @@ const HIST = {json.dumps(hist_data, cls=NpEncoder)};
   }});
   HIST.dim_hotel_packed = null; // liberar memoria
 }})();
+const HOTEL_BY_WEEK    = {json.dumps(hotel_by_week, cls=NpEncoder)};
+const PP_HOTEL_PACKED  = {json.dumps(pp_hotel_packed, cls=NpEncoder)};
 const CORP_DATA     = {json.dumps(corp_json, cls=NpEncoder)};
 const DEST_DATA     = {json.dumps(dest_json, cls=NpEncoder)};
-const REG_TOTALS    = {json.dumps({r['region']: r for r in reg_stats}, cls=NpEncoder)};
+const REG_TOTALS       = {json.dumps({r['region']: r for r in reg_stats}, cls=NpEncoder)};
+const CORP_REGIONS_MAP = {json.dumps(corp_regions_map, cls=NpEncoder)};
+const REG_GAP_TOTALS  = {json.dumps({r['Region_display']: r for r in reg_mkt.to_dict('records')}, cls=NpEncoder)};
+const CORP_DEST_MAP   = {json.dumps(
+    df.groupby('Corporativo')['Destino'].apply(lambda x: list(x.dropna().unique())).to_dict(),
+    cls=NpEncoder
+)};
+const CORP_REG_DATA = {json.dumps(
+    {
+        f"{corp},{reg}": {
+            'sp': int((grp['TipoHotel']=='sólo propio').sum()),
+            'hy': int((grp['TipoHotel']=='Propio_con_tercero').sum()),
+            'tp': int((grp['TipoHotel']=='sólo terceros').sum()),
+        }
+        for (corp, reg), grp in df.groupby(['Corporativo','Region_display'])
+    },
+    cls=NpEncoder
+)};
 const CORP_MKT_DATA = {json.dumps(corp_mkt_json, cls=NpEncoder)};
 const CH_DRILL_DATA = {json.dumps(ch_drill_data, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
@@ -1107,17 +1182,50 @@ function updateGlobalRow() {{
     const r = DEST_DATA.find(d => d.Destino === _activeDest);
     if (!r) return;
     tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+  }} else if (_activeC && _activeR) {{
+    // Corp+Región: usar CORP_REG_DATA si está disponible
+    if (typeof CORP_REG_DATA !== 'undefined') {{
+      const _key = _activeC + ',' + _activeR;
+      // Buscar con normalización de acento
+      const _nrg = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+      const _entry = Object.entries(CORP_REG_DATA).find(([k]) => {{
+        const [kc,kr] = k.split(',');
+        return _nrg(kc)===_nrg(_activeC) && _nrg(kr)===_nrg(_activeR);
+      }});
+      if (_entry) {{
+        const d = _entry[1];
+        sp = d.sp||0; hy = d.hy||0; tp = d.tp||0; pp = sp+hy; tot = pp+tp;
+      }} else {{ tot=0; pp=0; sp=0; hy=0; tp=0; }}
+    }} else {{
+      const _corpData = CORP_DATA.find(c => c.Corporativo === _activeC);
+      if (_corpData) {{
+        tot = _corpData.total; pp = _corpData.prod_propio; sp = _corpData.solo_propio||0;
+        hy = _corpData.hybrid||0; tp = _corpData.solo_tercero;
+      }} else {{ return; }}
+    }}
   }} else if (_activeC) {{
     const r = CORP_DATA.find(c => c.Corporativo === _activeC);
     if (!r) return;
     tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
-  }} else if (_activeR && REG_TOTALS[_activeR]) {{
-    const r = REG_TOTALS[_activeR];
-    tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+  }} else if (_activeR) {{
+    const _gapActive = _gapMode && _gapMode();
+    if (_gapActive && (typeof REG_GAP_TOTALS !== 'undefined') && REG_GAP_TOTALS[_activeR]) {{
+      // Modo SIN CONTRAT. + región: mostrar sin_directo/con_directo de esa región
+      const rg = REG_GAP_TOTALS[_activeR];
+      tot = rg.total||0; tp = rg.sin_directo||0; pp = rg.con_directo||0; sp = 0; hy = pp;
+    }} else if (REG_TOTALS[_activeR]) {{
+      const r = REG_TOTALS[_activeR];
+      tot = r.total; pp = r.prod_propio; sp = r.solo_propio||0; hy = r.hybrid||0; tp = r.solo_tercero;
+    }} else {{ return; }}
   }} else {{
     // Sin filtro: restaurar valores globales
     tot = {int(N)}; pp = {int(pp)}; sp = {int(solo_propio)}; hy = {int(hybrid)}; tp = {int(solo_terc)};
   }}
+
+  // Si el filtro activo es Third Party (SIN CONTRAT.), PP/SP/HY = 0 por definición
+  const _isTipoTP = hFTipo === 'Third Party'
+    || (udActiveFilters||[]).some(f=>f.type==='tipo' && (f.value==='Third Party'||f.value==='SIN CONTRAT.'));
+  if (_isTipoTP) {{ pp = 0; sp = 0; hy = 0; if (tot > 0) tp = tot; }}
 
   const fmt = v => v.toLocaleString('es-MX');
   const pct = tot > 0 ? (pp/tot*100) : 0;
@@ -1340,7 +1448,7 @@ function udShowSuggestions(q) {{
   if (!drop) return;
   q = (q||'').trim();
   if (!q) {{ drop.style.display='none'; return; }}
-  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const norm = s => (s||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
   const nq = norm(q);
   const items = _udBuildSuggestData().filter(it => norm(it.label).includes(nq)).slice(0,12);
   if (!items.length) {{ drop.style.display='none'; return; }}
@@ -1404,8 +1512,8 @@ function udToggleContent(id, btn) {{
 }}
 
 function udGlobalSearch(q) {{
-  q = (q||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-  const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  q = (q||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').trim();
+  const norm = s => (s||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
   // Search across reg, corp, dest rows
   ['.ud-reg-row','.ud-corp-row','.ud-dest-row'].forEach(sel => {{
     document.querySelectorAll(sel).forEach(r => {{
@@ -1469,7 +1577,7 @@ function udContent(id, btn) {{
     if (btn) btn.classList.add('on');
     udToggleGap(btn);
     hFTipo = 'Third Party'; if (typeof hRender === 'function') hRender();
-    // Resaltar CON TERCEROS en tabla gap
+    // Resaltar SIN DIRECTO en tabla gap
     const tbl2 = document.querySelector('#gap-tbody')?.closest('table');
     if (tbl2) {{
       tbl2.className = tbl2.className.split(' ').filter(c => !c.startsWith('col-show-')).join(' ');
@@ -1537,7 +1645,9 @@ function udContent(id, btn) {{
 function udToggleGap(btn) {{
   const gapDiv  = document.getElementById('ud-gap-content');
   const mainDiv = document.getElementById('ud-main-content');
-  const isActive = btn ? btn.classList.contains('active') : false;
+  // Leer el estado real del DOM — no depender de la clase del botón
+  // (evita inversión del toggle cuando el estado del botón es inconsistente con otros filtros activos)
+  const isActive = gapDiv && gapDiv.style.display !== 'none';
   if (isActive) {{
     if (btn) btn.classList.remove('active');
     gapDiv.style.display  = 'none';
@@ -1561,12 +1671,14 @@ function gapSyncDim() {{
   const activeTipo = _af.filter(f=>f.type==='tipo').map(f=>f.value);
   const soloSinContrat = activeTipo.some(v => v.toLowerCase().includes('sin'));
 
+  // --- Reg rows ---
   document.querySelectorAll('.gap-reg-row').forEach(r => {{
     if (udDim !== 'reg') {{ r.style.display = 'none'; return; }}
     const reg = r.querySelector('td strong')?.textContent || '';
     r.style.display = (!activeReg.length || activeReg.includes(reg)) ? '' : 'none';
   }});
 
+  // --- Corp rows ---
   document.querySelectorAll('.gap-corp-row').forEach(r => {{
     if (r.id==='gap-corp-ver-mas2') {{ r.style.display = udDim==='corp' ? '' : 'none'; return; }}
     if (udDim !== 'corp') {{ r.style.display = 'none'; return; }}
@@ -1579,22 +1691,85 @@ function gapSyncDim() {{
     }}
   }});
 
-  // Dest rows — two-pass when soloSinContrat: collect qualifying rows first, show first 10
+  // --- Dest rows ---
   const destRows = Array.from(document.querySelectorAll('.gap-dest-row[data-row-idx]'));
   const vmDest = document.getElementById('gap-dest-ver-mas2');
   if (udDim !== 'dest') {{
     destRows.forEach(r => r.style.display = 'none');
     if (vmDest) vmDest.style.display = 'none';
+  }} else if (activeCorp.length > 0) {{
+    // --- Corp activo: recalcular tabla GAP de destinos desde dim_hotel filtrado ---
+    // dim_hotel tiene {{w,m,r,c,d,t,n}} — filtrar por corp + semana más reciente disponible
+    const maxW = (HIST.dim_hotel || []).reduce((mx, r) => (r.w > mx ? r.w : mx), '');
+    const rows = (HIST.dim_hotel || []).filter(r =>
+      r.w === maxW &&
+      (!activeReg.length || activeReg.includes(r.r)) &&
+      activeCorp.includes(r.c)
+    );
+    // Agregar por destino
+    const agg = {{}};
+    rows.forEach(r => {{
+      const d = r.d || '—';
+      if (!agg[d]) agg[d] = {{reg: r.r||'', total:0, pp:0, tp:0}};
+      agg[d].total += r.n;
+      if (r.t === 'Solo Propio' || r.t === 'Hybrid') agg[d].pp += r.n;
+      if (r.t === 'Third Party') agg[d].tp += r.n;
+    }});
+    // Ordenar por Third Party desc (más sin contratación directa primero)
+    const sorted = Object.entries(agg)
+      .filter(([,v]) => v.tp > 0)  // GAP: solo destinos con hoteles sin contratación
+      .sort((a,b) => b[1].tp - a[1].tp);
+    // Calcular global del subconjunto
+    const totTP  = sorted.reduce((s,[,v])=>s+v.tp, 0);
+    const totPP  = sorted.reduce((s,[,v])=>s+v.pp, 0);
+    const totAll = sorted.reduce((s,[,v])=>s+v.total, 0);
+    const fmt = n => n.toLocaleString('es-MX');
+    const pctBar2 = (n,t) => {{
+      const p = t>0?(n/t*100):0;
+      return '<div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:'+p.toFixed(1)+'%;background:var(--green)"></div></div><span class="pct-val" style="color:var(--green)">'+p.toFixed(1)+'%</span></div>';
+    }};
+    const tbody = document.getElementById('gap-tbody');
+    if (tbody) {{
+      const globalRowHtml = '<tr class="global-row"><td>'+activeCorp.join(', ')+'</td>'
+        +'<td>'+fmt(totAll)+'</td>'
+        +'<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(totTP)+'</td>'
+        +'<td style="color:#6A6A6A;">'+fmt(totPP)+'</td>'
+        +'<td>'+pctBar2(totPP,totAll)+'</td><td class="td-vs">—</td></tr>';
+      const dataRowsHtml = sorted.slice(0,20).map(([d,v]) =>
+        '<tr class="gap-dest-row-dyn"><td><strong>'+d+'</strong>'
+        +'<div style="font-size:10px;color:var(--ink-muted);">'+v.reg+'</div></td>'
+        +'<td>'+fmt(v.total)+'</td>'
+        +'<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.tp)+'</td>'
+        +'<td style="color:#6A6A6A;">'+fmt(v.pp)+'</td>'
+        +'<td>'+pctBar2(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>'
+      ).join('');
+      // Guardar filas estáticas originales si no se han guardado aún
+      if (!tbody.dataset.staticSaved) {{
+        tbody.dataset.staticSaved = '1';
+        tbody.dataset.staticHtml  = tbody.innerHTML;
+      }}
+      tbody.innerHTML = globalRowHtml + dataRowsHtml;
+    }}
+    // Ocultar filas estáticas (ya reemplazadas en tbody)
+    destRows.forEach(r => r.style.display = 'none');
+    if (vmDest) vmDest.style.display = 'none';
   }} else {{
+    // Sin filtro corp: restaurar filas estáticas si las habíamos reemplazado
+    const tbody = document.getElementById('gap-tbody');
+    if (tbody && tbody.dataset.staticSaved && tbody.dataset.staticHtml) {{
+      tbody.innerHTML = tbody.dataset.staticHtml;
+      tbody.dataset.staticSaved = '';
+      tbody.dataset.staticHtml  = '';
+    }}
+    // Mostrar/ocultar filas estáticas normalmente
     let visibleCount = 0;
-    destRows.forEach(r => {{
+    Array.from(document.querySelectorAll('.gap-dest-row[data-row-idx]')).forEach(r => {{
       const idx    = parseInt(r.dataset.rowIdx ?? '999');
       const rowReg = r.dataset.region || '';
       const conD   = parseInt(r.dataset.conDirecto || '0');
       const passesContrat = !soloSinContrat || conD === 0;
       const passesReg     = !activeReg.length || activeReg.includes(rowReg);
       if (!passesContrat || !passesReg) {{ r.style.display = 'none'; return; }}
-      // When filtered: show first 10 qualifying regardless of original rowIdx
       if (soloSinContrat || activeReg.length) {{
         r.style.display = visibleCount < 10 ? '' : 'none';
         if (visibleCount < 10) visibleCount++;
@@ -1630,11 +1805,11 @@ function gapToggleDest(btn) {{
 }}
 
 function gapFilter() {{
-  const q=document.getElementById('gap-search').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const q=document.getElementById('gap-search').value.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').trim();
   const reg=document.getElementById('gap-f-region').value;
   if (udDim==='corp') {{
     document.querySelectorAll('.gap-corp-row[data-row-idx]').forEach(r=>{{
-      const txt=r.cells[0]?.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')||'';
+      const txt=r.cells[0]?.textContent.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('')||'';
       const idx=parseInt(r.dataset.rowIdx);
       r.style.display=!q?(idx<10?'':'none'):(txt.includes(q)?'':'none');
     }});
@@ -1642,7 +1817,7 @@ function gapFilter() {{
   }} else if (udDim==='dest') {{
     document.querySelectorAll('.gap-dest-row[data-row-idx]').forEach(r=>{{
       const rReg=r.dataset.region||'';
-      const txt=r.cells[0]?.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')||'';
+      const txt=r.cells[0]?.textContent.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('')||'';
       const idx=parseInt(r.dataset.rowIdx);
       r.style.display=((!reg||rReg===reg)&&(!q||txt.includes(q)))?(!q&&!reg?(idx<10?'':'none'):''):'none';
     }});
@@ -1658,56 +1833,38 @@ function udRowClick(type, value, el) {{
   const existing = udActiveFilters.findIndex(f=>f.type===type && f.value===value);
 
   if (existing !== -1) {{
-    // Toggle off
+    // Toggle off — deseleccionar
     udActiveFilters.splice(existing, 1);
     el.classList.remove('ud-filter-active');
     if (type==='region') hFRegion = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || '';
     if (type==='corp')   hFCorp   = udActiveFilters.filter(f=>f.type==='corp').slice(-1)[0]?.value   || '';
   }} else {{
-    // Accumulate
+    // Seleccionar — reemplazar cualquier filtro previo del mismo tipo
+    const _prev = udActiveFilters.filter(f => f.type === type);
+    _prev.forEach(f => {{ if (f.el) f.el.classList.remove('ud-filter-active'); }});
+    udActiveFilters = udActiveFilters.filter(f => f.type !== type);
     udActiveFilters.push({{type, value, el}});
     el.classList.add('ud-filter-active');
-    // Make row visible if hidden
     if (el.style.display === 'none') el.style.display = '';
     if (type==='region') hFRegion = value;
-    if (type==='corp')   hFCorp   = value;
-    // Sync hf-corp select for JS compat
-    if (type==='corp') {{
-      const corpSel = document.getElementById('hf-corp');
-      if (corpSel) corpSel.value = value;
-    }}
+    if (type==='corp')   {{ hFCorp = value; const s=document.getElementById('hf-corp'); if(s) s.value=value; }}
   }}
 
-  // Si hay semana activa, re-aplicar drill con los filtros actualizados
-  const _wselRC = document.getElementById('sel-week');
-  const _activeYwRC = _wselRC && _wselRC.value ? _wselRC.value : null;
-  if (_activeYwRC) {{
-    // Selección en la MISMA dimensión (ej. click región en vista región):
-    // solo resaltar, NO filtrar — las demás filas siguen visibles.
-    // El filtro queda guardado en hFRegion/hFCorp para cuando se cambie de dimensión.
-    const _sameDimSel = (type==='region' && udDim==='reg') || (type==='corp' && udDim==='corp') || (type==='dest' && udDim==='dest');
-    if (_sameDimSel) {{
-      // Solo actualizar el highlight de filas (ya hecho arriba con ud-filter-active)
-      // Quitar highlight de las demás filas del mismo tipo y marcar solo la activa
-      const _cls = type==='region' ? 'ud-reg-row' : type==='corp' ? 'ud-corp-row' : 'ud-dest-row';
-      document.querySelectorAll('#ud-tbody .'+_cls).forEach(r => {{
-        const isActive = udActiveFilters.some(f=>f.type===type && f.value===(r.dataset.drillVal||r.cells[0]?.textContent.trim()));
-        r.classList.toggle('ud-filter-active', isActive);
-      }});
-      hRenderActivePills();
-    }} else {{
-      // Cross-dimensión — re-drillar con el filtro aplicado
-      window._tbodyOrig = null;
-      hActiveDrillYw = null;
-      hDrillWeek(_activeYwRC);
-      hRenderActivePills();
+  // Siempre: aplicar todos los filtros + re-render hotel panel si hay semana activa
+  hApplyFilter();
+
+  const _yw = (document.getElementById('sel-week')||{{}}).value || null;
+  if (_yw) {{
+    const _hp = document.getElementById('ud-hotel-panel');
+    const _weekHotels = (typeof HOTEL_BY_WEEK !== 'undefined') ? (HOTEL_BY_WEEK[_yw]||null) : null;
+    if (_weekHotels) {{
+      const _label = 'W' + _yw.split('-W')[1] + ' · ' + _yw.split('-W')[0];
+      _renderHotelList(_weekHotels, [], _label, udDim,
+        hFTipo ? [hFTipo] : udActiveFilters.filter(f=>f.type==='tipo').map(f=>f.value),
+        udActiveFilters.filter(f=>f.type==='region').map(f=>f.value),
+        udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value));
     }}
-  }} else {{
-    hApplyFilter();
   }}
-  const _gd = document.getElementById('ud-gap-content');
-  if (_gd && _gd.style.display !== 'none') gapSyncDim();
-  if (!_activeYwRC) hRenderActivePills();
 }}
 
 function udShowActiveFilterBadge(value) {{
@@ -1759,26 +1916,61 @@ function udSetDim(dim, btn) {{
   document.getElementById('ud-main-content').style.display='';
   document.getElementById('ud-gap-content').style.display='none';
   document.getElementById('ud-ch-content').style.display='none';
-  // Al salir de channel, limpiar hFChannel para que hGetDim no siga filtrando por canal
-  hFChannel = '';
-  udActiveFilters = udActiveFilters.filter(f=>f.type!=='channel');
+  // Preservar hFChannel al cambiar de dim — se usa para filtrar corp/dest/reg
+  // Solo limpiar si el usuario viene de la vista CHANNEL sin haber seleccionado un canal específico
+  // (hFChannel se setea al hacer click en un canal; si no se hizo click, es '')
+  // NO limpiar aquí — hApplyFilter y udSetDim lo usan para cruzar dimensiones
   // contratacion row always visible
   const ar=document.getElementById('ud-active-row');   if(ar) ar.style.display='flex';
   const gs=document.getElementById('ud-global-search'); if(gs) {{ gs.value=''; udGlobalSearch(''); }}
   document.querySelectorAll('#ud-dim-pills .pill').forEach(p=>p.classList.remove('on'));
   if (btn) btn.classList.add('on');
   // Show ONLY rows belonging to active dim — strict separation
-  document.querySelectorAll('.ud-reg-row').forEach(r => r.style.display = dim==='reg' ? '' : 'none');
+  // Si hay channel activo, filtrar corp/dest/reg a los que pertenecen a ese channel
+  const _chCorps = hFChannel && CH_CORP_MAP[hFChannel] ? new Set(CH_CORP_MAP[hFChannel]) : null;
+  document.querySelectorAll('.ud-reg-row').forEach(r => {{
+    if (dim !== 'reg') {{ r.style.display = 'none'; return; }}
+    if (_chCorps) {{
+      // Filtrar regiones que tienen al menos un corp del channel
+      // Usar data-regions del corp para inferir; simplificado: mostrar todas (reg no tiene data-channel)
+      r.style.display = '';
+    }} else {{
+      r.style.display = '';
+    }}
+  }});
+  // Leer filtros activos para aplicarlos directamente en udSetDim (no esperar hApplyFilter)
+  const _activeRegNow = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
+  const _nr2 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
   document.querySelectorAll('.ud-corp-row').forEach(r => {{
     if (r.id === 'ud-corp-ver-mas') {{ r.style.display = dim==='corp' ? '' : 'none'; return; }}
+    if (dim !== 'corp') {{ r.style.display = 'none'; return; }}
     const idx = parseInt(r.dataset.rowIdx ?? '999');
-    r.style.display = dim==='corp' ? (idx < 10 ? '' : 'none') : 'none';
+    const corpName = r.dataset.corpName || r.querySelector('td strong')?.textContent?.trim() || '';
+    const corpRegs = (r.dataset.regions || '').split('|').map(s=>s.trim()).filter(Boolean);
+    if (_chCorps) {{
+      r.style.display = _chCorps.has(corpName) ? '' : 'none';
+    }} else if (_activeRegNow) {{
+      // Filtrar por región activa directamente — no mostrar top-10 sin filtrar
+      const passReg = corpRegs.some(rg => _nr2(rg) === _nr2(_activeRegNow));
+      r.style.display = passReg ? '' : 'none';
+    }} else {{
+      r.style.display = idx < 10 ? '' : 'none';
+    }}
   }});
+  // Leer región activa para filtrar dest-rows directamente (no esperar hApplyFilter)
+  const _activeRegDest = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
+  const _nr3 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
   document.querySelectorAll('.ud-dest-row').forEach(r => {{
     if (r.id === 'ud-dest-ver-mas') {{ r.style.display = dim==='dest' ? '' : 'none'; return; }}
     if (dim !== 'dest') {{ r.style.display = 'none'; return; }}
     const idx = parseInt(r.dataset.rowIdx ?? '999');
-    r.style.display = idx < 10 ? '' : 'none'; // default; hApplyFilter will refine
+    const destReg = r.dataset.region || '';
+    if (_activeRegDest) {{
+      // Mostrar solo destinos de la región activa
+      r.style.display = _nr3(destReg) === _nr3(_activeRegDest) ? '' : 'none';
+    }} else {{
+      r.style.display = idx < 10 ? '' : 'none';
+    }}
   }});
   // Reset ver-mas buttons
   ['ud-corp-ver-mas','ud-dest-ver-mas'].forEach(id => {{
@@ -1810,24 +2002,25 @@ function udSetDim(dim, btn) {{
   // Si hay una semana seleccionada en el selector, re-renderizar con esa semana
   const _wsel = document.getElementById('sel-week');
   const _activeYw = _wsel && _wsel.value ? _wsel.value : null;
+  // Siempre aplicar filtros de tabla (región, corp, dest) independiente de si hay semana activa
+  hApplyFilter();
   if (_activeYw) {{
-    // Limpiar snap anterior para que hDrillWeek tome el DOM actual del nuevo dim
+    // Con semana activa: también renderizar el drill y el panel de hoteles
     window._tbodyOrig = null;
     hActiveDrillYw = null;
+    _hideHotelPanel();
     hDrillWeek(_activeYw);
-  }} else {{
-    hApplyFilter();
   }}
 }}
 
 function udFilter() {{
-  const q   = document.getElementById('ud-search').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const q   = document.getElementById('ud-search').value.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').trim();
   const reg = document.getElementById('ud-f-region').value;
   if (udDim === 'corp') {{
     const rows = document.querySelectorAll('.ud-corp-row[data-row-idx]');
     const vm   = document.getElementById('ud-corp-ver-mas');
     rows.forEach(r => {{
-      const txt = r.cells[0]?.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') || '';
+      const txt = r.cells[0]?.textContent.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('') || '';
       const idx = parseInt(r.dataset.rowIdx);
       r.style.display = !q ? (idx<10 ? '' : 'none') : (txt.includes(q) ? '' : 'none');
     }});
@@ -1837,7 +2030,7 @@ function udFilter() {{
     const vm   = document.getElementById('ud-dest-ver-mas');
     rows.forEach(r => {{
       const rReg = r.dataset.region || '';
-      const txt  = r.cells[0]?.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') || '';
+      const txt  = r.cells[0]?.textContent.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('') || '';
       const idx  = parseInt(r.dataset.rowIdx);
       const matchR = !reg || rReg===reg;
       const matchQ = !q   || txt.includes(q);
@@ -1947,7 +2140,7 @@ function destFilterRegion(val) {{
   _destApplyFilter();
 }}
 function destFilterName(val) {{
-  _destActiveName = val.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  _destActiveName = val.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').trim();
   _destApplyFilter();
 }}
 function _destApplyFilter() {{
@@ -1961,7 +2154,7 @@ function _destApplyFilter() {{
   rows.forEach(r => {{
     if (r.classList.contains('drill-dim-row')) return;
     const rReg = (r.dataset.region||'').toLowerCase();
-    const txt  = (r.cells[0]?.textContent||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const txt  = (r.cells[0]?.textContent||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
     const mR   = !reg || rReg.startsWith(reg);
     const mQ   = !q   || txt.includes(q);
     const idx  = parseInt(r.dataset.rowIdx??'999');
@@ -2089,9 +2282,9 @@ function chBack() {{
 function chFilter() {{
   const reg  = document.getElementById('ch-f-region').value.trim().toLowerCase();
   const corp = document.getElementById('ch-f-corp').value;
-  const dest = document.getElementById('ch-f-dest').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const dest = document.getElementById('ch-f-dest').value.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
   const filtered = chCurrentData.filter(r => {{
-    const rDest = (r.Destino||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const rDest = (r.Destino||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
     return (!reg  || (r.region||'').toLowerCase().startsWith(reg)) &&
            (!corp || r.Corporativo===corp) &&
            (!dest || rDest.includes(dest));
@@ -2300,7 +2493,15 @@ function hDrillWeek(yw) {{
   // Región y corp viven en hFRegion/hFCorp (no en udActiveFilters)
   const _drRegions = hFRegion ? [hFRegion] : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const _drCorps   = hFCorp   ? [hFCorp]   : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
-  const _drTipos   = hFTipo   ? [hFTipo]   : (udActiveFilters||[]).filter(f=>f.type==='tipo').map(f=>f.value);
+  // Tipo: hFTipo → udActiveFilters → botón 'on' en DOM (evita desincronización tras seleccionar/deseleccionar)
+  const _activeTipoFromDom = (function() {{
+    const onBtn = document.querySelector('.distrib-pills .pill.on:not(.gap-pill)');
+    if (!onBtn) return '';
+    const col = onBtn.dataset.col || '';
+    return col === 'pp' ? 'Prod. Propio' : col === 'sp' ? 'Solo Propio' : col === 'hy' ? 'Hybrid' : '';
+  }})();
+  const _afTipos = (udActiveFilters||[]).filter(f=>f.type==='tipo').map(f=>f.value);
+  const _drTipos = hFTipo ? [hFTipo] : (_afTipos.length ? _afTipos : (_activeTipoFromDom ? [_activeTipoFromDom] : []));
   // Dim activa: udDim es la fuente de verdad (se actualiza en udToggleDim)
   const _dimKey = (typeof udDim !== 'undefined' && udDim) ? udDim : 'reg';
   let rows = (HIST.dim_hotel || []).filter(r => (r.w||r.yw) === yw);
@@ -2322,10 +2523,140 @@ function hDrillWeek(yw) {{
   const _chanBtn = document.querySelector('#ud-dim-pills .pill[data-dim="chan"]')
                 || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/channel/i.test(b.textContent));
   if (_chanBtn) {{ _chanBtn.style.opacity = '0.4'; _chanBtn.style.pointerEvents = 'none'; _chanBtn.title = 'No disponible con semana seleccionada'; }}
-  if (!rows.length) {{ _renderDrillTable([], label, _dimKey); _renderDrillPill(label); return; }}
-  _renderDrillTable(rows, label, _dimKey);
+  // Si hay lista de hoteles individuales para esta semana, mostrarla
+  // (independiente de si hay filas en dim_hotel — HOTEL_BY_WEEK puede tener hoteles sin conteos agregados)
+  const _weekHotels = (typeof HOTEL_BY_WEEK !== 'undefined') ? (HOTEL_BY_WEEK[yw] || null) : null;
+  if (_weekHotels) {{
+    _renderHotelList(_weekHotels, rows, label, _dimKey, _drTipos, _drRegions, _drCorps);
+  }} else if (!rows.length) {{
+    _renderDrillTable([], label, _dimKey);
+    _renderDrillPill(label);
+    return;
+  }} else {{
+    _renderDrillTable(rows, label, _dimKey);
+  }}
   _renderDrillPill(label);
   if (hChart) hChart.update();
+}}
+
+// Renderiza lista de hoteles individuales para el drill semanal
+function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, drCorps) {{
+  // El panel de hoteles es INDEPENDIENTE de la tabla dimensional
+  // Se muestra debajo de ud-main-content sin tocar el tbody
+  const panel = document.getElementById('ud-hotel-panel');
+  if (!panel) return;
+
+  const TIPO_LABEL = {{ SP: 'Solo Propio', HY: 'Hybrid', TP: 'Third Party' }};
+  const TIPO_COLOR = {{ SP: 'var(--green)', HY: 'var(--violet,#5C469C)', TP: 'var(--dgrey,#6A6A6A)' }};
+
+  // Filtrar hoteles según filtros activos
+  function _hotelMatches(h) {{
+    if (drTipos.length) {{
+      const ok = drTipos.some(at =>
+        (at === 'Prod. Propio' && (h.t === 'SP' || h.t === 'HY')) ||
+        (at === 'Solo Propio'  && h.t === 'SP') ||
+        (at === 'Hybrid'       && h.t === 'HY') ||
+        (at === 'Third Party'  && h.t === 'TP')
+      );
+      if (!ok) return false;
+    }}
+    if (drRegions.length && !drRegions.includes(h.r)) return false;
+    if (drCorps.length   && !drCorps.includes(h.c))   return false;
+    return true;
+  }}
+
+  const filtered = allHotels.filter(_hotelMatches);
+  const tot = {{ SP:0, HY:0, TP:0 }};
+  filtered.forEach(h => {{ if (tot[h.t] !== undefined) tot[h.t]++; }});
+  const totPP  = tot.SP + tot.HY;
+  const fmt = n => n.toLocaleString('es-MX');
+
+  // Fila resumen global
+  const summaryRow =
+    '<tr class="global-row">' +
+    '<td colspan="2" style="padding:6px 8px;">Nuevos ' + label +
+    ' <span style="font-size:9px;color:var(--ink-muted);font-weight:400;">(' + fmt(filtered.length) + ' hoteles)</span></td>' +
+    '<td style="color:var(--green);font-weight:700;padding:6px 8px;">' + fmt(totPP) + ' PP</td>' +
+    '<td style="color:var(--dgrey,#6A6A6A);padding:6px 8px;">' + fmt(tot.TP) + ' TP</td>' +
+    '<td></td></tr>';
+
+  // Fila searchbox
+  const searchRow =
+    '<tr><td colspan="5" style="padding:6px 8px 4px;">' +
+    '<input id="hw-search" type="text" placeholder="Buscar hotel, corporativo, destino…" autocomplete="off" ' +
+    'style="width:100%;box-sizing:border-box;font-family:inherit;font-size:11px;padding:5px 12px;' +
+    'border:1.5px solid #4FC3F4;border-radius:20px;background:var(--paper);color:var(--ink);outline:none;">' +
+    '</td></tr>';
+
+  // Header de columnas
+  const headerRow =
+    '<tr style="border-bottom:1px solid var(--rule);">' +
+    '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Hotel</td>' +
+    '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Corporativo</td>' +
+    '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Destino</td>' +
+    '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Región</td>' +
+    '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</td>' +
+    '</tr>';
+
+  // Construir HTML del panel — columnas: Hotel | Región | Destino | Corporativo | Tipo
+  // Reordenar filtered para la nueva columna order
+  const dataRowsReordered = filtered.map((h, i) => {{
+    const hw = (h.h + ' ' + h.r + ' ' + h.d + ' ' + h.c).replace(/"/g,"'");
+    return '<tr data-hw="' + hw + '" style="border-bottom:1px solid var(--rule-soft);">' +
+      '<td style="padding:10px 8px 10px 12px;font-size:11px;color:var(--ink-muted);text-align:right;white-space:nowrap;">' + (i+1) + '</td>' +
+      '<td style="padding:10px 12px;font-weight:600;font-size:13px;">' + h.h + '</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.r + '</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.d + '</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.c + '</td>' +
+      '<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:' + TIPO_COLOR[h.t] + ';">' + TIPO_LABEL[h.t] + '</span></td>' +
+      '</tr>';
+  }}).join('');
+
+  panel.style.display = '';
+  panel.innerHTML =
+    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+    '<span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4FC3F4;">Hoteles nuevos · ' + label + '</span>' +
+    '<span style="font-size:11px;color:var(--ink-muted);">' + fmt(filtered.length) + ' hoteles' +
+    (totPP > 0 ? ' &nbsp;·&nbsp; <strong style=\"color:var(--green)\">' + fmt(totPP) + ' PP</strong>' : '') +
+    (tot.TP > 0 ? ' &nbsp;·&nbsp; <span style=\"color:var(--dgrey,#6A6A6A)\">' + fmt(tot.TP) + ' TP</span>' : '') +
+    '</span>' +
+    '<input id="hw-search" type="text" placeholder="Buscar hotel, destino, corporativo…" autocomplete="off" ' +
+    'style="margin-left:auto;width:260px;box-sizing:border-box;font-family:inherit;font-size:11px;padding:5px 14px;' +
+    'border:1.5px solid #4FC3F4;border-radius:20px;background:var(--paper);color:var(--ink);outline:none;">' +
+    '</div>' +
+    '<div style="overflow-x:auto;">' +
+    '<table style="width:100%;border-collapse:collapse;table-layout:fixed;">' +
+    '<colgroup>' +
+    '<col style="width:36px;"/>' +
+    '<col style="width:28%;"/>' +
+    '<col style="width:11%;"/>' +
+    '<col style="width:19%;"/>' +
+    '<col style="width:19%;"/>' +
+    '<col style="width:17%;"/>' +
+    '</colgroup>' +
+    '<thead><tr style="border-bottom:2px solid var(--rule);">' +
+    '<th style="text-align:right;padding:8px 8px 8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);width:36px;">#</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Hotel</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Región</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Destino</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Corporativo</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</th>' +
+    '</tr></thead>' +
+    '<tbody id="hw-tbody">' + dataRowsReordered + '</tbody>' +
+    '</table></div>';
+
+  // Event listener searchbox — normalización sin diacríticos
+  const sbEl = document.getElementById('hw-search');
+  if (sbEl) {{
+    sbEl.addEventListener('input', function() {{
+      const q = this.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+      const hwTbody = document.getElementById('hw-tbody');
+      if (hwTbody) hwTbody.querySelectorAll('tr[data-hw]').forEach(function(r) {{
+        const hw = (r.dataset.hw || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        r.style.display = (!q || hw.includes(q)) ? '' : 'none';
+      }});
+    }});
+  }}
 }}
 
 function _gapMode() {{
@@ -2369,10 +2700,10 @@ function _renderDrillTable(rows, label, dim) {{
   }};
 
   if (_gapMode()) {{
-    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Con Terceros | Con Directo | % Propio | vs Global
+    // Modo SIN CONTRAT: tabla GAP → columnas Dimensión | Total | Sin Directo | Con Directo | % Propio | vs Global
     const tbody = document.getElementById('gap-tbody');
     if (!tbody) return;
-    // En GAP: Con Terceros = Third Party (tp), Con Directo = Prod Propio (pp)
+    // En GAP: Sin Directo = Third Party (tp), Con Directo = Prod Propio (pp)
     const globalRow = '<tr class="global-row"><td>Nuevos '+label+'</td><td>'+fmt(tot.total)+'</td>'
       + '<td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(tot.tp)+'</td>'
       + '<td style="color:#6A6A6A;">'+fmt(tot.pp)+'</td>'
@@ -2396,7 +2727,7 @@ function _renderDrillTable(rows, label, dim) {{
     const esc = k.replace(/"/g,'&quot;');
     return '<tr class="'+_dimClass+' drill-dim-row" data-row-idx="'+i+'" data-drill-type="'+_dimType+'" data-drill-val="'+esc+'" style="cursor:pointer;" onclick="udRowClick(this.dataset.drillType,this.dataset.drillVal,this)"><td style="font-weight:600;">'+k+'</td><td>'+fmt(v.total)+'</td><td class="td-pp" style="color:#4FC3F4;font-weight:700;">'+fmt(v.pp)+'</td><td class="td-sp" style="opacity:.55;">'+fmt(v.sp)+'</td><td class="td-hy" style="opacity:.55;">'+fmt(v.hy)+'</td><td class="td-tp">'+fmt(v.tp)+'</td><td>'+pctBar(v.pp,v.total)+'</td><td class="td-vs">—</td></tr>';
   }}).join('');
-  tbody.innerHTML = globalRow + dataRows;  /* GLOBAL siempre visible */
+  tbody.innerHTML = (sorted.length > 0 ? '' : globalRow) + dataRows;
 }}
 
 function _renderDrillPill(label) {{
@@ -2437,11 +2768,123 @@ function hDrillWeekReset() {{
   // Restaurar la tabla GAP si fue modificada
   const gtb = document.getElementById('gap-tbody');
   if (gtb && window._gapTbodyOrig) {{ gtb.innerHTML = window._gapTbodyOrig; window._gapTbodyOrig = null; }}
+  // Ocultar panel de hoteles individuales
+  const _hp = document.getElementById('ud-hotel-panel');
+  if (_hp) {{ _hp.style.display = 'none'; _hp.innerHTML = ''; }}
   const pill = document.querySelector('.drill-pill');
   if (pill) pill.remove();
   if (hChart) hChart.update();
   // Re-aplicar filtros activos sobre la tabla restaurada
   hApplyFilter();
+}}
+
+// Ocultar el panel de hoteles individuales (helper reutilizable)
+function _hideHotelPanel() {{
+  const _hp = document.getElementById('ud-hotel-panel');
+  if (_hp) {{ _hp.style.display = 'none'; _hp.innerHTML = ''; }}
+}}
+
+// Expandir PP_HOTEL_PACKED y filtrar por filtros activos
+function _getPPHotels() {{
+  if (typeof PP_HOTEL_PACKED === 'undefined') return [];
+  const C = PP_HOTEL_PACKED.C;
+  const D = PP_HOTEL_PACKED.D;
+  const R = PP_HOTEL_PACKED.R;
+  return PP_HOTEL_PACKED.data.map(row => ({{
+    h: row[0],
+    c: C[row[1]],
+    d: D[row[2]],
+    r: R[row[3]],
+    t: row[4]   // 'SP' o 'HY'
+  }}));
+}}
+
+// Renderizar panel de hoteles PP sin semana activa
+function _renderPPPanel() {{
+  const panel = document.getElementById('ud-hotel-panel');
+  if (!panel) return;
+
+  const TIPO_LABEL = {{ SP: 'Solo Propio', HY: 'Hybrid' }};
+  const TIPO_COLOR = {{ SP: 'var(--green)', HY: 'var(--violet,#5C469C)' }};
+
+  // Filtros activos
+  const activeRegions = udActiveFilters.filter(f=>f.type==='region').map(f=>f.value);
+  const activeCorps   = udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value);
+  const activeDests   = udActiveFilters.filter(f=>f.type==='dest').map(f=>f.value);
+
+  let hotels = _getPPHotels();
+
+  // Aplicar filtros
+  const _nrmPP = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
+  if (activeRegions.length) hotels = hotels.filter(h => activeRegions.some(r => _nrmPP(r) === _nrmPP(h.r)));
+  if (activeCorps.length)   hotels = hotels.filter(h => activeCorps.includes(h.c));
+  if (activeDests.length)   hotels = hotels.filter(h => activeDests.includes(h.d));
+
+  const tot = {{ SP:0, HY:0 }};
+  hotels.forEach(h => {{ if (tot[h.t] !== undefined) tot[h.t]++; }});
+  const fmt = n => n.toLocaleString('es-MX');
+
+  const filterLabel = activeCorps.length ? activeCorps[0]
+    : activeRegions.length ? activeRegions[0]
+    : activeDests.length ? activeDests[0]
+    : 'Global';
+
+  // Cap de 500 filas en DOM para performance — el searchbox filtra sobre las 500
+  // Si hay filtros activos y el resultado es pequeño, mostrar todos
+  const MAX_ROWS = 500;
+  const totalCount = hotels.length;
+  if (hotels.length > MAX_ROWS) hotels = hotels.slice(0, MAX_ROWS);
+
+  const dataRows = hotels.map((h,i) => {{
+    const hw = (h.h+' '+h.r+' '+h.d+' '+h.c).replace(/"/g,"'");
+    return '<tr data-hw="'+hw+'" style="border-bottom:1px solid var(--rule-soft);">' +
+      '<td style="padding:10px 8px 10px 12px;font-size:11px;color:var(--ink-muted);text-align:right;white-space:nowrap;">'+(i+1)+'</td>' +
+      '<td style="padding:10px 12px;font-weight:600;font-size:13px;">'+h.h+'</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.r+'</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.d+'</td>' +
+      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.c+'</td>' +
+      '<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:'+TIPO_COLOR[h.t]+';">'+TIPO_LABEL[h.t]+'</span></td>' +
+      '</tr>';
+  }}).join('');
+
+  panel.style.display = '';
+  panel.innerHTML =
+    '<div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+    '<span style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);">Producto Propio · '+filterLabel+'</span>' +
+    '<span style="font-size:11px;color:var(--ink-muted);">'+(totalCount > MAX_ROWS ? fmt(MAX_ROWS)+' de '+fmt(totalCount) : fmt(totalCount))+' hoteles' +
+    (tot.SP > 0 ? ' &nbsp;·&nbsp; <strong style=\"color:var(--green)\">'+fmt(tot.SP)+' Solo Propio</strong>' : '') +
+    (tot.HY > 0 ? ' &nbsp;·&nbsp; <span style=\"color:var(--violet,#5C469C)\">'+fmt(tot.HY)+' Hybrid</span>' : '') +
+    '</span>' +
+    '<input id="hw-search" type="text" placeholder="Buscar hotel, destino, corporativo…" autocomplete="off" ' +
+    'style="margin-left:auto;width:260px;box-sizing:border-box;font-family:inherit;font-size:11px;padding:5px 14px;' +
+    'border:1.5px solid var(--green);border-radius:20px;background:var(--paper);color:var(--ink);outline:none;">' +
+    '</div>' +
+    '<div style="overflow-x:auto;">' +
+    '<table style="width:100%;border-collapse:collapse;table-layout:fixed;">' +
+    '<colgroup><col style="width:36px;"/><col style="width:28%;"/><col style="width:11%;"/><col style="width:19%;"/><col style="width:19%;"/><col style="width:17%;"/></colgroup>' +
+    '<thead><tr style="border-bottom:2px solid var(--rule);">' +
+    '<th style="text-align:right;padding:8px 8px 8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);width:36px;">#</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Hotel</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Región</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Destino</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Corporativo</th>' +
+    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</th>' +
+    '</tr></thead>' +
+    '<tbody id="hw-tbody">'+dataRows+'</tbody>' +
+    '</table></div>';
+
+  // Searchbox
+  const sbEl = document.getElementById('hw-search');
+  if (sbEl) {{
+    sbEl.addEventListener('input', function() {{
+      const q = this.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+      const hwTbody = document.getElementById('hw-tbody');
+      if (hwTbody) hwTbody.querySelectorAll('tr[data-hw]').forEach(function(r) {{
+        const hw = (r.dataset.hw||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        r.style.display = (!q || hw.includes(q)) ? '' : 'none';
+      }});
+    }});
+  }}
 }}
 
 // Called when any filter changes
@@ -2470,52 +2913,118 @@ function hFilterCorpByChannel(ch) {{
 function hApplyFilter() {{
   hBreadcrumb();
   hRenderActivePills();
-  hRender();
-  // Cross-filter: corp/dest rows always start hidden unless we're in their dim.
-  // Only apply region cross-filter when in corp or dest dim.
+
+  // ── Fuentes de verdad — UN SOLO LUGAR ──────────────────────────
   const activeRegion = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
-  // Corp rows — only show when udDim === 'corp'
-  // Saltear filas generadas por drill de semana (.drill-dim-row) — ya están filtradas
+  const activeCorps  = udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value);
+  const activeDests  = udActiveFilters.filter(f=>f.type==='dest').map(f=>f.value);
+  const activeChann  = hFChannel || '';
+
+  // Índices de filtro cruzado
+  const _corpRegsSet = activeCorps.length && (typeof CORP_REGIONS_MAP !== 'undefined')
+    ? new Set(activeCorps.flatMap(c => (CORP_REGIONS_MAP[c]||'').split('|').filter(Boolean)))
+    : null;
+  const _destCorpsSet = activeDests.length && (typeof CORP_DEST_MAP !== 'undefined')
+    ? new Set(Object.entries(CORP_DEST_MAP)
+        .filter(([,dests]) => activeDests.some(d => dests.includes(d)))
+        .map(([c]) => c))
+    : null;
+  const _chanCorpsSet = activeChann && (typeof CH_CORP_MAP !== 'undefined') && CH_CORP_MAP[activeChann]
+    ? new Set(CH_CORP_MAP[activeChann]) : null;
+
+  // ── Reg rows ────────────────────────────────────────────────────
+  document.querySelectorAll('.ud-reg-row').forEach(r => {{
+    if (udDim !== 'reg') {{ r.style.display = 'none'; return; }}
+    if (_corpRegsSet) {{
+      const regName = r.querySelector('td strong')?.textContent?.trim() || '';
+      // Normalizar para comparación (México vs Mexico)
+      const _nrm = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
+      const _normSet = new Set(Array.from(_corpRegsSet).map(_nrm));
+      r.style.display = _normSet.has(_nrm(regName)) ? '' : 'none';
+    }} else {{
+      r.style.display = '';
+    }}
+  }});
+
+  // ── Corp rows ───────────────────────────────────────────────────
   document.querySelectorAll('.ud-corp-row[data-row-idx]').forEach(r => {{
     if (r.classList.contains('drill-dim-row')) return;
     if (udDim !== 'corp') {{ r.style.display = 'none'; return; }}
-    if (!activeRegion) {{
-      r.style.display = parseInt(r.dataset.rowIdx||'999') < 10 ? '' : 'none';
-    }} else {{
-      const regs = r.dataset.regions || '';
-      r.style.display = regs.split('|').some(rg => rg === activeRegion) ? '' : 'none';
+    const corpName = r.dataset.corpName || r.querySelector('td strong')?.textContent?.trim() || '';
+    const corpRegs = (r.dataset.regions || '').split('|');
+    const _nr = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
+    const passReg  = !activeRegion   || corpRegs.some(rg => _nr(rg) === _nr(activeRegion));
+    const passDest = !_destCorpsSet  || _destCorpsSet.has(corpName);
+    const passChan = !_chanCorpsSet  || _chanCorpsSet.has(corpName);
+    if (!passReg || !passDest || !passChan) {{ r.style.display = 'none'; return; }}
+    const hasFilter = activeRegion || _destCorpsSet || _chanCorpsSet;
+    r.style.display = hasFilter ? '' : (parseInt(r.dataset.rowIdx||'999') < 10 ? '' : 'none');
+
+    // Si hay región activa, actualizar valores de la fila con datos de CORP_REG_DATA
+    if (activeRegion && r.style.display !== 'none' && typeof CORP_REG_DATA !== 'undefined') {{
+      const _nrg2 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+      const _entry2 = Object.entries(CORP_REG_DATA).find(([k]) => {{
+        const parts = k.split(',');
+        const kc = parts[0], kr = parts.slice(1).join(',');
+        return _nrg2(kc) === _nrg2(corpName) && _nrg2(kr) === _nrg2(activeRegion);
+      }});
+      if (_entry2) {{
+        const d2 = _entry2[1];
+        const _sp2=d2.sp||0, _hy2=d2.hy||0, _tp2=d2.tp||0, _pp2=_sp2+_hy2, _tot2=_pp2+_tp2;
+        const _fmtR = n => Math.round(n).toLocaleString('es-MX');
+        const tds = r.querySelectorAll('td');
+        if(tds[1]) tds[1].textContent = _fmtR(_tot2);
+        if(tds[2]) tds[2].textContent = _fmtR(_pp2);
+        if(tds[3]) tds[3].textContent = _sp2 > 0 ? _fmtR(_sp2) : '—';
+        if(tds[4]) tds[4].textContent = _fmtR(_hy2);
+        if(tds[5]) tds[5].textContent = _fmtR(_tp2);
+        if(tds[6]) tds[6].textContent = _tot2 > 0 ? (_pp2/_tot2*100).toFixed(1)+'%' : '—';
+      }}
     }}
   }});
-  // Dest rows — only show when udDim === 'dest'
+
+  // ── Dest rows ───────────────────────────────────────────────────
   document.querySelectorAll('.ud-dest-row[data-row-idx]').forEach(r => {{
     if (r.classList.contains('drill-dim-row')) return;
     if (udDim !== 'dest') {{ r.style.display = 'none'; return; }}
-    // If there are active dest filters, show only matching rows
-    const activeDestFilters = udActiveFilters.filter(f=>f.type==='dest');
-    if (activeDestFilters.length > 0) {{
-      const destName = r.dataset.destName || r.querySelector('td:first-child strong')?.textContent?.trim() || '';
-      r.style.display = activeDestFilters.some(f=>f.value===destName) ? '' : 'none';
-      return;
-    }}
-    if (!activeRegion) {{
-      r.style.display = parseInt(r.dataset.rowIdx||'999') < 10 ? '' : 'none';
-    }} else {{
-      r.style.display = (r.dataset.region === activeRegion) ? '' : 'none';
-    }}
+    const destName = r.dataset.destName || r.querySelector('td:first-child strong')?.textContent?.trim() || '';
+    const destReg  = r.dataset.region || '';
+    const idx      = parseInt(r.dataset.rowIdx||'999');
+    const isSel    = activeDests.includes(destName);
+    r.classList.toggle('ud-filter-active', isSel);
+    // Normalizar para comparación (México vs Mexico)
+    const _normReg = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
+    if (activeRegion && _normReg(destReg) !== _normReg(activeRegion)) {{ r.style.display = 'none'; return; }}
+    r.style.display = (idx < 10 || isSel) ? '' : 'none';
   }});
-  // Ver-más rows: ocultar si hay filtro activo que ya muestra todas las filas relevantes
+
+  // ── Ver-más ─────────────────────────────────────────────────────
   const vmCorp = document.getElementById('ud-corp-ver-mas');
-  if (vmCorp) vmCorp.style.display = (udDim === 'corp' && !activeRegion) ? '' : 'none';
+  if (vmCorp) vmCorp.style.display = (udDim==='corp' && !activeRegion && !_destCorpsSet && !_chanCorpsSet) ? '' : 'none';
   const vmDest = document.getElementById('ud-dest-ver-mas');
-  const activeDestFilters2 = udActiveFilters.filter(f=>f.type==='dest');
-  if (vmDest) vmDest.style.display = (udDim === 'dest' && !activeRegion && !activeDestFilters2.length) ? '' : 'none';
-  const _gd=document.getElementById('ud-gap-content'); if(_gd&&_gd.style.display!=='none') gapSyncDim();
-  // Re-render channel view si está visible (para que refleje filtros de región/corp)
+  if (vmDest) vmDest.style.display = (udDim==='dest' && !activeRegion && !activeDests.length) ? '' : 'none';
+
+  // ── GAP sync (solo si está visible — NO activar/desactivar desde acá) ──
+  const _gdEl = document.getElementById('ud-gap-content');
+  if (_gdEl && _gdEl.style.display !== 'none') gapSyncDim();
+
+  // ── Channel sync ────────────────────────────────────────────────
   const _chContent = document.getElementById('ud-ch-content');
   if (_chContent && _chContent.style.display !== 'none') chRenderOverview();
-  // Actualizar fila GLOBAL con totales del filtro activo
+
+  // ── Panel PP (sin semana activa, filtro PROD.PROPIO activo) ────
+  const _tipoNorm = (s) => (s||'').toLowerCase().replace(/[ .]/g,'');
+  const _isPP = _tipoNorm(hFTipo) === 'prodpropio'
+    || (udActiveFilters||[]).some(f => f.type==='tipo' && _tipoNorm(f.value) === 'prodpropio');
+  const _hasSemana = !!((document.getElementById('sel-week')||{{}}).value);
+  if (_isPP && !_hasSemana) {{
+    _renderPPPanel();
+  }} else if (!_hasSemana) {{
+    _hideHotelPanel();
+  }}
+
+  // ── GLOBAL + gráfico ────────────────────────────────────────────
   updateGlobalRow();
-  // Re-render chart when filters change
   hRender();
 }}
 
@@ -2634,10 +3143,10 @@ function hRenderActivePills() {{
 
   const container = document.getElementById('hf-active-pills');
   if (!container) return;
-  // Preservar la drill-pill de semana antes de limpiar (sobrevive a cambios de dimensión)
+  // Preservar la drill-pill de semana — se agrega AL FINAL (semana es contexto, no filtro primario)
   const _existingDrillPill = container.querySelector('.drill-pill');
   container.innerHTML = '';
-  if (_existingDrillPill) container.appendChild(_existingDrillPill);
+  // No agregar la drill-pill aquí — se agrega al final
 
   function mkPill(label, onX) {{
     const pill = document.createElement('span');
@@ -2657,9 +3166,12 @@ function hRenderActivePills() {{
   // Render in insertion order via udActiveFilters, then add any h* vars not already in array
   const seen = new Set();
 
-  // First: udActiveFilters in order (preserves user selection order)
-  if (udActiveFilters) {{
-    udActiveFilters.forEach(af => {{
+  // Emitir pills en orden fijo: tipo → corp → region → dest → channel
+  const _pillOrder = ['tipo','corp','region','dest','channel'];
+  const _sortedFilters = _pillOrder.flatMap(t => (udActiveFilters||[]).filter(f=>f.type===t));
+  // First: udActiveFilters en orden fijo
+  if (_sortedFilters.length) {{
+    _sortedFilters.forEach(af => {{
       if (seen.has(af.value.toUpperCase())) return;
       seen.add(af.value.toUpperCase());
       mkPill(af.value, () => {{
@@ -2693,12 +3205,14 @@ function hRenderActivePills() {{
     }});
   }}
 
-  // Then: h* vars not already shown (backwards compat)
-  [{{k:'region',v:hFRegion}},{{k:'channel',v:hFChannel}},{{k:'corp',v:hFCorp}}].forEach(d => {{
+  // Then: h* vars not already shown (backwards compat) — en orden corp→region→channel
+  [{{k:'corp',v:hFCorp}},{{k:'region',v:hFRegion}},{{k:'channel',v:hFChannel}}].forEach(d => {{
     if (!d.v || seen.has(d.v.toUpperCase())) return;
     seen.add(d.v.toUpperCase());
     mkPill(d.v, () => hClearFilter(d.k));
   }});
+  // Drill-pill de semana siempre AL FINAL
+  if (_existingDrillPill) container.appendChild(_existingDrillPill);
 }}
 
 function hClearFilter(key) {{
@@ -3218,7 +3732,7 @@ def build_unified_distrib():
         pct_pp = pp_/tot*100 if tot else 0; vs = pct_pp - pp/N*100
         corp_regs = corp_regions_map.get(r['Corporativo'],'')
         corp_rows += (
-            f'<tr class="ud-corp-row {cls}" style="display:none;cursor:pointer" data-row-idx="{i}" data-regions="{corp_regs}"'
+            f'<tr class="ud-corp-row {cls}" style="display:none;cursor:pointer" data-row-idx="{i}" data-regions="{corp_regs}" data-corp-name="{corp}"'
             f' onclick="udRowClick(\'corp\',\'{corp}\',this);updateCards({{type:\'corp\',name:\'{corp}\'}})">'
             f'<td><strong>{r["Corporativo"]}</strong></td>'
             f'<td class="td-tot">{fmt_n(tot)}</td>'
@@ -3484,7 +3998,7 @@ def build_channel_tab():
 def build_gap_tab():
     """Sin Contratación Directa — misma estructura que tabla unificada."""
     # Rows by current dim (reg / corp / dest) — uses corp_mkt and reg_mkt
-    # Show: Con Terceros | Con Directo | Total | % Penetración
+    # Show: Sin Directo | Con Directo | Total | % Penetración
 
     def vs_val(pct_pen):
         return pct_pen - (pp/N*100)
@@ -3575,7 +4089,7 @@ def build_gap_tab():
       <thead><tr>
         <th id="gap-dim-th" style="text-align:left;width:220px;">Dimensión</th>
         <th>Total</th>
-        <th class="th-pp" style="color:#4FC3F4;">Con Terceros</th>
+        <th class="th-pp" style="color:#4FC3F4;">Sin Directo</th>
         <th style="color:#6A6A6A;">Con Directo</th>
         <th style="min-width:120px;">% Propio</th>
         <th class="th-vs">vs Global</th>
@@ -3916,6 +4430,7 @@ def build_html():
   <div id="ud-main-content">{build_unified_distrib()}</div>
   <div id="ud-gap-content" style="display:none;">{gap_tab}</div>
   <div id="ud-ch-content"  style="display:none;">{ch_tab}</div>
+  <div id="ud-hotel-panel" style="display:none;margin-top:16px;border-top:2px solid #4FC3F4;padding-top:12px;"></div>
 </div>
 
 </div><!-- .shell -->
