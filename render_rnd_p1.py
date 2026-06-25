@@ -265,34 +265,46 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     # ──────────────────────────────────────────────────────────────────────────
 
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
-<!-- Fila 1: valor -->
-<div style="padding:10px 16px 6px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<!-- Fila 1: valor + severity integrado -->
+<div style="padding:10px 16px 10px;border-bottom:1px solid var(--rule-soft);display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;">
   <div>
     <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:2px;">
       <div id="w21-kv-nd" style="font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
       <div style="padding-top:2px;">{pill_with_target}</div>
     </div>
+    <div style="margin-top:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</span>
+      <span style="font-size:10px;color:var(--ink-muted);">{_traf_line}</span>
+    </div>
   </div>
-  <div style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
-  <div style="font-size:10px;color:var(--ink-muted);width:100%;">{_traf_line}</div>
+  <div style="padding-top:2px;">
+    <div style="font-size:8px;color:var(--ink-muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;">Severity · %NoDispo</div>
+    {gauge}
+    <div style="display:flex;justify-content:space-between;margin-top:3px;">
+      <span style="font-size:7px;color:var(--ink-muted);">Súp. Crítica &gt;60%</span>
+      <span style="font-size:7px;color:var(--ink-muted);">Exitosa &lt;3%</span>
+    </div>
+  </div>
 </div>
-<!-- Fila 2: gauge+wowbox | stats | sparkline -->
-<div style="display:grid;grid-template-columns:180px 160px 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
+<!-- Fila 2: wowbox | sparkline+stats inline -->
+<div style="display:grid;grid-template-columns:200px 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
   <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);">
-    <div style="margin-top:-10px;">{gauge}</div>
     {wow_block}
   </div>
-  <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);display:flex;flex-direction:column;justify-content:center;">
-    {_stats_full}
-  </div>
   <div style="padding:8px 14px;overflow:hidden;">
-    <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;'>Global</span>
+      <div style="display:flex;gap:10px;font-size:8px;color:var(--ink-muted);">
+        <span>Act <strong style="color:#EA0074;">{_nd_curr:.1f}%</strong></span>
+        <span>Mín <strong style="color:#1A6B4A;">{_nd_min:.1f}%</strong></span>
+        <span>Prom <strong>{_nd_avg:.1f}%</strong></span>
+      </div>
+    </div>
     <div id="hrnd-panel-nd-wrap" style="overflow:hidden;">
       {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
     </div>
   </div>
-</div>
 </div>
 <!-- Fila 3: pills + tabla -->
 <div style="padding:8px 16px 12px;">
