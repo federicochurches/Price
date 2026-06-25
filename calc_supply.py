@@ -164,33 +164,62 @@ if __name__ == '__main__':
     # 8. Generar Mail
     run_step('8/8', 'render_mail_v3.py')
 
-    # 9. Build package (index.html)
-    run_step('9/8', 'build_package.py')
-
-    # ── 10. Copiar HTML a reports/week-NN/ en disco ─────────────────────────
-    # assemble_unified.py escribe SUPPLY_WNN.html en OUTPUTS_DIR (la raíz),
-    # pero el HTML "oficial" del repo vive en reports/week-NN/. Sin esta copia,
-    # reports/week-NN/SUPPLY_WNN.html queda con la versión vieja y genera
-    # confusión (el usuario abre el viejo mientras el nuevo está solo en el ZIP).
+    # ── 10. Copiar HTML a reports/week-NN/ antes de build_package (que limpia la raíz) ──
     script_dir = Path(__file__).parent
     wn = VOL_NUM.zfill(2)
-    # assemble escribe SUPPLY_WNN.html en OUTPUTS_DIR. Buscar en las ubicaciones
-    # posibles (raíz del repo en local; /mnt/user-data/outputs en Claude).
-    _candidates = [
-        # El staging Price_W{NN}/ es la fuente autoritativa (es la que se empaca en el ZIP).
-        script_dir.parent / f'Price_W{VOL_NUM}' / 'reports' / f'week-{wn}' / f'SUPPLY_W{VOL_NUM}.html',
-        Path(os.getenv('OUTPUTS_DIR', str(script_dir))) / f'SUPPLY_W{VOL_NUM}.html',
-        script_dir / f'SUPPLY_W{VOL_NUM}.html',
-        Path('/mnt/user-data/outputs') / f'SUPPLY_W{VOL_NUM}.html',
-    ]
-    _src_html = next((c for c in _candidates if c.exists()), None)
-    _dst_html = script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html'
-    if _src_html:
+    _src_html = script_dir / f'SUPPLY_W{VOL_NUM}.html'
+    _dst_html  = script_dir / f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html'
+    if _src_html.exists():
         _dst_html.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(_src_html, _dst_html)
         print(f'\n[10/10] HTML copiado a reports/week-{wn}/ ({_dst_html.stat().st_size//1024} KB)')
     else:
         print(f'\n[10/10] ⚠️  No se encontró SUPPLY_W{VOL_NUM}.html — reports/week-{wn}/ no actualizado')
+
+    # 9. Build package (index.html)
+    run_step('9/8', 'build_package.py')
+
+    # ── 11. Commitear SUPPLY_WNN.html a GitHub vía Git Tree API ─────────────
+    try:
+        import requests as _req, base64 as _b64
+        _token = None
+        for _tp in [Path(__file__).parent/'text3.txt', Path('/mnt/project/text3.txt')]:
+            if _tp.exists():
+                _token = _tp.read_text(encoding='utf-8').strip(); break
+        if _token and _dst_html.exists():
+            _REPO = 'federicochurches/Price'
+            _H = {'Authorization': f'token {_token}', 'Content-Type': 'application/json'}
+            _API = 'https://api.github.com'
+            # HEAD sha
+            _ref = _req.get(f'{_API}/repos/{_REPO}/git/refs/heads/main', headers=_H).json()
+            _main_sha = _ref['object']['sha']
+            _tree_sha = _req.get(f'{_API}/repos/{_REPO}/git/commits/{_main_sha}', headers=_H).json()['tree']['sha']
+            # Blob
+            _blob = _req.post(f'{_API}/repos/{_REPO}/git/blobs', headers=_H,
+                json={'content': _b64.b64encode(_dst_html.read_bytes()).decode(), 'encoding': 'base64'}).json()['sha']
+            # Tree
+            _ntree = _req.post(f'{_API}/repos/{_REPO}/git/trees', headers=_H, json={
+                'base_tree': _tree_sha,
+                'tree': [{'path': f'reports/week-{wn}/SUPPLY_W{VOL_NUM}.html', 'mode': '100644', 'type': 'blob', 'sha': _blob}]
+            }).json()['sha']
+            # Commit
+            _ncommit = _req.post(f'{_API}/repos/{_REPO}/git/commits', headers=_H, json={
+                'message': f'feat: Week {VOL_NUM} · Supply unificado + Excels consolidados · {PERIODO}',
+                'tree': _ntree, 'parents': [_main_sha]
+            }).json()['sha']
+            # Update ref
+            _r = _req.patch(f'{_API}/repos/{_REPO}/git/refs/heads/main', headers=_H,
+                json={'sha': _ncommit, 'force': False})
+            if _r.status_code == 200:
+                print(f'\n[11/11] ✅ SUPPLY_W{VOL_NUM}.html commiteado a GitHub ({_dst_html.stat().st_size//1024} KB)')
+            else:
+                print(f'\n[11/11] ⚠️  Commit GitHub falló: {_r.status_code} {_r.text[:100]}')
+        else:
+            print(f'\n[11/11] ⚠️  Token o HTML no encontrado — commit manual necesario')
+    except Exception as _e:
+        print(f'\n[11/11] ⚠️  Error al commitear a GitHub: {_e}')
+
+
 
     # ── Resumen ──
     print('\n' + '=' * 60)
