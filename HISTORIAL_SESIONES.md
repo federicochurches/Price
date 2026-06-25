@@ -3757,3 +3757,79 @@ Sesión de debugging intensivo de sparklines W19-W23 en KPI cards, AR cards y ch
 - Dest: 1054 CR / 3052 RND / 2485 BK
 - Hotel: 6024 CR / en pipeline RND (pendiente re-run)
 - Provider/Channel: 10 CR (DerbySoft, SynXis, HBSI, Expedia, HotelBeds Apitude, Internal, Siteminder, Travelclick, Hotel Unico V2, Omnibees)
+
+---
+
+## Sesión W25-visual · 24-06-2026 (tarde)
+
+### Contexto
+Sesión de mejoras visuales sobre `SUPPLY_W25.html`. Pickles W25 disponibles en container. Clone fresco en `/home/claude/Price_fresh/`.
+
+### Cambios aplicados y funcionando ✅
+
+#### Channels — col TRX en 1 línea
+- `52px/56px → 68px` en todos los `_mkHdr`/`_buildChanRow` de `js_override.js` y `render_cr_p1.py`
+- Afecta: KPI EF channel, KPI CV channel, KPI BK channel, AR channel
+
+#### AR BK card — sin WoW TRX
+- Grid `5cols → 4cols` (nombre · TRX · BK% · WoW)
+- Header: columna WoW TRX eliminada
+- Filas: `wPill(_BK_TRX_WOW...)` eliminado
+- `js_override.js`: `ar3_renderTable`
+
+#### Severity RND — solo %NoDispo (sin IPM)
+- `render_rnd_p2.py`: `render_severity()` → solo columna %NoDispo, eliminada columna IPM
+- `assemble_unified.py`: CSS `body[data-ar-mode='rnd'] #kpicard-ar2 { display:none }` — AR2 oculto en RND
+
+#### AR1 RND — sparkline side-by-side
+- `assemble_unified.py`: `#ar1-body display:flex inline`, `#ar1-hist-cr-wrap` abajo (CR), `#ar1-hist-wrap` 210px al costado (RND, `display:none` por defecto)
+- `demo_css_w22.css`: `body[data-ar-mode='rnd'] #ar1-hist-wrap { display:flex }` + oculta `ar1-hist-cr-wrap`
+
+#### Excels mejorados
+- `excel_rnd.py`: `write_nd_hotel()` con columnas Corp+Destino · nueva tab **AR Consolidado** (3 bandas top500) → 29 hojas
+- `excel_cr.py`: nueva tab **AR Consolidado** (3 bandas top500 con Channel+Destino+Corp) → 29 hojas
+
+#### SVG sparkline — overflow:hidden
+- `render_historico_svg.py`: SVG `overflow:visible → overflow:hidden` + div container `overflow:hidden`
+- Evita que el halo del último punto (`r=8`) desborde el contenedor
+
+#### Pills dimensión — todas MAYÚSCULA
+- `render_cr_p1.py` + `render_rnd_p1.py`: `text-transform:none → uppercase` en pills inactivas
+- `assemble_unified.py`: `textTransform` siempre `'uppercase'` en `kpi_setView`
+
+#### KPI NoDispo — layout restaurado a W24 original
+- Después de múltiples iteraciones de rediseño (Opciones A/B/C, 2-zonas, 3-módulos) que no quedaron bien visualmente, se revirtió a `render_rnd_p1.py` del commit `b395672` (W24)
+- Eliminada `render_kpi_card_rpm()` del script restaurado (IPM no se muestra en W25)
+- Layout final: simple, `padding:12px 16px`, sin grid experimental
+
+### Commits de la sesión (orden cronológico)
+- `e47a3c80` — Opción B NoDispo (descartada) + channels 68px + severity sin IPM + AR1 side-by-side
+- `3f2ad2a1` — Excels: Corp+Destino en hotels RND + AR Consolidado CR+RND
+- `223601d4` — BK AR sin WoW TRX + AR1 side-by-side fix
+- `18c9169` → múltiples commits de layout NoDispo (todos descartados)
+- `705bd0d4` — Revert NoDispo a W24 original
+- `b061aed` — Fix final: layout W24 sin IPM ✅
+
+### Scripts modificados (estado final)
+- `render_rnd_p1.py` — layout W24 restaurado, sin `render_kpi_card_rpm`
+- `render_rnd_p2.py` — severity solo %NoDispo
+- `render_cr_p1.py` — channels 68px, pills uppercase
+- `js_override.js` — channels 68px, AR BK sin WoW TRX, AR2 oculto RND
+- `assemble_unified.py` — AR1 side-by-side, CSS overrides
+- `demo_css_w22.css` — AR1 RND CSS
+- `render_historico_svg.py` — overflow:hidden
+- `excel_rnd.py` — Corp+Destino en hotels, AR Consolidado
+- `excel_cr.py` — AR Consolidado
+
+### Lecciones aprendidas
+- **Rediseño de cards complejas sin poder previsualizar** → siempre presentar opciones como HTML standalone primero, validar visualmente, y solo entonces tocar los scripts
+- **`.kpi-card { padding:16px }` global** pisa cualquier `padding:0` inline → necesita `!important` o override por ID
+- **`render_historico_svg.py` genera SVG con `overflow:visible`** → en contenedores angostos el halo del último punto desborda; fix: `overflow:hidden` en SVG y container
+- **Restaurar desde commit específico** es más confiable que múltiples str_replace cuando el script tuvo demasiadas iteraciones
+
+### Pendientes para próxima sesión
+1. Re-run `calc_inv.py` W25 con dataset actualizado
+2. Mail W25 final
+3. Pipeline W26 normal
+4. Cleanup código muerto (32 IDs huérfanos)
+5. Rediseño card NoDispo (en sesión dedicada con HTML standalone)

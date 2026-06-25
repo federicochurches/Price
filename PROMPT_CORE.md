@@ -514,7 +514,7 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 36. Calcular hist BK en `_build_bk_*_hist_json()` usando `D` (pickle CR) — estas funciones cargan siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`
 37. Usar `=== 'dest'` para comparar `_dimV2` en el lookup hist — la vista destino se guarda como `'destino'` en `_kpiView`. Usar `=== 'dest' || _dimV2 === 'destino'`
 38. Setear `_arCrossFilter[n].hotel` en el hotel handler de AR (self-filter rule) — causó BR/SC vacío al filtrar por hotel fuera de su banda. El toggle usa `data-selected`, no el cross-filter
-39. Regenerar solo `render_cr_p1.py` al modificar `render_historico_svg.py` — también regenerar `render_rnd_p1.py` (ambos importan el SVG render)
+39. Regenerar el HTML completo (18MB+) en cada iteración de fix visual de una card — primero crear un HTML standalone con solo la card, validar visualmente, y solo entonces aplicar al script fuente
 
 ## ⚠️ Nota sobre git pull local
 - `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
@@ -522,7 +522,7 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post cierre W25)
+## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post sesión visual W25)
 
 Por valor/orden sugerido:
 
@@ -530,6 +530,7 @@ Por valor/orden sugerido:
 2. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
 3. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
 4. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales (re-run ya corrido), snap_date fix, auto-fetch PP_PREV en mail, paso 11 auto-config.
+5. **Rediseño card NoDispo** — en sesión dedicada con HTML standalone. Las iteraciones de esta sesión no convergieron; presentar 3 opciones → validar visual → implementar en scripts.
 
 ✅ **Re-run `calc_inv.py` W25** — completado.
 ✅ **Mail W25** — enviado, no requiere acción.
@@ -622,7 +623,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W25-hist-entity · 24-06-2026 (**Historial real por hotel y provider; fixes doble-listener AR; BK sparkline posición**  — (1) `build_hist_entity.py` extendido: `build_cr_hist` agrega dimensiones `hotel` (6024) y `provider` (10) para W18-W24 real; `build_rnd_hist` agrega `hotel`. Limpiar prefijo `(ID) -` en nombres de hotel. (2) `render_cr_p1.py` emite `CR_HOTEL_HIST` + `CR_PROVIDER_HIST`; `render_rnd_p1.py` emite `RND_HOTEL_HIST`. (3) `assemble_unified.py`: lookup hotel individual primero (`CR_HOTEL_HIST`), fallback corp; channel EF/CV usa `CR_PROVIDER_HIST[label][ck]`; AR hotel view completo en `_handleKpiCardHistClick`; KPI+WoW box actualizan al seleccionar hotel. (4) Fix doble-listener: bloque `HOTEL VIEW` eliminado de `js_override.js` — `_handleKpiCardHistClick` es la única fuente de verdad para AR hotel view. (5) BK sparkline al final de la card: el outer div envolvía `kpi-bk-panels` → reorder correcto manteniendo balance de divs. (6) Fallback `+Area` en lookup destino (87% de dicts tienen sufijo ` Area` que el pickle no tiene).)
+**Última actualización:** W25-visual · 24-06-2026 (**Mejoras visuales W25** — (1) Channels col TRX 52/56px→68px (Tráfico en 1 línea). (2) AR BK sin WoW TRX (grid 5cols→4cols). (3) Severity RND solo %NoDispo (sin IPM). (4) AR1 RND sparkline side-by-side (`#ar1-hist-cr-wrap` abajo CR / `#ar1-hist-wrap` 210px RND). (5) Excels mejorados: Corp+Destino en tabs hotel RND · AR Consolidado CR+RND (3 bandas top500). (6) `render_historico_svg.py`: SVG `overflow:hidden` + container overflow:hidden — evita desborde del halo del último punto. (7) Cards KPI NoDispo: múltiples iteraciones de rediseño descartadas → revert a layout W24 sin IPM. **Lección:** rediseño de cards complejas requiere HTML standalone para validación visual antes de tocar scripts.)
 
 **Última actualización previa:** W25-sparkline-hist · 23-06-2026 (**Sparklines W19-W23 reales en todas las cards + fill coloreado por banda** — (1) `BK_CORP_HIST` 124 corps + `BK_HOTEL_HIST` 2.964 hoteles + `BK_DEST_HIST` 2.485 destinos generados desde dataset histórico BK (W18-W24); `render_cr_p1.py` los emite en 3 funciones separadas que cargan desde PICKLE_BK (no `D` que es CR). (2) `render_historico_svg.py`: fill coloreado por banda — n-1 segmentos trapezoidales con `getBanda(vals[i]).c` al 13% opacidad, reemplaza fill neutro ACCENT. Regenerar TANTO `render_cr_p1.py` como `render_rnd_p1.py` al modificar. (3) `_isHotelRow = data-cf-corp !== '' && data-cf-corp !== data-hist-label` en `_handleKpiCardHistClick` — detecta hotel rows y saltea el bloque cross-filter (que trataba nombre de hotel como corp → lookup fallaba → solo W24-W25 actualizaban). Para hotel view: usa `CR_CORP_HIST/RND_CORP_HIST[data-cf-corp][metric]` como proxy. (4) Fix `'destino' vs 'dest'`: `_kpiView` guarda `'destino'` pero lookup comparaba `=== 'dest'` — corregido con `=== 'dest' || === 'destino'` en CR, RND y BK. (5) AR hotel handler en `js_override.js`: toggle usa `data-selected` en lugar de `_arCrossFilter.hotel` (self-filter rule — setear cross-filter.hotel causaba BR/SC vacío al filtrar por hotel fuera de su banda); agrega lookup `CR_CORP_HIST[data-cf-corp][metric]`. (6) AR1/AR2 early return restaurado en `_handleKpiCardHistClick` para hotel view — evita conflicto entre los dos handlers (comportamiento invertido del doble click). Cobertura hist W18-W24: corp (63 CR / 111 RND / 124 BK) · dest (1054 CR / 3052 RND / 2485 BK) · hotel (proxy corp CR/RND · directo BK_HOTEL_HIST 2964 hoteles).)
 
