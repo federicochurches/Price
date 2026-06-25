@@ -24,6 +24,8 @@ def _mini_badge(bnd):
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
 M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']
+sev_nd = D.get('sev_nd', {})
+p80_hotel = D.get('p80_hotel', pd.DataFrame())
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
@@ -264,6 +266,28 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                    f'{_banda_cell}')
     # ──────────────────────────────────────────────────────────────────────────
 
+    # ── Severity rows para integrar en la card ────────────────────────────────
+    _sev_total = sum(sev_nd.values()) or 1
+    def _sev_row(banda, rango):
+        bbg, bfg = banda_colors(banda)
+        bc = BANDA_COLORS.get(banda, {})
+        bar_color = bc.get('bar', bbg)
+        count = int(sev_nd.get(banda, 0))
+        pct = count / _sev_total
+        bar_w = min(int(pct * 100), 100)
+        return (f'<div style="display:grid;grid-template-columns:100px 1fr 40px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--rule-soft);">'
+                f'<span style="display:inline-block;padding:2px 6px;background:{bbg};color:{bfg};font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-radius:2px;">{banda}</span>'
+                f'<div style="background:var(--rule-soft);height:5px;border-radius:2px;">'
+                f'<div style="width:{bar_w}%;height:100%;background:{bar_color};border-radius:2px;"></div></div>'
+                f'<span style="font-size:10px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
+                f'</div>')
+    _sev_rows = ''.join(_sev_row(b, r) for b, r in [
+        ('Súper Crítica','>60%'), ('Crítica','20–60%'),
+        ('Revisar','5–20%'), ('Aceptable','3–5%'), ('Exitosa','<3%')
+    ])
+    _n_p80 = len(p80_hotel)
+    # ──────────────────────────────────────────────────────────────────────────
+
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
 <!-- Header: col izquierda (valor+severity+WoW) | col derecha (sparkline) -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);">
@@ -276,13 +300,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     </div>
     <div style="margin-top:3px;font-size:9px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
     <div style="margin-top:2px;font-size:9px;color:var(--ink-muted);">{_traf_line}</div>
-    <!-- Severity -->
-    <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--rule-soft);">
-      <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;">Severity · %NoDispo</div>
-      {gauge}
-      <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:6.5px;color:var(--ink-muted);">
-        <span>Súp. Crítica &gt;60%</span><span>Exitosa &lt;3%</span>
-      </div>
+    <!-- Severity integrada -->
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--rule-soft);">
+      <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;">Severity · P80 · {_n_p80:,} hoteles</div>
+      {_sev_rows}
     </div>
     <!-- WoW box -->
     <div style="margin-top:8px;">{wow_block}</div>
