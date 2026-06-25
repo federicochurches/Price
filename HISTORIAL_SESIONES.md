@@ -33,10 +33,16 @@
 - Próxima tarea pendiente: ocultar la card NoDispo del panel compartido cuando se está en modo RND (sin impactar CR).
 - Branch `feat/rnd-ar-card` validado visualmente por Fede — **mergeado a main · 25-06-2026**.
 
-**Fix adicional `calc_supply.py`:** copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de que `build_package` limpie la raíz + commit automático a GitHub vía Git Tree API [paso 11]. Root cause: el paso [10/10] corría DESPUÉS de `build_package` que ya borraba el HTML → siempre quedaba el viejo en `reports/`. Aplica a W26+ sin configuración adicional.
+**Fix `calc_supply.py`:** copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de que `build_package` limpie la raíz + commit automático a GitHub vía Git Tree API [paso 11]. Root cause: el paso [10/10] corría DESPUÉS de `build_package` → HTML siempre viejo en `reports/`. Aplica a W26+.
+
+**Panel AR compartido oculto en RND:** `js_override.js` — `w22_setMode` oculta `#shared-ar-panel` cuando `m==='rnd'`. `assemble_unified.py` — `id='shared-ar-panel'` agregado al `<section>` del panel AR.
+
+**Bug detectado (no resuelto):** panel AR compartido (CR) no muestra label "GLOBAL" ni nombre del hotel al seleccionar. Preexistente. Pendiente próxima sesión.
+
+**Flujo de trabajo acordado W26+:** siempre `git pull origin main` al inicio — nunca `git push --force` en main — pipeline siempre desde main.
 
 ### Archivos modificados
-`render_rnd_p1.py` · `assemble_unified.py` · `build_hist_entity.py` · `calc_supply.py`
+`render_rnd_p1.py` · `assemble_unified.py` · `build_hist_entity.py` · `calc_supply.py` · `js_override.js`
 
 ### Pendientes (próxima sesión)
 1. ~~**Merge `feat/rnd-ar-card` → `main`**~~ ✅ Mergeado · 25-06-2026.
