@@ -522,7 +522,7 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post sesión visual W25)
+## 📋 Pendientes próxima sesión (actualizados 24-06-2026, post Inventory W25 filter bug)
 
 Por valor/orden sugerido:
 
@@ -534,6 +534,7 @@ Por valor/orden sugerido:
 
 ✅ **Re-run `calc_inv.py` W25** — completado.
 ✅ **Mail W25** — enviado, no requiere acción.
+✅ **Inventory W25 filter bug** — `hApplyFilter` corregido en HTML parcheado; `calc_inv.py` ya tenía la lógica correcta.
 
 **Cómo retomar:** recibir datasets W26 → pipeline completo.
 
@@ -623,7 +624,9 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W25-visual · 24-06-2026 (**Mejoras visuales W25** — (1) Channels col TRX 52/56px→68px (Tráfico en 1 línea). (2) AR BK sin WoW TRX (grid 5cols→4cols). (3) Severity RND solo %NoDispo (sin IPM). (4) AR1 RND sparkline side-by-side (`#ar1-hist-cr-wrap` abajo CR / `#ar1-hist-wrap` 210px RND). (5) Excels mejorados: Corp+Destino en tabs hotel RND · AR Consolidado CR+RND (3 bandas top500). (6) `render_historico_svg.py`: SVG `overflow:hidden` + container overflow:hidden — evita desborde del halo del último punto. (7) Cards KPI NoDispo: múltiples iteraciones de rediseño descartadas → revert a layout W24 sin IPM. **Lección:** rediseño de cards complejas requiere HTML standalone para validación visual antes de tocar scripts.)
+**Última actualización:** W25-inv-filter · 24-06-2026 (**Inventory W25 filter bug** — `hApplyFilter` línea 2548: `idx < 10` ocultaba destinos de México (idx≥48) aunque pasaran el filtro de región. Fix: `(activeRegion || idx < 10 || isSel)`. Segunda causa: normalización unicode corrupta en `_nr3` por PowerShell. Ambos bugs corregidos en HTML parcheado. `calc_inv.py` ya tenía la lógica correcta — no se modificó.)
+
+**Última actualización previa:** W25-visual · 24-06-2026 (**Mejoras visuales W25** — (1) Channels col TRX 52/56px→68px (Tráfico en 1 línea). (2) AR BK sin WoW TRX (grid 5cols→4cols). (3) Severity RND solo %NoDispo (sin IPM). (4) AR1 RND sparkline side-by-side (`#ar1-hist-cr-wrap` abajo CR / `#ar1-hist-wrap` 210px RND). (5) Excels mejorados: Corp+Destino en tabs hotel RND · AR Consolidado CR+RND (3 bandas top500). (6) `render_historico_svg.py`: SVG `overflow:hidden` + container overflow:hidden — evita desborde del halo del último punto. (7) Cards KPI NoDispo: múltiples iteraciones de rediseño descartadas → revert a layout W24 sin IPM. **Lección:** rediseño de cards complejas requiere HTML standalone para validación visual antes de tocar scripts.)
 
 **Última actualización previa:** W25-sparkline-hist · 23-06-2026 (**Sparklines W19-W23 reales en todas las cards + fill coloreado por banda** — (1) `BK_CORP_HIST` 124 corps + `BK_HOTEL_HIST` 2.964 hoteles + `BK_DEST_HIST` 2.485 destinos generados desde dataset histórico BK (W18-W24); `render_cr_p1.py` los emite en 3 funciones separadas que cargan desde PICKLE_BK (no `D` que es CR). (2) `render_historico_svg.py`: fill coloreado por banda — n-1 segmentos trapezoidales con `getBanda(vals[i]).c` al 13% opacidad, reemplaza fill neutro ACCENT. Regenerar TANTO `render_cr_p1.py` como `render_rnd_p1.py` al modificar. (3) `_isHotelRow = data-cf-corp !== '' && data-cf-corp !== data-hist-label` en `_handleKpiCardHistClick` — detecta hotel rows y saltea el bloque cross-filter (que trataba nombre de hotel como corp → lookup fallaba → solo W24-W25 actualizaban). Para hotel view: usa `CR_CORP_HIST/RND_CORP_HIST[data-cf-corp][metric]` como proxy. (4) Fix `'destino' vs 'dest'`: `_kpiView` guarda `'destino'` pero lookup comparaba `=== 'dest'` — corregido con `=== 'dest' || === 'destino'` en CR, RND y BK. (5) AR hotel handler en `js_override.js`: toggle usa `data-selected` en lugar de `_arCrossFilter.hotel` (self-filter rule — setear cross-filter.hotel causaba BR/SC vacío al filtrar por hotel fuera de su banda); agrega lookup `CR_CORP_HIST[data-cf-corp][metric]`. (6) AR1/AR2 early return restaurado en `_handleKpiCardHistClick` para hotel view — evita conflicto entre los dos handlers (comportamiento invertido del doble click). Cobertura hist W18-W24: corp (63 CR / 111 RND / 124 BK) · dest (1054 CR / 3052 RND / 2485 BK) · hotel (proxy corp CR/RND · directo BK_HOTEL_HIST 2964 hoteles).)
 

@@ -3833,3 +3833,38 @@ Sesión de mejoras visuales sobre `SUPPLY_W25.html`. Pickles W25 disponibles en 
 3. Pipeline W26 normal
 4. Cleanup código muerto (32 IDs huérfanos)
 5. Rediseño card NoDispo (en sesión dedicada con HTML standalone)
+
+---
+
+## Sesión W25 · Inventory filter bug · 24-06-2026
+
+### Contexto
+Debug del módulo Inventory (INVENTORY_W25.html). Fede reportó que al seleccionar Región México en el widget de Distribución, la tabla de destinos no mostraba nada.
+
+### Causa raíz
+**Doble bug:**
+
+1. **Normalización unicode corrupta** (ya había fix en `calc_inv.py` de sesión anterior, pero el HTML de W25 tenía versión vieja horneada): la función `_nr3` en `udSetDim` usaba `replace(/[\u0300-\u036f]/g,'')` pero los caracteres del rango estaban literalmente corruptos (NFD raw) por PowerShell al escribir el archivo → la regex no matcheaba nada → `_nr3('México') !== _nr3('México')` → filtro fallaba silenciosamente. Fix: reemplazar 6 ocurrencias corruptas por `charCodeAt(0)<0x0300` en el HTML parcheado.
+
+2. **Bug en `hApplyFilter` línea 2548** (el bug real que bloqueaba la vista): incluso después de filtrar correctamente por región, la lógica hacía `r.style.display = (idx < 10 || isSel) ? '' : 'none'`. Los destinos de México empiezan en `idx=48`, por lo que todos quedaban ocultos. Fix: `r.style.display = (activeRegion || idx < 10 || isSel) ? '' : 'none'`
+
+### Archivos modificados
+- **`INVENTORY_W25.html`** — HTML parcheado directamente (6 normalizaciones corruptas + bug hApplyFilter línea 2548). No requiere regeneración desde calc_inv.py.
+- **`calc_inv.py`** — Ya tenía la lógica correcta en su `hApplyFilter` (línea 2503 del script). No se modificó.
+
+### Estado final
+- ✅ Destinos de México visibles al seleccionar la región
+- ✅ `calc_inv.py` ya tiene la lógica correcta para futuros builds
+- El HTML parcheado es el entregable de esta sesión (no se commitó al repo — es un fix de emergencia sobre el HTML generado)
+
+### Lecciones aprendidas
+- **PowerShell corrompe rangos unicode NFD** en archivos escritos con `Out-File` → usar `[System.IO.File]::WriteAllText` o leer con `encoding='utf-8-sig'` en Python
+- **`hApplyFilter` y `udSetDim` ambos operan sobre los dest-rows** — al agregar lógica de filtro por región en `udSetDim`, hay que asegurar que `hApplyFilter` también respeta la región al decidir qué filas mostrar (no solo aplicar el filtro de región sino también eliminar la restricción de `idx < 10`)
+- Los destinos de México tienen `data-row-idx` 48+ (son los destinos 49-50 en el ranking global) — cualquier restricción de top-N sin excepción de región los oculta
+
+### Pendientes
+1. **Pipeline W26 normal** — próxima sesión
+2. **Mail W26**
+3. **Cleanup código muerto** (32 IDs huérfanos)
+4. **Reconciliar `PROMPT_INV.md`** con valores W25 reales
+5. **Rediseño card NoDispo** — sesión dedicada con HTML standalone
