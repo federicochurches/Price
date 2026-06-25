@@ -343,11 +343,16 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var card = row.closest('.kpi-card');
   if (!card) return;
   var cardId = card.id || '';
-  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : cardId === 'kpicard-nd' ? 'nd' : null;
+  var cardKey = cardId === 'kpicard-ef' ? 'ef' : cardId === 'kpicard-cv' ? 'cv' : cardId === 'kpicard-bk' ? 'bk' : (cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') ? 'nd' : null;
   /* Detectar si el row es un hotel (data-cf-corp distinto de data-hist-label → cross-filter no aplica) */
   var _rCorp  = row.getAttribute('data-cf-corp') || '';
   var _rLabel = row.getAttribute('data-hist-label') || '';
   var _isHotelRow = _rCorp !== '' && _rCorp !== _rLabel;
+  /* Card AR NoDispo: vista siempre hotel — forzar _isHotelRow y registrar view */
+  if (cardId === 'kpicard-ar-nd') {
+    _isHotelRow = true;
+    if (typeof _kpiView !== 'undefined') _kpiView['nd_ar'] = 'hotel';
+  }
   /* BK KPI en vista hotel: los rows de hotel BK no tienen data-cf-corp (solo data-hist-label).
      Si la card es BK y la vista activa es hotel, tratarlo como hotel row para saltar
      el bloque de cross-filter y llegar al lookup BK_HOTEL_HIST. */
@@ -413,7 +418,8 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               var _lockCids = _cids2.slice();
               /* Lookup histórico real W18-W(N-1) para corp/dest desde CR_CORP_HIST/RND_CORP_HIST */
               var _isCR2 = (typeof W !== 'undefined') && W.mode === 'cr';
-              var _dimV2 = _kpiView[cardKey];
+              /* Card AR NoDispo: vista siempre hotel — usar corp hist como proxy */
+              var _dimV2 = (cardId === 'kpicard-ar-nd') ? 'hotel' : _kpiView[cardKey];
               var _hDict = null;
               /* BK: corp view → BK_CORP_HIST, dest view → BK_DEST_HIST */
               if (cardKey === 'bk') {
