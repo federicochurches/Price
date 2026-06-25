@@ -266,51 +266,44 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
                    f'{_banda_cell}')
     # ──────────────────────────────────────────────────────────────────────────
 
-    # ── Severity rows para integrar en la card ────────────────────────────────
     _sev_total = sum(sev_nd.values()) or 1
-    def _sev_row(banda, rango):
-        bbg, bfg = banda_colors(banda)
-        bc = BANDA_COLORS.get(banda, {})
-        bar_color = bc.get('bar', bbg)
-        count = int(sev_nd.get(banda, 0))
-        pct = count / _sev_total
-        bar_w = min(int(pct * 100), 100)
-        return (f'<div style="display:grid;grid-template-columns:100px 1fr 40px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--rule-soft);">'
-                f'<span style="display:inline-block;padding:2px 6px;background:{bbg};color:{bfg};font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-radius:2px;">{banda}</span>'
-                f'<div style="background:var(--rule-soft);height:5px;border-radius:2px;">'
-                f'<div style="width:{bar_w}%;height:100%;background:{bar_color};border-radius:2px;"></div></div>'
-                f'<span style="font-size:10px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
-                f'</div>')
-    _sev_rows = ''.join(_sev_row(b, r) for b, r in [
-        ('Súper Crítica','>60%'), ('Crítica','20–60%'),
-        ('Revisar','5–20%'), ('Aceptable','3–5%'), ('Exitosa','<3%')
-    ])
     _n_p80 = len(p80_hotel)
-    # ──────────────────────────────────────────────────────────────────────────
+
+    def _sev_col(b, r):
+        bbg, bfg = banda_colors(b)
+        bar_c = BANDA_COLORS.get(b, {}).get('bar', bbg)
+        count = int(sev_nd.get(b, 0))
+        pct_v = count / _sev_total
+        bar_w = min(int(pct_v * 100), 100)
+        return (f'<div style="text-align:center;">'
+                f'<div style="display:inline-block;padding:2px 6px;background:{bbg};color:{bfg};font-size:7px;font-weight:700;text-transform:uppercase;border-radius:2px;white-space:nowrap;">{b}</div>'
+                f'<div style="margin-top:3px;font-size:8px;color:var(--ink-muted);">{r}</div>'
+                f'<div style="margin-top:2px;height:4px;background:var(--rule-soft);border-radius:2px;">'
+                f'<div style="width:{bar_w}%;height:100%;background:{bar_c};border-radius:2px;"></div></div>'
+                f'<div style="margin-top:2px;font-size:11px;font-weight:700;color:var(--ink);">{count:,}</div>'
+                f'<div style="font-size:8px;color:var(--ink-muted);">{pct_v:.1%}</div>'
+                f'</div>')
+    _sev_cols = ''.join(_sev_col(b, r) for b, r in [
+        ('Súper Crítica','>60%'),('Crítica','20–60%'),('Revisar','5–20%'),('Aceptable','3–5%'),('Exitosa','<3%')
+    ])
 
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
-<!-- Header: col izquierda (valor+severity+WoW) | col derecha (sparkline) -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);">
-  <!-- Izquierda -->
-  <div style="padding:10px 16px 10px;border-right:1px solid var(--rule-soft);">
+
+<!-- MÓDULO 1: KPI + sparkline + gauge -->
+<div style="padding:12px 16px 10px;border-bottom:1px solid var(--rule-soft);display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;">
+  <!-- KPI -->
+  <div>
     <div style="font-size:9px;color:var(--ink-muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">% de No Dispo</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-      <div id="w21-kv-nd" style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
-      <div style="padding-top:2px;">{pill_with_target}</div>
+      <div id="w21-kv-nd" style="font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+      <div>{pill_with_target}</div>
     </div>
     <div style="margin-top:3px;font-size:9px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
     <div style="margin-top:2px;font-size:9px;color:var(--ink-muted);">{_traf_line}</div>
-    <!-- Severity integrada -->
-    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--rule-soft);">
-      <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;">Severity · P80 · {_n_p80:,} hoteles</div>
-      {_sev_rows}
-    </div>
-    <!-- WoW box -->
-    <div style="margin-top:8px;">{wow_block}</div>
   </div>
-  <!-- Derecha: sparkline -->
-  <div style="padding:10px 14px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+  <!-- Sparkline -->
+  <div style="overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
       <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#EA0074;'>Global</span>
       <div style="display:flex;gap:8px;font-size:8px;color:var(--ink-muted);">
         <span>Act <strong style="color:#EA0074;">{_nd_curr:.1f}%</strong></span>
@@ -322,14 +315,33 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
       {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
     </div>
   </div>
+  <!-- Gauge + WoW -->
+  <div style="min-width:180px;">
+    <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;">Severity gauge</div>
+    <div style="margin-top:-10px;">{gauge}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:6.5px;color:var(--ink-muted);">
+      <span>&gt;60%</span><span>&lt;3%</span>
+    </div>
+    <div style="margin-top:8px;">{wow_block}</div>
+  </div>
 </div>
-<!-- Fila 3: pills + tabla -->
+
+<!-- MÓDULO 2: Tabla de severity -->
+<div style="padding:10px 16px;border-bottom:1px solid var(--rule-soft);">
+  <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;">Severity · P80 · {_n_p80:,} hoteles</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+    {_sev_cols}
+  </div>
+</div>
+
+<!-- MÓDULO 3: Datos históricos (pills + tabla) -->
 <div style="padding:8px 16px 12px;">
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;margin-bottom:2px;">{tabs}</div>
   <div id="kpi-nd-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
   <div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-nd', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-nd')}</div>
   <div id="kpi-nd-panels" class="tab-panels">{panels}</div>
 </div>
+
 </div>'''
 
 # render_kpi_card_rpm eliminada — W26: IPM no se muestra en Availability (solo %NoDispo)
