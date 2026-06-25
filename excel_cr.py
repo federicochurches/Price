@@ -133,7 +133,10 @@ def hotel_src_cr(can_id):
         df = p80_all[p80_all['DistributionCategory'] == can_id].copy()
     else:
         can = CANASTA.get(can_id, {})
-        df = (can.get('p80_hotel') or can.get('p80') or p80_all).copy()
+        src = can.get('p80_hotel')
+        if src is None:
+            src = can.get('p80')
+        df = (src if src is not None else p80_all).copy()
     if 'Channel' not in df.columns and 'Hotel' in df.columns:
         df['Hotel_c'] = df['Hotel'].apply(clean)
         df['Channel'] = df['Hotel_c'].map(hcm_clean).fillna('—')

@@ -106,8 +106,10 @@ def hotel_src(can_id):
     """df hotel de la canasta (con %NoDispo, Bookings, Trafico, WoW)."""
     if can_id is None:
         return D.get('p80_hotel', pd.DataFrame())
-    can = CANASTA.get(can_id, CANASTA.get(can_id, {}))
-    src = can.get('p80_hotel') or can.get('p80')
+    can = CANASTA.get(can_id, {})
+    src = can.get('p80_hotel')
+    if src is None:
+        src = can.get('p80')
     return src if src is not None else TAB_ND.get('hotel', pd.DataFrame())
 
 def get_banda_hotel(hotel_name, can_id):
