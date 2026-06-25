@@ -255,6 +255,115 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 </div>'''
 
 
+def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
+    """Card AR · NoDispo · misma estructura que la KPI card pero con pills de banda.
+    Reemplaza el viejo 'Análisis de Rendimiento'. Solo vista hotel, 3 bandas:
+    Críticos (Crítica+S.Crítica, BK>0) · Bajo Rendimiento (Revisar+Aceptable, BK>0) · Sin Conversión (BK=0).
+    """
+    banda = banda_nodispo(pct_w18)
+
+    gauge = gauge_5levels(banda, 'nodispo')
+
+    wow_color = '#2F6C34' if pct_wow < 0 else '#C0392B'
+    wow_arrow = '↓' if pct_wow < 0 else ('↑' if pct_wow > 0 else '=')
+    if pct_wow < 0:   wow_str = f'{wow_arrow} -{abs(pct_wow):.2f}'.replace('.', ',')
+    elif pct_wow > 0: wow_str = f'{wow_arrow} +{pct_wow:.2f}'.replace('.', ',')
+    else:             wow_str = '= 0,00'
+
+    wow_block = wow_box(fmt_pct2(pct_w17), fmt_pct2(pct_w18), wow_str, wow_color, ACCENT)
+    _wow_pill_nd = wow_pill_html(-pct_wow, unit='', prefix_pos='↓', prefix_neg='↑')
+
+    _tr18 = M['global_current'].get('trafico', 0)
+    _tr17 = M.get('global_w17', {}).get('trafico', 0)
+    _traf_line = render_traf_line_rnd(_tr18, _tr17)
+    pill_with_target = banda_pill(banda, target='&lt; 3%') + target_caption('&lt; 3%')
+
+    # ── Split de bandas del hotel · misma lógica que excel_rnd.band_split_nd ──
+    def _sf(v):
+        try:
+            f = float(v)
+            return None if (np.isnan(f) or np.isinf(f)) else f
+        except (TypeError, ValueError):
+            return None
+    _hot = p80_hotel.copy()
+    _bk  = _hot['Bookings'].fillna(0) if 'Bookings' in _hot.columns else pd.Series(0, index=_hot.index)
+    _bcol = _hot['%NoDispo'].apply(lambda v: banda_nodispo(_sf(v)) if _sf(v) is not None else '—')
+    _df_crit = _hot[(_bk > 0) & _bcol.isin(['Crítica', 'Súper Crítica'])].sort_values('%NoDispo', ascending=False)
+    _df_br   = _hot[(_bk > 0) & _bcol.isin(['Revisar', 'Aceptable'])].sort_values('%NoDispo', ascending=False)
+    _df_sc   = _hot[_bk == 0].sort_values('Trafico', ascending=False)
+
+    # ── Config del panel hotel (idéntica a la KPI card · 4 cols) ──
+    _AR_CFG = {
+        'val_col':       '%NoDispo',
+        'val_fmt':       fmt_pct2,
+        'hist_scale':    lambda v: round(float(v) * 100, 4),
+        'hist_prev_col': '%NoDispo_W17',
+        'banda_fn':      banda_nodispo,
+        'banda_col':     'BandaNoDispo',
+        'traf_col':      'Trafico',
+        'traf_fmt':      fmt_int_es,
+        'traf_wow_col':  'Trafico_WoW_pct',
+        'traf_wow_type': 'pct',
+        'wow_col':       'NoDispo_WoW_pp',
+        'wow_is_pos':    False,
+        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
+        'show_severity': False,
+    }
+    _AR_HDR = {'headers': ['Tráfico','WoW','%NoDispo','WoW'],
+               'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
+    for _hcol in ('%NoDispo_W17','NoDispo_W17','%NoDispo_W18'):
+        if _hcol in _hot.columns:
+            _AR_CFG['hist_prev_col'] = _hcol
+            break
+
+    # ── 3 paneles de banda (crit visible, br/sc ocultos) ──
+    _BANDS = [('crit', 'Críticos', _df_crit), ('br', 'Bajo Rendimiento', _df_br), ('sc', 'Sin Conversión', _df_sc)]
+    panels_ar = ''
+    for _i, (_bkey, _blabel, _bdf) in enumerate(_BANDS):
+        _top, _rest = build_kpi_tab_rows(_bdf, 'hotel', _AR_CFG)
+        _hdr = tab_column_header(_AR_HDR['headers'], _AR_HDR['widths'])
+        _more = _kpi_ver_mas_btn(target_class='rows-more') if _rest else ''
+        _hide = '' if _i == 0 else ' style="display:none;"'
+        panels_ar += (f'<div class="ar-nd-panel" data-band="{_bkey}"{_hide}>'
+                      f'<div class="kpi-tab-rows">{_hdr}{_top}{_rest}{_more}</div></div>')
+
+    # ── Pills de banda (Críticos/Bajo Rend./Sin Conv.) — colores sólidos de banda ──
+    _BAND_PILL = {
+        'crit': BANDA_COLORS.get('Crítica', {}),
+        'br':   BANDA_COLORS.get('Revisar', {}),
+        'sc':   BANDA_COLORS.get('Sin Conversión', {}),
+    }
+    _pill_style = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;text-transform:uppercase;border:1px solid transparent;'
+    band_pills = ''
+    for _i, (_bkey, _blabel, _) in enumerate(_BANDS):
+        _bc = _BAND_PILL[_bkey]
+        _bg = _bc.get('bg', '#8A8377'); _fg = _bc.get('fg', '#FFFFFF')
+        _active = '' if _i == 0 else 'opacity:.45;'
+        band_pills += (f'<span id="ar-nd-b-{_bkey}" class="ar-nd-bpill" data-band="{_bkey}"'
+                       f' onclick="ar_setBand(\'nd\',\'{_bkey}\',this)"'
+                       f' style="{_pill_style}background:{_bg};color:{_fg};{_active}">{_blabel}</span>')
+
+    return f'''<div class="kpi-card" id="kpicard-ar-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
+<div>
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Análisis de Rendimiento · % No Dispo</div>
+<div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+<div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
+{_traf_line}
+</div>
+<div style="padding-top:4px;">{pill_with_target}</div>
+</div>
+</div>
+{gauge}
+{wow_block}
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{band_pills}</div>
+<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-ar-nd', accent_color='#EA0074', placeholder='Buscar hotel…', count_id='cnt-ar-nd')}</div>
+<div id="ar-nd-panels" class="tab-panels">{panels_ar}</div>
+<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-arcard-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Hotel seleccionado</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-arcard-nd')}</div>
+</div>'''
+
+
 def render_alerts_block():
     """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp"""
     # Hotel con peor %NoDispo + Hotel con peor RPM (BKGS>0, RPM>0, alto tráfico)
@@ -328,6 +437,7 @@ h1, subhead, pct18, _rpm18, pct17, _rpm17, pct_wow, _rpm_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin:6px 0 12px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
+{render_ar_card_nodispo(pct18, pct17, pct_wow)}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 </section>
