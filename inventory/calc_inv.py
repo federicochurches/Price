@@ -1187,7 +1187,7 @@ function updateGlobalRow() {{
     if (typeof CORP_REG_DATA !== 'undefined') {{
       const _key = _activeC + ',' + _activeR;
       // Buscar con normalización de acento
-      const _nrg = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+      const _nrg = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
       const _entry = Object.entries(CORP_REG_DATA).find(([k]) => {{
         const [kc,kr] = k.split(',');
         return _nrg(kc)===_nrg(_activeC) && _nrg(kr)===_nrg(_activeR);
@@ -1940,7 +1940,7 @@ function udSetDim(dim, btn) {{
   }});
   // Leer filtros activos para aplicarlos directamente en udSetDim (no esperar hApplyFilter)
   const _activeRegNow = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
-  const _nr2 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  const _nr2 = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
   document.querySelectorAll('.ud-corp-row').forEach(r => {{
     if (r.id === 'ud-corp-ver-mas') {{ r.style.display = dim==='corp' ? '' : 'none'; return; }}
     if (dim !== 'corp') {{ r.style.display = 'none'; return; }}
@@ -1959,7 +1959,7 @@ function udSetDim(dim, btn) {{
   }});
   // Leer región activa para filtrar dest-rows directamente (no esperar hApplyFilter)
   const _activeRegDest = udActiveFilters.filter(f=>f.type==='region').slice(-1)[0]?.value || hFRegion || '';
-  const _nr3 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  const _nr3 = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
   document.querySelectorAll('.ud-dest-row').forEach(r => {{
     if (r.id === 'ud-dest-ver-mas') {{ r.style.display = dim==='dest' ? '' : 'none'; return; }}
     if (dim !== 'dest') {{ r.style.display = 'none'; return; }}
@@ -2877,10 +2877,10 @@ function _renderPPPanel() {{
   const sbEl = document.getElementById('hw-search');
   if (sbEl) {{
     sbEl.addEventListener('input', function() {{
-      const q = this.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+      const q = this.value.toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').trim();
       const hwTbody = document.getElementById('hw-tbody');
       if (hwTbody) hwTbody.querySelectorAll('tr[data-hw]').forEach(function(r) {{
-        const hw = (r.dataset.hw||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        const hw = (r.dataset.hw||'').toLowerCase().normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('');
         r.style.display = (!q || hw.includes(q)) ? '' : 'none';
       }});
     }});
@@ -2962,7 +2962,7 @@ function hApplyFilter() {{
 
     // Si hay región activa, actualizar valores de la fila con datos de CORP_REG_DATA
     if (activeRegion && r.style.display !== 'none' && typeof CORP_REG_DATA !== 'undefined') {{
-      const _nrg2 = s => (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+      const _nrg2 = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
       const _entry2 = Object.entries(CORP_REG_DATA).find(([k]) => {{
         const parts = k.split(',');
         const kc = parts[0], kr = parts.slice(1).join(',');
@@ -2995,7 +2995,7 @@ function hApplyFilter() {{
     // Normalizar para comparación (México vs Mexico)
     const _normReg = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
     if (activeRegion && _normReg(destReg) !== _normReg(activeRegion)) {{ r.style.display = 'none'; return; }}
-    r.style.display = (idx < 10 || isSel) ? '' : 'none';
+    r.style.display = (activeRegion || idx < 10 || isSel) ? '' : 'none';
   }});
 
   // ── Ver-más ─────────────────────────────────────────────────────
