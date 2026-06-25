@@ -745,6 +745,16 @@ hotel_by_week = _hotel_by_week_raw
 _total_hotels_indexed = sum(len(v) for v in hotel_by_week.values())
 print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexed:,} registros")
 
+# Exportar HOTEL_BY_WEEK como JSON separado (no se hornea en el HTML)
+import json as _json_hbw
+_hbw_path = os.path.join(OUT_DIR, f"hotel_by_week_{WEEK}.json")
+with open(_hbw_path, 'w', encoding='utf-8') as _f:
+    _json_hbw.dump(hotel_by_week, _f, ensure_ascii=False, separators=(',', ':'))
+_hbw_size = os.path.getsize(_hbw_path) / 1024 / 1024
+print(f"    hotel_by_week_{WEEK}.json → {_hbw_size:.2f} MB")
+# URL del JSON para carga on-demand
+_HBW_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
+
 # ── PP_HOTEL_PACKED — todos los hoteles PP del snapshot actual (Solo Propio + Hybrid) ──────────
 # Formato compacto: índices numéricos + dicts de lookup (igual que dim_hotel_packed)
 # Fuente: df (snapshot actual, no histórico) → solo PP = Solo Propio + Hybrid
@@ -1071,7 +1081,26 @@ const HIST = {json.dumps(hist_data, cls=NpEncoder)};
   }});
   HIST.dim_hotel_packed = null; // liberar memoria
 }})();
-const HOTEL_BY_WEEK    = {json.dumps(hotel_by_week, cls=NpEncoder)};
+// HOTEL_BY_WEEK se carga on-demand desde JSON externo (demasiado grande para hornear)
+const HOTEL_BY_WEEK_URL = '{_HBW_JSON_URL}';
+let HOTEL_BY_WEEK = null;
+let _hbwLoading = false;
+let _hbwCallbacks = [];
+function _loadHotelByWeek(cb) {{
+  if (HOTEL_BY_WEEK) {{ cb(HOTEL_BY_WEEK); return; }}
+  _hbwCallbacks.push(cb);
+  if (_hbwLoading) return;
+  _hbwLoading = true;
+  fetch(HOTEL_BY_WEEK_URL)
+    .then(r => r.json())
+    .then(data => {{
+      HOTEL_BY_WEEK = data;
+      _hbwLoading = false;
+      _hbwCallbacks.forEach(fn => fn(HOTEL_BY_WEEK));
+      _hbwCallbacks = [];
+    }})
+    .catch(e => {{ console.warn('HOTEL_BY_WEEK load error:', e); _hbwLoading = false; }});
+}}
 const PP_HOTEL_PACKED  = {json.dumps(pp_hotel_packed, cls=NpEncoder)};
 const CORP_DATA     = {json.dumps(corp_json, cls=NpEncoder)};
 const DEST_DATA     = {json.dumps(dest_json, cls=NpEncoder)};
@@ -1867,14 +1896,16 @@ function udRowClick(type, value, el) {{
   const _yw = (document.getElementById('sel-week')||{{}}).value || null;
   if (_yw) {{
     const _hp = document.getElementById('ud-hotel-panel');
-    const _weekHotels = (typeof HOTEL_BY_WEEK !== 'undefined') ? (HOTEL_BY_WEEK[_yw]||null) : null;
-    if (_weekHotels) {{
-      const _label = 'W' + _yw.split('-W')[1] + ' · ' + _yw.split('-W')[0];
-      _renderHotelList(_weekHotels, [], _label, udDim,
-        hFTipo ? [hFTipo] : udActiveFilters.filter(f=>f.type==='tipo').map(f=>f.value),
-        udActiveFilters.filter(f=>f.type==='region').map(f=>f.value),
-        udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value));
-    }}
+    _loadHotelByWeek(function(_hbw) {{
+      const _weekHotels = _hbw[_yw] || null;
+      if (_weekHotels) {{
+        const _label = 'W' + _yw.split('-W')[1] + ' · ' + _yw.split('-W')[0];
+        _renderHotelList(_weekHotels, [], _label, udDim,
+          hFTipo ? [hFTipo] : udActiveFilters.filter(f=>f.type==='tipo').map(f=>f.value),
+          udActiveFilters.filter(f=>f.type==='region').map(f=>f.value),
+          udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value));
+      }}
+    }});
   }}
 }}
 
@@ -2540,17 +2571,21 @@ function hDrillWeek(yw) {{
   if (_chanBtn) {{ _chanBtn.style.opacity = '0.4'; _chanBtn.style.pointerEvents = 'none'; _chanBtn.title = 'No disponible con semana seleccionada'; }}
   // Si hay lista de hoteles individuales para esta semana, mostrarla
   // (independiente de si hay filas en dim_hotel — HOTEL_BY_WEEK puede tener hoteles sin conteos agregados)
-  const _weekHotels = (typeof HOTEL_BY_WEEK !== 'undefined') ? (HOTEL_BY_WEEK[yw] || null) : null;
-  if (_weekHotels) {{
-    _renderHotelList(_weekHotels, rows, label, _dimKey, _drTipos, _drRegions, _drCorps, _drDestsNorm);
-  }} else if (!rows.length) {{
+  if (!rows.length) {{
     _renderDrillTable([], label, _dimKey);
     _renderDrillPill(label);
     return;
-  }} else {{
-    _renderDrillTable(rows, label, _dimKey);
   }}
+  _renderDrillTable(rows, label, _dimKey);
   _renderDrillPill(label);
+  _loadHotelByWeek(function(_hbw) {{
+    const _weekHotels = _hbw[yw] || null;
+    if (_weekHotels) {{
+      _renderHotelList(_weekHotels, rows, label, _dimKey, _drTipos, _drRegions, _drCorps, _drDestsNorm);
+    }}
+  }});
+  // dummy para mantener estructura — _renderDrillPill ya se llamó arriba
+  void 0; // label);
   if (hChart) hChart.update();
 }}
 
