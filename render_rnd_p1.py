@@ -265,37 +265,33 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     # ──────────────────────────────────────────────────────────────────────────
 
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
-<!-- Fila 1: valor + severity integrado -->
-<div style="padding:10px 16px 10px;border-bottom:1px solid var(--rule-soft);display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;">
-  <div>
-    <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:2px;">
-      <div id="w21-kv-nd" style="font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+<!-- Header: col izquierda (valor+severity+WoW) | col derecha (sparkline) -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);">
+  <!-- Izquierda -->
+  <div style="padding:10px 16px 10px;border-right:1px solid var(--rule-soft);">
+    <div style="font-size:9px;color:var(--ink-muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">% de No Dispo</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+      <div id="w21-kv-nd" style="font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
       <div style="padding-top:2px;">{pill_with_target}</div>
     </div>
-    <div style="margin-top:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</span>
-      <span style="font-size:10px;color:var(--ink-muted);">{_traf_line}</span>
+    <div style="margin-top:3px;font-size:9px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
+    <div style="margin-top:2px;font-size:9px;color:var(--ink-muted);">{_traf_line}</div>
+    <!-- Severity -->
+    <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--rule-soft);">
+      <div style="font-size:7px;color:var(--ink-muted);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;">Severity · %NoDispo</div>
+      {gauge}
+      <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:6.5px;color:var(--ink-muted);">
+        <span>Súp. Crítica &gt;60%</span><span>Exitosa &lt;3%</span>
+      </div>
     </div>
+    <!-- WoW box -->
+    <div style="margin-top:8px;">{wow_block}</div>
   </div>
-  <div style="padding-top:2px;">
-    <div style="font-size:8px;color:var(--ink-muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;">Severity · %NoDispo</div>
-    {gauge}
-    <div style="display:flex;justify-content:space-between;margin-top:3px;">
-      <span style="font-size:7px;color:var(--ink-muted);">Súp. Crítica &gt;60%</span>
-      <span style="font-size:7px;color:var(--ink-muted);">Exitosa &lt;3%</span>
-    </div>
-  </div>
-</div>
-<!-- Fila 2: wowbox | sparkline+stats inline -->
-<div style="display:grid;grid-template-columns:200px 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
-  <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);">
-    {wow_block}
-  </div>
-  <div style="padding:8px 14px;overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;'>Global</span>
-      <div style="display:flex;gap:10px;font-size:8px;color:var(--ink-muted);">
+  <!-- Derecha: sparkline -->
+  <div style="padding:10px 14px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+      <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#EA0074;'>Global</span>
+      <div style="display:flex;gap:8px;font-size:8px;color:var(--ink-muted);">
         <span>Act <strong style="color:#EA0074;">{_nd_curr:.1f}%</strong></span>
         <span>Mín <strong style="color:#1A6B4A;">{_nd_min:.1f}%</strong></span>
         <span>Prom <strong>{_nd_avg:.1f}%</strong></span>
@@ -361,11 +357,11 @@ def render_alerts_block():
     ]
 
     cards = (alert_card('Hoteles','🏨','#EA0074',h_items) +
-             alert_card('Destinos','📍','#EA0074',d_items) +
+             alert_card('Destinos','▸','#EA0074',d_items) +
              alert_card('Corp','🏛','#EA0074',c_items))
     return f'''<div class="alerts-block" style="margin:0 0 24px;">
 <div style="font-size:11px;color:#EA0074;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-<span>📍</span><span>Alertas · Casos Críticos de la Semana</span>
+<span>&#x1F4CD;</span><span>Alertas · Casos Críticos de la Semana</span>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:14px;">{cards}</div>
 </div>'''
