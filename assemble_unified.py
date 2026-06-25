@@ -572,6 +572,7 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   /* AR cards: usar el sparkline AR específico (hcr-ar-ef, hcr-ar-cv, h-bk-ar)
      La fila se maneja por js_override.js _arRow handler para hotel view.
      Este path cubre casos residuales (canal en CR, etc.) */
+  else if (cardId === 'kpicard-ar-nd') cid = 'hrnd-arcard-nd';  /* card AR NoDispo nueva */
   else if (cardId === 'kpicard-ar1') cid = isCR ? 'hcr-ar-ef' : 'hrnd-ar-nd';
   else if (cardId === 'kpicard-ar2') cid = isCR ? 'hcr-ar-cv' : 'hrnd-ar-nd';
   else if (cardId === 'kpicard-ar3') cid = 'h-bk-ar';
@@ -602,6 +603,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
       if (_rHMapP[_rCardKey] && _rHMapP[_rCardKey] !== cid) _rCids.push(_rHMapP[_rCardKey]);
       if (_rHMapAR[_rCardKey] && _rHMapAR[_rCardKey] !== cid) _rCids.push(_rHMapAR[_rCardKey]);
     }
+    /* Card AR NoDispo nueva: incluir en reset */
+    if ((cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') &&
+        _rCids.indexOf('hrnd-arcard-nd') === -1) {
+      _rCids.push('hrnd-arcard-nd');
+    }
     _rCids.forEach(function(rcid) {
       var _rfn = window['histUpdate_' + rcid];
       if (_rfn) { /* reset via direct call: re-fetch el y renderPanel con VD global */
@@ -617,10 +623,10 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
 
   /* Color de acento según card */
   var accent = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? '#333132'
-             : cardId === 'kpicard-nd' ? '#EA0074'
+             : (cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') ? '#EA0074'
              : '#5C469C';
   var accentAlpha = (cardId === 'kpicard-bk' || cardId === 'kpicard-ar3') ? 'rgba(51,49,50,0.12)'
-                  : cardId === 'kpicard-nd' ? 'rgba(234,0,116,0.12)'
+                  : (cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') ? 'rgba(234,0,116,0.12)'
                   : 'rgba(92,70,156,0.12)';
 
   row.setAttribute('data-selected', '1');
@@ -633,13 +639,18 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
   var _cardKeyH = cardId === 'kpicard-ef'  ? 'ef'
                : cardId === 'kpicard-cv'  ? 'cv'
                : cardId === 'kpicard-bk'  ? 'bk'
-               : cardId === 'kpicard-nd'  ? 'nd'
+               : (cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') ? 'nd'
                : null;
   var _allHistCids = [cid];
   if (_cardKeyH) {
     var _pc = _hMapP[_cardKeyH],  _arc = _hMapAR[_cardKeyH];
     if (_pc && _pc !== cid) _allHistCids.push(_pc);
     if (_arc && _arc !== cid) _allHistCids.push(_arc);
+  }
+  /* Card AR NoDispo nueva: siempre incluir hrnd-arcard-nd */
+  if ((cardId === 'kpicard-nd' || cardId === 'kpicard-ar-nd') &&
+      _allHistCids.indexOf('hrnd-arcard-nd') === -1) {
+    _allHistCids.push('hrnd-arcard-nd');
   }
   var _sems = (typeof SEMANAS !== 'undefined' && SEMANAS.length >= 3)
     ? SEMANAS[SEMANAS.length-3] + '\u2013' + SEMANAS[SEMANAS.length-1] : 'W23\u2013W25';
