@@ -2975,10 +2975,28 @@ function hApplyFilter() {{
     const corpRegs = (r.dataset.regions || '').split('|');
     const _nr = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
     const passReg  = !activeRegion   || corpRegs.some(rg => _nr(rg) === _nr(activeRegion));
-    const passDest = !_destCorpsSet  || _destCorpsSet.has(corpName);
     const passChan = !_chanCorpsSet  || _chanCorpsSet.has(corpName);
+    // Si hay filtro de destino: filtrar por CORP_DEST_DATA (hoteles reales en ese destino)
+    let passDest = true;
+    if (activeDests.length && typeof CORP_DEST_DATA !== 'undefined') {{
+      const _nrcd = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      if (!window._CORP_DEST_NORM) {{
+        window._CORP_DEST_NORM = {{}};
+        Object.entries(CORP_DEST_DATA).forEach(function([k,v]) {{
+          const comma = k.indexOf(',');
+          window._CORP_DEST_NORM[_nrcd(k.slice(0,comma)) + ',' + _nrcd(k.slice(comma+1))] = v;
+        }});
+      }}
+      passDest = activeDests.some(function(destVal) {{
+        const entry = window._CORP_DEST_NORM[_nrcd(corpName) + ',' + _nrcd(destVal)];
+        return entry && (entry.sp + entry.hy + entry.tp) > 0;
+      }});
+    }} else if (activeDests.length) {{
+      // Fallback a CORP_DEST_MAP si no hay CORP_DEST_DATA
+      passDest = !_destCorpsSet || _destCorpsSet.has(corpName);
+    }}
     if (!passReg || !passDest || !passChan) {{ r.style.display = 'none'; return; }}
-    const hasFilter = activeRegion || _destCorpsSet || _chanCorpsSet;
+    const hasFilter = activeRegion || activeDests.length || _chanCorpsSet;
     r.style.display = hasFilter ? '' : (parseInt(r.dataset.rowIdx||'999') < 10 ? '' : 'none');
 
     // Si hay región activa, actualizar valores de la fila con datos de CORP_REG_DATA
