@@ -245,10 +245,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     from render_helpers import banda_colors as _bc
     _nd_bc = _bc(_nd_banda_curr)
     def _stat_cell(label, val_str, color='var(--ink)'):
-        return (f'<div style="text-align:center;padding:6px 2px;background:var(--paper);'
+        return (f'<div style="text-align:center;padding:4px 2px;background:var(--paper);'
                 f'border-radius:3px;border:1px solid var(--rule-soft);">'
                 f'<div style="font-size:7px;color:var(--ink-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{label}</div>'
-                f'<div style="font-size:12px;font-weight:700;color:{color};margin-top:2px;">{val_str}</div>'
+                f'<div style="font-size:11px;font-weight:700;color:{color};margin-top:1px;">{val_str}</div>'
                 f'</div>')
     _stats_html = (
         _stat_cell('Actual', f'{_nd_curr:.2f}%'.replace('.', ','), '#EA0074') +
@@ -256,37 +256,38 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
         _stat_cell('Mín',    f'{_nd_min:.2f}%'.replace('.', ','), '#1A6B4A') +
         _stat_cell('Prom',   f'{_nd_avg:.2f}%'.replace('.', ','), 'var(--ink)')
     )
-    _banda_cell = (f'<div style="display:flex;align-items:center;justify-content:center;text-align:center;'
-                   f'padding:6px 2px;border-radius:3px;background:{_nd_bc[0]};border:1px solid {_nd_bc[0]};">'
+    _banda_cell = (f'<div style="display:flex;align-items:center;justify-content:center;'
+                   f'padding:4px 6px;border-radius:3px;background:{_nd_bc[0]};margin-top:4px;">'
                    f'<div style="font-size:9px;font-weight:700;color:{_nd_bc[1]};text-transform:uppercase;letter-spacing:.04em;">{_nd_banda_curr.upper()}</div>'
                    f'</div>')
-    _stats_full = f'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">{_stats_html}{_banda_cell}</div>'
+    _stats_full = (f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">{_stats_html}</div>'
+                   f'{_banda_cell}')
     # ──────────────────────────────────────────────────────────────────────────
 
     return f'''<div class="kpi-card" id="kpicard-nd" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
 <!-- Fila 1: valor -->
-<div style="padding:12px 16px 8px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+<div style="padding:10px 16px 6px;border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
   <div>
     <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">% de No Dispo</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:3px;">
-      <div id="w21-kv-nd" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:2px;">
+      <div id="w21-kv-nd" style="font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
       <div style="padding-top:2px;">{pill_with_target}</div>
     </div>
   </div>
   <div style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
   <div style="font-size:10px;color:var(--ink-muted);width:100%;">{_traf_line}</div>
 </div>
-<!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales) -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:stretch;overflow:hidden;">
-  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);display:flex;flex-direction:column;justify-content:flex-start;">
-    <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>
-    {gauge}
+<!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales, compactas) -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
+  <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);">
+    <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
+    <div style="margin-top:-10px;">{gauge}</div>
     {wow_block}
   </div>
-  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
+  <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);display:flex;flex-direction:column;justify-content:center;">
     {_stats_full}
   </div>
-  <div style="padding:10px 14px;overflow:hidden;">
+  <div style="padding:8px 10px;overflow:hidden;display:flex;align-items:center;">
     {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
   </div>
 </div>
