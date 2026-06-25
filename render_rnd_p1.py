@@ -280,7 +280,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales, compactas) -->
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
   <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);">
-    <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
     <div style="margin-top:-10px;">{gauge}</div>
     {wow_block}
   </div>
@@ -288,7 +287,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     {_stats_full}
   </div>
   <div style="padding:8px 10px;overflow:hidden;display:flex;align-items:center;">
-    {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
+    <div style="width:100%;">
+      <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
+      {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
+    </div>
   </div>
 </div>
 <!-- Fila 3: pills + tabla -->
