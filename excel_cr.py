@@ -2,16 +2,16 @@
 excel_cr.py · W26+ · Excel CheckRates — estructura simplificada
 5 hojas: Severity | Maestra | Críticos | Bajo Rendimiento | Sin Conversión
 
-Severity: KPI global + Severity Ef + Severity CV (apiladas, filtro propio) +
-          Top Destinos (filtro) + Top Corp (filtro) + Channel (filtro), todos verticales.
+Severity: cada sección es una Tabla Excel (filtro propio independiente).
 Maestra: una fila por Hotel × Canasta — Banda Ef + Banda CV
-Bandas: nivel hotel Global — Banda Ef + Banda CV + exposición cruzada Ef y CV por canasta
+Bandas: Banda Ef Global + Banda CV Global coloreadas; exposición cruzada en texto plano.
 """
 import pickle, os, re
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 from engine import banda_eficacia, banda_convrate
 
 VOL_NUM = os.getenv('VOL_NUM', '21')
@@ -44,7 +44,6 @@ hcm_clean = {clean(k): v for k, v in hcm.items()}
 p80_all['Hotel']   = p80_all['Hotel'].apply(clean)
 p80_all['Channel'] = p80_all['Hotel'].map(hcm_clean).fillna('—')
 
-# ── Estilos ───────────────────────────────────────────────────────────────────
 CR = '5C469C'
 
 def fill(c): return PatternFill(start_color=c, end_color=c, fill_type='solid')
@@ -79,6 +78,8 @@ RANGOS_CV = {
     'Exitosa':        '≥ 2,5%',
 }
 
+_table_counter = [0]
+
 def sf(v):
     try: f = float(v); return None if pd.isna(f) else f
     except: return None
@@ -91,15 +92,28 @@ def title(ws, t, sub=''):
     ws.cell(1, 1, t).font = fnt(CR, 13, True)
     if sub: ws.cell(2, 1, sub).font = fnt('666666')
 
-def mk_hdr(ws, row, cols):
+def section_title(ws, row, text):
+    ws.cell(row, 1, text).font = fnt(CR, 11, True)
+
+def mk_hdr_plain(ws, row, cols):
     for c, lbl in enumerate(cols, 1):
         cell = ws.cell(row, c, lbl)
         cell.font = fnt(white=True, bold=True)
         cell.fill = fill(CR)
         cell.alignment = Alignment(horizontal='center')
         cell.border = BD
-    ws.auto_filter.ref = f'A{row}:{get_column_letter(len(cols))}{row}'
     return row + 1
+
+def add_excel_table(ws, hdr_row, data_row_end, n_cols, name_prefix):
+    _table_counter[0] += 1
+    tname = f'T_{name_prefix}_{_table_counter[0]}'
+    ref = f'A{hdr_row}:{get_column_letter(n_cols)}{data_row_end}'
+    t = Table(displayName=tname, ref=ref)
+    t.tableStyleInfo = TableStyleInfo(
+        name='TableStyleLight1', showFirstColumn=False,
+        showLastColumn=False, showRowStripes=False, showColumnStripes=False
+    )
+    ws.add_table(t)
 
 def mk_cell(ws, row, col, val, banda=None, is_sev=False, align='center', fmt=None):
     cell = ws.cell(row, col, val)
@@ -133,10 +147,7 @@ def pct_cell(ws, row, col, val):
     c.border = BD; c.alignment = Alignment(horizontal='center')
     if val is not None: ws.cell(row, col).number_format = '0.00%'
 
-def section_title(ws, row, text):
-    ws.cell(row, 1, text).font = fnt(CR, 11, True)
-
-# ── Fuentes de datos por canasta ──────────────────────────────────────────────
+# ── Fuentes de datos ──────────────────────────────────────────────────────────
 CANASTAS_DEF = [
     ('global', 'Global',      None,     None),
     ('b2c',    'B2C',         'B2C',    'B2C'),
@@ -164,7 +175,6 @@ def get_bk_hotel(hotel_name, can_label):
     return h.get(can_label, h.get('Global', None)) if h else None
 
 def build_banda_lookup_cr():
-    """dict: {hotel: {can_label: {'ef': banda_ef, 'cv': banda_cv}}}"""
     lookup = {}
     for _, can_label, _, can_dist in CANASTAS_DEF:
         if can_dist is None: continue
@@ -207,7 +217,7 @@ def write_severity(ws):
 
     r = 4
     section_title(ws, r, 'KPI Global'); r += 1
-    r = mk_hdr(ws, r, ['Métrica', f'W{int(VOL_NUM)-1}', f'W{VOL_NUM}', 'WoW'])
+    r = mk_hdr_plain(ws, r, ['Métrica', f'W{int(VOL_NUM)-1}', f'W{VOL_NUM}', 'WoW'])
     for label, prev, curr, wow in [
         ('Eficacia',  ef_prev, ef_curr, ef_wow),
         ('Conv Rate', cv_prev, cv_curr, cv_wow),
@@ -228,13 +238,14 @@ def write_severity(ws):
         bk = int(row.get('Bookings', 0)) if pd.notna(row.get('Bookings', 0)) else 0
         if ef is not None: b = banda_eficacia(ef); sev_ef[b] = sev_ef.get(b, 0) + 1
         if cv is not None: b = banda_convrate(cv, bk); sev_cv[b] = sev_cv.get(b, 0) + 1
-
     total_ef = sum(sev_ef.values()) or 1
     total_cv = sum(sev_cv.values()) or 1
 
-    # Severity Eficacia — con filtro propio
+    SEV_COLS = ['Severity', 'Rango', 'Hoteles', '% del Total']
+
+    # Severity Eficacia — Tabla Excel
     section_title(ws, r, 'Severity Eficacia · Hoteles Global'); r += 1
-    r = mk_hdr(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'])
+    hdr_r = r; r = mk_hdr_plain(ws, r, SEV_COLS)
     for b in ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Súper Crítica']:
         n = sev_ef.get(b, 0)
         mk_cell(ws, r, 1, b, b, is_sev=True); ws.cell(r, 1).border = BD
@@ -243,11 +254,12 @@ def write_severity(ws):
         ws.cell(r, 4, round(n/total_ef, 4)).number_format = '0.0%'
         ws.cell(r, 4).border = BD; ws.cell(r, 4).alignment = Alignment(horizontal='center')
         r += 1
+    add_excel_table(ws, hdr_r, r-1, len(SEV_COLS), 'SevEf')
     r += 1
 
-    # Severity Conv Rate — con filtro propio
+    # Severity Conv Rate — Tabla Excel
     section_title(ws, r, 'Severity Conv Rate · Hoteles Global'); r += 1
-    r = mk_hdr(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'])
+    hdr_r = r; r = mk_hdr_plain(ws, r, SEV_COLS)
     for b in ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Sin Conversión']:
         n = sev_cv.get(b, 0)
         mk_cell(ws, r, 1, b, b, is_sev=True); ws.cell(r, 1).border = BD
@@ -256,18 +268,18 @@ def write_severity(ws):
         ws.cell(r, 4, round(n/total_cv, 4)).number_format = '0.0%'
         ws.cell(r, 4).border = BD; ws.cell(r, 4).alignment = Alignment(horizontal='center')
         r += 1
+    add_excel_table(ws, hdr_r, r-1, len(SEV_COLS), 'SevCV')
     r += 1
 
     tab_ef_g = TAB_EF.get('global', {})
     tab_cv_g = TAB_CV.get('global', {})
-
     DIM_COLS = ['Nombre', 'Banda Ef', 'Banda CV', 'CR Únicos', 'Eficacia', 'WoW Ef', 'Conv Rate', 'WoW CV', 'Bookings']
 
-    def write_dim(df_ef, df_cv, key_col, label, n=30):
+    def write_dim_table(df_ef, df_cv, key_col, label, n=30):
         nonlocal r
         if df_ef is None or len(df_ef) == 0: return
         section_title(ws, r, label); r += 1
-        r = mk_hdr(ws, r, DIM_COLS)
+        hdr_r = r; r = mk_hdr_plain(ws, r, DIM_COLS)
         df_m = df_ef.sort_values('Eficacia', ascending=True).head(n).copy()
         if df_cv is not None and 'ConvRate_WoW_pp' in df_cv.columns and key_col in df_cv.columns:
             df_m = df_m.merge(df_cv[[key_col, 'ConvRate', 'ConvRate_WoW_pp']], on=key_col, how='left', suffixes=('', '_cv'))
@@ -288,17 +300,19 @@ def write_severity(ws):
             apply_wow(ws, r, 8, sf(row.get('ConvRate_WoW_pp')), invert=False)
             mk_cell(ws, r, 9, bk)
             r += 1
+        add_excel_table(ws, hdr_r, r-1, len(DIM_COLS), label[:4].replace(' ','_'))
         r += 1
 
-    write_dim(tab_ef_g.get('destino'), tab_cv_g.get('destino'), 'Destino',   'Top Destinos · Eficacia ASC')
-    write_dim(tab_ef_g.get('corp'),    tab_cv_g.get('corp'),    'CorpName',  'Top Corporativos · Eficacia ASC')
+    write_dim_table(tab_ef_g.get('destino'), tab_cv_g.get('destino'), 'Destino',  'Top Destinos · Eficacia ASC')
+    write_dim_table(tab_ef_g.get('corp'),    tab_cv_g.get('corp'),    'CorpName', 'Top Corporativos · Eficacia ASC')
 
-    # Channel — con filtro propio
+    # Channel — Tabla Excel
     df_ch_ef = tab_ef_g.get('channel')
     df_ch_cv = tab_cv_g.get('channel')
     if df_ch_ef is not None and len(df_ch_ef) > 0:
+        CH_COLS = ['Channel', 'Banda Ef', 'Banda CV', 'CR Únicos', 'Eficacia', 'WoW Ef', 'Conv Rate', 'WoW CV', 'Bookings']
         section_title(ws, r, 'Channel · Eficacia ASC'); r += 1
-        r = mk_hdr(ws, r, ['Channel', 'Banda Ef', 'Banda CV', 'CR Únicos', 'Eficacia', 'WoW Ef', 'Conv Rate', 'WoW CV', 'Bookings'])
+        hdr_r = r; r = mk_hdr_plain(ws, r, CH_COLS)
         df_ch_m = df_ch_ef.sort_values('Eficacia', ascending=True).copy()
         if df_ch_cv is not None and 'ConvRate_WoW_pp' in df_ch_cv.columns:
             df_ch_m = df_ch_m.merge(df_ch_cv[['ExternalProviderName', 'ConvRate_WoW_pp']], on='ExternalProviderName', how='left')
@@ -319,6 +333,7 @@ def write_severity(ws):
             apply_wow(ws, r, 8, sf(row.get('ConvRate_WoW_pp')), invert=False)
             mk_cell(ws, r, 9, bk)
             r += 1
+        add_excel_table(ws, hdr_r, r-1, len(CH_COLS), 'Chan')
 
     autofit(ws, [28, 16, 16, 10, 10, 10, 10, 10, 10])
 
@@ -332,7 +347,8 @@ MAESTRA_COLS = [
 def write_maestra(ws):
     title(ws, f'Maestra CR · CheckRates W{VOL_NUM}',
           f'Una fila por Hotel × Canasta · {PERIODO} · Filtrar por cualquier columna')
-    r = mk_hdr(ws, 4, MAESTRA_COLS)
+    hdr_r = 4
+    r = mk_hdr_plain(ws, hdr_r, MAESTRA_COLS)
 
     for _, can_label, _, can_dist in CANASTAS_DEF:
         df = hotel_src_cr(can_dist)
@@ -349,7 +365,6 @@ def write_maestra(ws):
             destino = str(row.get('Destino', '—'))
             corp    = str(row.get('CorpName', row.get('Corp', '—')))
             bk_pct  = get_bk_hotel(hotel, can_label)
-
             for ci, val in enumerate([destino, corp, hotel, channel, can_label], 1):
                 mk_cell(ws, r, ci, val, align='left')
             mk_cell(ws, r, 6, cru)
@@ -364,6 +379,7 @@ def write_maestra(ws):
             mk_cell(ws, r, 15, bk)
             r += 1
 
+    add_excel_table(ws, hdr_r, r-1, len(MAESTRA_COLS), 'Maestra')
     autofit(ws, [22, 22, 40, 18, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10, 10])
 
 # ── Hojas de banda ────────────────────────────────────────────────────────────
@@ -386,7 +402,8 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
     if 'ConvRate_WoW_pp' not in df_s.columns and tab_cv_g.get('hotel') is not None:
         df_s = df_s.merge(tab_cv_g['hotel'][['Hotel', 'ConvRate_WoW_pp']], on='Hotel', how='left')
 
-    r = mk_hdr(ws, 4, BANDA_COLS)
+    hdr_r = 4
+    r = mk_hdr_plain(ws, hdr_r, BANDA_COLS)
 
     for _, row in df_s.iterrows():
         ef   = fmt_pct(row.get('Eficacia'))
@@ -411,16 +428,17 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
         apply_wow(ws, r, 9, sf(row.get('ConvRate_WoW_pp')), invert=False)
         pct_cell(ws, r, 10, bk_pct)
         mk_cell(ws, r, 11, bk)
+        # Global: coloreadas
         mk_cell(ws, r, 12, bef, bef, is_sev=True)
         mk_cell(ws, r, 13, bcv, bcv, is_sev=True)
+        # Exposición cruzada: texto plano
         for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 14):
-            b = exp.get(can_label, {}).get('ef', '—')
-            mk_cell(ws, r, ci, b, b, is_sev=True)
+            mk_cell(ws, r, ci, exp.get(can_label, {}).get('ef', '—'))
         for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 17):
-            b = exp.get(can_label, {}).get('cv', '—')
-            mk_cell(ws, r, ci, b, b, is_sev=True)
+            mk_cell(ws, r, ci, exp.get(can_label, {}).get('cv', '—'))
         r += 1
 
+    add_excel_table(ws, hdr_r, r-1, len(BANDA_COLS), 'Banda')
     autofit(ws, [22, 22, 40, 18, 10, 10, 10, 10, 10, 10, 10, 16, 16, 12, 12, 14, 12, 12, 14])
 
 # ── Build workbook ────────────────────────────────────────────────────────────
