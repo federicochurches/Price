@@ -277,8 +277,9 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
   <div style="font-size:10px;color:var(--ink-muted);">{_traf_line}</div>
 </div>
 <!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales) -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
-  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:stretch;overflow:hidden;">
+  <div style="padding:10px 14px;border-right:1px solid var(--rule-soft);display:flex;flex-direction:column;justify-content:flex-start;">
+    <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>
     {gauge}
     {wow_block}
   </div>
@@ -286,7 +287,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     {_stats_full}
   </div>
   <div style="padding:10px 14px;overflow:hidden;">
-    <span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
     {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
   </div>
 </div>
