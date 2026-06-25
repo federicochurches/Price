@@ -212,24 +212,4 @@ if __name__ == '__main__':
             print(f'  ✗ {name} · NO GENERADO')
     print()
 
-    # ── 11. Actualizar CONFIG de inventory/calc_inv.py ──────────────────────
-    # Cada vez que corre el pipeline de Supply, el CONFIG de Inventory se
-    # actualiza automáticamente — `python run_inv.py --commit` funciona
-    # sin edición manual en la semana siguiente.
-    _inv_path = script_dir / 'inventory' / 'calc_inv.py'
-    if _inv_path.exists():
-        import re as _re
-        from datetime import date as _date
-        _months = {1:'Enero',2:'Febrero',3:'Marzo',4:'Abril',5:'Mayo',6:'Junio',
-                   7:'Julio',8:'Agosto',9:'Septiembre',10:'Octubre',11:'Noviembre',12:'Diciembre'}
-        _today   = _date.today()
-        _snap    = f"{_today.day} de {_months[_today.month]} de {_today.year}"
-        _inv_src = _inv_path.read_text(encoding='utf-8')
-        _inv_src = _re.sub(r'^WEEK\s*=\s*"W\d+"',           f'WEEK          = "{WEEK}"',       _inv_src, flags=_re.M)
-        _inv_src = _re.sub(r'^WEEK_NUM\s*=\s*\d+',          f'WEEK_NUM      = {int(VOL_NUM)}', _inv_src, flags=_re.M)
-        _inv_src = _re.sub(r'^VOL_NUM\s*=\s*"\d+"',         f'VOL_NUM       = "{VOL_NUM}"',    _inv_src, flags=_re.M)
-        _inv_src = _re.sub(r'^SNAPSHOT_DATE\s*=\s*"[^"]+"', f'SNAPSHOT_DATE = "{_snap}"',      _inv_src, flags=_re.M)
-        _inv_path.write_text(_inv_src, encoding='utf-8')
-        print(f'\n[11/10] inventory/calc_inv.py CONFIG → {WEEK} · {_snap} ✅')
-    else:
-        print(f'\n[11/10] ⚠️  inventory/calc_inv.py no encontrado — saltando')
+
