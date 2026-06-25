@@ -123,7 +123,7 @@ def get_banda_hotel(hotel_name, can_id):
 
 # ── Hoja Maestra ──────────────────────────────────────────────────────────────
 MAESTRA_COLS = [
-    'Región', 'País', 'Destino', 'Corporativo', 'Hotel',
+    'País', 'Destino', 'Corporativo', 'Hotel',
     'Canasta', 'Tráfico', 'WoW Tráfico', '%NoDispo', 'WoW ND', 'Banda ND',
     '%Conv', 'WoW CV', 'Bookings'
 ]
@@ -147,45 +147,44 @@ def write_maestra(ws):
             wow_cv = sf(row.get('ConvRate_WoW_pp') if 'ConvRate_WoW_pp' in row.index else None)
             bnd_nd = banda_nodispo(nd) if nd is not None else '—'
 
-            region  = str(row.get('Region', row.get('Region_display', '—')))
             pais    = str(row.get('PaisDestino', row.get('Pais', '—')))
             destino = str(row.get('Destino', '—'))
             corp    = str(row.get('CorpName', row.get('Corp', '—')))
             hotel   = str(row.get('Hotel', '—'))
 
-            # Col 1-5: dimensiones (left-aligned)
-            for ci, val in enumerate([region, pais, destino, corp, hotel], 1):
+            # Col 1-4: dimensiones (left-aligned)
+            for ci, val in enumerate([pais, destino, corp, hotel], 1):
                 mk_cell(ws, r, ci, val, align='left')
-            # Col 6: Canasta
-            mk_cell(ws, r, 6, can_label)
-            # Col 7: Tráfico
-            mk_cell(ws, r, 7, trf)
-            # Col 8: WoW Tráfico
-            apply_wow(ws, r, 8, sf(row.get('Trafico_WoW_pct')), invert=False)
-            # Col 9: %NoDispo
-            c = ws.cell(r, 9, round(nd, 4) if nd is not None else None)
+            # Col 5: Canasta
+            mk_cell(ws, r, 5, can_label)
+            # Col 6: Tráfico
+            mk_cell(ws, r, 6, trf)
+            # Col 7: WoW Tráfico
+            apply_wow(ws, r, 7, sf(row.get('Trafico_WoW_pct')), invert=False)
+            # Col 8: %NoDispo
+            c = ws.cell(r, 8, round(nd, 4) if nd is not None else None)
             c.border = BD; c.alignment = Alignment(horizontal='center')
-            if nd is not None: ws.cell(r, 9).number_format = '0.00%'
-            # Col 10: WoW ND
-            apply_wow(ws, r, 10, wow_nd, invert=True)
-            # Col 11: Banda ND (coloreada)
-            mk_cell(ws, r, 11, bnd_nd, bnd_nd, is_sev=True)
-            # Col 12: %Conv
-            c2 = ws.cell(r, 12, round(conv, 4) if conv is not None else None)
+            if nd is not None: ws.cell(r, 8).number_format = '0.00%'
+            # Col 9: WoW ND
+            apply_wow(ws, r, 9, wow_nd, invert=True)
+            # Col 10: Banda ND (coloreada)
+            mk_cell(ws, r, 10, bnd_nd, bnd_nd, is_sev=True)
+            # Col 11: %Conv
+            c2 = ws.cell(r, 11, round(conv, 4) if conv is not None else None)
             c2.border = BD; c2.alignment = Alignment(horizontal='center')
-            if conv is not None: ws.cell(r, 12).number_format = '0.00%'
-            # Col 13: WoW CV
-            apply_wow(ws, r, 13, wow_cv, invert=False)
-            # Col 14: Bookings
-            mk_cell(ws, r, 14, bk)
+            if conv is not None: ws.cell(r, 11).number_format = '0.00%'
+            # Col 12: WoW CV
+            apply_wow(ws, r, 12, wow_cv, invert=False)
+            # Col 13: Bookings
+            mk_cell(ws, r, 13, bk)
             r += 1
 
-    autofit(ws, [16, 16, 22, 22, 40, 14, 10, 10, 10, 10, 18, 10, 10, 10])
+    autofit(ws, [16, 22, 22, 40, 14, 10, 10, 10, 10, 18, 10, 10, 10])
 
 # ── Hojas de banda (Críticos / Bajo Rendimiento / Sin Conversión) ─────────────
 # Una fila por hotel Global. Columnas de exposición cruzada por canasta.
 BANDA_COLS = [
-    'Región', 'País', 'Destino', 'Corporativo', 'Hotel',
+    'País', 'Destino', 'Corporativo', 'Hotel',
     'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'WoW CV', 'Bookings',
     'Banda Global', 'B2C', 'Opaco', 'Ultra Opaco'
 ]
@@ -248,23 +247,23 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
 
         for ci, val in enumerate([region, pais, destino, corp, hotel], 1):
             mk_cell(ws, r, ci, val, align='left')
-        mk_cell(ws, r, 6, trf)
-        c = ws.cell(r, 7, round(nd, 4) if nd is not None else None)
+        mk_cell(ws, r, 5, trf)
+        c = ws.cell(r, 6, round(nd, 4) if nd is not None else None)
         c.border = BD; c.alignment = Alignment(horizontal='center')
-        if nd is not None: ws.cell(r, 7).number_format = '0.00%'
-        apply_wow(ws, r, 8, wow_nd, invert=True)
-        c2 = ws.cell(r, 9, round(conv, 4) if conv is not None else None)
+        if nd is not None: ws.cell(r, 6).number_format = '0.00%'
+        apply_wow(ws, r, 7, wow_nd, invert=True)
+        c2 = ws.cell(r, 8, round(conv, 4) if conv is not None else None)
         c2.border = BD; c2.alignment = Alignment(horizontal='center')
-        if conv is not None: ws.cell(r, 9).number_format = '0.00%'
-        apply_wow(ws, r, 10, wow_cv, invert=False)
-        mk_cell(ws, r, 11, bk)
-        mk_cell(ws, r, 12, bnd_g, bnd_g, is_sev=True)
-        mk_cell(ws, r, 13, b2c,  b2c,  is_sev=True)
-        mk_cell(ws, r, 14, op,   op,   is_sev=True)
-        mk_cell(ws, r, 15, cug,  cug,  is_sev=True)
+        if conv is not None: ws.cell(r, 8).number_format = '0.00%'
+        apply_wow(ws, r, 9, wow_cv, invert=False)
+        mk_cell(ws, r, 10, bk)
+        mk_cell(ws, r, 11, bnd_g, bnd_g, is_sev=True)
+        mk_cell(ws, r, 12, b2c,  b2c,  is_sev=True)
+        mk_cell(ws, r, 13, op,   op,   is_sev=True)
+        mk_cell(ws, r, 14, cug,  cug,  is_sev=True)
         r += 1
 
-    autofit(ws, [16, 16, 22, 22, 40, 10, 10, 10, 10, 10, 10, 18, 14, 14, 14])
+    autofit(ws, [16, 22, 22, 40, 10, 10, 10, 10, 10, 10, 18, 14, 14, 14])
 
 # ── Hoja Severity ─────────────────────────────────────────────────────────────
 def write_severity(ws):
