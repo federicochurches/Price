@@ -254,102 +254,6 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 <div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-nd-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}</div>
 </div>'''
 
-def render_kpi_card_rpm(rpm_w18, rpm_w17, rpm_wow):
-    banda = banda_rpm(rpm_w18, M['global_current']['bookings'])
-    target = "≥ $650"
-    pill = banda_pill(banda, target=target)
-    pill_with_target = pill + target_caption(target)
-    gauge = gauge_5levels(banda, 'rpm')
-    
-    wow_color = '#2F6C34' if rpm_wow > 0 else '#C0392B'
-    wow_arrow = '↑' if rpm_wow > 0 else ('↓' if rpm_wow < 0 else '=')
-    wow_str = f'{wow_arrow} {abs(rpm_wow):.1f}'.replace('.', ',')
-    
-    wow_block = wow_box(fmt_num2(rpm_w17), fmt_num2(rpm_w18), wow_str, wow_color, ACCENT)
-    # Prop V1: IPM sube = buena → pasar directo, unidad %
-    _wow_pill_ipm = wow_pill_html(rpm_wow, unit='')
-    
-    # Línea de tráfico — helper centralizado
-    _tr18 = M['global_current'].get('trafico', 0)
-    _tr17 = M.get('global_w17', {}).get('trafico', 0)
-    _traf_line = render_traf_line_rnd(_tr18, _tr17)
-    
-    # Tabs panels — pills onclick verdes (migrado del sistema CR · W24)
-    _PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;text-transform:uppercase;'
-    _PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:uppercase;'
-    _PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
-    tabs = ''
-    for i, (t_key, t_label) in enumerate([('pais','País'),('destino','Destino'),('corp','Corp'),('hotel','Hotel')]):
-        tabs += _kpi_pill('ipm', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
-
-    # ── Config centralizada IPM/RPM ──────────────────────────────────────────────
-    _IPM_CFG = {
-        'val_col':       'RPM',            # la col puede ser RPM, rpm, IPM, ipm
-        'val_fmt':       fmt_num2,
-        'val_prefix':    '$',
-        'hist_scale':    lambda v: round(float(v), 2),
-        'hist_prev_col': 'IPM_W17',        # fallback: IPM_W18
-        'banda_fn':      lambda v: banda_rpm(v, 1),
-        'banda_col':     'BandaRPM',
-        'traf_col':      'Trafico',
-        'traf_fmt':      fmt_int_es,
-        'traf_wow_col':  'Trafico_WoW_pct',
-        'traf_wow_type': 'pct',
-        'wow_col':       'IPM_WoW_pp',     # fallback: RPM_WoW_pct
-        'wow_is_pos':    True,             # IPM: subir = mejorar
-        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
-        'show_severity': False,
-    }
-    _IPM_HDR = {'headers': ['Tráfico','WoW','IPM','WoW'],
-                'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
-    # ────────────────────────────────────────────────────────────────────────────
-
-    panels = ''
-    for t_key, t_label, df_t in [
-        ('pais','País', TAB_RPM['pais']),
-        ('destino','Destino', TAB_RPM['destino']),
-        ('corp','Corp', TAB_RPM['corp']),
-        ('hotel','Hotel', TAB_RPM['hotel']),
-    ]:
-        _df = df_t.copy()
-        # Normalizar columna de valor: RPM, rpm, IPM, ipm → siempre 'RPM'
-        for _alt in ('rpm','IPM','ipm'):
-            if 'RPM' not in _df.columns and _alt in _df.columns:
-                _df = _df.rename(columns={_alt: 'RPM'})
-                break
-        # Banda: BandaIPM → BandaRPM si no existe
-        if 'BandaRPM' not in _df.columns and 'BandaIPM' in _df.columns:
-            _df = _df.rename(columns={'BandaIPM': 'BandaRPM'})
-        # WoW col fallback
-        if 'IPM_WoW_pp' not in _df.columns and 'RPM_WoW_pct' in _df.columns:
-            _df = _df.rename(columns={'RPM_WoW_pct': 'IPM_WoW_pp'})
-        # hist_prev fallback
-        for _hcol in ('IPM_W17','IPM_W18','RPM_W17'):
-            if _hcol in _df.columns:
-                _IPM_CFG['hist_prev_col'] = _hcol
-                break
-        panels += build_kpi_tab_panel(_df, t_key, _IPM_CFG, _IPM_HDR, default_tab='pais')
-    
-    return f'''<div class="kpi-card" id="kpicard-ipm" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
-<div>
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">IPM <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-soft);">· Income Per Million · GB USD por millón</span></div>
-<div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
-<div>
-<div id="w21-kv-rpm" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">${fmt_num2(rpm_w18)}</div>
-<div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_ipm}</div>
-{_traf_line}
-</div>
-<div style="padding-top:4px;">{pill_with_target}</div>
-</div>
-</div>
-{gauge}
-{wow_block}
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;margin-bottom:2px;">{tabs}</div>
-<div id="kpi-ipm-cross-pills" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:2px;"></div>
-<div style="display:flex;justify-content:flex-start;margin-top:8px;margin-bottom:4px;">{searchbox_pill_html('sb-kpi-ipm', accent_color='#EA0074', placeholder='Buscar…', count_id='cnt-kpi-ipm')}</div>
-<div id="kpi-ipm-panels" class="tab-panels">{panels}</div>
-<div style='margin-top:12px;border-top:1px solid var(--rule);padding-top:10px;'><span id='hist-hrnd-panel-ipm-label' style='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:6px;'>Global</span>{_rhs('rnd','ipm',banda,rpm_w18,'hrnd-panel-ipm')}</div>
-</div>'''
 
 def render_alerts_block():
     """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp"""
@@ -420,11 +324,10 @@ def render_alerts_block():
 </div>'''
 
 # Build hero
-h1, subhead, pct18, rpm18, pct17, rpm17, pct_wow, rpm_wow = render_hero()
+h1, subhead, pct18, _rpm18, pct17, _rpm17, pct_wow, _rpm_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin:6px 0 12px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
-{render_kpi_card_rpm(rpm18, rpm17, rpm_wow)}
 </div>
 <p class="hero-subhead" style="font-size:13px;color:var(--ink-muted);margin:0 0 24px;line-height:1.5;">{subhead}</p>
 </section>
