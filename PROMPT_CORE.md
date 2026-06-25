@@ -526,9 +526,9 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 
 Por valor/orden sugerido:
 
-1. **Merge `feat/rnd-ar-card` → `main`** — branch validado visualmente. Hacer merge y commitear `SUPPLY_W25.html` final a `reports/week-25/`.
+1. ~~**Merge `feat/rnd-ar-card` → `main`**~~ ✅ Mergeado a main · 25-06-2026.
 2. **Pipeline W26 normal** — `build_hist_entity.py` ya genera hotel+provider; `calc_bk.py` genera `provider_hist_bk`. Pipeline completo 8 pasos.
-3. **Ocultar card NoDispo del panel AR compartido en modo RND** — sin impactar CR. Tarea acordada pendiente.
+3. ~~**Ocultar card NoDispo del panel AR compartido en modo RND**~~ ✅ Implementado · 25-06-2026.
 4. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
 5. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
 6. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
@@ -536,8 +536,13 @@ Por valor/orden sugerido:
 ✅ **Card AR NoDispo (RND)** — implementada y validada visualmente en `feat/rnd-ar-card`.
 ✅ **Re-run `calc_inv.py` W25** — completado.
 ✅ **Mail W25** — enviado, no requiere acción.
+<<<<<<< HEAD
+✅ **Inventory W25 filter bug** — `hApplyFilter` corregido en HTML parcheado; `calc_inv.py` ya tenía la lógica correcta.
+✅ **calc_inv.py** — versión local completa commiteada al repo (HOTEL_BY_WEEK, PP_HOTEL_PACKED, filtros cruzados, CORP_DEST_DATA).
+=======
 ✅ **Inventory W25 filter bug** — corregido.
 ✅ **calc_inv.py** — versión local completa commiteada al repo.
+>>>>>>> 2797b32 (docs: W26-rnd-ar-card · PROMPT_CORE + HISTORIAL_SESIONES actualizados · 25-06-2026)
 
 **Cómo retomar:** merge `feat/rnd-ar-card` → `main`, después recibir datasets W26 → pipeline completo.
 
@@ -627,9 +632,15 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 ---
 
-**Última actualización:** W26-rnd-ar-card · 25-06-2026 (**Card AR NoDispo en RND — 2 cards lado a lado en HERO** — `render_ar_card_nodispo()` en `render_rnd_p1.py`: espejo de KPI card con pills de banda (Críticos/Bajo Rend./Sin Conv.) + 3 paneles hotel filtrados. Fixes: `.reset_index(drop=True)` en splits de banda (tabla vacía), headline negro `var(--ink)`, pills outline magenta igual que KPI, `min-height:48px` para alto uniforme entre cards. Canvas `hrnd-arcard-nd` (único, sin colisión). Cableado JS: `kpicard-ar-nd` reconocido en `_handleKpiCardHistClick`, click desde KPI y AR actualizan `hrnd-arcard-nd`. `RND_PAIS_HIST` nuevo dict: `build_rnd_hist()` agrega bucket `pais`, emitido en `_build_rnd_hist_json()`, lookup en JS cuando `_dimV2==='pais'` → sparkline W18-W25 al clickear país. CSS residual layout 2-zonas eliminado. `calc_supply.py`: paso `[11/10] inventory` eliminado. Branch `feat/rnd-ar-card` — pendiente merge a main.)
+<<<<<<< HEAD
+**Última actualización:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
+
+**Última actualización previa:** W25-inv-filter · 24-06-2026 (**Inventory W25 filter bug** — `hApplyFilter` línea 2548: `idx < 10` ocultaba destinos de México (idx≥48) aunque pasaran el filtro de región. Fix: `(activeRegion || idx < 10 || isSel)`. Segunda causa: normalización unicode corrupta en `_nr3` por PowerShell. Ambos bugs corregidos en HTML parcheado. `calc_inv.py` ya tenía la lógica correcta — no se modificó.)
+=======
+**Última actualización:** W26-rnd-ar-card · 25-06-2026 (**Card AR NoDispo en RND — 2 cards lado a lado en HERO + fix pipeline** — `render_ar_card_nodispo()` en `render_rnd_p1.py`: espejo de KPI card con pills de banda (Críticos/Bajo Rend./Sin Conv.) + 3 paneles hotel filtrados. Fixes: `.reset_index(drop=True)` en splits de banda (tabla vacía), headline negro `var(--ink)`, pills outline magenta igual que KPI, `min-height:48px` para alto uniforme entre cards. Canvas `hrnd-arcard-nd` (único, sin colisión). Cableado JS: `kpicard-ar-nd` reconocido en `_handleKpiCardHistClick`, click desde KPI y AR actualizan `hrnd-arcard-nd`. `RND_PAIS_HIST` nuevo dict: `build_rnd_hist()` agrega bucket `pais`, emitido en `_build_rnd_hist_json()`, lookup en JS cuando `_dimV2==='pais'` → sparkline W18-W25 al clickear país. CSS residual layout 2-zonas eliminado. `calc_supply.py`: paso `[11/10] inventory` eliminado. Branch `feat/rnd-ar-card` — pendiente merge a main. Fix `calc_supply.py`: copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de `build_package` (que limpia la raíz) + commit automático a GitHub vía Git Tree API al final del pipeline [paso 11].)
 
 **Última actualización previa:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
+>>>>>>> 2797b32 (docs: W26-rnd-ar-card · PROMPT_CORE + HISTORIAL_SESIONES actualizados · 25-06-2026)
 
 **Última actualización previa:** W25-visual · 24-06-2026 (**Mejoras visuales W25** — (1) Channels col TRX 52/56px→68px (Tráfico en 1 línea). (2) AR BK sin WoW TRX (grid 5cols→4cols). (3) Severity RND solo %NoDispo (sin IPM). (4) AR1 RND sparkline side-by-side (`#ar1-hist-cr-wrap` abajo CR / `#ar1-hist-wrap` 210px RND). (5) Excels mejorados: Corp+Destino en tabs hotel RND · AR Consolidado CR+RND (3 bandas top500). (6) `render_historico_svg.py`: SVG `overflow:hidden` + container overflow:hidden — evita desborde del halo del último punto. (7) Cards KPI NoDispo: múltiples iteraciones de rediseño descartadas → revert a layout W24 sin IPM. **Lección:** rediseño de cards complejas requiere HTML standalone para validación visual antes de tocar scripts.)
 

@@ -31,13 +31,15 @@
 ### Decisiones tomadas
 - Panel "Análisis de Rendimiento" compartido (CR+RND, abajo) **se queda intacto**. La card AR nueva convive con él temporalmente.
 - Próxima tarea pendiente: ocultar la card NoDispo del panel compartido cuando se está en modo RND (sin impactar CR).
-- Branch `feat/rnd-ar-card` validado visualmente por Fede — **pendiente merge a main**.
+- Branch `feat/rnd-ar-card` validado visualmente por Fede — **mergeado a main · 25-06-2026**.
+
+**Fix adicional `calc_supply.py`:** copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de que `build_package` limpie la raíz + commit automático a GitHub vía Git Tree API [paso 11]. Root cause: el paso [10/10] corría DESPUÉS de `build_package` que ya borraba el HTML → siempre quedaba el viejo en `reports/`. Aplica a W26+ sin configuración adicional.
 
 ### Archivos modificados
 `render_rnd_p1.py` · `assemble_unified.py` · `build_hist_entity.py` · `calc_supply.py`
 
 ### Pendientes (próxima sesión)
-1. **Merge `feat/rnd-ar-card` → `main`** tras validación completa.
+1. ~~**Merge `feat/rnd-ar-card` → `main`**~~ ✅ Mergeado · 25-06-2026.
 2. **Ocultar card NoDispo del panel AR compartido en modo RND** sin impactar CR.
 3. **Pipeline W26** — datasets nuevos, pipeline completo 8 pasos.
 4. **Cleanup código muerto** — 32 IDs huérfanos (`check_html`).
@@ -3915,3 +3917,36 @@ Debug del módulo Inventory (INVENTORY_W25.html). Fede reportó que al seleccion
 3. **Cleanup código muerto** (32 IDs huérfanos)
 4. **Reconciliar `PROMPT_INV.md`** con valores W25 reales
 5. **Rediseño card NoDispo** — sesión dedicada con HTML standalone
+
+---
+
+## Sesión W25 · Inventory corp×destino filter · 24-06-2026 (continuación)
+
+### Contexto
+Continuación de la sesión de debug de Inventory. Después de resolver el bug de destinos de México, se detectó que los **corporativos no filtraban por destino seleccionado** — Marriott mostraba 278 hoteles globales en lugar de los de Mérida.
+
+### Diagnóstico
+- `udActiveFilters` tenía correctamente `[tipo:Prod.Propio, region:México, dest:Merida]`
+- `udDim` era `'corp'` ✅
+- 15 corp-rows visibles (correctas) ✅
+- `CORP_DEST_MAP` existía y tenía los 15 corps de Mérida ✅
+- `CORP_REG_DATA` existía pero solo por región, no por destino
+- **Root cause:** faltaba `CORP_DEST_DATA` — mapa `corp,destino → {sp, hy, tp}` para actualizar los valores de las filas cuando el filtro activo es de destino (no de región)
+
+### Cambios aplicados en calc_inv.py
+1. **Python:** `corp_dest_data = df.groupby(['Corporativo','Destino'])` → genera dataset por corp×destino
+2. **JS inline:** `const CORP_DEST_DATA = {...}` emitido junto a `CORP_REG_DATA`
+3. **`hApplyFilter` corp-rows:** bloque nuevo que actualiza valores de la fila cuando `activeDests.length > 0`, acumulando valores de todos los destinos activos
+
+### Estado
+- ✅ Commiteado (`ad16b1b2`) y ZIP actualizado
+- ❌ **No validado visualmente** — el calc corrió pero los filtros siguen sin funcionar en la UI
+- Requiere sesión dedicada con HTML standalone para debuggear
+
+### Lecciones
+- **Regla #39 aplica también a Inventory** — no tocar el script hasta validar en HTML standalone
+- El filtro dest→corp tiene dos capas: (1) visibilidad de filas (funciona) y (2) actualización de valores (no funciona aún)
+- Después de múltiples iteraciones sin convergencia, diferir a sesión dedicada
+
+### Pendientes agregados
+- **Debug filtro corp×destino Inventory** — sesión dedicada con HTML standalone
