@@ -277,8 +277,8 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
   <div style="font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
   <div style="font-size:10px;color:var(--ink-muted);width:100%;">{_traf_line}</div>
 </div>
-<!-- Fila 2: gauge+wowbox | stats | sparkline (3 cols iguales, compactas) -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
+<!-- Fila 2: gauge+wowbox | stats | sparkline -->
+<div style="display:grid;grid-template-columns:180px 160px 1fr;gap:0;border-bottom:1px solid var(--rule-soft);align-items:center;overflow:hidden;">
   <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);">
     <div style="margin-top:-10px;">{gauge}</div>
     {wow_block}
@@ -286,12 +286,13 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
   <div style="padding:8px 14px;border-right:1px solid var(--rule-soft);display:flex;flex-direction:column;justify-content:center;">
     {_stats_full}
   </div>
-  <div style="padding:8px 10px;overflow:hidden;display:flex;align-items:center;">
-    <div style="width:100%;">
-      <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
+  <div style="padding:8px 14px;overflow:hidden;">
+    <span id='hist-hrnd-panel-nd-label' style='font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;display:block;margin-bottom:4px;'>Global</span>
+    <div id="hrnd-panel-nd-wrap" style="overflow:hidden;">
       {_rhs('rnd','nodispo',banda,pct_w18,'hrnd-panel-nd')}
     </div>
   </div>
+</div>
 </div>
 <!-- Fila 3: pills + tabla -->
 <div style="padding:8px 16px 12px;">
