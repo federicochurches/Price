@@ -1,3 +1,50 @@
+## Sesión W26-rnd-ar-card · 25-06-2026
+
+**Contexto:** Implementar card AR (Análisis de Rendimiento) de NoDispo en la sección RND — 2 cards lado a lado en el HERO (KPI izquierda, AR derecha). La card AR es espejo de la KPI con pills de banda (Críticos/Bajo Rendimiento/Sin Conversión) en vez de pills de dimensión. Branch: `feat/rnd-ar-card`.
+
+### Cambios principales
+
+**1. `render_rnd_p1.py` — función `render_ar_card_nodispo()`**
+- Card AR nueva: espejo estructural de `render_kpi_card_nodispo()`.
+- Headline 3,43% negro (`var(--ink)`), badge banda, gauge, wow box, línea de tráfico.
+- Pills de banda: mismo estilo outline magenta que las pills KPI (no relleno sólido).
+- 3 paneles de hotel filtrados por banda: Críticos (Crítica+SúperCrítica, BK>0), Bajo Rendimiento (Revisar+Aceptable, BK>0), Sin Conversión (BK=0). Ordenados por %NoDispo desc.
+- **Fix crítico:** `.reset_index(drop=True)` en los 3 splits de banda — sin esto los índices del DataFrame eran no-secuenciales y todas las filas caían en `rest_html` (ocultas), tabla vacía.
+- Canvas id único `hrnd-arcard-nd` — evita colisión con `hrnd-ar-nd` del panel compartido.
+- Import explícito `_kpi_ver_mas_btn` (leading underscore omitido por `import *`).
+- Insertada en el HERO: `kpis-hero` pasa de 1 a 2 cards (grilla `repeat(auto-fit,minmax(300px,1fr))`).
+
+**2. `assemble_unified.py` — JS + CSS**
+- `ar_setBand(card, band, el)`: alterna paneles `.ar-{card}-panel` por `data-band`, aplica estilo KPI a pills (relleno `#FCE4F1` activa, transparente inactivas).
+- Eliminado CSS residual del layout 2-zonas viejo: `#kpicard-nd { padding:0 !important }` + ocultar stats sparkline NoDispo.
+- Cableado click hotel → `hrnd-arcard-nd`: `kpicard-ar-nd` reconocido en `cardKey` switch, `_isHotelRow` forzado a `true`, `_dimV2` forzado a `'hotel'`. Canvas `hrnd-arcard-nd` agregado a `_allHistCids` y `_rCids` (reset). Click desde KPI card también actualiza AR card.
+- `min-height:48px` en `.kpi-tab-rows > div[data-hist-w21]` — filas KPI y AR de igual alto → cards alineadas verticalmente.
+
+**3. `build_hist_entity.py` + `render_rnd_p1.py` — RND_PAIS_HIST**
+- `build_rnd_hist()`: agregado bucket `pais` (agrupando por `PaisDestino`).
+- `render_rnd_p1.py` `_build_rnd_hist_json()`: emite `RND_PAIS_HIST` junto con CORP/DEST/HOTEL.
+- `assemble_unified.py` click handler: cuando `_dimV2 === 'pais'` usa `window.RND_PAIS_HIST` en vez de caer a `RND_CORP_HIST` → sparkline W18-W25 al clickear un país en vista País de KPI NoDispo.
+
+**4. `calc_supply.py` — eliminar paso [11/10] inventory**
+- El paso que actualizaba automáticamente el CONFIG de `inventory/calc_inv.py` fue eliminado. No pertenece al pipeline de Supply.
+
+### Decisiones tomadas
+- Panel "Análisis de Rendimiento" compartido (CR+RND, abajo) **se queda intacto**. La card AR nueva convive con él temporalmente.
+- Próxima tarea pendiente: ocultar la card NoDispo del panel compartido cuando se está en modo RND (sin impactar CR).
+- Branch `feat/rnd-ar-card` validado visualmente por Fede — **pendiente merge a main**.
+
+### Archivos modificados
+`render_rnd_p1.py` · `assemble_unified.py` · `build_hist_entity.py` · `calc_supply.py`
+
+### Pendientes (próxima sesión)
+1. **Merge `feat/rnd-ar-card` → `main`** tras validación completa.
+2. **Ocultar card NoDispo del panel AR compartido en modo RND** sin impactar CR.
+3. **Pipeline W26** — datasets nuevos, pipeline completo 8 pasos.
+4. **Cleanup código muerto** — 32 IDs huérfanos (`check_html`).
+5. **Reconciliar `PROMPT_INV.md`** con valores W25 reales.
+
+---
+
 ## Sesión W25-sparkline-hist · 23-06-2026
 
 **Contexto:** Feature request + bug fixes masivos: rellenar W19-W23 en todos los sparklines de las 3 cards KPI y AR con datos históricos reales (corpus pickling de dataset histórico de Bookability). Fill coloreado por banda.
