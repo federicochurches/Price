@@ -264,7 +264,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities &amp; Hotel Availability</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities Health &amp; Hotel Availability</div>
         <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
         <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label" style="font-weight:700;">BK</div><div class="rpt-kpi-val">{bk_val_str}</div>{wow_bk}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val">{rnd_pct:.2f}%</div>{wow_nd}</div>\n        </div>
       </div>
@@ -282,7 +282,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="rpt-card card-active" onclick="location.href='inventory/{WEEK_STR}/INVENTORY_W{WEEK}.html'" style="cursor:pointer;">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Beta</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">State of PriceTravel Product</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory PriceTravel</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
         <div class="rpt-kpis">
           <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val">{inv_n}</div>{wow_inv_n}</div>
