@@ -162,7 +162,7 @@ def _load_rnd_week(path, wn):
 
 def build_rnd_hist(week_nums, base_dir='.'):
     """%NoDispo e IPM reales por corp/dest, semanas week_nums."""
-    result = {'corp': {}, 'dest': {}, 'hotel': {}}
+    result = {'corp': {}, 'dest': {}, 'hotel': {}, 'pais': {}}
 
     for wn in week_nums:
         path = os.path.join(base_dir,
@@ -177,7 +177,7 @@ def build_rnd_hist(week_nums, base_dir='.'):
 
         wk = _wkey(wn)
 
-        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest'), ('Hotel', 'hotel')]:
+        for dim_col, bucket in [('CorpName', 'corp'), ('Destino', 'dest'), ('Hotel', 'hotel'), ('PaisDestino', 'pais')]:
             if dim_col not in df.columns:
                 continue
             grp = df.groupby(dim_col, as_index=False).agg(
@@ -203,5 +203,5 @@ def build_rnd_hist(week_nums, base_dir='.'):
                     'ipm': round(ipm, 0) if (ipm is not None and ipm >= 0) else None,
                 }
 
-    print(f"  [hist RND] corps={len(result['corp'])}  dests={len(result['dest'])}  hotels={len(result.get('hotel', {}))}")
+    print(f"  [hist RND] corps={len(result['corp'])}  dests={len(result['dest'])}  hotels={len(result.get('hotel', {}))}  paises={len(result.get('pais', {}))}")
     return result

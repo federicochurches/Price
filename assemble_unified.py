@@ -430,7 +430,13 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
               } else if (_isCR2) {
                 _hDict = (_dimV2 === 'dest' || _dimV2 === 'destino') ? window.CR_DEST_HIST : window.CR_CORP_HIST;
               } else {
-                _hDict = (_dimV2 === 'dest' || _dimV2 === 'destino') ? window.RND_DEST_HIST : window.RND_CORP_HIST;
+                if (_dimV2 === 'dest' || _dimV2 === 'destino') {
+                  _hDict = window.RND_DEST_HIST;
+                } else if (_dimV2 === 'pais') {
+                  _hDict = (typeof window.RND_PAIS_HIST !== 'undefined') ? window.RND_PAIS_HIST : null;
+                } else {
+                  _hDict = window.RND_CORP_HIST;
+                }
               }
               var _eName = row.getAttribute('data-hist-label') || _val2;
               var _histArr2 = null;
