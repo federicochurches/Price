@@ -1207,7 +1207,8 @@ function renderCardValues(pp, tp, tot) {{
   document.getElementById('card-tp-pct').textContent  = 'Sin canal propio · '+pctTP;
   // Gap vs TARGET — Opción C: target global fijo
   const gap = TARGET - GLOBAL_PP;  // siempre vs global
-  document.getElementById('card-gap').textContent  = gap.toLocaleString('es-MX');
+  // card-gap muestra hoteles agregados esta semana (valor fijo, no actualizar)
+  // document.getElementById('card-gap').textContent  = gap.toLocaleString('es-MX');
   document.getElementById('card-avance').textContent = (GLOBAL_PP/TARGET*100).toFixed(1)+'%';
   document.getElementById('prog-fill').style.width = Math.min(100, GLOBAL_PP/TARGET*100).toFixed(1)+'%';
 }}
@@ -1415,7 +1416,7 @@ function _applyAutocompleteSelection(it) {{
   if (it.type === 'corp') {{
     // Switch dim only if needed
     if (udDim !== 'corp') {{
-      const corpBtn = document.querySelector('#ud-dim-pills button:nth-child(3)');
+      const corpBtn = document.querySelector('#ud-dim-pills button:nth-child(2)');
       if (corpBtn) udToggleDim('corp', corpBtn);
     }}
     setTimeout(() => {{
@@ -1436,7 +1437,7 @@ function _applyAutocompleteSelection(it) {{
     const alreadyDest = udDim === 'dest';
     // Switch dim only if needed
     if (!alreadyDest) {{
-      const destBtn = document.querySelector('#ud-dim-pills button:nth-child(2)');
+      const destBtn = document.querySelector('#ud-dim-pills button:nth-child(4)');
       if (destBtn) udToggleDim('dest', destBtn);
     }}
     // Use longer delay when switching dims (udSetDim + hApplyFilter need to settle)
@@ -1465,7 +1466,7 @@ function _applyAutocompleteSelection(it) {{
     }}, delay);
   }} else if (it.type === 'region') {{
     if (udDim !== 'reg') {{
-      const regBtn = document.querySelector('#ud-dim-pills button:nth-child(1)');
+      const regBtn = document.querySelector('#ud-dim-pills button:nth-child(3)');
       if (regBtn) udToggleDim('reg', regBtn);
     }}
     setTimeout(() => {{
@@ -4398,9 +4399,9 @@ def build_html():
 
     <div>
       <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Gap</div>
-      <div style="font-size:28px;font-weight:700;color:#6A6A6A;letter-spacing:-.02em;" id="card-gap">{fmt_n(gap)}</div>
+      <div style="font-size:28px;font-weight:700;color:#6A6A6A;letter-spacing:-.02em;" id="card-gap">44</div>
       <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#6A6A6A;border-radius:2px;"></div></div>
-      <div style="font-size:11px;font-weight:700;color:#6A6A6A;margin-top:3px;">Pendientes para alcanzar el target</div>
+      <div style="font-size:11px;font-weight:700;color:#6A6A6A;margin-top:3px;">Hoteles agregados esta semana</div>
     </div>
 
   </div>
@@ -4488,10 +4489,10 @@ def build_html():
   <div style="display:flex;gap:0;align-items:center;flex-wrap:wrap;row-gap:6px;margin-bottom:10px;">
     <span style="display:inline-flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#4FC3F4;border:1.5px solid #4FC3F4;border-radius:20px;padding:3px 10px;margin-right:8px;flex-shrink:0;">Dimensión</span>
     <div class="pills-wrap" id="ud-dim-pills" style="gap:4px;">
-      <button class="pill on" onclick="udToggleDim('reg',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Región</button>
-      <button class="pill"    onclick="udToggleDim('dest',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Destino</button>
+      <button class="pill"    onclick="udToggleDim('ch',this)"   style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Channel</button>
       <button class="pill"    onclick="udToggleDim('corp',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Corporativo</button>
-      <button class="pill"    onclick="udToggleDim('ch',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Channel</button>
+      <button class="pill on" onclick="udToggleDim('reg',this)"  style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Región</button>
+      <button class="pill"    onclick="udToggleDim('dest',this)" style="font-size:9px;--pill-on-bg:#E0F7FF;--pill-on-fg:#0277A8;--pill-on-bd:#4FC3F4;">Destino</button>
     </div>
   </div>
 
@@ -4558,7 +4559,7 @@ function _tryInit() {{
       hInit();
       setTimeout(function() {{ if (hChart) hChart.resize(); }}, 100);
       ['sel-year','sel-month','sel-week','hf-channel','hf-corp'].forEach(id => hUpdateComboStyle(id));
-      const regBtn = document.querySelector('#ud-dim-pills .pill');
+      const regBtn = document.querySelector('#ud-dim-pills .pill[onclick*="\'reg\'"]') || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/regi/i.test(b.textContent));
       const ppBtn  = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
       if (regBtn) udSetDim('reg', regBtn);
       // Default: activar PROD. PROPIO
