@@ -2,9 +2,10 @@
 excel_rnd.py · W26+ · Excel Rates No Dispo — estructura simplificada
 5 hojas: Severity | Maestra | Críticos | Bajo Rendimiento | Sin Conversión
 
-Severity: KPI global + tabla distribución con rangos + Destinos y Corps lado a lado con filtros
-Maestra: una fila por Hotel × Canasta — Banda ND + Banda CV como columnas
-Bandas: nivel hotel Global — Banda ND + Banda CV + exposición cruzada por canasta
+Severity: KPI global + Severity ND + Severity CV (apiladas, cada una con filtro propio) +
+          Top Destinos (con filtro) + Top Corp (con filtro), todos verticales.
+Maestra: una fila por Hotel × Canasta — Banda ND + Banda CV
+Bandas: nivel hotel Global — Banda ND + Banda CV + exposición cruzada ND y CV por canasta
 IPM eliminado (W26+)
 """
 import pickle, os
@@ -45,7 +46,6 @@ WOW_UP   = fill('EAF3DE'); WOW_UP_F   = fnt('2F6C34', bold=True)
 WOW_DN   = fill('FCE8E6'); WOW_DN_F   = fnt('C0392B', bold=True)
 WOW_NEU  = fill('F2EEE6'); WOW_NEU_F  = fnt('8A8377', bold=True)
 
-# Rangos de banda para la columna "Rango" en Severity
 RANGOS_ND = {
     'Exitosa':       '< 3%',
     'Aceptable':     '3% – 5%',
@@ -69,29 +69,14 @@ def title(ws, t, sub=''):
     ws.cell(1, 1, t).font = fnt(RND, 13, True)
     if sub: ws.cell(2, 1, sub).font = fnt('666666')
 
-def mk_hdr(ws, row, cols, col_start=1):
-    """Header con auto_filter. col_start permite empezar en columna distinta (para tablas lado a lado)."""
-    for i, lbl in enumerate(cols):
-        c = col_start + i
+def mk_hdr(ws, row, cols):
+    for c, lbl in enumerate(cols, 1):
         cell = ws.cell(row, c, lbl)
         cell.font = fnt(white=True, bold=True)
         cell.fill = fill(RND)
         cell.alignment = Alignment(horizontal='center')
         cell.border = BD
-    col_end = get_column_letter(col_start + len(cols) - 1)
-    col_ini = get_column_letter(col_start)
-    ws.auto_filter.ref = f'{col_ini}{row}:{col_end}{row}'
-    return row + 1
-
-def mk_hdr_nofilt(ws, row, cols, col_start=1):
-    """Header sin auto_filter (para segunda tabla lado a lado — no se puede tener 2 auto_filter)."""
-    for i, lbl in enumerate(cols):
-        c = col_start + i
-        cell = ws.cell(row, c, lbl)
-        cell.font = fnt(white=True, bold=True)
-        cell.fill = fill(RND)
-        cell.alignment = Alignment(horizontal='center')
-        cell.border = BD
+    ws.auto_filter.ref = f'A{row}:{get_column_letter(len(cols))}{row}'
     return row + 1
 
 def mk_cell(ws, row, col, val, banda=None, is_sev=False, align='center', fmt=None):
@@ -117,14 +102,17 @@ def apply_wow(ws, row, col, val_pp, invert=False):
     cell.font = WOW_UP_F if is_good else WOW_DN_F
     cell.border = BD; cell.alignment = Alignment(horizontal='center')
 
-def autofit(ws, widths, col_start=1):
-    for i, w in enumerate(widths):
-        ws.column_dimensions[get_column_letter(col_start + i)].width = w
+def autofit(ws, widths):
+    for i, w in enumerate(widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
 
 def pct_cell(ws, row, col, val):
-    c = ws.cell(row, col, round(val, 4) if val is not None else None)
+    c = ws.cell(row, col, val)
     c.border = BD; c.alignment = Alignment(horizontal='center')
     if val is not None: ws.cell(row, col).number_format = '0.00%'
+
+def section_title(ws, row, col, text):
+    ws.cell(row, col, text).font = fnt(RND, 11, True)
 
 # ── Fuentes de datos por canasta ──────────────────────────────────────────────
 CANASTAS_DEF = [
@@ -142,7 +130,6 @@ def hotel_src(can_id):
     if src is None: src = can.get('p80')
     return src if src is not None else TAB_ND.get('hotel', pd.DataFrame())
 
-# ── Lookup de bandas por canasta (para exposición cruzada) ────────────────────
 def build_banda_lookup():
     """dict: {hotel: {can_label: {'nd': banda_nd, 'cv': banda_cv}}}"""
     lookup = {}
@@ -151,9 +138,9 @@ def build_banda_lookup():
         df = hotel_src(can_id)
         if df is None or len(df) == 0: continue
         for _, row in df.iterrows():
-            h  = str(row.get('Hotel', ''))
-            nd = sf(row.get('%NoDispo'))
-            bk = int(sf(row.get('Bookings')) or 0)
+            h   = str(row.get('Hotel', ''))
+            nd  = sf(row.get('%NoDispo'))
+            bk  = int(sf(row.get('Bookings')) or 0)
             trf = int(sf(row.get('Trafico')) or 0)
             conv = bk / trf if trf > 0 else None
             b_nd = banda_nodispo(nd) if nd is not None else '—'
@@ -162,7 +149,6 @@ def build_banda_lookup():
             lookup[h][can_label] = {'nd': b_nd, 'cv': b_cv}
     return lookup
 
-# ── Split por banda ───────────────────────────────────────────────────────────
 def band_split_nd(df):
     empty = pd.DataFrame()
     if df is None or len(df) == 0: return empty, empty, empty
@@ -180,11 +166,11 @@ def write_severity(ws):
     m_curr = M.get(f'global_w{VOL_NUM}', M.get('global_w21', {}))
     m_prev = M.get(f'global_w{int(VOL_NUM)-1}', M.get('global_w20', {}))
 
-    # ── KPI Global ──
     nd_curr = m_curr.get('pct_nodispo', 0); nd_prev = m_prev.get('pct_nodispo', 0)
     nd_wow  = (nd_curr - nd_prev) * 100 if nd_prev else None
+
     r = 4
-    ws.cell(r, 1, 'KPI Global').font = fnt(RND, 11, True); r += 1
+    section_title(ws, r, 1, 'KPI Global'); r += 1
     r = mk_hdr(ws, r, ['Métrica', f'W{int(VOL_NUM)-1}', f'W{VOL_NUM}', 'WoW'])
     ws.cell(r, 1, '%NoDispo').font = Font(name='Arial', size=10, bold=True); ws.cell(r, 1).border = BD
     ws.cell(r, 2, round(nd_prev, 4) if nd_prev else None).border = BD
@@ -193,13 +179,11 @@ def write_severity(ws):
     ws.cell(r, 3).number_format = '0.00%'; ws.cell(r, 3).alignment = Alignment(horizontal='center')
     apply_wow(ws, r, 4, nd_wow, invert=True); r += 2
 
-    # ── Tablas de Severity lado a lado ──
-    # Columnas 1-4: Severity %NoDispo · Columnas 6-9: Severity %Conv Rate
     df_hotel = D.get('p80_hotel', pd.DataFrame())
     sev_nd, sev_cv = {}, {}
     for _, row in df_hotel.iterrows():
-        nd = sf(row.get('%NoDispo'))
-        bk = int(sf(row.get('Bookings')) or 0)
+        nd  = sf(row.get('%NoDispo'))
+        bk  = int(sf(row.get('Bookings')) or 0)
         trf = int(sf(row.get('Trafico')) or 0)
         conv = bk / trf if trf > 0 else None
         if nd is not None: b = banda_nodispo(nd); sev_nd[b] = sev_nd.get(b, 0) + 1
@@ -209,22 +193,10 @@ def write_severity(ws):
     total_nd = sum(sev_nd.values()) or 1
     total_cv = sum(sev_cv.values()) or 1
 
-    # Títulos de sección
-    ws.cell(r, 1, 'Severity %NoDispo · Hoteles Global').font = fnt(RND, 11, True)
-    ws.cell(r, 6, 'Severity %Conv Rate · Hoteles Global').font = fnt(RND, 11, True)
-    r += 1
-
-    # Headers (ND col 1-4, CV col 6-9) — auto_filter solo en el primero
-    r_hdr = r
-    mk_hdr(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'], col_start=1)
-    mk_hdr_nofilt(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'], col_start=6)
-    r += 1
-
-    orden_nd = ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Súper Crítica']
-    orden_cv = ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Sin Conversión']
-    r_start = r
-
-    for b in orden_nd:
+    # Severity %NoDispo — con filtro propio
+    section_title(ws, r, 1, 'Severity %NoDispo · Hoteles Global'); r += 1
+    r = mk_hdr(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'])
+    for b in ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Súper Crítica']:
         n = sev_nd.get(b, 0)
         mk_cell(ws, r, 1, b, b, is_sev=True); ws.cell(r, 1).border = BD
         mk_cell(ws, r, 2, RANGOS_ND.get(b, ''), align='left')
@@ -232,82 +204,69 @@ def write_severity(ws):
         ws.cell(r, 4, round(n/total_nd, 4)).number_format = '0.0%'
         ws.cell(r, 4).border = BD; ws.cell(r, 4).alignment = Alignment(horizontal='center')
         r += 1
+    r += 1
 
-    r = r_start
-    for b in orden_cv:
+    # Severity %Conv Rate — con filtro propio
+    section_title(ws, r, 1, 'Severity %Conv Rate · Hoteles Global'); r += 1
+    r = mk_hdr(ws, r, ['Severity', 'Rango', 'Hoteles', '% del Total'])
+    for b in ['Exitosa', 'Aceptable', 'Revisar', 'Crítica', 'Sin Conversión']:
         n = sev_cv.get(b, 0)
-        mk_cell(ws, r, 6, b, b, is_sev=True); ws.cell(r, 6).border = BD
-        mk_cell(ws, r, 7, RANGOS_CV.get(b, ''), align='left')
-        ws.cell(r, 8, n).border = BD; ws.cell(r, 8).alignment = Alignment(horizontal='center')
-        ws.cell(r, 9, round(n/total_cv, 4)).number_format = '0.0%'
-        ws.cell(r, 9).border = BD; ws.cell(r, 9).alignment = Alignment(horizontal='center')
+        mk_cell(ws, r, 1, b, b, is_sev=True); ws.cell(r, 1).border = BD
+        mk_cell(ws, r, 2, RANGOS_CV.get(b, ''), align='left')
+        ws.cell(r, 3, n).border = BD; ws.cell(r, 3).alignment = Alignment(horizontal='center')
+        ws.cell(r, 4, round(n/total_cv, 4)).number_format = '0.0%'
+        ws.cell(r, 4).border = BD; ws.cell(r, 4).alignment = Alignment(horizontal='center')
         r += 1
+    r += 1
 
-    r += 1  # fila vacía tras las tablas de severity
-
-    # ── Top Destinos y Top Corp lado a lado ──
-    DEST_COLS = ['Destino', 'Banda ND', 'Banda CV', 'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'Bookings']
-    CORP_COLS = ['Corporativo', 'Banda ND', 'Banda CV', 'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'Bookings']
-    N_DEST = len(DEST_COLS)
-    CORP_START = N_DEST + 2  # columna de inicio de Corp (con 1 col de separación)
-
+    # Top Destinos — con filtro propio
+    DIM_COLS = ['Destino', 'Banda ND', 'Banda CV', 'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'Bookings']
     df_dest = TAB_ND.get('destino', pd.DataFrame())
-    df_corp = TAB_ND.get('corp', pd.DataFrame())
-
-    if (df_dest is not None and len(df_dest) > 0) or (df_corp is not None and len(df_corp) > 0):
-        ws.cell(r, 1, 'Top Destinos · %NoDispo DESC').font = fnt(RND, 11, True)
-        ws.cell(r, CORP_START, 'Top Corporativos · %NoDispo DESC').font = fnt(RND, 11, True)
+    if df_dest is not None and len(df_dest) > 0:
+        section_title(ws, r, 1, 'Top Destinos · %NoDispo DESC'); r += 1
+        r = mk_hdr(ws, r, DIM_COLS)
+        for _, row in df_dest.sort_values('%NoDispo', ascending=False).head(30).iterrows():
+            nd   = sf(row.get('%NoDispo'))
+            bk   = int(sf(row.get('Bookings')) or 0)
+            trf  = int(sf(row.get('Trafico')) or 0)
+            conv = bk / trf if trf > 0 else None
+            b_nd = banda_nodispo(nd) if nd is not None else '—'
+            b_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
+            mk_cell(ws, r, 1, str(row.get('Destino', '—')), align='left')
+            mk_cell(ws, r, 2, b_nd, b_nd, is_sev=True)
+            mk_cell(ws, r, 3, b_cv, b_cv, is_sev=True)
+            mk_cell(ws, r, 4, trf)
+            pct_cell(ws, r, 5, nd)
+            apply_wow(ws, r, 6, sf(row.get('NoDispo_WoW_pp')), invert=True)
+            pct_cell(ws, r, 7, conv)
+            mk_cell(ws, r, 8, bk)
+            r += 1
         r += 1
-        mk_hdr(ws, r, DEST_COLS, col_start=1)
-        mk_hdr_nofilt(ws, r, CORP_COLS, col_start=CORP_START)
-        r_data = r + 1
 
-        # Datos Destinos
-        r_dest = r_data
-        if df_dest is not None and len(df_dest) > 0:
-            for _, row in df_dest.sort_values('%NoDispo', ascending=False).head(30).iterrows():
-                nd  = sf(row.get('%NoDispo'))
-                bk  = int(sf(row.get('Bookings')) or 0)
-                trf = int(sf(row.get('Trafico')) or 0)
-                conv = bk / trf if trf > 0 else None
-                b_nd = banda_nodispo(nd) if nd is not None else '—'
-                b_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
-                mk_cell(ws, r_dest, 1, str(row.get('Destino', '—')), align='left')
-                mk_cell(ws, r_dest, 2, b_nd, b_nd, is_sev=True)
-                mk_cell(ws, r_dest, 3, b_cv, b_cv, is_sev=True)
-                mk_cell(ws, r_dest, 4, trf)
-                pct_cell(ws, r_dest, 5, nd)
-                apply_wow(ws, r_dest, 6, sf(row.get('NoDispo_WoW_pp')), invert=True)
-                pct_cell(ws, r_dest, 7, conv)
-                mk_cell(ws, r_dest, 8, bk)
-                r_dest += 1
+    # Top Corp — con filtro propio
+    CORP_COLS = ['Corporativo', 'Banda ND', 'Banda CV', 'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'Bookings']
+    df_corp = TAB_ND.get('corp', pd.DataFrame())
+    if df_corp is not None and len(df_corp) > 0:
+        section_title(ws, r, 1, 'Top Corporativos · %NoDispo DESC'); r += 1
+        r = mk_hdr(ws, r, CORP_COLS)
+        for _, row in df_corp.sort_values('%NoDispo', ascending=False).head(30).iterrows():
+            nd   = sf(row.get('%NoDispo'))
+            bk   = int(sf(row.get('Bookings')) or 0)
+            trf  = int(sf(row.get('Trafico')) or 0)
+            conv = bk / trf if trf > 0 else None
+            b_nd = banda_nodispo(nd) if nd is not None else '—'
+            b_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
+            mk_cell(ws, r, 1, str(row.get('CorpName', '—')), align='left')
+            mk_cell(ws, r, 2, b_nd, b_nd, is_sev=True)
+            mk_cell(ws, r, 3, b_cv, b_cv, is_sev=True)
+            mk_cell(ws, r, 4, trf)
+            pct_cell(ws, r, 5, nd)
+            apply_wow(ws, r, 6, sf(row.get('NoDispo_WoW_pp')), invert=True)
+            pct_cell(ws, r, 7, conv)
+            mk_cell(ws, r, 8, bk)
+            r += 1
 
-        # Datos Corp
-        r_corp = r_data
-        if df_corp is not None and len(df_corp) > 0:
-            for _, row in df_corp.sort_values('%NoDispo', ascending=False).head(30).iterrows():
-                nd  = sf(row.get('%NoDispo'))
-                bk  = int(sf(row.get('Bookings')) or 0)
-                trf = int(sf(row.get('Trafico')) or 0)
-                conv = bk / trf if trf > 0 else None
-                b_nd = banda_nodispo(nd) if nd is not None else '—'
-                b_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
-                mk_cell(ws, r_corp, CORP_START,   str(row.get('CorpName', '—')), align='left')
-                mk_cell(ws, r_corp, CORP_START+1, b_nd, b_nd, is_sev=True)
-                mk_cell(ws, r_corp, CORP_START+2, b_cv, b_cv, is_sev=True)
-                mk_cell(ws, r_corp, CORP_START+3, trf)
-                pct_cell(ws, r_corp, CORP_START+4, nd)
-                apply_wow(ws, r_corp, CORP_START+5, sf(row.get('NoDispo_WoW_pp')), invert=True)
-                pct_cell(ws, r_corp, CORP_START+6, conv)
-                mk_cell(ws, r_corp, CORP_START+7, bk)
-                r_corp += 1
-
-    # Anchos: Destinos (cols 1-8) + sep (col 9) + Corp (cols 10-17)
-    autofit(ws, [28, 16, 16, 10, 10, 10, 10, 10], col_start=1)
-    autofit(ws, [28, 16, 16, 10, 10, 10, 10, 10], col_start=CORP_START)
-    # Tablas severity (cols 1-4, 6-9) — ajuste de anchos específicos
-    ws.column_dimensions['B'].width = 16  # Rango ND
-    ws.column_dimensions['G'].width = 16  # Rango CV
+    autofit(ws, [28, 16, 16, 10, 10, 10, 10, 10])
 
 # ── Hoja Maestra ──────────────────────────────────────────────────────────────
 MAESTRA_COLS = [
@@ -326,15 +285,14 @@ def write_maestra(ws):
         df = hotel_src(can_id)
         if df is None or len(df) == 0: continue
         for _, row in df.iterrows():
-            nd  = sf(row.get('%NoDispo'))
-            bk  = int(sf(row.get('Bookings')) or 0)
-            trf = int(sf(row.get('Trafico')) or 0)
+            nd   = sf(row.get('%NoDispo'))
+            bk   = int(sf(row.get('Bookings')) or 0)
+            trf  = int(sf(row.get('Trafico')) or 0)
             conv = bk / trf if trf > 0 else None
             wow_nd = sf(row.get('NoDispo_WoW_pp'))
             wow_cv = sf(row.get('ConvRate_WoW_pp') if 'ConvRate_WoW_pp' in row.index else None)
             bnd_nd = banda_nodispo(nd) if nd is not None else '—'
             bnd_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
-
             pais    = str(row.get('PaisDestino', row.get('Pais', '—')))
             destino = str(row.get('Destino', '—'))
             corp    = str(row.get('CorpName', row.get('Corp', '—')))
@@ -382,12 +340,11 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
         wow_cv = sf(row.get('ConvRate_WoW_pp') if 'ConvRate_WoW_pp' in row.index else None)
         bnd_nd = banda_nodispo(nd) if nd is not None else '—'
         bnd_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
-        hotel  = str(row.get('Hotel', '—'))
-        pais   = str(row.get('PaisDestino', row.get('Pais', '—')))
+        hotel   = str(row.get('Hotel', '—'))
+        pais    = str(row.get('PaisDestino', row.get('Pais', '—')))
         destino = str(row.get('Destino', '—'))
-        corp   = str(row.get('CorpName', row.get('Corp', '—')))
-
-        exp = banda_lookup.get(hotel, {})
+        corp    = str(row.get('CorpName', row.get('Corp', '—')))
+        exp     = banda_lookup.get(hotel, {})
 
         for ci, val in enumerate([pais, destino, corp, hotel], 1):
             mk_cell(ws, r, ci, val, align='left')
@@ -399,11 +356,9 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
         mk_cell(ws, r, 10, bk)
         mk_cell(ws, r, 11, bnd_nd, bnd_nd, is_sev=True)
         mk_cell(ws, r, 12, bnd_cv, bnd_cv, is_sev=True)
-        # Exposición cruzada ND
         for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 13):
             b = exp.get(can_label, {}).get('nd', '—')
             mk_cell(ws, r, ci, b, b, is_sev=True)
-        # Exposición cruzada CV
         for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 16):
             b = exp.get(can_label, {}).get('cv', '—')
             mk_cell(ws, r, ci, b, b, is_sev=True)
@@ -417,19 +372,15 @@ banda_lookup = build_banda_lookup()
 df_global = hotel_src(None)
 crit, bajo, sinc = band_split_nd(df_global)
 
-ws = wb.create_sheet('Severity'); ws.sheet_properties.tabColor = RND
+ws = wb.create_sheet('Severity');         ws.sheet_properties.tabColor = RND
 write_severity(ws)
-
-ws = wb.create_sheet('Maestra'); ws.sheet_properties.tabColor = RND
+ws = wb.create_sheet('Maestra');          ws.sheet_properties.tabColor = RND
 write_maestra(ws)
-
-ws = wb.create_sheet('Críticos'); ws.sheet_properties.tabColor = 'C0392B'
+ws = wb.create_sheet('Críticos');         ws.sheet_properties.tabColor = 'C0392B'
 write_banda(ws, crit, f'Críticos · RND W{VOL_NUM}', banda_lookup)
-
 ws = wb.create_sheet('Bajo Rendimiento'); ws.sheet_properties.tabColor = 'F97316'
 write_banda(ws, bajo, f'Bajo Rendimiento · RND W{VOL_NUM}', banda_lookup)
-
-ws = wb.create_sheet('Sin Conversión'); ws.sheet_properties.tabColor = '8A8377'
+ws = wb.create_sheet('Sin Conversión');   ws.sheet_properties.tabColor = '8A8377'
 write_banda(ws, sinc, f'Sin Conversión · RND W{VOL_NUM}', banda_lookup)
 
 out = f'{OUTPUTS}/Analisis_RatesNoDispo_W{VOL_NUM}.xlsx'
