@@ -36,6 +36,6 @@
 /* Modo RND oculto por defecto */
 #w22-rnd-block{display:none;}
 
-/* ── AR1: hist-wrap controlado por JS w22_setMode; RND toggle canvas ── */
-body[data-ar-mode='rnd'] #ar1-hist-cr { display: none !important; }
-body[data-ar-mode='rnd'] #ar1-hist-rnd { display: block !important; }
+/* ── AR1: CR canvas abajo · RND canvas side-by-side ── */
+body[data-ar-mode='rnd'] #ar1-hist-wrap { display: flex !important; align-items: center; }
+body[data-ar-mode='rnd'] #ar1-hist-cr-wrap { display: none !important; }

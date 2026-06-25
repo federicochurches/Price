@@ -1633,93 +1633,9 @@ window.HIST_DATA['rnd'] = {
       <div id="ar1-th" class="kpi-tab-rows"></div>
       <div style="text-align:center;margin-top:4px;padding:0 16px;" id="ar1-more-wrap"><button id="ar1-th-more" style="display:none;font-family:'Geist',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-muted);padding:6px 16px;cursor:pointer;border-radius:3px;width:100%;margin-top:4px;">Ver más ▾</button></div>
     </div>
-        <!-- Canvas histórico card 1 -->
-    <div id="ar1-hist-wrap" style="padding:12px 14px 16px;flex-shrink:0;width:210px;display:flex;align-items:center;border-left:1px solid var(--rule-soft);">
-      <div id="ar1-hist-cr" style="display:block;width:100%;"><div id="hcr-ar-ef" style="width:100%;"></div>
-<script>(function(){var CID='hcr-ar-ef';var VD=[93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#5C469C';var el=document.getElementById(CID);var getBanda=function(v){if(v>=97)return{c:'#1A6B4A',k:'Exitosa'};if(v>=93)return{c:'#FBBF24',k:'Aceptable'};if(v>=85)return{c:'#F97316',k:'Revisar'};if(v>=60)return{c:'#C0392B',k:'Cr\u00edtica'};return{c:'#2D2828',k:'S\u00fap. Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
-    var n=VD.length;
-    if(ha&&ha.length===n){
-      var s=ha.slice();
-      for(var i=0;i<n;i++){
-        if(s[i]===null||isNaN(s[i])){
-          var l=null,r=null;
-          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
-          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
-          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
-        }
-      }
-      return s;
-    }
-    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
-    var w24=isNaN(wp)?w25:wp;
-    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
-       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
-       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
-    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
-  }function renderPanel(vals,lbl){
-    if(!el)return;
-    var n=vals.length,W=320,SH=58;
-    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
-    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
-    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
-    function xOf(i){return (i/(n-1))*W;}
-    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
-    /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
-    var segs='';
-    for(var si=0;si<n-1;si++){
-      var bL=getBanda(vals[si]),bR=getBanda(vals[si+1]);
-      /* Gradiente de color entre los dos extremos del segmento — usar el color del medio si cambia */
-      var sCol=bL.c;  /* color del punto izquierdo */
-      var x0=xOf(si).toFixed(1),x1=xOf(si+1).toFixed(1);
-      var y0=yOf(vals[si]).toFixed(1),y1=yOf(vals[si+1]).toFixed(1);
-      segs+='<path d="M'+x0+','+y0+' L'+x1+','+y1+' L'+x1+','+SH+' L'+x0+','+SH+' Z" fill="'+sCol+'" fill-opacity="0.13"/>';
-    }
-    var dots=vals.map(function(v,i){
-      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
-      var r=last?5.5:4,sw=last?2:1.5;
-      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
-      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
-      return d;
-    }).join('');
-    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
-      segs+
-      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
-      dots+'</svg>';
-    var cells=vals.map(function(v,i){
-      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
-        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
-        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
-        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
-        '</div>';
-    }).join('');
-    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
-    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
-    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
-    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
-    /* Stat badge: estilo inspirado en el pill WoW de las cards */
-    function sb(lb,v,bg,fg){
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'+
-        '<div style="font-size:7.5px;color:#B0A898;text-transform:uppercase;letter-spacing:.06em">'+lb+'</div>'+
-        '<div style="background:'+bg+';color:'+fg+';border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;white-space:nowrap">'+fmtVal(v)+'</div>'+
-        '</div>';}
-    /* Soft backgrounds: hex con 20% opacidad simulado mezclando con #FDFCF9 */
-    function _soften(hex){
-      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-      var br=253,bg_=252,bb=249; /* #FDFCF9 */
-      return 'rgb('+Math.round(r*.22+br*.78)+','+Math.round(g*.22+bg_*.78)+','+Math.round(b*.22+bb*.78)+')';}
-    var sfBg=_soften(bC.c),mxBg=_soften(bH.c),mnBg=_soften(bL.c);
-    var sf='<div style="display:flex;gap:5px;border-top:1px solid #E8E4DC;padding-top:8px;align-items:flex-end">'+
-      sb('Actual',cur,sfBg,bC.c)+sb('Máx',hi,mxBg,bH.c)+sb('Mín',lo,mnBg,bL.c)+sb('Prom',avg,'#EEE9E2','#333132')+
-      '<div style="flex:1;display:flex;align-items:flex-end;justify-content:flex-end">'+
-        '<div style="background:'+bC.c+';color:#fff;border-radius:4px;padding:2px 7px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div>'+
-      '</div></div>';
-    var lblEl=document.getElementById('hist-'+CID+'-label');
-    if(lblEl&&lbl)lblEl.textContent=lbl;
-    el.innerHTML=svg+dr+sf;
-  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){el=document.getElementById(CID);renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
-</div>
-      <div id="ar1-hist-rnd" style="display:none;width:100%;"><div id="hrnd-ar-nd" style="width:100%;"></div>
+        <!-- Canvas histórico RND — side-by-side (oculto en CR) -->
+    <div id="ar1-hist-wrap" style="display:none;padding:12px 14px 16px;flex-shrink:0;width:210px;align-items:center;border-left:1px solid var(--rule-soft);">
+      <div id="ar1-hist-rnd" style="display:block;width:100%;"><div id="hrnd-ar-nd" style="width:100%;"></div>
 <script>(function(){var CID='hrnd-ar-nd';var VD=[2.84, 2.31, 2.59, 2.63, 2.61, 2.87, 3.04, 3.43];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#EA0074';var el=document.getElementById(CID);var getBanda=function(v){if(v<3)return{c:'#1A6B4A',k:'Exitosa'};if(v<5)return{c:'#FBBF24',k:'Aceptable'};if(v<20)return{c:'#F97316',k:'Revisar'};if(v<60)return{c:'#C0392B',k:'Cr\u00edtica'};return{c:'#2D2828',k:'S\u00fap. Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
     var n=VD.length;
     if(ha&&ha.length===n){
@@ -1804,6 +1720,93 @@ window.HIST_DATA['rnd'] = {
   }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){el=document.getElementById(CID);renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
 </div>
     </div>
+    </div>
+    <!-- Canvas histórico CR — debajo de la tabla (oculto en RND) -->
+    <div id="ar1-hist-cr-wrap" style="padding:0 16px 16px;">
+      <div id="ar1-hist-cr" style="display:block;width:100%;"><div id="hcr-ar-ef" style="width:100%;"></div>
+<script>(function(){var CID='hcr-ar-ef';var VD=[93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68];var SEM=["W18", "W19", "W20", "W21", "W22", "W23", "W24", "W25"];var ACCENT='#5C469C';var el=document.getElementById(CID);var getBanda=function(v){if(v>=97)return{c:'#1A6B4A',k:'Exitosa'};if(v>=93)return{c:'#FBBF24',k:'Aceptable'};if(v>=85)return{c:'#F97316',k:'Revisar'};if(v>=60)return{c:'#C0392B',k:'Cr\u00edtica'};return{c:'#2D2828',k:'S\u00fap. Cr\u00edtica'};};var fmtVal=function(v){return v.toFixed(1)+'%';};function buildSerie(wc,wp,wa,ha){
+    var n=VD.length;
+    if(ha&&ha.length===n){
+      var s=ha.slice();
+      for(var i=0;i<n;i++){
+        if(s[i]===null||isNaN(s[i])){
+          var l=null,r=null;
+          for(var j=i-1;j>=0;j--){if(s[j]!==null&&!isNaN(s[j])){l=s[j];break;}}
+          for(var k=i+1;k<n;k++){if(s[k]!==null&&!isNaN(s[k])){r=s[k];break;}}
+          s[i]=l!==null?l:(r!==null?r:(isNaN(wc)?VD[n-1]:wc));
+        }
+      }
+      return s;
+    }
+    var w25=(!isNaN(wa)&&wa>0)?wa:(isNaN(wc)?VD[VD.length-1]:wc);
+    var w24=isNaN(wp)?w25:wp;
+    /* W18-W23 = baseline global (contexto), W24-W25 = valores del hotel.
+       Al ir hotel por hotel el endpoint cambia: 20% vs 40% vs 80% es visiblemente distinto.
+       Evita que todos los hoteles Críticos (30-40%) dibujen la misma línea plana. */
+    var s=VD.slice();s[s.length-2]=w24;s[s.length-1]=w25;return s;
+  }function renderPanel(vals,lbl){
+    if(!el)return;
+    var n=vals.length,W=320,SH=58;
+    var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+    var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
+    function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
+    function xOf(i){return (i/(n-1))*W;}
+    var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
+    /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
+    var segs='';
+    for(var si=0;si<n-1;si++){
+      var bL=getBanda(vals[si]),bR=getBanda(vals[si+1]);
+      /* Gradiente de color entre los dos extremos del segmento — usar el color del medio si cambia */
+      var sCol=bL.c;  /* color del punto izquierdo */
+      var x0=xOf(si).toFixed(1),x1=xOf(si+1).toFixed(1);
+      var y0=yOf(vals[si]).toFixed(1),y1=yOf(vals[si+1]).toFixed(1);
+      segs+='<path d="M'+x0+','+y0+' L'+x1+','+y1+' L'+x1+','+SH+' L'+x0+','+SH+' Z" fill="'+sCol+'" fill-opacity="0.13"/>';
+    }
+    var dots=vals.map(function(v,i){
+      var b=getBanda(v),cx=xOf(i).toFixed(1),cy=yOf(v).toFixed(1),last=(i===n-1);
+      var r=last?5.5:4,sw=last?2:1.5;
+      var d='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+b.c+'" stroke="#FDFCF9" stroke-width="'+sw+'"/>';
+      if(last)d+='<circle cx="'+cx+'" cy="'+cy+'" r="8" fill="none" stroke="'+b.c+'" stroke-width="1" stroke-opacity="0.25"/>';
+      return d;
+    }).join('');
+    var svg='<svg viewBox="0 0 320 '+SH+'" width="100%" style="display:block;overflow:visible;margin-bottom:6px">'+
+      segs+
+      '<polyline points="'+pp.join(' ')+'" fill="none" stroke="'+ACCENT+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+      dots+'</svg>';
+    var cells=vals.map(function(v,i){
+      var b=getBanda(v),wk=SEM[i]||('W'+(i+18)),last=(i===n-1);
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">'+
+        '<div style="font-size:9px;color:#B0A898">'+wk+'</div>'+
+        '<div style="width:9px;height:9px;border-radius:50%;background:'+b.c+'"></div>'+
+        '<div style="font-size:9.5px;font-weight:'+(last?800:600)+';color:'+b.c+'">'+fmtVal(v)+'</div>'+
+        '</div>';
+    }).join('');
+    var dr='<div style="display:flex;gap:0;margin-bottom:8px">'+cells+'</div>';
+    var cur=vals[n-1],hi=Math.max.apply(null,vals),lo=Math.min.apply(null,vals);
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/n*10)/10;
+    var bC=getBanda(cur),bH=getBanda(hi),bL=getBanda(lo);
+    /* Stat badge: estilo inspirado en el pill WoW de las cards */
+    function sb(lb,v,bg,fg){
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'+
+        '<div style="font-size:7.5px;color:#B0A898;text-transform:uppercase;letter-spacing:.06em">'+lb+'</div>'+
+        '<div style="background:'+bg+';color:'+fg+';border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;white-space:nowrap">'+fmtVal(v)+'</div>'+
+        '</div>';}
+    /* Soft backgrounds: hex con 20% opacidad simulado mezclando con #FDFCF9 */
+    function _soften(hex){
+      var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      var br=253,bg_=252,bb=249; /* #FDFCF9 */
+      return 'rgb('+Math.round(r*.22+br*.78)+','+Math.round(g*.22+bg_*.78)+','+Math.round(b*.22+bb*.78)+')';}
+    var sfBg=_soften(bC.c),mxBg=_soften(bH.c),mnBg=_soften(bL.c);
+    var sf='<div style="display:flex;gap:5px;border-top:1px solid #E8E4DC;padding-top:8px;align-items:flex-end">'+
+      sb('Actual',cur,sfBg,bC.c)+sb('Máx',hi,mxBg,bH.c)+sb('Mín',lo,mnBg,bL.c)+sb('Prom',avg,'#EEE9E2','#333132')+
+      '<div style="flex:1;display:flex;align-items:flex-end;justify-content:flex-end">'+
+        '<div style="background:'+bC.c+';color:#fff;border-radius:4px;padding:2px 7px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em">'+bC.k+'</div>'+
+      '</div></div>';
+    var lblEl=document.getElementById('hist-'+CID+'-label');
+    if(lblEl&&lbl)lblEl.textContent=lbl;
+    el.innerHTML=svg+dr+sf;
+  }window['histUpdate_'+CID]=function(wc,wp,wa,lbl,ha){el=document.getElementById(CID);renderPanel(buildSerie(wc,wp,wa,ha),lbl||'');};document.addEventListener('hist-update',function(e){if(e.detail.cid!==CID)return;if(!e.detail.hist_arr&&window._corpHist&&window._corpHist[CID]){var ch=window._corpHist[CID];renderPanel(buildSerie(0,0,0,ch.arr),ch.lbl||'');return;}renderPanel(buildSerie(e.detail.w_curr,e.detail.w_prev,e.detail.w_actual,e.detail.hist_arr||null),e.detail.label||'');});document.addEventListener('hist-reset',function(e){if(e.detail.cid!==CID)return;renderPanel(VD,'Global');});if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){renderPanel(VD,'Global');});}else{renderPanel(VD,'Global');}})();</script>
+</div>
     </div>
   </div>
 
@@ -2199,9 +2202,9 @@ window.HIST_DATA['rnd'] = {
 /* Modo RND oculto por defecto */
 #w22-rnd-block{display:none;}
 
-/* ── AR1: hist-wrap controlado por JS w22_setMode; RND toggle canvas ── */
-body[data-ar-mode='rnd'] #ar1-hist-cr { display: none !important; }
-body[data-ar-mode='rnd'] #ar1-hist-rnd { display: block !important; }
+/* ── AR1: CR canvas abajo · RND canvas side-by-side ── */
+body[data-ar-mode='rnd'] #ar1-hist-wrap { display: flex !important; align-items: center; }
+body[data-ar-mode='rnd'] #ar1-hist-cr-wrap { display: none !important; }
 
 
 /* ═══════════════════════════════════════════════════
