@@ -829,11 +829,14 @@ function kpi_setView(card, view, el) {
 var _arBand = {nd: 'crit'};
 function ar_setBand(card, band, el) {
   _arBand[card] = band;
-  /* Pills: activa opacidad 1, inactivas .45 */
+  /* Pills: mismo esquema que las KPI (outline magenta, activa con relleno claro) */
   ['crit','br','sc'].forEach(function(b) {
     var pill = document.getElementById('ar-'+card+'-b-'+b);
     if (!pill) return;
-    pill.style.opacity = (b === band) ? '1' : '.45';
+    var active = (b === band);
+    pill.style.background = active ? '#FCE4F1' : 'transparent';
+    pill.style.color = '#EA0074';
+    pill.style.borderColor = '#EA0074';
   });
   /* Paneles */
   var panelsEl = document.getElementById('ar-'+card+'-panels');

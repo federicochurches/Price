@@ -288,9 +288,9 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
     _hot = p80_hotel.copy()
     _bk  = _hot['Bookings'].fillna(0) if 'Bookings' in _hot.columns else pd.Series(0, index=_hot.index)
     _bcol = _hot['%NoDispo'].apply(lambda v: banda_nodispo(_sf(v)) if _sf(v) is not None else '—')
-    _df_crit = _hot[(_bk > 0) & _bcol.isin(['Crítica', 'Súper Crítica'])].sort_values('%NoDispo', ascending=False)
-    _df_br   = _hot[(_bk > 0) & _bcol.isin(['Revisar', 'Aceptable'])].sort_values('%NoDispo', ascending=False)
-    _df_sc   = _hot[_bk == 0].sort_values('Trafico', ascending=False)
+    _df_crit = _hot[(_bk > 0) & _bcol.isin(['Crítica', 'Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
+    _df_br   = _hot[(_bk > 0) & _bcol.isin(['Revisar', 'Aceptable'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
+    _df_sc   = _hot[_bk == 0].sort_values('Trafico', ascending=False).reset_index(drop=True)
 
     # ── Config del panel hotel (idéntica a la KPI card · 4 cols) ──
     _AR_CFG = {
@@ -327,28 +327,23 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
         panels_ar += (f'<div class="ar-nd-panel" data-band="{_bkey}"{_hide}>'
                       f'<div class="kpi-tab-rows">{_hdr}{_top}{_rest}{_more}</div></div>')
 
-    # ── Pills de banda (Críticos/Bajo Rend./Sin Conv.) — colores sólidos de banda ──
-    _BAND_PILL = {
-        'crit': BANDA_COLORS.get('Crítica', {}),
-        'br':   BANDA_COLORS.get('Revisar', {}),
-        'sc':   BANDA_COLORS.get('Sin Conversión', {}),
-    }
-    _pill_style = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;text-transform:uppercase;border:1px solid transparent;'
+    # ── Pills de banda (Críticos/Bajo Rend./Sin Conv.) — mismo estilo que las pills KPI (outline magenta) ──
+    _AR_PILL_ACTIVE = 'border:1px solid #EA0074;background:#FCE4F1;color:#EA0074;text-transform:uppercase;'
+    _AR_PILL_INACT  = 'border:1px solid #EA0074;background:transparent;color:#EA0074;text-transform:uppercase;'
+    _AR_PILL_STYLE  = 'font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;'
     band_pills = ''
     for _i, (_bkey, _blabel, _) in enumerate(_BANDS):
-        _bc = _BAND_PILL[_bkey]
-        _bg = _bc.get('bg', '#8A8377'); _fg = _bc.get('fg', '#FFFFFF')
-        _active = '' if _i == 0 else 'opacity:.45;'
+        _sty = _AR_PILL_STYLE + (_AR_PILL_ACTIVE if _i == 0 else _AR_PILL_INACT)
         band_pills += (f'<span id="ar-nd-b-{_bkey}" class="ar-nd-bpill" data-band="{_bkey}"'
                        f' onclick="ar_setBand(\'nd\',\'{_bkey}\',this)"'
-                       f' style="{_pill_style}background:{_bg};color:{_fg};{_active}">{_blabel}</span>')
+                       f' style="{_sty}">{_blabel}</span>')
 
     return f'''<div class="kpi-card" id="kpicard-ar-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <div>
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Análisis de Rendimiento · % No Dispo</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(pct_w18)}</div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1;">{fmt_pct2(pct_w18)}</div>
 <div style="margin-top:5px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-muted);">vs sem. ant. {_wow_pill_nd}</div>
 {_traf_line}
 </div>
