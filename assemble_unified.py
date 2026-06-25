@@ -2545,7 +2545,7 @@ SWITCHER = f'''<div style="padding-top:10px;">
 # ── Contenedores compartidos (una sola vez, fuera de section-cr / section-rnd) ──
 # El JS los reescribe según modo (CR/RND) y canasta activa
 SHARED_CONTAINERS = f'''
-<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
+<section id="shared-ar-panel" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head" style="margin-bottom:16px;"><div>
 <h2 class="section-title">Análisis de Rendimiento</h2>
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>

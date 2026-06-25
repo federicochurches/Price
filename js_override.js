@@ -297,6 +297,10 @@ w22_setMode = function(m, el) {
     ? 'Peor Eficacia + Peor ConvRate \u00b7 canasta activa'
     : 'Mayor NoDispo + Menor IPM \u00b7 canasta activa';
 
+  /* Panel AR compartido — oculto en RND (tiene su propia card AR arriba), visible en CR */
+  var sharedAR = document.getElementById('shared-ar-panel');
+  if (sharedAR) sharedAR.style.display = (m === 'rnd') ? 'none' : '';
+
   /* Bookability — solo visible en CR (Connectivities), oculto en RND (Availability) */
   var bkItemDisplay = (m === 'cr') ? '' : 'none';
   ['w22-strip-bk-item', 'w22-strip-bk-sep', 'ar-strip-bk-item', 'ar-strip-bk-sep'].forEach(function(id){
