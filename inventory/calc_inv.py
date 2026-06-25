@@ -746,8 +746,8 @@ _total_hotels_indexed = sum(len(v) for v in hotel_by_week.values())
 print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexed:,} registros")
 
 # Exportar HOTEL_BY_WEEK como JSON separado (no se hornea en el HTML)
-import json as _json_hbw
-_hbw_path = os.path.join(OUT_DIR, f"hotel_by_week_{WEEK}.json")
+import json as _json_hbw, os as _os_hbw
+_hbw_path = _os_hbw.path.join(OUT_DIR, f"hotel_by_week_{WEEK}.json")
 with open(_hbw_path, 'w', encoding='utf-8') as _f:
     _json_hbw.dump(hotel_by_week, _f, ensure_ascii=False, separators=(',', ':'))
 _hbw_size = os.path.getsize(_hbw_path) / 1024 / 1024
