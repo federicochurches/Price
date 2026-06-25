@@ -747,10 +747,10 @@ print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexe
 
 # Exportar HOTEL_BY_WEEK como JSON separado (no se hornea en el HTML)
 import json as _json_hbw, os as _os_hbw
-_hbw_path = _os_hbw.path.join(OUT_DIR, f"hotel_by_week_{WEEK}.json")
+_hbw_path = OUTPUT_DIR / f"hotel_by_week_{WEEK}.json"
 with open(_hbw_path, 'w', encoding='utf-8') as _f:
     _json_hbw.dump(hotel_by_week, _f, ensure_ascii=False, separators=(',', ':'))
-_hbw_size = os.path.getsize(_hbw_path) / 1024 / 1024
+_hbw_size = _hbw_path.stat().st_size / 1024 / 1024
 print(f"    hotel_by_week_{WEEK}.json → {_hbw_size:.2f} MB")
 # URL del JSON para carga on-demand
 _HBW_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
