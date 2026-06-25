@@ -2493,6 +2493,9 @@ function hDrillWeek(yw) {{
   // Región y corp viven en hFRegion/hFCorp (no en udActiveFilters)
   const _drRegions = hFRegion ? [hFRegion] : (udActiveFilters||[]).filter(f=>f.type==='region').map(f=>f.value);
   const _drCorps   = hFCorp   ? [hFCorp]   : (udActiveFilters||[]).filter(f=>f.type==='corp').map(f=>f.value);
+  const _drDests   = (udActiveFilters||[]).filter(f=>f.type==='dest').map(f=>f.value);
+  const _nrDr = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const _drDestsNorm = _drDests.map(_nrDr);
   // Tipo: hFTipo → udActiveFilters → botón 'on' en DOM (evita desincronización tras seleccionar/deseleccionar)
   const _activeTipoFromDom = (function() {{
     const onBtn = document.querySelector('.distrib-pills .pill.on:not(.gap-pill)');
@@ -2507,6 +2510,7 @@ function hDrillWeek(yw) {{
   let rows = (HIST.dim_hotel || []).filter(r => (r.w||r.yw) === yw);
   if (_drRegions.length) rows = rows.filter(r => _drRegions.includes(r.r));
   if (_drCorps.length)   rows = rows.filter(r => _drCorps.includes(r.c));
+  if (_drDestsNorm.length) rows = rows.filter(r => _drDestsNorm.includes(_nrDr(r.d||'')));
   if (_drTipos.length)   rows = rows.filter(r => {{
     const t = r.t || '';
     return _drTipos.some(at =>
@@ -2527,7 +2531,7 @@ function hDrillWeek(yw) {{
   // (independiente de si hay filas en dim_hotel — HOTEL_BY_WEEK puede tener hoteles sin conteos agregados)
   const _weekHotels = (typeof HOTEL_BY_WEEK !== 'undefined') ? (HOTEL_BY_WEEK[yw] || null) : null;
   if (_weekHotels) {{
-    _renderHotelList(_weekHotels, rows, label, _dimKey, _drTipos, _drRegions, _drCorps);
+    _renderHotelList(_weekHotels, rows, label, _dimKey, _drTipos, _drRegions, _drCorps, _drDestsNorm);
   }} else if (!rows.length) {{
     _renderDrillTable([], label, _dimKey);
     _renderDrillPill(label);
@@ -2540,7 +2544,7 @@ function hDrillWeek(yw) {{
 }}
 
 // Renderiza lista de hoteles individuales para el drill semanal
-function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, drCorps) {{
+function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, drCorps, drDestsNorm) {{
   // El panel de hoteles es INDEPENDIENTE de la tabla dimensional
   // Se muestra debajo de ud-main-content sin tocar el tbody
   const panel = document.getElementById('ud-hotel-panel');
@@ -2562,6 +2566,10 @@ function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, dr
     }}
     if (drRegions.length && !drRegions.includes(h.r)) return false;
     if (drCorps.length   && !drCorps.includes(h.c))   return false;
+    if (drDestsNorm && drDestsNorm.length) {{
+      const _nrHD = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      if (!drDestsNorm.includes(_nrHD(h.d||''))) return false;
+    }}
     return true;
   }}
 
@@ -2924,9 +2932,11 @@ function hApplyFilter() {{
   const _corpRegsSet = activeCorps.length && (typeof CORP_REGIONS_MAP !== 'undefined')
     ? new Set(activeCorps.flatMap(c => (CORP_REGIONS_MAP[c]||'').split('|').filter(Boolean)))
     : null;
+  const _nrDest = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const _activDestsNorm = activeDests.map(_nrDest);
   const _destCorpsSet = activeDests.length && (typeof CORP_DEST_MAP !== 'undefined')
     ? new Set(Object.entries(CORP_DEST_MAP)
-        .filter(([,dests]) => activeDests.some(d => dests.includes(d)))
+        .filter(([,dests]) => _activDestsNorm.some(dn => dests.some(d => _nrDest(d) === dn)))
         .map(([c]) => c))
     : null;
   const _chanCorpsSet = activeChann && (typeof CH_CORP_MAP !== 'undefined') && CH_CORP_MAP[activeChann]
@@ -2981,6 +2991,38 @@ function hApplyFilter() {{
         if(tds[6]) tds[6].textContent = _tot2 > 0 ? (_pp2/_tot2*100).toFixed(1)+'%' : '—';
       }}
     }}
+    // Si hay filtro de destino activo, actualizar valores de la fila con datos de CORP_DEST_DATA
+    if (activeDests.length && r.style.display !== 'none' && typeof CORP_DEST_DATA !== 'undefined') {{
+      const _nrd = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      // Pre-indexar CORP_DEST_DATA normalizado una sola vez (cache en window)
+      if (!window._CORP_DEST_NORM) {{
+        window._CORP_DEST_NORM = {{}};
+        Object.entries(CORP_DEST_DATA).forEach(function([k,v]) {{
+          const comma = k.indexOf(',');
+          window._CORP_DEST_NORM[_nrd(k.slice(0,comma)) + ',' + _nrd(k.slice(comma+1))] = v;
+        }});
+      }}
+      // Agregar valores de todos los destinos activos para este corp
+      let _totD=0, _spD=0, _hyD=0, _tpD=0;
+      activeDests.forEach(function(destVal) {{
+        const _dEntry = window._CORP_DEST_NORM[_nrd(corpName) + ',' + _nrd(destVal)];
+        if (_dEntry) {{
+          _spD += _dEntry.sp||0; _hyD += _dEntry.hy||0; _tpD += _dEntry.tp||0;
+        }}
+      }});
+      _totD = _spD + _hyD + _tpD;
+      if (_totD > 0) {{
+        const _fmtD = n => Math.round(n).toLocaleString('es-MX');
+        const _ppD = _spD + _hyD;
+        const tds = r.querySelectorAll('td');
+        if(tds[1]) tds[1].textContent = _fmtD(_totD);
+        if(tds[2]) tds[2].textContent = _fmtD(_ppD);
+        if(tds[3]) tds[3].textContent = _spD > 0 ? _fmtD(_spD) : '\u2014';
+        if(tds[4]) tds[4].textContent = _fmtD(_hyD);
+        if(tds[5]) tds[5].textContent = _fmtD(_tpD);
+        if(tds[6]) tds[6].textContent = _totD > 0 ? (_ppD/_totD*100).toFixed(1)+'%' : '\u2014';
+      }}
+    }}
   }});
 
   // ── Dest rows ───────────────────────────────────────────────────
@@ -2990,7 +3032,8 @@ function hApplyFilter() {{
     const destName = r.dataset.destName || r.querySelector('td:first-child strong')?.textContent?.trim() || '';
     const destReg  = r.dataset.region || '';
     const idx      = parseInt(r.dataset.rowIdx||'999');
-    const isSel    = activeDests.includes(destName);
+    const _nrI = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const isSel    = activeDests.some(d => _nrI(d) === _nrI(destName));
     r.classList.toggle('ud-filter-active', isSel);
     // Normalizar para comparación (México vs Mexico)
     const _normReg = s => (s||'').normalize('NFD').split('').filter(c=>c.charCodeAt(0)<0x0300||c.charCodeAt(0)>0x036f).join('').toLowerCase().trim();
