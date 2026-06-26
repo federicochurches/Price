@@ -161,13 +161,17 @@ if __name__ == '__main__':
     run_step('7a/8', 'excel_rnd.py')
     run_step('7b/8', 'excel_cr.py')
 
-    # 7c. Excels regionales RND (opcional — no falla el pipeline si falta regional_config.py)
-    _reg_script = find_script('excel_rnd_regional.py')
+    # 7c. Excels regionales RND + CR (opcional — no falla si falta regional_config.py)
     _reg_config = find_script('regional_config.py')
-    if _reg_script and _reg_config:
-        run_step('7c/8', 'excel_rnd_regional.py')
+    if _reg_config:
+        _rnd_reg = find_script('excel_rnd_regional.py')
+        _cr_reg  = find_script('excel_cr_regional.py')
+        if _rnd_reg: run_step('7c/8', 'excel_rnd_regional.py')
+        if _cr_reg:  run_step('7d/8', 'excel_cr_regional.py')
+        if not _rnd_reg and not _cr_reg:
+            print('\n[7c/8] ⏭  excel_rnd_regional.py / excel_cr_regional.py no encontrados — omitido')
     else:
-        print('\n[7c/8] ⏭  excel_rnd_regional.py / regional_config.py no encontrados — omitido')
+        print('\n[7c/8] ⏭  regional_config.py no encontrado — Excels regionales omitidos')
 
     # 8. Generar Mail
     run_step('8/8', 'render_mail_v3.py')
