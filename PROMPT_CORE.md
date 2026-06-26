@@ -28,7 +28,9 @@ Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo
 1. calc_rnd.py + calc_cr.py          → pickles
 2. render_*_p1/p2/p3.py              → 6 parciales HTML
 3. assemble_unified.py               → SUPPLY_WNN.html
-4. excel_cr.py + excel_rnd.py        → 2 Excels (5 hojas cada uno)
+4. excel_cr.py + excel_rnd.py                → 2 Excels globales (5 hojas c/u)
+   excel_rnd_regional.py + excel_cr_regional.py → 6 Excels regionales (MX · US · CALA)
+   excel_rnd_accounts.py + excel_cr_accounts.py → 4 Excels por cuenta (Global Accounts · Estratégicas)
 5. render_mail_v3.py                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
 7. commit GitHub + ZIP proyecto Claude
@@ -467,9 +469,45 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 **Hojas de banda (3):** nivel hotel Global, banda por métrica primaria.
 - **Críticos** = Crítica + Súper Crítica (Bookings>0) · **Bajo Rend** = Revisar + Aceptable (Bookings>0) · **Sin Conv** = Bookings=0.
 - Columnas Global **coloreadas**: `Banda ND/Ef Global` + `Banda CV Global`.
-- Columnas exposición cruzada **texto plano** (sin color): `ND/Ef B2C · ND/Ef Opaco · ND/Ef Ultra Opaco · CV B2C · CV Opaco · CV Ultra Opaco`.
-- Split recalcula la banda con `band_split_nd`/`band_split_ef` (misma función que el display) → nunca usar columna `BandaX` pre-calculada.
+- Columnas exposición cruzada **texto plano**: `ND/Ef B2C · ND/Ef Opaco · ND/Ef Ultra Opaco · CV B2C · CV Opaco · CV Ultra Opaco`.
+- Split recalcula la banda con `band_split_nd`/`band_split_ef` — nunca usar columna `BandaX` pre-calculada.
 - Toda la hoja es una Tabla Excel con filtro/sort único.
+
+### Excels Regionales · Reglas canónicas (W26+)
+
+| Parámetro | Valor |
+|---|---|
+| **Regiones** | MX · US · CALA (Global cubierto por Excel global del pipeline) |
+| **Scripts** | `excel_rnd_regional.py` + `excel_cr_regional.py` |
+| **Config** | `regional_config.py` — catálogo países por región · `MIN_TRAFICO_REGIONAL = 10K` |
+| **Hojas** | 5: Severity · Maestra · Críticos · Bajo Rendimiento · Sin Conversión |
+| **Filtro** | Post-filtro sobre pickle global — P80 calculado sobre universo completo |
+| **Umbral RND** | 10K sobre Trafico (vs 50K global) |
+| **Umbral CR** | Sin umbral adicional — p80_hotel CR ya tiene MIN_CR=100 del pipeline |
+| **País CR** | Mapa `Destino→País` cruzado desde pickle RND |
+| **Ruta repo** | `rates-nodispo/week-NN/regional/` · `checkrates/week-NN/regional/` |
+| **Pipeline** | Pasos 7c (RND) + 7d (CR) opcionales en `calc_supply.py` |
+
+**Links de descarga** en 3 lugares: card Hub + footer Hub + footer Supply. Pendiente: commit automático al repo en paso 11.
+
+### Excels por Cuenta · Reglas canónicas (W26+)
+
+| Parámetro | Valor |
+|---|---|
+| **Grupos** | Global Accounts (9 corps) · Cuentas Estratégicas (24 corps) |
+| **Scripts** | `excel_rnd_accounts.py` + `excel_cr_accounts.py` |
+| **Config** | `accounts_config.py` — `GLOBAL_ACCOUNTS` + `CUENTAS_ESTRATEGICAS` con `CorpName` exacto |
+| **Hojas** | 5: Severity · Maestra · Críticos · Bajo Rendimiento · Sin Conversión |
+| **Filtro** | `CorpName` exacto sobre pickle global — sin umbral adicional de tráfico |
+| **Severity** | KPI global referencia + distribución por banda + Ranking corps del grupo + Top 50 destinos |
+| **Ruta output** | `outputs/accounts/` |
+| **Pipeline** | Pasos 7e (RND) + 7f (CR) — opcionales en `calc_supply.py` |
+
+**Global Accounts:** Accor · Best Western · CHOICE · Hilton · Hyatt · IHG · Marriott · Oyo Rooms · Wyndham
+
+**Estratégicas:** Hyatt Inclusive Collection · Barcelo · Iberostar · RIU · Karisma · Melia · Royalton · GRUPO POSADAS · NH · PAM Hotels · Krystal · Emporio · Park Royal · Las Brisas · Oasis · Palace · Presidente Intercontinental · Sandos · Villa Group · Velas Resorts · Palladium Hotel Group · Mision · Ocean by H10 · Bahia Principe
+
+**Links** en 3 lugares: card Hub + footer Hub + footer Supply. Ruta repo pendiente de definir.
 
 ---
 
@@ -531,11 +569,10 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 Por valor/orden sugerido:
 
 1. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. El pipeline copia a `reports/` y commitea automáticamente.
-2. **Editorial engine W26** — automatizar RE+PA en `calc_supply.py` / `render_*_p1.py` con los criterios definidos en W25: score C (60% vol + 40% métrica), rango 1-85% >= 1000 CR, spread cross-canasta > 30pp, drilldown por tráfico.
-3. **Label "GLOBAL" / hotel seleccionado en panel AR compartido (CR)** — sparkline no muestra label al seleccionar hotel. Bug preexistente.
-4. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
-5. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
-6. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
+2. **Label "GLOBAL" / hotel seleccionado en panel AR compartido (CR)** — sparkline no muestra label al seleccionar hotel. Bug preexistente.
+3. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
+4. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
+5. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
 
 ✅ **Card AR NoDispo (RND)** — implementada, validada y en producción (main).
 ✅ **Panel AR compartido oculto en RND** — implementado en `js_override.js`.
@@ -639,13 +676,15 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ---
 
 <<<<<<< HEAD
-**Última actualización:** W25-editorial-RE-PA · 26-06-2026 (**RE+PA CR+RND** — formato imperativo · lista plana idéntica al RE · score C (60% vol + 40% métrica) para top 5 · Eficacia 0% como finding urgente · spread cross-canasta > 30pp como nuevo finding RND · drilldown por tráfico acumulado · Equipo Optimización / Equipo Comercial como prefijos · replicado a 4 canastas.)
-
-**Última actualización previa:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
+**Última actualización:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
 
 **Última actualización previa:** W25-inv-filter · 24-06-2026 (**Inventory W25 filter bug** — `hApplyFilter` línea 2548: `idx < 10` ocultaba destinos de México (idx≥48) aunque pasaran el filtro de región. Fix: `(activeRegion || idx < 10 || isSel)`. Segunda causa: normalización unicode corrupta en `_nr3` por PowerShell. Ambos bugs corregidos en HTML parcheado. `calc_inv.py` ya tenía la lógica correcta — no se modificó.)
 =======
-**Última actualización:** W26-excel-refactor · 25-06-2026 (**Excels supply rediseñados** — estructura simplificada: 5 hojas (Severity → Maestra → Críticos → Bajo Rendimiento → Sin Conversión) vs 40/28 anteriores. Canasta como columna en Maestra. Banda CV agregada en todas las vistas. Exposición cruzada por canasta en hojas de banda (texto plano para las cruzadas, coloreado solo en Global). Tablas Excel con filtro independiente por sección en Severity. IPM eliminado de RND. `excel_rnd.py` + `excel_cr.py` reescritos; pipeline sin cambios (`calc_supply.py` pasos 7a/7b))
+**Última actualización:** W26-cuentas · 25-06-2026 (**Excels Global Accounts + Cuentas Estratégicas** — `accounts_config.py`: 2 grupos. `excel_rnd_accounts.py` + `excel_cr_accounts.py`: 5 hojas. Severity con KPI global + ranking corps + Top 50 destinos. Pasos 7e/7f en pipeline. Links en card Hub + footer Hub + footer Supply.)
+
+**Última actualización previa:** W26-regionales · 25-06-2026 (**Excels regionales MX/US/CALA + links Hub y Supply** — `regional_config.py` + `excel_rnd_regional.py` + `excel_cr_regional.py`. 5 hojas. Pasos 7c/7d. Links en 3 lugares.)
+
+**Última actualización previa:** W26-excel-refactor · 25-06-2026 (**Excels supply rediseñados** — 5 hojas vs 40/28. Maestra con Banda CV. Tablas Excel con filtro independiente. IPM eliminado de RND.)
 
 **Última actualización previa:** W26-rnd-ar-card · 25-06-2026 (**Card AR NoDispo en RND — 2 cards lado a lado en HERO + fix pipeline + panel AR oculto en RND + commit automático GitHub** — `render_ar_card_nodispo()` en `render_rnd_p1.py`: espejo de KPI card con pills de banda (Críticos/Bajo Rend./Sin Conv.) + 3 paneles hotel filtrados. Fixes: `.reset_index(drop=True)` en splits de banda (tabla vacía), headline negro `var(--ink)`, pills outline magenta igual que KPI, `min-height:48px` para alto uniforme entre cards. Canvas `hrnd-arcard-nd` (único, sin colisión). Cableado JS: `kpicard-ar-nd` reconocido en `_handleKpiCardHistClick`, click desde KPI y AR actualizan `hrnd-arcard-nd`. `RND_PAIS_HIST` nuevo dict: `build_rnd_hist()` agrega bucket `pais`, emitido en `_build_rnd_hist_json()`, lookup en JS cuando `_dimV2==='pais'` → sparkline W18-W25 al clickear país. CSS residual layout 2-zonas eliminado. `calc_supply.py`: paso `[11/10] inventory` eliminado. Branch `feat/rnd-ar-card` — pendiente merge a main. Fix `calc_supply.py`: copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de `build_package` (que limpia la raíz) + commit automático a GitHub vía Git Tree API al final del pipeline [paso 11].)
 
