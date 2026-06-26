@@ -13,7 +13,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from engine import banda_nodispo, banda_convrate
+from engine import banda_nodispo, banda_convrate, get_dest_tier
 
 VOL_NUM = os.getenv('VOL_NUM', '21')
 PERIODO = os.getenv('PERIODO', '19-25 mayo 2026')
@@ -290,7 +290,7 @@ def write_severity(ws):
 
 # ── Hoja Maestra ──────────────────────────────────────────────────────────────
 MAESTRA_COLS = [
-    'País', 'Destino', 'Corporativo', 'Hotel',
+    'País', 'Destino', 'Clasificación Destino', 'Corporativo', 'Hotel',
     'Canasta', 'Tráfico', 'WoW Tráfico',
     '%NoDispo', 'WoW ND', 'Banda ND',
     '%Conv', 'WoW CV', 'Banda CV', 'Bookings'
@@ -318,26 +318,27 @@ def write_maestra(ws):
             destino = str(row.get('Destino', '—'))
             corp    = str(row.get('CorpName', row.get('Corp', '—')))
             hotel   = str(row.get('Hotel', '—'))
-            for ci, val in enumerate([pais, destino, corp, hotel], 1):
+            tier    = get_dest_tier(destino).capitalize()
+            for ci, val in enumerate([pais, destino, tier, corp, hotel], 1):
                 mk_cell(ws, r, ci, val, align='left')
-            mk_cell(ws, r, 5, can_label)
-            mk_cell(ws, r, 6, trf)
-            apply_wow(ws, r, 7, sf(row.get('Trafico_WoW_pct')), invert=False)
-            pct_cell(ws, r, 8, nd)
-            apply_wow(ws, r, 9, wow_nd, invert=True)
-            mk_cell(ws, r, 10, bnd_nd, bnd_nd, is_sev=True)
-            pct_cell(ws, r, 11, conv)
-            apply_wow(ws, r, 12, wow_cv, invert=False)
-            mk_cell(ws, r, 13, bnd_cv, bnd_cv, is_sev=True)
-            mk_cell(ws, r, 14, bk)
+            mk_cell(ws, r, 6, can_label)
+            mk_cell(ws, r, 7, trf)
+            apply_wow(ws, r, 8, sf(row.get('Trafico_WoW_pct')), invert=False)
+            pct_cell(ws, r, 9, nd)
+            apply_wow(ws, r, 10, wow_nd, invert=True)
+            mk_cell(ws, r, 11, bnd_nd, bnd_nd, is_sev=True)
+            pct_cell(ws, r, 12, conv)
+            apply_wow(ws, r, 13, wow_cv, invert=False)
+            mk_cell(ws, r, 14, bnd_cv, bnd_cv, is_sev=True)
+            mk_cell(ws, r, 15, bk)
             r += 1
 
     add_excel_table(ws, hdr_r, r-1, len(MAESTRA_COLS), 'Maestra')
-    autofit(ws, [16, 22, 22, 40, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10])
+    autofit(ws, [16, 22, 14, 22, 40, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10])
 
 # ── Hojas de banda ────────────────────────────────────────────────────────────
 BANDA_COLS = [
-    'País', 'Destino', 'Corporativo', 'Hotel',
+    'País', 'Destino', 'Clasificación Destino', 'Corporativo', 'Hotel',
     'Tráfico', '%NoDispo', 'WoW ND', '%Conv', 'WoW CV', 'Bookings',
     'Banda ND Global', 'Banda CV Global',
     'ND B2C', 'ND Opaco', 'ND Ultra Opaco',
@@ -366,28 +367,29 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
         pais    = str(row.get('PaisDestino', row.get('Pais', '—')))
         destino = str(row.get('Destino', '—'))
         corp    = str(row.get('CorpName', row.get('Corp', '—')))
+        tier    = get_dest_tier(destino).capitalize()
         exp     = banda_lookup.get(hotel, {})
 
-        for ci, val in enumerate([pais, destino, corp, hotel], 1):
+        for ci, val in enumerate([pais, destino, tier, corp, hotel], 1):
             mk_cell(ws, r, ci, val, align='left')
-        mk_cell(ws, r, 5, trf)
-        pct_cell(ws, r, 6, nd)
-        apply_wow(ws, r, 7, wow_nd, invert=True)
-        pct_cell(ws, r, 8, conv)
-        apply_wow(ws, r, 9, wow_cv, invert=False)
-        mk_cell(ws, r, 10, bk)
+        mk_cell(ws, r, 6, trf)
+        pct_cell(ws, r, 7, nd)
+        apply_wow(ws, r, 8, wow_nd, invert=True)
+        pct_cell(ws, r, 9, conv)
+        apply_wow(ws, r, 10, wow_cv, invert=False)
+        mk_cell(ws, r, 11, bk)
         # Global: coloreadas
-        mk_cell(ws, r, 11, bnd_nd, bnd_nd, is_sev=True)
-        mk_cell(ws, r, 12, bnd_cv, bnd_cv, is_sev=True)
+        mk_cell(ws, r, 12, bnd_nd, bnd_nd, is_sev=True)
+        mk_cell(ws, r, 13, bnd_cv, bnd_cv, is_sev=True)
         # Exposición cruzada: texto plano (sin color)
-        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 13):
+        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 14):
             mk_cell(ws, r, ci, exp.get(can_label, {}).get('nd', '—'))
-        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 16):
+        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 17):
             mk_cell(ws, r, ci, exp.get(can_label, {}).get('cv', '—'))
         r += 1
 
     add_excel_table(ws, hdr_r, r-1, len(BANDA_COLS), 'Banda')
-    autofit(ws, [16, 22, 22, 40, 10, 10, 10, 10, 10, 10, 16, 16, 12, 12, 14, 12, 12, 14])
+    autofit(ws, [16, 22, 14, 22, 40, 10, 10, 10, 10, 10, 10, 16, 16, 12, 12, 14, 12, 12, 14])
 
 # ── Build workbook ────────────────────────────────────────────────────────────
 wb = Workbook(); wb.remove(wb.active)

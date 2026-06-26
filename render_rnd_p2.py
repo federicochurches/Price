@@ -502,15 +502,16 @@ def render_severity():
         bar_color = bc.get('bar', bbg)
         bar_w = min(int(pct * 100), 100)
         return (
-            f'<div style="display:grid;grid-template-columns:100px 56px 1fr 48px 36px;'
-            f'gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
-            f'<span style="display:inline-block;padding:2px 6px;background:{bbg};color:{bfg};'
-            f'font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{banda}</span>'
-            f'<span style="font-size:10px;color:var(--ink-muted);text-align:right;">{rango}</span>'
-            f'<div style="background:var(--rule-soft);height:5px;">'
+            f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
+            f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
+            f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
+            f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
+            f'text-align:center;">{banda}</span>'
+            f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{rango}</span>'
+            f'<div style="background:var(--rule-soft);height:6px;border-radius:0;">'
             f'<div style="width:{bar_w}%;height:100%;background:{bar_color};"></div></div>'
-            f'<span style="font-size:11px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
-            f'<span style="font-size:10px;color:var(--ink-muted);text-align:right;">{pct:.0%}</span>'
+            f'<span style="font-size:12px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
+            f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{pct:.1%}</span>'
             f'</div>'
         ).replace(',', '.')
 
@@ -519,9 +520,10 @@ def render_severity():
         lbl = TIER_LABELS[tier]
         rows = ''.join(sev_row(b, r, int(sev_dict.get(b, 0)), n_total) for b, r in rangos)
         return (
-            f'<div style="flex:1;min-width:0;">'
-            f'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;'
-            f'color:#EA0074;margin-bottom:10px;">{lbl} <span style="color:var(--ink-muted);font-weight:400;">({n_total:,})</span></div>'
+            f'<div>'
+            f'<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;'
+            f'color:#EA0074;margin:0 0 12px;">{lbl} '
+            f'<span style="color:var(--ink-muted);font-weight:400;">({n_total:,})</span></h3>'
             f'{rows}'
             f'</div>'
         ).replace(',', '.')
@@ -536,7 +538,7 @@ def render_severity():
 <span class="section-subtitle" style="color:#EA0074">P80 · {len(p80):,} hoteles · distribución por banda de %NoDispo · por tipo de destino</span>
 <p class="section-kicker">Rangos diferenciados: Primario (exigente) · Secundario (histórico) · Terciario (permisivo). Hoteles sin clasificación → Terciario.</p>
 </div></div>
-<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
 {block_prim}
 {block_sec}
 {block_ter}

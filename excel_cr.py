@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from engine import banda_eficacia, banda_convrate
+from engine import banda_eficacia, banda_convrate, get_dest_tier
 
 VOL_NUM = os.getenv('VOL_NUM', '21')
 PERIODO = os.getenv('PERIODO', '19-25 mayo 2026')
@@ -339,7 +339,7 @@ def write_severity(ws):
 
 # ── Hoja Maestra ──────────────────────────────────────────────────────────────
 MAESTRA_COLS = [
-    'Destino', 'Corporativo', 'Hotel', 'Channel', 'Canasta',
+    'Destino', 'Clasificación Destino', 'Corporativo', 'Hotel', 'Channel', 'Canasta',
     'CR Únicos', 'WoW CR', 'Eficacia', 'WoW Ef', 'Banda Ef',
     'Conv Rate', 'WoW CV', 'Banda CV', 'Bookability', 'Bookings'
 ]
@@ -364,27 +364,28 @@ def write_maestra(ws):
             channel = str(row.get('Channel', '—'))
             destino = str(row.get('Destino', '—'))
             corp    = str(row.get('CorpName', row.get('Corp', '—')))
+            tier    = get_dest_tier(destino).capitalize()
             bk_pct  = get_bk_hotel(hotel, can_label)
-            for ci, val in enumerate([destino, corp, hotel, channel, can_label], 1):
+            for ci, val in enumerate([destino, tier, corp, hotel, channel, can_label], 1):
                 mk_cell(ws, r, ci, val, align='left')
-            mk_cell(ws, r, 6, cru)
-            apply_wow(ws, r, 7, sf(row.get('CR_WoW_pct')), invert=False)
-            pct_cell(ws, r, 8, ef)
-            apply_wow(ws, r, 9, sf(row.get('Eficacia_WoW_pp')), invert=False)
-            mk_cell(ws, r, 10, bef, bef, is_sev=True)
-            pct_cell(ws, r, 11, cv)
-            apply_wow(ws, r, 12, sf(row.get('ConvRate_WoW_pp')), invert=False)
-            mk_cell(ws, r, 13, bcv, bcv, is_sev=True)
-            pct_cell(ws, r, 14, bk_pct)
-            mk_cell(ws, r, 15, bk)
+            mk_cell(ws, r, 7, cru)
+            apply_wow(ws, r, 8, sf(row.get('CR_WoW_pct')), invert=False)
+            pct_cell(ws, r, 9, ef)
+            apply_wow(ws, r, 10, sf(row.get('Eficacia_WoW_pp')), invert=False)
+            mk_cell(ws, r, 11, bef, bef, is_sev=True)
+            pct_cell(ws, r, 12, cv)
+            apply_wow(ws, r, 13, sf(row.get('ConvRate_WoW_pp')), invert=False)
+            mk_cell(ws, r, 14, bcv, bcv, is_sev=True)
+            pct_cell(ws, r, 15, bk_pct)
+            mk_cell(ws, r, 16, bk)
             r += 1
 
     add_excel_table(ws, hdr_r, r-1, len(MAESTRA_COLS), 'Maestra')
-    autofit(ws, [22, 22, 40, 18, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10, 10])
+    autofit(ws, [22, 14, 22, 40, 18, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10, 10])
 
 # ── Hojas de banda ────────────────────────────────────────────────────────────
 BANDA_COLS = [
-    'Destino', 'Corporativo', 'Hotel', 'Channel',
+    'Destino', 'Clasificación Destino', 'Corporativo', 'Hotel', 'Channel',
     'CR Únicos', 'Eficacia', 'WoW Ef', 'Conv Rate', 'WoW CV',
     'Bookability', 'Bookings',
     'Banda Ef Global', 'Banda CV Global',
@@ -416,30 +417,31 @@ def write_banda(ws, df_banda, sheet_title, banda_lookup):
         channel = str(row.get('Channel', '—'))
         destino = str(row.get('Destino', '—'))
         corp    = str(row.get('CorpName', row.get('Corp', '—')))
+        tier    = get_dest_tier(destino).capitalize()
         bk_pct  = get_bk_hotel(hotel, 'Global')
         exp     = banda_lookup.get(hotel, {})
 
-        for ci, val in enumerate([destino, corp, hotel, channel], 1):
+        for ci, val in enumerate([destino, tier, corp, hotel, channel], 1):
             mk_cell(ws, r, ci, val, align='left')
-        mk_cell(ws, r, 5, cru)
-        pct_cell(ws, r, 6, ef)
-        apply_wow(ws, r, 7, sf(row.get('Eficacia_WoW_pp')), invert=False)
-        pct_cell(ws, r, 8, cv)
-        apply_wow(ws, r, 9, sf(row.get('ConvRate_WoW_pp')), invert=False)
-        pct_cell(ws, r, 10, bk_pct)
-        mk_cell(ws, r, 11, bk)
+        mk_cell(ws, r, 6, cru)
+        pct_cell(ws, r, 7, ef)
+        apply_wow(ws, r, 8, sf(row.get('Eficacia_WoW_pp')), invert=False)
+        pct_cell(ws, r, 9, cv)
+        apply_wow(ws, r, 10, sf(row.get('ConvRate_WoW_pp')), invert=False)
+        pct_cell(ws, r, 11, bk_pct)
+        mk_cell(ws, r, 12, bk)
         # Global: coloreadas
-        mk_cell(ws, r, 12, bef, bef, is_sev=True)
-        mk_cell(ws, r, 13, bcv, bcv, is_sev=True)
+        mk_cell(ws, r, 13, bef, bef, is_sev=True)
+        mk_cell(ws, r, 14, bcv, bcv, is_sev=True)
         # Exposición cruzada: texto plano
-        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 14):
+        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 15):
             mk_cell(ws, r, ci, exp.get(can_label, {}).get('ef', '—'))
-        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 17):
+        for ci, can_label in enumerate(['B2C', 'Opaco', 'Ultra Opaco'], 18):
             mk_cell(ws, r, ci, exp.get(can_label, {}).get('cv', '—'))
         r += 1
 
     add_excel_table(ws, hdr_r, r-1, len(BANDA_COLS), 'Banda')
-    autofit(ws, [22, 22, 40, 18, 10, 10, 10, 10, 10, 10, 10, 16, 16, 12, 12, 14, 12, 12, 14])
+    autofit(ws, [22, 14, 22, 40, 18, 10, 10, 10, 10, 10, 10, 10, 16, 16, 12, 12, 14, 12, 12, 14])
 
 # ── Build workbook ────────────────────────────────────────────────────────────
 wb = Workbook(); wb.remove(wb.active)
