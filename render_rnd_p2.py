@@ -6,7 +6,7 @@ Estructura: secciones HTML vacías + <script> con JSON real W21 RND
 import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
-from engine import banda_nodispo, banda_rpm
+from engine import banda_nodispo, banda_rpm, get_dest_tier
 from render_helpers import (BANDA_COLORS, fmt_int_es, fmt_big,
                             es_pct, es_int, es_ipm, banda_colors, wow_arrow,
                             sev_badge_html_p2)
@@ -472,41 +472,76 @@ def build_rnd_al():
 
 # ── Severity HTML ─────────────────────────────────────────────────────────────
 def render_severity():
+    # Rangos por tier — alineados con banda_nodispo_tiered() en engine.py
+    TIER_RANGOS = {
+        'PRIMARIO':   [('Súper Crítica','>50%'),('Crítica','15–50%'),
+                       ('Revisar','4–15%'),('Aceptable','2–4%'),('Exitosa','<2%')],
+        'SECUNDARIO': [('Súper Crítica','>60%'),('Crítica','20–60%'),
+                       ('Revisar','5–20%'),('Aceptable','3–5%'),('Exitosa','<3%')],
+        'TERCIARIO':  [('Súper Crítica','>70%'),('Crítica','25–70%'),
+                       ('Revisar','10–25%'),('Aceptable','5–10%'),('Exitosa','<5%')],
+    }
+    TIER_LABELS = {'PRIMARIO': 'Primario', 'SECUNDARIO': 'Secundario', 'TERCIARIO': 'Terciario'}
+
+    # Calcular tier y sev por tier desde p80
+    p80_tier = p80.copy()
+    p80_tier['_tier'] = p80_tier['Destino'].apply(get_dest_tier)
+
+    def sev_for_tier(tier):
+        sub = p80_tier[p80_tier['_tier'] == tier]
+        return sub['BandaNoDispo'].value_counts().to_dict(), len(sub)
+
+    sev_prim, n_prim = sev_for_tier('PRIMARIO')
+    sev_sec,  n_sec  = sev_for_tier('SECUNDARIO')
+    sev_ter,  n_ter  = sev_for_tier('TERCIARIO')
+
     def sev_row(banda, rango, count, total):
         bbg, bfg = banda_colors(banda)
-        pct = count/total if total else 0
+        pct = count / total if total else 0
         bc  = BANDA_COLORS.get(banda, {})
         bar_color = bc.get('bar', bbg)
-        bar_w = min(int(pct*100), 100)
-        return (f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
-                f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
-                f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
-                f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{banda}</span>'
-                f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{rango}</span>'
-                f'<div style="background:var(--rule-soft);height:6px;">'
-                f'<div style="width:{bar_w}%;height:100%;background:{bar_color};"></div></div>'
-                f'<span style="font-size:12px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
-                f'<span style="font-size:11px;color:var(--ink-muted);text-align:right;">{pct:.1%}</span>'
-                f'</div>').replace(',', '.')
+        bar_w = min(int(pct * 100), 100)
+        return (
+            f'<div style="display:grid;grid-template-columns:100px 56px 1fr 48px 36px;'
+            f'gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule-soft);">'
+            f'<span style="display:inline-block;padding:2px 6px;background:{bbg};color:{bfg};'
+            f'font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;">{banda}</span>'
+            f'<span style="font-size:10px;color:var(--ink-muted);text-align:right;">{rango}</span>'
+            f'<div style="background:var(--rule-soft);height:5px;">'
+            f'<div style="width:{bar_w}%;height:100%;background:{bar_color};"></div></div>'
+            f'<span style="font-size:11px;font-weight:700;color:var(--ink);text-align:right;">{count:,}</span>'
+            f'<span style="font-size:10px;color:var(--ink-muted);text-align:right;">{pct:.0%}</span>'
+            f'</div>'
+        ).replace(',', '.')
 
-    total_nd  = sum(sev_nd.values())
+    def tier_block(tier, sev_dict, n_total):
+        rangos = TIER_RANGOS[tier]
+        lbl = TIER_LABELS[tier]
+        rows = ''.join(sev_row(b, r, int(sev_dict.get(b, 0)), n_total) for b, r in rangos)
+        return (
+            f'<div style="flex:1;min-width:0;">'
+            f'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;'
+            f'color:#EA0074;margin-bottom:10px;">{lbl} <span style="color:var(--ink-muted);font-weight:400;">({n_total:,})</span></div>'
+            f'{rows}'
+            f'</div>'
+        ).replace(',', '.')
 
-    rows_nd = ''
-    for banda, rng in [('Súper Crítica','>60%'),('Crítica','20–60%'),
-                        ('Revisar','5–20%'),('Aceptable','3–5%'),('Exitosa','<3%')]:
-        rows_nd += sev_row(banda, rng, int(sev_nd.get(banda,0)), total_nd)
+    block_prim = tier_block('PRIMARIO',   sev_prim, n_prim)
+    block_sec  = tier_block('SECUNDARIO', sev_sec,  n_sec)
+    block_ter  = tier_block('TERCIARIO',  sev_ter,  n_ter)
 
     return f'''<section id="severity-combinada" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Severity</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80)} hoteles · distribución por banda de %NoDispo</span>
-<p class="section-kicker">Distribución global del P80 por banda de %NoDispo (target &lt; 3%).</p>
+<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80):,} hoteles · distribución por banda de %NoDispo · por tipo de destino</span>
+<p class="section-kicker">Rangos diferenciados: Primario (exigente) · Secundario (histórico) · Terciario (permisivo). Hoteles sin clasificación → Terciario.</p>
 </div></div>
-<div style="max-width:520px;">
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">%NoDispo</h3>
-{rows_nd}
+<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+{block_prim}
+{block_sec}
+{block_ter}
 </div>
-</section>'''
+</section>'''.replace(',', '.')
 
 
 # ── Análisis de Rendimiento ───────────────────────────────────────────────────
