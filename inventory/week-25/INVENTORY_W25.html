@@ -3337,7 +3337,7 @@ function _tryInit() {
       hInit();
       setTimeout(function() { if (hChart) hChart.resize(); }, 100);
       ['sel-year','sel-month','sel-week','hf-channel','hf-corp'].forEach(id => hUpdateComboStyle(id));
-      const regBtn = document.querySelector('#ud-dim-pills .pill[onclick*="'reg'"]') || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/regi/i.test(b.textContent));
+      const regBtn = [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/regi/i.test(b.textContent));
       const ppBtn  = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
       if (regBtn) udSetDim('reg', regBtn);
       // Default: activar PROD. PROPIO
