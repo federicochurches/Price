@@ -327,6 +327,77 @@ def write_severity(ws, df_reg, reg_label):
 
     autofit(ws, [20, 28, 16, 16, 10, 10, 10, 10, 10])
 
+
+# ── Hoja Maestra regional ─────────────────────────────────────────────────────
+MAESTRA_COLS = [
+    'País', 'Destino', 'Corporativo', 'Hotel',
+    'Canasta', 'Tráfico', 'WoW Tráfico',
+    '%NoDispo', 'WoW ND', 'Banda ND',
+    '%Conv', 'WoW CV', 'Banda CV', 'Bookings'
+]
+
+def write_maestra(ws, df_reg, reg_label):
+    """Una fila por Hotel × Canasta. Canastas: Global + las 3 específicas filtradas por región."""
+    title(ws, f'{reg_label} · Maestra RND W{VOL_NUM}',
+          f'Una fila por Hotel × Canasta · {PERIODO} · Filtrar por cualquier columna')
+    hdr_r = 4
+    r = mk_hdr(ws, hdr_r, MAESTRA_COLS)
+
+    paises_reg = set(df_reg['PaisDestino'].unique()) if 'PaisDestino' in df_reg.columns else set()
+    CANASTA = D.get('CANASTA', {})
+    canastas = [
+        ('Global',      None),
+        ('B2C',         'B2C'),
+        ('Opaco',       'B2B-OP'),
+        ('Ultra Opaco', 'CUG'),
+    ]
+    for can_label, can_id in canastas:
+        if can_id is None:
+            df_can = df_reg.copy()
+        else:
+            can = CANASTA.get(can_id, {})
+            src = can.get('p80_hotel')
+            if src is None: src = can.get('p80')
+            if src is None: continue
+            if 'PaisDestino' in src.columns:
+                df_can = src[src['PaisDestino'].isin(paises_reg)].copy()
+            else:
+                continue
+            if 'Trafico' in df_can.columns:
+                df_can = df_can[df_can['Trafico'] >= MIN_TRAFICO_REGIONAL]
+        if len(df_can) == 0: continue
+
+        for _, row in df_can.iterrows():
+            nd   = sf(row.get('%NoDispo'))
+            bk   = int(sf(row.get('Bookings')) or 0)
+            trf  = int(sf(row.get('Trafico')) or 0)
+            conv = bk / trf if trf > 0 else None
+            wow_nd = sf(row.get('NoDispo_WoW_pp'))
+            wow_cv = sf(row.get('ConvRate_WoW_pp') if 'ConvRate_WoW_pp' in row.index else None)
+            bnd_nd = banda_nodispo(nd) if nd is not None else '—'
+            bnd_cv = banda_convrate(conv, bk) if conv is not None else ('Sin Conversión' if bk == 0 else '—')
+            pais    = str(row.get('PaisDestino', '—'))
+            destino = str(row.get('Destino', '—'))
+            corp    = str(row.get('CorpName', row.get('Corp', '—')))
+            hotel   = str(row.get('Hotel', '—'))
+            for ci, val in enumerate([pais, destino, corp, hotel], 1):
+                mk_cell(ws, r, ci, val, align='left')
+            mk_cell(ws, r, 5, can_label)
+            mk_cell(ws, r, 6, trf)
+            apply_wow(ws, r, 7, sf(row.get('Trafico_WoW_pct')), invert=False)
+            pct_cell(ws, r, 8, nd)
+            apply_wow(ws, r, 9, wow_nd, invert=True)
+            mk_cell(ws, r, 10, bnd_nd, bnd_nd, is_sev=True)
+            pct_cell(ws, r, 11, conv)
+            apply_wow(ws, r, 12, wow_cv, invert=False)
+            mk_cell(ws, r, 13, bnd_cv, bnd_cv, is_sev=True)
+            mk_cell(ws, r, 14, bk)
+            r += 1
+
+    if r > hdr_r + 1:
+        add_table(ws, hdr_r, r-1, len(MAESTRA_COLS), 'Maestra')
+    autofit(ws, [16, 22, 22, 40, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10])
+
 # ── Hojas de banda regional ───────────────────────────────────────────────────
 BANDA_COLS = [
     'País', 'Destino', 'Corporativo', 'Hotel',
@@ -400,6 +471,9 @@ for reg_key, reg in REGIONES.items():
 
     ws = wb.create_sheet('Severity');         ws.sheet_properties.tabColor = RND
     write_severity(ws, df_reg, reg['label'])
+
+    ws = wb.create_sheet('Maestra');          ws.sheet_properties.tabColor = RND
+    write_maestra(ws, df_reg, reg['label'])
 
     ws = wb.create_sheet('Críticos');         ws.sheet_properties.tabColor = 'C0392B'
     write_banda(ws, crit, f"{reg['label']} · Críticos W{VOL_NUM}")

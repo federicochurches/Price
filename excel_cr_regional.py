@@ -360,6 +360,76 @@ def write_severity(ws, df_reg, reg_label):
 
     autofit(ws, [20, 26, 16, 16, 10, 10, 10, 10, 10, 10])
 
+
+# ── Hoja Maestra regional CR ──────────────────────────────────────────────────
+MAESTRA_COLS_CR = [
+    'País', 'Destino', 'Corporativo', 'Hotel', 'Channel', 'Canasta',
+    'CR Únicos', 'WoW CR', 'Eficacia', 'WoW Ef', 'Banda Ef',
+    'Conv Rate', 'WoW CV', 'Banda CV', 'Bookings'
+]
+
+def write_maestra_cr(ws, df_reg, reg_label):
+    """Una fila por Hotel × Canasta filtrada por región."""
+    title(ws, f'{reg_label} · Maestra CR W{VOL_NUM}',
+          f'Una fila por Hotel × Canasta · {PERIODO} · Filtrar por cualquier columna')
+    hdr_r = 4
+    r = mk_hdr(ws, hdr_r, MAESTRA_COLS_CR)
+
+    paises_reg = set(df_reg['PaisDestino'].unique()) if 'PaisDestino' in df_reg.columns else set()
+    CANASTA = D_CR.get('CANASTA', {})
+    canastas = [
+        ('Global',      None),
+        ('B2C',         'B2C'),
+        ('Opaco',       'B2B-OP'),
+        ('Ultra Opaco', 'CUG'),
+    ]
+    for can_label, can_id in canastas:
+        if can_id is None:
+            df_can = df_reg.copy()
+        else:
+            if 'DistributionCategory' in p80_all.columns:
+                df_can = p80_all[p80_all['DistributionCategory'] == can_id].copy()
+            else:
+                can = CANASTA.get(can_id, {})
+                src = can.get('p80_hotel') or can.get('p80')
+                if src is None: continue
+                df_can = src.copy()
+                if 'Channel' not in df_can.columns and 'Hotel' in df_can.columns:
+                    df_can['Hotel_c'] = df_can['Hotel'].apply(clean)
+                    df_can['Channel'] = df_can['Hotel_c'].map(hcm_clean).fillna('—')
+            df_can['PaisDestino'] = df_can['Destino'].map(DEST_PAIS).fillna('—')
+            df_can = df_can[df_can['PaisDestino'].isin(paises_reg)].copy()
+        if len(df_can) == 0: continue
+
+        for _, row in df_can.iterrows():
+            ef   = fmt_pct(row.get('Eficacia'))
+            cv   = fmt_pct(row.get('ConvRate'))
+            bk   = int(row.get('Bookings', 0)) if pd.notna(row.get('Bookings', 0)) else 0
+            cru  = int(row.get('CR_Unicos', 0)) if pd.notna(row.get('CR_Unicos', 0)) else 0
+            bef  = banda_eficacia(ef) if ef is not None else '—'
+            bcv  = banda_convrate(cv, bk) if cv is not None else '—'
+            hotel   = clean(str(row.get('Hotel', '—')))
+            channel = str(row.get('Channel', '—'))
+            destino = str(row.get('Destino', '—'))
+            pais    = str(row.get('PaisDestino', '—'))
+            corp    = str(row.get('CorpName', row.get('Corp', '—')))
+            for ci, val in enumerate([pais, destino, corp, hotel, channel, can_label], 1):
+                mk_cell(ws, r, ci, val, align='left')
+            mk_cell(ws, r, 7, cru)
+            apply_wow(ws, r, 8, sf(row.get('CR_WoW_pct')), invert=False)
+            pct_cell(ws, r, 9, ef)
+            apply_wow(ws, r, 10, sf(row.get('Eficacia_WoW_pp')), invert=False)
+            mk_cell(ws, r, 11, bef, bef, is_sev=True)
+            pct_cell(ws, r, 12, cv)
+            apply_wow(ws, r, 13, sf(row.get('ConvRate_WoW_pp')), invert=False)
+            mk_cell(ws, r, 14, bcv, bcv, is_sev=True)
+            mk_cell(ws, r, 15, bk)
+            r += 1
+
+    if r > hdr_r + 1:
+        add_table(ws, hdr_r, r-1, len(MAESTRA_COLS_CR), 'Maestra')
+    autofit(ws, [16, 22, 22, 40, 18, 14, 10, 10, 10, 10, 18, 10, 10, 18, 10])
+
 # ── Hojas de banda ────────────────────────────────────────────────────────────
 BANDA_COLS = [
     'País', 'Destino', 'Corporativo', 'Hotel', 'Channel',
@@ -433,6 +503,9 @@ for reg_key, reg in REGIONES.items():
 
     ws = wb.create_sheet('Severity');         ws.sheet_properties.tabColor = CR_COLOR
     write_severity(ws, df_reg, reg['label'])
+
+    ws = wb.create_sheet('Maestra');          ws.sheet_properties.tabColor = CR_COLOR
+    write_maestra_cr(ws, df_reg, reg['label'])
 
     ws = wb.create_sheet('Críticos');         ws.sheet_properties.tabColor = 'C0392B'
     write_banda(ws, crit, f"{reg['label']} · Críticos CR W{VOL_NUM}")
