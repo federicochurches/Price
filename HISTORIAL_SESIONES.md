@@ -4033,3 +4033,103 @@ Continuación de la sesión de debug de Inventory. Después de resolver el bug d
 ### Pendientes
 - Documentar criterios de scoring y selección de hoteles en `NOTA_REFACTOR_PENDIENTE.md`
 - Pipeline W26: replicar lógica editorial automáticamente en `calc_supply.py` / `render_*_p1.py`
+
+---
+
+## Sesión W25-editorial-visual · 26-06-2026
+
+**Contexto:** Continuación del trabajo editorial sobre `SUPPLY_W25.html`. Refinamiento visual completo del RE y PA (layout, tipografía, colores, drilldowns) y actualización de terminología y contenido editorial en CR y RND (global + canastas).
+
+### Cambios visuales
+
+**1. Layout RE + PA — 2 columnas**
+- Grid `minmax(0,1fr) minmax(0,1fr)` con gap 40px. Clase `.re-pa-grid`.
+- Tipografía unificada RE = PA: título 14px bold, número 10px muted, drilldown 11px muted, labels 9px uppercase.
+- JS `w22_renderRE`: 22px/15px → 14px/14px. JS PA: 18px/15px → 14px/14px. Padding 80px → 56px.
+
+**2. Drilldown — Propuesta C (acento lateral por tipo)**
+- 🟣 Corps: `border-left: 2px solid #5C469C`
+- 🔵 Destinos: `border-left: 2px solid #185FA5`
+- 🟢 Hoteles: `border-left: 2px solid #0F6E56`
+- Sin fondo, sin emoji, sin badge pill. Labels 9px uppercase con color del tipo.
+- Nombres en color hardcodeado: CR `#5C469C` / RND `#EA0074` (var(--accent) estaba fuera de scope del re-pa-grid → no resolvía al accent de sección).
+- Metadatos `(Corp) · N CR` en `color:var(--ink-muted)` explícito con `font-size:11px` en el bloque contenedor.
+
+**3. PA drilldowns — Corps + Destinos agregados**
+- Los `_sub` del PA originalmente solo tenían Hoteles.
+- Se agregaron Corps y Destinos copiados del campo `d` del RE correspondiente.
+- `_sub[0]` (finding "11 hoteles Error Rate 100%") corregido con datos reales (solo hoteles: Andaz Maui/Hyatt, Los Aluxes/AA-Independent, Fairmont SF/Accor, Ruby Lotti/IHG, Iberostar/Iberostar).
+
+**4. Contenedor y colores unificados**
+- Fondo `paper-soft` eliminado del contenedor RE (antes tenía `background:var(--paper-soft)`).
+- Carryover: fondo `paper-soft` restaurado con `border-left:3px solid var(--ink-muted)`.
+- Footer: `background:var(--paper)` → `var(--paper-soft)`.
+
+### Cambios editoriales CR
+
+**Terminología unificada (global + canastas):**
+- "Eficacia 0%" → "Error Rate del 100%"
+- "Eficacia entre X% y 85%" → "Error Rate de hasta 50%"
+- "sin conversión esta semana" → "con 0 Reservas"
+- "Eficacia Exitosa sin bookings" → "sin errores pero con 0 Reservas"
+- "Eficacia Exitosa y Conv Rate Crítica" → "sin errores y Conversión Crítica"
+- "Conv Rate Crítica esta semana" → "con Conversión Crítica"
+
+**Findings eliminados (demasiado genéricos):**
+- Global CR: "627 hoteles con 0 Reservas" (RE + PA)
+- Canastas CR: "507/432/409 hoteles con 0 Reservas" (RE)
+
+**Nombre de canasta eliminado de los títulos:** "13 hoteles B2C con..." → "13 hoteles con..." — redundante dentro de la canasta activa. Aplica a CR y RND.
+
+**PA canastas CR — acción "0 Reservas y sin errores" con top 5 reales:**
+- B2C (411 hoteles): Pullman Paris Tour Eiffel · Hyatt Grand Central NY · Hyatt Regency LA · Hôtel Palais de la Méditerra · Park Hyatt Tokyo
+- Opaco (282 hoteles): Sofitel Cairo Downtown Nile · Hilton LA Airport · DoubleTree Sharm · Sheraton Nice · Disney's Art of Animation
+- Ultra Opaco (290 hoteles): Hôtel Palais de la Méditerra · Holiday Inn Toronto · Hilton Garden Inn NY · Dreams Playa Mujeres · The Cape Los Cabos
+
+### Cambios editoriales RND
+
+**Terminología global:**
+- "456 hoteles con NoDispo entre 20% y 95%." → "456 hoteles con Tasa de No Dispo Crítica"
+- "11.313 hoteles sin conversión esta semana." → **ELIMINADO** (demasiado genérico)
+- "590 hoteles con NoDispo Exitosa y 0 bookings." → "7.950 hoteles con 0 Reservas y disponibilidad Exitosa" (recalculado sobre Exitosa+Aceptable → solo Exitosa)
+- "8 hoteles con variación de NoDispo..." → "8 hoteles con variación porcentual mayor a 30pp entre canastas"
+
+**PA global RND — acciones actualizadas:**
+- Acción "disponibilidad pero sin conversión" → **ELIMINADA**, unificada en acción de 0 Reservas
+- "Corregir los 5 hoteles con más problemas de disponibilidad" → "Corregir los 10 hoteles..."
+- "Corregir los 10 hoteles de IHG..." → "Corregir los 10 hoteles de IHG con más problemas de disponibilidad"
+- "Corregir los 5 hoteles con 0 Reservas y sin problemas de disponibilidad" → "Corregir los 5 hoteles con muy buena disponibilidad y 0 Reservas"
+- Top 5 filtrado sobre **solo ND Exitosa** (< 3%): Live Aqua Cancún · Dreams Macao · SLS Cancun · The STRAT Las Vegas · Holiday Inn Club Vacations
+
+**Canastas RND — estructura alineada con global:**
+- RE[0]: "X hoteles con Tasa de No Dispo Crítica" (sin nombre de canasta)
+- RE[1]: "X hoteles con 0 Reservas" (genérico — pendiente evaluar eliminar como el 11.313)
+- RE[2]: "X hoteles con 0 Reservas y disponibilidad Exitosa"
+- PA: "Corregir los 10 hoteles con más problemas de disponibilidad" + "Corregir los 5 hoteles con muy buena disponibilidad y 0 Reservas"
+- Top 5 Exitosa por canasta desde pickle:
+  - B2C (2.946): Secrets Akumal · Le Blanc Spa · Hyatt Regency Vancouver · Sandos Cancún · DoubleTree San Juan
+  - Opaco (12.779): Grand Fiesta Americana Coral · Viva Azteca · The STRAT · Secrets The Vine · Fiesta Inn Cancún
+  - Ultra Opaco (6.758): Grand Bavaro Princess · Ocean Blue & Sand · Holiday Inn Club Vacations · Krystal Urban Cancún · Grand Fiesta Americana
+
+### Lección aprendida
+- `var(--accent)` en los drilldowns del `re-pa-grid` NO resuelve al color de sección (el div está fuera de `.section-cr` y `.section-rnd`). Usar siempre colores hardcodeados en los datos: CR `#5C469C` / RND `#EA0074`.
+- El escaping en los campos `d` y `_sub` del JSON es `\"` (un backslash + comilla) — el repr de Python muestra `\\\"` pero en el archivo real es un solo backslash.
+
+### Commits principales de esta sesión
+`0f64d9155512` Propuesta C drilldown acento lateral
+`3a539d914912` RE+PA criterios unificados sin fondo
+`0fb6fd726eba` RE título 22px→14px uniforme con PA
+`5dfed5e3540a` PA font 18px→14px, 15px→14px
+`62e05fd42908` Nombres hardcoded CR #5C469C / RND #EA0074
+`0d5f80f3f3da` PA corps+dest · nombres en color accent
+`6fc37cf99ae0` Elimina finding 627 RE+PA · terminología canastas
+`655187f1bf22` RND PA acción 3 → 10 hoteles drilldown recuperado
+`193b63dbd6b3` RND finding 7.950 ND Exitosa · PA top 5
+`f30e1f20b046` RND PA acción 3 → "muy buena disponibilidad"
+`546ded5ae131` RND canastas B2C/Opaco/CUG estructura global
+`7108fc591482` CR canastas terminología + top5 Exitosa+0bk
+`7763956dc81a` CR/RND canastas títulos sin nombre de canasta
+`9bac1ae0402f` Títulos sin nombre de canasta (commit final)
+
+### Archivos modificados
+- `reports/week-25/SUPPLY_W25.html` — único archivo modificado

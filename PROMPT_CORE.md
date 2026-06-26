@@ -564,15 +564,17 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 25-06-2026, cierre W26-rnd-ar-card)
+## 📋 Pendientes próxima sesión (actualizados 26-06-2026, cierre W25-editorial-visual)
 
 Por valor/orden sugerido:
 
 1. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. El pipeline copia a `reports/` y commitea automáticamente.
-2. **Label "GLOBAL" / hotel seleccionado en panel AR compartido (CR)** — sparkline no muestra label al seleccionar hotel. Bug preexistente.
-3. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
-4. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos (`w22-*`, handlers AR dim `ar1/2-col-m`/`ar3-th-dim`/etc.).
-5. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
+2. **Cards AR de CR** — al seleccionar hotel en panel AR, el sparkline no muestra el label del elemento activo. Bug preexistente.
+3. **Canastas RND RE[1]** — "X hoteles con 0 Reservas" (finding genérico sin conversión) — pendiente evaluar si eliminar como se hizo con el 11.313 del global.
+4. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
+5. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos.
+6. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
+7. **Pipeline W26+: automatizar lógica editorial** — replicar criterios de selección de hoteles (top 5 ND Exitosa, top 10 ND Crítica, etc.) en `render_rnd_p1.py` y `render_cr_p1.py` para que el pipeline genere los _sub automáticamente.
 
 ✅ **Card AR NoDispo (RND)** — implementada, validada y en producción (main).
 ✅ **Panel AR compartido oculto en RND** — implementado en `js_override.js`.
@@ -676,7 +678,9 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ---
 
 <<<<<<< HEAD
-**Última actualización:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
+**Última actualización:** W25-editorial-visual · 26-06-2026 (**RE+PA refinamiento visual + editorial CR+RND completo** — Layout 2 columnas unificado (14px/10px/11px/9px). Drilldown Propuesta C: acento lateral por tipo (Corps #5C469C · Destinos #185FA5 · Hoteles #0F6E56). Colores hardcodeados CR #5C469C / RND #EA0074 (var(--accent) fuera de scope del re-pa-grid). PA con Corps+Destinos+Hoteles. Terminología CR: Error Rate, 0 Reservas, sin errores, Conversión Crítica. RND: Tasa de No Dispo Crítica, disponibilidad Exitosa. Findings eliminados: 627 CR global, 11.313 RND global, 507/432/409 CR canastas. Acción "sin conversión" eliminada de todas las canastas. Top 5 ND Exitosa (<3%) por canasta desde pickle. Nombre de canasta eliminado de títulos (redundante). Footer + Carryover paper-soft restaurados.)
+
+**Última actualización previa:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
 
 **Última actualización previa:** W25-inv-filter · 24-06-2026 (**Inventory W25 filter bug** — `hApplyFilter` línea 2548: `idx < 10` ocultaba destinos de México (idx≥48) aunque pasaran el filtro de región. Fix: `(activeRegion || idx < 10 || isSel)`. Segunda causa: normalización unicode corrupta en `_nr3` por PowerShell. Ambos bugs corregidos en HTML parcheado. `calc_inv.py` ya tenía la lógica correcta — no se modificó.)
 =======
