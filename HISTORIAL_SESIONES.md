@@ -3956,3 +3956,80 @@ Continuación de la sesión de debug de Inventory. Después de resolver el bug d
 
 ### Pendientes agregados
 - **Debug filtro corp×destino Inventory** — sesión dedicada con HTML standalone
+
+---
+
+## Sesión W25-editorial-RE-PA · 26-06-2026
+
+**Contexto:** Diseño editorial completo del Resumen Ejecutivo (RE) y Plan de Acción (PA) para `SUPPLY_W25.html` — secciones CR y RND. Trabajo 100% sobre el HTML commiteado (parches directos a `CR_D`/`RND_D` + JS render). Sin tocar scripts del pipeline.
+
+### Cambios principales
+
+**1. Formato visual del PA**
+- Cambio de cards con bordes/colores a **lista plana idéntica al RE**: número a la izquierda, título negro 18px, drilldown sublines grises.
+- CSS `.action-row .accion strong { font-weight:700 }` — era 400, anulaba el bold.
+- JS render del plan: reemplazado de `d.plan.map → <div class="action-row">` a `<ul><li>` idéntico al RE.
+- Contenedor `w22-pg`: eliminado `display:grid;grid-template-columns:1fr 1fr`.
+
+**2. RE CR — 6 findings**
+1. 11 hoteles con Eficacia 0% esta semana. *(drilldown top 5 por volumen)*
+2. 201 hoteles con Eficacia entre 1% y 50% *(drilldown corp/dest/hotel)*
+3. 627 hoteles sin conversión esta semana
+4. 430 hoteles con Eficacia Exitosa sin bookings
+5. 720 hoteles con Eficacia Exitosa y Conv Rate Crítica
+6. 1.025 hoteles con Conv Rate Crítica esta semana
+
+**3. PA CR — 4 action items (formato imperativo)**
+1. **Equipo Optimización:** Corregir los 11 hoteles con Eficacia 0%. *(top 5 por volumen)*
+2. **Equipo Optimización:** Corregir los hoteles con Eficacia crítica entre 1% y 85% con más de 1.000 CR. *(top 5 score C: 60% vol + 40% peor EF · 21 hoteles elegibles)*
+3. **Equipo Comercial:** Analizar los hoteles con Eficacia Exitosa y 0 bookings esta semana. *(top 5 por volumen)*
+4. **Equipo Comercial:** Analizar los hoteles con baja conversión y Eficacia Exitosa. *(top 5 score C: 60% vol + 40% peor CV · pool Exitosa+CV<1.5%)*
+
+**Scoring canónico (score C):** `0.60 × vol_normalizado + 0.40 × métrica_normalizada` — aplica a item 02 CR (vol+peor EF) e item 04 CR (vol+peor CV). Mismo criterio para RND.
+
+**Replicación por canasta CR:** los `_sub` (pills top 5) se calculan con datos reales de cada canasta (b2c/op/cug) usando el mismo scoring.
+
+**4. RE RND — 4 findings**
+1. 456 hoteles con NoDispo entre 20% y 95%. *(drilldown por tráfico)*
+2. 11.313 hoteles sin conversión esta semana. *(drilldown por tráfico)*
+3. 590 hoteles con NoDispo Exitosa y 0 bookings. *(drilldown por tráfico)*
+4. **NUEVO:** 8 hoteles con variación de NoDispo mayor a 30pp entre canastas. *(B2C/OP/CUG por hotel — análisis calidad de tráfico)*
+
+**Criterio drilldown RE RND:** corp y destinos ordenados por **tráfico acumulado** (no por conteo de hoteles). Cambio respecto a versión anterior.
+
+**5. PA RND — 5 action items**
+1. **Equipo Comercial:** Corregir los hoteles con NoDispo crítica entre 20% y 95%. *(top 5 score C)*
+2. **Equipo Comercial:** Corregir los 10 hoteles de IHG con NoDispo crítica. *(IHG elegido por score individual más alto — Crowne Plaza Istanbul 3,7M · 23,66%)*
+3. **Equipo Comercial:** Analizar los hoteles con NoDispo Exitosa y 0 bookings.
+4. **Equipo Comercial:** Analizar los hoteles con disponibilidad pero sin conversión. *(distinción: item 03 = Exitosa <3% ND · item 04 = Revisar/Aceptable 3-20% ND)*
+5. **Equipo Optimización:** Revisar con Wholesale la segmentación de tráfico en estos 8 hoteles con spread de NoDispo > 30pp entre canastas. *(solo Global)*
+
+**Spread cross-canasta:** calculado como `max(ND_b2c, ND_op, ND_cug) - min(...)` sobre hoteles con tráfico total ≥ 500K y las 3 canastas presentes. Umbral: 30pp. Top: Riu Palace Paradise Island (67,9pp) · Sofitel Athens Airport (64,4pp) · Novotel Barcelona (50,3pp).
+
+**Replicación por canasta RND:** RE y PA calculados con datos reales de cada canasta. El item spread (05) solo aparece en Global.
+
+### Commits de esta sesión (ee1c655d es el último)
+`a4b25428` PA font-size 12→14px + strong bold visible
+`d12fdac6` PA texto directo + drilldown inline
+`5edabc01` PA lista plana formato RE
+`e20f78f8` PA títulos en negro
+`8bd77514` PA 5 hoteles Optimización con histórico W18-W25
+`9d423a2e` PA score C item 02 CR
+`88a3143a` RE+PA finding + action item Eficacia 0%
+`e0fbd0f6` Rango 1-50% → items sin número universo
+`07d25a6e` Rango 1-85% >= 1000 CR
+`9d743197` Item 04 CR score C (60% vol + 40% peor CV)
+`37a12c02` _sub CR regenerados por canasta con score C
+`13c5fdc5` RE+PA RND formato imperativo · score C · 4 items
+`66396f16` RE RND drilldown corp/dest/hotel + finding spread
+`9e5d815f` RE RND drilldown por tráfico acumulado
+`4460fb0c` Finding 4 sin comentario · item 01 texto exacto
+`9a70e507` Items 01+02 RND Equipo Comercial · replicado 4 canastas
+`ee1c655d` Item spread → Equipo Optimización
+
+### Archivos modificados
+- `reports/week-25/SUPPLY_W25.html` — único archivo modificado (parches directos a `CR_D`/`RND_D` JSON + JS render plan)
+
+### Pendientes
+- Documentar criterios de scoring y selección de hoteles en `NOTA_REFACTOR_PENDIENTE.md`
+- Pipeline W26: replicar lógica editorial automáticamente en `calc_supply.py` / `render_*_p1.py`
