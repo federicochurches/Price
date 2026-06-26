@@ -28,7 +28,8 @@ Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo
 1. calc_rnd.py + calc_cr.py          → pickles
 2. render_*_p1/p2/p3.py              → 6 parciales HTML
 3. assemble_unified.py               → SUPPLY_WNN.html
-4. excel_cr.py + excel_rnd.py        → 2 Excels (5 hojas cada uno)
+4. excel_cr.py + excel_rnd.py        → 2 Excels globales (5 hojas c/u)
+   excel_rnd_regional.py + excel_cr_regional.py → 6 Excels regionales (MX · US · CALA)
 5. render_mail_v3.py                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
 7. commit GitHub + ZIP proyecto Claude
@@ -467,9 +468,28 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 **Hojas de banda (3):** nivel hotel Global, banda por métrica primaria.
 - **Críticos** = Crítica + Súper Crítica (Bookings>0) · **Bajo Rend** = Revisar + Aceptable (Bookings>0) · **Sin Conv** = Bookings=0.
 - Columnas Global **coloreadas**: `Banda ND/Ef Global` + `Banda CV Global`.
-- Columnas exposición cruzada **texto plano** (sin color): `ND/Ef B2C · ND/Ef Opaco · ND/Ef Ultra Opaco · CV B2C · CV Opaco · CV Ultra Opaco`.
-- Split recalcula la banda con `band_split_nd`/`band_split_ef` (misma función que el display) → nunca usar columna `BandaX` pre-calculada.
+- Columnas exposición cruzada **texto plano**: `ND/Ef B2C · ND/Ef Opaco · ND/Ef Ultra Opaco · CV B2C · CV Opaco · CV Ultra Opaco`.
+- Split recalcula la banda con `band_split_nd`/`band_split_ef` — nunca usar columna `BandaX` pre-calculada.
 - Toda la hoja es una Tabla Excel con filtro/sort único.
+
+### Excels Regionales · Reglas canónicas (W26+)
+
+| Parámetro | Valor |
+|---|---|
+| **Regiones** | MX · US · CALA (Global cubierto por Excel global del pipeline) |
+| **Scripts** | `excel_rnd_regional.py` + `excel_cr_regional.py` |
+| **Config** | `regional_config.py` — catálogo países por región · `MIN_TRAFICO_REGIONAL = 10K` |
+| **Hojas** | 5: Severity · Maestra · Críticos · Bajo Rendimiento · Sin Conversión |
+| **Filtro** | Post-filtro sobre pickle global — P80 calculado sobre universo completo |
+| **Umbral RND** | 10K sobre Trafico (vs 50K global) |
+| **Umbral CR** | Sin umbral adicional — p80_hotel CR ya tiene MIN_CR=100 del pipeline |
+| **País CR** | Mapa `Destino→País` cruzado desde pickle RND (CR no tiene PaisDestino propio) |
+| **Ruta repo** | `rates-nodispo/week-NN/regional/` · `checkrates/week-NN/regional/` |
+| **Pipeline** | Pasos 7c (RND) + 7d (CR) opcionales en `calc_supply.py` |
+
+**Links de descarga** en 3 lugares: card "Excels Regionales" en Hub + footer Hub (`build_package.py`) + footer Supply (`assemble_unified.py`). Links a `raw.githubusercontent.com`.
+
+**Pendiente:** automatizar commit de los 6 archivos regionales al repo en el paso 11 de `calc_supply.py`.
 
 ---
 
@@ -642,7 +662,9 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 
 **Última actualización previa:** W25-inv-filter · 24-06-2026 (**Inventory W25 filter bug** — `hApplyFilter` línea 2548: `idx < 10` ocultaba destinos de México (idx≥48) aunque pasaran el filtro de región. Fix: `(activeRegion || idx < 10 || isSel)`. Segunda causa: normalización unicode corrupta en `_nr3` por PowerShell. Ambos bugs corregidos en HTML parcheado. `calc_inv.py` ya tenía la lógica correcta — no se modificó.)
 =======
-**Última actualización:** W26-excel-refactor · 25-06-2026 (**Excels supply rediseñados** — estructura simplificada: 5 hojas (Severity → Maestra → Críticos → Bajo Rendimiento → Sin Conversión) vs 40/28 anteriores. Canasta como columna en Maestra. Banda CV agregada en todas las vistas. Exposición cruzada por canasta en hojas de banda (texto plano para las cruzadas, coloreado solo en Global). Tablas Excel con filtro independiente por sección en Severity. IPM eliminado de RND. `excel_rnd.py` + `excel_cr.py` reescritos; pipeline sin cambios (`calc_supply.py` pasos 7a/7b))
+**Última actualización:** W26-regionales · 25-06-2026 (**Excels regionales MX/US/CALA + links en Hub y Supply** — `regional_config.py`: catálogo 3 regiones (MX · US · CALA); Global eliminado (cubierto por Excel global). `excel_rnd_regional.py` + `excel_cr_regional.py`: 5 hojas (Severity · Maestra · Críticos · Bajo Rend · Sin Conv), filtro sobre pickle global. `calc_supply.py`: pasos 7c+7d opcionales. Links en card Hub + footer Hub + footer Supply. Pendiente: commit automático de los 6 archivos regionales al repo en paso 11.)
+
+**Última actualización previa:** W26-excel-refactor · 25-06-2026 (**Excels supply rediseñados** — 5 hojas (Severity → Maestra → Críticos → Bajo Rendimiento → Sin Conversión) vs 40/28 anteriores. Canasta como columna en Maestra. Banda CV agregada en todas las vistas. Exposición cruzada por canasta en hojas de banda (texto plano para las cruzadas, coloreado solo en Global). Tablas Excel con filtro independiente por sección en Severity. IPM eliminado de RND.)
 
 **Última actualización previa:** W26-rnd-ar-card · 25-06-2026 (**Card AR NoDispo en RND — 2 cards lado a lado en HERO + fix pipeline + panel AR oculto en RND + commit automático GitHub** — `render_ar_card_nodispo()` en `render_rnd_p1.py`: espejo de KPI card con pills de banda (Críticos/Bajo Rend./Sin Conv.) + 3 paneles hotel filtrados. Fixes: `.reset_index(drop=True)` en splits de banda (tabla vacía), headline negro `var(--ink)`, pills outline magenta igual que KPI, `min-height:48px` para alto uniforme entre cards. Canvas `hrnd-arcard-nd` (único, sin colisión). Cableado JS: `kpicard-ar-nd` reconocido en `_handleKpiCardHistClick`, click desde KPI y AR actualizan `hrnd-arcard-nd`. `RND_PAIS_HIST` nuevo dict: `build_rnd_hist()` agrega bucket `pais`, emitido en `_build_rnd_hist_json()`, lookup en JS cuando `_dimV2==='pais'` → sparkline W18-W25 al clickear país. CSS residual layout 2-zonas eliminado. `calc_supply.py`: paso `[11/10] inventory` eliminado. Branch `feat/rnd-ar-card` — pendiente merge a main. Fix `calc_supply.py`: copia `SUPPLY_WNN.html` a `reports/week-NN/` ANTES de `build_package` (que limpia la raíz) + commit automático a GitHub vía Git Tree API al final del pipeline [paso 11].)
 
