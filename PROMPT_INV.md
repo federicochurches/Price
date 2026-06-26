@@ -218,7 +218,7 @@ if (activeChannels.length > 0) {
 ## 🗂️ Distribución y Exploración
 
 ### Pills — dos filas
-**Fila 1 (Dimensión):** `Región | Corporativo | Destino | Channel` — fondo sólido cyan
+**Fila 1 (Dimensión):** `Channel | Corporativo | Región | Destino` — fondo sólido cyan
 **Fila 2 (Contratación):** `Todos | Prod. Propio | Sin Contrat.` — fondo sólido violet · Sin Contrat. en rojo
 
 ### Columnas — TODAS SIEMPRE VISIBLES
@@ -249,6 +249,7 @@ Los CSS `col-show-XX` NO ocultan otras columnas. Solo resaltan el header activo.
 cd C:\Users\federico.iglesias\Price\inventory
 # 1. Editar CONFIG en calc_inv.py (WEEK, WEEK_NUM, VOL_NUM, SNAPSHOT_DATE, INPUT_FILE)
 # 2. Copiar dataset de contratos a esta carpeta
+Remove-Item week-NN\INVENTORY_WNN.html   # IMPRESCINDIBLE: no regenera si existe
 python calc_inv.py
 ```
 
@@ -259,6 +260,25 @@ python calc_inv.py
 
 **Commit:** SIEMPRE por Git Tree API (Python), NUNCA GitHub Desktop.
 Ambos archivos (HTML + JSON) deben commitearse juntos.
+
+---
+
+## ⚠️ Regla de workflow para cambios en `calc_inv.py` (Opción B · CANÓNICO)
+
+**`calc_inv.py` se corre siempre desde el clon local de Fede. Claude NO modifica este archivo en el repo directamente.**
+
+Motivo: si Claude pushea `calc_inv.py` al repo y Fede corre desde su clon local sin hacer `git pull`, los cambios no se ven — y el problema es difícil de diagnosticar.
+
+**Flujo correcto para cambios en `calc_inv.py`:**
+1. Claude identifica los cambios necesarios
+2. Claude entrega un **diff exacto** (línea vieja → línea nueva) para aplicar manualmente en el archivo local
+3. Fede aplica los cambios en `C:\Users\federico.iglesias\Price\inventory\calc_inv.py`
+4. Fede corre `python calc_inv.py` → genera HTML + JSON
+5. Fede (o Claude) commitea los outputs al repo por Git Tree API
+
+**Esta regla aplica a TODOS los cambios en `calc_inv.py`**, incluyendo: lógica Python, HTML/JS emitido, CONFIG semanal, y cualquier fix de UI.
+
+**Excepción:** cambios solo en la CONFIG semanal (WEEK, WEEK_NUM, etc.) pueden hacerse directo en local sin diff — son triviales y localizados.
 
 ```python
 # Patrón correcto — usar Python para blobs grandes (curl falla con args >8MB)
