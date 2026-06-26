@@ -262,17 +262,17 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
   <!-- KPI strip unificado -->
   <div style="display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-bottom:20px;">
     <div style="padding:10px 14px;border-right:1px solid var(--rule);">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">%NoDispo</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">% de No Disponibilidad</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{rnd_pct:.2f}%</div>
       <div style="margin-top:2px;">{wow_nd}</div>
     </div>
     <div style="padding:10px 14px;border-right:1px solid var(--rule);">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Eficacia CR</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Estado de las Conectividades</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{cr_ef:.1f}%</div>
       <div style="margin-top:2px;">{wow_ef}</div>
     </div>
     <div style="padding:10px 14px;border-right:1px solid var(--rule);">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Conv Rate</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Conversión</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{cr_cv:.2f}%</div>
       <div style="margin-top:2px;">{wow_cv}</div>
     </div>
@@ -282,7 +282,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div style="margin-top:2px;">{wow_bk}</div>
     </div>
     <div style="padding:10px 14px;">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance 2026</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Plan de Contratación</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_avance}</div>
       <div style="margin-top:2px;">{wow_inv_gap}</div>
     </div>
@@ -294,7 +294,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Disponibilidad &amp; Conectividades</div>
-        <div class="rpt-desc">Rates No Dispo · CheckRates · Disponibilidad y conectividad técnica por canal y corporativo.</div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -303,7 +302,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
           <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
           <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
         </div>
-        <a href="rates-nodispo/week-{WEEK}/Analisis_RatesNoDispo_W{WEEK}.xlsx" onclick="event.stopPropagation()" class="rpt-dl">⬇ Excel</a>
       </div>
     </div>
 
@@ -311,7 +309,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Beta</span>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Inventario</div>
-        <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -320,7 +317,6 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
           <a href="inventory/{WEEK_PREV_STR}/INVENTORY_W{WEEK_PREV}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
           <a href="inventory/{WEEK_PREV2_STR}/INVENTORY_W{WEEK_PREV2}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
         </div>
-        <a href="inventory/{WEEK_STR}/Analisis_Inventory_W{WEEK}.xlsx" onclick="event.stopPropagation()" class="rpt-dl">⬇ Excel</a>
       </div>
     </div>
   </div>
@@ -330,11 +326,11 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="rpt-card card-active" data-no-link="1">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Descargas por segmento</div>
-        <div class="rpt-desc">Disponibilidad · Conectividades · W{WEEK}</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Centro de Descargas</div>
+
         <div style="margin-top:12px;border:1px solid var(--rule);border-radius:3px;overflow:hidden;">
           <div style="display:grid;grid-template-columns:1fr 1px 1fr 1fr;background:var(--paper-soft);border-bottom:1px solid var(--rule);">
-            <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);">Segmento</div>
+            <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);">Supply</div>
             <div style="background:var(--rule);"></div>
             <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;text-align:center;">Disponibilidad</div>
             <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C469C;text-align:center;border-left:1px solid var(--rule);">Conectividades</div>
