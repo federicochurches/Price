@@ -688,10 +688,10 @@ hist_data = {
     'weeks_by_ym': weeks_by_ym,
     'years':    years_available,
     'months_by_year': months_by_year,
-    'dim_ch':     dim_ch_compact,      # COMPACT: w,m,t,ch,n (sin región/corp) — reemplaza dim completo
-    'dim_tipo':   dim_tipo_compact,    # COMPACT: w,m,t,n
+    'dim_ch':     None,  # cargado on-demand desde hist_dim_WNN.json
+    'dim_tipo':   None,  # cargado on-demand desde hist_dim_WNN.json
     'dim_hotel':  dim_hotel_compact,   # COMPACT: w,m,r,c,t,n (vacío — rehidratado de dim_hotel_packed)
-    'dim_hotel_packed': dim_hotel_packed,  # PACKED: {W,R,T,data:[[w_idx,r_idx,c,d,t_idx,n]]} — JS rehidrata
+    'dim_hotel_packed': None,  # cargado on-demand desde hist_dim_WNN.json
     'hist_regions':          hist_regions,
     'hist_corps':            hist_corps,
     'hist_channels_propio':  hist_channels_propio,
@@ -755,7 +755,35 @@ with open(_hbw_path, 'w', encoding='utf-8') as _f:
 _hbw_size = _hbw_path.stat().st_size / 1024 / 1024
 print(f"    hotel_by_week_{WEEK}.json → {_hbw_size:.2f} MB")
 # URL del JSON para carga on-demand
-_HBW_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
+
+# ── HIST_DIM — dim_hotel_packed como JSON externo ────────────────────────────
+_hist_dim_path = OUTPUT_DIR / f"hist_dim_{WEEK}.json"
+with open(_hist_dim_path, 'w', encoding='utf-8') as _f:
+    _json_hbw.dump({
+        'dim_hotel_packed': dim_hotel_packed,
+        'dim_ch': dim_ch_compact,
+        'dim_tipo': dim_tipo_compact,
+    }, _f, ensure_ascii=False, separators=(',', ':'))
+_hist_dim_size = _hist_dim_path.stat().st_size / 1024 / 1024
+print(f"    hist_dim_{WEEK}.json → {_hist_dim_size:.2f} MB")
+
+# ── CORP_DEST — CORP_DEST_DATA como JSON externo ─────────────────────────────
+_corp_dest_dict = {
+    f"{corp},{dest}": {
+        'sp': int((grp['TipoHotel']=='sólo propio').sum()),
+        'hy': int((grp['TipoHotel']=='Propio_con_tercero').sum()),
+        'tp': int((grp['TipoHotel']=='sólo terceros').sum()),
+    }
+    for (corp, dest), grp in df.groupby(['Corporativo','Destino'])
+}
+_corp_dest_path = OUTPUT_DIR / f"corp_dest_{WEEK}.json"
+with open(_corp_dest_path, 'w', encoding='utf-8') as _f:
+    _json_hbw.dump(_corp_dest_dict, _f, ensure_ascii=False, separators=(',', ':'))
+_corp_dest_size = _corp_dest_path.stat().st_size / 1024 / 1024
+print(f"    corp_dest_{WEEK}.json → {_corp_dest_size:.2f} MB")
+_HBW_JSON_URL      = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
+_HIST_DIM_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hist_dim_{WEEK}.json"
+_CORP_DEST_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/corp_dest_{WEEK}.json"
 
 # ── PP_HOTEL_PACKED — todos los hoteles PP del snapshot actual (Solo Propio + Hybrid) ──────────
 # Formato compacto: índices numéricos + dicts de lookup (igual que dim_hotel_packed)
@@ -1071,18 +1099,32 @@ canvas{display:block;}
 
 JS = f"""
 const HIST = {json.dumps(hist_data, cls=NpEncoder)};
-// Rehidratar dim_hotel desde el formato packed (optimización de peso W24).
-// packed: {{W:[semanas], M:[meses], R:[regiones], T:[tipos], data:[[w_idx,m_idx,r_idx,c,d,t_idx,n]]}}
-// Se expande UNA vez a [{{w,m,r,c,d,t,n}}] para que el resto del código lo lea sin cambios.
-(function _expandDimHotel() {{
-  const p = HIST.dim_hotel_packed;
-  if (!p || !p.data) return;
-  const W = p.W, M = p.M, R = p.R, T = p.T;
-  HIST.dim_hotel = p.data.map(function(a) {{
-    return {{ w: W[a[0]], m: M[a[1]], r: R[a[2]], c: a[3], d: a[4], t: T[a[5]], n: a[6] }};
-  }});
-  HIST.dim_hotel_packed = null; // liberar memoria
-}})();
+// dim_hotel_packed se carga on-demand desde JSON externo
+const HIST_DIM_URL = '{_HIST_DIM_JSON_URL}';
+let _histDimLoading = false;
+let _histDimCallbacks = [];
+function _loadHistDim(cb) {{
+  if (HIST.dim_hotel && HIST.dim_hotel.length > 0) {{ cb(); return; }}
+  _histDimCallbacks.push(cb);
+  if (_histDimLoading) return;
+  _histDimLoading = true;
+  fetch(HIST_DIM_URL)
+    .then(r => r.json())
+    .then(p => {{
+      // Rehidratar dim_hotel_packed
+      const W = p.dim_hotel_packed.W, M = p.dim_hotel_packed.M, R = p.dim_hotel_packed.R, T = p.dim_hotel_packed.T;
+      HIST.dim_hotel = p.dim_hotel_packed.data.map(function(a) {{
+        return {{ w: W[a[0]], m: M[a[1]], r: R[a[2]], c: a[3], d: a[4], t: T[a[5]], n: a[6] }};
+      }});
+      // Cargar dim_ch y dim_tipo directamente
+      HIST.dim_ch = p.dim_ch;
+      HIST.dim_tipo = p.dim_tipo;
+      _histDimLoading = false;
+      _histDimCallbacks.forEach(fn => fn());
+      _histDimCallbacks = [];
+    }})
+    .catch(e => {{ console.warn('HIST_DIM load error:', e); _histDimLoading = false; }});
+}}
 // HOTEL_BY_WEEK se carga on-demand desde JSON externo (demasiado grande para hornear)
 const HOTEL_BY_WEEK_URL = '{_HBW_JSON_URL}';
 let HOTEL_BY_WEEK = null;
@@ -1124,19 +1166,27 @@ const CORP_REG_DATA = {json.dumps(
     },
     cls=NpEncoder
 )};
-const CORP_DEST_DATA = {json.dumps(
-    {
-        f"{corp},{dest}": {
-            'sp': int((grp['TipoHotel']=='sólo propio').sum()),
-            'hy': int((grp['TipoHotel']=='Propio_con_tercero').sum()),
-            'tp': int((grp['TipoHotel']=='sólo terceros').sum()),
-        }
-        for (corp, dest), grp in df.groupby(['Corporativo','Destino'])
-    },
-    cls=NpEncoder
-)};
+// CORP_DEST_DATA se carga on-demand desde JSON externo
+const CORP_DEST_URL = '{_CORP_DEST_JSON_URL}';
+let CORP_DEST_DATA = null;
+let _cdLoading = false;
+let _cdCallbacks = [];
+function _loadCorpDest(cb) {{
+  if (CORP_DEST_DATA) {{ cb(); return; }}
+  _cdCallbacks.push(cb);
+  if (_cdLoading) return;
+  _cdLoading = true;
+  fetch(CORP_DEST_URL)
+    .then(r => r.json())
+    .then(data => {{
+      CORP_DEST_DATA = data;
+      _cdLoading = false;
+      _cdCallbacks.forEach(fn => fn());
+      _cdCallbacks = [];
+    }})
+    .catch(e => {{ console.warn('CORP_DEST load error:', e); _cdLoading = false; }});
+}}
 const CORP_MKT_DATA = {json.dumps(corp_mkt_json, cls=NpEncoder)};
-const CH_DRILL_DATA = {json.dumps(ch_drill_data, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
 const CH_DATA = {{
   'todos': {{ propio:{json.dumps(ch_propio, cls=NpEncoder)}, tercero:{json.dumps(ch_tercero, cls=NpEncoder)}, maxAvg:{max_avg_ctr} }},
@@ -2977,6 +3027,12 @@ function hApplyFilter() {{
   const activeDests  = udActiveFilters.filter(f=>f.type==='dest').map(f=>f.value);
   const activeChann  = hFChannel || '';
 
+  // Si hay filtro de destino y CORP_DEST_DATA no está cargado, cargarlo y re-ejecutar
+  if (activeDests.length && CORP_DEST_DATA === null) {{
+    _loadCorpDest(function() {{ hApplyFilter(); }});
+    return;
+  }}
+
   // Índices de filtro cruzado
   const _corpRegsSet = activeCorps.length && (typeof CORP_REGIONS_MAP !== 'undefined')
     ? new Set(activeCorps.flatMap(c => (CORP_REGIONS_MAP[c]||'').split('|').filter(Boolean)))
@@ -3016,7 +3072,7 @@ function hApplyFilter() {{
     const passChan = !_chanCorpsSet  || _chanCorpsSet.has(corpName);
     // Si hay filtro de destino: filtrar por CORP_DEST_DATA (hoteles reales en ese destino)
     let passDest = true;
-    if (activeDests.length && typeof CORP_DEST_DATA !== 'undefined') {{
+    if (activeDests.length && CORP_DEST_DATA !== null) {{
       const _nrcd = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
       if (!window._CORP_DEST_NORM) {{
         window._CORP_DEST_NORM = {{}};
@@ -3059,7 +3115,7 @@ function hApplyFilter() {{
       }}
     }}
     // Si hay filtro de destino activo, actualizar valores de la fila con datos de CORP_DEST_DATA
-    if (activeDests.length && r.style.display !== 'none' && typeof CORP_DEST_DATA !== 'undefined') {{
+    if (activeDests.length && r.style.display !== 'none' && CORP_DEST_DATA !== null) {{
       const _nrd = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
       // Pre-indexar CORP_DEST_DATA normalizado una sola vez (cache en window)
       if (!window._CORP_DEST_NORM) {{
@@ -4298,29 +4354,30 @@ def build_html():
 <style>{CSS}</style>
 </head>
 <body>
-<div id="inv-loading" style="position:fixed;inset:0;background:#F8F4EC;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px;">
-  <img src="{LOGO_B64}" alt="PriceTravel" style="height:36px;filter:saturate(0) brightness(0);opacity:.85;">
-  <div style="width:120px;height:2px;background:#C9C1B0;border-radius:2px;overflow:hidden;">
-    <div id="inv-loading-bar" style="width:0%;height:100%;background:#4FC3F4;border-radius:2px;transition:width .4s ease;"></div>
+<div id="inv-loading" style="position:fixed;inset:0;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);background:rgba(248,244,236,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px;transition:opacity .4s ease;">
+  <img src="{LOGO_B64}" alt="PriceTravel" style="height:38px;filter:saturate(0) brightness(0);opacity:.75;">
+  <div style="width:140px;height:2px;background:rgba(0,0,0,0.12);border-radius:2px;overflow:hidden;">
+    <div id="inv-loading-bar" style="width:0%;height:100%;background:#4FC3F4;border-radius:2px;transition:width .35s ease;"></div>
   </div>
-  <div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8A8377;">LOADING</div>
+  <div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(0,0,0,0.35);">LOADING</div>
 </div>
 <script>
 (function(){{
   var bar = document.getElementById('inv-loading-bar');
   var pct = 0;
   var iv = setInterval(function(){{
-    pct = Math.min(pct + (90-pct)*0.08 + 0.5, 90);
+    pct = Math.min(pct + (92-pct)*0.07 + 0.4, 92);
     if(bar) bar.style.width = pct.toFixed(1)+'%';
   }}, 80);
-  window.addEventListener('load', function(){{
+  window._hideInvLoader = function(){{
     clearInterval(iv);
     if(bar) bar.style.width = '100%';
     setTimeout(function(){{
       var el = document.getElementById('inv-loading');
-      if(el){{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(function(){{ el.style.display='none'; }},300); }}
-    }}, 150);
-  }});
+      if(el){{ el.style.opacity='0'; setTimeout(function(){{ el.style.display='none'; }}, 400); }}
+    }}, 120);
+  }};
+  window.addEventListener('load', window._hideInvLoader);
 }})();
 </script>
 <div class="shell">
@@ -4556,25 +4613,28 @@ function _tryInit() {{
       // Verify canvas has rendered dimensions before init — retry if not
       const cv = document.getElementById('canvas-hist');
       if (!cv || cv.offsetWidth === 0) {{ setTimeout(_tryInit, 50); return; }}
-      hInit();
-      setTimeout(function() {{ if (hChart) hChart.resize(); }}, 100);
-      ['sel-year','sel-month','sel-week','hf-channel','hf-corp'].forEach(id => hUpdateComboStyle(id));
-      const regBtn = document.querySelector('#ud-dim-pills .pill[onclick*="\'reg\'"]') || [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/regi/i.test(b.textContent));
-      const ppBtn  = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
-      if (regBtn) udSetDim('reg', regBtn);
-      // Default: activar PROD. PROPIO
-      const ppBtn2 = document.querySelector('.distrib-pills .pill[data-col="pp"]');
-      if (ppBtn2) {{
-        window._fromToggle = true;
-        hFTipo = 'Prod. Propio';
-        ppBtn2.classList.add('on');
-        udContent('pp', ppBtn2);
-        // Registrar en udActiveFilters para que aparezca el chip verde
-        if (udActiveFilters && !udActiveFilters.some(f=>f.type==='tipo')) {{
-          udActiveFilters.push({{type:'tipo', value:'Prod. Propio', el:ppBtn2}});
+      // Cargar dim_hotel on-demand, luego inicializar
+      _loadHistDim(function() {{
+        hInit();
+        setTimeout(function() {{ if (hChart) hChart.resize(); }}, 100);
+        ['sel-year','sel-month','sel-week','hf-channel','hf-corp'].forEach(id => hUpdateComboStyle(id));
+        const regBtn = [...document.querySelectorAll('#ud-dim-pills .pill')].find(b=>/regi/i.test(b.textContent));
+        const ppBtn  = document.querySelector('.distrib-pills .pill:not(.gap-pill)');
+        if (regBtn) udSetDim('reg', regBtn);
+        // Default: activar PROD. PROPIO
+        const ppBtn2 = document.querySelector('.distrib-pills .pill[data-col="pp"]');
+        if (ppBtn2) {{
+          window._fromToggle = true;
+          hFTipo = 'Prod. Propio';
+          ppBtn2.classList.add('on');
+          udContent('pp', ppBtn2);
+          // Registrar en udActiveFilters para que aparezca el chip verde
+          if (udActiveFilters && !udActiveFilters.some(f=>f.type==='tipo')) {{
+            udActiveFilters.push({{type:'tipo', value:'Prod. Propio', el:ppBtn2}});
+          }}
+          if (typeof hRenderActivePills === 'function') hRenderActivePills();
         }}
-        if (typeof hRenderActivePills === 'function') hRenderActivePills();
-      }}
+      }});
     }});
   }});
 }}
