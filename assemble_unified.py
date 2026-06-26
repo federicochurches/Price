@@ -2506,8 +2506,8 @@ SECTION_DIVIDER = ''  # W21+ — sin divisor
 
 SWITCHER = f'''<div style="padding-top:10px;">
 <div class="w22-seg">
-  <button class="w22-seg-btn on" id="mode-cr" onclick="w22_setMode('cr',this)">Connectivities</button>
-  <button class="w22-seg-btn" id="mode-rnd" onclick="w22_setMode('rnd',this)">Availability</button>
+  <button class="w22-seg-btn on" id="mode-rnd" onclick="w22_setMode('rnd',this)">Disponibilidad</button>
+  <button class="w22-seg-btn" id="mode-cr" onclick="w22_setMode('cr',this)">Conectividades</button>
 </div>
 </div>
 <div id="w22-filter-wrap" style="margin-top:8px;">
@@ -2555,9 +2555,9 @@ SHARED_CONTAINERS = f'''
 <div style="margin-bottom:4px;">
   <div class="w22-seg" id="ar-seg">
     <button class="w22-seg-btn on" id="ar-btn-cr"
-      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Connectivities</button>
+      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Disponibilidad</button>
     <button class="w22-seg-btn" id="ar-btn-rnd"
-      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Availability</button>
+      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Conectividades</button>
   </div>
 </div>
 
@@ -2756,13 +2756,13 @@ final = (
     + MASTHEAD + '\n'
     + SWITCHER + '\n'
     # ── KPI heroes (se muestran/ocultan con el modo) ──
-    + '<div id="w22-kpis-cr">\n'
+    + '<div id="w22-kpis-cr" style="display:none;">\n'
     + p1_cr + '\n'
     + _strip_last_script(p2_cr) + '\n'   # severity CR (script datos ya en FOOTER_JS)
     + p3_cr + '\n'
     + '</section>\n'  # cierra section-cr (abierta por p1_cr)
     + '</div>\n'      # cierra w22-kpis-cr
-    + '<div id="w22-kpis-rnd" style="display:none;">\n'
+    + '<div id="w22-kpis-rnd">\n'
     + p1_rnd + '\n'
     + _strip_last_script(p2_rnd) + '\n'  # severity RND (script datos ya en FOOTER_JS)
     + p3_rnd + '\n'

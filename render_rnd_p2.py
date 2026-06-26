@@ -168,7 +168,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
          'd': f'{"Por debajo" if nd < 0.05 else "Por encima"} del target 5% · {"mejora" if nd_wow<=0 else "empeora"} {wow_arrow(nd_wow)} WoW.'},
         {'n': es_ipm(ipm),
          't': f'IPM{sfx} · {sev_badge_html(banda_ipm)}',
-         'd': f'Target ≥ $650 · {"récord" if ipm > ipm17 else "cae"} WoW.'},
+         'd': f'{"récord" if ipm > ipm17 else "cae"} WoW.'},
         {'n': str(n_crit),
          't': f'Hoteles P80 {sev_badge_html("Crítica")}+ NoDispo',
          'd': f'NoDispo > 20%.'},
@@ -571,8 +571,8 @@ def render_analisis():
                 f'background:none;border:1px solid var(--rule);color:var(--ink-muted);'
                 f'padding:7px 20px;cursor:pointer;border-radius:3px;"></button></div>')
 
-    th_h = ['Hotel', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
-    th_d = ['Dimensión', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'IPM', 'WoW↕']
+    th_h = ['Hotel', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'Ingreso', 'WoW↕']
+    th_d = ['Dimensión', 'Severity', 'Tráfico', 'WoW↕', '%NoDispo', 'WoW↕', 'Ingreso', 'WoW↕']
 
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>

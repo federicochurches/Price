@@ -403,7 +403,7 @@ def render_alerts_block():
     d_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_nd['Destino'],38),'sub':f'{fmt_big(d_nd["Trafico"])} · {int(d_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(d_nd['%NoDispo']),'foot':f'IPM {fmt_num2(d_nd["RPM"])}'},
+         'value':fmt_pct2(d_nd['%NoDispo']),'foot':''},
         {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
          'name':truncate(d_rpm['Destino'],38),'sub':f'{fmt_big(d_rpm["Trafico"])} · {int(d_rpm["Bookings"])} BKGS',
          'value':fmt_num2(d_rpm['RPM']),'foot':f'%ND {fmt_pct2(d_rpm["%NoDispo"])}'},
@@ -411,7 +411,7 @@ def render_alerts_block():
     c_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_nd['CorpName'],38),'sub':f'{fmt_big(c_nd["Trafico"])} · {int(c_nd["Bookings"])} BKGS',
-         'value':fmt_pct2(c_nd['%NoDispo']),'foot':f'IPM {fmt_num2(c_nd["RPM"])}'},
+         'value':fmt_pct2(c_nd['%NoDispo']),'foot':''},
         {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
          'name':truncate(c_rpm['CorpName'],38),'sub':f'{fmt_big(c_rpm["Trafico"])} · {int(c_rpm["Bookings"])} BKGS',
          'value':fmt_num2(c_rpm['RPM']),'foot':f'%ND {fmt_pct2(c_rpm["%NoDispo"])}'},

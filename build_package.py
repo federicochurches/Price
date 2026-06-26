@@ -259,14 +259,42 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <img src="data:image/png;base64,{_LOGO_B64}" alt="PriceTravel" style="height:40px;display:block;filter:saturate(0) brightness(0);">
     </div>
   </div>
+  <!-- KPI strip unificado -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-bottom:20px;">
+    <div style="padding:10px 14px;border-right:1px solid var(--rule);">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">%NoDispo</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{rnd_pct:.2f}%</div>
+      <div style="margin-top:2px;">{wow_nd}</div>
+    </div>
+    <div style="padding:10px 14px;border-right:1px solid var(--rule);">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Eficacia CR</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{cr_ef:.1f}%</div>
+      <div style="margin-top:2px;">{wow_ef}</div>
+    </div>
+    <div style="padding:10px 14px;border-right:1px solid var(--rule);">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Conv Rate</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{cr_cv:.2f}%</div>
+      <div style="margin-top:2px;">{wow_cv}</div>
+    </div>
+    <div style="padding:10px 14px;border-right:1px solid var(--rule);">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Bookability</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{bk_val_str}</div>
+      <div style="margin-top:2px;">{wow_bk}</div>
+    </div>
+    <div style="padding:10px 14px;">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance 2026</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_avance}</div>
+      <div style="margin-top:2px;">{wow_inv_gap}</div>
+    </div>
+  </div>
+
   <div class="hub-grid" style="margin-bottom:20px;">
 
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Connectivities Health &amp; Hotel Availability</div>
-        <div class="rpt-desc">CheckRates · Rates No Dispo · Eficacia técnica y disponibilidad por canal y corporativo.</div>
-        <div class="rpt-kpis">\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Eficacia CR</div><div class="rpt-kpi-val">{cr_ef:.1f}%</div>{wow_ef}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">Conv Rate</div><div class="rpt-kpi-val">{cr_cv:.2f}%</div>{wow_cv}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label" style="font-weight:700;">BK</div><div class="rpt-kpi-val">{bk_val_str}</div>{wow_bk}</div>\n          <div class="rpt-kpi"><div class="rpt-kpi-label">%NoDispo</div><div class="rpt-kpi-val">{rnd_pct:.2f}%</div>{wow_nd}</div>\n        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Disponibilidad &amp; Conectividades</div>
+        <div class="rpt-desc">Rates No Dispo · CheckRates · Disponibilidad y conectividad técnica por canal y corporativo.</div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -275,20 +303,15 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
           <a href="reports/{WEEK_PREV_STR}/SUPPLY_W{WEEK_PREV}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV}</a>
           <a href="reports/{WEEK_PREV2_STR}/SUPPLY_W{WEEK_PREV2}.html" class="pill" onclick="event.stopPropagation()">W{WEEK_PREV2}</a>
         </div>
-        <a href="checkrates/week-{WEEK}/Analisis_CheckRates_W{WEEK}.xlsx" onclick="event.stopPropagation()" class="rpt-dl">⬇ Excel CR</a>
+        <a href="rates-nodispo/week-{WEEK}/Analisis_RatesNoDispo_W{WEEK}.xlsx" onclick="event.stopPropagation()" class="rpt-dl">⬇ Excel</a>
       </div>
     </div>
 
     <div class="rpt-card card-active" onclick="location.href='inventory/{WEEK_STR}/INVENTORY_W{WEEK}.html'" style="cursor:pointer;">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Beta</span>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Hotel Inventory PriceTravel</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Inventario</div>
         <div class="rpt-desc">Universo de contratos · Producto Propio · Gap vs target 2026 · Crecimiento histórico.</div>
-        <div class="rpt-kpis">
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Total</div><div class="rpt-kpi-val">{inv_n}</div>{wow_inv_n}</div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">P. Propio</div><div class="rpt-kpi-val">{inv_pp_n}</div>{wow_inv_pp}</div>
-          <div class="rpt-kpi"><div class="rpt-kpi-label">Avance 2026</div><div class="rpt-kpi-val">{inv_avance}</div>{wow_inv_gap}</div>
-        </div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">

@@ -1,5 +1,5 @@
 
-var W={mode:'cr',canasta:'global',view:'hotel',dim:'corp',reOpen:false};
+var W={mode:'rnd',canasta:'global',view:'hotel',dim:'corp',reOpen:false};
 /* CR_CV, RND_CV, CR_D, RND_D, CR_AL, RND_AL se inyectan desde part2_cr/part2_rnd */
 
 function g(id){return document.getElementById(id);}
@@ -121,7 +121,7 @@ function w22_renderAlertas(){
  if(!Array.isArray(rows))rows=[];
  var el=g('w22-alertas');if(!el)return;
  var ef_lbl=W.mode==='cr'?'Peor Eficacia':'Mayor NoDispo';
- var cv_lbl=W.mode==='cr'?'Peor ConvRate':'Menor IPM';
+ var cv_lbl=W.mode==='cr'?'Peor ConvRate':'Menor Ingreso';
  el.innerHTML=rows.map(function(r){
   return '<div style="border:1px solid var(--rule);padding:14px;background:var(--paper);">'
    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--accent);margin-bottom:12px;">'+r[0]+' '+r[1]+'</div>'
