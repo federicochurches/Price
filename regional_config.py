@@ -2,11 +2,10 @@
 regional_config.py · Catálogo de regiones para Excels regionales
 W26+ · Filtro sobre pickle global (P80 calculado sobre universo completo)
 
-4 regiones:
-  Mexico  → Destinos México
-  US      → Destinos US
-  CALA    → Caribe y América Latina (excl. México)
-  Global  → Worldwide (Europa, Asia, Medio Oriente, Oceanía, África, Canadá)
+3 regiones (el universo Global ya está cubierto por el Excel global del pipeline):
+  MX    → Destinos México
+  US    → Destinos US
+  CALA  → Caribe y América Latina (excl. México)
 
 MIN_TRAFICO_REGIONAL: umbral permisivo vs el global (50K) para capturar
 hoteles relevantes a nivel regional que no pasan el corte del universo completo.
@@ -16,14 +15,14 @@ MIN_TRAFICO_REGIONAL = 10_000  # vs 50K global
 
 REGIONES = {
     'Mexico': {
-        'label':  'Destinos México',
+        'label':  'MX',
         'file':   'Mexico',
         'paises': [
             'México',
         ],
     },
     'US': {
-        'label':  'Destinos US',
+        'label':  'US',
         'file':   'US',
         'paises': [
             'Estados Unidos de América',
@@ -33,7 +32,7 @@ REGIONES = {
         ],
     },
     'CALA': {
-        'label':  'Destinos CALA',
+        'label':  'CALA',
         'file':   'CALA',
         'paises': [
             # Caribe
@@ -70,91 +69,6 @@ REGIONES = {
             'Perú',
             'Uruguay',
             'Venezuela',
-        ],
-    },
-    'Global': {
-        'label':  'Destinos Global',
-        'file':   'Global',
-        'paises': [
-            # Europa Occidental
-            'Alemania',
-            'Austria',
-            'Bélgica',
-            'Croacia (Hrvatska)',
-            'Dinamarca',
-            'España',
-            'Estonia',
-            'Finlandia',
-            'Francia',
-            'Gran Bretaña (UK)',
-            'Grecia',
-            'Hungría',
-            'Irlanda',
-            'Italia',
-            'Letonia',
-            'Lituania',
-            'Luxemburgo',
-            'Malta',
-            'Mónaco',
-            'Países Bajos',
-            'Polonia',
-            'Portugal',
-            'República Checa',
-            'Rumania',
-            'Serbia',
-            'Eslovaquia',
-            'Eslovenia',
-            'Bulgaria',
-            'Chipre',
-            'Macedonia',
-            'Montenegro',
-            'Bosnia y Herzegovina',
-            'Albania',
-            'Ucrania',
-            # Europa del Este / Asia Central
-            'Georgia',
-            'Kazajistán',
-            'Kirguistán',
-            'Azerbaiyán',
-            # Medio Oriente
-            'Arabia Saudita',
-            'Catar',
-            'Emiratos Árabes Unidos',
-            'Israel',
-            'Jordania',
-            # África
-            'Angola',
-            'Cabo Verde',
-            'Egipto',
-            'Kenia',
-            'Mauricio',
-            'Marruecos',
-            'Tanzania',
-            'Zambia',
-            # Asia
-            'Bangladés',
-            'Camboya',
-            'China',
-            'Corea (Sur)',
-            'Filipinas',
-            'India',
-            'Indonesia',
-            'Japón',
-            'Laos',
-            'Malasia',
-            'Maldivas',
-            'Singapur',
-            'Sri Lanka',
-            'Tailandia',
-            'Turquía',
-            'Vietnam',
-            # Oceanía
-            'Australia',
-            'Nueva Zelanda (Aotearoa)',
-            # Norte
-            'Canadá',
-            # Otros / Territorios
-            'Åland',
         ],
     },
 }
