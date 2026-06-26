@@ -173,6 +173,17 @@ if __name__ == '__main__':
     else:
         print('\n[7c/8] ⏭  regional_config.py no encontrado — Excels regionales omitidos')
 
+
+    # 7e. Excels por cuenta (Global Accounts + Estratégicas) — opcional
+    _acc_config = find_script('accounts_config.py')
+    if _acc_config:
+        _rnd_acc = find_script('excel_rnd_accounts.py')
+        _cr_acc  = find_script('excel_cr_accounts.py')
+        if _rnd_acc: run_step('7e/8', 'excel_rnd_accounts.py')
+        if _cr_acc:  run_step('7f/8', 'excel_cr_accounts.py')
+    else:
+        print('\n[7e/8] ⏭  accounts_config.py no encontrado — Excels por cuenta omitidos')
+
     # 8. Generar Mail
     run_step('8/8', 'render_mail_v3.py')
 
