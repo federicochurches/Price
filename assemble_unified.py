@@ -2963,15 +2963,15 @@ if (typeof HIST_DATA !== 'undefined') {
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;">
     <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);">Regionales W{VOL_NUM}</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <span style="font-size:9px;font-weight:600;color:var(--ink-muted);">MX</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">MX</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_Mexico_W{VOL_NUM}.xlsx"   style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
       <span style="color:var(--rule);">|</span>
-      <span style="font-size:9px;font-weight:600;color:var(--ink-muted);">US</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">US</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_US_W{VOL_NUM}.xlsx"    style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_US_W{VOL_NUM}.xlsx"        style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
       <span style="color:var(--rule);">|</span>
-      <span style="font-size:9px;font-weight:600;color:var(--ink-muted);">CALA</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">CALA</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_CALA_W{VOL_NUM}.xlsx"  style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_CALA_W{VOL_NUM}.xlsx"      style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
     </div>
