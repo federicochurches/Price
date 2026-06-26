@@ -342,6 +342,40 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     </div>
   </div>
 
+
+  <!-- ── Card Excels por Cuenta ── -->
+  <div class="hub-grid" style="margin-bottom:20px;grid-template-columns:1fr;">
+    <div class="rpt-card card-active" data-no-link="1">
+      <div class="rpt-card-top">
+        <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px;color:var(--ink);">Excels por Cuenta</div>
+        <div class="rpt-desc">Global Accounts · Cuentas Estratégicas · CR + RND · W{WEEK}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:12px;">
+          <div style="background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;overflow:hidden;">
+            <div style="font-size:10px;font-weight:700;padding:6px 10px;border-bottom:1px solid var(--rule);color:var(--ink);">🌐 Global Accounts</div>
+            <div style="display:flex;">
+              <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{WEEK}/accounts/Analisis_RND_GlobalAccounts_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="flex:1;font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;padding:5px 8px;border-right:1px solid var(--rule);text-align:center;">RND ↓</a>
+              <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{WEEK}/accounts/Analisis_CR_GlobalAccounts_W{WEEK}.xlsx"  onclick="event.stopPropagation()" style="flex:1;font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;padding:5px 8px;text-align:center;">CR ↓</a>
+            </div>
+          </div>
+          <div style="background:var(--paper-soft);border:1px solid var(--rule);border-radius:3px;overflow:hidden;">
+            <div style="font-size:10px;font-weight:700;padding:6px 10px;border-bottom:1px solid var(--rule);color:var(--ink);">⭐ Estratégicas</div>
+            <div style="display:flex;">
+              <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{WEEK}/accounts/Analisis_RND_Estrategicas_W{WEEK}.xlsx" onclick="event.stopPropagation()" style="flex:1;font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;padding:5px 8px;border-right:1px solid var(--rule);text-align:center;">RND ↓</a>
+              <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{WEEK}/accounts/Analisis_CR_Estrategicas_W{WEEK}.xlsx"  onclick="event.stopPropagation()" style="flex:1;font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;padding:5px 8px;text-align:center;">CR ↓</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rpt-pills">
+        <div class="rpt-pills-left">
+          <span class="rpt-pills-label">Semana</span>
+          <span class="pill active" style="background:var(--ink);border-color:var(--ink);">{SEMANA}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="hub-grid inactive" style="margin-bottom:20px;">
 
     <div class="rpt-card card-inactive">
@@ -399,8 +433,9 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     </div>
   </div>
 
-  <!-- ── Footer Hub · links regionales ── -->
-  <div style="border-top:1px solid var(--rule);margin-top:8px;padding:16px 0 4px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+  <!-- ── Footer Hub · links regionales + cuentas ── -->
+  <div style="border-top:1px solid var(--rule);margin-top:8px;padding:12px 0 4px;display:flex;flex-direction:column;gap:10px;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);">Excels Regionales W{WEEK}</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:9px;color:var(--muted);font-weight:800;">MX</span>
@@ -415,6 +450,19 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{WEEK}/regional/Analisis_RND_CALA_W{WEEK}.xlsx"  style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{WEEK}/regional/Analisis_CR_CALA_W{WEEK}.xlsx"      style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
     </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);">Excels por Cuenta W{WEEK}</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:9px;color:var(--muted);font-weight:800;">Global Accounts</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{WEEK}/accounts/Analisis_RND_GlobalAccounts_W{WEEK}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{WEEK}/accounts/Analisis_CR_GlobalAccounts_W{WEEK}.xlsx"   style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+      <span style="color:var(--rule);">|</span>
+      <span style="font-size:9px;color:var(--muted);font-weight:800;">Estratégicas</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{WEEK}/accounts/Analisis_RND_Estrategicas_W{WEEK}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{WEEK}/accounts/Analisis_CR_Estrategicas_W{WEEK}.xlsx"     style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+    </div>
+  </div>
   </div>
 
 </div>
