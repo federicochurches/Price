@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import os
 
-from engine import banda_eficacia, banda_convrate
+from engine import banda_eficacia, banda_convrate, banda_eficacia_tiered, get_dest_tier
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 # Lee desde env vars (run_pipeline.py) o fallback a hardcodeado
@@ -119,7 +119,7 @@ def agg_hotel(df, hotels=None):
     )
     g['Eficacia']  = g['Successful'] / g['CR_Unicos']
     g['ConvRate']  = g['Bookings']   / g['CR_Unicos']
-    g['BandaEficacia'] = g.apply(lambda r: banda_eficacia(r['Eficacia']), axis=1)
+    g['BandaEficacia'] = g.apply(lambda r: banda_eficacia_tiered(r['Eficacia'], r['Destino']), axis=1)
     g['BandaConvRate'] = g.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
     return g
 
@@ -135,7 +135,11 @@ def agg_dim(df, col):
     )
     g['Eficacia']  = g['Successful'] / g['CR_Unicos']
     g['ConvRate']  = g['Bookings']   / g['CR_Unicos']
-    g['BandaEficacia'] = g.apply(lambda r: banda_eficacia(r['Eficacia']), axis=1)
+    g['BandaEficacia'] = (
+        g.apply(lambda r: banda_eficacia_tiered(r['Eficacia'], r[col]), axis=1)
+        if col == 'Destino'
+        else g.apply(lambda r: banda_eficacia(r['Eficacia']), axis=1)
+    )
     g['BandaConvRate'] = g.apply(lambda r: banda_convrate(r['ConvRate'], r['Bookings']), axis=1)
     return g
 

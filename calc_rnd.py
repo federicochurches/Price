@@ -3,7 +3,7 @@ calc_rnd v2 · lee directamente de Excel W19 + W18 · calcula WoW reales
 """
 import pandas as pd, numpy as np, pickle, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
-from engine import banda_nodispo, banda_rpm
+from engine import banda_nodispo, banda_rpm, banda_nodispo_tiered, get_dest_tier
 
 # ── Cargar datasets ───────────────────────────────────────────────
 def load_rnd(path, week):
@@ -110,7 +110,7 @@ def agg_hotel(df):
     g['RPM']                 = g['IPM']
     g['ConvRate']            = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
     g['DemandaNoConvertida'] = g['TraficoNoDispo']
-    g['BandaNoDispo']        = g['%NoDispo'].apply(banda_nodispo)
+    g['BandaNoDispo']        = g.apply(lambda r: banda_nodispo_tiered(r['%NoDispo'], r['Destino']), axis=1)
     g['BandaRPM']            = g.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
     return g
 
@@ -123,7 +123,11 @@ def agg_dim(df, col):
     g['IPM']      = (g['gb_usd'].clip(lower=0)/g['Trafico'].replace(0,np.nan)*1_000_000).fillna(0)
     g['RPM']      = g['IPM']
     g['ConvRate'] = (g['Bookings']/g['Trafico'].replace(0,np.nan)).fillna(0)
-    g['BandaNoDispo'] = g['%NoDispo'].apply(banda_nodispo)
+    g['BandaNoDispo'] = (
+        g.apply(lambda r: banda_nodispo_tiered(r['%NoDispo'], r[col]), axis=1)
+        if col == 'Destino'
+        else g['%NoDispo'].apply(banda_nodispo)
+    )
     g['BandaRPM']     = g.apply(lambda r: banda_rpm(r['IPM'], r['Bookings']), axis=1)
     return g
 
