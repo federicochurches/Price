@@ -614,13 +614,13 @@ Usa `get_dest_tier()` de `engine.py`. Ponderado por tráfico sobre `p80_hotel`. 
 
 ---
 
-## 📋 Pendientes próxima sesión (actualizados 27-06-2026, cierre W25-editorial-recovery)
+## 📋 Pendientes próxima sesión (actualizados 27-06-2026, cierre W26-editorial-engine)
 
 Por valor/orden sugerido:
 
 1. **Loading blur real** — el blur no aparece porque el browser no pinta hasta parsear todo el HTML monolítico. Solución: split (loader mini + fetch — ya falló por re-ejecución de scripts) O lazy-render de section-rnd desde JSON al hacer click en "Disponibilidad". No resuelto, requiere sesión dedicada.
 2. ✅ **Motor editorial RE/PA `editorial_engine.py`** — implementado W26. `build_editorial_cr()` / `build_editorial_rnd()` generan re/plan/co automáticamente desde los pickles. Wired en `render_cr_p2.py` y `render_rnd_p2.py`. El HTML regenerado desde W26+ **ya no pierde el editorial**. Pendiente (post-W26): activar reordenamiento dinámico por score, Bookability en RE/Plan, carryover enriquecido con 2+ semanas de historial.
-3. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. **OJO:** el pipeline regenera el HTML → perderá el editorial de W25 si no se automatiza primero (punto 2) o se reinyecta.
+3. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. Editorial ya automatizado: no requiere reinyección manual.
 4. **Cards AR de CR** — al seleccionar hotel en panel AR, el sparkline no muestra el label del elemento activo. Bug preexistente.
 5. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
 6. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos.
@@ -632,6 +632,7 @@ Por valor/orden sugerido:
 ✅ **`g is not a function`** — tags escapados en CR_D/RND_D editorial · 27-06-2026.
 ✅ **Severity RND grid** — comas rotas por replace corregidas · 27-06-2026.
 ✅ **RE/PA editorial W25 recuperado** — reinyectado del commit pre-blur en HTML 11MB · 27-06-2026.
+✅ **`editorial_engine.py`** — motor RE/PA automatizado · score_hotel + findings + plan + carryover · wired en render_cr_p2 + render_rnd_p2 · commit b53061c5ff9a · 27-06-2026.
 ✅ **Performance W25** — card AR NoDispo capeada (BR=200/SC=100), HTML 33→11MB · 27-06-2026.
 ✅ **Severity W25** — revertido a auto-fit pre-blur · 27-06-2026.
 ✅ **netlify.toml no-store** — evita cache de HTML viejo · 27-06-2026.
@@ -831,6 +832,8 @@ que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
 
+
+**Última actualización:** W26-editorial-engine · 27-06-2026 (**`editorial_engine.py` — motor RE/PA automatizado** — score_hotel (0.60×vol+0.30×sev+0.10×wow) · _derive_dim (max score por dim) · _build_drill (HTML compatible _parseDrill) · build_findings_cr/rnd (10 findings, #1 y #10 fijos) · build_action_plan_cr/rnd (3-6 acciones QW/MP/ES condicionales) · build_carryover · Terminología: "Error Rate"(CR) / "Tasa No Dispo Crítica"(RND) · Wired en render_cr_p2.py + render_rnd_p2.py · El pipeline W26+ genera editorial automáticamente — cierra regla #40 / pendiente #2. Commit b53061c5ff9a.)
 
 **Última actualización:** W26-repa-v9 · 28-06-2026 (**RE/PA nuevo diseño v9** — Círculo numerado `col` por modo · título 15px bold · badge área pill redondeado `col`+blanco · drilldown mini-tablas via `_parseDrill` (parser JS del HTML del editorial) · Corps `#5C469C` · Destinos `#185FA5` · Hoteles `#EA0074`. Sin Métrica/Plazo. Padding via JS `el.style.padding='8px 26px'` (CSS scoped no aplica). border-top via JS `el.style.borderTop=col`. Background `#F8F4EC` hardcodeado (var(--paper) no resuelve). Subtítulos: RE="Global · Findings" / PA="Global · Action Items". Rename Eficacia→Performance en 8 archivos CR + H1 RND + switch + footer links. Hub: "Disponibilidad & Performance", KPI Contratación = netnew hoteles. `render_cr_p3.py`: PA canastas reemplaza `.action-row` por inline styles. `template_resumen.py`: reescrito v9. `js_override.js`: plan-sub fijo "Global · Action Items".)
 
