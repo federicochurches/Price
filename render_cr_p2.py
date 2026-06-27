@@ -8,6 +8,7 @@ import sys, os, json, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_eficacia, banda_convrate
+from editorial_engine import build_editorial_cr
 from render_helpers import (clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big,
                             es_pct, es_int, es_pct2, banda_colors, wow_arrow, wow_arrow_abs,
                             sev_badge_html_p2)
@@ -466,28 +467,19 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     for name in CATALOG_TP:
         if not any(name.lower() in n.lower() for n in tp_names):
             chans_tp.append(_inactive_row(name))
-    owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
-    plan = []
-    if len(df_crit_top):
-        h0 = df_crit_top.iloc[0]
-        plan.append({'c': '', 'o': owners[0],
-                     'a': f'Escalar {clean_hotel_name(str(h0["Hotel"]))[:55]} — Ef {es_pct(h0["Eficacia"])}.',
-                     't': 'Conectividad', 'p': f'W{WEEK_NUM}'})
-    if len(df_crit_top) > 1:
-        h1 = df_crit_top.iloc[1]
-        plan.append({'c': 'qw', 'o': owners[1],
-                     'a': f'Revisar {clean_hotel_name(str(h1["Hotel"]))[:55]} — {es_pct(h1["Eficacia"])}.',
-                     't': 'Eficacia', 'p': f'W{WEEK_NUM}'})
-    plan.append({'c': 'mp', 'o': owners[2],
-                 'a': f'Saneamiento {n_crit} hoteles Crítica+.',
-                 't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
-    if n_sc > 0:
-        plan.append({'c': '', 'o': owners[3],
-                     'a': f'Diagnóstico {n_sc} Sin Conversión — revisar mapping.',
-                     't': 'Mapping', 'p': f'W{WEEK_NUM+1}'})
 
-    # Carryover (vacío por defecto)
-    co = []
+    # ── RE / Plan / Carryover — via editorial_engine (W26+) ─────────────────
+    _bk_data = None
+    try:
+        _bk_path = os.getenv('PICKLE_BK', f'bk_w{WEEK_NUM}_data.pkl')
+        if os.path.exists(_bk_path):
+            import pickle as _pk_ed
+            with open(_bk_path, 'rb') as _fbk_ed:
+                _bk_data = _pk_ed.load(_bk_path) if False else _pk_ed.load(_fbk_ed)
+    except Exception:
+        _bk_data = None
+
+    re_items, plan, co = build_editorial_cr(D, scope=key, bk_data=_bk_data)
 
     return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'hotels_crit_sb': hotels_crit_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'corps_cv': [], 'dests': [], 'dests_cv': [], 'chans': [], 'chans_pp': [], 'chans_tp': [], 'plan': plan, 'co': co}
 

@@ -619,7 +619,7 @@ Usa `get_dest_tier()` de `engine.py`. Ponderado por tráfico sobre `p80_hotel`. 
 Por valor/orden sugerido:
 
 1. **Loading blur real** — el blur no aparece porque el browser no pinta hasta parsear todo el HTML monolítico. Solución: split (loader mini + fetch — ya falló por re-ejecución de scripts) O lazy-render de section-rnd desde JSON al hacer click en "Disponibilidad". No resuelto, requiere sesión dedicada.
-2. **Automatizar lógica editorial RE/PA** (PRIORIDAD ALTA) — el editorial (re/plan/co) vive SOLO en el HTML, no en el pipeline. Replicar la selección de hoteles (top 5 ND Exitosa <3%, top 10 ND Crítica, Score C, drilldowns Corps/Dest/Hoteles, terminología "Error Rate"/"Tasa No Dispo Crítica") en `render_rnd_p1.py`/`render_cr_p1.py`. Mientras no exista, **regenerar el HTML pierde el editorial** (ver regla #40 y EDITORIAL_ENGINE_DESIGN.md).
+2. ✅ **Motor editorial RE/PA `editorial_engine.py`** — implementado W26. `build_editorial_cr()` / `build_editorial_rnd()` generan re/plan/co automáticamente desde los pickles. Wired en `render_cr_p2.py` y `render_rnd_p2.py`. El HTML regenerado desde W26+ **ya no pierde el editorial**. Pendiente (post-W26): activar reordenamiento dinámico por score, Bookability en RE/Plan, carryover enriquecido con 2+ semanas de historial.
 3. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. **OJO:** el pipeline regenera el HTML → perderá el editorial de W25 si no se automatiza primero (punto 2) o se reinyecta.
 4. **Cards AR de CR** — al seleccionar hotel en panel AR, el sparkline no muestra el label del elemento activo. Bug preexistente.
 5. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.

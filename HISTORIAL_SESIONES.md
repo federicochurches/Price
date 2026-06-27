@@ -4447,3 +4447,54 @@ Fede no podía hacer `git push` del HTML regenerado localmente. Solución: patch
 - `assemble_unified.py` — `<ul>` sin inline styles redundantes
 - `reports/week-25/SUPPLY_W25.html` — patch directo (commit `11130679`)
 
+
+---
+
+## Sesión W26-editorial-engine · 27-06-2026
+
+### Contexto
+Implementación del motor editorial automatizado para RE/PA (regla #40 / pendiente #2). Hasta esta sesión, el editorial global (re/plan/co) vivía SOLO en el HTML y se perdía al regenerar el pipeline. El diseño formal estaba aprobado en `EDITORIAL_ENGINE_DESIGN.md` desde 25-06-2026.
+
+### Cambios principales
+
+**Nuevo: `editorial_engine.py`**
+Motor editorial centralizado. Implementa el diseño completo de `EDITORIAL_ENGINE_DESIGN.md`:
+- `score_hotel()` — scoring 0.60×vol + 0.30×severidad + 0.10×bonus_wow
+- `_derive_dim()` — agrega SC+C por dimensión; score_dim = max(score_hotel)
+- `_build_drill()` / `_drill_section()` — HTML de drilldown compatible con `_parseDrill()` JS (secciones Corps/Destinos/Hoteles con colores canónicos)
+- `build_payload_cr()` / `build_payload_rnd()` — construye payload tipado desde pickle
+- `build_findings_cr()` / `build_findings_rnd()` — 10 findings (#1 y #10 fijos, #2-#9 ordenados por relevancia)
+- `build_action_plan_cr()` / `build_action_plan_rnd()` — 3-6 acciones QW/MP/ES condicionales
+- `build_carryover()` — detecta hoteles que persisten en SC+C (requiere payload_prev)
+- `build_editorial_cr()` / `build_editorial_rnd()` — API de conveniencia para render_*_p2.py
+
+**Terminología correcta:**
+- CR: "Error Rate" (no "Eficacia"), "Tasa de baja ConvRate", "escalamiento técnico"
+- RND: "Tasa No Dispo Crítica", "búsquedas sin disponibilidad", "apertura de cupos"
+
+**`render_cr_p2.py` — integración**
+- Import `build_editorial_cr`
+- `build_canasta_data()`: reemplaza bloque manual `owners/plan/co` por llamada `build_editorial_cr(D, scope=key)`
+- Lógica anterior: 3-4 bullets planos sin scoring ni drilldowns → ahora: 10 findings con drilldowns + 5-6 acciones condicionadas
+
+**`render_rnd_p2.py` — integración**
+- Import `build_editorial_rnd`
+- `build_canasta_data_rnd()`: reemplaza bloque manual `plan` por llamada `build_editorial_rnd(D, scope=key)`
+
+### Validación
+Script de validación con datos sintéticos (n=50 hoteles):
+- CR: 10 findings generados, 5 acciones QW/MP/ES, drilldowns con HTML válido
+- RND: 10 findings generados, 6 acciones QW/MP/ES, drilldowns Corps/Destinos/Hoteles
+- Sintaxis Python OK (py_compile sin errores)
+- Compatibilidad `_parseDrill()` confirmada (formato `border-left` + `text-transform:uppercase` + `<strong>`)
+
+### Estado de regla #40
+La regla #40 sigue vigente para W25 (el HTML publicado ya tiene el editorial reinyectado). Para W26+: regenerar el pipeline YA generará el editorial automáticamente — sin pérdida al regenerar desde assemble_unified.
+
+### Archivos modificados
+- `editorial_engine.py` — NUEVO
+- `render_cr_p2.py` — integración engine
+- `render_rnd_p2.py` — integración engine
+- `HISTORIAL_SESIONES.md` — esta entrada
+- `PROMPT_CORE.md` — actualización pendiente #2 → implementado
+

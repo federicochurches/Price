@@ -7,6 +7,7 @@ import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pickle, pandas as pd, numpy as np
 from engine import banda_nodispo, banda_rpm, get_dest_tier
+from editorial_engine import build_editorial_rnd
 from render_helpers import (BANDA_COLORS, fmt_int_es, fmt_big,
                             es_pct, es_int, es_ipm, banda_colors, wow_arrow,
                             sev_badge_html_p2)
@@ -351,23 +352,10 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
             pais_rows.append([pais_name, bbg, bfg, banda, traf,
                               es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
-    # Plan
-    owners = ['Supply Optimization', 'Supply Opt. / TPS', 'Supply Comercial / SO', 'Supply Comercial']
-    plan = []
-    if worst_nd is not None:
-        plan.append({'c': '', 'o': owners[0],
-                     'a': f'Apertura cupos {str(worst_nd["Hotel"])[:40]} — NoDispo {es_pct(worst_nd["%NoDispo"])}.',
-                     't': 'NoDispo', 'p': f'W{WEEK_NUM}'})
-    if len(g_c_sort):
-        c0 = g_c_sort.iloc[0]
-        plan.append({'c': 'qw', 'o': owners[1],
-                     'a': f'Revisar paridad {str(c0["CorpName"])[:35]} — NoDispo {es_pct(c0["%NoDispo"])}.',
-                     't': 'Paridad', 'p': f'W{WEEK_NUM}'})
-    plan.append({'c': 'mp', 'o': owners[2],
-                 'a': f'Saneamiento {n_crit} hoteles Crítica+ NoDispo.',
-                 't': 'Saneamiento', 'p': f'W{WEEK_NUM+1}'})
+    # RE / Plan / Carryover — via editorial_engine (W26+)
+    re_items, plan, co = build_editorial_rnd(D, scope=key)
 
-    return {'re': re_items, 'hotels': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': []}
+    return {'re': re_items, 'hotels': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': co}
 
 
 def build_rnd_d():
