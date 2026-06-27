@@ -218,6 +218,41 @@ BANDAS = ['Exitosa','Aceptable','Revisar','Crítica','Súper Crítica','Sin Conv
 sev_nd  = {b: int((p80_hotel['BandaNoDispo']==b).sum()) for b in BANDAS}
 sev_rpm = {b: int((p80_hotel['BandaRPM']==b).sum()) for b in BANDAS}
 
+# ── NoDispo por tier de destino (W26+) ───────────────────────────
+# Agrega la columna Tier al df de P80 y calcula pct_nodispo ponderado por tráfico
+try:
+    _p80_tier = p80_hotel.copy()
+    _p80_tier['Tier'] = _p80_tier['Destino'].apply(get_dest_tier)
+
+    nd_por_tier = {}
+    for _tier in ['PRIMARIO', 'SECUNDARIO', 'TERCIARIO']:
+        _sub = _p80_tier[_p80_tier['Tier'] == _tier]
+        if len(_sub) == 0:
+            nd_por_tier[_tier] = {'pct_nodispo': 0.0, 'wow_pp': 0.0, 'n_hoteles': 0}
+            continue
+        _traf    = _sub['Trafico'].sum()
+        _traf_nd = _sub['TraficoNoDispo'].sum()
+        _pct     = (_traf_nd / _traf) if _traf > 0 else 0.0
+
+        # WoW: mismo tier sobre df17_p80 (semana anterior)
+        _p17_tier = df17_p80[df17_p80['Destino'].apply(get_dest_tier) == _tier] if len(df17_p80) > 0 else _sub.iloc[0:0]
+        _traf17    = _p17_tier['Trafico'].sum()     if 'Trafico'        in _p17_tier.columns else 0
+        _traf_nd17 = _p17_tier['TraficoNoDispo'].sum() if 'TraficoNoDispo' in _p17_tier.columns else 0
+        _pct17     = (_traf_nd17 / _traf17) if _traf17 > 0 else _pct
+        _wow       = (_pct - _pct17) * 100   # en pp
+
+        nd_por_tier[_tier] = {
+            'pct_nodispo': float(_pct * 100),   # en %
+            'wow_pp':      float(_wow),
+            'n_hoteles':   int(len(_sub)),
+        }
+    print(f'  nd_por_tier: P={nd_por_tier["PRIMARIO"]["pct_nodispo"]:.2f}% '
+          f'S={nd_por_tier["SECUNDARIO"]["pct_nodispo"]:.2f}% '
+          f'T={nd_por_tier["TERCIARIO"]["pct_nodispo"]:.2f}%')
+except Exception as _e:
+    print(f'  [warn] nd_por_tier no calculado: {_e}')
+    nd_por_tier = {}
+
 # ── Agregados dimensión global ────────────────────────────────────
 g_hotel = agg_hotel(df18)
 # Agregados dimensión globales sobre P80 (hoteles que acumulan 80% tráfico)
@@ -416,6 +451,7 @@ D = {
     'g_corp':g_corp,'g_dest':g_dest,'g_pais':g_pais,
     'sev_nd':sev_nd,'sev_rpm':sev_rpm,
     'sev_nd_p80':sev_nd,'sev_rpm_p80':sev_rpm,
+    'nd_por_tier': nd_por_tier,
     'g_hotel_w17':g_hotel_w17,'g_corp_w17':g_corp_w17,
     'g_dest_w17':g_dest_w17,'g_pais_w17':g_pais_w17,
     'TAB_NoDispo':TAB_NoDispo,'TAB_RPM':TAB_RPM,
