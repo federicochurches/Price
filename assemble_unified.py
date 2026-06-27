@@ -2507,7 +2507,7 @@ SECTION_DIVIDER = ''  # W21+ — sin divisor
 SWITCHER = f'''<div style="padding-top:10px;">
 <div class="w22-seg">
   <button class="w22-seg-btn on" id="mode-rnd" onclick="w22_setMode('rnd',this)">Disponibilidad</button>
-  <button class="w22-seg-btn" id="mode-cr" onclick="w22_setMode('cr',this)">Conectividades</button>
+  <button class="w22-seg-btn" id="mode-cr" onclick="w22_setMode('cr',this)">Performance</button>
 </div>
 </div>
 <div id="w22-filter-wrap" style="margin-top:8px;">
@@ -2521,7 +2521,7 @@ SWITCHER = f'''<div style="padding-top:10px;">
   </div>
   <div class="cfb-kpi">
     <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
-      <div class="cfb-kpi-lbl" id="w22-strip-lbl1">Eficacia</div>
+      <div class="cfb-kpi-lbl" id="w22-strip-lbl1">Performance</div>
       <div class="cfb-kpi-val" id="w22-strip-ef" style="color:#5C469C;">—</div>
       <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
@@ -2557,7 +2557,7 @@ SHARED_CONTAINERS = f'''
     <button class="w22-seg-btn on" id="ar-btn-cr"
       onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Disponibilidad</button>
     <button class="w22-seg-btn" id="ar-btn-rnd"
-      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Conectividades</button>
+      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Performance</button>
   </div>
 </div>
 
@@ -2569,7 +2569,7 @@ SHARED_CONTAINERS = f'''
   <div class="kpi-card" id="kpicard-ar1" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
-      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Eficacia</div>
+      <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Performance</div>
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
           <div id="ar-kpi-1" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
@@ -2702,7 +2702,7 @@ SHARED_CONTAINERS = f'''
   <h2 class="section-title">Resumen Ejecutivo</h2>
   <span class="section-subtitle" style="color:var(--accent)">Canasta activa · 10 findings</span>
   </div></div>
-  <ul style="list-style:none;padding:0;margin:0;" id="w22-re-list"></ul>
+  <ul id="w22-re-list"></ul>
   </section>
 
   <!-- Plan de Acción -->
@@ -2711,7 +2711,7 @@ SHARED_CONTAINERS = f'''
   <h2 class="section-title">Plan de Acción</h2>
   <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Canasta activa · W{VOL_NUM}</span>
   </div></div>
-  <ul style="list-style:none;padding:0;margin:0;" id="w22-pg"></ul>
+  <ul id="w22-pg"></ul>
   <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
     <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px;">Carryover W{int(VOL_NUM)-1}</div>
     <div id="w22-co"></div>
@@ -2965,15 +2965,15 @@ if (typeof HIST_DATA !== 'undefined') {
     <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">México</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
-      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Performance ↓</a>
       <span style="color:var(--rule);">|</span>
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">US</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
-      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Performance ↓</a>
       <span style="color:var(--rule);">|</span>
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">CALA</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
-      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Performance ↓</a>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;margin-top:12px;">
@@ -2981,11 +2981,11 @@ if (typeof HIST_DATA !== 'undefined') {
     <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Global Accounts</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/accounts/Analisis_RND_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
-      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Performance ↓</a>
       <span style="color:var(--rule);">|</span>
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Cuentas Estratégicas</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/accounts/Analisis_RND_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
-      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Performance ↓</a>
     </div>
   </div>
 </div>

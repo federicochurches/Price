@@ -1,57 +1,77 @@
 """
-Helper · Resumen Ejecutivo siguiendo estructura literal del template.
+Helper · Resumen Ejecutivo · Nuevo diseño v9 (W26+)
 
-Estructura: 
-- Header overline pequeño con 🎯 + título (fuera del card)
-- Card con border-top 3px negro, fondo paper-soft, padding 28px 32px
-- Grid 2 columnas (5 findings cada una) · gap:14px 28px
-- Cada finding: <li flex>
-    span N° (gris muted)
-    span valor numérico destacado (color del reporte)
-    span <strong>Título</strong> Descripción (sin highlights .hl)
+Estructura:
+- Header overline pequeño + título (fuera del card)
+- Card con border-top 3px acento, fondo blanco, padding 0 14px
+- Lista vertical: cada finding con círculo numerado + título 13px bold
+  + valor métrico como badge derecho + descripción/drilldown sangrado
 
 API:
   render_resumen_ejecutivo(findings, accent_color, header_title='Resumen Ejecutivo')
-  
-  findings: list of 10 dicts, cada uno con:
-    - 'numero': string (ej '−11.1%', '93.9%', '5.465', 'Top 3', '$650')
-    - 'titulo': string corto (ej 'Conv Rate cae fuerte')
-    - 'desc':   string (ej 'De 1.55% a 1.38% — caída concentrada en Wyndham...')
+
+  findings: list of dicts, cada uno con:
+    - 'numero': string métrico (ej '−11.1%', '93.9%') → badge derecho
+    - 'titulo': string del finding (ej 'Conv Rate cae fuerte')
+    - 'desc':   string descriptivo / drilldown HTML
 """
 
 def render_finding(idx, finding, accent_color):
-    n_str = str(idx + 1) + '.'
-    valor = finding.get('numero','')
-    titulo = finding.get('titulo','')
-    desc = finding.get('desc','')
-    return f'''<li style="display:flex;gap:8px;align-items:baseline;font-size:11.5px;line-height:1.45;color:var(--ink-soft);margin-bottom:7px;">
-<span style="flex-shrink:0;display:inline-block;width:14px;font-weight:700;color:var(--ink-muted);font-size:10px;text-align:right;">{n_str}</span>
-<span style="flex-shrink:0;display:inline-block;min-width:50px;font-weight:700;color:{accent_color};font-size:12px;text-align:right;letter-spacing:-.01em;font-variant-numeric:tabular-nums;">{valor}</span>
-<span style="flex:1;"><span style="color:var(--ink);font-weight:600;">{titulo}</span> {desc}</span>
-</li>'''
+    num     = idx + 1
+    numero  = finding.get('numero', '')
+    titulo  = finding.get('titulo', '') or finding.get('n', '')
+    desc    = finding.get('desc', '')   or finding.get('d', '')
+    is_last = finding.get('_last', False)
+    border_b = 'none' if is_last else '1px dashed var(--rule-soft)'
+
+    badge_html = (
+        f'<span style="flex-shrink:0;align-self:flex-start;margin-left:10px;'
+        f'margin-top:2px;font-size:9px;font-weight:700;color:{accent_color};'
+        f'background:var(--paper-soft);padding:2px 8px;border-radius:2px;'
+        f'white-space:nowrap;">{numero}</span>'
+    ) if numero else ''
+
+    desc_html = (
+        f'<div style="padding:7px 0 0 32px;">{desc}</div>'
+    ) if desc else ''
+
+    return (
+        f'<li style="padding:11px 0;border-bottom:{border_b};list-style:none;">'
+        f'<div style="display:flex;align-items:flex-start;gap:10px;">'
+        f'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;'
+        f'background:{accent_color};color:#fff;font-size:10px;font-weight:700;'
+        f'display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">{num}</span>'
+        f'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">{titulo}</span>'
+        f'{badge_html}'
+        f'</div>'
+        f'{desc_html}'
+        f'</li>'
+    )
 
 def render_resumen_ejecutivo(findings, accent_color, scope='global', header_title='Resumen Ejecutivo'):
     """
-    findings: lista de 10 dicts.
+    findings: lista de dicts con 'numero', 'titulo', 'desc'.
     accent_color: '#EA0074' (RND) o '#5C469C' (CR).
-    scope: 'global' o 'canasta' (para ajustar margin-top).
+    scope: 'global' o 'canasta'.
     """
     margin_top = '24px' if scope == 'global' else '16px'
-    
-    col1_items = ''.join(render_finding(i, f, accent_color) for i, f in enumerate(findings[:5]))
-    col2_items = ''.join(render_finding(i+5, f, accent_color) for i, f in enumerate(findings[5:10]))
-    
-    return f'''<!-- Resumen Ejecutivo · header fuera del card · estilo template -->
-<div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
-<span style="color:{accent_color};">🎯</span><span>{header_title}</span>
-</div>
-<div style="padding:16px 22px;font-weight:400;background:var(--paper);border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:4px;margin-bottom:18px;">
-<div class="exec-2cols" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;">
-<ol style="list-style:none;padding:0;margin:0;">
-{col1_items}
-</ol>
-<ol style="list-style:none;padding:0;margin:0;">
-{col2_items}
-</ol>
-</div>
-</div>'''
+
+    # Marcar el último para quitar el border-bottom
+    items_tagged = []
+    for i, f in enumerate(findings):
+        tagged = dict(f)
+        tagged['_last'] = (i == len(findings) - 1)
+        items_tagged.append(tagged)
+
+    items_html = ''.join(render_finding(i, f, accent_color) for i, f in enumerate(items_tagged))
+
+    return (
+        f'<!-- Resumen Ejecutivo · diseño v9 -->\n'
+        f'<div style="margin-top:{margin_top};font-size:11px;color:var(--ink);font-weight:700;'
+        f'letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">'
+        f'{header_title}</div>\n'
+        f'<ul style="list-style:none;padding:0 14px;margin:0 0 18px;background:#fff;'
+        f'border:1px solid var(--rule);border-top:3px solid {accent_color};border-radius:3px;">\n'
+        f'{items_html}'
+        f'</ul>'
+    )

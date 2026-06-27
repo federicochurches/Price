@@ -39,3 +39,11 @@
 /* ── AR1: CR canvas abajo · RND canvas side-by-side ── */
 body[data-ar-mode='rnd'] #ar1-hist-wrap { display: flex !important; align-items: center; }
 body[data-ar-mode='rnd'] #ar1-hist-cr-wrap { display: none !important; }
+
+/* ── RE/PA · Nuevo diseño v9 (W26+) ── */
+#w22-re-list,#w22-pg{
+  background:#fff;border:1px solid var(--rule);border-radius:3px;
+  padding:0 14px;list-style:none;margin:0;
+}
+.section-cr  #w22-re-list,.section-cr  #w22-pg{border-top:3px solid #5C469C;}
+.section-rnd #w22-re-list,.section-rnd #w22-pg{border-top:3px solid #EA0074;}
