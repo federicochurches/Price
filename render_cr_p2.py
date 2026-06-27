@@ -773,7 +773,7 @@ def render_resumen():
 <h2 class="section-title">Resumen Ejecutivo</h2>
 <span class="section-subtitle" style="color:var(--accent)">Canasta activa · 10 findings</span>
 </div></div>
-<ol class="exec-bullets" id="w22-re-list"></ol>
+<ul style="list-style:none;padding:0;margin:0;" id="w22-re-list"></ul>
 <div class="re-wrap"><button class="re-btn" id="w22-re-btn" onclick="w22_toggleRE()">Ver 5 más ↓</button></div>
 </section>'''
 
@@ -785,7 +785,7 @@ def render_plan():
 <h2 class="section-title">Plan de Acción</h2>
 <span class="section-subtitle" style="color:var(--accent)">Canasta activa · W{WEEK_NUM}</span>
 </div></div>
-<div class="p-grid" id="w22-pg" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:8px;margin-top:6px;"></div>
+<ul style="list-style:none;padding:0;margin:0;" id="w22-pg"></ul>
 <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
   <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px;">Carryover W{WEEK_PREV}</div>
   <div id="w22-co"></div>

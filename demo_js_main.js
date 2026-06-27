@@ -106,11 +106,10 @@ function w22_renderRE(open){
  var el=g('w22-re-list');if(!el)return;
  el.innerHTML=d.re.map(function(r,i){
   var h=(i>=5&&!W.reOpen)?' style="display:none;"':'';
-  return '<li'+h+' style="position:relative;padding:16px 0 16px 80px;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.55;">'
-   +'<span style="font-size:12px;color:var(--ink-muted);font-weight:500;position:absolute;left:0;top:20px;">'+(i<9?'0'+(i+1):i+1)+'</span>'
-   +'<strong style="display:block;font-size:22px;font-weight:700;color:'+col+';letter-spacing:-.02em;margin-bottom:4px;">'+r.n+'</strong>'
-   +'<span style="font-weight:600;color:var(--ink);">'+r.t+'</span> '
-   +'<span style="color:var(--ink-muted);font-size:14px;">'+r.d+'</span></li>';
+  return '<li'+h+' style="position:relative;padding:10px 0 10px 56px;border-bottom:1px solid var(--rule);line-height:1.55;">'
+   +'<span style="font-size:10px;color:var(--ink-muted);font-weight:500;position:absolute;left:0;top:14px;">'+(i<9?'0'+(i+1):i+1)+'</span>'
+   +'<strong style="display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;">'+r.n+'</strong>'
+   +'<span style="color:var(--ink-muted);font-size:11px;">'+(r.d||'')+'</span></li>';
  }).join('');
  var btn=g('w22-re-btn');if(btn)btn.textContent=W.reOpen?'Ver menos ↑':'Ver 5 más ↓';
 }
@@ -238,15 +237,11 @@ function w22_update(){
  w22_renderAlertas();
 
  var pg=g('w22-pg');
- if(pg)pg.innerHTML=d.plan.map(function(p){
-  var bc=p.c==='qw'?'#2F6C34':p.c==='mp'?'#A86A1D':'var(--accent)';
-  var bgc=p.c==='qw'?'#E0F0E2':p.c==='mp'?'#FFF4E0':'var(--accent-soft)';
-  return '<div style="background:var(--paper);border:1px solid var(--rule);border-left:3px solid '+bc+';padding:10px 14px;border-radius:3px;">'
-   +'<div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+bc+';background:'+bgc+';padding:3px 8px;border-radius:2px;margin-bottom:6px;">'+p.o+'</div>'
-   +'<div style="font-size:12px;line-height:1.4;color:var(--ink-soft);">'+p.a+'</div>'
-   +'<div style="display:flex;gap:10px;margin-top:7px;font-size:10px;color:var(--ink-muted);">'
-   +'<span style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-soft);padding:2px 7px;border-radius:2px;font-size:9px;">'+p.t+'</span>'
-   +'<span><strong style="font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-right:3px;">Plazo</strong>'+p.p+'</span></div></div>';
+ if(pg)pg.innerHTML=d.plan.map(function(p,i){
+  return '<li style="position:relative;padding:10px 0 10px 56px;border-bottom:1px solid var(--rule);line-height:1.55;">'
+   +'<span style="font-size:10px;color:var(--ink-muted);font-weight:500;position:absolute;left:0;top:14px;">'+(i<9?'0'+(i+1):i+1)+'</span>'
+   +'<strong style="display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;">'+p.a+'</strong>'
+   +'<span style="color:var(--ink-muted);font-size:11px;">'+(p._sub||'')+'</span></li>';
  }).join('');
 
  var co=g('w22-co');

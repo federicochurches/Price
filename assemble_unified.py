@@ -2702,8 +2702,7 @@ SHARED_CONTAINERS = f'''
   <h2 class="section-title">Resumen Ejecutivo</h2>
   <span class="section-subtitle" style="color:var(--accent)">Canasta activa · 10 findings</span>
   </div></div>
-  <ol class="exec-bullets" id="w22-re-list"></ol>
-  <div class="re-wrap"><button class="re-btn" id="w22-re-btn" onclick="w22_toggleRE()">Ver 5 más ↓</button></div>
+  <ul style="list-style:none;padding:0;margin:0;" id="w22-re-list"></ul>
   </section>
 
   <!-- Plan de Acción -->
@@ -2712,7 +2711,7 @@ SHARED_CONTAINERS = f'''
   <h2 class="section-title">Plan de Acción</h2>
   <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Canasta activa · W{VOL_NUM}</span>
   </div></div>
-  <div class="p-grid" id="w22-pg" style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px;"></div>
+  <ul style="list-style:none;padding:0;margin:0;" id="w22-pg"></ul>
   <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
     <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px;">Carryover W{int(VOL_NUM)-1}</div>
     <div id="w22-co"></div>
@@ -2960,6 +2959,34 @@ if (typeof HIST_DATA !== 'undefined') {
 <div class="footer-bar" style="width:100%;margin:40px 0 0;padding:16px 24px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:flex-end;box-sizing:border-box;">
   <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);">Regionales W{VOL_NUM}</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">MX</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+      <span style="color:var(--rule);">|</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">US</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+      <span style="color:var(--rule);">|</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">CALA</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);">Cuentas W{VOL_NUM}</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Global Accounts</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/accounts/Analisis_RND_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+      <span style="color:var(--rule);">|</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Estratégicas</span>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/accounts/Analisis_RND_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">RND ↓</a>
+      <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
+    </div>
+  </div>
 '''
     + '\n</body>\n</html>\n'
 )
