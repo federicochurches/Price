@@ -2525,8 +2525,8 @@ SWITCHER = f'''<div style="padding-top:10px;">
       <div class="cfb-kpi-val" id="w22-strip-ef" style="color:#5C469C;">—</div>
       <span class="sev-badge" id="w22-strip-ef-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
     </div>
-    <div class="cfb-sep"></div>
-    <div class="cfb-kpi-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
+    <div class="cfb-sep" id="w22-strip-cv-sep"></div>
+    <div class="cfb-kpi-item" id="w22-strip-cv-item" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
       <div class="cfb-kpi-lbl" id="w22-strip-lbl2">Conv Rate</div>
       <div class="cfb-kpi-val" id="w22-strip-cv" style="color:#5C469C;">—</div>
       <span class="sev-badge" id="w22-strip-cv-band" style="font-size:8px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:.04em;outline:1px solid rgba(0,0,0,.12);display:inline-block;white-space:nowrap;border-radius:2px;margin-top:2px;">—</span>
@@ -2956,10 +2956,11 @@ if (typeof HIST_DATA !== 'undefined') {
 </script>
 '''
     + f'''
-<div class="footer-bar" style="width:100%;margin:40px 0 0;padding:16px 24px;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:flex-end;box-sizing:border-box;">
+<div class="shell">
+<div class="footer-bar" style="width:100%;margin:40px 0 0;padding:16px 0;background:var(--paper);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:flex-end;box-sizing:border-box;">
   <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;margin-top:12px;">
     <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);">Regionales W{VOL_NUM}</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">MX</span>
@@ -2987,6 +2988,7 @@ if (typeof HIST_DATA !== 'undefined') {
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_Estrategicas_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">CR ↓</a>
     </div>
   </div>
+</div>
 '''
     + '''
 <script>

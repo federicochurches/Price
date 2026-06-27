@@ -146,6 +146,10 @@ function w22_update(){
  var l1=g('w22-strip-lbl1'),l2=g('w22-strip-lbl2');
  if(W.mode==='cr'){if(l1)l1.textContent='Eficacia';if(l2)l2.textContent='Conv Rate';}
  else{if(l1)l1.textContent='NoDispo';if(l2)l2.textContent='IPM';}
+ /* RND: ocultar el 2º KPI del strip (IPM) — solo NoDispo */
+ var cvItem=g('w22-strip-cv-item'),cvSep=g('w22-strip-cv-sep');
+ if(cvItem)cvItem.style.display=(W.mode==='rnd')?'none':'';
+ if(cvSep)cvSep.style.display=(W.mode==='rnd')?'none':'';
 
  /* KPI cards W21 */
  var kef=g('w21-kv-ef');if(kef){kef.textContent=c.ef;kef.style.color=col;}

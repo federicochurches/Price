@@ -1797,6 +1797,13 @@ function ar_updateKPIs() {
   }
   function _banda(val, metric) {
     var p = val / 100;
+    if (metric === 'nd') {
+      if (p < 0.03)  return {lbl:'Exitosa',      bg:'#1A6B4A',fg:'#FFFFFF'};
+      if (p < 0.05)  return {lbl:'Aceptable',    bg:'#FBBF24',fg:'#FFFFFF'};
+      if (p < 0.20)  return {lbl:'Revisar',      bg:'#F97316',fg:'#FFFFFF'};
+      if (p < 0.60)  return {lbl:'Crítica',      bg:'#C0392B',fg:'#FFFFFF'};
+      return               {lbl:'Súper Crítica',bg:'#2D2828',fg:'#FFFFFF'};
+    }
     if (metric === 'ef' || metric === 'bk') {
       if (p >= 0.97) return {lbl:'Exitosa',     bg:'#1A6B4A',fg:'#FFFFFF'};
       if (p >= 0.93) return {lbl:'Aceptable',   bg:'#FBBF24',fg:'#FFFFFF'};
@@ -1820,7 +1827,7 @@ function ar_updateKPIs() {
     el.style.background = b.bg; el.style.color = b.fg;
     el.style.outline = '1px solid '+b.fg+'55';
   }
-  _applyBand('w22-strip-ef-band', _parsePct(d.ef21), 'ef');
+  _applyBand('w22-strip-ef-band', _parsePct(d.ef21), isCR ? 'ef' : 'nd');
   _applyBand('w22-strip-cv-band', _parsePct(d.cv21), 'cv');
   /* BK badge se maneja en tryInitBK */
 }
