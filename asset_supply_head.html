@@ -248,4 +248,23 @@
 }
 </style>
 {{SHARED_HEAD}}
+<style>
+#supply-loading{position:fixed;inset:0;z-index:9999;background:#F8F4EC;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#supply-loading-bar-wrap{width:140px;height:2px;background:rgba(0,0,0,.12);border-radius:2px;overflow:hidden;}
+#supply-loading-bar{width:0%;height:100%;background:#EA0074;border-radius:2px;transition:width .4s ease;}
+#supply-loading-lbl{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8A8377;}
+</style>
+<script>
+/* Crear loader inmediatamente — antes de que el body empiece a parsear */
+document.addEventListener('DOMContentLoaded', function() {
+  var bar = document.getElementById('supply-loading-bar');
+  if (!bar) return;
+  var pct = 0;
+  var iv = setInterval(function(){
+    pct = Math.min(pct + (90-pct)*0.06 + 0.3, 90);
+    bar.style.width = pct.toFixed(1)+'%';
+  }, 120);
+  window._loaderIv = iv;
+});
+</script>
 </head>
