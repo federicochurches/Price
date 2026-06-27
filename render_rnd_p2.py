@@ -502,7 +502,7 @@ def render_severity():
         bar_color = bc.get('bar', bbg)
         bar_w = min(int(pct * 100), 100)
         return (
-            f'<div class="sev-row" style="display:grid;grid-template-columns:0.9fr 0.5fr 1.4fr 44px 38px;'
+            f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
             f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
             f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
             f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
@@ -538,7 +538,7 @@ def render_severity():
 <span class="section-subtitle" style="color:#EA0074">P80 · {len(p80):,} hoteles · distribución por banda de %NoDispo · por tipo de destino</span>
 <p class="section-kicker">Rangos diferenciados: Primario (exigente) · Secundario (histórico) · Terciario (permisivo). Hoteles sin clasificación → Terciario.</p>
 </div></div>
-<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start;">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
 {block_prim}
 {block_sec}
 {block_ter}
