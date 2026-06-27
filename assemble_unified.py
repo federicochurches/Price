@@ -2961,20 +2961,24 @@ if (typeof HIST_DATA !== 'undefined') {
   <a href="../../index.html" style="font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
   <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;margin-top:12px;">
-    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);">Análisis W{VOL_NUM}</span>
+    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);min-width:78px;">Destinos W{VOL_NUM}</span>
     <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
-      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Destinos México</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">México</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_Mexico_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
       <span style="color:var(--rule);">|</span>
-      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Destinos US</span>
+      <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">US</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_US_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
       <span style="color:var(--rule);">|</span>
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">CALA</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/regional/Analisis_RND_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/regional/Analisis_CR_CALA_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
-      <span style="color:var(--rule);">|</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px;margin-top:12px;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-muted);min-width:78px;">Cuentas W{VOL_NUM}</span>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
       <span style="font-size:9px;font-weight:800;color:var(--ink-muted);">Global Accounts</span>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/rates-nodispo/week-{VOL_NUM}/accounts/Analisis_RND_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#EA0074;text-decoration:none;border:1px solid #EA0074;border-radius:3px;padding:2px 7px;">Disponibilidad ↓</a>
       <a href="https://raw.githubusercontent.com/federicochurches/Price/main/checkrates/week-{VOL_NUM}/accounts/Analisis_CR_GlobalAccounts_W{VOL_NUM}.xlsx" style="font-size:9px;font-weight:700;color:#5C469C;text-decoration:none;border:1px solid #5C469C;border-radius:3px;padding:2px 7px;">Conectividades ↓</a>
