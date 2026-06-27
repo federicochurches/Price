@@ -532,10 +532,12 @@ def render_severity():
     block_sec  = tier_block('SECUNDARIO', sev_sec,  n_sec)
     block_ter  = tier_block('TERCIARIO',  sev_ter,  n_ter)
 
+    _n_p80_fmt = f'{len(p80):,}'.replace(',', '.')
+
     return f'''<section id="severity-combinada" style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Severity</h2>
-<span class="section-subtitle" style="color:#EA0074">P80 · {len(p80):,} hoteles · distribución por banda de %NoDispo · por tipo de destino</span>
+<span class="section-subtitle" style="color:#EA0074">P80 · {_n_p80_fmt} hoteles · distribución por banda de %NoDispo · por tipo de destino</span>
 <p class="section-kicker">Rangos diferenciados: Primario (exigente) · Secundario (histórico) · Terciario (permisivo). Hoteles sin clasificación → Terciario.</p>
 </div></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
@@ -543,7 +545,7 @@ def render_severity():
 {block_sec}
 {block_ter}
 </div>
-</section>'''.replace(',', '.')
+</section>'''
 
 
 # ── Análisis de Rendimiento ───────────────────────────────────────────────────
