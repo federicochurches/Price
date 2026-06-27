@@ -597,7 +597,7 @@ def render_severity():
         bc = BANDA_COLORS.get(banda, {})
         bar_color = bc.get('bar', bbg)
         bar_w = min(int(pct*100), 100)
-        return (f'<div class="sev-row" style="display:grid;grid-template-columns:120px 80px 1fr 60px 45px;'
+        return (f'<div class="sev-row" style="display:grid;grid-template-columns:0.9fr 0.5fr 1.4fr 44px 38px;'
                 f'gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-soft);">'
                 f'<span style="display:inline-block;padding:3px 8px;background:{bbg};color:{bfg};'
                 f'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;'
@@ -634,7 +634,7 @@ def render_severity():
 <span class="section-subtitle" style="color:#5C469C">P80 · {len(p80)} hoteles</span>
 <p class="section-kicker">Distribución del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte estructural separada.</p>
 </div></div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start;">
 <div>
 <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Eficacia</h3>
 {rows_ef}
