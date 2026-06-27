@@ -31,7 +31,7 @@ Federico adjunta los datasets W(N) y W(N-1). Claude ejecuta el pipeline completo
 4. excel_cr.py + excel_rnd.py                → 2 Excels globales (5 hojas c/u)
    excel_rnd_regional.py + excel_cr_regional.py → 6 Excels regionales (MX · US · CALA)
    excel_rnd_accounts.py + excel_cr_accounts.py → 4 Excels por cuenta (Global Accounts · Estratégicas)
-5. render_mail_v3.py                 → Mail_WNN.html
+5. `render_mail_v3.py`                 → Mail_WNN.html
 6. build_package.py                  → index.html + Price_WNN.zip
 7. commit GitHub + ZIP proyecto Claude
 ```
@@ -570,6 +570,46 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
+## 📧 Mail Semanal · Layout canónico (W26+)
+
+### Estructura · 3 filas de KPIs
+
+| Fila | Sección | KPIs |
+|---|---|---|
+| 1 | Status Contratación | Netnew (hero) · Producto Propio · Gap Target |
+| 2 | % No Disponibilidad | Destinos Primarios · Destinos Secundarios · Destinos Terciarios |
+| 3 | Performance | Conv Rate · Eficacia · Bookability |
+
+### Decisiones canónicas
+- **Sección "Performance"** — Conv Rate no es conectividad; Eficacia + Bookability sí. Los 3 van en la misma fila bajo "Performance"
+- **NoDispo por tier** — lee `DR['nd_por_tier']` del pickle RND. Requiere `calc_rnd.py` W26+ (agrega `nd_por_tier` al pickle). Fallback: muestra global en las 3 celdas si no existe el dict
+- **Header:** borde top negro 3px · "PriceTravel" grande · badge `Week NN` (fondo `#161616`, texto `#fff`) a la derecha con fecha debajo
+- **Footer:** una línea centrada
+- **Botones CTA:** Hub (`#161616`) · Supply (`#EA0074`) · Inventario (`#4FC3F4` / texto `#161616`)
+- **Compatibilidad:** todos los colores críticos hardcodeados con `style` inline + `background-color` (no `background`) — garantiza render en iPad/Safari/Outlook
+- **Bloque editorial:** entre KPIs y CTA — `MAIL_HIGHLIGHTS` env var, vacío = omitido
+
+### Variables de entorno `render_mail_v3.py`
+```bash
+WEEK · VOL_NUM · PERIODO · PICKLE_RND · PICKLE_CR · PICKLE_BK
+INV_NETNEW · INV_NETNEW_WOW · INV_PP · INV_GAP · INV_PCT_AVANCE · INV_TARGET
+MAIL_HIGHLIGHTS   # texto libre, opcional
+```
+Si `INV_PP == 0` → bloque Contratación omitido. Si pickle BK no existe → Bookability omitida.
+
+### `nd_por_tier` en el pickle RND (W26+)
+`calc_rnd.py` calcula después del severity:
+```python
+DR['nd_por_tier'] = {
+    'PRIMARIO':   {'pct_nodispo': float, 'wow_pp': float, 'n_hoteles': int},
+    'SECUNDARIO': {'pct_nodispo': float, 'wow_pp': float, 'n_hoteles': int},
+    'TERCIARIO':  {'pct_nodispo': float, 'wow_pp': float, 'n_hoteles': int},
+}
+```
+Usa `get_dest_tier()` de `engine.py`. Ponderado por tráfico sobre `p80_hotel`. WoW vs `df17_p80`.
+
+---
+
 ## 📋 Pendientes próxima sesión (actualizados 27-06-2026, cierre W25-editorial-recovery)
 
 Por valor/orden sugerido:
@@ -597,7 +637,6 @@ Por valor/orden sugerido:
 ✅ **Merge `feat/rnd-ar-card` → `main`** — completado · 25-06-2026.
 ✅ **Re-run `calc_inv.py` W25** — completado.
 ✅ **Mail W25** — enviado, no requiere acción.
-✅ **Inventory W25 filter bug** — corregido.
 ✅ **calc_inv.py** — versión local completa commiteada al repo.
 
 **Flujo de trabajo W26+ (evitar desincronización):**
@@ -693,7 +732,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ---
 
 <<<<<<< HEAD
-**Última actualización:** W25-strip-footer-fix · 27-06-2026 (**continuación recovery: 4 bugs encadenados tras reinyección editorial** — **(1) `g is not a function`:** los drilldowns editoriales reinyectados en `CR_D`/`RND_D` tenían `</span>`/`</strong>` SIN escapar dentro del `<script>` → cortaban el script → `g` (getElementById) nunca se definía → `w22_update` crasheaba en RND → severity RND no renderizaba (apilado). Fix: escapar `</` → `<\/` (regla #42). **(2) severity RND grid:** comas rotas por `.replace(',','.')` (`auto-fit.minmax` inválido) → sacar el grid del replace, formatear `len(p80)` aparte (regla #41). **(3) strip RND:** banda del 1er KPI usaba lógica Eficacia → NoDispo 3,43% daba "Súper Crítica". Fix: `_banda` con `metric='nd'` + `_applyBand` usa `isCR?'ef':'nd'`. IPM eliminado del strip RND (oculta `w22-strip-cv-item`+`w22-strip-cv-sep` en `W.mode==='rnd'`). **(4) cosmético:** H1 → "Disponibilidad & Conectividades"; footer envuelto en `.shell` + 2 filas balanceadas (Destinos MX/US/CALA + Cuentas Global/Estratégicas) + labels `Disponibilidad ↓`/`Conectividades ↓`. Archivos: `js_override.js`, `demo_js_main.js`, `assemble_unified.py`, `render_cr_p1.py`, `render_rnd_p1.py`, `render_rnd_p2.py`. Commits: `d30c404` `bdc474f` `7392d3c` `460ea94` `2a21d4d`.)
+**Última actualización:** W26-mail-layout · 27-06-2026 (**Rediseño completo `render_mail_v3.py` v5.0 + `calc_rnd.py` nd_por_tier** — Layout 3 filas: Contratación (netnew+PP+Gap) · NoDispo por tier (Primarios/Secundarios/Terciarios) · Performance (ConvRate+Eficacia+Bookability). Header badge Week NN negro. Footer una línea. 3 CTAs Hub/Supply/Inventario. Colores hardcodeados inline para compatibilidad iPad/Outlook. Bloque editorial MAIL_HIGHLIGHTS. `calc_rnd.py`: agrega `nd_por_tier` al pickle via `get_dest_tier()`. Commits: `03bb59184b0c` render_mail · `0789b54b1ea1` calc_rnd.) (**continuación recovery: 4 bugs encadenados tras reinyección editorial** — **(1) `g is not a function`:** los drilldowns editoriales reinyectados en `CR_D`/`RND_D` tenían `</span>`/`</strong>` SIN escapar dentro del `<script>` → cortaban el script → `g` (getElementById) nunca se definía → `w22_update` crasheaba en RND → severity RND no renderizaba (apilado). Fix: escapar `</` → `<\/` (regla #42). **(2) severity RND grid:** comas rotas por `.replace(',','.')` (`auto-fit.minmax` inválido) → sacar el grid del replace, formatear `len(p80)` aparte (regla #41). **(3) strip RND:** banda del 1er KPI usaba lógica Eficacia → NoDispo 3,43% daba "Súper Crítica". Fix: `_banda` con `metric='nd'` + `_applyBand` usa `isCR?'ef':'nd'`. IPM eliminado del strip RND (oculta `w22-strip-cv-item`+`w22-strip-cv-sep` en `W.mode==='rnd'`). **(4) cosmético:** H1 → "Disponibilidad & Conectividades"; footer envuelto en `.shell` + 2 filas balanceadas (Destinos MX/US/CALA + Cuentas Global/Estratégicas) + labels `Disponibilidad ↓`/`Conectividades ↓`. Archivos: `js_override.js`, `demo_js_main.js`, `assemble_unified.py`, `render_cr_p1.py`, `render_rnd_p1.py`, `render_rnd_p2.py`. Commits: `d30c404` `bdc474f` `7392d3c` `460ea94` `2a21d4d`.)
 
 **Última actualización previa:** W25-editorial-recovery · 27-06-2026 (**Recuperación editorial RE/PA + optimización 33→11MB tras saga loading-blur** — El RE/PA editorial bueno (drilldowns, "Equipo Optimización: Corregir...", "Error Rate"/"Tasa No Dispo Crítica") fue editado SOLO en el HTML el 26-06, nunca en los scripts. La saga del blur regeneró el HTML desde el pipeline → perdió todo el editorial (volvió "Escalar Hyatt House" del pickle). **Fix:** extraídos re/plan/co de las 4 canastas CR+RND del commit pre-blur `48a45519` (`__cr_d_json`/`__rnd_d_json`) y reinyectados en `CR_D`/`RND_D` del HTML de 11MB. **Performance:** card AR NoDispo emitía 11.313 hoteles "Sin Conversión" como HTML (~13MB) → `_df_br.head(200)` + `_df_sc.head(100)` en `render_ar_card_nodispo()` + tabs KPI capeadas → 33→11MB (el cuello era el PARSE del browser, no el download). **Severity:** revertido a `auto-fit` pre-blur (el cambio a `repeat(3,1fr)` no era necesario — CSS era idéntico al bueno). `netlify.toml` → `no-store`. **REGLA CRÍTICA NUEVA:** el contenido editorial (re/plan/co) vive SOLO en el HTML parcheado, NO en el pipeline — regenerar el HTML lo pierde. Hasta automatizar la lógica editorial en `render_*_p1.py` (pendiente), nunca regenerar sin reinyectar el editorial del último commit bueno. **Trampa documentada:** `.replace(',','.')` de los f-strings de severity (formato español) rompe cualquier `minmax(x,y)` → usar `fr` units. Commits: `c5fdc76` (11MB) · `e39ff61` (revert severity) · `e6e3c7b` (editorial reinyectado).)
 
