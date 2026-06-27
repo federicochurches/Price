@@ -212,10 +212,10 @@ def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
 
     panels = ''
     for t_key, t_label, df_t in [
-        ('pais','País', TAB_NoDispo['pais']),
-        ('destino','Destino', TAB_NoDispo['destino']),
-        ('corp','Corp', TAB_NoDispo['corp']),
-        ('hotel','Hotel', TAB_NoDispo['hotel']),
+        ('pais','País', TAB_NoDispo['pais'].head(50)),
+        ('destino','Destino', TAB_NoDispo['destino'].head(50)),
+        ('corp','Corp', TAB_NoDispo['corp'].head(50)),
+        ('hotel','Hotel', TAB_NoDispo['hotel'].head(10)),  # resto en RND_HOTEL_POOL lazy
     ]:
         # ── Helper centralizado — val_col buscado con fallbacks de NoDispo ─────
         # Para NoDispo la columna puede llamarse %NoDispo, pct_nodispo, nodispo
@@ -447,10 +447,10 @@ def _build_rnd_card_tabs_json():
     result = {}
     _AGG_BY_TKEY = {'pais':'agg_pais', 'destino':'agg_dest', 'corp':'agg_corp', 'hotel':'agg_hotel'}
     _GLOBAL_SRC = {
-        'pais':    (TAB_NoDispo['pais'],    TAB_RPM['pais']),
-        'destino': (TAB_NoDispo['destino'], TAB_RPM['destino']),
-        'corp':    (TAB_NoDispo['corp'],    TAB_RPM['corp']),
-        'hotel':   (TAB_NoDispo['hotel'],   TAB_RPM['hotel']),
+        'pais':    (TAB_NoDispo['pais'].head(50),    TAB_RPM['pais'].head(50)),
+        'destino': (TAB_NoDispo['destino'].head(50), TAB_RPM['destino'].head(50)),
+        'corp':    (TAB_NoDispo['corp'].head(50),    TAB_RPM['corp'].head(50)),
+        'hotel':   (TAB_NoDispo['hotel'].head(10),    TAB_RPM['hotel'].head(10)),  # lazy via RND_HOTEL_POOL
     }
     for canasta_key, tab_key in [('global','global'),('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         # Desglose per-canasta: cada canasta es un subset del Global (por DistributionCategory).
@@ -466,7 +466,7 @@ def _build_rnd_card_tabs_json():
                 df_nd, df_ipm = _GLOBAL_SRC[t_key]
             _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
-            df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(500)
+            df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(10)  # resto en RND_CARD_TABS JSON
             nd_tab = []
             for _, r in df_nd_s.iterrows():
                 lab      = str(r.get(_name_col, '?'))[:60]
@@ -494,7 +494,7 @@ def _build_rnd_card_tabs_json():
                     _cfc, _cfd, _cfp,                                   # r[11] corp, r[12] dest, r[13] pais
                 ])
             # IPM rows: ordenar peor primero (menor IPM)
-            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(500)
+            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(10)  # resto en RND_CARD_TABS JSON
             ipm_tab = []
             for _, r in df_ipm_s.iterrows():
                 lab      = str(r.get(_name_col, '?'))[:60]
