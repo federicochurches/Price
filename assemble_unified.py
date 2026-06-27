@@ -2990,26 +2990,22 @@ if (typeof HIST_DATA !== 'undefined') {
 '''
     + '''
 <script>
-/* ── Ocultar loading screen al terminar init (W25+) ── */
+/* ── Init reporte + ocultar loading (W25+) ── */
 (function(){
+  /* Llamar w22_setMode — ya existe porque este script está al final del body */
+  try {
+    if (typeof w22_setMode === 'function') {
+      w22_setMode('rnd', document.getElementById('mode-rnd'));
+    }
+  } catch(e) { console.warn('w22_setMode error:', e); }
+  /* Ocultar loader */
   function hideLoader(){
     var el = document.getElementById('supply-loading');
-    if (!el || el.style.display === 'none') return;
-    el.style.transition = 'opacity .35s';
-    el.style.opacity = '0';
-    setTimeout(function(){ el.style.display = 'none'; }, 380);
+    if (!el) return;
+    el.style.cssText = 'display:none!important;';
   }
-  /* Esperar a que w22_setMode y W estén listos */
-  var tries = 0;
-  (function boot(){
-    if (typeof w22_setMode === 'undefined' || typeof W === 'undefined') {
-      if (++tries < 80) setTimeout(boot, 100);
-      return;
-    }
-    hideLoader();
-  })();
-  /* Fallback: ocultar a los 8s si algo falla */
-  setTimeout(hideLoader, 8000);
+  setTimeout(hideLoader, 200);
+  setTimeout(hideLoader, 3000);
 })();
 </script>
 '''
