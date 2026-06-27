@@ -1,3 +1,44 @@
+## Sesión W25-strip-footer-fix · 27-06-2026 (continuación recovery)
+
+**Contexto:** Tras recuperar el editorial RE/PA, validación visual destapó 4 bugs encadenados. El más grave: un `g is not a function` que rompía el render de RND.
+
+### Bug raíz: tags sin escapar en el editorial reinyectado
+
+Al reinyectar los drilldowns editoriales en `CR_D`/`RND_D`, los cierres de tag (`</span>`, `</strong>`) quedaron **sin escapar** dentro del `<script>`. El HTML bueno los tenía como `<\/span>` (barra escapada). Al parsear el script, el navegador cortaba el bloque → la función `g` (alias de `getElementById`, definida más abajo) nunca se registraba → al cambiar a modo RND, `w22_setMode` → `w22_update` crasheaba con `g is not a function` → **el severity RND nunca se renderizaba** (se veía apilado).
+
+**Un solo bug, dos síntomas:** `g is not a function` + severity RND mal. Fix: escapar `</` → `<\/` dentro de los objetos `CR_D`/`RND_D` (`json.dumps` no escapa la barra por defecto).
+
+**Regla nueva (#42):** al inyectar HTML en strings JS dentro de `<script>`, SIEMPRE escapar `</` → `<\/`. Un `</script` literal corta el script; `</span>` etc. también pueden romper el parseo.
+
+### Bug: severity RND grid con comas rotas (regla #41 confirmada)
+
+El grid `repeat(auto-fit,minmax(min(280px,100%),1fr))` de RND quedó como `repeat(auto-fit.minmax(min(280px.100%).1fr))` — las comas convertidas en puntos por el `.replace(',', '.')` de `render_rnd_p2.py`. CSS inválido → grid colapsa a 1 columna → apilado. Fix: sacar el grid contenedor del `.replace(',', '.')` (el `len(p80)` se formatea aparte con `_n_p80_fmt`). El CR no tenía el problema (su replace estaba acotado).
+
+### Bug: strip RND con banda mal + IPM de más
+
+El strip superior calculaba la banda del 1er KPI con la lógica de **Eficacia** (`metric='ef'`) siempre. Para NoDispo 3,43% daba "Súper Crítica" (porque <60% en lógica Ef = Súper Crítica). Fix: agregada lógica de banda NoDispo a `_banda` (`metric='nd'`: <3% Exitosa, 3-5% Aceptable, etc.) y `_applyBand` usa `isCR ? 'ef' : 'nd'`. Además, IPM ($907) **eliminado del strip RND** (decisión del usuario): bloque `w22-strip-cv-item` + separador `w22-strip-cv-sep` se ocultan en `W.mode==='rnd'`.
+
+### Cambios cosméticos
+
+- **H1:** "Connectivities & Hotel Availability" → **"Disponibilidad & Conectividades"** (render_cr_p1.py + render_rnd_p1.py).
+- **Footer:** estaba fuera del `.shell` (pegado al borde). Envuelto en `<div class="shell">`. Reestructurado en **2 filas balanceadas**: Destinos W25 (México/US/CALA) + Cuentas W25 (Global Accounts/Cuentas Estratégicas). Labels de botón: `RND ↓` → **Disponibilidad ↓**, `CR ↓` → **Conectividades ↓**.
+
+### Archivos modificados
+- `js_override.js` — `_banda` (banda nd) + `_applyBand` mode-aware
+- `demo_js_main.js` — ocultar IPM strip en RND
+- `assemble_unified.py` — IDs del strip cv + footer 2 filas en shell
+- `render_cr_p1.py` / `render_rnd_p1.py` — H1
+- `render_rnd_p2.py` — severity grid fuera del replace
+- `reports/week-25/SUPPLY_W25.html` — todos los fixes + tags escapados
+
+### Commits
+`d30c404` escapar tags (g is not a function) · `bdc474f` strip banda+IPM · `7392d3c` strip scripts + H1 + footer shell · `460ea94` footer unificado · `2a21d4d` footer 2 filas
+
+### Aprendizaje clave
+El editorial reinyectado a mano necesita el MISMO escapado que el original (`<\/tag>`). Cuando se automatice la lógica editorial (pendiente #2), el generador debe emitir los drilldowns ya escapados.
+
+---
+
 ## Sesión W25-editorial-recovery · 27-06-2026
 
 **Contexto:** Recuperación del trabajo editorial RE/PA tras la saga del loading-blur que lo había sobrescrito. El usuario reportó 3 problemas persistentes (loading blur no aparece, descarga lenta, RE/PA y severity con formato viejo) y pidió explícitamente abandonar el parcheo iterativo: buscar en el historial la versión que funcionaba ANTES del loading blur y optimizar a fondo desde ahí.
