@@ -1,3 +1,54 @@
+## Sesión W25-editorial-recovery · 27-06-2026
+
+**Contexto:** Recuperación del trabajo editorial RE/PA tras la saga del loading-blur que lo había sobrescrito. El usuario reportó 3 problemas persistentes (loading blur no aparece, descarga lenta, RE/PA y severity con formato viejo) y pidió explícitamente abandonar el parcheo iterativo: buscar en el historial la versión que funcionaba ANTES del loading blur y optimizar a fondo desde ahí.
+
+### Diagnóstico raíz (la lección de la sesión)
+
+El RE/PA editorial bueno (drilldowns Propuesta C, "Equipo Optimización: Corregir...", terminología "Error Rate"/"Tasa No Dispo Crítica") fue editado **directamente en el HTML** el 26-06 (sesiones `4ce42bba` y `30e7eb56`, commits `9bac1ae0` → `356cdaed`). **Nunca se trasladó a los scripts del pipeline.** Cuando durante la saga del blur se regeneró el HTML desde `assemble_unified.py`/`render_*.py`, todo ese trabajo se perdió y volvió la versión vieja del pickle ("Escalar Hyatt House Irvine — Ef 20,08%").
+
+**Aprendizaje crítico:** el contenido editorial (re/plan/co) vive SOLO en el HTML parcheado, no en el pipeline. Regenerar = perderlo. Hasta automatizar la lógica editorial en `render_*_p2.py` (pendiente W26), nunca regenerar el HTML sin reinyectar el editorial.
+
+### Cambios principales
+
+**1. Performance — cap de la card AR NoDispo (`render_rnd_p1.py`)**
+- La card `kpicard-ar-nd` emitía **11.313 hoteles "Sin Conversión"** como filas HTML (~13MB). Era el cuello de botella real (no el download, sino el parse del browser).
+- Fix: `_df_br` → `.head(200)`, `_df_sc` → `.head(100)` en los splits de banda de `render_ar_card_nodispo()`.
+- Tabs KPI NoDispo capeadas: pais/destino/corp `.head(50)`, hotel `.head(10)` (resto en RND_HOTEL_POOL lazy).
+- **HTML 33MB → 11MB.** section-cr 3MB, section-rnd 8MB.
+
+**2. Recuperación editorial — reinyección de re/plan/co**
+- Extraídos `re`/`plan`/`co` de las 4 canastas (global/b2c/op/cug) de CR y RND del commit pre-blur `48a45519` (`__cr_d_json` + `__rnd_d_json`).
+- Reinyectados en `CR_D` y `RND_D` del HTML de 11MB (parseo balanceado de llaves del objeto JS inline, reemplazo de re/plan/co por canasta, re-serialización compacta).
+- El render del actual (`w22_renderRE`/PA) ya maneja los campos editoriales: RE título `(r.t||r.n)`, sub `r.d` (drilldown); PA título `p.a`, sub `(p._sub||p.o)`.
+- Resultado: RE "11 hoteles con Error Rate del 100%", PA "Equipo Optimización: Corregir...", drilldowns con acento lateral (Corps `#5C469C`, Destinos `#185FA5`, Hoteles `#0F6E56`).
+
+**3. Severity — revert a auto-fit pre-blur**
+- Durante la saga se cambió el grid de severity de `auto-fit` a `repeat(3,1fr)` + `fr` units intentando arreglar el apilado. Comparación byte-a-byte contra el HTML pre-blur confirmó que el CSS de severity era **idéntico** al bueno → el cambio no era necesario.
+- Revertido a `repeat(auto-fit,minmax(min(280px,100%),1fr))` + sev-row `120px 80px 1fr 60px 45px` (estado pre-blur que funcionaba).
+- **Trampa documentada:** el `.replace(',', '.')` al final de los f-strings de severity (formato español) convierte TODA coma en punto → rompe cualquier `minmax(x,y)` → `minmax(x.y)` (CSS inválido). Usar `fr` units sin comas o el grid colapsa.
+
+**4. netlify.toml — no-store**
+- `Cache-Control: public, max-age=0, must-revalidate` → `no-store, no-cache, must-revalidate, max-age=0` para `/*.html` y `/reports/*/*.html`. Evita que el browser cachee HTML viejo entre deploys.
+
+### Sobre el loading blur
+- El blur NO puede aparecer antes del first-paint en un HTML monolítico grande: el browser no pinta hasta terminar de parsear `</body>`. El loader CSS está en HEAD + div al inicio del body, pero igual no se ve hasta el parse completo.
+- Solución real (pendiente): split (loader mini + fetch) — ya intentado y falló por re-ejecución de scripts inline — O lazy-render de section-rnd desde JSON. Diferido.
+
+### Commits de la sesión
+`f0c53d6` RND_HOTEL_HIST vacío (27MB) · `0d9acbd` caps hotel/pais/dest/corp · `c5fdc76` AR NoDispo capped (11MB) · `79fc6f0` netlify no-store · `6e21aaa` severity grid 3col (revertido) · `e39ff61` revert severity a pre-blur · `e6e3c7b` RE+PA editorial reinyectado
+
+### Archivos modificados
+- `render_rnd_p1.py` — caps de filas AR + tabs
+- `render_cr_p2.py` / `render_rnd_p2.py` — severity (revertido a estado pre-blur)
+- `netlify.toml` — no-store
+- `reports/week-25/SUPPLY_W25.html` — HTML final 11MB con editorial reinyectado
+
+### Pendientes
+- **Loading blur real:** requiere split o lazy-render de section-rnd. No resuelto.
+- **Automatizar lógica editorial:** replicar la selección de hoteles (top 5 ND Exitosa, top 10 Crítica, Score C, drilldowns Corps/Dest/Hoteles) en `render_rnd_p1.py`/`render_cr_p1.py` para que el pipeline genere el RE/PA editorial automáticamente. Mientras no exista, regenerar el HTML pierde el editorial.
+
+---
+
 ## Sesión W26-rnd-ar-card · 25-06-2026
 
 **Contexto:** Implementar card AR (Análisis de Rendimiento) de NoDispo en la sección RND — 2 cards lado a lado en el HERO (KPI izquierda, AR derecha). La card AR es espejo de la KPI con pills de banda (Críticos/Bajo Rendimiento/Sin Conversión) en vez de pills de dimensión. Branch: `feat/rnd-ar-card`.

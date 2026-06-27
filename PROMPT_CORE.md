@@ -558,24 +558,32 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 38. Setear `_arCrossFilter[n].hotel` en el hotel handler de AR (self-filter rule) — causó BR/SC vacío al filtrar por hotel fuera de su banda. El toggle usa `data-selected`, no el cross-filter
 39. Regenerar el HTML completo (18MB+) en cada iteración de fix visual de una card — primero crear un HTML standalone con solo la card, validar visualmente, y solo entonces aplicar al script fuente
 
+40. **Regenerar el HTML del pipeline sin reinyectar el editorial RE/PA** — el contenido editorial (`re`/`plan`/`co` de las 4 canastas en `CR_D`/`RND_D`) se edita DIRECTAMENTE en el HTML, NO existe en los scripts del pipeline. Regenerar desde `assemble_unified.py`/`render_*.py` lo pierde y vuelve la versión vieja del pickle. Hasta automatizar la lógica editorial en `render_*_p1.py`, SIEMPRE reinyectar el editorial del último commit bueno tras regenerar. Extraer de `__cr_d_json`/`__rnd_d_json` (o del `CR_D`/`RND_D` inline) del commit editorial y reemplazar re/plan/co por canasta.
+
+41. **Usar `minmax(x,y)` en CSS dentro de los f-strings de severity** (`render_cr_p2.py`/`render_rnd_p2.py`) — el `.replace(',','.')` final (formato español de números) convierte la coma del `minmax` en punto → `minmax(x.y)` CSS inválido → el grid colapsa/apila. Usar unidades `fr` sin comas (`0.9fr 0.5fr 1.4fr`) o `repeat(3,1fr)` que sobrevive el replace.
+
 ## ⚠️ Nota sobre git pull local
 - `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
 - Alternativa rápida: `git fetch origin && git reset --hard origin/main`
 - Los datasets locales no se pierden con reset (están en .gitignore)
 - **Encoding Windows**: `render_cr_p1.py` y `render_rnd_p1.py` usan `encoding='utf-8'` en el `open()` de escritura
 
-## 📋 Pendientes próxima sesión (actualizados 26-06-2026, cierre W25-editorial-visual)
+## 📋 Pendientes próxima sesión (actualizados 27-06-2026, cierre W25-editorial-recovery)
 
 Por valor/orden sugerido:
 
-1. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. El pipeline copia a `reports/` y commitea automáticamente.
-2. **Cards AR de CR** — al seleccionar hotel en panel AR, el sparkline no muestra el label del elemento activo. Bug preexistente.
-3. **Canastas RND RE[1]** — "X hoteles con 0 Reservas" (finding genérico sin conversión) — pendiente evaluar si eliminar como se hizo con el 11.313 del global.
-4. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
-5. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos.
-6. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
-7. **Pipeline W26+: automatizar lógica editorial** — replicar criterios de selección de hoteles (top 5 ND Exitosa, top 10 ND Crítica, etc.) en `render_rnd_p1.py` y `render_cr_p1.py` para que el pipeline genere los _sub automáticamente.
+1. **Loading blur real** — el blur no aparece porque el browser no pinta hasta parsear todo el HTML monolítico. Solución: split (loader mini + fetch — ya falló por re-ejecución de scripts) O lazy-render de section-rnd desde JSON al hacer click en "Disponibilidad". No resuelto, requiere sesión dedicada.
+2. **Automatizar lógica editorial RE/PA** (PRIORIDAD ALTA) — el editorial (re/plan/co) vive SOLO en el HTML, no en el pipeline. Replicar la selección de hoteles (top 5 ND Exitosa <3%, top 10 ND Crítica, Score C, drilldowns Corps/Dest/Hoteles, terminología "Error Rate"/"Tasa No Dispo Crítica") en `render_rnd_p1.py`/`render_cr_p1.py`. Mientras no exista, **regenerar el HTML pierde el editorial** (ver regla #40 y EDITORIAL_ENGINE_DESIGN.md).
+3. **Pipeline W26** — recibir datasets W26 → `git pull origin main` → `python calc_supply.py`. **OJO:** el pipeline regenera el HTML → perderá el editorial de W25 si no se automatiza primero (punto 2) o se reinyecta.
+4. **Cards AR de CR** — al seleccionar hotel en panel AR, el sparkline no muestra el label del elemento activo. Bug preexistente.
+5. **Mail W26** — generar con `render_mail_v3.py` tras el pipeline.
+6. **Cleanup #4 — código muerto** — `check_html` lista 32 IDs huérfanos.
+7. **Reconciliar `PROMPT_INV.md`** — actualizar con valores W25 reales.
 
+✅ **RE/PA editorial W25 recuperado** — reinyectado del commit pre-blur en HTML 11MB · 27-06-2026.
+✅ **Performance W25** — card AR NoDispo capeada (BR=200/SC=100), HTML 33→11MB · 27-06-2026.
+✅ **Severity W25** — revertido a auto-fit pre-blur · 27-06-2026.
+✅ **netlify.toml no-store** — evita cache de HTML viejo · 27-06-2026.
 ✅ **Card AR NoDispo (RND)** — implementada, validada y en producción (main).
 ✅ **Panel AR compartido oculto en RND** — implementado en `js_override.js`.
 ✅ **Pipeline fix** — copia HTML a `reports/` ANTES de `build_package` + commit automático GitHub [paso 11].
@@ -678,7 +686,9 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ---
 
 <<<<<<< HEAD
-**Última actualización:** W25-editorial-visual · 26-06-2026 (**RE+PA refinamiento visual + editorial CR+RND completo** — Layout 2 columnas unificado (14px/10px/11px/9px). Drilldown Propuesta C: acento lateral por tipo (Corps #5C469C · Destinos #185FA5 · Hoteles #0F6E56). Colores hardcodeados CR #5C469C / RND #EA0074 (var(--accent) fuera de scope del re-pa-grid). PA con Corps+Destinos+Hoteles. Terminología CR: Error Rate, 0 Reservas, sin errores, Conversión Crítica. RND: Tasa de No Dispo Crítica, disponibilidad Exitosa. Findings eliminados: 627 CR global, 11.313 RND global, 507/432/409 CR canastas. Acción "sin conversión" eliminada de todas las canastas. Top 5 ND Exitosa (<3%) por canasta desde pickle. Nombre de canasta eliminado de títulos (redundante). Footer + Carryover paper-soft restaurados.)
+**Última actualización:** W25-editorial-recovery · 27-06-2026 (**Recuperación editorial RE/PA + optimización 33→11MB tras saga loading-blur** — El RE/PA editorial bueno (drilldowns, "Equipo Optimización: Corregir...", "Error Rate"/"Tasa No Dispo Crítica") fue editado SOLO en el HTML el 26-06, nunca en los scripts. La saga del blur regeneró el HTML desde el pipeline → perdió todo el editorial (volvió "Escalar Hyatt House" del pickle). **Fix:** extraídos re/plan/co de las 4 canastas CR+RND del commit pre-blur `48a45519` (`__cr_d_json`/`__rnd_d_json`) y reinyectados en `CR_D`/`RND_D` del HTML de 11MB. **Performance:** card AR NoDispo emitía 11.313 hoteles "Sin Conversión" como HTML (~13MB) → `_df_br.head(200)` + `_df_sc.head(100)` en `render_ar_card_nodispo()` + tabs KPI capeadas → 33→11MB (el cuello era el PARSE del browser, no el download). **Severity:** revertido a `auto-fit` pre-blur (el cambio a `repeat(3,1fr)` no era necesario — CSS era idéntico al bueno). `netlify.toml` → `no-store`. **REGLA CRÍTICA NUEVA:** el contenido editorial (re/plan/co) vive SOLO en el HTML parcheado, NO en el pipeline — regenerar el HTML lo pierde. Hasta automatizar la lógica editorial en `render_*_p1.py` (pendiente), nunca regenerar sin reinyectar el editorial del último commit bueno. **Trampa documentada:** `.replace(',','.')` de los f-strings de severity (formato español) rompe cualquier `minmax(x,y)` → usar `fr` units. Commits: `c5fdc76` (11MB) · `e39ff61` (revert severity) · `e6e3c7b` (editorial reinyectado).)
+
+**Última actualización previa:** W25-editorial-visual · 26-06-2026 (**RE+PA refinamiento visual + editorial CR+RND completo** — Layout 2 columnas unificado (14px/10px/11px/9px). Drilldown Propuesta C: acento lateral por tipo (Corps #5C469C · Destinos #185FA5 · Hoteles #0F6E56). Colores hardcodeados CR #5C469C / RND #EA0074 (var(--accent) fuera de scope del re-pa-grid). PA con Corps+Destinos+Hoteles. Terminología CR: Error Rate, 0 Reservas, sin errores, Conversión Crítica. RND: Tasa de No Dispo Crítica, disponibilidad Exitosa. Findings eliminados: 627 CR global, 11.313 RND global, 507/432/409 CR canastas. Acción "sin conversión" eliminada de todas las canastas. Top 5 ND Exitosa (<3%) por canasta desde pickle. Nombre de canasta eliminado de títulos (redundante). Footer + Carryover paper-soft restaurados.)
 
 **Última actualización previa:** W25-inv-corp-dest · 24-06-2026 (**CORP_DEST_DATA** — filtro corp×destino en Inventory: agregado dataset Python + bloque JS en `hApplyFilter`. Visibilidad de filas funciona (15 corps correctos), actualización de valores pendiente de validación en sesión dedicada.)
 
