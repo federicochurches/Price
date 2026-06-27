@@ -4,13 +4,13 @@
 [[headers]]
   for = "/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]
   for = "/reports/*/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
 
 [[headers]]
   for = "/*.xlsx"
@@ -29,4 +29,4 @@
   [headers.values]
     Content-Disposition = "attachment"
     Cache-Control = "public, max-age=86400"
-# deploy: 2026-06-26 22:20:00
+# deploy: 2026-06-27 04:30:00
