@@ -108,7 +108,7 @@ function w22_renderRE(open){
   var h=(i>=5&&!W.reOpen)?' style="display:none;"':'';
   return '<li'+h+' style="position:relative;padding:10px 0 10px 56px;border-bottom:1px solid var(--rule);line-height:1.55;">'
    +'<span style="font-size:10px;color:var(--ink-muted);font-weight:500;position:absolute;left:0;top:14px;">'+(i<9?'0'+(i+1):i+1)+'</span>'
-   +'<strong style="display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;">'+r.n+'</strong>'
+   +'<strong style="display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;">'+(r.t||r.n||'')+'</strong>'
    +'<span style="color:var(--ink-muted);font-size:11px;">'+(r.d||'')+'</span></li>';
  }).join('');
  var btn=g('w22-re-btn');if(btn)btn.textContent=W.reOpen?'Ver menos ↑':'Ver 5 más ↓';
@@ -241,7 +241,7 @@ function w22_update(){
   return '<li style="position:relative;padding:10px 0 10px 56px;border-bottom:1px solid var(--rule);line-height:1.55;">'
    +'<span style="font-size:10px;color:var(--ink-muted);font-weight:500;position:absolute;left:0;top:14px;">'+(i<9?'0'+(i+1):i+1)+'</span>'
    +'<strong style="display:block;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;">'+p.a+'</strong>'
-   +'<span style="color:var(--ink-muted);font-size:11px;">'+(p._sub||'')+'</span></li>';
+   +'<span style="color:var(--ink-muted);font-size:11px;">'+(p._sub||p.o||'')+'</span></li>';
  }).join('');
 
  var co=g('w22-co');
