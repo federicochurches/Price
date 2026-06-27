@@ -2988,6 +2988,31 @@ if (typeof HIST_DATA !== 'undefined') {
     </div>
   </div>
 '''
+    + '''
+<script>
+/* ── Ocultar loading screen al terminar init (W25+) ── */
+(function(){
+  function hideLoader(){
+    var el = document.getElementById('supply-loading');
+    if (!el || el.style.display === 'none') return;
+    el.style.transition = 'opacity .35s';
+    el.style.opacity = '0';
+    setTimeout(function(){ el.style.display = 'none'; }, 380);
+  }
+  /* Esperar a que w22_setMode y W estén listos */
+  var tries = 0;
+  (function boot(){
+    if (typeof w22_setMode === 'undefined' || typeof W === 'undefined') {
+      if (++tries < 80) setTimeout(boot, 100);
+      return;
+    }
+    hideLoader();
+  })();
+  /* Fallback: ocultar a los 8s si algo falla */
+  setTimeout(hideLoader, 8000);
+})();
+</script>
+'''
     + '\n</body>\n</html>\n'
 )
 
