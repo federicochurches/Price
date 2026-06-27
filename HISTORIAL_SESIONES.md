@@ -4225,3 +4225,74 @@ Continuación de la sesión de debug de Inventory. Después de resolver el bug d
 
 ### Archivos modificados
 - `reports/week-25/SUPPLY_W25.html` — único archivo modificado
+
+---
+
+## Sesión W26-mail-layout · 27-06-2026
+
+### Contexto
+Rediseño completo del mail semanal de Supply Optimization. Partimos de `render_mail_v3.py` v4.0 y trabajamos el layout visual desde cero con múltiples iteraciones de diseño, validación en desktop e iPad.
+
+### Decisiones de diseño (canónicas para W26+)
+
+**Layout 3 filas de KPIs — orden fijo:**
+1. **Status Contratación** — netnew semanal (hero) + Producto Propio + Gap Target · en una sola fila horizontal
+2. **% No Disponibilidad** — Destinos Primarios · Destinos Secundarios · Destinos Terciarios (3 celdas)
+3. **Performance** — Conv Rate · Eficacia · Bookability (3 celdas)
+
+**Nomenclatura:**
+- Sección NoDispo: `% No Disponibilidad` · labels: `Destinos Primarios/Secundarios/Terciarios`
+- Sección conectividad: `Performance` (no "Estado de Conectividades" — Conv Rate no es un indicador de conectividad)
+- Contratación: `Status Contratación` (sin "Plan 2026")
+- Botón inventario: `→ Inventario W26` (no "State of PriceTravel Product")
+
+**Header:** borde top negro 3px + "PriceTravel" grande + badge `Week NN` (fondo negro, texto blanco) a la derecha con fecha debajo
+
+**Footer:** una sola línea centrada: `PriceTravel · Supply Optimization · WNN · periodo · Vol. NN`
+
+**3 botones CTA:**
+- Hub Supply Optimization → fondo `#161616` negro
+- Disponibilidad & Conectividades WNN → fondo `#EA0074` magenta
+- Inventario WNN → fondo `#4FC3F4` cyan · texto `#161616`
+
+**Compatibilidad:** todos los colores críticos (badge, botones, bandas de severity, WoW badges) hardcodeados con `style` inline y `background-color` (no `background`) para garantizar render en clientes de mail y browsers iPad/Safari.
+
+**Bloque editorial:** sección `Highlights de la semana` entre los KPIs y el CTA. Texto configurable via env var `MAIL_HIGHLIGHTS`.
+
+**Texto CTA fijo:**
+> Encontrá los findings completos por Hotel, Corporativo y Destinos. Descargá el Análisis de tu cluster: Destinos México, Destinos US, CALA, Cuentas Estratégicas y Global Accounts.
+> Resumen Ejecutivo y Plan de Acción en el Hub.
+
+### Cambios en scripts
+
+**`render_mail_v3.py` → v5.0** (commit `03bb59184b0c`)
+- Reescritura completa del layout
+- Lee `DR['nd_por_tier']` para las 3 celdas de NoDispo (fallback al global si no existe)
+- Nueva variable de entorno: `MAIL_HIGHLIGHTS` para el texto editorial
+- Variables Contratación: `INV_NETNEW`, `INV_NETNEW_WOW`, `INV_PP`, `INV_GAP`, `INV_PCT_AVANCE`, `INV_TARGET`
+- Bloque contratación omitido si `INV_PP == 0`
+- Bookability omitida si pickle BK no existe
+
+**`calc_rnd.py`** (commit `0789b54b1ea1`)
+- Agrega `nd_por_tier` al pickle después del cálculo de severity
+- Usa `get_dest_tier()` de `engine.py` (ya existente desde W26)
+- Estructura: `{'PRIMARIO': {'pct_nodispo': float, 'wow_pp': float, 'n_hoteles': int}, 'SECUNDARIO': ..., 'TERCIARIO': ...}`
+- Envuelto en try/except — si falla, guarda `{}` y el mail usa fallback global
+
+### Variables de entorno para correr el mail W26+
+```powershell
+$env:WEEK="W26"; $env:VOL_NUM="26"; $env:PERIODO="23–29 jun 2026"
+$env:PICKLE_RND="rnd_w26_data.pkl"
+$env:PICKLE_CR="cr_w26_data.pkl"
+$env:PICKLE_BK="bk_w26_data.pkl"
+$env:INV_NETNEW="44"; $env:INV_NETNEW_WOW="6"
+$env:INV_PP="58990"; $env:INV_GAP="11010"
+$env:INV_PCT_AVANCE="84.3"; $env:INV_TARGET="70000"
+$env:MAIL_HIGHLIGHTS="Texto del highlight de la semana..."
+py render_mail_v3.py
+```
+
+### Archivos modificados
+- `render_mail_v3.py` — reescritura completa v5.0
+- `calc_rnd.py` — agrega `nd_por_tier` al pickle
+
