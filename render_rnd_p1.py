@@ -289,8 +289,8 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
     _bk  = _hot['Bookings'].fillna(0) if 'Bookings' in _hot.columns else pd.Series(0, index=_hot.index)
     _bcol = _hot['%NoDispo'].apply(lambda v: banda_nodispo(_sf(v)) if _sf(v) is not None else '—')
     _df_crit = _hot[(_bk > 0) & _bcol.isin(['Crítica', 'Súper Crítica'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
-    _df_br   = _hot[(_bk > 0) & _bcol.isin(['Revisar', 'Aceptable'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True)
-    _df_sc   = _hot[_bk == 0].sort_values('Trafico', ascending=False).reset_index(drop=True)
+    _df_br   = _hot[(_bk > 0) & _bcol.isin(['Revisar', 'Aceptable'])].sort_values('%NoDispo', ascending=False).reset_index(drop=True).head(200)
+    _df_sc   = _hot[_bk == 0].sort_values('Trafico', ascending=False).reset_index(drop=True).head(100)
 
     # ── Config del panel hotel (idéntica a la KPI card · 4 cols) ──
     _AR_CFG = {
