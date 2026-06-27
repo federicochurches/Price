@@ -1322,7 +1322,7 @@ var CR_CARD_TABS={};
 </script>
 
 <script>
-var CR_HOTEL_POOL={};
+var CR_HOTEL_POOL=[];
 var _CR_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\u00edtica","S\u00faper Cr\u00edtica","Sin Conversi\u00f3n"];
 </script>
 
@@ -1592,7 +1592,7 @@ var RND_MEMBERSHIP={"corpDest": {"AA-Independent": ["Abu Dhabi", "Acapulco", "Ag
 </script>
 
 <script>
-var RND_HOTEL_POOL={};
+var RND_HOTEL_POOL=[];
 var _RND_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\u00edtica","S\u00faper Cr\u00edtica","Sin Conversi\u00f3n"];
 </script>
 
@@ -2337,12 +2337,12 @@ body[data-ar-mode='rnd'] .ar-cards-grid { grid-template-columns: 1fr !important;
 var _VOL_NUM = 25;
 
 var CR_CV={"global": {"ef": "95,68%", "cv": "0,75%", "ef_prev": "95,80%", "cv_prev": "0,85%", "ef_wow": -0.12, "cv_wow": -0.1, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Crítica", "bbg_cv": "#C0392B", "bfg_cv": "#FFFFFF", "col": "#333132", "vol": "2212K", "trafico": "2.212.475", "traf_wow": 29.3, "kv_id": "w25-kv-ef", "kv2_id": "w25-kv-cv", "hist_id": "w25-hist-ef", "hist2_id": "w25-hist-cv"}, "b2c": {"ef": "95,53%", "cv": "0,14%", "ef_prev": "95,81%", "cv_prev": "0,15%", "ef_wow": -0.28, "cv_wow": -0.01, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Crítica", "bbg_cv": "#C0392B", "bfg_cv": "#FFFFFF", "col": "#EA0074", "vol": "387K", "trafico": "387.812", "traf_wow": 27.9, "kv_id": "w25-kv-ef", "kv2_id": "w25-kv-cv", "hist_id": "w25-hist-ef", "hist2_id": "w25-hist-cv"}, "op": {"ef": "95,15%", "cv": "0,63%", "ef_prev": "95,30%", "cv_prev": "0,64%", "ef_wow": -0.15, "cv_wow": -0.0, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Crítica", "bbg_cv": "#C0392B", "bfg_cv": "#FFFFFF", "col": "#FCB000", "vol": "672K", "trafico": "672.841", "traf_wow": 21.2, "kv_id": "w25-kv-ef", "kv2_id": "w25-kv-cv", "hist_id": "w25-hist-ef", "hist2_id": "w25-hist-cv"}, "cug": {"ef": "96,04%", "cv": "1,01%", "ef_prev": "96,12%", "cv_prev": "1,24%", "ef_wow": -0.08, "cv_wow": -0.22, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Revisar", "bbg_cv": "#F97316", "bfg_cv": "#FFFFFF", "col": "#4FC3F4", "vol": "1151K", "trafico": "1.151.822", "traf_wow": 35.0, "kv_id": "w25-kv-ef", "kv2_id": "w25-kv-cv", "hist_id": "w25-hist-ef", "hist2_id": "w25-hist-cv"}};
-var CR_D=JSON.parse(document.getElementById('__cr_d_json').textContent);
+var CR_D=(function(){try{var t=document.getElementById('__cr_d_json').textContent;return t?JSON.parse(t):{global:{re:[],plan:[],co:[]},b2c:{re:[],plan:[],co:[]},op:{re:[],plan:[],co:[]},cug:{re:[],plan:[],co:[]}};}catch(e){return {global:{re:[],plan:[],co:[]},b2c:{re:[],plan:[],co:[]},op:{re:[],plan:[],co:[]},cug:{re:[],plan:[],co:[]}};}})();
 var CR_AL={"global": [["🏨", "Hoteles", "Hyatt House Irvine/John Wayne Airpo", "20,08%", "Hôtel Palais de la Méditerranée In ", "0,01%"], ["📍", "Destinos", "Merida", "11,66%", "Zúrich", "0,00%"], ["🏢", "Corporativo", "Blue Doors", "0,00%", "Oxo Hotel", "0,00%"]], "b2c": [["🏨", "Hoteles", "Hyatt Regency La Jolla", "49,41%", "Harrah's Las Vegas", "0,04%"], ["📍", "Destinos", "Barranquilla", "0,00%", "Abilene", "0,00%"], ["🏢", "Corporativo", "Marriott", "5,08%", "Best Western", "0,00%"]], "op": [], "cug": []};
 
 
 var RND_CV={"global": {"ef": "3,43%", "cv": "$907", "ef_prev": "3,03%", "cv_prev": "$669", "ef_wow": 0.4, "cv_wow": 238.46, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Exitosa", "bbg_cv": "#1A6B4A", "bfg_cv": "#FFFFFF", "col": "#333132", "vol": "8,9B", "trafico": "8,9B", "traf_wow": -38.3}, "b2c": {"ef": "3,48%", "cv": "$416", "ef_prev": "3,28%", "cv_prev": "$253", "ef_wow": 0.2, "cv_wow": 162.34, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Revisar", "bbg_cv": "#F97316", "bfg_cv": "#FFFFFF", "col": "#EA0074", "vol": "1,0B", "trafico": "1,0B", "traf_wow": -44.4}, "op": {"ef": "3,48%", "cv": "$614", "ef_prev": "3,22%", "cv_prev": "$394", "ef_wow": 0.26, "cv_wow": 219.18, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Aceptable", "bbg_cv": "#FBBF24", "bfg_cv": "#FFFFFF", "col": "#FCB000", "vol": "3,6B", "trafico": "3,6B", "traf_wow": -39.1}, "cug": {"ef": "3,36%", "cv": "$1.396", "ef_prev": "2,79%", "cv_prev": "$1.041", "ef_wow": 0.58, "cv_wow": 355.61, "band": "Aceptable", "bbg": "#FBBF24", "bfg": "#FFFFFF", "band_cv": "Exitosa", "bbg_cv": "#1A6B4A", "bfg_cv": "#FFFFFF", "col": "#4FC3F4", "vol": "4,2B", "trafico": "4,2B", "traf_wow": -35.8}};
-var RND_D=JSON.parse(document.getElementById('__rnd_d_json').textContent);
+var RND_D=(function(){try{var t=document.getElementById('__rnd_d_json').textContent;return t?JSON.parse(t):{global:{re:[],plan:[],co:[]},b2c:{re:[],plan:[],co:[]},op:{re:[],plan:[],co:[]},cug:{re:[],plan:[],co:[]}};}catch(e){return {global:{re:[],plan:[],co:[]},b2c:{re:[],plan:[],co:[]},op:{re:[],plan:[],co:[]},cug:{re:[],plan:[],co:[]}};}})();
 var RND_AL={"global": [["🏨", "Hoteles", "Grand Prince Hotel Shin Takanawa", "94,99%", "Hampton by Hilton London Waterloo", "$0"], ["📍", "Destinos", "Lanzarote", "53,67%", "Whitsunday Islands", "$-32.271"], ["🏢", "Corporativo", "Carimundi", "56,94%", "BH Hoteles", "$0"]], "b2c": [["🏨", "Hoteles", "Riu Palace Paradise Island - Adults", "86,61%", "Planet Hollywood Resort & Casino La", "$0"], ["📍", "Destinos", "Adjara", "55,66%", "Waltham", "$-8.511"], ["🏢", "Corporativo", "Nacional Inn", "18,36%", "Americas Hotels Group", "$0"]], "op": [["🏨", "Hoteles", "HCC St. Moritz", "99,50%", "Hyatt Regency Columbus", "$0"], ["📍", "Destinos", "Marrakesh", "72,23%", "Roatan", "$-92.528"], ["🏢", "Corporativo", "Carimundi", "51,35%", "Disney", "$0"]], "cug": [["🏨", "Hoteles", "Banyan Tree Bangkok", "95,44%", "Sheraton Buganvilias Puerto Vallart", "$0"], ["📍", "Destinos", "Menorca", "87,27%", "Whitsunday Islands", "$-64.322"], ["🏢", "Corporativo", "Carimundi", "57,92%", "Americas Hotels Group", "$0"]]};
 
 var HIST_CR={"hcr-global-ef": {"vals": [93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68], "target": 97.0}, "hcr-global-cv": {"vals": [1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.75], "target": 2.5}, "hcr-panel-ef": {"vals": [93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68], "target": 97.0}, "hcr-panel-cv": {"vals": [1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.75], "target": 2.5}, "hcr-dim-ef": {"vals": [93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68], "target": 97.0}, "hcr-dim-cv": {"vals": [1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.75], "target": 2.5}, "h-global-ef": {"vals": [93.71, 93.3, 93.34, 93.15, 94.21, 94.53, 95.57, 95.68], "target": 97.0}, "h-global-cv": {"vals": [1.02, 1.14, 1.63, 1.57, 1.0, 0.84, 0.82, 0.75], "target": 2.5}, "h-op-ef": {"vals": [94.25, 93.87, 93.96, 93.81, 94.68, 94.04, 95.3, 95.15], "target": 97.0}, "h-op-cv": {"vals": [0.94, 1.06, 1.59, 1.52, 0.92, 0.63, 0.64, 0.63], "target": 2.5}, "h-cug-ef": {"vals": [92.65, 92.54, 92.28, 92.11, 92.74, 95.04, 96.12, 96.04], "target": 97.0}, "h-cug-cv": {"vals": [1.82, 2.07, 2.9, 2.74, 2.12, 1.23, 1.24, 1.01], "target": 2.5}, "h-b2c-ef": {"vals": [92.18, 91.49, 92.01, 91.88, 92.41, 94.14, 95.81, 95.53], "target": 97.0}, "h-b2c-cv": {"vals": [0.27, 0.25, 0.39, 0.36, 0.28, 0.18, 0.15, 0.14], "target": 2.5}};
@@ -8540,6 +8540,7 @@ window.bkSort = function(el) {
 <script>
 (function _bootMode(){
   if(typeof w22_setMode==='undefined'||typeof data==='undefined'){setTimeout(_bootMode,80);return;}
+  if(typeof W==='undefined'){setTimeout(_bootMode,80);return;}
   var btn=document.getElementById('mode-rnd');
   if(btn)w22_setMode('rnd',btn);
   if(typeof w22_toggleRE==='function'&&!W.reOpen){setTimeout(function(){if(!W.reOpen)w22_toggleRE();},200);}
