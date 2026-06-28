@@ -4371,3 +4371,30 @@ py render_mail_v3.py
 - `render_mail_v3.py` — reescritura completa v5.0
 - `calc_rnd.py` — agrega `nd_por_tier` al pickle
 
+---
+
+## Sesión W26 · 28-06-2026 — RE/PA nuevo diseño v9
+
+### Contexto
+Rediseño completo del bloque Resumen Ejecutivo + Plan de Acción. El badge del área responsable se movió a la misma fila del título, alineado al margen derecho. Aplica a CR y RND en todas las canastas (global dinámico JS + canastas colapsables estáticas p3).
+
+### Cambios de diseño
+- **Estructura de ítem (RE y PA idénticos):** círculo numerado 22×22px en color del modo → título 13px bold flex:1 → badge área alineado a la derecha (solo primer fragmento antes de `/`)
+- **Drilldown:** sangrado `padding:7px 0 0 32px`, grid corps/destinos 1fr 1fr + hoteles full-width
+- **Separador:** `1px dashed var(--rule-soft)` entre ítems; último sin borde
+- **Contenedor:** `background:#fff; border:1px solid var(--rule); border-top:3px solid col; border-radius:3px; padding:0 14px` — border-top aplicado vía JS con `col` del modo activo (no CSS scoped, que fallaba porque `closest('.section-cr')` devolvía false)
+
+### Bug cerrado: CSS scoped no aplicaba
+`.section-cr #w22-re-list { border-top:3px solid #5C469C }` no aplicaba porque el `#w22-re-list` no está dentro de `.section-cr`. Fix: `el.style.borderTop = '3px solid ' + col` directamente en `w22_renderRE()`.
+
+### Bug cerrado: HTML en Netlify era el viejo
+Fede no podía hacer `git push` del HTML regenerado localmente. Solución: patch directo al HTML del repo desde Claude vía Git Tree API (commit `11130679`).
+
+### Archivos modificados
+- `demo_js_main.js` — `w22_renderRE`, render plan, render carryover (nuevo diseño v9)
+- `demo_css_w22.css` — contenedor `#w22-re-list` y `#w22-pg` con estilos base; border-top removido del CSS (va por JS)
+- `template_resumen.py` — reescrito con nuevo diseño (círculo + título + badge valor + drilldown sangrado)
+- `render_cr_p3.py` — PA canastas colapsables reemplaza `.action-row qw/mp/es` por `_pa_item_cr()` inline styles
+- `assemble_unified.py` — `<ul>` sin inline styles redundantes
+- `reports/week-25/SUPPLY_W25.html` — patch directo (commit `11130679`)
+

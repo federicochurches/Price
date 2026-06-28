@@ -829,7 +829,7 @@ que todos los cambios están en los scripts y en los docs. Nunca antes.
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
 
 
-**Última actualización:** W25-sparkline-hist · 23-06-2026 (**Sparklines W19-W23 reales en todas las cards + fill coloreado por banda**
+**Última actualización:** W26-repa-v9 · 28-06-2026 (**RE/PA nuevo diseño: círculo numerado + título bold + badge área inline derecha. border-top aplicado vía JS `el.style.borderTop=col` — CSS scoped `.section-cr #id` falla si el elemento no está dentro del scope.**
 
 **Hist datasets (BK):** `BK_CORP_HIST` (124 corps) + `BK_HOTEL_HIST` (2.964 hoteles) + `BK_DEST_HIST` (2.485 destinos) generados desde `Dataset_bookability_historico.xlsx`. Emitidos por `render_cr_p1.py` (_build_bk_*_hist_json, cada uno carga desde PICKLE_BK). En W26+: `calc_bk.py` los genera automáticamente del dataset acumulado.
 
