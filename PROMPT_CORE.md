@@ -565,6 +565,9 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 
 42. **Inyectar HTML en strings JS dentro de `<script>` sin escapar `</`** — al meter drilldowns/HTML editorial en `CR_D`/`RND_D` (o cualquier dato JS embebido), SIEMPRE escapar `</` → `<\/`. `json.dumps` NO escapa la barra por defecto. Un `</script` literal corta el `<script>`; incluso `</span>`/`</strong>` sin escapar rompen el parseo del browser → el script se trunca → funciones definidas más abajo (ej. `g`=getElementById) quedan sin definir → `g is not a function` en runtime. Síntoma: el modo que depende de ese script (RND) no renderiza (severity apilado, cards vacías). El editorial original usa `<\/span>` — replicar ese escapado al reinyectar.
 
+
+43. **Aplicar propiedades CSS a elementos fuera del scope de su selector** — Si un `#id` no está dentro de `.section-cr` o `.section-rnd`, el CSS scoped no aplica. Tampoco resuelven `var(--paper)` ni otras variables fuera del scope. Fix: aplicar via JS `el.style.prop = valor` directo (ej. `el.style.borderTop = col`, `el.style.padding = '8px 26px'`, `el.style.background = '#F8F4EC'`).
+
 ## ⚠️ Nota sobre git pull local
 - `git pull` puede colgarse con archivos grandes (SUPPLY_W22.html 7MB, INVENTORY_W22.html 5MB)
 - Alternativa rápida: `git fetch origin && git reset --hard origin/main`
@@ -828,6 +831,8 @@ que todos los cambios están en los scripts y en los docs. Nunca antes.
 
 **Si Claude no propone este checklist al cerrar sesión, Federico puede pedirlo con:** `"checklist de cierre"`
 
+
+**Última actualización:** W26-repa-v9 · 28-06-2026 (**RE/PA nuevo diseño v9** — Círculo numerado `col` por modo · título 15px bold · badge área pill redondeado `col`+blanco · drilldown mini-tablas via `_parseDrill` (parser JS del HTML del editorial) · Corps `#5C469C` · Destinos `#185FA5` · Hoteles `#EA0074`. Sin Métrica/Plazo. Padding via JS `el.style.padding='8px 26px'` (CSS scoped no aplica). border-top via JS `el.style.borderTop=col`. Background `#F8F4EC` hardcodeado (var(--paper) no resuelve). Subtítulos: RE="Global · Findings" / PA="Global · Action Items". Rename Eficacia→Performance en 8 archivos CR + H1 RND + switch + footer links. Hub: "Disponibilidad & Performance", KPI Contratación = netnew hoteles. `render_cr_p3.py`: PA canastas reemplaza `.action-row` por inline styles. `template_resumen.py`: reescrito v9. `js_override.js`: plan-sub fijo "Global · Action Items".)
 
 **Última actualización:** W26-repa-v9 · 28-06-2026 (**RE/PA nuevo diseño: círculo numerado + título bold + badge área inline derecha. border-top aplicado vía JS `el.style.borderTop=col` — CSS scoped `.section-cr #id` falla si el elemento no está dentro del scope.**
 

@@ -2,6 +2,55 @@
 
 ---
 
+---
+
+## Sesión W26 · 28-06-2026 — RE/PA diseño v9 completo + rename Performance
+
+### Contexto
+Continuación del rediseño RE/PA. Validación visual iterativa en browser (Netlify). Múltiples bugs de CSS scoped que no aplicaban — todos resueltos via JS inline style.
+
+### Cambios principales
+
+**Rename Eficacia → Performance (CR)**
+74 ocurrencias en 8 archivos: `render_cr_p1.py`, `render_cr_p3.py`, `assemble_unified.py`, `js_override.js`, `render_mail_v3.py`, `excel_cr.py`, `excel_cr_regional.py`, `excel_cr_accounts.py`. Variables internas Python intactas.
+
+**Hub** — Card "Disponibilidad & Performance" · KPI Contratación = netnew hoteles (`_inv_fmt(_inv_pp_d)`)
+
+**RE/PA nuevo diseño v9 — Estructura**
+- Círculo numerado 22×22px en `col` del modo (violet CR / magenta RND)
+- Título 15px font-weight:700 flex:1
+- Badge área responsable: pill `border-radius:12px`, fondo `col`, texto blanco, solo primer fragmento antes de `/`
+- Drilldown: mini-tablas via `_parseDrill` (parser JS del HTML del editorial) — Corps `#5C469C`/`#EDE8F7` · Destinos `#185FA5`/`#E3EEF9` · Hoteles `#EA0074`/`#FCE4F1`
+- Padding items: `16px 0` · Padding contenedor: `8px 26px` · Background: `#F8F4EC`
+- Sin Métrica/Plazo · Separador `1px dashed var(--rule-soft)` · último sin borde
+
+**Bugs de CSS scoped resueltos via JS**
+- `border-top`: CSS `.section-cr #w22-re-list { border-top }` no aplicaba porque `closest('.section-cr')` era `false`. Fix: `el.style.borderTop = col` en `w22_renderRE()`
+- `padding`: mismo problema. Fix: `el.style.padding = '8px 26px'` en `w22_renderRE()`
+- `background`: `var(--paper)` no resolvía fuera del scope. Fix: `#F8F4EC` hardcodeado
+
+**Textos actualizados**
+- H1 RND: "Disponibilidad & **Performance**"
+- Switch: "Conectividades" → "**Performance**" (botones + 5 footer links)
+- Subtítulo RE: "**Global · Findings**"
+- Subtítulo PA: "**Global · Action Items**" — corregido en HTML estático Y en `js_override.js` `w22_setMode` que lo sobreescribía con "Rates No Dispo · canasta activa"
+- "Hot." → "**Hoteles**" en `_parseDrill`
+
+**`render_cr_p3.py`** — PA canastas colapsables: `.action-row qw/mp/es` reemplazado por `_pa_item_cr()` con inline styles del nuevo diseño
+
+**`template_resumen.py`** — reescrito con nuevo diseño v9 (círculo + título + badge valor + drilldown sangrado)
+
+**Bug del pipeline local** — Fede no podía hacer `git push` del HTML regenerado. Solución: patch directo al HTML del repo desde Claude vía Git Tree API (múltiples commits directos).
+
+**Regla nueva #43** — CSS scoped (`#id` dentro de `.section-cr`) falla si el elemento no está dentro del scope. Aplicar via JS `el.style.prop = valor` directo.
+
+### Archivos modificados en el repo
+`demo_js_main.js` · `demo_css_w22.css` · `js_override.js` · `assemble_unified.py` · `render_cr_p1.py` · `render_cr_p3.py` · `render_rnd_p1.py` · `render_mail_v3.py` · `build_package.py` · `excel_cr.py` · `excel_cr_regional.py` · `excel_cr_accounts.py` · `template_resumen.py` · `reports/week-25/SUPPLY_W25.html`
+
+### Commits principales
+`5aee95b4` · `75c7b8d6` · `d76555ff` · `1113067` · `ef089114` · `f6b8d0d2` · `0c08e951` · `aa079a5a` · `f9c3ba62` · `e204ddb1` · `f8772789` · `777701c2` · `45f82f47`
+
+
 ## W25-repa-v9 · 27-06-2026
 
 ### Contexto
