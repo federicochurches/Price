@@ -1,5 +1,5 @@
 # dest_mapping.py — auto-mapper + revisión manual Fede
-# 1461 hoteles mapeados
+# 1464 hoteles mapeados
 
 DEST_MAPPING = {
     '12HEH Pattaya': 'Pattaya',
@@ -227,6 +227,7 @@ DEST_MAPPING = {
     'Chonor House': 'Dharamshala',
     'Chunda Haveli - A Boutique Hotel': 'Udaipur',
     'Churana Resort Motobu': 'Okinawa',
+    'Cili Emas Oceanside Resort': 'Bali',
     'Citrus Grande Hotel Pattaya by Compass Hospitality': 'Pattaya',
     'Clarissa Resort Mukteshwar': 'Mukteshwar',
     'Clarks Inn Bhowali': 'Uttarakhand',
@@ -342,6 +343,7 @@ DEST_MAPPING = {
     'Fan Sea Resort Kohlarn': 'Pattaya',
     'Fateh Niwas': 'India',
     'Fateh Vilas by Fateh Collection': 'Udaipur',
+    'Felicianas Resort': 'Bali',
     'Fiesto Continental Hotel Enugu': 'Enugu',
     'Fiesto Hotel and Suites Enugu': 'Enugu',
     'First Camp Tylösand': 'Halmstad',
@@ -1107,6 +1109,7 @@ DEST_MAPPING = {
     'Silver Oasis Maldives': 'Maldivas',
     'Sinclairs Palace Retreat Udaipur': 'Udaipur',
     'Sinclairs Udaipur': 'Udaipur',
+    'Singaraja Beach Hotel': 'Bali',
     'Singwe Private Safari lodge': 'Kruger',
     'Sita Royal Lakside Chalet': 'Udaipur',
     'Six Fukun Hotel': 'Taiwan',
