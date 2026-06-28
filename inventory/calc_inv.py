@@ -2815,6 +2815,13 @@ function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, dr
   }}
 
   const filtered = allHotels.filter(_hotelMatches);
+
+  // Option A: sin hoteles que coincidan, empty state
+  if (!filtered.length) {{
+    panel.innerHTML = '<div style="padding:28px 16px;text-align:center;color:var(--ink-muted);font-size:13px;">Sin hoteles Producto Propio en <strong>' + label + '</strong> para esta selección.</div>';
+    return;
+  }}
+
   const tot = {{ SP:0, HY:0, TP:0 }};
   filtered.forEach(h => {{ if (tot[h.t] !== undefined) tot[h.t]++; }});
   const totPP  = tot.SP + tot.HY;
