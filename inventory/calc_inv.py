@@ -74,13 +74,21 @@ if 'Destino' in df_raw.columns:
     DEST_RENAME = {'Mexico City - Central Mexico': 'Mexico City'}
     df_raw['Destino'] = df_raw['Destino'].replace(DEST_RENAME)
     # Aplicar mapeo manual de hoteles sin clasificar (dest_mapping.py)
+    # Solo se aplica a hoteles que AÚN no tienen destino válido en el dataset.
+    # Si el dataset nuevo ya trae un destino correcto, NO se pisa.
     try:
         from dest_mapping import DEST_MAPPING
         if DEST_MAPPING:
-            _mapped = df_raw['Hotel'].str.strip().map(DEST_MAPPING)
+            _SIN = {'', 'nan', 'sinclasificar', 'sin clasificar', 'none'}
+            _sin_mask = (
+                df_raw['Destino'].isna() |
+                df_raw['Destino'].astype(str).str.strip().str.lower().isin(_SIN)
+            )
+            _mapped = df_raw.loc[_sin_mask, 'Hotel'].str.strip().map(DEST_MAPPING)
             _needs_map = _mapped.notna()
-            df_raw.loc[_needs_map, 'Destino'] = _mapped[_needs_map]
-            print(f"    [dest_mapping] {_needs_map.sum()} hoteles remapeados a destino correcto")
+            df_raw.loc[_needs_map[_needs_map].index, 'Destino'] = _mapped[_needs_map]
+            print(f"    [dest_mapping] {_needs_map.sum()} hoteles sin clasificar remapeados "
+                  f"({_sin_mask.sum()} sin clasificar en dataset, {(~_sin_mask).sum()} con destino válido intactos)")
         else:
             print("    [dest_mapping] archivo presente pero sin entradas aún")
     except ImportError:
