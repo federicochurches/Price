@@ -159,7 +159,8 @@ function w22_renderRE(open){
  var d=data(), col=cv().col;
  var el=g('w22-re-list');if(!el)return;
  el.style.borderTop='3px solid '+col;
- var pg=g('w22-pg');if(pg)pg.style.borderTop='3px solid '+col;
+ el.style.padding='8px 26px';
+ var pg=g('w22-pg');if(pg){pg.style.borderTop='3px solid '+col;pg.style.padding='8px 26px';}
  var items=d.re||[];
  el.innerHTML=items.map(function(r,i){
   var h=(i>=5&&!W.reOpen)?' style="display:none;"':'';
