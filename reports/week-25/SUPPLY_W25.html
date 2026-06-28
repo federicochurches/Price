@@ -2566,6 +2566,59 @@ function w22_renderTable(tbodyId, btnId, rows, open){
  var btn=g(btnId);
  if(btn) btn.style.display='none';
 }
+function _parseDrill(html, col){
+ if(!html||!html.trim())return '';
+ var tmp=document.createElement('div');
+ tmp.innerHTML=html;
+ var COLORS={'Corporativos':{c:'#5C469C',bg:'#EDE8F7'},'Corps':{c:'#5C469C',bg:'#EDE8F7'},
+             'Destinos':{c:'#185FA5',bg:'#E3EEF9'},'Hoteles':{c:'#EA0074',bg:'#FCE4F1'}};
+ function renderCol(sec){
+  var sc=COLORS[sec.label]||{c:col,bg:'#F0EBE2'};
+  var rows=sec.items.slice(0,5).map(function(it){
+   return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:3px 7px;border-bottom:1px solid #EDE9E1;gap:6px;">'
+    +'<span style="font-size:9.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+it[0]+'<\/span>'
+    +(it[1]?'<span style="font-size:9px;color:var(--ink-muted);flex-shrink:0;white-space:nowrap;">'+it[1]+'<\/span>':'')
+    +'<\/div>';
+  }).join('');
+  return '<div style="border:1px solid #EDE9E1;border-radius:3px;overflow:hidden;min-width:0;">'
+   +'<div style="padding:4px 7px;border-bottom:1px solid #EDE9E1;background:'+sc.bg+';">'
+   +'<span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+sc.c+';">'+sec.label+'<\/span><\/div>'
+   +rows+'<\/div>';
+ }
+ var sections=[];
+ tmp.querySelectorAll('[style*="border-left"]').forEach(function(el){
+  var labelEl=el.querySelector('[style*="uppercase"]');
+  if(!labelEl)return;
+  var label=labelEl.textContent.trim();
+  var items=[];
+  el.querySelectorAll('strong').forEach(function(s){
+   var name=s.textContent.replace('…','').replace('...','').trim();
+   var next=s.nextSibling;
+   var val='';
+   if(next&&next.nodeType===3){
+    var t=next.textContent.replace(/^\s*·?\s*/,'').replace(/\s*·\s*$/,'').trim();
+    val=t.split('·')[0].replace(/^\s*\(?\s*/,'').replace(/\s*\)?\s*$/,'').trim();
+   }
+   if(name)items.push([name,val]);
+  });
+  if(items.length)sections.push({label:label,items:items});
+ });
+ if(!sections.length)return html;
+ var top=sections.filter(function(s){return s.label!=='Hoteles';});
+ var bot=sections.filter(function(s){return s.label==='Hoteles';});
+ var out='<div style="display:flex;flex-direction:column;gap:5px;">';
+ if(top.length){
+  out+='<div style="display:grid;grid-template-columns:'+(top.length>1?'1fr 1fr':'1fr')+';gap:5px;">';
+  out+=top.map(renderCol).join('');
+  out+='<\/div>';
+ }
+ if(bot.length){
+  out+='<div style="display:grid;grid-template-columns:1fr;gap:5px;">';
+  out+=bot.map(renderCol).join('');
+  out+='<\/div>';
+ }
+ return out+'<\/div>';
+}
 function w22_renderRE(open){
  W.reOpen=open;
  var d=data(), col=cv().col;
@@ -2582,7 +2635,7 @@ function w22_renderRE(open){
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
    +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
    +'</div>'
-   +((r.d)?'<div style="padding:7px 0 0 32px;">'+r.d+'</div>':'')
+   +((r.d)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(r.d,col)+'</div>':'')
    +'</li>';
  }).join('');
  var btn=g('w22-re-btn');if(btn)btn.textContent=W.reOpen?'Ver menos ↑':'Ver 5 más ↓';
@@ -2727,7 +2780,7 @@ function w22_update(){
    +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
    +(area?'<span style="flex-shrink:0;align-self:flex-start;margin-left:10px;margin-top:2px;font-size:9px;font-weight:700;color:#161616;background:#F2EDE0;padding:2px 8px;border-radius:2px;border-left:3px solid '+col+';white-space:nowrap;">'+area+'</span>':'')
    +'</div>'
-   +((p._sub)?'<div style="padding:7px 0 0 32px;">'+p._sub+'</div>':'')
+   +((p._sub)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(p._sub,col)+'</div>':'')
    +'</li>';
  }).join('');}
 
