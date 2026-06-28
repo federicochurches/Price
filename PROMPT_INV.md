@@ -1,5 +1,5 @@
 # 🏨 PROMPT INV · Hotel Inventory · Supply Analytics HUB
-**Versión v18.0 · Junio 2026 · calc_inv.py → INVENTORY_WNN.html + 3 JSONs externos + Analisis_Inventory_WNN.xlsx**
+**Versión v19.2 · Junio 2026 · calc_inv.py → INVENTORY_WNN.html + 3 JSONs externos + Analisis_Inventory_WNN.xlsx**
 
 ---
 
@@ -71,12 +71,13 @@ TARGET_PROPIO = 70_000
 | W25-hbw | 13MB | hotel_by_week externo |
 | W25-histdim | 7.5MB | hist_dim + corp_dest + CH_DRILL_DATA eliminado |
 
-### URLs de los JSONs
+### URLs de los JSONs (CANÓNICO — raw.githubusercontent.com)
 ```python
-_HBW_JSON_URL      = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
-_HIST_DIM_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hist_dim_{WEEK}.json"
-_CORP_DEST_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/corp_dest_{WEEK}.json"
+_HBW_JSON_URL      = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
+_HIST_DIM_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hist_dim_{WEEK}.json"
+_CORP_DEST_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/corp_dest_{WEEK}.json"
 ```
+⚠️ **Netlify devuelve 403 en archivos `.json`** — siempre usar `raw.githubusercontent.com`.
 
 ### Loaders JS (patrón canónico)
 Cada JSON tiene su loader `_load**(cb)`:
@@ -159,8 +160,11 @@ python commit_inv.py
 
 ## 🃏 KPI Bar — 4 cards
 
+**Card 1 — "Inventario de Hoteles"** (antes "Total Hotel Inventory"): muestra `N` hoteles con contrato activo.
+
 **Card GAP (W25+):** muestra hoteles agregados esa semana (valor hardcoded en `calc_inv.py`), NO el gap calculado.
 La línea JS que sobreescribía `card-gap` con el gap calculado está comentada.
+Color del valor: **`#4FC3F4` cyan** (antes `#6A6A6A` gris). Barra y label también en cyan.
 
 ---
 
@@ -170,6 +174,65 @@ La línea JS que sobreescribía `card-gap` con el gap calculado está comentada.
 
 nth-child JS: Channel=1, Corp=2, Región=3, Destino=4.
 Región es la activa por defecto al cargar.
+
+---
+
+## 🏨 Masthead (W26+)
+
+- **H1:** `<span color:var(--accent)>Inventario</span>` — sin el viejo "State of PriceTravel Product"
+- **Subtitle eliminado:** ya no aparece la línea "N hoteles con contrato activo · Target 2026: …"
+- **Título sección histórico:** "Evolución Histórica del Inventario" (antes "…del Producto")
+
+---
+
+## 📋 Tabla de Detalle de Hoteles (W26+) — CANÓNICO
+
+Aplica a ambas funciones JS: `_renderHotelList` (drill semanal) y `_renderPPPanel` (panel PP).
+
+### Columnas y orden
+`Hotel · Corporativo · Región · Destino · Tipo`
+
+El `#` de numeración va **inline dentro de la celda Hotel** como `<span class="hw-n">` — sin columna separada.
+
+### Sort
+Todos los headers tienen `onclick="_hwSortBy(col, this)"`. La función `_hwSortBy` es global (definida una sola vez antes de `_renderHotelList`) y:
+- Lee `data-h`, `data-c`, `data-r`, `data-d`, `data-t` de cada `tr[data-hw]`
+- Ordena y reordena filas en el tbody
+- Renumera automáticamente el `.hw-n` de cada fila
+- Actualiza el indicador `↑`/`↓`/`↕` en el `#hw-thead`
+
+### Badge de Tipo
+Pill con dot de color + label. Colores:
+- Solo Propio: bg `#E0F7FE` · color `#0277A8` · dot `#0277A8`
+- Hybrid: bg `#EDE8F7` · color `#5C469C` · dot `#5C469C`
+- Third Party: bg `#F0EBE2` · color `#8A8377` · dot `#8A8377`
+
+### `table-layout: fixed` · anchos de columna
+`30% · 18% · 13% · 22% · 17%`
+
+### Empty state (W26+)
+Si `filtered.length === 0` tras aplicar todos los filtros, `_renderHotelList` muestra:
+> "Sin hoteles Producto Propio en W{N} · {AÑO} para esta selección."
+y retorna sin renderizar tabla. Ejemplo: corporativo con 0 hoteles nuevos en esa semana.
+
+---
+
+## 🔍 Diagnóstico "Sin Clasificar" (W26+)
+
+Al correr `calc_inv.py`, imprime en consola cuántos hoteles tienen destino sin clasificar (nan, vacío, o variantes de "sin clasificar") y en qué regiones. Útil para detectar datos sucios antes de commitear.
+
+```
+[DIAG] Hoteles con destino sin clasificar: N · Regiones: ...
+```
+
+---
+
+## 🔢 Sort en tablas Corp y Destino (W26+)
+
+Las tablas de la Zona 4 (Corporativo y Destino) tienen headers clickeables con `↕`/`↑`/`↓`:
+- **Corp:** `corpSortCol(key, th)` + `corpSortTotal()` — ordena por nombre, Solo Propio, Hybrid, Third Party o Total
+- **Dest:** `destSortCol(key, th)` + `destSortTotal()` — ordena por nombre, P. Propio, Third Party o Total
+- Ambas renumeran automáticamente el orden visual tras el sort
 
 ---
 
@@ -197,20 +260,69 @@ python commit_inv.py
 | HTML 44MB | HOTEL_BY_WEEK inline → JSON externo on-demand | W25-hbw |
 | Filtro región México (idx<10) | `hApplyFilter` ocultaba destinos idx≥48 | W25-inv-filter |
 | NFD acentos México/Mérida | normalize('NFD') en lookup corp×dest | W25-inv-filter |
-| CORP_DEST_DATA no emitido | Variable JS referenciada pero no generada | W25-inv-corp-dest |
+| Tabla hoteles columnas viejas | # separado, Región/Destino/Corp desordenado, sin sort, tipo como texto coloreado | W26-inv-ui |
+| Sort tablas Corp y Dest | Headers sin sort | W26-inv-ui |
+| Masthead subtítulo | "N hoteles · Target 2026" eliminado | W26-inv-ui |
+| Card Gap gris | 44 en gris `#6A6A6A` → cyan `#4FC3F4` | W26-inv-ui |
 | CH_DRILL_DATA 557KB | Código muerto eliminado | W25-perf |
 | dim_ch + dim_tipo inline | Movidos a hist_dim JSON externo | W25-perf |
 | Loading screen opaco | Reemplazado por blur semitransparente | W25-perf |
+| onclick SyntaxError `_hwSortBy` | `onclick="_hwSortBy('h',this)"` dentro de string JS rompía el script → cambiado a `this.dataset.col` | W26-inv-ui |
+| JSONs 403 Netlify | Netlify bloquea `.json` → URLs migradas a `raw.githubusercontent.com` | W26-inv-ui |
+| `drDestsNorm` faltaba en `udRowClick` | Al clickear filtro con semana activa, `_renderHotelList` recibía solo 7 args → destino nunca filtraba | W26-inv-bugs |
+| Panel hoteles con 0 hoteles | Corporativo con total=0 mostraba todos los hoteles de la semana → empty state | W26-inv-bugs |
+
+---
+
+
+---
+
+## 🗺 Mapeo de Destinos Sin Clasificar (`dest_mapping.py`) -- W26+
+
+### Problema
+~2.823 hoteles en el dataset tienen `Destino = NaN/SinClasificar`. El modulo de inventario los excluye del breakdown dimensional.
+
+### Solucion canonica
+`dest_mapping.py` en `inventory/` -- diccionario `Hotel -> Destino` que se aplica automaticamente al cargar el dataset.
+**Solo pisa hoteles sin destino valido** -- si el dataset nuevo ya trae un destino correcto, no lo toca.
+
+### Estado W26
+| Fuente | Hoteles |
+|---|---|
+| Auto-mapper (keyword en nombre) | ~932 |
+| Revision manual (Fede) | ~406 |
+| **Total mapeados** | **~1.338** |
+| Sin mapear (nombres genericos) | ~1.485 |
+
+### Workflow para completar el mapeo
+```powershell
+cd C:\Users\federico.iglesias\Price\inventory
+py extract_sinclasificar.py extract   # genera hoteles_sinclasificar.xlsx
+# Completar columna Destino_sugerido en el Excel
+py extract_sinclasificar.py build     # convierte Excel -> dest_mapping.py
+py calc_inv.py
+py commit_inv.py
+```
+
+### Archivos
+- `inventory/dest_mapping.py` -- diccionario persistente, commitear al repo tras cada update
+- `inventory/extract_sinclasificar.py` -- extrae sin clasificar + convierte Excel -> dict
+
+### Regla critica
+`dest_mapping.py` **NO pisa destinos ya validos en el dataset** -- si W27 trae el destino correcto para un hotel, se respeta.
 
 ---
 
 ## 📋 Pendientes
 
 - [ ] W26: separar JS a archivo externo con `defer` → loading <1s
-- [ ] W26: actualizar valor hardcoded GAP (44) con hoteles reales de W26
+- [ ] W26: actualizar valor hardcoded GAP con hoteles reales de W26
 - [ ] W26: actualizar CONFIG semanal (WEEK=W26, SNAPSHOT_DATE, etc.)
+- [ ] Investigar bug de deselección de filtros (comportamiento no documentado aún)
 
 ---
 
-**Última actualización:** v18.0 · W25-perf · 26-06-2026
-**Cambios v18:** CH_DRILL_DATA eliminado (−557KB) · dim_ch+dim_tipo → hist_dim externo · hotel_by_week solo SP+HY · loading blur semitransparente · pills orden CHANNEL|CORP|REG|DEST · card GAP = hoteles semana · Opción B documentada · commit_inv.py con 4 archivos
+**Última actualización:** v19.2 · W26-inv-bugs · 27-06-2026
+**Cambios v19.2:** URLs JSONs → `raw.githubusercontent.com` (Netlify devuelve 403 en .json) · Bug `drDestsNorm` faltaba como 8° arg en `udRowClick` (week+region+dest no filtraba hoteles) · Empty state `_renderHotelList` cuando `filtered.length === 0` (Opción A — panel muestra mensaje en lugar de todos los hoteles)
+**Cambios v19.1 (sesión anterior):** onclick `_hwSortBy` sin args string (evita SyntaxError JS) · URLs JSONs a raw.githubusercontent.com
+**Cambios v19:** Masthead H1 → "Inventario" · subtitle eliminado · "Evolución Histórica del Inventario" · card Gap cyan · "Inventario de Hoteles" · tabla detalle hoteles rediseñada (# inline, Hotel|Corp|Región|Destino|Tipo, badge tipo, sort 5 cols, `_hwSortBy` global) · sort tablas Corp+Dest · diagnóstico `[DIAG]`
