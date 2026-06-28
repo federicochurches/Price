@@ -1463,10 +1463,12 @@ function udRowClick(type, value, el) {
       const _weekHotels = _hbw[_yw] || null;
       if (_weekHotels) {
         const _label = 'W' + _yw.split('-W')[1] + ' · ' + _yw.split('-W')[0];
+        const _nrRc = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
         _renderHotelList(_weekHotels, [], _label, udDim,
           hFTipo ? [hFTipo] : udActiveFilters.filter(f=>f.type==='tipo').map(f=>f.value),
           udActiveFilters.filter(f=>f.type==='region').map(f=>f.value),
-          udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value));
+          udActiveFilters.filter(f=>f.type==='corp').map(f=>f.value),
+          udActiveFilters.filter(f=>f.type==='dest').map(f=>f.value).map(_nrRc));
       }
     });
   }
