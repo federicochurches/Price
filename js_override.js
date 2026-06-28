@@ -294,7 +294,7 @@ w22_setMode = function(m, el) {
   /* Subtitle alertas */
   var sub = document.getElementById('w22-alertas-sub');
   if(sub) sub.textContent = m==='cr'
-    ? 'Peor Eficacia + Peor ConvRate \u00b7 canasta activa'
+    ? 'Peor Performance + Peor ConvRate \u00b7 canasta activa'
     : 'Mayor NoDispo + Menor IPM \u00b7 canasta activa';
 
   /* Panel AR compartido — oculto en RND (tiene su propia card AR arriba), visible en CR */
@@ -309,7 +309,7 @@ w22_setMode = function(m, el) {
   });
 
   /* Severity label — cambiar según métrica de referencia */
-  var sevLbl = (m === 'cr') ? 'Severity Eficacia' : 'Severity NoDispo';
+  var sevLbl = (m === 'cr') ? 'Severity Performance' : 'Severity NoDispo';
   var sevLblEls = ['w22-strip-sev-lbl', 'ar-strip-sev-lbl'];
   sevLblEls.forEach(function(id){
     var el = document.getElementById(id);
@@ -341,8 +341,8 @@ w22_setMode = function(m, el) {
   var td4=document.getElementById('w22-td-col4');
   var td5=document.getElementById('w22-td-col5');
   if(m==='cr'){
-    if(th3)th3.textContent='Tráfico';  if(th4)th4.textContent='Eficacia'; if(th5)th5.textContent='ConvRate';
-    if(td3)td3.textContent='Tráfico';  if(td4)td4.textContent='Eficacia'; if(td5)td5.textContent='ConvRate';
+    if(th3)th3.textContent='Tráfico';  if(th4)th4.textContent='Performance'; if(th5)th5.textContent='ConvRate';
+    if(td3)td3.textContent='Tráfico';  if(td4)td4.textContent='Performance'; if(td5)td5.textContent='ConvRate';
   } else {
     if(th3)th3.textContent='Tráfico';  if(th4)th4.textContent='NoDispo';  if(th5)th5.textContent='IPM';
     if(td3)td3.textContent='Tráfico';  if(td4)td4.textContent='NoDispo';  if(td5)td5.textContent='IPM';
@@ -362,7 +362,7 @@ w22_setMode = function(m, el) {
 
   /* Plan subtitle */
   var psub = document.getElementById('w22-plan-sub');
-  if(psub) psub.textContent = (m==='cr'?'CheckRates':'Rates No Dispo') + ' \u00b7 canasta activa';
+  if(psub) psub.textContent = 'Global \u00b7 Action Items';
 
   /* Reset chips */
   document.querySelectorAll('.c-chip').forEach(function(x){
@@ -1040,7 +1040,7 @@ function w22_renderCardTabs(canasta){
     var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{}); }).join('');
     var _mkHdr = function(label){return '<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'+'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Tráfico <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+acc+';text-align:right;cursor:pointer;user-select:none;">'+label+' <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'<span data-sort-key="bk-wow" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">WoW <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'+'</div>';};
     /* Label de métrica según card (Eficacia / Conv Rate) */
-    var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Eficacia';
+    var metricLbl = (card && card.id === 'kpicard-cv') ? 'Conv Rate' : 'Performance';
     /* Layout BK style: PP arriba, TP abajo (flex column) */
     panel.innerHTML = '<div class="chan-wrap" style="display:flex;flex-direction:column;gap:14px;width:100%;">'
       +'<div><div style="font-size:9px;font-weight:700;color:'+acc+';letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;">🏠 Producto Propio</div>'+_mkHdr(metricLbl)+pp_html+'</div>'
@@ -1217,7 +1217,7 @@ function _arRenderChan(n) {
   var pp_html = pp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
   var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
   var metricLbl;
-  if (isCR) metricLbl = (n === 1) ? 'Eficacia' : 'Conv Rate';
+  if (isCR) metricLbl = (n === 1) ? 'Performance' : 'Conv Rate';
   else      metricLbl = (n === 1) ? '%NoDispo' : 'IPM';
   var _mkHdr = function(lbl){
     return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;'
@@ -1373,11 +1373,11 @@ function ar_updateLabels() {
   var col2 = document.getElementById('ar2-col-m');
   var tdc1 = document.getElementById('ar1-td-col-m');
   var tdc2 = document.getElementById('ar2-td-col-m');
-  if (lbl1) lbl1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (lbl1) lbl1.textContent = isCR ? 'Performance' : '%NoDispo';
   if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : 'IPM';
-  if (col1) col1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (col1) col1.textContent = isCR ? 'Performance' : '%NoDispo';
   if (col2) col2.textContent = isCR ? 'Conv Rate' : 'IPM';
-  if (tdc1) tdc1.textContent = isCR ? 'Eficacia' : '%NoDispo';
+  if (tdc1) tdc1.textContent = isCR ? 'Performance' : '%NoDispo';
   if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : 'IPM';
   /* Pestaña Canal → Channel (CR) o País (RND) */
   var chanLabel = isCR ? 'Channel' : 'País';
@@ -1506,7 +1506,7 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
 
  /* Header de columnas — 4 cols (sin WoW tráfico, AR es solo vista hotel) */
  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
- var metLbl = n===1 ? (isCR?'Eficacia':'%NoDispo') : (isCR?'Conv Rate':'IPM');
+ var metLbl = n===1 ? (isCR?'Performance':'%NoDispo') : (isCR?'Conv Rate':'IPM');
  var grid = 'minmax(0,1fr) 80px 72px 48px';
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
  var _mkSH = function(lbl, col, acc) {
@@ -2233,7 +2233,7 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
   var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   var hdrLabels = {
-    ef:  ['Tráfico','Eficacia','WoW'],
+    ef:  ['Tráfico','Performance','WoW'],
     cv:  ['Tráfico','Conv Rate','WoW'],
     nd:  ['Tráfico','%NoDispo','WoW'],
     ipm: ['Tráfico','IPM','WoW'],

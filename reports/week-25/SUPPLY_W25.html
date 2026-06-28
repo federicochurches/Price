@@ -2307,7 +2307,7 @@ window.HIST_DATA['rnd'] = {
 /* Modo RND oculto por defecto */
 #w22-rnd-block{display:none;}
 /* RE/PA · Nuevo diseño v9 */
-#w22-re-list,#w22-pg{background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;padding:0 26px;list-style:none;margin:0;}
+#w22-re-list,#w22-pg{background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;padding:8px 26px;list-style:none;margin:0;}
 
 /* ── AR1: CR canvas abajo · RND canvas side-by-side ── */
 body[data-ar-mode='rnd'] #ar1-hist-wrap { display: flex !important; align-items: center; }
@@ -2631,7 +2631,7 @@ function w22_renderRE(open){
   var h=(i>=5&&!W.reOpen)?' style="display:none;"':'';
   var last=i===items.length-1;
   var borderB=last?'none':'1px dashed var(--rule-soft)';
-  return '<li'+h+' style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
+  return '<li'+h+' style="padding:16px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
    +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
@@ -2775,7 +2775,7 @@ function w22_update(){
   var borderB=last?'none':'1px dashed var(--rule-soft)';
   var area=(p.o||'').split('/')[0].trim();
   var txt=(p.a||'').replace('Equipo Optimización: ','').replace('Equipo Comercial: ','');
-  return '<li style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
+  return '<li style="padding:16px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
    +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
@@ -3433,7 +3433,7 @@ w22_setMode = function(m, el) {
 
   /* Plan subtitle */
   var psub = document.getElementById('w22-plan-sub');
-  if(psub) psub.textContent = (m==='cr'?'CheckRates':'Rates No Dispo') + ' \u00b7 canasta activa';
+  if(psub) psub.textContent = 'Global \u00b7 Action Items';
 
   /* Reset chips */
   document.querySelectorAll('.c-chip').forEach(function(x){

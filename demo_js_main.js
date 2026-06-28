@@ -165,7 +165,7 @@ function w22_renderRE(open){
   var h=(i>=5&&!W.reOpen)?' style="display:none;"':'';
   var last=i===items.length-1;
   var borderB=last?'none':'1px dashed var(--rule-soft)';
-  return '<li'+h+' style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
+  return '<li'+h+' style="padding:16px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
    +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
@@ -309,7 +309,7 @@ function w22_update(){
   var borderB=last?'none':'1px dashed var(--rule-soft)';
   var area=(p.o||'').split('/')[0].trim();
   var txt=(p.a||'').replace('Equipo Optimización: ','').replace('Equipo Comercial: ','');
-  return '<li style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
+  return '<li style="padding:16px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
    +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
