@@ -43,6 +43,6 @@ body[data-ar-mode='rnd'] #ar1-hist-cr-wrap { display: none !important; }
 /* ── RE/PA · Nuevo diseño v9 (W26+) ── */
 #w22-re-list,#w22-pg{
   background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;
-  padding:0 18px;list-style:none;margin:0;
+  padding:0 26px;list-style:none;margin:0;
 }
 /* border-top aplicado via JS en w22_renderRE usando col del modo activo */
