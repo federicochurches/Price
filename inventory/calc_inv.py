@@ -73,6 +73,18 @@ if 'Destino' in df_raw.columns:
     # Rename canónico de destinos
     DEST_RENAME = {'Mexico City - Central Mexico': 'Mexico City'}
     df_raw['Destino'] = df_raw['Destino'].replace(DEST_RENAME)
+    # Aplicar mapeo manual de hoteles sin clasificar (dest_mapping.py)
+    try:
+        from dest_mapping import DEST_MAPPING
+        if DEST_MAPPING:
+            _mapped = df_raw['Hotel'].str.strip().map(DEST_MAPPING)
+            _needs_map = _mapped.notna()
+            df_raw.loc[_needs_map, 'Destino'] = _mapped[_needs_map]
+            print(f"    [dest_mapping] {_needs_map.sum()} hoteles remapeados a destino correcto")
+        else:
+            print("    [dest_mapping] archivo presente pero sin entradas aún")
+    except ImportError:
+        print("    [dest_mapping] no encontrado — se salta (normal si aún no existe)")
 df_raw['HtActive'] = pd.to_numeric(df_raw['HtActive'], errors='coerce').fillna(0).astype(int)
 
 # Compatibilidad: dataset nuevo usa tipo_Ht_contrato_2, dataset viejo usa TipoHotel + Prpios/Terceros
@@ -572,8 +584,22 @@ def ch_active(val):
 
 # Índice dimensional nivel hotel (para filtros de región/corp/tipo — sin duplicar por channel)
 df_dim_hotel = df_hist[['yw','ym','Region_display','Corporativo','Destino','TipoHotel','Hotel']].copy()
+# Diagnóstico: detectar destinos con valor literal "Sin Clasificar" u otras variantes
+_SINCLASIFICAR_PATTERNS = ['sin clasificar','sinclasificar','sin_clasificar','unclassified','unknown','n/a','n.a.','']
+_sin_class_mask = (
+    df_dim_hotel['Destino'].isna() |
+    (df_dim_hotel['Destino'].astype(str).str.strip().str.lower().isin(_SINCLASIFICAR_PATTERNS)) |
+    (df_dim_hotel['Destino'].astype(str) == 'nan')
+)
+_df_sin_class = df_dim_hotel[_sin_class_mask][['Region_display','Corporativo','Destino','Hotel']].drop_duplicates()
+if len(_df_sin_class) > 0:
+    _paises_sin_class = sorted(_df_sin_class['Region_display'].dropna().unique().tolist())
+    print(f"[DIAG] Hoteles con destino sin clasificar: {len(_df_sin_class)} · Regiones: {', '.join(_paises_sin_class)}")
+    print(_df_sin_class.groupby(['Region_display','Destino']).size().reset_index(name='n').sort_values('n',ascending=False).head(20).to_string())
+else:
+    print("[DIAG] No hay destinos sin clasificar.")
 # Excluir destinos sin clasificar (nan/vacíos) del breakdown dimensional
-df_dim_hotel = df_dim_hotel[df_dim_hotel['Destino'].notna() & (df_dim_hotel['Destino'].astype(str).str.strip() != '') & (df_dim_hotel['Destino'].astype(str) != 'nan')]
+df_dim_hotel = df_dim_hotel[~_sin_class_mask]
 df_dim_hotel['corp']    = df_dim_hotel['Corporativo'].where(df_dim_hotel['Corporativo'].isin(top_corps), 'Otros')
 df_dim_hotel['ch_tipo'] = df_dim_hotel['TipoHotel'].map(
     {'sólo propio':'Solo Propio','Propio_con_tercero':'Hybrid','sólo terceros':'Third Party'}).fillna('—')
@@ -781,9 +807,9 @@ with open(_corp_dest_path, 'w', encoding='utf-8') as _f:
     _json_hbw.dump(_corp_dest_dict, _f, ensure_ascii=False, separators=(',', ':'))
 _corp_dest_size = _corp_dest_path.stat().st_size / 1024 / 1024
 print(f"    corp_dest_{WEEK}.json → {_corp_dest_size:.2f} MB")
-_HBW_JSON_URL      = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
-_HIST_DIM_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/hist_dim_{WEEK}.json"
-_CORP_DEST_JSON_URL = f"https://analytics-desk.netlify.app/inventory/week-{WEEK_NUM:02d}/corp_dest_{WEEK}.json"
+_HBW_JSON_URL      = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hotel_by_week_{WEEK}.json"
+_HIST_DIM_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/hist_dim_{WEEK}.json"
+_CORP_DEST_JSON_URL = f"https://raw.githubusercontent.com/federicochurches/Price/main/inventory/week-{WEEK_NUM:02d}/corp_dest_{WEEK}.json"
 
 # ── PP_HOTEL_PACKED — todos los hoteles PP del snapshot actual (Solo Propio + Hybrid) ──────────
 # Formato compacto: índices numéricos + dicts de lookup (igual que dim_hotel_packed)
@@ -1691,7 +1717,7 @@ function udContent(id, btn) {{
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
     const _labels = {{pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'}};
-    _titleEl.textContent = 'Evolución Histórica del Producto' + (id && _labels[id] ? ' · ' + _labels[id] : '');
+    _titleEl.textContent = 'Evolución Histórica del Inventario' + (id && _labels[id] ? ' · ' + _labels[id] : '');
   }}
   if (typeof hRender === 'function') hRender();
   udCurrentContent = id;
@@ -2227,6 +2253,94 @@ function udSortTotal() {{
   hApplyFilter();
 }}
 
+/* ── CORP TABLE SORT ── */
+function _corpSortRows(key, asc) {{
+  const tbody = document.getElementById('corp-tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr[data-row-idx]'));
+  rows.sort((a, b) => {{
+    if (key === 'corp-name') {{
+      const av = (a.cells[0]?.textContent||'').trim();
+      const bv = (b.cells[0]?.textContent||'').trim();
+      return asc ? av.localeCompare(bv,'es') : bv.localeCompare(av,'es');
+    }}
+    const colIdx = {{['corp-sp']: 2, ['corp-hy']: 3, ['corp-tp']: 4}}[key] ?? 1;
+    const av = parseFloat((a.cells[colIdx]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+    const bv = parseFloat((b.cells[colIdx]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+    return asc ? av - bv : bv - av;
+  }});
+  rows.forEach((r, i) => {{ r.dataset.rowIdx = i; tbody.appendChild(r); }});
+  const vm = document.getElementById('corp-ver-mas-row');
+  if (vm) tbody.appendChild(vm);
+}}
+function corpSortCol(key, thEl) {{
+  const asc = thEl.dataset.sortDir !== 'asc';
+  thEl.dataset.sortDir = asc ? 'asc' : 'desc';
+  _corpSortRows(key, asc);
+  document.querySelectorAll('[id^="corp-th-"]').forEach(th => {{
+    const lbl = th.dataset.sortLabel || th.textContent.replace(/[↑↓↕]/g,'').trim();
+    th.dataset.sortLabel = lbl;
+    th.textContent = lbl + (th === thEl ? (asc ? ' ↑' : ' ↓') : ' ↕');
+  }});
+}}
+function corpSortTotal() {{
+  const th = document.getElementById('corp-th-total');
+  const asc = th.dataset.sortDir !== 'asc';
+  th.dataset.sortDir = asc ? 'asc' : 'desc';
+  _corpSortRows('corp-total', asc);
+  th.textContent = 'Total ' + (asc ? '↑' : '↓');
+  document.querySelectorAll('[id^="corp-th-"]').forEach(t => {{
+    if (t === th) return;
+    const lbl = t.dataset.sortLabel || t.textContent.replace(/[↑↓↕]/g,'').trim();
+    t.dataset.sortLabel = lbl;
+    t.textContent = lbl + ' ↕';
+  }});
+}}
+
+/* ── DEST TABLE SORT (standalone dest-tbody) ── */
+function _destSortRows(key, asc) {{
+  const tbody = document.getElementById('dest-tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr[data-row-idx]'));
+  rows.sort((a, b) => {{
+    if (key === 'dest-name') {{
+      const av = (a.cells[0]?.textContent||'').trim();
+      const bv = (b.cells[0]?.textContent||'').trim();
+      return asc ? av.localeCompare(bv,'es') : bv.localeCompare(av,'es');
+    }}
+    const colIdx = {{['dest-pp']: 2, ['dest-tp']: 3}}[key] ?? 1;
+    const av = parseFloat((a.cells[colIdx]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+    const bv = parseFloat((b.cells[colIdx]?.textContent||'0').replace(/[^0-9]/g,'')) || 0;
+    return asc ? av - bv : bv - av;
+  }});
+  rows.forEach((r, i) => {{ r.dataset.rowIdx = i; tbody.appendChild(r); }});
+  const vm = document.getElementById('dest-ver-mas-row');
+  if (vm) tbody.appendChild(vm);
+}}
+function destSortCol(key, thEl) {{
+  const asc = thEl.dataset.sortDir !== 'asc';
+  thEl.dataset.sortDir = asc ? 'asc' : 'desc';
+  _destSortRows(key, asc);
+  document.querySelectorAll('[id^="dest-th-"]').forEach(th => {{
+    const lbl = th.dataset.sortLabel || th.textContent.replace(/[↑↓↕]/g,'').trim();
+    th.dataset.sortLabel = lbl;
+    th.textContent = lbl + (th === thEl ? (asc ? ' ↑' : ' ↓') : ' ↕');
+  }});
+}}
+function destSortTotal() {{
+  const th = document.getElementById('dest-th-total');
+  const asc = th.dataset.sortDir !== 'asc';
+  th.dataset.sortDir = asc ? 'asc' : 'desc';
+  _destSortRows('dest-total', asc);
+  th.textContent = 'Total ' + (asc ? '↑' : '↓');
+  document.querySelectorAll('[id^="dest-th-"]').forEach(t => {{
+    if (t === th) return;
+    const lbl = t.dataset.sortLabel || t.textContent.replace(/[↑↓↕]/g,'').trim();
+    t.dataset.sortLabel = lbl;
+    t.textContent = lbl + ' ↕';
+  }});
+}}
+
 /* ── DEST TABLE SEARCH (unified table) ── */
 let _destActiveRegion = '';
 let _destActiveName   = '';
@@ -2643,6 +2757,31 @@ function hDrillWeek(yw) {{
 }}
 
 // Renderiza lista de hoteles individuales para el drill semanal
+// ── HOTEL PANEL SORT ────────────────────────────────────────────
+// Usada por _renderHotelList y _renderPPPanel
+function _hwSortBy(col, th) {{
+  var asc = th.dataset.sd !== 'a';
+  th.dataset.sd = asc ? 'a' : 'd';
+  var rows = Array.from(document.querySelectorAll('#hw-tbody tr[data-hw]'));
+  rows.sort(function(a, b) {{
+    var av = (a.dataset[col] || '').toLowerCase();
+    var bv = (b.dataset[col] || '').toLowerCase();
+    return asc ? av.localeCompare(bv, 'es') : bv.localeCompare(av, 'es');
+  }});
+  var tb = document.getElementById('hw-tbody');
+  rows.forEach(function(r, i) {{
+    var n = r.querySelector('.hw-n');
+    if (n) n.textContent = i + 1;
+    tb.appendChild(r);
+  }});
+  var allTh = document.querySelectorAll('#hw-thead th[data-col]');
+  allTh.forEach(function(t) {{
+    var lbl = t.dataset.lbl || t.textContent.replace(/[↑↓↕]/g, '').trim();
+    t.dataset.lbl = lbl;
+    t.textContent = lbl + (t === th ? (asc ? ' ↑' : ' ↓') : ' ↕');
+  }});
+}}
+
 function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, drCorps, drDestsNorm) {{
   // El panel de hoteles es INDEPENDIENTE de la tabla dimensional
   // Se muestra debajo de ud-main-content sin tocar el tbody
@@ -2650,7 +2789,8 @@ function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, dr
   if (!panel) return;
 
   const TIPO_LABEL = {{ SP: 'Solo Propio', HY: 'Hybrid', TP: 'Third Party' }};
-  const TIPO_COLOR = {{ SP: 'var(--green)', HY: 'var(--violet,#5C469C)', TP: 'var(--dgrey,#6A6A6A)' }};
+  const TIPO_BG    = {{ SP: 'background:#E0F7FE;color:#0277A8;', HY: 'background:#EDE8F7;color:#5C469C;', TP: 'background:#F0EBE2;color:#8A8377;' }};
+  const TIPO_DOT   = {{ SP: '#0277A8', HY: '#5C469C', TP: '#8A8377' }};
 
   // Filtrar hoteles según filtros activos
   function _hotelMatches(h) {{
@@ -2705,17 +2845,19 @@ function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, dr
     '<td style="padding:2px 8px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</td>' +
     '</tr>';
 
-  // Construir HTML del panel — columnas: Hotel | Región | Destino | Corporativo | Tipo
-  // Reordenar filtered para la nueva columna order
   const dataRowsReordered = filtered.map((h, i) => {{
     const hw = (h.h + ' ' + h.r + ' ' + h.d + ' ' + h.c).replace(/"/g,"'");
-    return '<tr data-hw="' + hw + '" style="border-bottom:1px solid var(--rule-soft);">' +
-      '<td style="padding:10px 8px 10px 12px;font-size:11px;color:var(--ink-muted);text-align:right;white-space:nowrap;">' + (i+1) + '</td>' +
-      '<td style="padding:10px 12px;font-weight:600;font-size:13px;">' + h.h + '</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.r + '</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.d + '</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">' + h.c + '</td>' +
-      '<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:' + TIPO_COLOR[h.t] + ';">' + TIPO_LABEL[h.t] + '</span></td>' +
+    const tipoBadge = '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;' + TIPO_BG[h.t] + '">' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:' + TIPO_DOT[h.t] + ';display:inline-block;flex-shrink:0;"></span>' +
+      TIPO_LABEL[h.t] + '</span>';
+    return '<tr data-hw="' + hw + '" data-h="' + h.h.replace(/"/g,"'") + '" data-c="' + (h.c||'').replace(/"/g,"'") + '" data-r="' + (h.r||'') + '" data-d="' + (h.d||'').replace(/"/g,"'") + '" data-t="' + TIPO_LABEL[h.t] + '" style="border-bottom:1px solid var(--rule-soft);">' +
+      '<td style="padding:9px 12px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+        '<span class="hw-n" style="font-size:10px;color:var(--ink-muted);margin-right:8px;min-width:16px;display:inline-block;">' + (i+1) + '</span>' + h.h +
+      '</td>' +
+      '<td style="padding:9px 12px;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (h.c||'—') + '</td>' +
+      '<td style="padding:9px 12px;font-size:12px;color:var(--ink-muted);white-space:nowrap;">' + (h.r||'—') + '</td>' +
+      '<td style="padding:9px 12px;font-size:12px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (h.d||'—') + '</td>' +
+      '<td style="padding:9px 12px;">' + tipoBadge + '</td>' +
       '</tr>';
   }}).join('');
 
@@ -2734,20 +2876,18 @@ function _renderHotelList(allHotels, aggRows, label, dim, drTipos, drRegions, dr
     '<div style="overflow-x:auto;">' +
     '<table style="width:100%;border-collapse:collapse;table-layout:fixed;">' +
     '<colgroup>' +
-    '<col style="width:36px;"/>' +
-    '<col style="width:28%;"/>' +
-    '<col style="width:11%;"/>' +
-    '<col style="width:19%;"/>' +
-    '<col style="width:19%;"/>' +
+    '<col style="width:30%;"/>' +
+    '<col style="width:18%;"/>' +
+    '<col style="width:13%;"/>' +
+    '<col style="width:22%;"/>' +
     '<col style="width:17%;"/>' +
     '</colgroup>' +
-    '<thead><tr style="border-bottom:2px solid var(--rule);">' +
-    '<th style="text-align:right;padding:8px 8px 8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);width:36px;">#</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Hotel</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Región</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Destino</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Corporativo</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</th>' +
+    '<thead id="hw-thead"><tr style="border-bottom:2px solid var(--rule);background:var(--paper-soft);">' +
+    '<th data-col="h"  data-lbl="Hotel"       onclick="_hwSortBy(this.dataset.col,this)"  style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Hotel ↕</th>' +
+    '<th data-col="c"  data-lbl="Corporativo"  onclick="_hwSortBy(this.dataset.col,this)"  style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Corporativo ↕</th>' +
+    '<th data-col="r"  data-lbl="Región"       onclick="_hwSortBy(this.dataset.col,this)"  style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Región ↕</th>' +
+    '<th data-col="d"  data-lbl="Destino"      onclick="_hwSortBy(this.dataset.col,this)"  style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Destino ↕</th>' +
+    '<th data-col="t"  data-lbl="Tipo"         onclick="_hwSortBy(this.dataset.col,this)"  style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Tipo ↕</th>' +
     '</tr></thead>' +
     '<tbody id="hw-tbody">' + dataRowsReordered + '</tbody>' +
     '</table></div>';
@@ -2912,7 +3052,8 @@ function _renderPPPanel() {{
   if (!panel) return;
 
   const TIPO_LABEL = {{ SP: 'Solo Propio', HY: 'Hybrid' }};
-  const TIPO_COLOR = {{ SP: 'var(--green)', HY: 'var(--violet,#5C469C)' }};
+  const TIPO_BG    = {{ SP: 'background:#E0F7FE;color:#0277A8;', HY: 'background:#EDE8F7;color:#5C469C;' }};
+  const TIPO_DOT   = {{ SP: '#0277A8', HY: '#5C469C' }};
 
   // Filtros activos
   const activeRegions = udActiveFilters.filter(f=>f.type==='region').map(f=>f.value);
@@ -2944,13 +3085,17 @@ function _renderPPPanel() {{
 
   const dataRows = hotels.map((h,i) => {{
     const hw = (h.h+' '+h.r+' '+h.d+' '+h.c).replace(/"/g,"'");
-    return '<tr data-hw="'+hw+'" style="border-bottom:1px solid var(--rule-soft);">' +
-      '<td style="padding:10px 8px 10px 12px;font-size:11px;color:var(--ink-muted);text-align:right;white-space:nowrap;">'+(i+1)+'</td>' +
-      '<td style="padding:10px 12px;font-weight:600;font-size:13px;">'+h.h+'</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.r+'</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.d+'</td>' +
-      '<td style="padding:10px 12px;font-size:13px;color:var(--ink-muted);">'+h.c+'</td>' +
-      '<td style="padding:10px 12px;"><span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:'+TIPO_COLOR[h.t]+';">'+TIPO_LABEL[h.t]+'</span></td>' +
+    const tipoBadge = '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;' + TIPO_BG[h.t] + '">' +
+      '<span style="width:6px;height:6px;border-radius:50%;background:' + TIPO_DOT[h.t] + ';display:inline-block;flex-shrink:0;"></span>' +
+      TIPO_LABEL[h.t] + '</span>';
+    return '<tr data-hw="'+hw+'" data-h="'+h.h.replace(/"/g,"'")+'" data-c="'+(h.c||'').replace(/"/g,"'")+'" data-r="'+(h.r||'')+'" data-d="'+(h.d||'').replace(/"/g,"'")+'" data-t="'+TIPO_LABEL[h.t]+'" style="border-bottom:1px solid var(--rule-soft);">' +
+      '<td style="padding:9px 12px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+        '<span class="hw-n" style="font-size:10px;color:var(--ink-muted);margin-right:8px;min-width:16px;display:inline-block;">'+(i+1)+'</span>'+h.h+
+      '</td>' +
+      '<td style="padding:9px 12px;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(h.c||'—')+'</td>' +
+      '<td style="padding:9px 12px;font-size:12px;color:var(--ink-muted);white-space:nowrap;">'+(h.r||'—')+'</td>' +
+      '<td style="padding:9px 12px;font-size:12px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(h.d||'—')+'</td>' +
+      '<td style="padding:9px 12px;">'+tipoBadge+'</td>' +
       '</tr>';
   }}).join('');
 
@@ -2968,14 +3113,13 @@ function _renderPPPanel() {{
     '</div>' +
     '<div style="overflow-x:auto;">' +
     '<table style="width:100%;border-collapse:collapse;table-layout:fixed;">' +
-    '<colgroup><col style="width:36px;"/><col style="width:28%;"/><col style="width:11%;"/><col style="width:19%;"/><col style="width:19%;"/><col style="width:17%;"/></colgroup>' +
-    '<thead><tr style="border-bottom:2px solid var(--rule);">' +
-    '<th style="text-align:right;padding:8px 8px 8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);width:36px;">#</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Hotel</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Región</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Destino</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Corporativo</th>' +
-    '<th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);">Tipo</th>' +
+    '<colgroup><col style="width:30%;"/><col style="width:18%;"/><col style="width:13%;"/><col style="width:22%;"/><col style="width:17%;"/></colgroup>' +
+    '<thead id="hw-thead"><tr style="border-bottom:2px solid var(--rule);background:var(--paper-soft);">' +
+    '<th data-col="h" data-lbl="Hotel"      onclick="_hwSortBy(this.dataset.col,this)" style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Hotel ↕</th>' +
+    '<th data-col="c" data-lbl="Corporativo" onclick="_hwSortBy(this.dataset.col,this)" style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Corporativo ↕</th>' +
+    '<th data-col="r" data-lbl="Región"     onclick="_hwSortBy(this.dataset.col,this)" style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Región ↕</th>' +
+    '<th data-col="d" data-lbl="Destino"    onclick="_hwSortBy(this.dataset.col,this)" style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Destino ↕</th>' +
+    '<th data-col="t" data-lbl="Tipo"       onclick="_hwSortBy(this.dataset.col,this)" style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Tipo ↕</th>' +
     '</tr></thead>' +
     '<tbody id="hw-tbody">'+dataRows+'</tbody>' +
     '</table></div>';
@@ -3265,7 +3409,7 @@ function hTipo(btn, val) {{
   const titleEl = document.getElementById('hist-section-title');
   if (titleEl) {{
     const suffix = val ? ' · ' + val : '';
-    titleEl.textContent = 'Evolución Histórica del Producto' + suffix;
+    titleEl.textContent = 'Evolución Histórica del Inventario' + suffix;
   }}
   hApplyFilter();
 }}
@@ -4005,11 +4149,11 @@ def build_corp_tab():
       </div>
       <table class="data-table">
         <thead><tr>
-          <th style="text-align:left;width:180px;">Corporativo</th>
-          <th>Total</th>
-          <th class="th-sp" style="font-size:8px;">Solo Propio</th>
-          <th class="th-hy" style="font-size:8px;">Hybrid</th>
-          <th class="th-tp" style="font-size:8px;">Third Party</th>
+          <th id="corp-th-name" onclick="corpSortCol('corp-name',this)" data-sort-label="Corporativo" style="text-align:left;width:180px;cursor:pointer;user-select:none;">Corporativo ↕</th>
+          <th onclick="corpSortTotal()" id="corp-th-total" style="cursor:pointer;user-select:none;" title="Ordenar por total">Total ↕</th>
+          <th class="th-sp" style="font-size:8px;cursor:pointer;user-select:none;" onclick="corpSortCol('corp-sp',this)" data-sort-label="Solo Propio">Solo Propio ↕</th>
+          <th class="th-hy" style="font-size:8px;cursor:pointer;user-select:none;" onclick="corpSortCol('corp-hy',this)" data-sort-label="Hybrid">Hybrid ↕</th>
+          <th class="th-tp" style="font-size:8px;cursor:pointer;user-select:none;" onclick="corpSortCol('corp-tp',this)" data-sort-label="Third Party">Third Party ↕</th>
           <th style="min-width:120px;">% Propio</th>
         </tr></thead>
         <tbody id="corp-tbody">{rows}{ver_mas}</tbody>
@@ -4046,10 +4190,10 @@ def build_dest_tab():
       </div>
       <table class="data-table" style="margin-top:8px;">
         <thead><tr>
-          <th style="text-align:left;">Destino</th>
-          <th>Total</th>
-          <th class="th-pp" style="font-size:8px;">P. Propio</th>
-          <th class="th-tp" style="font-size:8px;">Third Party</th>
+          <th id="dest-th-name" onclick="destSortCol('dest-name',this)" data-sort-label="Destino" style="text-align:left;cursor:pointer;user-select:none;">Destino ↕</th>
+          <th onclick="destSortTotal()" id="dest-th-total" style="cursor:pointer;user-select:none;" title="Ordenar por total">Total ↕</th>
+          <th class="th-pp" style="font-size:8px;cursor:pointer;user-select:none;" onclick="destSortCol('dest-pp',this)" data-sort-label="P. Propio">P. Propio ↕</th>
+          <th class="th-tp" style="font-size:8px;cursor:pointer;user-select:none;" onclick="destSortCol('dest-tp',this)" data-sort-label="Third Party">Third Party ↕</th>
           <th style="min-width:110px;">% Propio</th>
         </tr></thead>
         <tbody id="dest-tbody">{rows}{ver_mas}</tbody>
@@ -4387,8 +4531,7 @@ def build_html():
 <div class="masthead-inner">
   <div class="masthead-left">
     <div class="masthead-week">WEEK {WEEK_NUM}</div>
-    <h1 style="margin:4px 0 3px;font-size:clamp(20px,2.0vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.1;">State of <span style="color:var(--accent);">PriceTravel</span> Product</h1>
-    <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em;"><strong style="color:var(--accent)">{fmt_n(N)}</strong> hoteles con contrato activo · Target 2026: <strong style="color:var(--accent)">{fmt_n(TARGET_PROPIO)}</strong> con Producto Propio</div>
+    <h1 style="margin:4px 0 3px;font-size:clamp(20px,2.0vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.1;"><span style="color:var(--accent);">Inventario</span></h1>
   </div>
   <div class="masthead-logo-row">
     <img alt="PriceTravel" src="{LOGO_B64}" class="masthead-logo"/>
@@ -4407,7 +4550,7 @@ def build_html():
   <div style="padding:14px 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:10px;">
 
     <div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Total Hotel Inventory</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Inventario de Hoteles</div>
       <div style="font-size:28px;font-weight:700;color:var(--accent);letter-spacing:-.02em;" id="card-total">{fmt_n(N)}</div>
       <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:100%;background:var(--accent);border-radius:2px;opacity:.3;"></div></div>
       <div style="font-size:9px;color:var(--ink-muted);margin-top:3px;">Hoteles con contratos activos</div>
@@ -4456,9 +4599,9 @@ def build_html():
 
     <div>
       <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Gap</div>
-      <div style="font-size:28px;font-weight:700;color:#6A6A6A;letter-spacing:-.02em;" id="card-gap">44</div>
-      <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#6A6A6A;border-radius:2px;"></div></div>
-      <div style="font-size:11px;font-weight:700;color:#6A6A6A;margin-top:3px;">Hoteles agregados esta semana</div>
+      <div style="font-size:28px;font-weight:700;color:#4FC3F4;letter-spacing:-.02em;" id="card-gap">44</div>
+      <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#4FC3F4;border-radius:2px;"></div></div>
+      <div style="font-size:11px;font-weight:700;color:#4FC3F4;margin-top:3px;">Hoteles agregados esta semana</div>
     </div>
 
   </div>
@@ -4504,7 +4647,7 @@ def build_html():
 
 <!-- ZONA 5+6: PANEL UNIFICADO (filtros + gráfico + tabla) -->
 <div class="sec-head">
-  <span class="sec-title" id="hist-section-title">Evolución Histórica del Producto</span>
+  <span class="sec-title" id="hist-section-title">Evolución Histórica del Inventario</span>
 </div>
 
 <!-- ── BLOQUE DE FILTROS UNIFICADO — compact ── -->
