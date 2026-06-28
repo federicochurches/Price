@@ -1,5 +1,5 @@
 # dest_mapping.py — auto-mapper + revisión manual Fede
-# 1456 hoteles mapeados
+# 1461 hoteles mapeados
 
 DEST_MAPPING = {
     '12HEH Pattaya': 'Pattaya',
@@ -86,6 +86,7 @@ DEST_MAPPING = {
     'Arbour Hotel And Residence Pattaya': 'Pattaya',
     'Arcadia Mansion': 'Pattaya',
     'Archontiko Galliaki in Crete': 'Creta',
+    'Arden Hotel and Residence': 'Pattaya',
     'Ardency Inn by Park Tree Udaipur': 'Udaipur',
     'Argo Pattaya Resort and Villas': 'Pattaya',
     'Armida City Hotel': 'Canakkale',
@@ -806,6 +807,7 @@ DEST_MAPPING = {
     'Mercure Rayong Lomtalay Villas & Resort': 'Rayong',
     'Merica Hotel -Chongqing Guanyinqiao': 'Chongqing',
     'Merica Hotel -Chongqing Jiefangbei': 'Chongqing',
+    'Mermaid Beach Resort': 'Pattaya',
     'Mewar Haveli': 'Udaipur',
     'Mewar Palace Resort & Spa': 'Udaipur',
     'Mewar palace resort and spa': 'Udaipur',
@@ -1146,6 +1148,7 @@ DEST_MAPPING = {
     'Sucha Hotel Chongqing North Station': 'Chongqing',
     'Sucha Hotel Chongqing Yangjiaping': 'Chongqing',
     'Sukkeebeach Kohlarn Resort': 'Pattaya',
+    'Sun Suko Boutique Retreat': 'Bali',
     'Sun and Sea Kohlarn': 'Pattaya',
     'Suncity Hotel Pattaya': 'Pattaya',
     'Sunday Chateau En Ville Pattaya': 'Pattaya',
@@ -1180,6 +1183,7 @@ DEST_MAPPING = {
     'Taşlıhan Boutique Hotel': 'Istanbul',
     'Teluk Karang Dive and Spa Resort Bali': 'Bali',
     'Tenlien onsen Hot Spring Hotel': 'Japan',
+    'Thai Pura Resort': 'Pattaya',
     'The  Seathru  Kohlarn': 'Pattaya',
     'The AGATE Pattaya Boutique Resort': 'Pattaya',
     'The Amargarh': 'Udaipur',
@@ -1259,6 +1263,7 @@ DEST_MAPPING = {
     'The Sky Imperial Udaipur': 'Udaipur',
     'The Sloop Inn': 'Cornwall',
     'The Tamnan Pattaya Hotel & Resort': 'Pattaya',
+    'The Train Resort': 'Pattaya',
     'The Udaipur Luxurious Villa Udaipur': 'Udaipur',
     'The Unmad': 'Dharamshala',
     'The Unmad Satovari': 'Dharamshala',
