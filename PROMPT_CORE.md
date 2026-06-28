@@ -103,7 +103,7 @@ PICKLE_CR=/tmp/cr_w{NN}_data.pkl
 - `lock-chip` CSS: `background:#FCB000;color:#333132;border:none;border-radius:20px` — sin emojis
 
 **Card Connectivities (W22+):**
-- KPIs: Eficacia CR · Conv Rate · %NoDispo · IPM
+- KPIs: Performance CR · Conv Rate · %NoDispo · IPM
 - Cada KPI con badge WoW verde `#1A6B4A` / rojo `#FF3B30` según dirección
 - Bajada: "Connectivities Health & Availability Success · por canal y corporativo."
 
@@ -197,7 +197,7 @@ Mismo catálogo que CR: `PRODUCTO_PROPIO` + `THIRD_PARTY = ['Expedia','HotelBeds
 
 ### Ubicación
 - Solo visible en **Connectivities** (CR). En Availability se oculta automáticamente
-- Severity de la barra superior: **"Severity Eficacia"** en CR / **"Severity NoDispo"** en RND
+- Severity de la barra superior: **"Severity Performance"** en CR / **"Severity NoDispo"** en RND
 
 ---
 
@@ -303,7 +303,7 @@ GLOBAL_PANEL_SCRIPT (script separado, ÚLTIMO en el body)
 | Crítica | 20 – 60% |
 | Súper Crítica | > 60% |
 
-#### % Eficacia (CR)
+#### % Performance (CR)
 | Banda | Rango |
 |---|---|
 | Exitosa | ≥ 97% |
@@ -335,7 +335,8 @@ GLOBAL_PANEL_SCRIPT (script separado, ÚLTIMO en el body)
 ### Sistema de Color
 
 **RND:** `#EA0074` magenta · IPM severity `#A86A1D` amber
-**CR:** `#5C469C` violet · Eficacia severity `#EA0074` · ConvRate severity `#5C469C`
+**CR:** `#5C469C` violet · Performance severity `#EA0074` · ConvRate severity `#5C469C`
+**Drilldown RE/PA:** Corps `#5C469C` · Destinos `#185FA5` · Hoteles `#EA0074` magenta
 
 **Compartido:**
 - `--green: #1A6B4A` — barras Exitosa, pills
@@ -398,7 +399,7 @@ Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
 ### Datos históricos reales W16-W24
 > Referencia de valores globales reales por semana. La ventana **viva** del módulo histórico es móvil (W17-W24 en W24); esta tabla conserva W16 como referencia.
 
-| Semana | CR Eficacia | CR ConvRate | RND %NoDispo | RND IPM |
+| Semana | CR Performance | CR ConvRate | RND %NoDispo | RND IPM |
 |---|---|---|---|---|
 | W16 | 93,27% | 1,29% | 3,69% | $661 |
 | W17 | 93,58% | 1,15% | 3,63% | $574 |
@@ -413,7 +414,7 @@ Fix en: `historico_module.py` (fuente) · `js_override.js` · `demo_js_main.js`.
 
 ### Canvas IDs · Módulo Histórico
 
-| Scope | CR Eficacia | CR ConvRate | RND NoDispo | RND IPM |
+| Scope | CR Performance | CR ConvRate | RND NoDispo | RND IPM |
 |---|---|---|---|---|
 | Global | `h-global-ef` | `h-global-cv` | `hrnd-global-nd` | `hrnd-global-ipm` |
 | B2B-OP | `h-op-ef` | `h-op-cv` | `hrnd-op-nd` | `hrnd-op-ipm` |
@@ -459,7 +460,7 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 | **Archivo output** | `Analisis_RatesNoDispo_WNN.xlsx` | `Analisis_CheckRates_WNN.xlsx` |
 | **Total hojas** | 5 | 5 |
 | **Orden hojas** | Severity · Maestra · Críticos · Bajo Rendimiento · Sin Conversión | ídem |
-| **Orden hotel** | `%NoDispo DESC` | `Eficacia ASC` (menor = peor primero) |
+| **Orden hotel** | `%NoDispo DESC` | `Performance ASC` (menor = peor primero) |
 | **Top N bandas** | 500 | 500 |
 
 **Hoja Severity:** KPI global WoW + Severity %NoDispo + Severity %Conv Rate (cada una con rango y filtro propio como Tabla Excel) + Top 30 Destinos + Top 30 Corp (+ Channel en CR). Todas son tablas Excel independientes con filtro/sort propio.
@@ -578,10 +579,10 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 |---|---|---|
 | 1 | Status Contratación | Netnew (hero) · Producto Propio · Gap Target |
 | 2 | % No Disponibilidad | Destinos Primarios · Destinos Secundarios · Destinos Terciarios |
-| 3 | Performance | Conv Rate · Eficacia · Bookability |
+| 3 | Performance | Conv Rate · Performance · Bookability |
 
 ### Decisiones canónicas
-- **Sección "Performance"** — Conv Rate no es conectividad; Eficacia + Bookability sí. Los 3 van en la misma fila bajo "Performance"
+- **Sección "Performance"** — Conv Rate no es conectividad; Performance + Bookability sí. Los 3 van en la misma fila bajo "Performance"
 - **NoDispo por tier** — lee `DR['nd_por_tier']` del pickle RND. Requiere `calc_rnd.py` W26+ (agrega `nd_por_tier` al pickle). Fallback: muestra global en las 3 celdas si no existe el dict
 - **Header:** borde top negro 3px · "PriceTravel" grande · badge `Week NN` (fondo `#161616`, texto `#fff`) a la derecha con fecha debajo
 - **Footer:** una línea centrada
@@ -732,6 +733,8 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 ---
 
 <<<<<<< HEAD
+**Última actualización:** W25-repa-v9 · 27-06-2026 (**Nuevo diseño RE/PA v9** — Círculo numerado violet/magenta por modo · título 13px bold · badge de área responsable (solo primer área antes de `/`) alineado a la derecha · drilldown Corps+Destinos/Hoteles en mini-tablas stacked · colores: Corps `#5C469C` · Destinos `#185FA5` · Hoteles `#EA0074` (magenta). Sin línea Métrica/Plazo. Carryover integrado al pie del PA con borde gris. Aplica a: `demo_js_main.js` (render global dinámico) · `render_cr_p3.py` (PA canastas colapsables, reemplaza `.action-row`) · `template_resumen.py` (RE canastas). CSS en `demo_css_w22.css` · border-top aplicado via JS `el.style.borderTop=col`. Rename Eficacia→Performance en 8 scripts CR + Hub + mail (74 ocurrencias). Hub: card "Disponibilidad & Performance" · KPI "Contratación" muestra netnew hoteles de la semana (`_inv_fmt(_inv_pp_d)`) en vez de % avance.)
+
 **Última actualización:** W26-mail-layout · 27-06-2026 (**Rediseño completo `render_mail_v3.py` v5.0 + `calc_rnd.py` nd_por_tier** — Layout 3 filas: Contratación (netnew+PP+Gap) · NoDispo por tier (Primarios/Secundarios/Terciarios) · Performance (ConvRate+Eficacia+Bookability). Header badge Week NN negro. Footer una línea. 3 CTAs Hub/Supply/Inventario. Colores hardcodeados inline para compatibilidad iPad/Outlook. Bloque editorial MAIL_HIGHLIGHTS. `calc_rnd.py`: agrega `nd_por_tier` al pickle via `get_dest_tier()`. Commits: `03bb59184b0c` render_mail · `0789b54b1ea1` calc_rnd.) (**continuación recovery: 4 bugs encadenados tras reinyección editorial** — **(1) `g is not a function`:** los drilldowns editoriales reinyectados en `CR_D`/`RND_D` tenían `</span>`/`</strong>` SIN escapar dentro del `<script>` → cortaban el script → `g` (getElementById) nunca se definía → `w22_update` crasheaba en RND → severity RND no renderizaba (apilado). Fix: escapar `</` → `<\/` (regla #42). **(2) severity RND grid:** comas rotas por `.replace(',','.')` (`auto-fit.minmax` inválido) → sacar el grid del replace, formatear `len(p80)` aparte (regla #41). **(3) strip RND:** banda del 1er KPI usaba lógica Eficacia → NoDispo 3,43% daba "Súper Crítica". Fix: `_banda` con `metric='nd'` + `_applyBand` usa `isCR?'ef':'nd'`. IPM eliminado del strip RND (oculta `w22-strip-cv-item`+`w22-strip-cv-sep` en `W.mode==='rnd'`). **(4) cosmético:** H1 → "Disponibilidad & Conectividades"; footer envuelto en `.shell` + 2 filas balanceadas (Destinos MX/US/CALA + Cuentas Global/Estratégicas) + labels `Disponibilidad ↓`/`Conectividades ↓`. Archivos: `js_override.js`, `demo_js_main.js`, `assemble_unified.py`, `render_cr_p1.py`, `render_rnd_p1.py`, `render_rnd_p2.py`. Commits: `d30c404` `bdc474f` `7392d3c` `460ea94` `2a21d4d`.)
 
 **Última actualización previa:** W25-editorial-recovery · 27-06-2026 (**Recuperación editorial RE/PA + optimización 33→11MB tras saga loading-blur** — El RE/PA editorial bueno (drilldowns, "Equipo Optimización: Corregir...", "Error Rate"/"Tasa No Dispo Crítica") fue editado SOLO en el HTML el 26-06, nunca en los scripts. La saga del blur regeneró el HTML desde el pipeline → perdió todo el editorial (volvió "Escalar Hyatt House" del pickle). **Fix:** extraídos re/plan/co de las 4 canastas CR+RND del commit pre-blur `48a45519` (`__cr_d_json`/`__rnd_d_json`) y reinyectados en `CR_D`/`RND_D` del HTML de 11MB. **Performance:** card AR NoDispo emitía 11.313 hoteles "Sin Conversión" como HTML (~13MB) → `_df_br.head(200)` + `_df_sc.head(100)` en `render_ar_card_nodispo()` + tabs KPI capeadas → 33→11MB (el cuello era el PARSE del browser, no el download). **Severity:** revertido a `auto-fit` pre-blur (el cambio a `repeat(3,1fr)` no era necesario — CSS era idéntico al bueno). `netlify.toml` → `no-store`. **REGLA CRÍTICA NUEVA:** el contenido editorial (re/plan/co) vive SOLO en el HTML parcheado, NO en el pipeline — regenerar el HTML lo pierde. Hasta automatizar la lógica editorial en `render_*_p1.py` (pendiente), nunca regenerar sin reinyectar el editorial del último commit bueno. **Trampa documentada:** `.replace(',','.')` de los f-strings de severity (formato español) rompe cualquier `minmax(x,y)` → usar `fr` units. Commits: `c5fdc76` (11MB) · `e39ff61` (revert severity) · `e6e3c7b` (editorial reinyectado).)
@@ -774,7 +777,7 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 **Pipeline W24-rnd-kpi:** 2 KPI cards RND (NoDispo/IPM) migradas de radios CSS a pills verdes · `RND_CARD_TABS` realineado (hist r9/r10, cf r11/r12/r13) · `_crossFilterNonHotel` filtra panel de vista activa + País→Destino · `g_dest` enriquecido con país en `calc_rnd.py` · `_arDimRows` card 2 RND ordena por IPM · searchbox AR unificado con clase `.sb-search-hit{display:grid !important}` (dos handlers oninput) · `w22_redrawCanvas` envuelto en try/catch (no corta `w22_setMode`)
 **Última actualización previa:** W24-kpi-unify · 20-06-2026 (KPI cards: 3 cards unificadas sobre `_kpiSortAttach` + channel con sort/selección · pills verdes · cross-filter hotel por corp/dest · catálogo channels unificado · paso 10 copia HTML a reports/)
 **Pipeline W24-kpi-unify:** las 3 KPI cards (EF/CV/BK) 100% unificadas · pills activas VERDES `#1A6B4A` · cross-pills orden de selección · channel con sort+selección en las 3 (filas `.bk-row` + `bkSort`) · catálogo channels canónico + RateFox · cross-filter hotel por `data-cf-corp`/`data-cf-dest` · límite 1000 filas buscables · paso 10 en calc_supply copia HTML a reports/week-NN
-**Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Eficacia/NoDispo dinámico · BK oculto en Availability
+**Pipeline W23-bk:** Bookability como 3ª card cross-canasta · sort clickable con flechas ↕/↑/↓ · Channel unificado flex-column · Severity Performance/NoDispo dinámico · BK oculto en Availability
 **Última limpieza:** W22-pre — 50 reglas → 35 · sección archivos eliminada · arquitectura en `NOTA_REFACTOR_PENDIENTE.md`
 **Pipeline W22:** histórico W16–W22 (7pts) · fix puntos canvas · compatibilidad dataset CR sin Successful · mobile responsive · header redesign
 **Pipeline W23:** histórico W16–W23 (8pts) · fix display:table-row filas 6-10 · fix border-bottom rows-more · calc_supply.py pipeline completo 8 pasos

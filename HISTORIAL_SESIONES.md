@@ -1,5 +1,80 @@
 ## Sesión W25-strip-footer-fix · 27-06-2026 (continuación recovery)
 
+---
+
+## W25-repa-v9 · 27-06-2026
+
+### Contexto
+Rediseño visual completo de la sección RE/PA del Supply HTML. Implementación iterativa con A/B testing en HTML standalone antes de tocar scripts (regla #39).
+
+### Cambios — Rename Eficacia → Performance
+74 ocurrencias en 8 archivos: `render_cr_p1.py`, `render_cr_p3.py`, `assemble_unified.py`, `js_override.js`, `render_mail_v3.py`, `excel_cr.py`, `excel_cr_regional.py`, `excel_cr_accounts.py`. Variables Python internas (`BandaEficacia`, `Eficacia_WoW_pp`, `banda_eficacia()`) intactas.
+
+### Cambios — Hub index
+- Card title: `Disponibilidad & Performance`
+- Sub-label KPI: `Performance · CR`
+- Pill switcher: `Performance`
+- KPI "Contratación": muestra netnew hoteles (`_inv_fmt(_inv_pp_d)`) en vez de % avance (`inv_avance`)
+- Badge WoW: `wow_inv_pp` en vez de `wow_inv_gap`
+
+### Cambios — Nuevo diseño RE/PA v9
+**Estructura de cada ítem:**
+- Círculo numerado (`#5C469C` CR / `#EA0074` RND) con número blanco
+- Título 13px font-weight:700 flex:1
+- Badge área responsable (solo primer área antes de `/`) alineado derecha, border-left 3px col
+- Drilldown sangrado 32px: Corps+Destinos en fila, Hoteles abajo full-width
+- Sin línea Métrica/Plazo
+- Separador `1px dashed var(--rule-soft)` entre ítems (último sin borde)
+- Carryover al pie del PA con borde gris `#8A8377`
+
+**Sistema de colores drilldown:** Corps `#5C469C` · Destinos `#185FA5` · Hoteles `#EA0074` (magenta, antes verde)
+
+**Archivos modificados:**
+- `demo_js_main.js` — `w22_renderRE`, render plan, render co en `w22_update`. border-top via JS `el.style.borderTop=col`
+- `demo_css_w22.css` — `#w22-re-list,#w22-pg` contenedor con border, padding, background
+- `template_resumen.py` — reescrito con nuevo diseño (círculo numerado, sin grid 2col)
+- `render_cr_p3.py` — PA canastas colapsables reemplaza `.action-row` por nuevo diseño inline
+- `assemble_unified.py` — `<ul>` sin inline style redundante
+
+**Debug:** border-top no aplicaba porque `#w22-re-list` no está dentro de `.section-cr` (closest devolvía false). Fix: aplicar via JS en lugar de CSS scoped.
+
+**Commit HTML W25:** patch directo al HTML del repo desde Claude (Git Tree API) porque el push local de Fede no llegaba a Netlify.
+
+### Archivos modificados en el repo
+`demo_js_main.js` · `demo_css_w22.css` · `template_resumen.py` · `render_cr_p3.py` · `assemble_unified.py` · `render_cr_p1.py` · `render_rnd_p1.py` · `render_mail_v3.py` · `build_package.py` · `excel_cr.py` · `excel_cr_regional.py` · `excel_cr_accounts.py` · `reports/week-25/SUPPLY_W25.html`
+
+---
+
+## W26-performance-rename-2 · 27-06-2026
+
+### Contexto
+Segunda tanda del rename: H1 del Supply + card Hub + KPI strip Hub.
+
+### Cambios
+- `render_cr_p1.py` + `render_rnd_p1.py`: H1 `Conectividades` → `Performance`
+- `build_package.py`: card title `Disponibilidad & Conectividades` → `Disponibilidad & Performance` · sub-label `Estado de las Conectividades` → `Performance · CR` · pill switcher `Conectividades` → `Performance`
+- `assemble_unified.py`: botones switcher (×2) + footer links (×3) `Conectividades ↓` → `Performance ↓`
+- `render_mail_v3.py`: subject + CTA `Conectividades` → `Performance`
+- `build_package.py` KPI strip: label `Avance Plan de Contratación` → `Contratación` · valor `{inv_avance}` (% avance) → `{_inv_fmt(_inv_pp_d)}` (netnew hoteles semana) · badge `{wow_inv_gap}` → `{wow_inv_pp}`
+
+---
+
+## W26-performance-rename · 27-06-2026
+
+### Contexto
+Rename display-only de "Eficacia" → "Performance" en todo el reporte CR (Supply HTML, Excels, mail).
+
+### Cambios
+74 ocurrencias reemplazadas en 8 archivos. Solo strings de display al usuario; las referencias internas (`BandaEficacia`, `Eficacia_WoW_pp`, `df['Eficacia']`, `banda_eficacia()`, `sort_values('Eficacia')`) intactas.
+
+### Archivos modificados
+- `render_cr_p1.py` — KPI card label, header col tabla, pills alert card, abrev `Ef → Perf` en footers
+- `render_cr_p3.py` — severity block título, badge_label, card colapsable títulos, textos de acciones, headers tablas, targets `> 85/95%`
+- `assemble_unified.py` — strip label, AR card1 label
+- `js_override.js` — `sevLbl`, `metricLbl` ternarios, `th4/td4.textContent`, `metLbl` inline, headers array `ef`
+- `render_mail_v3.py` — `_kpi_cell('Performance')`, preview body
+- `excel_cr.py`, `excel_cr_regional.py`, `excel_cr_accounts.py` — tuple KPI, títulos de sección, headers de columnas `Eficacia → Performance`, `WoW Ef → WoW Perf`
+
 **Contexto:** Tras recuperar el editorial RE/PA, validación visual destapó 4 bugs encadenados. El más grave: un `g is not a function` que rompía el render de RND.
 
 ### Bug raíz: tags sin escapar en el editorial reinyectado
