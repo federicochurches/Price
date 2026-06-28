@@ -1,5 +1,5 @@
 # dest_mapping.py — auto-mapper + revisión manual Fede
-# 1512 hoteles mapeados
+# 1518 hoteles mapeados
 
 DEST_MAPPING = {
     '12HEH Pattaya': 'Pattaya',
@@ -587,6 +587,7 @@ DEST_MAPPING = {
     'Hotel O Hepi Bungalow Lovina': 'Bali',
     'Hotel O Kaliurang Near Gunung Merapi Kaliurang': 'Yogyakarta',
     'Hotel O Kost Esklusif Barokah': 'Yogyakarta',
+    'Hotel O Nabila Homestay': 'Yogyakarta',
     'Hotel O Near Tugu Yogyakarta 2 formerly Monjali Inn': 'Yogyakarta',
     'Hotel O Omah Duwet': 'Yogyakarta',
     'Hotel O Penginapan Kepurun Pawana Indonesia': 'Yogyakarta',
@@ -731,6 +732,7 @@ DEST_MAPPING = {
     'Kruger Riverside Lodge': 'Kruger',
     'Kruger View Chalets': 'Kruger',
     'Kudrat Resort and Suites Jim Corbett': 'Jim Corbett',
+    'Kyaw Myanmar Hotel': 'Ngapali Beach',
     'Kyaw Ngapali Lodge': 'Ngapali Beach',
     'Kyou Bar Lounge & Inn': 'Sendai',
     "L'Escape Hotel": 'Seoul',
@@ -904,6 +906,7 @@ DEST_MAPPING = {
     'OYO 143 Dday Resotel Pattaya Hotel': 'Pattaya',
     'OYO 145 Pattaya Bed Boutique': 'Pattaya',
     'OYO 2169  Anugrah Bromo Homestay': 'Java',
+    'OYO 2518 Wilma Hotel Ii Premier': 'Kupang',
     'OYO 2896 Uma Menuh Guest House Near Pantai Keramas': 'Bali',
     'OYO 441 Namira Hotel Syariah': 'Yogyakarta',
     'OYO 520 Pattaya Cantina': 'Pattaya',
@@ -914,6 +917,7 @@ DEST_MAPPING = {
     'OYO 91396 Hotel Laguna': 'Yogyakarta',
     'OYO 917 PK Residence Pattaya': 'Pattaya',
     'OYO 93482 Penginapan Tenang Lovina': 'Bali',
+    'OYO 970 Ban Kala Resort and Homestay': 'Pattaya',
     'OYO Homes 90987 Desa Wisata Gabugan Syariah': 'Yogyakarta',
     'OYO Homes 90996 Desa Wisata Pulesari Syariah': 'Yogyakarta',
     'OYO Life  92953 Nirmala Kost': 'Yogyakarta',
@@ -1092,6 +1096,7 @@ DEST_MAPPING = {
     'Ruo Shui Hotspring Hotel': 'Yilan',
     'Ryokan Kazenomori': 'Japan',
     'S Lodge Pattaya (formally known as Sabai Lodge)': 'Pattaya',
+    'SPOT ON 3605 Clarichie Guest House': 'Kupang',
     'SPOT ON 92068 Pudja Kesuma Homestay Syariah Yogyakarta': 'Yogyakarta',
     'SPOT ON 93592 Pondok Backpackers Ardafa JogjaNearBlue Lagoon Jogja': 'Yogyakarta',
     'SRINN Hotel Pattaya Klang': 'Pattaya',
@@ -1198,6 +1203,7 @@ DEST_MAPPING = {
     'Sunshine Hip Hotel': 'Pattaya',
     'SunshineZone': 'Pattaya',
     'Super 8 by Wyndham Cut Bank': 'Cut Bank',
+    'Super OYO 1682 Greenia Hotel': 'Kupang',
     'SureStay Plus by Best Western T Pattaya': 'Pattaya',
     'Sureena Hotel': 'Pattaya',
     'Surya Kothi Resort': 'Udaipur',
