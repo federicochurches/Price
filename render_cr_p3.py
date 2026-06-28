@@ -982,9 +982,9 @@ def render_canasta_block(canasta_data, idx_str='b2c'):
         area_first = area.split('/')[0].strip()
         badge = (
             f'<span style="flex-shrink:0;align-self:flex-start;margin-left:10px;'
-            f'margin-top:2px;font-size:9px;font-weight:700;color:#161616;'
-            f'background:#F2EDE0;padding:2px 8px;border-radius:2px;'
-            f'border-left:3px solid {CR_ACCENT};white-space:nowrap;">{area_first}</span>'
+            f'margin-top:2px;font-size:9px;font-weight:700;color:#fff;'
+            f'background:{CR_ACCENT};padding:3px 10px;border-radius:12px;'
+            f'white-space:nowrap;">{area_first}</span>'
         )
         return (
             f'<li style="padding:11px 0;border-bottom:{border};list-style:none;">'
