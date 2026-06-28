@@ -167,9 +167,9 @@ function w22_renderRE(open){
   return '<li'+h+' style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
-   +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
+   +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
    +'</div>'
-   +((r.d)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(r.d,col)+'</div>':'')
+   +(r.d?'<div style="padding:7px 0 0 32px;">'+_parseDrill(r.d,col)+'</div>':'')
    +'</li>';
  }).join('');
  var btn=g('w22-re-btn');if(btn)btn.textContent=W.reOpen?'Ver menos ↑':'Ver 5 más ↓';
@@ -311,10 +311,10 @@ function w22_update(){
   return '<li style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
-   +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
+   +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
    +(area?'<span style="flex-shrink:0;align-self:flex-start;margin-left:10px;margin-top:2px;font-size:9px;font-weight:700;color:#161616;background:#F2EDE0;padding:2px 8px;border-radius:2px;border-left:3px solid '+col+';white-space:nowrap;">'+area+'</span>':'')
    +'</div>'
-   +((p._sub)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(p._sub,col)+'</div>':'')
+   +(p._sub?'<div style="padding:7px 0 0 32px;">'+_parseDrill(p._sub,col)+'</div>':'')
    +'</li>';
  }).join('');}
 

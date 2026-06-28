@@ -2247,7 +2247,7 @@ window.HIST_DATA['rnd'] = {
   <section>
   <div class="section-head"><div>
   <h2 class="section-title">Resumen Ejecutivo</h2>
-  <span class="section-subtitle" style="color:var(--accent)">Canasta activa · 10 findings</span>
+  <span class="section-subtitle" style="color:var(--accent)">Global · Findings</span>
   </div></div>
   <ul style="list-style:none;padding:0;margin:0;" id="w22-re-list"></ul>
   </section>
@@ -2256,7 +2256,7 @@ window.HIST_DATA['rnd'] = {
   <section>
   <div class="section-head"><div>
   <h2 class="section-title">Plan de Acción</h2>
-  <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Canasta activa · W25</span>
+  <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Global · Action Items</span>
   </div></div>
   <ul style="list-style:none;padding:0;margin:0;" id="w22-pg"></ul>
   <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
@@ -2307,7 +2307,7 @@ window.HIST_DATA['rnd'] = {
 /* Modo RND oculto por defecto */
 #w22-rnd-block{display:none;}
 /* RE/PA · Nuevo diseño v9 */
-#w22-re-list,#w22-pg{background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;padding:0 14px;list-style:none;margin:0;}
+#w22-re-list,#w22-pg{background:#F8F4EC;border:1px solid var(--rule);border-radius:3px;padding:0 18px;list-style:none;margin:0;}
 
 /* ── AR1: CR canvas abajo · RND canvas side-by-side ── */
 body[data-ar-mode='rnd'] #ar1-hist-wrap { display: flex !important; align-items: center; }
@@ -2633,7 +2633,7 @@ function w22_renderRE(open){
   return '<li'+h+' style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
-   +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
+   +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+(r.t||r.n||'')+'</span>'
    +'</div>'
    +((r.d)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(r.d,col)+'</div>':'')
    +'</li>';
@@ -2777,7 +2777,7 @@ function w22_update(){
   return '<li style="padding:11px 0;border-bottom:'+borderB+';list-style:none;">'
    +'<div style="display:flex;align-items:flex-start;gap:10px;">'
    +'<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:'+col+';color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
-   +'<span style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
+   +'<span style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.35;flex:1;">'+txt+'</span>'
    +(area?'<span style="flex-shrink:0;align-self:flex-start;margin-left:10px;margin-top:2px;font-size:9px;font-weight:700;color:#161616;background:#F2EDE0;padding:2px 8px;border-radius:2px;border-left:3px solid '+col+';white-space:nowrap;">'+area+'</span>':'')
    +'</div>'
    +((p._sub)?'<div style="padding:7px 0 0 32px;">'+_parseDrill(p._sub,col)+'</div>':'')

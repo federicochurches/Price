@@ -2700,7 +2700,7 @@ SHARED_CONTAINERS = f'''
   <section>
   <div class="section-head"><div>
   <h2 class="section-title">Resumen Ejecutivo</h2>
-  <span class="section-subtitle" style="color:var(--accent)">Canasta activa · 10 findings</span>
+  <span class="section-subtitle" style="color:var(--accent)">Global · Findings</span>
   </div></div>
   <ul id="w22-re-list"></ul>
   </section>
@@ -2709,7 +2709,7 @@ SHARED_CONTAINERS = f'''
   <section>
   <div class="section-head"><div>
   <h2 class="section-title">Plan de Acción</h2>
-  <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Canasta activa · W{VOL_NUM}</span>
+  <span class="section-subtitle" id="w22-plan-sub" style="color:var(--accent)">Global · Action Items</span>
   </div></div>
   <ul id="w22-pg"></ul>
   <div style="margin-top:14px;padding:14px 18px;background:var(--paper-soft);border:1px solid var(--rule);border-left:3px solid var(--ink-muted);">
