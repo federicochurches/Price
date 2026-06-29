@@ -24,11 +24,11 @@ except Exception:
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W25"
-WEEK_NUM      = 25
-VOL_NUM       = "25"
+WEEK          = "W26"
+WEEK_NUM      = 26
+VOL_NUM       = "26"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "22 de Junio de 2026"
+SNAPSHOT_DATE = "29 de Junio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
@@ -517,6 +517,7 @@ first_yw = by_week_g['yw'].iloc[0]
 # Extender hasta la semana del snapshot (WEEK_NUM del año actual)
 last_yw_data = by_week_g['yw'].iloc[-1]
 snapshot_yw  = f"{YEAR_ACTUAL}-W{WEEK_NUM:02d}"
+print(f"    [KPI] Netnew {snapshot_yw} (card-gap): {week_netnew.get(snapshot_yw, 0)} hoteles PP agregados esta semana")
 last_yw = snapshot_yw if snapshot_yw > last_yw_data else last_yw_data
 # Generar todas las semanas ISO entre first y last
 from datetime import date, timedelta
@@ -783,6 +784,7 @@ print(f"    HOTEL_BY_WEEK: {len(hotel_by_week)} semanas · {_total_hotels_indexe
 
 # Exportar HOTEL_BY_WEEK como JSON separado (no se hornea en el HTML)
 import json as _json_hbw, os as _os_hbw
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)  # crear week-NN/ antes de escribir los JSONs (fix W26: dir nuevo no existía)
 _hbw_path = OUTPUT_DIR / f"hotel_by_week_{WEEK}.json"
 with open(_hbw_path, 'w', encoding='utf-8') as _f:
     _json_hbw.dump(hotel_by_week, _f, ensure_ascii=False, separators=(',', ':'))
@@ -1724,7 +1726,7 @@ function udContent(id, btn) {{
   // Update section title
   const _titleEl = document.getElementById('hist-section-title');
   if (_titleEl) {{
-    const _labels = {{pp:'Producto Propio', sp:'Solo Propio', hy:'Hybrid'}};
+    const _labels = {{sp:'Solo Propio', hy:'Hybrid'}};
     _titleEl.textContent = 'Evolución Histórica del Inventario' + (id && _labels[id] ? ' · ' + _labels[id] : '');
   }}
   if (typeof hRender === 'function') hRender();
@@ -3425,7 +3427,7 @@ function hTipo(btn, val) {{
   // Update section title
   const titleEl = document.getElementById('hist-section-title');
   if (titleEl) {{
-    const suffix = val ? ' · ' + val : '';
+    const suffix = (val && val !== 'Producto Propio') ? ' · ' + val : '';
     titleEl.textContent = 'Evolución Histórica del Inventario' + suffix;
   }}
   hApplyFilter();
@@ -4492,6 +4494,78 @@ def build_historical():
       <div style="position:relative;height:220px;width:100%;"><canvas id="canvas-hist"></canvas></div>
     </div>'''
 
+# ── LAYOUT C · dims compacto + hoteles lado a lado (W26) ──
+# Strings planos (NO f-string) — sin escapado de llaves.
+LAYOUTC_CSS = """
+/* ===== LAYOUT C · navegador de dimensiones + detalle de hoteles lado a lado ===== */
+#ud-split{display:flex;gap:18px;align-items:flex-start;}
+#ud-split > div:first-child{flex:0 0 47%;min-width:0;}
+#ud-split > div:last-child{flex:1 1 auto;min-width:0;}
+#ud-main-content{overflow-x:auto;}
+#ud-hotel-panel{display:block!important;margin-top:0!important;border-top:none!important;padding-top:0!important;}
+/* Navegador compacto: P.Propio (SP+HY agg) + Third P.; ocultar Solo P. y Hybrid (vs ya oculta) */
+#ud-main-content .th-sp,#ud-main-content .td-sp,
+#ud-main-content .th-hy,#ud-main-content .td-hy{display:none!important;}
+/* Anchos explicitos — empacan numericas a la izq, %Propio limpia a la derecha */
+#ud-main-content table{table-layout:fixed;}
+#ud-main-content #ud-dim-th{width:28%!important;}
+#ud-main-content #ud-sort-total{width:15%!important;}
+#ud-main-content .th-pp{width:15%!important;}
+#ud-main-content .th-tp{width:16%!important;}
+#ud-main-content .th-pct{width:26%!important;min-width:0!important;}
+/* Empty-state del panel de hoteles */
+#ud-hotel-panel:empty::before{
+  content:'Seleccioná una fila (región · corporativo · destino) para ver sus hoteles';
+  display:block;padding:48px 20px;text-align:center;color:var(--ink-muted);
+  font-size:12px;border:1px dashed var(--rule);border-radius:8px;background:var(--paper-soft);}
+.layoutC-colhead{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-muted);margin-bottom:8px;border-bottom:1px solid var(--rule-soft);padding-bottom:6px;}
+/* Badge de tipo: una sola linea + columna TIPO mas ancha */
+#ud-hotel-panel table col:nth-child(1){width:27%!important;}
+#ud-hotel-panel table col:nth-child(5){width:20%!important;}
+#ud-hotel-panel #hw-tbody td:nth-child(5),
+#ud-hotel-panel #hw-tbody td:nth-child(5) *{white-space:nowrap!important;}
+/* Searchbox: ancho completo en su propia linea, debajo de la meta */
+#ud-hotel-panel #hw-search{margin-left:0!important;width:100%!important;flex:1 0 100%!important;}
+@media(max-width:1000px){
+  #ud-split{flex-direction:column;}
+  #ud-split > div{flex:1 1 auto !important;width:100%;}
+  #ud-main-content{margin-top:0 !important;}
+}
+"""
+
+LAYOUTC_JS = """
+<script>
+/* Layout C · alinea el header de la tabla de dims con el header de la tabla de hoteles */
+(function(){
+  var inited=false;
+  function alignHeads(){
+    var mc=document.getElementById('ud-main-content');
+    var lt=mc&&mc.querySelector('thead');
+    var hp=document.getElementById('ud-hotel-panel');
+    var rt=hp&&(hp.querySelector('#hw-thead')||hp.querySelector('thead'));
+    if(!mc||!lt)return;
+    mc.style.marginTop='0px';
+    if(!rt)return;                       // sin tabla a la derecha (empty-state)
+    if(window.innerWidth<=1000)return;   // apilado: sin alineacion
+    var d=rt.getBoundingClientRect().top-lt.getBoundingClientRect().top;
+    if(d>1)mc.style.marginTop=d+'px';
+  }
+  function initObs(){
+    var hp=document.getElementById('ud-hotel-panel');
+    if(hp&&window.MutationObserver){
+      new MutationObserver(function(){requestAnimationFrame(alignHeads);}).observe(hp,{childList:true,subtree:true});
+    }
+    window.addEventListener('resize',function(){requestAnimationFrame(alignHeads);});
+  }
+  function start(){if(!inited){inited=true;initObs();}alignHeads();setTimeout(alignHeads,80);setTimeout(alignHeads,300);}
+  if(document.readyState!=='loading')setTimeout(start,0);
+  else document.addEventListener('DOMContentLoaded',function(){setTimeout(start,0);});
+  window.addEventListener('load',start);
+})();
+</script>
+"""
+
 # ── ENSAMBLADO ──
 def build_html():
     reg_tabs = build_region_tabs()
@@ -4512,7 +4586,7 @@ def build_html():
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Hotel Inventory · {WEEK} · {YEAR_ACTUAL}</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>{CSS}</style>
+<style>{CSS}{LAYOUTC_CSS}</style>
 </head>
 <body>
 <div id="inv-loading" style="position:fixed;inset:0;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);background:rgba(248,244,236,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px;transition:opacity .4s ease;">
@@ -4616,7 +4690,7 @@ def build_html():
 
     <div>
       <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;">Gap</div>
-      <div style="font-size:28px;font-weight:700;color:#4FC3F4;letter-spacing:-.02em;" id="card-gap">44</div>
+      <div style="font-size:28px;font-weight:700;color:#4FC3F4;letter-spacing:-.02em;" id="card-gap">{week_netnew.get(snapshot_yw, 0)}</div>
       <div style="height:3px;background:var(--rule-soft);border-radius:2px;margin-top:6px;"><div style="height:100%;width:{(100-pct_avance):.1f}%;background:#4FC3F4;border-radius:2px;"></div></div>
       <div style="font-size:11px;font-weight:700;color:#4FC3F4;margin-top:3px;">Hoteles agregados esta semana</div>
     </div>
@@ -4754,10 +4828,18 @@ def build_html():
 <!-- ── TABLA: Distribución y Exploración ── -->
 <div style="margin-bottom:36px;">
   <!-- Contenido -->
-  <div id="ud-main-content">{build_unified_distrib()}</div>
+  <div id="ud-split">
+    <div class="layoutC-col">
+      <div class="layoutC-colhead">Dimensiones</div>
+      <div id="ud-main-content">{build_unified_distrib()}</div>
+    </div>
+    <div class="layoutC-col">
+      <div class="layoutC-colhead">Detalle de Hoteles</div>
+      <div id="ud-hotel-panel" style="display:none;"></div>
+    </div>
+  </div>
   <div id="ud-gap-content" style="display:none;">{gap_tab}</div>
   <div id="ud-ch-content"  style="display:none;">{ch_tab}</div>
-  <div id="ud-hotel-panel" style="display:none;margin-top:16px;border-top:2px solid #4FC3F4;padding-top:12px;"></div>
 </div>
 
 </div><!-- .shell -->
@@ -4807,6 +4889,7 @@ _tryInit();
   </div>
   <a href="../../index.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;">← Volver al Hub</a>
 </div>
+{LAYOUTC_JS}
 </body>
 </html>"""
 

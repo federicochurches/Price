@@ -1,3 +1,38 @@
+## Sesión W26-inv-layout · 29-06-2026 — Pipeline Inventory W26 + Layout lado a lado
+
+### Contexto
+Arranque del pipeline de Inventory para W26 (semana 22–28 jun; snapshot lunes 29-jun). Dataset gitignored (vive solo local en la máquina de Fede) → ruta Opción B: Claude entrega `calc_inv.py` actualizado, Fede corre local + commitea. Validación visual iterativa sobre el HTML real W26 (patcheado) antes de portar al generador.
+
+### Cambios en `calc_inv.py`
+- **CONFIG W26:** `WEEK="W26"`, `WEEK_NUM=26`, `VOL_NUM="26"`, `SNAPSHOT_DATE="29 de Junio de 2026"`.
+- **card-gap dinámica:** `id="card-gap">{week_netnew.get(snapshot_yw, 0)}` (antes hardcoded `44`). Mismo criterio que las barras del gráfico semanal. + print `[KPI] Netnew 2026-WNN (card-gap): N` para verificación en consola. Cierra el pendiente histórico de actualizarla a mano.
+- **Fix `mkdir` carpeta nueva (FileNotFoundError):** `OUTPUT_DIR.mkdir(parents=True, exist_ok=True)` movido ANTES de la 1ª escritura de JSON (estaba en L4819, al escribir el HTML; los 3 JSONs se escriben en L788/795/814). Bug latente desde W22 — solo aparece en la 1ª corrida de una semana cuya carpeta `week-NN/` no existía.
+- **Título histórico sin "· Producto Propio":** `_labels` sin la key `pp` (builder 1) + `suffix = (val && val !== 'Producto Propio')` (builder 2, `hTipo`). Solo `sp`/`hy` muestran sufijo en los drills.
+- **Layout lado a lado (Layout C):**
+  - Estructura `#ud-split` (flex) emitida directo en `build_html`: col izq `#ud-main-content` (47%) + col der `#ud-hotel-panel` (53%), cada una con `.layoutC-colhead`. `#ud-gap-content`/`#ud-ch-content` quedan fuera del split.
+  - **Navegador compacto** (izq): Región · Total · P. Propio · Third P. · %Propio. Ocultas Solo P./Hybrid por CSS; anchos explícitos 28/15/15/16/26% (arregla el overlap del bar %Propio que daba `table-layout:fixed` con la columna angosta).
+  - **Detalle de hoteles** (der): siempre visible, empty-state `:empty::before` hasta seleccionar. `display:block!important`.
+  - **Alineación de headers por JS:** mide offset del `#hw-thead` (debajo de meta+search) y aplica `margin-top` a `#ud-main-content` → renglones de nombres de columna en la misma línea. `MutationObserver` + `resize`. `<1000px` sin offset.
+  - **Badge tipo:** TIPO 20% (Hotel 30→27%) + `white-space:nowrap` → "Solo Propio"/"Third Party" en 1 línea.
+  - **Searchbox:** `flex:1 0 100%` (ancho completo, línea propia, debajo de la meta).
+  - CSS/JS en strings planos `LAYOUTC_CSS`/`LAYOUTC_JS` (no f-string → sin escapado de llaves), insertados vía `{LAYOUTC_CSS}` en `<style>` y `{LAYOUTC_JS}` antes de `</body>`.
+
+### Validación
+- `py_compile` OK · `node --check` del `LAYOUTC_JS` OK · llaves CSS balanceadas (22/22) · referencias `{LAYOUTC_CSS}`/`{LAYOUTC_JS}` presentes.
+- Layout validado visualmente por Fede sobre el HTML real W26 (patch progresivo v1→v5) antes de portar. El generador emite la misma estructura/CSS/JS que el patch aprobado (única diferencia: estructura emitida directo en vez de armada por JS; `fixTitle` del patch no va al generador porque el source ya corrige el título).
+
+### Pendientes / notas
+- Fede debe re-correr `calc_inv.py` local (con `Remove-Item week-26\INVENTORY_W26.html` por el HTML viejo ya committeado) + `commit_inv.py` para publicar el HTML con layout.
+- Warning `HIST_DIM Failed to fetch` = artefacto de abrir por `file://` (el JSON está committeado, HTTP 200, CORS OK). No afecta el layout.
+- Modos GAP/Channel en el split: columna izq queda vacía al ocultarse `#ud-main-content` (modos secundarios, no validados).
+
+### Archivos
+- `inventory/calc_inv.py` — todos los cambios arriba
+- `PROMPT_INV.md` — v20, secciones CONFIG/card-gap/Layout C/bugs/pendientes
+- `HISTORIAL_SESIONES.md` — esta entrada
+
+---
+
 ## Sesión W25-strip-footer-fix · 27-06-2026 (continuación recovery)
 
 ---
