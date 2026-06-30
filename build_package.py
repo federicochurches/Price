@@ -126,25 +126,25 @@ def build_index():
         wow_bk     = ''
         bk_val_str = '—'
 
-    # Inventory KPIs W25 (from INVENTORY_W25.html · calc_inv.py run)
-    inv_n      = '305.567'   # Sistema W25 (tipificados: PP + Third Party, excl. sin_contrato)
-    inv_pp_n   = '58.990'    # Producto Propio (Solo Propio + Hybrid)
-    inv_gap    = '11.010'    # Gap vs Target 70K
-    inv_avance = f'{round(58990/70000*100, 1):.1f}%'  # % avance = 84.3%
+    # Inventory KPIs W26 (from INVENTORY_W26.html · calc_inv.py run)
+    inv_n      = '305.602'   # Sistema W26 (tipificados: PP + Third Party, excl. sin_contrato) · card-total
+    inv_pp_n   = '59.198'    # Producto Propio (Solo Propio + Hybrid) · card-pp
+    inv_gap    = '10.802'    # Gap vs Target 70K (70000-59198)
+    inv_avance = f'{round(59198/70000*100, 1):.1f}%'  # % avance = 84.6%
 
-    # Inventory WoW (W25 vs W24 · netnew real del chart = 44 hoteles nuevos en W25)
-    _inv_n_d   = 305567 - 309016   # −3449 (cambio en total tipificados)
-    _inv_pp_d  = 44                # netnew W25 real (no PP diff que incluye cambios de dataset)
-    _inv_gap_d = -44               # gap cierra en 44
+    # Inventory WoW (W26 vs W25 · netnew real del chart semanal = 30 hoteles nuevos en W26 · card-gap)
+    _inv_n_d   = 305602 - 305567   # +35 (cambio en total tipificados)
+    _inv_pp_d  = 30                # netnew W26 real (barra semanal · card-gap)
+    _inv_gap_d = -30               # gap cierra en 30
     def _inv_fmt(v): return f'+{v:,}'.replace(',', '.') if v >= 0 else f'{v:,}'.replace(',', '.')
-    # PP badge: % de crecimiento = 44 nuevos / PP semana anterior (58.892)
-    _pp_prev   = 58892
+    # PP badge: % de crecimiento = 30 nuevos / PP semana anterior (58.990)
+    _pp_prev   = 58990
     _pp_pct    = round(_inv_pp_d / _pp_prev * 100, 2) if _pp_prev else 0
     _pp_pct_str = f'+{_pp_pct:.2f}%' if _pp_pct >= 0 else f'{_pp_pct:.2f}%'
     wow_inv_pp  = _wb(_inv_pp_d, _pp_pct_str)
-    # Avance badge: delta en pp de avance % (84.27% - 84.13% = +0.14pp)
-    _av_prev   = round(_pp_prev / 70000 * 100, 2)   # avance W24 = 84.13%
-    _av_curr   = round(58990    / 70000 * 100, 2)    # avance W25 = 84.27%
+    # Avance badge: delta en pp de avance % (84.57% - 84.27% = +0.30pp)
+    _av_prev   = round(_pp_prev / 70000 * 100, 2)   # avance W25 = 84.27%
+    _av_curr   = round(59198    / 70000 * 100, 2)    # avance W26 = 84.57%
     _av_delta  = round(_av_curr - _av_prev, 2)
     _av_str    = f'+{_av_delta:.2f}pp' if _av_delta >= 0 else f'{_av_delta:.2f}pp'
     wow_inv_gap = _wb(_av_delta, _av_str)
@@ -283,7 +283,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     </div>
     <div style="padding:10px 14px;">
       <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Plan de Contratación</div>
-      <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_avance}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{_inv_fmt(_inv_pp_d)} hoteles</div>
       <div style="margin-top:2px;">{wow_inv_gap}</div>
     </div>
   </div>
