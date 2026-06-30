@@ -293,24 +293,33 @@ hr.divider { border: none; border-top: 2px dashed #C9C1B0; margin: 28px 0; }
 .m-cta-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .m-ftr { background: #F5F1EB; border-top: 1px solid #C9C1B0; padding: 10px 20px; text-align: center; }
 .m-ftr-txt { font-size: 10px; color: #8A8377; }
-@media (max-width: 480px) {
-  body { padding: 0; background: #ffffff; }
-  .mail { box-shadow: none; }
-  .m-hdr { padding: 9px 14px 8px; }
-  .m-brand { font-size: 16px; }
-  .m-sec-hdr { padding: 7px 14px 0; }
-  .m-triple { padding: 0 14px; }
-  .m-cell { padding: 7px 5px 10px 9px; }
-  .m-val { font-size: 15px; }
-  .m-inv-row { grid-template-columns: 1fr 1fr 1fr; margin: 0 14px; }
-  .m-inv-hero { padding: 7px 8px 9px 10px; }
-  .m-inv-sub { padding: 7px 6px 9px 8px; }
-  .m-inv-val { font-size: 12px; }
+@media (max-width: 600px) {
+  .m-hdr { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 14px 8px; }
+  .m-brand { font-size: 18px; }
+  .m-eyebrow { font-size: 7px; }
+  .m-sec-hdr { padding: 8px 14px 0; font-size: 7px; }
+  .m-sec-lbl { font-size: 7px; }
+  .m-triple { padding: 0 14px; gap: 2px; }
+  .m-cell { padding: 8px 6px 12px 10px; font-size: 13px; }
+  .m-val { font-size: 16px; }
+  .m-cell-name { font-size: 7px; }
+  .m-inv-row { grid-template-columns: 1.2fr 1fr 1fr; margin: 0 12px; gap: 1px; }
+  .m-inv-hero { padding: 8px 8px 10px 10px; }
+  .m-inv-sub { padding: 8px 6px 10px; }
+  .m-inv-lbl { font-size: 6px; }
+  .m-inv-val { font-size: 13px; }
   .m-inv-note { font-size: 7px; }
   .m-editorial { padding: 12px 14px 14px; }
-  .m-editorial p { font-size: 11px; }
-  .m-cta { padding: 10px 14px; }
-  .m-ftr { padding: 7px 14px; }
+  .m-editorial-lbl { font-size: 7px; }
+  .m-editorial p { font-size: 11px; line-height: 1.5; }
+  .m-cta { padding: 12px 14px; }
+  .m-cta p { font-size: 9px; }
+  .m-cta-btns { gap: 4px; }
+  .m-cta-btns a { padding: 6px 10px; font-size: 8px; }
+  .m-ftr { padding: 8px 14px; }
+  .m-ftr-txt { font-size: 9px; }
+  body { padding: 12px 0 30px; background: #ffffff; }
+  .mail { box-shadow: none; }
 }
 """
 
@@ -422,7 +431,7 @@ mail_html = f'''<!DOCTYPE html>
     </div>
     <div style="background-color:#161616;padding:6px 12px;text-align:right;flex-shrink:0;">
       <span style="font-size:13px;font-weight:800;color:#ffffff;line-height:1;display:block;font-family:'Helvetica Neue',Arial,sans-serif;">Week {VOL_NUM}</span>
-      <span style="font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A8377;display:block;margin-top:2px;font-family:'Helvetica Neue',Arial,sans-serif;">{PERIODO}</span>
+      <span style="font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ffffff;display:block;margin-top:2px;font-family:'Helvetica Neue',Arial,sans-serif;">{PERIODO}</span>
     </div>
   </div>
   <div class="m-stripe"></div>
