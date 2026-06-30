@@ -33,7 +33,10 @@ INV_GAP         = int(os.getenv('INV_GAP',          '0'))
 INV_PCT_AVANCE  = float(os.getenv('INV_PCT_AVANCE', '0'))
 INV_TARGET      = int(os.getenv('INV_TARGET',       '70000'))
 
-OUTPUTS_DIR = os.getenv('OUTPUTS_DIR', '/mnt/user-data/outputs')
+OUTPUTS_DIR = os.getenv('OUTPUTS_DIR')
+if not OUTPUTS_DIR or not os.path.isdir(OUTPUTS_DIR):
+    # Claude (Linux): /mnt/user-data/outputs · Local (Windows): carpeta del script (raíz del repo)
+    OUTPUTS_DIR = '/mnt/user-data/outputs' if os.path.isdir('/mnt/user-data/outputs') else str(Path(__file__).parent)
 OUT_FILE    = f'{OUTPUTS_DIR}/Mail_{WEEK}.html'
 
 WEEK_NUM      = WEEK.replace('W', '').zfill(2)
