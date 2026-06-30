@@ -596,10 +596,13 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 ### Variables de entorno `render_mail_v3.py`
 ```bash
 WEEK · VOL_NUM · PERIODO · PICKLE_RND · PICKLE_CR · PICKLE_BK
-INV_NETNEW · INV_NETNEW_WOW · INV_PP · INV_GAP · INV_PCT_AVANCE · INV_TARGET
-MAIL_HIGHLIGHTS   # texto libre, opcional
+MAIL_HIGHLIGHTS   # texto libre, opcional · vacío = omitido
+INV_NETNEW · INV_NETNEW_WOW · INV_PP · INV_GAP · INV_PCT_AVANCE · INV_TARGET   # OPCIONALES (override)
 ```
-Si `INV_PP == 0` → bloque Contratación omitido. Si pickle BK no existe → Bookability omitida.
+**Auto-carga de inventory (W26+):** si los `INV_*` no vienen por env, `render_mail_v3` los lee del `inventory/week-NN/INVENTORY_WNN.html` (IDs `card-pp`=PP · `card-gap`=netnew semanal · `card-avance`=avance%; gap = target − PP). La card de Contratación aparece **siempre** que exista ese HTML — `calc_supply` NO pasa `INV_*`, así que sin la auto-carga la card desaparecía al regenerar. El env **gana** si se pasa (override). `INV_NETNEW_WOW` no se auto-calcula (queda 0). ⚠️ **Correr desde la raíz del repo** — el lookup del HTML es relativo al CWD.
+**`OUTPUTS_DIR` cross-platform:** si no está seteado / no existe, cae a `/mnt/user-data/outputs` (Claude) o `Path(__file__).parent` (Windows local). Salida: `Mail_WNN.html` (raíz) + copia en `_email/week-NN/`.
+Si pickle BK no existe → Bookability omitida.
+**`render_mail_v3.py` vive en raíz Y en `_scripts/` (sincronizados)** — `calc_supply.find_script` usa el de la raíz; correr el de la raíz, no el de `_scripts/`.
 
 ### `nd_por_tier` en el pickle RND (W26+)
 `calc_rnd.py` calcula después del severity:
@@ -735,6 +738,8 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 - Channels sin datos → "sin actividad" `opacity:0.45` · Orden: peor eficacia primero → inactivos al final
 
 ---
+
+**Última actualización:** W26-hub-mail-fixes · 30-06-2026 (**Hub labels + mail auto-carga inventory + cross-platform** — **(1) Hub (`build_package.py`):** KPI "Estado de las Conectividades" → **"Performance"**. Card "Avance Plan de Contratación" muestra **netnew de la semana** (`{_inv_fmt(_inv_pp_d)} hoteles` = "+30 hoteles") en vez de `% avance`; badge debajo = delta de avance en pp. KPIs de inventory actualizados a W26 (305.602 / 59.198 / 10.802 / 84.6%). `inv_n`/`inv_pp_n`/`inv_gap` quedan definidos pero NO se renderizan (código muerto). **(2) Mail (`render_mail_v3.py`):** **auto-carga de KPIs de inventory** del `INVENTORY_WNN.html` (regex sobre `card-pp`/`card-gap`/`card-avance`) cuando los `INV_*` no vienen por env → la card de Contratación aparece siempre (antes desaparecía al regenerar porque `calc_supply` no pasa `INV_*`). Env gana si se pasa. **(3) `OUTPUTS_DIR` cross-platform:** si no existe el dir, cae a `/mnt/user-data/outputs` (Claude) o `Path(__file__).parent` (Windows) → arregla `FileNotFoundError` al correr `py render_mail_v3.py` en local. **(4) `_scripts/render_mail_v3.py` sincronizado con la raíz** (eran 2 copias divergentes; `find_script` usa la raíz). Workflow mail W27+: `git pull` → desde la raíz, `py render_mail_v3.py` con WEEK/VOL_NUM/PERIODO/PICKLE_* (+ MAIL_HIGHLIGHTS opcional), sin `INV_*`. Commits: `1e3683f6` `60499a0a` `5a94baa8` `b996eda2`.)
 
 **Última actualización:** W26-editorial-fixes+BK-hist · 30-06-2026 (**5 fixes editoriales + histórico BK por entidad** — **(1) `RND_HOTEL_HIST`:** `render_rnd_p1.py` emitía `{}` vacío → los hoteles de un corp compartían el proxy corp en el sparkline KPI/AR. Ahora emite histórico por hotel **solo P80** (~17,4K hoteles, nd+ipm, ~2,1MB · 99,8% cobertura; limpia prefijo `(ID) -`). El handler ya hacía hotel-first→corp-fallback; faltaba el dato. CR ya estaba OK. **(2) Drill RE/PA Corps/Destinos = cantidad de hoteles:** `_build_drill` (`editorial_engine.py`) muestra `n_hoteles_sc_c` ("N hoteles") en Corps/Destinos (fallback métrica·vol). Cubre RE+PA. **(3) Títulos RE con count:** `_finding` antepone count ("10 Hoteles con Performance de 0%"); solo RE. **(4) PA drill cuenta sobre los 5:** flag `topn_dims=True` en los 9 `_drill_cd` del PA (`build_action_plan_*`) → dims de `d.head(n)` ignorando `pre_corps/pre_dests`; + `topn=5` en `_drill_spread` del PA-5. RE queda sobre el cohorte. **(5) Carryover con acción vinculada:** `build_carryover` agrega `link` = acción del PA previo (RND "más problemas de disponibilidad" · CR "peor Performance"/"Performance de 0%"); render `↳ {acción}` azul en `demo_js_main.js`. **(6) BK histórico por entidad:** raíz = W19-W24 BK eran array global hardcodeado (`historico_data.py` L59) + `BK_DEST_HIST/BK_HOTEL_HIST` no se emitían (pickle sin `dest_hist_bk/hotel_hist_bk`) + acumulado BK solo 2 semanas. Fix `calc_bk.py`: (a) construye `dest_hist_bk`+`hotel_hist_bk` (espejo corp; hotel⊂`g_hotel`); (b) **prefiere `Dataset_bookability_historico.xlsx`** como acumulado. **Workflow BK:** mantener UN historico acumulativo (append cada semana) → `calc_bk` lo toma solo, no compartir cada semana. Excluido del commit: `calc_rnd.py` (override W26-only `MIN_TRAFICO=2000`).)
 

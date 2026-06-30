@@ -1,3 +1,28 @@
+## Sesión W26-hub-mail-fixes · 30-06-2026 — Hub labels + mail auto-carga inventory + cross-platform
+
+### Contexto
+Continuación post-commit W26. Fede revisó el Hub y el mail publicados y pidió 2 correcciones; resolverlas destapó 2 fixes de robustez en el mail.
+
+### Cambios
+1. **Hub `build_package.py`:**
+   - KPI **"Estado de las Conectividades" → "Performance"** (alineado al rename Eficacia→Performance).
+   - Card **"Avance Plan de Contratación"**: muestra el **netnew de Producto Propio de la semana** (`{_inv_fmt(_inv_pp_d)} hoteles` = "+30 hoteles") en vez del `% avance` (84.3%). Badge debajo = delta de avance en pp (+0.30pp).
+   - KPIs de inventory actualizados de W25 → W26 (total 305.602 · PP 59.198 · gap 10.802 · avance 84.6% · netnew 30). Tomados del `INVENTORY_W26.html` commiteado (`card-total`/`card-pp`/`card-gap`/`card-avance`). `inv_n`/`inv_pp_n`/`inv_gap` siguen definidos pero NO se renderizan (código muerto, no tocado).
+2. **Mail `render_mail_v3.py` — auto-carga de inventory:** la card de Contratación se gateaba con `HAS_INV = INV_PP > 0`, pero `calc_supply` NO pasa los `INV_*` → al regenerar local la card desaparecía. Fix: si los `INV_*` no vienen por env, el script los lee del `inventory/week-NN/INVENTORY_WNN.html` (regex sobre `card-pp`/`card-gap`=netnew/`card-avance`; gap=target−PP). La card aparece siempre que exista ese HTML. El env GANA si se pasa (override).
+3. **Mail — `OUTPUTS_DIR` cross-platform:** el default era `/mnt/user-data/outputs` (Linux/Claude) → en Windows `FileNotFoundError`. Fix: si no está seteado / no existe, cae a `/mnt/user-data/outputs` si existe, sino `Path(__file__).parent`. Ahora `py render_mail_v3.py` corre en local sin setear nada.
+4. **`_scripts/render_mail_v3.py` sincronizado con la raíz** — eran 2 copias divergentes (la de `_scripts` sin auto-load). `find_script` de calc_supply usa la de la raíz; ambas ahora iguales para evitar correr la vieja.
+
+### Workflow mail W27+
+`git pull origin main` → desde la **raíz del repo**: setear WEEK/VOL_NUM/PERIODO/PICKLE_RND/CR/BK (+ `MAIL_HIGHLIGHTS` opcional) → `py render_mail_v3.py`. **Sin `INV_*`** (auto-carga). Opcional: `INV_NETNEW_WOW` para el badge WoW (no se auto-calcula). Salida en la raíz + `_email/week-NN/`. Validado en la máquina de Fede (W26: PP=59198 netnew=30 avance=84.6%, card presente).
+
+### Archivos
+`build_package.py` · `render_mail_v3.py` (+ `_scripts/render_mail_v3.py`) · `index.html` · `_email/week-26/Mail_W26.html`. Commits: `1e3683f6` · `60499a0a` · `5a94baa8` · `b996eda2`.
+
+### Nota
+La conflictiva del `git pull` (untracked `_email/week-26/Mail_W26.html`, `_seguimiento/plan_seguimiento_W26.md`, `reports/week-26/SUPPLY_W26.html`) se resuelve borrando esas copias locales antes del pull — las versiones commiteadas son las canónicas.
+
+---
+
 ## Sesión W26-editorial-fixes + BK-hist · 30-06-2026 — Fixes editoriales RE/PA + histórico por entidad
 
 ### Contexto
