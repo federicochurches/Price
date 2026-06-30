@@ -306,11 +306,12 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
         'traf_wow_type': 'pct',
         'wow_col':       'NoDispo_WoW_pp',
         'wow_is_pos':    False,
-        'grid_cols':     'minmax(0,1fr) 72px 52px 74px 46px',
+        'grid_cols':     'minmax(0,1fr) 72px 74px 46px',
         'show_severity': False,
+        'show_wow':      True,
     }
-    _AR_HDR = {'headers': ['Tráfico','WoW','%NoDispo','WoW'],
-               'widths':  'minmax(0,1fr) 72px 52px 74px 46px'}
+    _AR_HDR = {'headers': ['Tráfico','%NoDispo','WoW'],
+               'widths':  'minmax(0,1fr) 72px 74px 46px'}
     for _hcol in ('%NoDispo_W17','NoDispo_W17','%NoDispo_W18'):
         if _hcol in _hot.columns:
             _AR_CFG['hist_prev_col'] = _hcol
@@ -340,7 +341,7 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
 
     return f'''<div class="kpi-card" id="kpicard-ar-nd" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);">
 <div>
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Análisis de Rendimiento · % No Dispo</div>
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Análisis de Rendimiento</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1;">{fmt_pct2(pct_w18)}</div>
@@ -606,7 +607,7 @@ def _build_rnd_hotel_pool_json():
 def _build_rnd_hist_json():
     """Emite RND_CORP_HIST y RND_DEST_HIST con datos reales W18-W(N-1) por corp/dest."""
     hist = D.get('RND_HIST', {})
-    semanas_prev = [f'W{n:02d}' for n in range(18, WEEK_NUM_INT)]
+    semanas_prev = [f'W{n:02d}' for n in range(max(18, WEEK_NUM_INT-7), WEEK_NUM_INT)]
 
     def _entity_dict(bucket):
         out = {}
@@ -620,15 +621,41 @@ def _build_rnd_hist_json():
                 }
         return out
 
-    import json
+    import json, re as _re
     corp_js  = json.dumps(_entity_dict('corp'),  ensure_ascii=False, separators=(',', ':'))
     dest_js  = json.dumps(_entity_dict('dest'),  ensure_ascii=False, separators=(',', ':'))
-    # hotel_js omitido — 47K hoteles = ~5.6MB. El JS usa corp_hist como proxy.
     pais_js  = json.dumps(_entity_dict('pais'),  ensure_ascii=False, separators=(',', ':'))
+
+    # Histórico POR HOTEL: solo hoteles P80 (los clickeables del reporte) para acotar tamaño.
+    # nd+ipm · ~2.3MB vs ~6MB de los 47K. El JS lo usa ANTES del fallback corp → cada hotel
+    # muestra su propia serie W19-W25 (antes todos los hoteles de un corp compartían el proxy corp).
+    _p80 = D.get('p80_hotel')
+    _p80_keys = set()
+    if _p80 is not None and hasattr(_p80, 'columns') and 'Hotel' in _p80.columns:
+        for _h in _p80['Hotel'].astype(str):
+            _p80_keys.add(_re.sub(r'^\(\d+\)\s*-\s*', '', _h).strip())
+
+    def _hotel_dict():
+        if not _p80_keys:
+            return {}
+        out = {}
+        for name, wdict in hist.get('hotel', {}).items():
+            if name not in _p80_keys:
+                continue
+            nd_vals  = [wdict.get(w, {}).get('nd')  for w in semanas_prev]
+            ipm_vals = [wdict.get(w, {}).get('ipm') for w in semanas_prev]
+            if any(v is not None for v in nd_vals):
+                out[name] = {
+                    'nd':  [round(v * 100, 2) if v is not None else None for v in nd_vals],
+                    'ipm': [round(v, 0)        if v is not None else None for v in ipm_vals],
+                }
+        return out
+
+    hotel_js = json.dumps(_hotel_dict(), ensure_ascii=False, separators=(',', ':'))
     return (
         f'\n<script>\nvar RND_CORP_HIST={corp_js};\n'
         f'var RND_DEST_HIST={dest_js};\n'
-        f'var RND_HOTEL_HIST={{}};\n'
+        f'var RND_HOTEL_HIST={hotel_js};\n'
         f'var RND_PAIS_HIST={pais_js};\n</script>\n'
     )
 

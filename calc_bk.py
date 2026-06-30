@@ -131,10 +131,17 @@ def _find_semanal(week_n):
 
 _semanal_path = _find_semanal(WEEK_NUM)
 _acumulado_path = None
+# Preferir el acumulado HISTÓRICO (todas las semanas) → habilita corp/dest/hotel hist multi-semana.
+# Fede mantiene UN solo Dataset_bookability_historico.xlsx acumulativo (append cada semana);
+# si no está, cae al Dataset_bookability.xlsx genérico (solo las últimas 2 semanas).
+_acum_names = ['Dataset_bookability_historico.xlsx', 'Dataset_bookability.xlsx']
 for _d in [_SCRIPT_DIR, '/mnt/project', '/mnt/user-data/uploads']:
-    _p = os.path.join(_d, 'Dataset_bookability.xlsx')
-    if os.path.exists(_p):
-        _acumulado_path = _p
+    for _nm in _acum_names:
+        _p = os.path.join(_d, _nm)
+        if os.path.exists(_p):
+            _acumulado_path = _p
+            break
+    if _acumulado_path:
         break
 
 if _semanal_path and _acumulado_path:
@@ -372,6 +379,61 @@ if _acumulado_path:
 else:
     print("   BK provider hist: no hay acumulado disponible")
 
+# ── HISTÓRICO POR DESTINO (BK_DEST_HIST para sparklines KPI/AR vista destino) ──
+# Mismo patrón que corp_hist_bk pero agrupando por Destino. El render lo emite en
+# _build_bk_dest_hist_json y el handler lo lee (assemble L428) al seleccionar un destino.
+dest_hist_bk = {}
+if _acumulado_path:
+    _df_dest = df_all.copy()
+    if 'Destination' in _df_dest.columns and 'Destino' not in _df_dest.columns:
+        _df_dest.rename(columns={'Destination': 'Destino'}, inplace=True)
+    if 'Destino' in _df_dest.columns:
+        _df_dest['Bookability'] = pd.to_numeric(_df_dest['Bookability'], errors='coerce').fillna(0).clip(0, 1)
+        _df_dest['Books'] = pd.to_numeric(_df_dest['Books'], errors='coerce').fillna(0).astype(int)
+        _sem_d = sorted([int(s) for s in _df_dest['Semana'].unique() if int(s) < WEEK_NUM])
+        for _dst, _grp in _df_dest[_df_dest['Semana'].isin(_sem_d)].groupby('Destino'):
+            _serie = []
+            for _s in _sem_d:
+                _ds = _grp[_grp['Semana'] == _s]
+                if len(_ds) == 0 or _ds['Books'].sum() == 0:
+                    _serie.append(None)
+                else:
+                    _bkv = float((_ds['Bookability'] * _ds['Books']).sum() / _ds['Books'].sum())
+                    _serie.append(round(_bkv * 100, 2))
+            if any(v is not None for v in _serie):
+                dest_hist_bk[str(_dst)] = _serie
+    print(f"   BK dest hist: {len(dest_hist_bk)} destinos")
+else:
+    print("   BK dest hist: no hay acumulado disponible")
+
+# ── HISTÓRICO POR HOTEL (BK_HOTEL_HIST para sparklines KPI/AR3 vista hotel) ────
+# Solo los hoteles del reporte actual (g_hotel) → acota tamaño y cubre los
+# clickeables. El handler lee BK_HOTEL_HIST[label] (assemble L671-674 / js_override).
+hotel_hist_bk = {}
+if _acumulado_path:
+    _df_hot = df_all.copy()
+    if 'Hotel' in _df_hot.columns:
+        _df_hot['Bookability'] = pd.to_numeric(_df_hot['Bookability'], errors='coerce').fillna(0).clip(0, 1)
+        _df_hot['Books'] = pd.to_numeric(_df_hot['Books'], errors='coerce').fillna(0).astype(int)
+        _sem_h = sorted([int(s) for s in _df_hot['Semana'].unique() if int(s) < WEEK_NUM])
+        _hot_keep = set(g_hotel['Hotel'].astype(str)) if 'Hotel' in g_hotel.columns else None
+        for _hot, _grp in _df_hot[_df_hot['Semana'].isin(_sem_h)].groupby('Hotel'):
+            if _hot_keep is not None and str(_hot) not in _hot_keep:
+                continue
+            _serie = []
+            for _s in _sem_h:
+                _ds = _grp[_grp['Semana'] == _s]
+                if len(_ds) == 0 or _ds['Books'].sum() == 0:
+                    _serie.append(None)
+                else:
+                    _bkv = float((_ds['Bookability'] * _ds['Books']).sum() / _ds['Books'].sum())
+                    _serie.append(round(_bkv * 100, 2))
+            if any(v is not None for v in _serie):
+                hotel_hist_bk[str(_hot)] = _serie
+    print(f"   BK hotel hist: {len(hotel_hist_bk)} hoteles")
+else:
+    print("   BK hotel hist: no hay acumulado disponible")
+
 # ── PICKLE ────────────────────────────────────────────────────────────────────
 D = {
     'WEEK':        WEEK,
@@ -407,6 +469,8 @@ D = {
     'hist_by_week': hist_by_week,
     'corp_hist_bk': corp_hist_bk,
     'provider_hist_bk': provider_hist_bk,
+    'dest_hist_bk': dest_hist_bk,
+    'hotel_hist_bk': hotel_hist_bk,
 }
 
 out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'bk_w{VOL_NUM}_data.pkl')

@@ -114,7 +114,7 @@ def render_hero():
     ef_wow = (ef - ef17) * 100  # pp
     cv_wow = (cv - cv17) * 100  # pp
     
-    h1 = (f'<span style="display:block;">Eficacia de {fmt_pct2(ef)} y Conversion Rate de {fmt_pct2(cv)} · '
+    h1 = (f'<span style="display:block;">Performance de {fmt_pct2(ef)} y Conversion Rate de {fmt_pct2(cv)} · '
           f'volumen concentrado en <span class="accent">{top_dest[0]}</span>, '
           f'<span class="accent">{top_dest[1]}</span> y <span class="accent">{top_dest[2]}</span>.</span>'
           f'<span style="display:block;margin-top:.3em;">'
@@ -195,7 +195,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         'grid_cols':     'minmax(0,1fr) 80px 54px 48px',
         'show_severity': False,
     }
-    _EF_HDR = {'headers': ['Tráfico','Eficacia','WoW'],
+    _EF_HDR = {'headers': ['Tráfico','PERF','WoW'],
                'widths':  'minmax(0,1fr) 80px 54px 48px'}
     # ────────────────────────────────────────────────────────────────────────────
 
@@ -273,7 +273,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 
             rows_pp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_pp_sorted))
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
-            _metric_lbl = 'Eficacia'
+            _metric_lbl = 'Performance'
             _hdr_chan = lambda lbl, acc: (
                 f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
@@ -299,7 +299,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
     return f'''<div class="kpi-card" id="kpicard-ef" style="border:1px solid var(--rule);padding:12px 16px;border-radius:3px;background:var(--paper);display:flex;flex-direction:column;">
 
 <div>
-<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Eficacia</div>
+<div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Performance</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
 <div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
@@ -986,7 +986,7 @@ def _build_cr_hotel_pool_json():
 def _build_cr_hist_json():
     """Emite CR_CORP_HIST y CR_DEST_HIST con datos reales W18-W(N-1) por corp/dest."""
     hist = D.get('CR_HIST', {})
-    semanas_prev = [f'W{n:02d}' for n in range(18, WEEK_NUM_INT)]  # W18…W(N-1)
+    semanas_prev = [f'W{n:02d}' for n in range(max(18, WEEK_NUM_INT-7), WEEK_NUM_INT)]  # W18…W(N-1)
 
     def _entity_dict(bucket):
         out = {}

@@ -266,8 +266,10 @@ w22_setMode = function(m, el) {
     b.style.background=''; b.style.color='';
     if(i===0) b.style.borderRight=''; /* usar CSS base */
   });
-  el.classList.add('on');
-  el.style.background = ''; el.style.color = ''; /* dejar que CSS .on lo maneje */
+  /* Activar el botón correcto SEGÚN EL MODO (robusto a el nulo y a switchers duplicados) */
+  var _onBtn = document.getElementById(m === 'cr' ? 'mode-cr' : 'mode-rnd');
+  if (_onBtn) { _onBtn.classList.add('on'); _onBtn.style.background=''; _onBtn.style.color=''; }
+  if (el && el !== _onBtn) { el.classList.add('on'); el.style.background=''; el.style.color=''; }
 
   /* Accent CSS global */
   var root = document.documentElement;
@@ -523,6 +525,9 @@ function _patchCanvasTooltips() {
         return parseInt(ls.replace('W', '')) || 25;
       })();
       var val = vals[best];
+      /* cfg: leer del registro vivo del canvas para el formato (ipm = $, resto = %).
+         Antes faltaba esta línea → 'cfg is not defined' en cada mousemove. */
+      var cfg = (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid]) || _kh || {};
       var fmtVal = cfg.metric === 'ipm'
         ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
         : val.toFixed(2) + '%';
@@ -1472,8 +1477,8 @@ function trow_ar(r, card, idx) {
  var _cfc = (r[11]!=null) ? String(r[11]).replace(/"/g,'&quot;') : '';
  var _cfd = (r[12]!=null) ? String(r[12]).replace(/"/g,'&quot;') : '';
  var histAttr = 'data-hist-w21="'+metNum+'" data-hist-w20="'+w20num+'" data-hist-label="'+r[0]+'" data-hist-card="'+card+'" data-cf-corp="'+_cfc+'" data-cf-dest="'+_cfd+'"';
- /* Grid 4 cols: nombre · tráfico · métrica · wow (sin WoW tráfico — AR es solo vista hotel) */
- var grid = 'minmax(0,1fr) 80px 72px 48px';
+ /* Grid 3 cols: nombre · tráfico · métrica (sin columna WoW — AR es solo vista hotel) */
+ var grid = 'minmax(0,1fr) 80px 72px';
  var num = idx != null ? (idx<10?'0':'')+idx+'. ' : '';
  /* Nombre */
  var nameSpan = '<div style="min-width:0;overflow:hidden;"><span style="font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">'+num+r[0]+'</span>'
@@ -1494,7 +1499,7 @@ function trow_ar(r, card, idx) {
    ? (card===1 ? wPill(r[8]||'—',true) : wPill(r[9]||'—',true))
    : (card===1 ? wPill(r[8]||'—',false): wPill(r[9]||'—',true));
  return '<div '+histAttr+' style="display:grid;grid-template-columns:'+grid+';align-items:center;gap:6px;width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;">'
-   +nameSpan+trafSpan+metSpan+wowMet+'</div>';
+   +nameSpan+trafSpan+metSpan+'</div>';
 }
 
 /* Render tabla AR con trow_ar */
@@ -1504,10 +1509,10 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
  var container = wrap ? wrap.querySelector('#ar'+n+'-th') : document.getElementById(tbodyId);
  if (!container) return;
 
- /* Header de columnas — 4 cols (sin WoW tráfico, AR es solo vista hotel) */
+ /* Header de columnas — 3 cols (sin WoW, AR es solo vista hotel) */
  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
  var metLbl = n===1 ? (isCR?'Performance':'%NoDispo') : (isCR?'Conv Rate':'IPM');
- var grid = 'minmax(0,1fr) 80px 72px 48px';
+ var grid = 'minmax(0,1fr) 80px 72px';
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
  var _mkSH = function(lbl, col, acc) {
    var state = _arSortState[n] || {};
@@ -1520,7 +1525,6 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
    +'<span></span>'
    +_mkSH('Tráfico','traf',false)
    +_mkSH(metLbl,'met',true)
-   +'<span style="'+_s+'text-align:right;padding:2px 0 4px;">WoW</span>'
    +'</div>';
 
  var rowsHtml = rows.map(function(item,i){
@@ -2233,7 +2237,7 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
   var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
   var hdrLabels = {
-    ef:  ['Tráfico','Performance','WoW'],
+    ef:  ['Tráfico','PERF','WoW'],
     cv:  ['Tráfico','Conv Rate','WoW'],
     nd:  ['Tráfico','%NoDispo','WoW'],
     ipm: ['Tráfico','IPM','WoW'],

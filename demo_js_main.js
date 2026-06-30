@@ -58,10 +58,10 @@ function trow(r){
 function w22_updateTableHeaders(){
  var modeCR = W.mode === 'cr';
  var hh = modeCR
-  ? ['Hotel','Severity','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  ? ['Hotel','Severity','Tráfico','WoW↕','Performance','WoW↕','Conv Rate','WoW↕']
   : ['Hotel','Severity','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
  var dh = modeCR
-  ? ['Dimensión','Severity','Tráfico','WoW↕','Eficacia','WoW↕','Conv Rate','WoW↕']
+  ? ['Dimensión','Severity','Tráfico','WoW↕','Performance','WoW↕','Conv Rate','WoW↕']
   : ['Dimensión','Severity','Tráfico','WoW↕','%NoDispo','WoW↕','IPM','WoW↕'];
 
  [['#w22-ph thead tr', hh], ['#w22-pd thead tr', dh]].forEach(function(pair){
@@ -182,7 +182,7 @@ function w22_renderAlertas(){
  var rows=al()||[];
  if(!Array.isArray(rows))rows=[];
  var el=g('w22-alertas');if(!el)return;
- var ef_lbl=W.mode==='cr'?'Peor Eficacia':'Mayor NoDispo';
+ var ef_lbl=W.mode==='cr'?'Peor Performance':'Mayor NoDispo';
  var cv_lbl=W.mode==='cr'?'Peor ConvRate':'Menor Ingreso';
  el.innerHTML=rows.map(function(r){
   return '<div style="border:1px solid var(--rule);padding:14px;background:var(--paper);">'
@@ -207,7 +207,7 @@ function w22_update(){
  var sb=g('w22-strip-band');if(sb){sb.style.background=c.bbg;sb.style.color=c.bfg;sb.textContent=c.band;}
  /* Labels del strip según modo */
  var l1=g('w22-strip-lbl1'),l2=g('w22-strip-lbl2');
- if(W.mode==='cr'){if(l1)l1.textContent='Eficacia';if(l2)l2.textContent='Conv Rate';}
+ if(W.mode==='cr'){if(l1)l1.textContent='Performance';if(l2)l2.textContent='Conv Rate';}
  else{if(l1)l1.textContent='NoDispo';if(l2)l2.textContent='IPM';}
  /* RND: ocultar el 2º KPI del strip (IPM) — solo NoDispo */
  var cvItem=g('w22-strip-cv-item'),cvSep=g('w22-strip-cv-sep');
@@ -325,15 +325,20 @@ function w22_update(){
  co.innerHTML=coItems.map(function(c,i){
   var last=i===coItems.length-1;
   var borderB=last?'none':'1px dashed var(--rule-soft)';
-  var area=typeof c==='object'?(c.o||'').split('/')[0].trim():'';
-  var txt=typeof c==='object'?(c.a||c.txt||''):c;
-  var estado=typeof c==='object'?(c.estado||''):'';
+  var area=typeof c==='object'?(c.o||'').trim():'';
+  var title=typeof c==='object'?(c.t||''):'';
+  var ref=typeof c==='object'?(c.a||c.txt||''):c;
+  var sub=typeof c==='object'?(c.sub||''):'';
+  var link=typeof c==='object'?(c.link||''):'';
+  /* Área responsable: label completo + color azul distintivo · sin badge de estado */
   return '<div style="padding:8px 0;border-bottom:'+borderB+';">'
-   +(area?'<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'
-    +'<span style="font-size:9px;font-weight:700;color:#8A8377;background:#EDE9E1;padding:2px 8px;border-radius:2px;border-left:3px solid #8A8377;">'+area+'</span>'
-    +(estado?'<span style="font-size:8px;color:var(--ink-muted);padding:1px 6px;border:1px solid var(--rule);border-radius:2px;">'+estado+'</span>':'')
-    +'</div>':'')
-   +'<div style="font-size:11px;font-weight:500;color:var(--ink);line-height:1.4;">'+txt+'</div>'
+   +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;">'
+    +(area?'<span style="font-size:8px;font-weight:700;color:#2C5282;background:#E3ECF5;padding:2px 8px;border-radius:2px;border-left:3px solid #2C5282;">'+area+'</span>':'')
+    +(sub?'<span style="font-size:8px;color:var(--ink-muted);margin-left:auto;white-space:nowrap;">'+sub+'</span>':'')
+   +'</div>'
+   +(title?'<div style="font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;">'+title+'</div>':'')
+   +(ref?'<div style="font-size:10px;font-weight:500;color:var(--ink-muted);line-height:1.4;margin-top:1px;">'+ref+'</div>':'')
+   +(link?'<div style="font-size:9px;font-weight:600;color:#2C5282;line-height:1.35;margin-top:4px;display:flex;align-items:flex-start;gap:4px;"><span style="opacity:.65;">\u21b3</span><span>'+link+'</span></div>':'')
    +'</div>';
  }).join('');}
 

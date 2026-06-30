@@ -717,6 +717,13 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
       }
     }
   }
+  /* Cap defensivo: la serie del sparkline nunca debe exceder la ventana de
+     _SEMANAS_HIST (8 semanas). Si el array hist trae de más (p.ej. W18-W(N-1)
+     ya con 8 + la actual = 9), alinear por la derecha y quedarse con las últimas N. */
+  if (_arHistArr && typeof _SEMANAS_HIST !== 'undefined' && _SEMANAS_HIST.length &&
+      _arHistArr.length > _SEMANAS_HIST.length) {
+    _arHistArr = _arHistArr.slice(-_SEMANAS_HIST.length);
+  }
   _allHistCids.forEach(function(hcid) {
     var fn = window['histUpdate_' + hcid];
     if (fn) { fn(w_curr, w_prev, w_actual, label + ' \u00b7 ' + _sems, _arHistArr); }
@@ -1412,11 +1419,12 @@ function _kpiCrossFilterClear(card, type) {
       r.classList.remove('sb-search-hit');
       r.style.removeProperty('display');
     });
-    /* Restaurar display de todas las filas no-sb-hidden y no-rows-more */
+    /* Restaurar display de TODAS las filas — _showOnly (selección via searchbox) deja
+       display:none !important en las top-5 y grid !important en la elegida; si solo limpiáramos
+       sb-hidden/rows-more, esas top-5 quedarían pegadas y _kpiPillRender (grid sin !important)
+       no podría destaparlas. removeProperty en todas → re-paginación limpia abajo. */
     _sbPanelEl.querySelectorAll('[data-hist-label]').forEach(function(r) {
-      var isSbH = r.classList.contains('sb-hidden');
-      var isMore = r.classList.contains('rows-more');
-      if (isSbH || isMore) r.style.removeProperty('display');
+      r.style.removeProperty('display');
     });
   }
   _kpiCrossFilterPillsRender(card);
@@ -2285,37 +2293,78 @@ AR_SB_PATCH_JS = '''
     if (card === 'nd') return 'rnd';
     return null;
   }
+  /* W26: búsqueda CROSS-DIMENSIÓN — el searchbox sugiere de TODAS las dimensiones
+     del card (corp/destino/país/hotel), no solo la vista activa. Al elegir una
+     sugerencia de otra dimensión, _kpiSbSelect cambia a esa vista y la selecciona. */
+  var _SB_DIMS    = { ef: ['corp','destino','hotel'], cv: ['corp','destino','hotel'],
+                      bk: ['corp','destino','hotel'], nd: ['corp','destino','pais','hotel'] };
+  var _SB_DIM_LBL = { corp:'Corp', destino:'Destino', pais:'País', hotel:'Hotel', channel:'Channel' };
+  function _sbRowsForView(card, view) {
+    var panels = document.getElementById('kpi-' + card + '-panels');
+    if (!panels) return [];
+    var p = panels.querySelector('[data-tab="' + view + '"]');
+    return p ? p.querySelectorAll('[data-hist-label]') : [];
+  }
   function _kpiSbBuildDD(card, input) {
     var qn = norm(input.value);
     var dd = _kpiSbDD(card);
-    if (!dd) { dd = document.createElement('div'); dd.id = 'sb-kpi-' + card + '-dd'; dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:240px;overflow-y:auto;"; document.body.appendChild(dd); }
+    if (!dd) { dd = document.createElement('div'); dd.id = 'sb-kpi-' + card + '-dd'; dd.style.cssText = "position:fixed;z-index:9999;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);min-width:200px;max-height:260px;overflow-y:auto;"; document.body.appendChild(dd); }
     if (!qn) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
-    var view = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
-    var _pc = (view === 'hotel') ? _kpiSbPoolFor(card) : null;
-    var matches = [];
-    if (_pc && typeof _HOTEL_POOL_CFG !== 'undefined' && window[_HOTEL_POOL_CFG[_pc].poolVar]) {
-      /* vista hotel → sugerir desde el pool completo (alcanza CUALQUIER hotel, no solo el DOM) */
-      var pool = window[_HOTEL_POOL_CFG[_pc].poolVar], seen = {};
-      for (var i = 0; i < pool.length && matches.length < 8; i++) {
-        var l = pool[i][0];
-        if (l && !seen[l] && norm(l).indexOf(qn) >= 0) { seen[l] = true; matches.push(l); }
+    /* Dimensiones a buscar: la vista activa primero, luego el resto */
+    var allDims = _SB_DIMS[card] || ['corp','destino','hotel'];
+    var active  = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : allDims[0];
+    if (active === 'dest') active = 'destino';
+    var dims = (allDims.indexOf(active) >= 0 ? [active] : []).concat(
+                 allDims.filter(function(d) { return d !== active; }));
+    var matches = [], seen = {}, CAP = 10;
+    for (var di = 0; di < dims.length && matches.length < CAP; di++) {
+      var view = dims[di];
+      if (view === 'hotel') {
+        var pc = _kpiSbPoolFor(card);
+        if (pc && typeof _HOTEL_POOL_CFG !== 'undefined' && window[_HOTEL_POOL_CFG[pc].poolVar]) {
+          var pool = window[_HOTEL_POOL_CFG[pc].poolVar];
+          for (var i = 0; i < pool.length && matches.length < CAP; i++) {
+            var l = pool[i][0], k = 'hotel|' + l;
+            if (l && !seen[k] && norm(l).indexOf(qn) >= 0) { seen[k] = true; matches.push({ label: l, view: 'hotel' }); }
+          }
+        } else {
+          _sbRowsForView(card, 'hotel').forEach(function(r) {
+            var l = r.getAttribute('data-hist-label'), k = 'hotel|' + l;
+            if (l && !seen[k] && norm(l).indexOf(qn) >= 0 && matches.length < CAP) { seen[k] = true; matches.push({ label: l, view: 'hotel' }); }
+          });
+        }
+      } else {
+        var vv = view;
+        _sbRowsForView(card, vv).forEach(function(r) {
+          var l = r.getAttribute('data-hist-label'), k = vv + '|' + l;
+          if (l && !seen[k] && norm(l).indexOf(qn) >= 0 && matches.length < CAP) { seen[k] = true; matches.push({ label: l, view: vv }); }
+        });
       }
-    } else {
-      var seen2 = {}, labels = [];
-      _kpiSbRows(card).forEach(function(r) { var l = r.getAttribute('data-hist-label'); if (l && !seen2[l]) { seen2[l] = true; labels.push(l); } });
-      matches = labels.filter(function(l) { return norm(l).indexOf(qn) >= 0; }).slice(0, 8);
     }
     if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
-    dd.innerHTML = matches.map(function(l) { return '<div class="sb-suggestion" data-kpi-card="' + card + '" data-value="' + l + '" style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);">' + l + '</div>'; }).join('');
-    var rect = input.getBoundingClientRect(); dd.style.left = rect.left + 'px'; dd.style.top = (rect.bottom + 4) + 'px'; dd.style.width = Math.max(rect.width + 60, 200) + 'px'; dd.style.display = 'block';
+    var _hintCol = (card === 'nd') ? '#EA0074' : '#5C469C';
+    dd.innerHTML = matches.slice(0, 8).map(function(m) {
+      var hint = _SB_DIM_LBL[m.view] || m.view;
+      var safe = String(m.label).replace(/"/g, '&quot;');
+      return '<div class="sb-suggestion" data-kpi-card="' + card + '" data-value="' + safe + '" data-view="' + m.view + '" '
+        + 'style="padding:7px 12px;cursor:pointer;font-size:11px;color:var(--ink);border-bottom:1px solid var(--rule-soft);display:flex;justify-content:space-between;gap:10px;align-items:center;">'
+        + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + m.label + '</span>'
+        + '<span style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:' + _hintCol + ';opacity:.7;flex-shrink:0;">' + hint + '</span>'
+        + '</div>';
+    }).join('');
+    var rect = input.getBoundingClientRect(); dd.style.left = rect.left + 'px'; dd.style.top = (rect.bottom + 4) + 'px'; dd.style.width = Math.max(rect.width + 60, 220) + 'px'; dd.style.display = 'block';
   }
-  function _kpiSbSelect(card, label) {
+  function _kpiSbSelect(card, label, view) {
     var input = document.getElementById('sb-kpi-' + card);
     if (input) input.value = '';
     var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
+    /* Si la sugerencia es de otra dimensión, cambiar a esa vista primero (luego seleccionar) */
+    if (view && typeof _kpiView !== 'undefined' && _kpiView[card] !== view && typeof kpi_setView === 'function') {
+      try { kpi_setView(card, view); } catch (e) {}
+    }
     var p = _kpiSbPanel(card); if (!p) return;
-    var view = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
-    var _pc = (view === 'hotel') ? _kpiSbPoolFor(card) : null;
+    var v2 = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
+    var _pc = (v2 === 'hotel') ? _kpiSbPoolFor(card) : null;
     var target = null;
     function _find() { target = null; p.querySelectorAll('[data-hist-label]').forEach(function(r) { if (!target && r.getAttribute('data-hist-label') === label) target = r; }); }
     _find();
@@ -2363,22 +2412,32 @@ AR_SB_PATCH_JS = '''
   document.addEventListener('mousedown', function(e) {
     var sug = e.target.closest ? e.target.closest('.sb-suggestion[data-kpi-card]') : null;
     if (!sug) return; e.preventDefault();
-    _kpiSbSelect(sug.getAttribute('data-kpi-card'), sug.getAttribute('data-value'));
+    _kpiSbSelect(sug.getAttribute('data-kpi-card'), sug.getAttribute('data-value'), sug.getAttribute('data-view'));
   });
   document.addEventListener('click', function(e) {
     var btn = e.target.closest ? e.target.closest('[id^="sb-kpi-"][id$="-clear"]') : null;
     if (!btn) return;
     var card = btn.id.replace('sb-kpi-', '').replace('-clear', '');
     if (_KPI_SB_CARDS.indexOf(card) < 0) return;
+    var _pinnedWas = _kpiSbPinned[card];
     var input = document.getElementById('sb-kpi-' + card); if (input) input.value = '';
     _kpiSbPinned[card] = null;
     var dd = _kpiSbDD(card); if (dd) dd.style.display = 'none';
     btn.style.display = 'none';
-    /* Restaurar la paginación normal del panel activo (deshacer el filtro-a-uno):
-       top-5 visible, resto oculto, luego re-aplicar cross-filter si está activo. */
+    /* Si la selección venía del search (pin) en una vista con cross-filter (corp/dest/pais),
+       limpiar el search también DESELECCIONA el cross-filter. _kpiCrossFilterClear re-pagina,
+       quita highlight + pill, resetea la gráfica y re-oculta la fila revelada por el search. */
+    var _v = (typeof _kpiView !== 'undefined' && _kpiView[card]) ? _kpiView[card] : 'destino';
+    var _cfType = (_v === 'corp') ? 'corp' : (_v === 'pais') ? 'pais' : (_v === 'destino' || _v === 'dest') ? 'dest' : null;
+    if (_pinnedWas && _cfType && typeof _kpiCrossFilter !== 'undefined' &&
+        _kpiCrossFilter[card] && _kpiCrossFilter[card][_cfType] != null &&
+        typeof _kpiCrossFilterClear === 'function') {
+      _kpiCrossFilterClear(card, _cfType);
+      return;
+    }
+    /* Resto (vista hotel / sin selección pinneada): restaurar la paginación normal del panel. */
     var p = _kpiSbPanel(card);
     if (p) {
-      var _n = 0;
       p.querySelectorAll('[data-hist-label]').forEach(function(r) {
         r.classList.remove('sb-search-hit');
         if (r.classList.contains('sb-hidden') || r.classList.contains('rows-more')) r.style.setProperty('display', 'none', 'important');
@@ -2550,17 +2609,6 @@ SHARED_CONTAINERS = f'''
 <h2 class="section-title">Análisis de Rendimiento</h2>
 <span class="section-subtitle" style="color:var(--accent)">Top hoteles y dimensiones · canasta activa</span>
 </div></div>
-
-<!-- Switcher CR/RND — mismo componente w22-seg que el de las cards -->
-<div style="margin-bottom:4px;">
-  <div class="w22-seg" id="ar-seg">
-    <button class="w22-seg-btn on" id="ar-btn-cr"
-      onclick="w22_setMode('rnd',document.getElementById('mode-rnd'))">Disponibilidad</button>
-    <button class="w22-seg-btn" id="ar-btn-rnd"
-      onclick="w22_setMode('cr',document.getElementById('mode-cr'))">Performance</button>
-  </div>
-</div>
-
 
 <!-- Grid 3 cards: Eficacia · Conv Rate · Bookability -->
 <div class="ar-cards-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">

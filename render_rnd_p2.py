@@ -19,6 +19,20 @@ VOL_NUM   = D.get('VOL_NUM', '21')
 WEEK_NUM  = int(VOL_NUM)
 WEEK_PREV = WEEK_NUM - 1
 
+# ── Pickle semana anterior (para carryover) ──
+_D_PREV_RND = None
+try:
+    _prev_path_rnd = os.getenv('PICKLE_RND_PREV', f'rnd_w{WEEK_PREV}_data.pkl')
+    if os.path.exists(_prev_path_rnd):
+        with open(_prev_path_rnd, 'rb') as _fpr:
+            _D_PREV_RND = pickle.load(_fpr)
+        print(f'[carryover] pickle previo RND cargado: {_prev_path_rnd}')
+    else:
+        print(f'[carryover] sin pickle previo RND ({_prev_path_rnd}) → carryover vacío')
+except Exception as _e_pr:
+    print(f'[carryover] error cargando pickle previo RND: {_e_pr}')
+    _D_PREV_RND = None
+
 M        = D['M']
 CANASTA  = D['CANASTA']
 p80      = D['p80_hotel'].copy()
@@ -353,7 +367,7 @@ def build_canasta_data_rnd(key, df_hotel, m18, m17, sev_nd_c, sev_rpm_c, g_corp_
                               es_pct(nd_r), es_ipm(ipm_r), wow_up, wow_nd, wow_ipm, wow_traf_str])
 
     # RE / Plan / Carryover — via editorial_engine (W26+)
-    re_items, plan, co = build_editorial_rnd(D, scope=key)
+    re_items, plan, co = build_editorial_rnd(D, scope=key, D_prev=_D_PREV_RND)
 
     return {'re': re_items, 'hotels': hotels_dnc_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_ipm_dnc': hotels_ipm_dnc_rows, 'hotels_ipm_br': hotels_ipm_br_rows, 'hotels_dnc_sb': hotels_dnc_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'dests': [], 'chans': [], 'plan': plan, 'co': co}
 

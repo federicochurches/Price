@@ -656,6 +656,7 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
     grid_cols    = cfg['grid_cols']
     val_prefix   = cfg.get('val_prefix', '')
     show_severity = cfg.get('show_severity', True)
+    show_wow      = cfg.get('show_wow', True)
 
     top_html = rest_html = ''
 
@@ -770,8 +771,9 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
             f'font-variant-numeric:tabular-nums;white-space:nowrap;">{traf_str}</span>'
             f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);'
             f'font-variant-numeric:tabular-nums;white-space:nowrap;">{val_str}</span>'
-            f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
-            f'</div>'
+            + (f'<div style="text-align:right;white-space:nowrap;">{wow_pill}</div>'
+               if show_wow else '')
+            + f'</div>'
         )
 
         if i < top_n:

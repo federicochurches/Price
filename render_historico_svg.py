@@ -74,7 +74,9 @@ def render_historico_svg(reporte, metrica, banda_actual, val_actual, canvas_id):
     var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
     var pad=(mx-mn)*0.18||3;mn-=pad;mx+=pad;var rng=mx-mn||1;
     function yOf(v){return SH-4-((v-mn)/rng)*(SH-10);}
-    function xOf(i){return (i/(n-1))*W;}
+    /* Puntos centrados en su celda (igual que la fila de labels: flex:1 → centro = (i+0.5)/n).
+       Antes (i/(n-1)) los ploteaba borde a borde y el 1ro/último quedaban fuera del área de labels. */
+    function xOf(i){return ((i+0.5)/n)*W;}
     var pp=vals.map(function(v,i){return xOf(i).toFixed(1)+','+yOf(v).toFixed(1);});
     /* Fill coloreado por banda: n-1 segmentos trapezoidales, color = banda del punto izquierdo */
     var segs='';

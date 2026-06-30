@@ -1,3 +1,24 @@
+## Sesión W26-editorial-fixes + BK-hist · 30-06-2026 — Fixes editoriales RE/PA + histórico por entidad
+
+### Contexto
+Sesión de correcciones sobre el SUPPLY_W26 (post W26-carryover-canastas). 5 fixes pedidos por Fede, todos validados (jsdom + visual) y aplicados al pipeline para que no se repitan en W27.
+
+### Cambios
+1. **`RND_HOTEL_HIST` (sparkline por hotel RND)** — `render_rnd_p1.py` emitía `{}` vacío (omitido por los ~5,6MB de 47K hoteles) → todos los hoteles de un corp compartían el proxy corp. Ahora emite histórico por hotel **solo P80** (~17.4K, nd+ipm, ~2,1MB · 99,8% cobertura). El handler (assemble L686/L527) ya intentaba hotel-first → corp fallback; solo faltaba el dato. CR no tenía el bug (`CR_HOTEL_HIST` ya poblado).
+2. **Drill RE/PA Corps/Destinos = cantidad de hoteles** — `_build_drill` (`editorial_engine.py`) muestra `n_hoteles_sc_c` ("N hoteles") en Corps/Destinos, con fallback al formato métrica·volumen. Cubre RE y PA (ambos vía `_drill_cd`). El finding spread ya lo traía.
+3. **Títulos RE con count** — `_finding` antepone el count al título ("10 Hoteles con Performance de 0%"). Solo RE (PA usa dicts raw). CR + RND.
+4. **PA drill: conteo sobre los 5, no el total** — flag `topn_dims=True` en los 9 `_drill_cd` del PA (solo `build_action_plan_*`) → dims derivadas de `d.head(n)`, ignora `pre_corps`/`pre_dests` del cohorte. + `topn=5` en `_drill_spread` del PA-5. RND PA-1 Corps suma 5 (antes 150). RE intacto sobre el cohorte (finding spread suma 98).
+5. **Carryover con acción vinculada** — `build_carryover` agrega `link` = acción del PA previo según cohorte (RND → "más problemas de disponibilidad" · CR → "peor Performance" / "Performance de 0%" si ef=0). Render en `demo_js_main.js` (línea `↳ {acción}` azul).
+6. **BK histórico por entidad (corp/dest/hotel)** — Causa raíz: los W19-W24 del sparkline BK son un array **global hardcodeado** (`historico_data.py` L59); `BK_DEST_HIST`/`BK_HOTEL_HIST` no se emitían (pickle sin `dest_hist_bk`/`hotel_hist_bk`) → todo hotel mostraba la global. El acumulado BK del pipeline solo tenía 2 semanas. Fixes: (a) `calc_bk.py` construye `dest_hist_bk` + `hotel_hist_bk` (espejo de `corp_hist_bk`; hotel acotado a `g_hotel`); (b) `calc_bk.py` prefiere `Dataset_bookability_historico.xlsx` como acumulado (todas las semanas). Con el histórico W19-W27 (158K filas) inyectado al `bk_w26_data.pkl`: corp 123 · dest 2567 · hotel 3284, 7 semanas c/u. Cada entidad muestra su serie real (Oasis Palm `[78.6,84.9,73.2,88.6,91.5,80.3,81.4]`).
+
+### Archivos
+`render_rnd_p1.py` · `editorial_engine.py` · `demo_js_main.js` · `calc_bk.py` · `historico_data.py` (BK global) · `assemble_unified.py` · `render_cr_p1.py`/`render_cr_p2.py`/`render_rnd_p2.py` (regen). **Excluido del commit:** `calc_rnd.py` (override W26-only `MIN_TRAFICO=2000`).
+
+### Workflow BK a futuro
+Mantener UN `Dataset_bookability_historico.xlsx` acumulativo (append cada semana); `calc_bk` lo toma automático. No hace falta compartirlo cada semana.
+
+---
+
 ## Sesión W26-inv-layout · 29-06-2026 — Pipeline Inventory W26 + Layout lado a lado
 
 ### Contexto

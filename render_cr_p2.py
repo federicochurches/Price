@@ -22,6 +22,20 @@ WEEK_NUM  = int(VOL_NUM)
 WEEK_PREV = WEEK_NUM - 1
 PERIODO   = D.get('PERIODO', '18-24 may 2026')
 
+# ── Pickle semana anterior (para carryover) ──
+_D_PREV_CR = None
+try:
+    _prev_path_cr = os.getenv('PICKLE_CR_PREV', f'cr_w{WEEK_PREV}_data.pkl')
+    if os.path.exists(_prev_path_cr):
+        with open(_prev_path_cr, 'rb') as _fpc:
+            _D_PREV_CR = pickle.load(_fpc)
+        print(f'[carryover] pickle previo CR cargado: {_prev_path_cr}')
+    else:
+        print(f'[carryover] sin pickle previo CR ({_prev_path_cr}) → carryover vacío')
+except Exception as _e_pc:
+    print(f'[carryover] error cargando pickle previo CR: {_e_pc}')
+    _D_PREV_CR = None
+
 M        = D['M']
 CANASTA  = D['CANASTA']
 p80      = D['p80_hotel'].copy()
@@ -228,7 +242,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
          't': f'ConvRate {sev_badge_html("Crítica")}{sfx}',
          'd': 'ConvRate < 0,8%.'},
         {'n': worst_ef_val,
-         't': f'{worst_ef_name} · peor Eficacia',
+         't': f'{worst_ef_name} · peor Performance',
          'd': f'{worst_ef_cr} CR.'},
         {'n': top_corp_cr,
          't': f'{top_corp_name} · líder volumen',
@@ -479,7 +493,7 @@ def build_canasta_data(key, df_hotel, m18, m17, sev_ef_c, sev_cv_c,
     except Exception:
         _bk_data = None
 
-    re_items, plan, co = build_editorial_cr(D, scope=key, bk_data=_bk_data)
+    re_items, plan, co = build_editorial_cr(D, scope=key, bk_data=_bk_data, D_prev=_D_PREV_CR)
 
     return {'re': re_items, 'hotels': hotel_rows, 'hotels_crit': hotels_crit_rows, 'hotels_br': hotels_br_rows, 'hotels_sc': hotels_sc_rows, 'hotels_cv': hotels_cv_rows, 'hotels_crit_sb': hotels_crit_sb, 'hotels_br_sb': hotels_br_sb, 'hotels_sc_sb': hotels_sc_sb, 'dims': [], 'corps': [], 'corps_cv': [], 'dests': [], 'dests_cv': [], 'chans': [], 'chans_pp': [], 'chans_tp': [], 'plan': plan, 'co': co}
 
@@ -534,7 +548,7 @@ def build_cr_d():
 def build_cr_al():
     result = {}
 
-    def al_for(df_h, g_corp_c, label_ef='Peor Eficacia', label_cv='Peor ConvRate'):
+    def al_for(df_h, g_corp_c, label_ef='Peor Performance', label_cv='Peor ConvRate'):
         rows = []
         # Hoteles
         df_w = df_h[df_h.get('Bookings', pd.Series([1]*len(df_h))) > 0] if 'Bookings' in df_h.columns else df_h
@@ -624,11 +638,11 @@ def render_severity():
 <div class="section-head"><div>
 <h2 class="section-title">Severity</h2>
 <span class="section-subtitle" style="color:#5C469C">P80 · {len(p80)} hoteles</span>
-<p class="section-kicker">Distribución del Top volumen CR (P80) por banda de Eficacia (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte estructural separada.</p>
+<p class="section-kicker">Distribución del Top volumen CR (P80) por banda de Performance (target ≥ 97%) y Conv Rate (target ≥ 2,5%). Sin Conversión es cohorte estructural separada.</p>
 </div></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:start;">
 <div>
-<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Eficacia</h3>
+<h3 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:#EA0074;margin:0 0 12px;">Performance</h3>
 {rows_ef}
 </div>
 <div>
@@ -752,7 +766,7 @@ def render_alertas():
     return f'''<section style="margin-bottom:48px;border-top:1px solid var(--rule);padding-top:48px;">
 <div class="section-head"><div>
 <h2 class="section-title">Alertas Críticas</h2>
-<span class="section-subtitle" id="w22-alertas-sub" style="color:var(--accent)">Peor Eficacia + Peor ConvRate · canasta activa</span>
+<span class="section-subtitle" id="w22-alertas-sub" style="color:var(--accent)">Peor Performance + Peor ConvRate · canasta activa</span>
 </div></div>
 <div id="w22-alertas" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px;"></div>
 </section>'''
