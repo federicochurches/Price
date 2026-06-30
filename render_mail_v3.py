@@ -176,6 +176,31 @@ else:
 # ── Contratación ──────────────────────────────────────────────────────────────
 HAS_INV = INV_PP > 0
 
+# Auto-cargar KPIs de inventory del INVENTORY_WNN.html si no vienen por env.
+# calc_supply NO pasa INV_* → sin esto la card de Contratación desaparece al regenerar.
+# Los IDs card-pp / card-gap (netnew semanal) / card-avance son estables en el reporte de Inventory.
+if not HAS_INV:
+    import re as _re_inv
+    for _ip in [f'inventory/week-{WEEK_NUM}/INVENTORY_{WEEK}.html',
+                f'inventory/week-{WEEK_NUM_INT}/INVENTORY_W{WEEK_NUM_INT}.html']:
+        if os.path.exists(_ip):
+            try:
+                _ih = open(_ip, encoding='utf-8', errors='ignore').read()
+                def _icard(cid):
+                    m = _re_inv.search(r'id="' + cid + r'"[^>]*>\s*([\d.,]+)', _ih)
+                    return m.group(1) if m else None
+                _pp, _gap, _av = _icard('card-pp'), _icard('card-gap'), _icard('card-avance')
+                if _pp:
+                    INV_PP         = int(_pp.replace('.', '').replace(',', ''))
+                    INV_NETNEW     = int(_gap.replace('.', '').replace(',', '')) if _gap else 0
+                    INV_PCT_AVANCE = float(_av.replace(',', '.')) if _av else round(INV_PP / INV_TARGET * 100, 1)
+                    INV_GAP        = max(INV_TARGET - INV_PP, 0)
+                    HAS_INV        = True
+                    print(f'  [inv] KPIs auto-cargados de {_ip}: PP={INV_PP} netnew={INV_NETNEW} avance={INV_PCT_AVANCE}%')
+            except Exception as _e:
+                print(f'  [inv] auto-carga falló: {_e}')
+            break
+
 # ── CSS compartido ────────────────────────────────────────────────────────────
 CSS = """
 * { box-sizing: border-box; margin: 0; padding: 0; }

@@ -267,7 +267,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div style="margin-top:2px;">{wow_nd}</div>
     </div>
     <div style="padding:10px 14px;border-right:1px solid var(--rule);">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Estado de las Conectividades</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Performance</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{cr_ef:.1f}%</div>
       <div style="margin-top:2px;">{wow_ef}</div>
     </div>
