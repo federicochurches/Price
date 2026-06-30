@@ -585,13 +585,16 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 | 3 | Performance | Conv Rate · Performance · Bookability |
 
 ### Decisiones canónicas
+- ⚠️ **Arquitectura CRÍTICA (v6.0+): TODO con `<table>` + estilos inline — NUNCA `<style>` tags, CSS Grid, Flexbox, ni `class=`.** Gmail/Outlook/Apple Mail **ignoran completamente** `<style>` y no soportan `display:grid/flex` ni media queries — el HTML se ve roto (apilado, sin alinear, colores perdidos) al pegarlo en el compose. Cada fila de KPIs es una `<table>` con `<td width="33%">`; el header usa `<table>` con 2 `<td>` (marca | badge); los botones CTA son `<table><tr><td>` con `<a style="display:inline-block">` dentro. Helper `kpi_triple()` y `sec_header()` en `render_mail_v3.py` generan estas tablas — nunca volver a divs flex/grid.
 - **Sección "Performance"** — Conv Rate no es conectividad; Performance + Bookability sí. Los 3 van en la misma fila bajo "Performance"
 - **NoDispo por tier** — lee `DR['nd_por_tier']` del pickle RND. Requiere `calc_rnd.py` W26+ (agrega `nd_por_tier` al pickle). Fallback: muestra global en las 3 celdas si no existe el dict
-- **Header:** borde top negro 3px · "PriceTravel" grande · badge `Week NN` (fondo `#161616`, texto `#fff`) a la derecha con fecha debajo
+- **Header:** borde top negro 3px · "PriceTravel" grande · badge `Week NN` (fondo `#161616`, **texto y fecha en `#ffffff` blanco** — nunca gris `#8A8377` sobre fondo oscuro, ilegible) a la derecha con fecha debajo
 - **Footer:** una línea centrada
 - **Botones CTA:** Hub (`#161616`) · Supply (`#EA0074`) · Inventario (`#4FC3F4` / texto `#161616`)
 - **Compatibilidad:** todos los colores críticos hardcodeados con `style` inline + `background-color` (no `background`) — garantiza render en iPad/Safari/Outlook
 - **Bloque editorial:** entre KPIs y CTA — `MAIL_HIGHLIGHTS` env var, vacío = omitido
+- **KPI "% de Éxito"** (era "Eficacia") — mismo dato/banda (`_banda_ef`), solo el label cambió en la fila Performance + preheader.
+- **Validación visual obligatoria antes de cerrar sesión de mail:** Playwright screenshot a 900px (desktop) y 380px (mobile) del HTML generado — el HTML "se ve bien" en el editor/grep no garantiza nada en un cliente de mail; el único check real es render visual + (idealmente) pegar en un Gmail de test.
 
 ### Variables de entorno `render_mail_v3.py`
 ```bash
@@ -738,6 +741,8 @@ Third Party:     Expedia · HotelBeds Apitude · Hotel Unico V2 · Travelgate
 - Channels sin datos → "sin actividad" `opacity:0.45` · Orden: peor eficacia primero → inactivos al final
 
 ---
+
+**Última actualización:** W26-mail-tables-v6 · 30-06-2026 (**Mail reescrito 100% a tablas HTML + estilos inline — fix de fondo, no cosmético** — Fede probó el mail en Gmail real (pegado en compose) y se veía roto: header desalineado, las 3 columnas de KPIs apiladas en 1 sola columna, espaciado colapsado. Causa raíz: la v5.0 usaba `<style>` + `class=` + `display:flex/grid` + media queries — **Gmail, Outlook y la mayoría de mail clients ignoran `<style>` por completo y no soportan CSS Grid/Flexbox**; solo interpretan `<table>` y estilos `style=""` inline. Fix: `render_mail_v3.py` reescrito de cero (v6.0) — 0 `<style>` tags, 0 `class=`, todo con `<table role="presentation">` anidadas. Helpers nuevos: `sec_header()` (punto+label de sección), `kpi_triple()` (3 columnas KPI vía `<td width="33%">`), `_cta_btn()` (botones vía `<td><a style="display:inline-block">`). Bloque Contratación: tabla 3 columnas (hero 40% + 2 subs 30%). Header: tabla 2 columnas (marca | badge Week NN). Validado con Playwright screenshot real a 900px (desktop) y 380px (mobile) — ambos renderizan correctamente las 3 columnas, badges de banda/WoW, header. **Regla nueva para mail (no aplica a `assemble_unified.py`/SUPPLY_WNN.html, que sigue con CSS normal):** cualquier fix de layout en `render_mail_v3.py` debe ir en tablas, nunca flex/grid/`<style>`. Commits: `b785b975` (v6.0) · `570d8eb0` (sync `_scripts/`).)
 
 **Última actualización:** W26-hub-mail-fixes · 30-06-2026 (**Hub labels + mail auto-carga inventory + cross-platform** — **(1) Hub (`build_package.py`):** KPI "Estado de las Conectividades" → **"Performance"**. Card "Avance Plan de Contratación" muestra **netnew de la semana** (`{_inv_fmt(_inv_pp_d)} hoteles` = "+30 hoteles") en vez de `% avance`; badge debajo = delta de avance en pp. KPIs de inventory actualizados a W26 (305.602 / 59.198 / 10.802 / 84.6%). `inv_n`/`inv_pp_n`/`inv_gap` quedan definidos pero NO se renderizan (código muerto). **(2) Mail (`render_mail_v3.py`):** **auto-carga de KPIs de inventory** del `INVENTORY_WNN.html` (regex sobre `card-pp`/`card-gap`/`card-avance`) cuando los `INV_*` no vienen por env → la card de Contratación aparece siempre (antes desaparecía al regenerar porque `calc_supply` no pasa `INV_*`). Env gana si se pasa. **(3) `OUTPUTS_DIR` cross-platform:** si no existe el dir, cae a `/mnt/user-data/outputs` (Claude) o `Path(__file__).parent` (Windows) → arregla `FileNotFoundError` al correr `py render_mail_v3.py` en local. **(4) `_scripts/render_mail_v3.py` sincronizado con la raíz** (eran 2 copias divergentes; `find_script` usa la raíz). Workflow mail W27+: `git pull` → desde la raíz, `py render_mail_v3.py` con WEEK/VOL_NUM/PERIODO/PICKLE_* (+ MAIL_HIGHLIGHTS opcional), sin `INV_*`. Commits: `1e3683f6` `60499a0a` `5a94baa8` `b996eda2`.)
 

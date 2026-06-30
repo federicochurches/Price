@@ -1,3 +1,44 @@
+## Sesión W26-mail-tables-v6 · 30-06-2026 — Mail reescrito 100% a tablas HTML (fix Gmail/Outlook)
+
+### Contexto
+Después del fix de color del badge (W26-hub-mail-fixes), Fede hizo una prueba real pegando el mail en el compose de Gmail. El resultado se veía roto: header desalineado, las 3 columnas de KPIs (Destinos Primarios/Secundarios/Terciarios, Conv Rate/% Éxito/Bookability) apiladas en una sola columna en vez de 3 lado a lado, espaciado colapsado.
+
+### Causa raíz
+La v5.0 de `render_mail_v3.py` generaba el mail con `<style>` tag + `class=` + `display:flex`/`display:grid` + media queries `@media`. **Gmail, Outlook y la mayoría de mail clients no soportan ninguno de estos:**
+- `<style>` tags se ignoran completamente al pegar HTML en el compose (Gmail los strip).
+- CSS Grid y Flexbox no tienen soporte en motores de renderizado de mail (Word engine en Outlook desktop, motor reducido de Gmail web).
+- Media queries no aplican porque no hay `<style>` que las contenga.
+
+Solo `<table>` + estilos `style=""` inline son universalmente soportados en clientes de email — es el estándar de la industria para email marketing (mismo motivo por el que Mailchimp/SendGrid templates son siempre table-based).
+
+### Fix — reescritura completa v6.0
+`render_mail_v3.py` reescrito de cero:
+- **Eliminado:** el bloque `CSS = """..."""` completo (300+ líneas), todas las clases `m-*`, el `<style>{CSS}</style>` del head.
+- **Nuevo:** todo el layout en `<table role="presentation">` anidadas con estilos inline.
+- **Helpers nuevos:**
+  - `sec_header(dot_color, label)` — header de sección (punto de color + label uppercase) en una tabla de 1 fila.
+  - `kpi_triple(cells)` — genera 3 columnas KPI lado a lado vía `<table><tr><td width="33%">` — reemplaza `.m-triple` (grid 3 cols).
+  - `_cta_btn(url, label, bg, fg)` — botón CTA como `<td><a style="display:inline-block">` dentro de una tabla — reemplaza `.m-cta-btns` (flex).
+- **Bloque Contratación:** tabla de 3 columnas (`<td width="40%">` hero + 2×`<td width="30%">` subs) — reemplaza el grid `auto 1fr 1fr`.
+- **Header:** tabla de 2 columnas (marca a la izquierda, badge Week NN a la derecha en su propia mini-tabla) — reemplaza el flex `justify-content:space-between`.
+- **Mail completo:** una tabla raíz `width="640"` con cada sección como `<tr><td>`, en vez de un `<div class="mail">` con hijos flex.
+- **Validación 0 `<style>` / 0 `class=`:** confirmado por grep tras la regeneración (`grep -c "<style"` = 0, `grep -c 'class="'` = 0, `grep -c "<table"` = 20).
+
+### Validación visual real
+Como el problema solo se manifiesta al renderizar en un motor real (no en un editor de texto ni grep), se usó **Playwright** para capturar screenshots del HTML generado:
+- Desktop (900px viewport): 3 columnas de KPIs correctamente alineadas, header con badge negro/blanco legible, CTAs en fila.
+- Mobile (380px viewport): la tabla de 640px se comprime proporcionalmente dentro del viewport — comportamiento esperado en mail clients mobile (Gmail app, Apple Mail), todo el contenido permanece legible y proporcionado, sin overflow horizontal.
+
+Ambos screenshots confirmaron el layout correcto antes de entregar a Fede.
+
+### Regla nueva (solo aplica a `render_mail_v3.py`)
+Cualquier fix de estilos/layout futuro en el mail debe usar tablas + inline — nunca volver a `<style>`, `class=`, flex o grid. Esta regla es específica del mail (que se pega en clientes de email); **no aplica** a `assemble_unified.py`/`SUPPLY_WNN.html` ni `build_package.py`/`index.html`, que se sirven como páginas web normales vía Netlify y sí soportan CSS moderno.
+
+### Archivos
+`render_mail_v3.py` (reescritura completa, v5.0→v6.0) · `_scripts/render_mail_v3.py` (sincronizado) · `_email/week-26/Mail_W26.html` (regenerado). Commits: `b785b975` (v6.0 table-based) · `570d8eb0` (sync `_scripts/`).
+
+---
+
 ## Sesión W26-hub-mail-fixes · 30-06-2026 — Hub labels + mail auto-carga inventory + cross-platform
 
 ### Contexto
