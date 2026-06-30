@@ -414,7 +414,7 @@ mail_html = f'''<!DOCTYPE html>
 <div class="field-box subject">Weekly KPIs Supply · {WEEK} · Disponibilidad, Conectividades &amp; Performance</div>
 
 <div class="field-label">Preheader</div>
-<div class="field-box">NoDispo Primarios {es(nd_p,2)}% · Eficacia {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}% · Bookability {es(bk_val,1)}%</div>
+<div class="field-box">NoDispo Primarios {es(nd_p,2)}% · % de Éxito {es(cr_ef,2)}% · Conv Rate {es(cr_cv,2)}% · Bookability {es(bk_val,1)}%</div>
 
 <hr class="divider">
 <div class="field-label">Cuerpo (copiar desde acá ↓)</div>
@@ -459,7 +459,7 @@ mail_html = f'''<!DOCTYPE html>
     </div>
     <div class="m-triple">
       {_kpi_cell('Conv Rate', es(cr_cv,2)+'%', wow_badge(cr_cv_wow), _b_cv, '#5C469C', first=True)}
-      {_kpi_cell('Eficacia',  es(cr_ef,2)+'%', wow_badge(cr_ef_wow), _b_ef)}
+      {_kpi_cell('% de Éxito',  es(cr_ef,2)+'%', wow_badge(cr_ef_wow), _b_ef)}
       {_kpi_cell('Bookability', es(bk_val,1)+'%', wow_badge(bk_wow), _b_bk) if HAS_BK else ''}
     </div>
   </div>
