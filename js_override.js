@@ -222,13 +222,13 @@ w22_update = function(){
   if(W.mode === 'cr'){
     var kef = document.getElementById('w21-kv-ef');
     var kcv = document.getElementById('w21-kv-cv');
-    if(kef){ kef.textContent = c.ef; kef.style.color = col; }
-    if(kcv){ kcv.textContent = c.cv; kcv.style.color = col; }
+    if(kef){ kef.textContent = c.ef; kef.style.color = '#333132'; }
+    if(kcv){ kcv.textContent = c.cv; kcv.style.color = '#333132'; }
   } else {
     var knd  = document.getElementById('w21-kv-nd');
     var krpm = document.getElementById('w21-kv-rpm');
-    if(knd)  { knd.textContent  = c.ef; knd.style.color  = col; }
-    if(krpm) { krpm.textContent = c.cv; krpm.style.color = col; }
+    if(knd)  { knd.textContent  = c.ef; knd.style.color  = '#333132'; }
+    if(krpm) { krpm.textContent = c.cv; krpm.style.color = '#333132'; }
   }
   var dd = data();
   /* Re-aplicar tab de hotel */
@@ -1453,12 +1453,81 @@ function ar_update() {
   }, 30);
 }
 
+/* ── kpicard-ar-nd (card AR dedicada de NoDispo en RND) — W26+: no tenía IDs propios,
+   quedaba fija en los valores Global del render Python. Ahora se actualiza desde
+   RND_CV[canasta] (mismo dato que ya usan las KPI cards) en cada cambio de canasta. */
+function _rndArNdApplyCanasta() {
+  if (typeof RND_CV === 'undefined' || typeof W === 'undefined') return;
+  var c = RND_CV[W.canasta] || RND_CV['global'];
+  if (!c) return;
+
+  var kv = document.getElementById('ar-nd-kv');
+  if (kv) kv.textContent = c.ef;
+
+  var vn = (typeof _VOL_NUM !== 'undefined') ? _VOL_NUM : 26;
+
+  /* Pill WoW chico (vs sem. ant.) — ND: bajar es mejor */
+  var pillWrap = document.getElementById('ar-nd-wow-pill');
+  if (pillWrap && c.ef_wow != null) {
+    var mejora = c.ef_wow < 0;
+    var bg = mejora ? '#EAF3DE' : '#FCE8E6';
+    var fg = mejora ? '#2F6C34' : '#C0392B';
+    var arrow = c.ef_wow < 0 ? '↓' : (c.ef_wow > 0 ? '↑' : '=');
+    pillWrap.innerHTML = '<span style="display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:'+bg+';color:'+fg+';">'+arrow+' '+Math.abs(c.ef_wow).toFixed(2).replace('.',',')+'</span>';
+  }
+
+  /* Badge de banda + target */
+  var bandWrap = document.getElementById('ar-nd-band-pill');
+  if (bandWrap && c.band) {
+    bandWrap.innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">'
+      + '<span style="background:'+c.bbg+';color:'+c.bfg+';font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">'+c.band+'</span>'
+      + '<span style="font-size:8px;color:var(--ink-muted);white-space:nowrap;">Target &lt; 3%</span></div>';
+  }
+
+  /* Línea de tráfico */
+  var trafWrap = document.getElementById('ar-nd-traf-line');
+  if (trafWrap && c.trafico) {
+    var trafWowHtml = '';
+    if (c.traf_wow != null) {
+      var tUp = c.traf_wow >= 0;
+      trafWowHtml = ' <em style="font-style:normal;display:inline-block;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:'+(tUp?'#EAF3DE':'#FCE8E6')+';color:'+(tUp?'#2F6C34':'#C0392B')+';white-space:nowrap;">'+(tUp?'↑ +':'↓ ')+Math.abs(c.traf_wow).toFixed(1).replace('.',',')+'%</em>';
+    }
+    trafWrap.innerHTML = '<div style="margin-top:5px;font-size:10px;color:var(--ink-muted);"><strong style="color:var(--ink);">Tráfico:</strong> '+c.trafico+trafWowHtml+'</div>';
+  }
+
+  /* WoW box de 3 columnas (W-1 / W actual / WoW) — mismo patrón visual que ar1/ar2-wowbox */
+  var wbWrap = document.getElementById('ar-nd-wowbox');
+  if (wbWrap && c.ef_prev != null) {
+    var isUp = c.ef_wow < 0; /* ND: bajar = mejor */
+    var wBg = isUp ? '#E0F0E2' : '#FCE8E6';
+    var wFg = isUp ? '#2F6C34' : '#C0392B';
+    var wowTxt = (c.ef_wow > 0 ? '↑ +' : (c.ef_wow < 0 ? '↓ ' : '= ')) + Math.abs(c.ef_wow).toFixed(2).replace('.',',');
+    wbWrap.style.marginTop = '8px'; wbWrap.style.background = 'var(--paper-soft)'; wbWrap.style.borderRadius = '3px';
+    wbWrap.style.padding = '6px'; wbWrap.style.display = 'flex'; wbWrap.style.alignItems = 'stretch'; wbWrap.style.gap = '6px';
+    wbWrap.innerHTML =
+      '<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W'+(vn-1)+'</div><div style="font-size:14px;font-weight:700;color:var(--ink-soft);margin-top:2px;">'+c.ef_prev+'</div></div>'
+      +'<div style="flex:1;text-align:center;background:var(--paper);padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;">W'+vn+'</div><div style="font-size:14px;font-weight:700;margin-top:2px;color:#333132;">'+c.ef+'</div></div>'
+      +'<div style="flex:1;text-align:center;background:'+wBg+';padding:5px 4px;border-radius:2px;"><div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:'+wFg+';font-weight:700;">WoW</div><div style="font-size:14px;font-weight:700;color:'+wFg+';margin-top:2px;">'+wowTxt+'</div></div>';
+  }
+
+  /* Sparkline inferior de la card — reutiliza el mismo hook histUpdate_ que el resto */
+  if (c.ef_prev != null) {
+    var wc2 = parseFloat(String(c.ef).replace('%','').replace(',','.'));
+    var wp2 = parseFloat(String(c.ef_prev).replace('%','').replace(',','.'));
+    var fn = window['histUpdate_hrnd-arcard-nd'];
+    if (!isNaN(wc2) && fn) fn(wc2, wp2, null, (W.canasta === 'global' ? 'Global' : W.canasta));
+  }
+}
+
 /* Hook en w22_update para re-renderizar AR */
 /* Patch w22_update — disparar ar_update después de que el DOM esté actualizado */
 var _origW22Update = w22_update;
 w22_update = function() {
   _origW22Update.apply(this, arguments);
   ar_update(); /* sincrónicamente — el DOM ya está actualizado */
+  if (typeof window._bkApplyCanasta === 'function') window._bkApplyCanasta();
+  _rndArNdApplyCanasta();
   setTimeout(_moreBtnAll, 50);
 };
 
@@ -1716,7 +1785,7 @@ function _arApplyCard(n, kpiId, badgeId, gaugeId, wowBoxId,
                       vol, trafico, trafWow, GAUGE_COLORS,
                       wPill, wPillSm, gauge, wowBox) {
   var k = document.getElementById(kpiId);
-  if (k) { k.textContent = kpiVal.replace(' %','%'); k.style.color = acc; }
+  if (k) { k.textContent = kpiVal.replace(' %','%'); k.style.color = '#333132'; }
   var v = document.getElementById('ar'+n+'-vol'); if (v) v.textContent = vol;
   var wp = document.getElementById('ar'+n+'-wow-pill');
   if (wp) wp.innerHTML = wPill(wow, wowGoodUp);
@@ -3015,9 +3084,16 @@ function ar3_showMore() {
   if (typeof BK_DATA === 'undefined' || !BK_DATA) {
     setTimeout(tryInitBK, 100); return;
   }
-  var d = BK_DATA.global;
   var k3 = document.getElementById('ar-kpi-3');
   if (!k3) { setTimeout(tryInitBK, 100); return; }
+
+  /* W26+: extraído a función reusable — antes esta card quedaba fija en BK_DATA.global
+     siempre, sin reaccionar a la canasta activa (bug: EF/CV/ND sí actualizaban, BK no).
+     Se expone en window para que el hook de canasta (w22_update) la re-dispare. */
+  function _bkApplyCanasta() {
+  var d = (typeof BK_DATA !== 'undefined' && typeof W !== 'undefined' && BK_DATA[W.canasta]) ? BK_DATA[W.canasta] : BK_DATA.global;
+  var k3 = document.getElementById('ar-kpi-3');
+  if (!k3) return;
 
   k3.textContent = d.bk;
 
@@ -3152,7 +3228,11 @@ function ar3_showMore() {
   /* Ocultar tab Sin Conv en BK — la banda sinconv no existe en BK_DATA */
   var _scTab = document.getElementById('ar3-htab-sc');
   if (_scTab) _scTab.style.display = 'none';
-  
+  } /* fin _bkApplyCanasta */
+
+  window._bkApplyCanasta = _bkApplyCanasta;
+  _bkApplyCanasta();
+
   /* W23+: Tabs BK — JS driven (los radios están dentro de kpi-card, no son hermanos de .tab-panels) */
   (function() {
     var BK_TABS = ['destino', 'corp', 'hotel', 'channel'];

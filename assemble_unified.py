@@ -505,8 +505,11 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
         document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_arHCid}}));
         var _arHLe0 = document.getElementById('hist-'+_arHCid+'-label');
         if (_arHLe0) _arHLe0.textContent = 'Global';
-        /* Reset KPI value + WoW box al global (re-aplicar _arApplyCard) */
-        if (typeof _arPillRender === 'function') _arPillRender(_arN);
+        /* Reset KPI value + badge + WoW box a los datos Global de la canasta activa —
+           _arPillRender NO toca el valor/badge (solo re-renderiza filas), hay que
+           forzar ar_updateKPIs para volver a pintar el estado Global real. */
+        if (typeof ar_updateKPIs === 'function') ar_updateKPIs();
+        else if (typeof _arPillRender === 'function') _arPillRender(_arN);
       } else {
         var _arHAcc   = isCR ? '#5C469C' : '#EA0074';
         var _arHAlpha = isCR ? 'rgba(92,70,156,0.12)' : 'rgba(234,0,116,0.12)';
@@ -558,6 +561,31 @@ function _handleKpiCardHistClick(e, row, kpiRows) {
           var _arHAcc2   = isCR ? '#5C469C' : '#EA0074';
           var _arHVn     = (typeof _VOL_NUM !== 'undefined') ? _VOL_NUM : 25;
           if (_arHKpiEl) _arHKpiEl.textContent = _arHFmtWc;
+          /* Badge de banda: reflejar la banda del HOTEL seleccionado, no la de la canasta Global
+             (quedaba stale porque solo se actualizaban kpiVal + wowbox). */
+          var _arHMetricName = isCR ? (_arN===1 ? 'eficacia' : 'convrate') : 'nodispo';
+          function _arHBandaCalc(val, metric) {
+            var pct = val / 100;
+            if (metric === 'eficacia') {
+              if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable';
+              if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica';
+            }
+            if (metric === 'convrate') {
+              if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica';
+              if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa';
+            }
+            if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable';
+            if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica';
+          }
+          var _arHBanda = _arHBandaCalc(_arHWc, _arHMetricName);
+          var _arHBc = (typeof _AR_BANDA_C !== 'undefined' && _AR_BANDA_C[_arHBanda]) || {bg:'#F2EEE6', fg:'#5F5E5A'};
+          var _arHBadgeEl = document.getElementById('ar'+_arN+'-badge');
+          if (_arHBadgeEl) {
+            _arHBadgeEl.textContent = _arHBanda;
+            _arHBadgeEl.style.background = _arHBc.bg;
+            _arHBadgeEl.style.color = _arHBc.fg;
+            _arHBadgeEl.style.border = '1px solid ' + _arHBc.fg + '44';
+          }
           if (_arHWbEl) {
             var _arHWowGood = (_arN===1) ? (_arHWow > 0) : (_arHWow < 0);
             var _arHWbg = _arHWowGood ? '#E0F0E2' : '#FCE8E6';
@@ -979,6 +1007,15 @@ function _poolToCardRow(h, report, metric) {
 
 /* Wrapper RND (back-compat con el cableado B existente) */
 function _rndPoolToCardRow(h, metric) { return _poolToCardRow(h, 'rnd', metric); }
+
+/* W26: pools Corp/Destino/País (mismo layout de fila que RND_HOTEL_POOL) —
+   fix "Grupo Posadas no aparece en búsqueda CORP". A diferencia de hotel,
+   estas filas NO llevan sub-label (la entidad ya ES el corp/destino/país). */
+function _dimPoolToCardRow(h, metric) {
+  var arr = _poolToCardRow(h, 'rnd', metric);
+  arr[1] = '';
+  return arr;
+}
 
 function _lazyHotelRender(report, card, cf, container) {
   var cfg = _HOTEL_POOL_CFG[report];
@@ -2299,6 +2336,11 @@ AR_SB_PATCH_JS = '''
   var _SB_DIMS    = { ef: ['corp','destino','hotel'], cv: ['corp','destino','hotel'],
                       bk: ['corp','destino','hotel'], nd: ['corp','destino','pais','hotel'] };
   var _SB_DIM_LBL = { corp:'Corp', destino:'Destino', pais:'País', hotel:'Hotel', channel:'Channel' };
+  /* W26: pools completos (sin cap) de Corp/Destino/País — el DOM solo tiene el
+     top-50 (build_kpi_tab_panel) / top-10 (RND_CARD_TABS). Solo 'nd' por ahora
+     (única KPI card RND con dims corp/destino/país; ef/cv/bk ya buscan completo
+     por DOM, ver sesión W26-searchbox-corp). */
+  var _DIM_POOL_CFG = { nd: { corp: 'RND_CORP_POOL', destino: 'RND_DEST_POOL', pais: 'RND_PAIS_POOL' } };
   function _sbRowsForView(card, view) {
     var panels = document.getElementById('kpi-' + card + '-panels');
     if (!panels) return [];
@@ -2317,30 +2359,42 @@ AR_SB_PATCH_JS = '''
     var dims = (allDims.indexOf(active) >= 0 ? [active] : []).concat(
                  allDims.filter(function(d) { return d !== active; }));
     var matches = [], seen = {}, CAP = 10;
-    for (var di = 0; di < dims.length && matches.length < CAP; di++) {
-      var view = dims[di];
+    function _addMatch(l, vv) {
+      var k = vv + '|' + l;
+      if (l && !seen[k] && norm(l).indexOf(qn) >= 0) { seen[k] = true; matches.push({ label: l, view: vv }); return true; }
+      return false;
+    }
+    function _dimMatches(view, limit) {
+      /* limit=null → sin tope (usado en el pase 2) */
+      var added = 0;
+      function _ok() { return limit == null ? matches.length < CAP : (added < limit && matches.length < CAP); }
       if (view === 'hotel') {
         var pc = _kpiSbPoolFor(card);
         if (pc && typeof _HOTEL_POOL_CFG !== 'undefined' && window[_HOTEL_POOL_CFG[pc].poolVar]) {
           var pool = window[_HOTEL_POOL_CFG[pc].poolVar];
-          for (var i = 0; i < pool.length && matches.length < CAP; i++) {
-            var l = pool[i][0], k = 'hotel|' + l;
-            if (l && !seen[k] && norm(l).indexOf(qn) >= 0) { seen[k] = true; matches.push({ label: l, view: 'hotel' }); }
-          }
+          for (var i = 0; i < pool.length && _ok(); i++) { if (_addMatch(pool[i][0], 'hotel')) added++; }
         } else {
-          _sbRowsForView(card, 'hotel').forEach(function(r) {
-            var l = r.getAttribute('data-hist-label'), k = 'hotel|' + l;
-            if (l && !seen[k] && norm(l).indexOf(qn) >= 0 && matches.length < CAP) { seen[k] = true; matches.push({ label: l, view: 'hotel' }); }
-          });
+          _sbRowsForView(card, 'hotel').forEach(function(r) { if (_ok()) { if (_addMatch(r.getAttribute('data-hist-label'), 'hotel')) added++; } });
         }
       } else {
-        var vv = view;
-        _sbRowsForView(card, vv).forEach(function(r) {
-          var l = r.getAttribute('data-hist-label'), k = vv + '|' + l;
-          if (l && !seen[k] && norm(l).indexOf(qn) >= 0 && matches.length < CAP) { seen[k] = true; matches.push({ label: l, view: vv }); }
-        });
+        _sbRowsForView(card, view).forEach(function(r) { if (_ok()) { if (_addMatch(r.getAttribute('data-hist-label'), view)) added++; } });
+        /* W26: además del DOM (top-50/top-10), buscar en el pool completo del dim —
+           mismo motivo que hotel: "Grupo Posadas" no está en el top-50 CORP. */
+        var _dimPV = (_DIM_POOL_CFG[card] || {})[view];
+        if (_dimPV && typeof window[_dimPV] !== 'undefined') {
+          var _dpool = window[_dimPV];
+          for (var pi = 0; pi < _dpool.length && _ok(); pi++) { if (_addMatch(_dpool[pi][0], view)) added++; }
+        }
       }
     }
+    /* Pase 1 — cupo RESERVADO por dimensión (bug real "Grupo Posadas"): hotel tiene
+       miles de registros y agotaba el CAP=10 compartido antes de que corp/destino/país
+       llegaran a evaluarse siquiera. Reservando 3 slots por dimensión se garantiza que
+       ninguna dimensión grande monopolice la sugerencia. */
+    var MIN_PER_DIM = 3;
+    for (var di = 0; di < dims.length; di++) { _dimMatches(dims[di], MIN_PER_DIM); }
+    /* Pase 2 — completar hasta CAP con más resultados, priorizando la vista activa. */
+    for (var dj = 0; dj < dims.length && matches.length < CAP; dj++) { _dimMatches(dims[dj], null); }
     if (!matches.length) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
     var _hintCol = (card === 'nd') ? '#EA0074' : '#5C469C';
     dd.innerHTML = matches.slice(0, 8).map(function(m) {
@@ -2373,6 +2427,26 @@ AR_SB_PATCH_JS = '''
       var cont = p.querySelector('.kpi-tab-rows') || p;
       _lazyHotelRender(_pc, card, { hotel: label }, cont);
       _find();
+    }
+    /* W26: vista corp/destino/país + pool — si la fila no está en el DOM (fuera del
+       top-50/top-10), inyectar SOLO esa fila desde el pool completo. A diferencia del
+       camino hotel, no se reemplaza el panel entero — se agrega una fila arriba, para
+       no tocar la paginación/cross-filter ya renderizados. Fix "Grupo Posadas". */
+    if (!target && v2 !== 'hotel') {
+      var _dimPV = (_DIM_POOL_CFG[card] || {})[v2];
+      if (_dimPV && typeof window[_dimPV] !== 'undefined') {
+        var _dpool = window[_dimPV], _nq = norm(label), _hit = null;
+        for (var _di = 0; _di < _dpool.length; _di++) { if (norm(_dpool[_di][0]) === _nq) { _hit = _dpool[_di]; break; } }
+        if (_hit) {
+          var _cont2 = p.querySelector('.kpi-tab-rows') || p;
+          var _rowArr = _dimPoolToCardRow(_hit, card);
+          var _rowHtml = _cardRow(_rowArr, 0, false, null, 'grid', 'sb-search-hit');
+          var _hdrEl = _cont2.firstElementChild;
+          if (_hdrEl && !_hdrEl.hasAttribute('data-hist-label')) { _hdrEl.insertAdjacentHTML('afterend', _rowHtml); }
+          else { _cont2.insertAdjacentHTML('afterbegin', _rowHtml); }
+          _find();
+        }
+      }
     }
     if (!target) return;
     /* disparar el click real de la fila (cross-filter en otras vistas + pill + highlight + gráfica) */
@@ -2620,7 +2694,7 @@ SHARED_CONTAINERS = f'''
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card1-lbl">Performance</div>
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
-          <div id="ar-kpi-1" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
+          <div id="ar-kpi-1" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
 
         </div>
         <div style="padding-top:4px;"><span id="ar1-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>
@@ -2667,7 +2741,7 @@ SHARED_CONTAINERS = f'''
       <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;" id="ar-card2-lbl">Conv Rate</div>
       <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
         <div>
-          <div id="ar-kpi-2" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">—</div>
+          <div id="ar-kpi-2" style="font-size:36px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">—</div>
 
         </div>
         <div style="padding-top:4px;"><span id="ar2-badge" class="sev-badge" style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:3px;display:inline-flex;align-items:center;white-space:nowrap;">—</span></div>

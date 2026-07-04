@@ -282,7 +282,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
       <div style="margin-top:2px;">{wow_bk}</div>
     </div>
     <div style="padding:10px 14px;">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Plan de Contratación</div>
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Contratación</div>
       <div style="font-size:15px;font-weight:700;color:var(--ink);">{_inv_fmt(_inv_pp_d)} hoteles</div>
       <div style="margin-top:2px;">{wow_inv_gap}</div>
     </div>
@@ -293,7 +293,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="rpt-card card-active" onclick="location.href='reports/{WEEK_STR}/SUPPLY_W{WEEK}.html'">
       <div class="rpt-card-top">
         <span class="rpt-accent" style="background:#EDEAE4;color:#6B6861;">Activo</span>
-        <div style="font-size:16px;font-weight:700;margin-bottom:2px;color:var(--ink);">Disponibilidad &amp; Conectividades</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:2px;color:var(--ink);">Disponibilidad &amp; Performance</div>
       </div>
       <div class="rpt-pills">
         <div class="rpt-pills-left">
@@ -333,7 +333,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
             <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);">Supply</div>
             <div style="background:var(--rule);"></div>
             <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#EA0074;text-align:center;">Disponibilidad</div>
-            <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C469C;text-align:center;border-left:1px solid var(--rule);">Conectividades</div>
+            <div style="padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5C469C;text-align:center;border-left:1px solid var(--rule);">Performance</div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1px 1fr 1fr;border-bottom:1px solid var(--rule);">
             <div style="padding:6px 10px;font-size:10px;font-weight:500;color:var(--ink);">Destinos México</div>

@@ -45,8 +45,16 @@ def load_rnd(path, week):
         print(f'  W{week} (pivotado→largo): {len(df):,} filas')
     else:
         df = pd.read_excel(path)
-        if df.columns[0] != 'CorpName':
+        if 'CorpName' not in df.columns and df.columns[0] != 'CorpName':
             df = df.rename(columns={df.columns[0]: 'CorpName'})
+
+    # Guardia (ambos formatos): si el dataset trae columnas con nombre duplicado,
+    # df['CorpName'] (u otra col) devuelve un DataFrame en vez de Serie y rompe
+    # el .str accessor más abajo. Quedarse con la primera ocurrencia de cada nombre.
+    if df.columns.duplicated().any():
+        dupes = df.columns[df.columns.duplicated()].unique().tolist()
+        print(f'  ⚠️  Columnas duplicadas en {path}: {dupes} — se conserva la primera ocurrencia')
+        df = df.loc[:, ~df.columns.duplicated()]
 
     df = df[df['DistributionCategory'].isin(['B2C','B2B (OP)','CUG (UOP)'])].copy()
     df['Hotel']   = df['Hotel'].astype(str).str.strip().str.replace(r'\t','',regex=True).str.strip()
@@ -148,7 +156,7 @@ def metrics_global(df):
 # ── P80 global ────────────────────────────────────────────────────
 # ── FILTRO DE RELEVANCIA OPERACIONAL: MIN_TRAFICO = 50K (checkrates equivalente) ────
 # Hoteles con tráfico mínimo = universo operacionalmente relevante
-MIN_TRAFICO = 50000
+MIN_TRAFICO = 50000         # valor canónico del repo. (Override W26 de 2000 retirado tras corregir el dataset de tráfico)
 
 df18 = df18[df18['Trafico'] >= MIN_TRAFICO].copy()
 df17 = df17[df17['Trafico'] >= MIN_TRAFICO].copy() if len(df17) > 0 else df17
@@ -291,7 +299,7 @@ def make_tab(df, col, sort_col, asc=False, min_ipm=False, min_trafico=None, top_
 
 # Umbral mínimo de tráfico para destino/país — 50K (mismo que hoteles, sin cortar destinos relevantes)
 # Cancún (417M tráfico), New York (477M), Las Vegas (236M) estaban excluidos con 500K
-MIN_TRAFICO_DIM = 50_000
+MIN_TRAFICO_DIM = 50_000     # valor canónico del repo — regla #24 del CORE. (Override W26 de 2000 retirado tras corregir el dataset de tráfico)
 
 TAB_NoDispo = {
     'pais':    make_tab(g_pais,'PaisDestino','%NoDispo',False, min_trafico=MIN_TRAFICO_DIM),

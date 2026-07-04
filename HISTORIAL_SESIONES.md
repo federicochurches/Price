@@ -1,3 +1,58 @@
+## Sesión W26-grupos-abcde · 04-07-2026 — Renames + severity fill + KPI negro unificado + Third Party channels + AR Global/hotel + BK columnas
+
+### Contexto
+Sesión de trabajo sobre los 5 grupos de pendientes documentados al cierre de W26-searchbox-corp (grupos A-E). Trabajada sin acceso a red/repo GitHub (entorno sin egress) — Fede subió los 7 scripts puntuales necesarios (`build_package.py`, `render_cr_p1.py`, `render_rnd_p1.py`, `render_cr_p2.py`, `js_override.js`, `assemble_unified.py`, `render_historico_svg.py`) para trabajar sobre copias locales.
+
+### Grupo A — Renames de texto
+- Header Supply "Disponibilidad & Conectividades" → "Disponibilidad & Performance": `render_cr_p1.py` (L73) y `render_rnd_p1.py` (L95).
+- Card Hub misma frase → Performance: `build_package.py`.
+- "Avance Plan de Contratación" → "Avance Contratación": `build_package.py`.
+- Centro de Descargas "Conectividades" → "Performance": `build_package.py`.
+- Quitado "| Vol. NN" de ambos headers Supply (CR y RND) — el `<div>` de fecha se quedó solo con `{FECHA_PUB}`. `VOL_NUM` sigue usado en otros lados (paths de pickle BK), no queda huérfano.
+
+### Grupo B — Sparklines severity + color KPI negro
+**Severity fill:** investigado el pipeline completo (`render_historico_svg.py` → `_rhs()` en `render_cr_p1.py`/`render_rnd_p1.py`). El fill por banda (segmentos trapezoidales `getBanda(vals[i]).c` @13% opacidad) YA estaba bien implementado desde W25 y correctamente wireado. Fede confirmó en vivo que se ve bien — **no era un bug real**, sesión anterior lo había dejado como "no arrancado" sin verificar.
+
+**Color KPI negro (pedido adicional de Fede sobre el mismo grupo):** las 2 cards CR/RND (EF/CV/ND) pintaban el valor grande con `var(--accent)` (violet/magenta del reporte) mientras BK ya usaba negro `#333132`. Encontrado en 2 capas:
+- **Estático:** `w21-kv-ef`/`w21-kv-cv` (`render_cr_p1.py`), `w21-kv-nd` (`render_rnd_p1.py`), `ar-kpi-1`/`ar-kpi-2` (`assemble_unified.py`) — los 5 tenían `color:var(--accent)`.
+- **Dinámico (el que realmente se veía, pisaba lo estático):** `js_override.js` — `w22_update()` repintaba `kef/kcv/knd/krpm.style.color = col` (color de canasta) en cada cambio de canasta; `_arApplyCard()` repintaba `k.style.color = acc` para AR1/AR2 en cada `ar_updateKPIs()`.
+
+Fix: los 6 puntos (3 estáticos EF/CV/ND + 2 estáticos AR1/AR2 + 2 dinámicos JS) unificados a `#333132`. `ar-kpi-3` (BK) no se tocó. Otros usos de `col`/`acc` (badges, gauge, wowbox W-actual, subtítulos de sección) no se tocaron — no fueron pedidos.
+
+### Grupo C — Channels CR sin Third Party
+**Causa raíz:** `_lookup_chan`/`_lookup_chan_cv` (`render_cr_p1.py`, duplicados en bloques EF y CV) matcheaban `ExternalProviderName` con `==` exacto, salvo HotelBeds que usaba `.str.startswith()` case-sensitive — y aun así fallaba. El catálogo `THIRD_PARTY` tampoco incluía RateFox. Solo "Expedia" calzaba exacto → el resto se omitía silenciosamente (lookup devuelve `None`, la fila no se agrega).
+
+La card BK (más nueva, línea 733+) ya resolvía esto correctamente con clasificación dinámica por columna `TipoProvider` del pickle (`_PROPIO`/`_TERCERO` como sets) — el patrón correcto existía en el pipeline pero no se había propagado a EF/CV.
+
+**Fix:** agregado `'RateFox'` al catálogo `THIRD_PARTY` (ambos bloques EF y CV) + matching case-insensitive `.str.strip().str.lower().str.startswith(nombre.lower())` para TODOS los providers (antes solo HotelBeds tenía alguna tolerancia).
+
+**Hallazgo colateral (no bloqueante):** `w22_renderCardTabs` en `js_override.js` ya tiene el catálogo JS completo con RateFox + fallback "Sin Actividad" (línea ~1010-1068), pero no se encontró invocado en ningún archivo disponible esta sesión (`js_override.js`, `assemble_unified.py`, `render_cr_p1/p2.py`) — posible código muerto. Pendiente confirmar contra `template_resumen.py`/`render_cr_p3.py` (no auditados, no subidos esta sesión).
+
+### Grupo D — AR cards sin Global/hotel seleccionado
+2 causas en `_handleKpiCardHistClick` (`assemble_unified.py`), rama `_arV === 'hotel'` de AR1/AR2 (confirmado que SÍ se ejecuta para AR: `ar1-th`/`ar2-th` son `<div class="kpi-tab-rows">`, no `<tbody>` reales, así que el listener de `.kpi-tab-rows` los captura):
+
+1. **Deseleccionar hotel (2do click) no vuelve a Global:** llamaba a `_arPillRender(_arN)` con el comentario "re-aplicar `_arApplyCard`", pero `_arPillRender` (definida en `js_override.js`, pisa la de `assemble_unified.py`) SOLO re-renderiza las filas de tabla (`ar_renderTable`) — nunca toca `ar-kpi-N`/badge/wowbox. El número quedaba pegado en el último hotel seleccionado.
+   - Fix: llamar `ar_updateKPIs()` directamente (fallback a `_arPillRender` si no existe).
+2. **Hotel seleccionado no actualiza el badge de banda:** al seleccionar sí se actualizaban `ar-kpi-N` (valor) y el wowbox, pero el badge de banda (Exitosa/Crítica/etc.) se quedaba con el de la canasta Global.
+   - Fix: agregado cálculo de banda inline (mismos umbrales que `banda_eficacia`/`banda_convrate`/`banda_nodispo` de Python, replicados en JS) + actualización de `ar{n}-badge` (texto + bg + fg + border) con la banda real del hotel.
+   - Gauge (`ar{n}-gauge`) no se tocó — confirmado que es una franja de 5 colores fija (no indica posición/banda actual), no había nada que arreglar ahí.
+
+### Grupo E — Bookability Channels columnas desalineadas
+**Causa raíz:** la card BK usa grid de 5 columnas (`minmax(0,1fr) 52px 44px 72px 48px` = label/Trx/WoW-Trx/BK%/WoW-BK) tanto en el header (`_hdr`) como en las filas reales (`_row`, reutilizada para Channel vía `_row(r,'Provider')`). Pero `_inactive_row_bk` (placeholder "Sin Actividad" para providers del catálogo sin datos esa semana) usaba un grid DISTINTO de 4 columnas (`minmax(0,1fr) 56px 72px 48px`). Al mezclar filas reales con placeholders en la vista Channel, las columnas quedaban corridas.
+
+**Fix:** `_inactive_row_bk` reescrita con las mismas 5 columnas exactas que header/filas reales (label, Trx=—, WoW-Trx=—, "Sin Actividad", WoW-BK=—).
+
+### Reglas nuevas → PROMPT_CORE
+Agregadas #44-47 (matching de providers, `_arPillRender` no toca KPI, grid consistency placeholder vs. real, color KPI siempre negro). El CORE ya está en 47 reglas (límite 35) — limpieza pendiente, agregada a "Pendientes próxima sesión".
+
+### Estado / pendiente
+Cambios aplicados sobre copias sueltas de los 5 scripts afectados (`render_cr_p1.py`, `render_rnd_p1.py`, `build_package.py`, `assemble_unified.py`, `js_override.js`) — **no se corrió el pipeline completo ni se hizo commit a GitHub** (sesión sin acceso a red). Pendiente: validación visual de Fede + regenerar `SUPPLY_WNN.html`/`index.html` desde estos scripts + commit por Git Tree API + regenerar ZIP del proyecto.
+
+### Archivos
+`render_cr_p1.py` (A, B-color, C, E) · `render_rnd_p1.py` (A, B-color) · `build_package.py` (A) · `assemble_unified.py` (A, B-color, D) · `js_override.js` (B-color). Sin commits — trabajo sobre archivos sueltos, pendiente de subir al repo.
+
+---
+
 ## Sesión W26-mail-tables-v6 · 30-06-2026 — Mail reescrito 100% a tablas HTML (fix Gmail/Outlook)
 
 ### Contexto

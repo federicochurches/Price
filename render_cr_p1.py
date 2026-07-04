@@ -70,9 +70,9 @@ def render_masthead():
 <div class="masthead-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 0 9px;border-bottom:1px solid var(--rule);">
 <div class="masthead-left">
 <div style="display:inline-block;background:#EA0074;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-bottom:6px;">Week {WEEK_NUM_INT}</div>
-<h1 style="margin:6px 0 4px;font-size:clamp(20px,2.0vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.05;"><span style="color:#EA0074;">Disponibilidad </span><span style="color:var(--ink);">&amp; </span><span style="color:#EA0074;">Conectividades</span></h1>
+<h1 style="margin:6px 0 4px;font-size:clamp(20px,2.0vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.05;"><span style="color:#EA0074;">Disponibilidad </span><span style="color:var(--ink);">&amp; </span><span style="color:#EA0074;">Performance</span></h1>
 <div style="font-size:10px;font-weight:500;color:var(--ink-muted);margin-top:6px;letter-spacing:.06em;text-transform:uppercase;"><strong style="color:#EA0074;font-weight:700;">{CR_UNICOS_FMT}</strong> CheckRates · <strong style="color:#EA0074;font-weight:700;">{N_HOTELES_FMT}</strong> hoteles P80 · Target: <strong style="color:#EA0074;font-weight:700;">{BOOKINGS_FMT}</strong> Bookings</div>
-<div style="font-size:11px;font-weight:400;color:var(--ink-muted);margin-top:6px;">{FECHA_PUB}<span style="margin:0 16px;color:var(--rule);">|</span>Vol. {VOL_NUM}</div>
+<div style="font-size:11px;font-weight:400;color:var(--ink-muted);margin-top:6px;">{FECHA_PUB}</div>
 </div>
 <div class="masthead-right" style="display:flex;align-items:center;gap:0;flex-shrink:0;">
 <img alt="PriceTravel" src="{LOGO}" style="height:40px;width:auto;" class="masthead-logo"/>
@@ -176,9 +176,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         tabs += _kpi_pill('ef', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
-
-    # ── Config centralizada — 1 sola línea controla grid, top_n, etc. ──────────
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
     _EF_CFG = {
         'val_col':       'Eficacia',
         'val_fmt':       fmt_pct2,
@@ -210,7 +208,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         if t_key == 'channel':
             # Split en Producto Propio + Third Party — catálogo canónico fijo
             def _lookup_chan(nombre, df_src):
-                mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+                mask = df_src['ExternalProviderName'].astype(str).str.strip().str.lower().str.startswith(nombre.lower())
                 hits = df_src[mask]
                 return hits.iloc[0] if len(hits) > 0 else None
 
@@ -302,7 +300,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Performance</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(ef_w18)}</div>
+<div id="w21-kv-ef" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">{fmt_pct2(ef_w18)}</div>
 
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -346,7 +344,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
         tabs += _kpi_pill('cv', t_key, t_label, _PILL_STYLE, _PILL_ACTIVE if i==0 else _PILL_INACT)
     
     PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
+    THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
 
     # ── Config centralizada ConvRate ────────────────────────────────────────────
     _CV_CFG = {
@@ -379,7 +377,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
     ]:
         if t_key == 'channel':
             def _lookup_chan_cv(nombre, df_src):
-                mask = df_src['ExternalProviderName'].str.startswith(nombre) if nombre == 'HotelBeds' else df_src['ExternalProviderName'] == nombre
+                mask = df_src['ExternalProviderName'].astype(str).str.strip().str.lower().str.startswith(nombre.lower())
                 hits = df_src[mask]
                 return hits.iloc[0] if len(hits) > 0 else None
 
@@ -466,7 +464,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
 <div style="font-size:10px;color:var(--ink-muted);font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Conversion Rate</div>
 <div style="margin-top:4px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
 <div>
-<div id="w21-kv-cv" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--accent);line-height:1;">{fmt_pct2(cv_w18)}</div>
+<div id="w21-kv-cv" style="font-size:40px;font-weight:700;letter-spacing:-.02em;color:#333132;line-height:1;">{fmt_pct2(cv_w18)}</div>
 
 </div>
 <div style="padding-top:4px;">{pill_with_target}</div>
@@ -741,12 +739,13 @@ def render_kpi_card_bookability():
         _TERCERO = set(top_prov[top_prov['TipoProvider'] == 'Third Party']['Provider'].tolist())
         _present = set(str(p) for p in top_prov['Provider'].tolist())
         def _inactive_row_bk(name):
-            return ('<div style="display:grid;grid-template-columns:minmax(0,1fr) 56px 72px 48px;'
+            return ('<div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 44px 72px 48px;'
                     'align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--rule-soft);opacity:.45;">'
-                    f'<span style="font-size:11px;font-weight:600;color:var(--ink-muted);">{name}</span>'
+                    f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:600;color:var(--ink-muted);">{name}</span>'
                     '<span style="text-align:right;font-size:11px;color:var(--ink-muted);">—</span>'
-                    '<span style="text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--ink-muted);">Sin Actividad</span>'
-                    '<span style="text-align:right;font-size:11px;color:var(--ink-muted);">—</span>'
+                    '<span style="text-align:right;font-size:9px;color:var(--ink-muted);">—</span>'
+                    '<span style="text-align:right;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--ink-muted);white-space:nowrap;">Sin Actividad</span>'
+                    '<span style="text-align:right;font-size:9px;color:var(--ink-muted);">—</span>'
                     '</div>')
         pp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _PROPIO)
         tp_rows  = ''.join(_row(r,'Provider') for _,r in top_prov.iterrows() if r['Provider'] in _TERCERO)
