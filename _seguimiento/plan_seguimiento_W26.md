@@ -11,7 +11,7 @@
 - [MP] [RND] Saneamiento 354 hoteles Crítica/Súper Crítica %NoDispo — priorizar CUG y B2B-OP — abierto W26
 - [ES] [RND] Reducir cohorte Sin Conversión en P80 — proyecto trimestral técnico + comercial — abierto W26
 - [ES] [RND] Definir SLAs de %NoDispo por corporativo — Top 10 corp por tráfico — abierto W26
-- [MP] [CR] Saneamiento 189 hoteles Crítica/Súper Crítica Eficacia — CUG y B2B-OP primero — abierto W26
+- [MP] [CR] Saneamiento 188 hoteles Crítica/Súper Crítica Eficacia — CUG y B2B-OP primero — abierto W26
 - [ES] [CR] Revisión integral B2C (Conv Rate Crítica) — pricing, UX, mapping, fee structure — abierto W26
 
 ## PENDIENTE_QW
