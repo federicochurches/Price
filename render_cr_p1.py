@@ -271,7 +271,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
 
             rows_pp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_pp_sorted))
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
-            _metric_lbl = 'Performance'
+            _metric_lbl = 'Perf'
             _hdr_chan = lambda lbl, acc: (
                 f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
