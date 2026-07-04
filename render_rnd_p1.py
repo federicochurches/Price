@@ -604,6 +604,85 @@ def _build_rnd_hotel_pool_json():
               '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
 
 
+def _build_rnd_dim_pools_json():
+    """Pools COMPLETOS (sin cap) de Corp/Destino/País para el searchbox de las
+    KPI cards RND — fix bug 'Grupo Posadas no aparece en búsqueda CORP'.
+    Causa: tanto el DOM (build_kpi_tab_panel, .head(50)) como el JSON de sort
+    (RND_CARD_TABS, .head(10) en _build_rnd_card_tabs_json) truncan antes de
+    emitir — un corp/destino/país fuera de esos topes nunca llega a ningún
+    lugar buscable. Solo Hotel tenía pool completo (RND_HOTEL_POOL). Mismo
+    formato de fila (12 campos) para reusar _cardRow del lado JS:
+      [label, corp, dest, pais, traf_str, traf_wow,
+       nd_pct, nd_bidx, nd_wow, ipm_val, ipm_bidx, ipm_wow]
+    """
+    _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
+             'Súper Crítica': 4, 'Sin Conversión': 5}
+
+    def _num(v, ndig=2):
+        try:
+            f = float(v)
+            if _math_rnd.isnan(f) or _math_rnd.isinf(f):
+                return None
+            return round(f, ndig)
+        except (TypeError, ValueError):
+            return None
+
+    _NAME_COL = {'corp': 'CorpName', 'destino': 'Destino', 'pais': 'PaisDestino'}
+    _CLEAN_FN = {
+        'corp':    lambda s: clean_corp_name(s, max_len=36),
+        'destino': lambda s: clean_destino_name(s, max_len=36),
+        'pais':    lambda s: clean_pais_name(s, max_len=30),
+    }
+
+    def _build_one(t_key):
+        name_col = _NAME_COL[t_key]
+        df_nd  = TAB_NoDispo[t_key]
+        df_ipm = TAB_RPM[t_key]
+        ipm_by_name = {}
+        for _, r in df_ipm.iterrows():
+            n = str(r.get(name_col, '') or '')
+            if n:
+                ipm_by_name[n] = r
+        pool, seen = [], set()
+        for _, r in df_nd.iterrows():
+            raw = str(r.get(name_col, '') or '')
+            if not raw or raw in seen:
+                continue
+            seen.add(raw)
+            lab  = _CLEAN_FN[t_key](raw)
+            corp = raw if t_key == 'corp' else ''
+            dest = raw if t_key == 'destino' else ''
+            pais = raw if t_key == 'pais' else str(r.get('PaisDestino', '') or '')
+            traf = r.get('Trafico', 0)
+            traf_str = fmt_big(traf) if traf else '0'
+            traf_wow = _num(r.get('Trafico_WoW_pct'))
+            nd = r.get('%NoDispo')
+            nd_pct  = _num(nd * 100) if nd is not None else None
+            nd_band = _BIDX.get(r.get('BandaNoDispo') or (banda_nodispo(nd) if nd is not None else 'Sin Conversión'), 5)
+            nd_wow  = _num(r.get('NoDispo_WoW_pp'))
+            rp = ipm_by_name.get(raw)
+            ipm_val = ipm_band = ipm_wow = None
+            if rp is not None:
+                bk  = rp.get('Bookings', 0) or 0
+                ipm = rp.get('IPM', rp.get('RPM'))
+                if bk > 0 and ipm is not None and float(ipm) > 0:
+                    ipm_val  = _num(ipm)
+                    ipm_band = _BIDX.get(rp.get('BandaRPM') or banda_rpm(ipm, int(bk)), 5)
+                    ipm_wow  = _num(rp.get('IPM_WoW_pp'))
+            pool.append([lab, corp, dest, pais, traf_str, traf_wow,
+                         nd_pct, nd_band, nd_wow, ipm_val, ipm_band, ipm_wow])
+        return pool
+
+    pools = {t: _build_one(t) for t in ('corp', 'destino', 'pais')}
+    return ('\n<script>\nvar RND_CORP_POOL='
+            + _json_rnd.dumps(pools['corp'], ensure_ascii=False, default=lambda x: None)
+            + ';\nvar RND_DEST_POOL='
+            + _json_rnd.dumps(pools['destino'], ensure_ascii=False, default=lambda x: None)
+            + ';\nvar RND_PAIS_POOL='
+            + _json_rnd.dumps(pools['pais'], ensure_ascii=False, default=lambda x: None)
+            + ';\n</script>\n')
+
+
 def _build_rnd_hist_json():
     """Emite RND_CORP_HIST y RND_DEST_HIST con datos reales W18-W(N-1) por corp/dest."""
     hist = D.get('RND_HIST', {})
@@ -716,6 +795,7 @@ PART1 = (
     + _build_rnd_card_tabs_json()
     + _build_rnd_membership_json()
     + _build_rnd_hotel_pool_json()
+    + _build_rnd_dim_pools_json()
     + _build_rnd_hist_json()
     + '''
 <script>
