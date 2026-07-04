@@ -1,5 +1,5 @@
 # 🏨 PROMPT CORE · Proyecto PRICE · Supply Analytics
-**Versión W23 · Junio 2026 · HTML unificado + Hub v2 visual**
+**Versión W26 · Junio 2026 · HTML unificado + Hub v2 + Editorial Engine + Mail v6.0 (tablas)**
 
 ---
 
@@ -548,13 +548,8 @@ Desalinear los índices corre los `data-cf-*` (síntoma: el país muestra un nú
 32. Agregar métrica nueva al pipeline sin actualizar `historico_module.py` — debe incluirse en (a) `getBanda` JS, (b) `target_disp` dict, (c) condición `metrica in ('eficacia','convrate','nodispo','bookability')` para conversión %
 33. Crear el channel de las KPI cards sin sort/selección o con render distinto entre EF/CV y BK — las 3 usan filas `.bk-row` (con `data-lbl`/`data-trx`/`data-bk`/`data-bk-wow`) + header `data-sort-key`, reusando `window.bkSort`. EF/CV en JS (`_buildChanRow`, `_mkHdr` de `w22_renderCardTabs`) y Python (`chan_row`/`chan_row_cv`); BK en Python (`_hdr`/`_row`). El listener sort+selección de EF/CV es `CHAN_SORT_EFCV_JS` (script separado en `GLOBAL_PANEL_SCRIPT`). Layout flex-column (PP arriba, TP abajo), catálogo canónico con "Sin Actividad" para faltantes.
 34. Asumir que la primera definición de `w22_setMode` es la que ejecuta el browser — puede haber N redefiniciones encadenadas; verificar cuál es la última antes de añadir lógica que dependa de ella. Imprimir `w22_setMode.toString()` en consola para ver la real.
-35. Pisar un CSS con
-36. Calcular corp hist en `_build_bk_*_hist_json` usando `D` global (CR pickle) — cargar siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`
- `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
-
----
-
-36. Calcular hist BK en `_build_bk_*_hist_json()` usando `D` (pickle CR) — estas funciones cargan siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`
+35. Pisar un CSS con `el.style.color/background = valor` cuando la clase CSS ya lo define — el inline style siempre gana; si el CSS `.on { background: var(--ink) }` es correcto, dejar `style.background = ''` y que la clase lo maneje.
+36. Calcular hist BK en `_build_bk_*_hist_json()` usando `D` (pickle CR) — estas funciones cargan siempre desde PICKLE_BK explícitamente con `open(bk_path,'rb')`, nunca desde el pickle CR global
 37. Usar `=== 'dest'` para comparar `_dimV2` en el lookup hist — la vista destino se guarda como `'destino'` en `_kpiView`. Usar `=== 'dest' || _dimV2 === 'destino'`
 38. Setear `_arCrossFilter[n].hotel` en el hotel handler de AR (self-filter rule) — causó BR/SC vacío al filtrar por hotel fuera de su banda. El toggle usa `data-selected`, no el cross-filter
 39. Regenerar el HTML completo (18MB+) en cada iteración de fix visual de una card — primero crear un HTML standalone con solo la card, validar visualmente, y solo entonces aplicar al script fuente
