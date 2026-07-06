@@ -251,8 +251,8 @@ def run_step(step_name, script_cmd, config, env, logger):
 
 # ── PIPELINE STEPS ────────────────────────────────────────────────────────
 def get_pipeline_steps(config):
-    """Definir los 7 pasos del pipeline (BK agregado — antes eran 6 y Bookability
-    quedaba afuera del todo, la card nunca aparecía en el HTML)."""
+    """Definir los 8 pasos del pipeline (BK + copia a archivo agregados —
+    antes eran 6 y ni Bookability ni las carpetas de archivo se actualizaban)."""
     return [
         {
             'name': '1. CALC RND',
@@ -288,7 +288,18 @@ def get_pipeline_steps(config):
             'critical': False,  # No-critical: continuar aunque falle
         },
         {
-            'name': '7. MAIL + HUB',
+            'name': '7. COPY TO ARCHIVE',
+            # SUPPLY_WNN.html + los 2 Excels quedan en la raíz tras los pasos
+            # anteriores; este paso los copia a reports/week-NN/, checkrates/week-NN/
+            # y rates-nodispo/week-NN/ ANTES de que build_package.py (paso 8) limpie
+            # la raíz. run_pipeline.py nunca tuvo este paso — solo existía en
+            # calc_supply.py — por eso las carpetas de archivo quedaban con la
+            # semana vieja aunque el resto del pipeline corriera bien.
+            'cmd': ['python', '_copy_to_archive.py'],
+            'critical': False,
+        },
+        {
+            'name': '8. MAIL + HUB',
             'cmd': 'python render_mail_v3.py && python build_package.py',
             'critical': False,
         },
