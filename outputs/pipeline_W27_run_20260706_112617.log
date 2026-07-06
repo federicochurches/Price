@@ -1,0 +1,158 @@
+
+================================================================================
+🚀 PIPELINE SUPPLY OPTIMIZATION · W27
+================================================================================
+[2026-07-06 11:26:17] INFO: Período: 6 – 12 jul 2026
+[2026-07-06 11:26:17] INFO: Config: WEEK_CONFIG_W27.yml
+[2026-07-06 11:26:17] INFO: Log: C:\Users\federico.iglesias\Price\outputs\pipeline_W27_run_20260706_112617.log
+
+================================================================================
+📊 VALIDACIÓN DE DATASETS
+================================================================================
+[2026-07-06 11:26:17] SUCCESS: ✓ Dataset_RatesNoDispo_W27.xlsx (RND actual) en /uploads
+[2026-07-06 11:26:17] SUCCESS: ✓ Dataset_CheckRates_W27.xlsx (CR actual) en /uploads
+[2026-07-06 11:26:17] SUCCESS: ✓ Dataset_RatesNoDispo_W26.xlsx (RND anterior (WoW)) en /uploads
+[2026-07-06 11:26:17] SUCCESS: ✓ Dataset_CheckRates_W26.xlsx (CR anterior (WoW)) en /uploads
+[2026-07-06 11:26:17] SUCCESS: ✅ Todos los datasets validados
+
+================================================================================
+🔧 CONFIGURACIÓN
+================================================================================
+[2026-07-06 11:26:17] INFO: WEEK=W27
+[2026-07-06 11:26:17] INFO: VOL_NUM=27
+[2026-07-06 11:26:17] INFO: PERIODO=6 – 12 jul 2026
+[2026-07-06 11:26:17] INFO: MES_AÑO=Julio 2026
+[2026-07-06 11:26:17] INFO: FECHA_PUB=LUNES 07 de Julio de 2026
+[2026-07-06 11:26:17] INFO: WEEK_PREV=W26
+[2026-07-06 11:26:17] INFO: VOL_NUM_PREV=26
+[2026-07-06 11:26:17] INFO: PERIODO_PREV=29 jun – 05 jul 2026
+[2026-07-06 11:26:17] INFO: PICKLE_RND=rnd_w27_data.pkl
+[2026-07-06 11:26:17] INFO: PICKLE_CR=cr_w27_data.pkl
+[2026-07-06 11:26:17] INFO: PROJECT_DIR=C:/Users/federico.iglesias/Price
+[2026-07-06 11:26:17] INFO: OUTPUTS_DIR=C:/Users/federico.iglesias/Price/outputs
+[2026-07-06 11:26:17] INFO: UPLOADS_DIR=C:/Users/federico.iglesias/Price
+[2026-07-06 11:26:17] SUCCESS: ✅ Variables de entorno configuradas
+
+================================================================================
+▶️  INICIANDO PIPELINE · 6 PASOS
+================================================================================
+[2026-07-06 11:26:17] INFO: 
+[1/6] Ejecutando: 1. CALC RND
+
+================================================================================
+🔄 PASO: 1. CALC RND
+================================================================================
+
+--- STDOUT ---
+Cargando datasets...
+  W27 (pivot diarioâ†’largo): 171,510 filas Â· trÃ¡fico total 559,465,599
+  W27: 171,361 filas Â· {'CUG (UOP)': 57141, 'B2C': 57114, 'B2B (OP)': 57106}
+  W26 (pivot diarioâ†’largo): 171,425 filas Â· trÃ¡fico total 18,107,737,991
+  W26: 171,275 filas Â· {'CUG (UOP)': 57153, 'B2B (OP)': 57063, 'B2C': 57059}
+Calculando P90 (hoteles con Trafico >= 50K)...
+  nd_por_tier: P=3.42% S=3.81% T=4.11%
+Calculando canastas...
+  [hist RND] W26 error: 'Trafico'
+  [hist RND] corps=111  dests=3052  hotels=47190  paises=152
+   RND_HIST corps: 111  dests: 3052
+âœ… RND W27 calculado con deltas WoW
+   %NoDispo W19: 3.54% | W18: 2.87% | WoW: +0.68pp
+   Hoteles P80: 385
+
+[2026-07-06 11:33:29] SUCCESS: ✅ 1. CALC RND completado
+[2026-07-06 11:33:29] INFO: 
+[2/6] Ejecutando: 2. CALC CR
+
+================================================================================
+🔄 PASO: 2. CALC CR
+================================================================================
+
+--- STDOUT ---
+  (pivot diarioâ†’largo CR): 72,808 filas
+  [hist CR] corps=63  dests=1157  hotels=6740  providers=10
+   CR_HIST corps: 63  dests: 1157
+âœ… Pickle guardado: cr_w27_data.pkl
+   Eficacia global W27: 0.9414 (94.14%)
+   ConvRate global W27: 0.0084 (0.84%)
+   CR Ãºnicos W27: 1,619,129
+   Bookings W27:  13,586
+   Hoteles P80:   2053
+   Severity Ef P80: {'Exitosa': np.int64(1351), 'Aceptable': np.int64(288), 'Revisar': np.int64(216), 'CrÃ­tica': np.int64(148), 'SÃºper CrÃ­tica': np.int64(50)}
+   Severity CV P80: {'CrÃ­tica': np.int64(690), 'Sin ConversiÃ³n': np.int64(494), 'Revisar': np.int64(345), 'Exitosa': np.int64(263), 'Aceptable': np.int64(261)}
+   Canastas: B2C=258,762 | OP=515,354 | CUG=845,013
+
+[2026-07-06 11:35:12] SUCCESS: ✅ 2. CALC CR completado
+[2026-07-06 11:35:12] INFO: 
+[3/6] Ejecutando: 3. RENDER RND + CR
+
+================================================================================
+🔄 PASO: 3. RENDER RND + CR
+================================================================================
+
+--- STDOUT ---
+Part 1 RND escrito: 696,491 chars
+[carryover] pickle previo RND cargado: rnd_w26_data.pkl
+Calculando RND_CV...
+Calculando RND_D...
+Calculando RND_AL...
+Part 2 RND escrito: 586,096 chars
+Part 3 RND escrito: 0 chars (W21+ vacÃ­o â€” canastas en JS)
+Part 1 CR escrito: 2,455,675 chars
+[carryover] pickle previo CR cargado: cr_w26_data.pkl
+Calculando CR_CV...
+Calculando CR_D...
+Calculando CR_AL...
+Part 2 CR escrito: 1,195,770 chars
+Part 3 CR escrito: 0 chars (W21+ vacÃ­o â€” canastas en JS)
+
+[2026-07-06 11:35:21] SUCCESS: ✅ 3. RENDER RND + CR completado
+[2026-07-06 11:35:21] INFO: 
+[4/6] Ejecutando: 4. ASSEMBLE UNIFICADO
+
+================================================================================
+🔄 PASO: 4. ASSEMBLE UNIFICADO
+================================================================================
+
+--- STDERR ---
+C:\Users\federico.iglesias\Price\assemble_unified.py:526: SyntaxWarning: "\(" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\("? A raw string is also an option.
+  var _arHHotelName = (_arHVal || '').replace(/^\(\d+\)\s*-\s*/, '').trim();
+
+[2026-07-06 11:35:23] SUCCESS: ✅ 4. ASSEMBLE UNIFICADO completado
+[2026-07-06 11:35:23] INFO: 
+[5/6] Ejecutando: 5. EXCEL RND + CR (consolidados)
+
+================================================================================
+🔄 PASO: 5. EXCEL RND + CR (CONSOLIDADOS)
+================================================================================
+
+--- STDOUT ---
+âœ… Excel RND: C:/Users/federico.iglesias/Price/outputs/Analisis_RatesNoDispo_W27.xlsx
+   5 hojas: Severity | Maestra | CrÃ­ticos | Bajo Rendimiento | Sin ConversiÃ³n
+âœ… Excel CR: C:/Users/federico.iglesias/Price/outputs/Analisis_CheckRates_W27.xlsx
+   5 hojas: Severity | Maestra | CrÃ­ticos | Bajo Rendimiento | Sin ConversiÃ³n
+
+[2026-07-06 11:35:34] SUCCESS: ✅ 5. EXCEL RND + CR (consolidados) completado
+[2026-07-06 11:35:34] INFO: 
+[6/6] Ejecutando: 6. MAIL + HUB
+
+================================================================================
+🔄 PASO: 6. MAIL + HUB
+================================================================================
+
+--- STDOUT ---
+  [inv] KPIs auto-cargados de inventory/week-27/INVENTORY_W27.html: PP=59245 netnew=9 avance=84.6%
+Mail W27 v6.0 (table-based) â†’ C:\Users\federico.iglesias\Price\outputs\Mail_W27.html
+TamaÃ±o: 16,282 chars
+  â†’ copia en _email/week-27/ âœ“
+
+[2026-07-06 11:35:38] SUCCESS: ✅ 6. MAIL + HUB completado
+
+================================================================================
+📋 RESUMEN
+================================================================================
+[2026-07-06 11:35:38] SUCCESS: ✅ PIPELINE COMPLETADO EXITOSAMENTE
+[2026-07-06 11:35:38] SUCCESS:    Week: W27
+[2026-07-06 11:35:38] SUCCESS:    Período: 6 – 12 jul 2026
+[2026-07-06 11:35:38] SUCCESS:    ZIP: C:/Users/federico.iglesias/Price/outputs/Price_W27.zip
+[2026-07-06 11:35:38] SUCCESS:    Log: C:\Users\federico.iglesias\Price\outputs\pipeline_W27_run_20260706_112617.log
+[2026-07-06 11:35:38] SUCCESS:    Summary JSON: C:\Users\federico.iglesias\Price\outputs\pipeline_W27_summary.json
