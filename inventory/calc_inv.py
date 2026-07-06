@@ -31,8 +31,8 @@ except Exception:
 # Si necesitás forzar una semana específica (corriste tarde, re-generás una
 # semana vieja, etc.), completá WEEK_NUM_OVERRIDE y SNAPSHOT_DATE_OVERRIDE
 # abajo — si están seteados, tienen prioridad sobre el auto-cálculo.
-WEEK_NUM_OVERRIDE      = None   # ej: 27
-SNAPSHOT_DATE_OVERRIDE = None   # ej: "6 de Julio de 2026"
+WEEK_NUM_OVERRIDE      = 27
+SNAPSHOT_DATE_OVERRIDE = "6 de Julio de 2026"
 
 _MESES_ES = {1:'Enero',2:'Febrero',3:'Marzo',4:'Abril',5:'Mayo',6:'Junio',
              7:'Julio',8:'Agosto',9:'Septiembre',10:'Octubre',11:'Noviembre',12:'Diciembre'}
