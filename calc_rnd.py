@@ -5,48 +5,101 @@ import pandas as pd, numpy as np, pickle, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from engine import banda_nodispo, banda_rpm, banda_nodispo_tiered, get_dest_tier
 
+import datetime as _dt
+
 # ── Cargar datasets ───────────────────────────────────────────────
 def load_rnd(path, week):
-    # Detectar formato: largo (CorpName en col 0) o pivotado (16 cols, multi-header)
-    raw = pd.read_excel(path, header=None, nrows=2)
-    is_pivoted = (len(raw.columns) >= 16 and
-                  any(str(v) in ['B2B (OP)','B2C','CUG (UOP)'] for v in raw.iloc[0].values))
+    # Detectar formato: largo (CorpName en col 0) · pivotado multi-header viejo
+    # (16 cols, fila0=canastas/fila1=métricas) · pivot DIARIO (col Metric + fechas,
+    # el formato real que vienen entregando desde ~W26 — 14 cols, una fila por
+    # entidad×métrica, valores por día en columnas de fecha).
+    head = pd.read_excel(path, nrows=1)
+    date_cols = [c for c in head.columns if isinstance(c, (_dt.datetime, pd.Timestamp))]
+    unnamed_cols = [c for c in head.columns if str(c).startswith('Unnamed')]
 
-    if is_pivoted:
-        # Formato pivotado: fila 0 = canastas, fila 1 = métricas
-        canastas = raw.iloc[0].tolist()    # B2B(OP), B2C, CUG...
-        metricas = raw.iloc[1].tolist()    # CorpName, Destino, Hotel, PaisDestino, Trafico...
-        df_raw   = pd.read_excel(path, header=None, skiprows=2)
-        df_raw.columns = metricas
+    is_daily_pivot = False
+    metric_col = None
+    if date_cols and unnamed_cols:
+        probe = pd.read_excel(path, usecols=[unnamed_cols[0]], nrows=200)
+        vals = set(probe[unnamed_cols[0]].dropna().astype(str))
+        if vals & {'Trafico', 'Bookings', '%NoDispo', 'ADR', 'gb_usd'}:
+            is_daily_pivot = True
+            metric_col = unnamed_cols[0]
 
-        # Columnas clave de identificación (primeras 4)
-        id_cols = ['CorpName','Destino','Hotel','PaisDestino']
-        rows = []
-        # Canastas en grupos de 4: Trafico, %NoDispo, Bookings, gb_usd
-        cat_groups = {}
-        for i, cat in enumerate(canastas):
-            cat = str(cat).strip()
-            if cat in ['B2B (OP)','B2C','CUG (UOP)']:
-                metric = str(metricas[i]).strip()
-                if cat not in cat_groups:
-                    cat_groups[cat] = {}
-                cat_groups[cat][metric] = i
+    if is_daily_pivot:
+        # Pivot diario: 1 fila por CorpName×Destino×Hotel×PaisDestino×Canasta×Métrica,
+        # con el valor de cada día en su propia columna de fecha.
+        df_raw = pd.read_excel(path).rename(columns={metric_col: 'Metric'})
+        id_cols = ['CorpName', 'Destino', 'Hotel', 'PaisDestino', 'DistributionCategory']
+        faltantes = [c for c in id_cols if c not in df_raw.columns]
+        if faltantes:
+            raise KeyError(f"Formato pivot diario sin columnas esperadas {faltantes} en {path} — "
+                            f"columnas encontradas: {df_raw.columns.tolist()}")
+        for c in date_cols:
+            df_raw[c] = pd.to_numeric(df_raw[c], errors='coerce').fillna(0)
 
-        for cat, col_map in cat_groups.items():
-            sub = df_raw[id_cols].copy()
-            sub['DistributionCategory'] = cat
-            for metric, col_idx in col_map.items():
-                sub[metric] = df_raw.iloc[:, col_idx].values
-            rows.append(sub)
-        df = pd.concat(rows, ignore_index=True)
-        # Limpiar fila de ceros (fila de separación)
+        traf = df_raw[df_raw['Metric'] == 'Trafico'].set_index(id_cols)[date_cols]
+        book = df_raw[df_raw['Metric'] == 'Bookings'].set_index(id_cols)[date_cols].reindex(traf.index)
+        gbu  = df_raw[df_raw['Metric'] == 'gb_usd'].set_index(id_cols)[date_cols].reindex(traf.index)
+        ndp  = df_raw[df_raw['Metric'] == '%NoDispo'].set_index(id_cols)[date_cols].reindex(traf.index)
+
+        # %NoDispo semanal ponderado por tráfico diario (NO promedio simple de %):
+        # NoDispo_count_día = %NoDispo_día × Trafico_día → sumar → dividir por Trafico semanal.
+        nodispo_count = ndp.fillna(0) * traf
+
+        weekly = pd.DataFrame({
+            'Trafico':  traf.sum(axis=1),
+            'Bookings': book.fillna(0).sum(axis=1),
+            'gb_usd':   gbu.fillna(0).sum(axis=1),
+            '_NoDispoCount': nodispo_count.sum(axis=1),
+        }).reset_index()
+        weekly['%NoDispo'] = (weekly['_NoDispoCount'] / weekly['Trafico'].replace(0, np.nan)).fillna(0)
+        df = weekly.drop(columns=['_NoDispoCount'])
+        # Limpiar filas de placeholder (todo en cero + CorpName='-')
         df = df[~((df['Trafico'] == 0) & (df['Bookings'] == 0) &
                   (df['CorpName'].astype(str).str.strip() == '-'))].copy()
-        print(f'  W{week} (pivotado→largo): {len(df):,} filas')
+        print(f'  W{week} (pivot diario→largo): {len(df):,} filas · '
+              f'tráfico total {df["Trafico"].sum():,.0f}')
     else:
-        df = pd.read_excel(path)
-        if 'CorpName' not in df.columns and df.columns[0] != 'CorpName':
-            df = df.rename(columns={df.columns[0]: 'CorpName'})
+        raw = pd.read_excel(path, header=None, nrows=2)
+        is_pivoted = (len(raw.columns) >= 16 and
+                      any(str(v) in ['B2B (OP)','B2C','CUG (UOP)'] for v in raw.iloc[0].values))
+
+        if is_pivoted:
+            # Formato pivotado: fila 0 = canastas, fila 1 = métricas
+            canastas = raw.iloc[0].tolist()    # B2B(OP), B2C, CUG...
+            metricas = raw.iloc[1].tolist()    # CorpName, Destino, Hotel, PaisDestino, Trafico...
+            df_raw   = pd.read_excel(path, header=None, skiprows=2)
+            df_raw.columns = metricas
+
+            # Columnas clave de identificación (primeras 4)
+            id_cols = ['CorpName','Destino','Hotel','PaisDestino']
+            rows = []
+            # Canastas en grupos de 4: Trafico, %NoDispo, Bookings, gb_usd
+            cat_groups = {}
+            for i, cat in enumerate(canastas):
+                cat = str(cat).strip()
+                if cat in ['B2B (OP)','B2C','CUG (UOP)']:
+                    metric = str(metricas[i]).strip()
+                    if cat not in cat_groups:
+                        cat_groups[cat] = {}
+                    cat_groups[cat][metric] = i
+
+            for cat, col_map in cat_groups.items():
+                sub = df_raw[id_cols].copy()
+                sub['DistributionCategory'] = cat
+                for metric, col_idx in col_map.items():
+                    sub[metric] = df_raw.iloc[:, col_idx].values
+                rows.append(sub)
+            df = pd.concat(rows, ignore_index=True)
+            # Limpiar fila de ceros (fila de separación)
+            df = df[~((df['Trafico'] == 0) & (df['Bookings'] == 0) &
+                      (df['CorpName'].astype(str).str.strip() == '-'))].copy()
+            print(f'  W{week} (pivotado→largo): {len(df):,} filas')
+        else:
+            df = pd.read_excel(path)
+            if 'CorpName' not in df.columns and df.columns[0] != 'CorpName':
+                df = df.rename(columns={df.columns[0]: 'CorpName'})
 
     # Guardia (ambos formatos): si el dataset trae columnas con nombre duplicado,
     # df['CorpName'] (u otra col) devuelve un DataFrame en vez de Serie y rompe

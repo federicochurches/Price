@@ -37,8 +37,66 @@ THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
 CANAL_VALIDO = ['B2C', 'B2B (OP)', 'CUG (UOP)']
 
 # ── CARGA ─────────────────────────────────────────────────────────────────────
+import datetime as _dt
+
+def _reshape_daily_pivot(path):
+    """Formato real recibido desde ~W27: 1 fila por entidad×canasta×métrica,
+    con el valor de cada día en su propia columna de fecha (col 'Unnamed: N'
+    = nombre de la métrica: 'CheckRates Únicos'/'Successful UniqueChkRts'/
+    '#Errors'/'Bookings'/'CheckRates Absolutos'/etc.). 'Semana'/'Fecha' son
+    metadata constante/vacía, se ignoran. Se reconstruye a formato largo
+    sumando los conteos diarios — Eficacia/ConvRate las recalcula
+    load_and_clean() después desde los conteos ya sumados, no desde acá
+    (sumar % diarios sería incorrecto, hay que ponderar por volumen)."""
+    head = pd.read_excel(path, nrows=1)
+    date_cols = [c for c in head.columns if isinstance(c, (_dt.datetime, pd.Timestamp))]
+    unnamed_cols = [c for c in head.columns if str(c).startswith('Unnamed')]
+    if not (date_cols and unnamed_cols):
+        return None
+
+    probe = pd.read_excel(path, usecols=[unnamed_cols[0]], nrows=200)
+    metric_vals = set(probe[unnamed_cols[0]].dropna().astype(str))
+    count_metrics = {'CheckRates Absolutos', 'CheckRates Únicos',
+                      'Successful UniqueChkRts', '#Errors', 'Bookings'}
+    if not (metric_vals & count_metrics):
+        return None
+
+    df_raw = pd.read_excel(path).rename(columns={unnamed_cols[0]: 'Metric'})
+    id_cols = [c for c in ['ExternalProviderName', 'Corporate', 'País destino',
+                            'Destino', 'Hotel', 'DistributionCategory'] if c in df_raw.columns]
+    for c in date_cols:
+        df_raw[c] = pd.to_numeric(df_raw[c], errors='coerce').fillna(0)
+
+    pieces = {}
+    base_index = None
+    for metric in count_metrics:
+        sub = df_raw[df_raw['Metric'] == metric]
+        if not len(sub):
+            continue
+        s = sub.set_index(id_cols)[date_cols].sum(axis=1)
+        pieces[metric] = s
+        base_index = s.index if base_index is None else base_index
+
+    if base_index is None:
+        return None
+
+    out = pd.DataFrame(index=base_index)
+    for metric in count_metrics:
+        out[metric] = pieces.get(metric, pd.Series(0, index=base_index)).reindex(base_index).fillna(0)
+    out = out.reset_index()
+    # Limpiar fila de placeholder (todo cero + Corporate/Hotel='-')
+    _corp_col = 'Corporate' if 'Corporate' in out.columns else None
+    if _corp_col:
+        out = out[~((out['CheckRates Únicos'] == 0) & (out['Bookings'] == 0) &
+                    (out[_corp_col].astype(str).str.strip() == '-'))].copy()
+    print(f'  (pivot diario→largo CR): {len(out):,} filas')
+    return out
+
+
 def load_and_clean(path):
-    df = pd.read_excel(path)
+    df = _reshape_daily_pivot(path)
+    if df is None:
+        df = pd.read_excel(path)
     df.rename(columns={'Corporate':'CorpName', 'CheckRates Únicos':'CR_Unicos'}, inplace=True)
     df = df[df['DistributionCategory'].isin(CANAL_VALIDO)].copy()
     # Limpieza de destinos: quitar sufijo " Area" y eliminar "SinClasificar"

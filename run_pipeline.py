@@ -3,10 +3,10 @@
 run_pipeline.py · Orquestador del pipeline Supply Optimization con config YAML
 
 Uso:
-    python3 run_pipeline.py WEEK_CONFIG.yml
+    python run_pipeline.py WEEK_CONFIG.yml
     
 Ejemplo:
-    python3 run_pipeline.py WEEK_CONFIG_W21.yml
+    python run_pipeline.py WEEK_CONFIG_W21.yml
 
 Características:
     - Lee configuración centralizada desde YAML
@@ -162,6 +162,11 @@ def create_env_vars(config, logger):
         'PROJECT_DIR': config['paths']['project'],
         'OUTPUTS_DIR': config['paths']['outputs'],
         'UPLOADS_DIR': config['paths']['uploads'],
+
+        # Forzar stdout/stderr UTF-8 en los scripts hijos — sin esto, en Windows
+        # cualquier print() con tilde/emoji puede crashear o salir garbled porque
+        # Python usa la codepage de la consola (cp1252) por default.
+        'PYTHONIOENCODING': 'utf-8',
     }
     
     env.update(env_updates)
@@ -178,50 +183,62 @@ def run_step(step_name, script_cmd, config, env, logger):
     """Ejecutar un paso individual del pipeline"""
     logger.section(f"🔄 PASO: {step_name.upper()}")
     
-    # Ejecutar desde _scripts/ donde están los scripts
-    project_dir = Path(config['paths']['project']) / '_scripts'
+    # Ejecutar desde la raíz del repo — todos los scripts viven ahí
+    # (antes apuntaba a _scripts/, pero esa carpeta solo tiene una copia
+    # suelta de render_mail_v3.py; el resto de los scripts nunca estuvieron ahí)
+    project_dir = Path(config['paths']['project'])
     
     # Comando a ejecutar
     if isinstance(script_cmd, str):
-        # Comando shell (para pasos con múltiples scripts)
-        cmd = ['bash', '-c', script_cmd]
+        # Pasos con múltiples comandos separados por &&. Antes se delegaban a
+        # `bash -c`, lo cual requiere Git Bash o WSL instalado y en el PATH.
+        # Ahora se parte por '&&' y se corre cada comando por separado con
+        # subprocess directo — funciona igual en Windows/Mac/Linux sin bash.
+        sub_cmds = [c.strip().split() for c in script_cmd.split('&&')]
     else:
         # Lista de comando + args
-        cmd = script_cmd
-    
+        sub_cmds = [script_cmd]
+
     try:
-        # Ejecutar con timeout
-        result = subprocess.run(
-            cmd,
-            cwd=str(project_dir),
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=1200  # 20 min por paso
-        )
-        
+        stdout_all, stderr_all = '', ''
+        for sub_cmd in sub_cmds:
+            result = subprocess.run(
+                sub_cmd,
+                cwd=str(project_dir),
+                env=env,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                timeout=1200  # 20 min por paso
+            )
+            stdout_all += result.stdout or ''
+            stderr_all += result.stderr or ''
+            if result.returncode != 0:
+                break
+
         # Log stdout
-        if result.stdout:
+        if stdout_all:
             with open(logger.log_file, 'a', encoding='utf-8') as f:
-                f.write(f"\n--- STDOUT ---\n{result.stdout}\n")
+                f.write(f"\n--- STDOUT ---\n{stdout_all}\n")
             # Imprimir últimas líneas a consola
-            lines = result.stdout.strip().split('\n')
+            lines = stdout_all.strip().split('\n')
             for line in lines[-10:]:
                 if line.strip():
                     print(f"  {line}")
-        
+
         # Log stderr
-        if result.stderr:
+        if stderr_all:
             with open(logger.log_file, 'a', encoding='utf-8') as f:
-                f.write(f"\n--- STDERR ---\n{result.stderr}\n")
-        
+                f.write(f"\n--- STDERR ---\n{stderr_all}\n")
+
         if result.returncode == 0:
             logger.success(f"✅ {step_name} completado")
             return True
         else:
             logger.error(f"❌ {step_name} falló (código {result.returncode})")
-            if result.stderr:
-                logger.error(f"Error: {result.stderr[-300:]}")
+            if stderr_all:
+                logger.error(f"Error: {stderr_all[-300:]}")
             return False
     
     except subprocess.TimeoutExpired:
@@ -237,32 +254,32 @@ def get_pipeline_steps(config):
     return [
         {
             'name': '1. CALC RND',
-            'cmd': ['python3', 'calc_rnd.py'],
+            'cmd': ['python', 'calc_rnd.py'],
             'critical': True,  # Falla = abortar todo
         },
         {
             'name': '2. CALC CR',
-            'cmd': ['python3', 'calc_cr.py'],
+            'cmd': ['python', 'calc_cr.py'],
             'critical': True,
         },
         {
             'name': '3. RENDER RND + CR',
-            'cmd': 'python3 render_rnd_p1.py && python3 render_rnd_p2.py && python3 render_rnd_p3.py && python3 render_cr_p1.py && python3 render_cr_p2.py && python3 render_cr_p3.py',
+            'cmd': 'python render_rnd_p1.py && python render_rnd_p2.py && python render_rnd_p3.py && python render_cr_p1.py && python render_cr_p2.py && python render_cr_p3.py',
             'critical': True,
         },
         {
             'name': '4. ASSEMBLE UNIFICADO',
-            'cmd': 'python3 assemble_unified.py',
+            'cmd': 'python assemble_unified.py',
             'critical': True,
         },
         {
             'name': '5. EXCEL RND + CR (consolidados)',
-            'cmd': 'python3 excel_rnd.py && python3 excel_cr.py',
+            'cmd': 'python excel_rnd.py && python excel_cr.py',
             'critical': False,  # No-critical: continuar aunque falle
         },
         {
             'name': '6. MAIL + HUB',
-            'cmd': 'python3 render_mail_v3.py && python3 build_package.py',
+            'cmd': 'python render_mail_v3.py && python build_package.py',
             'critical': False,
         },
     ]
@@ -271,9 +288,9 @@ def get_pipeline_steps(config):
 def main():
     # Validar argumentos
     if len(sys.argv) < 2:
-        print(f"{Colors.FAIL}❌ Uso: python3 run_pipeline.py WEEK_CONFIG.yml{Colors.ENDC}")
+        print(f"{Colors.FAIL}❌ Uso: python run_pipeline.py WEEK_CONFIG.yml{Colors.ENDC}")
         print(f"\nEjemplo:")
-        print(f"  python3 run_pipeline.py WEEK_CONFIG_W21.yml")
+        print(f"  python run_pipeline.py WEEK_CONFIG_W21.yml")
         sys.exit(1)
     
     config_file = sys.argv[1]

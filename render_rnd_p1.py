@@ -23,7 +23,7 @@ def _mini_badge(bnd):
 # Cargar datos
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'),'rb') as f:
     D = pickle.load(f)
-M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']; TAB_RPM = D['TAB_RPM']
+M = D['M']; TOP = D['TOP']; TAB_NoDispo = D['TAB_NoDispo']
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
 WEEK_NUM_INT = int(D.get('VOL_NUM', '19'))
@@ -34,7 +34,7 @@ M['global_current'] = M['global_current']
 M['global_w17'] = M['global_prev']
 # ─────────────────────────────────────────────────────────────────────────────
 
-CANASTA = D['CANASTA']; sev_nd = D['sev_nd']; sev_rpm = D['sev_rpm']
+CANASTA = D['CANASTA']; sev_nd = D['sev_nd']
 
 
 # ── FIX: RENOMBRAR KEYS DINÁMICAMENTE ──────────────────────────────────────────
@@ -109,7 +109,6 @@ def render_masthead():
 def calc_h1_data():
     """Construye H1 narrativo de 2 líneas."""
     pct = M['global_current']['pct_nodispo']
-    rpm = M['global_current']['rpm']
     # Top 3 destinos por demanda no convertida
     g_d = TAB_NoDispo['destino']
     top_dest = []
@@ -127,12 +126,11 @@ def calc_h1_data():
         DNC=('DemandaNoConvertida','sum'),
     ).reset_index().sort_values('DNC', ascending=False).head(3)
     top_corp = by_corp['CorpName'].tolist()
-    return pct, rpm, top_dest, top_corp
+    return pct, top_dest, top_corp
 
 def render_hero():
-    pct, rpm, top_dest, top_corp = calc_h1_data()
+    pct, top_dest, top_corp = calc_h1_data()
     pct17 = M['global_w17']['pct_nodispo']
-    rpm17 = M['global_w17']['rpm']
     bk18 = M['global_current']['bookings']; bk17 = M['global_w17']['bookings']
     gb18 = M['global_current']['gb_usd']; gb17 = M['global_w17']['gb_usd']
     tr18 = M['global_current']['trafico']
@@ -140,9 +138,8 @@ def render_hero():
     n_p80 = len(p80_hotel)
     
     pct_wow = (pct - pct17) * 100
-    rpm_wow = (rpm/rpm17 - 1) * 100 if rpm17 else 0
     
-    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad y IPM de {fmt_num2(rpm)} · '
+    h1 = (f'<span style="display:block;">{fmt_pct2(pct)} de búsquedas sin disponibilidad · '
           f'concentración crítica en <span class="accent">{top_dest[0]}</span>, '
           f'<span class="accent">{top_dest[1]}</span> y <span class="accent">{top_dest[2]}</span>.</span>'
           f'<span style="display:block;margin-top:.3em;">'
@@ -156,7 +153,7 @@ def render_hero():
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_usd(gb18)}</strong> GB · '
                f'<strong style="color:#EA0074;font-weight:700;">{fmt_int_es(n_p80)}</strong> hoteles P80.')
     
-    return h1, subhead, pct, rpm, pct17, rpm17, pct_wow, rpm_wow
+    return h1, subhead, pct, pct17, pct_wow
 
 def render_kpi_card_nodispo(pct_w18, pct_w17, pct_wow):
     banda = banda_nodispo(pct_w18)
@@ -362,21 +359,13 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
 
 def render_alerts_block():
     """Banner alertas hero · 3 columnas: Hoteles, Destinos, Corp"""
-    # Hotel con peor %NoDispo + Hotel con peor RPM (BKGS>0, RPM>0, alto tráfico)
+    # Hotel con peor %NoDispo (Bookings>0, alto tráfico)
     g_p80 = p80_hotel
     h_nd = g_p80[g_p80['Trafico']>g_p80['Trafico'].quantile(0.50)].sort_values('%NoDispo', ascending=False).iloc[0]
-    h_rpm_pool = g_p80[(g_p80['Bookings']>0) & (g_p80['RPM']>0) & (g_p80['Trafico']>g_p80['Trafico'].quantile(0.50))]
-    h_rpm = h_rpm_pool.sort_values('RPM').iloc[0]
     
-    # Destinos · filtrar RPM>0 para evitar negativos (refunds)
     d_nd = TAB_NoDispo['destino'].iloc[0]
-    d_rpm_pool = TAB_RPM['destino'][TAB_RPM['destino']['RPM']>0]
-    d_rpm = d_rpm_pool.iloc[0] if len(d_rpm_pool)>0 else TAB_RPM['destino'].iloc[0]
     
-    # Corp · filtrar RPM>0
     c_nd = TAB_NoDispo['corp'].iloc[0]
-    c_rpm_pool = TAB_RPM['corp'][TAB_RPM['corp']['RPM']>0]
-    c_rpm = c_rpm_pool.iloc[0] if len(c_rpm_pool)>0 else TAB_RPM['corp'].iloc[0]
     
     def alert_card(title, icon, color_b, items):
         cells = ''
@@ -391,31 +380,22 @@ def render_alerts_block():
         return (f'<div style="background:#F2EDE0;border-radius:4px;padding:10px;border-top:3px solid {color_b};">'
                 f'<div style="font-size:10px;font-weight:700;color:{color_b};letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;">'
                 f'<span>{icon}</span><span>{title}</span></div>'
-                f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">{cells}</div></div>')
+                f'<div style="display:grid;grid-template-columns:1fr;gap:8px;">{cells}</div></div>')
     
     h_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(clean_hotel_name(h_nd['Hotel']),38),'sub':f'{h_nd["CorpName"]} · {h_nd["Destino"]}',
          'value':fmt_pct2(h_nd['%NoDispo']),'foot':f'{fmt_big(h_nd["Trafico"])} · {int(h_nd["Bookings"])} BKGS'},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(clean_hotel_name(h_rpm['Hotel']),38),'sub':f'{h_rpm["CorpName"]} · {h_rpm["Destino"]}',
-         'value':fmt_num2(h_rpm['RPM']),'foot':f'{fmt_big(h_rpm["Trafico"])} · {int(h_rpm["Bookings"])} BKGS'},
     ]
     d_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(d_nd['Destino'],38),'sub':f'{fmt_big(d_nd["Trafico"])} · {int(d_nd["Bookings"])} BKGS',
          'value':fmt_pct2(d_nd['%NoDispo']),'foot':''},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(d_rpm['Destino'],38),'sub':f'{fmt_big(d_rpm["Trafico"])} · {int(d_rpm["Bookings"])} BKGS',
-         'value':fmt_num2(d_rpm['RPM']),'foot':f'%ND {fmt_pct2(d_rpm["%NoDispo"])}'},
     ]
     c_items = [
         {'pill':'% NoDispo','pill_color':'#EA0074','pill_bg':'#FCE4F1',
          'name':truncate(c_nd['CorpName'],38),'sub':f'{fmt_big(c_nd["Trafico"])} · {int(c_nd["Bookings"])} BKGS',
          'value':fmt_pct2(c_nd['%NoDispo']),'foot':''},
-        {'pill':'IPM','pill_color':'#5C469C','pill_bg':'#EDE9F8',
-         'name':truncate(c_rpm['CorpName'],38),'sub':f'{fmt_big(c_rpm["Trafico"])} · {int(c_rpm["Bookings"])} BKGS',
-         'value':fmt_num2(c_rpm['RPM']),'foot':f'%ND {fmt_pct2(c_rpm["%NoDispo"])}'},
     ]
     
     cards = (alert_card('Hoteles','🏨','#EA0074',h_items) +
@@ -429,7 +409,7 @@ def render_alerts_block():
 </div>'''
 
 # Build hero
-h1, subhead, pct18, _rpm18, pct17, _rpm17, pct_wow, _rpm_wow = render_hero()
+h1, subhead, pct18, pct17, pct_wow = render_hero()
 HERO = f'''<section class="hero" id="kpis-hero-section">
 <div class="kpis-hero" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin:6px 0 12px;">
 {render_kpi_card_nodispo(pct18, pct17, pct_wow)}
@@ -443,28 +423,26 @@ import json as _json_rnd
 import math as _math_rnd
 
 def _build_rnd_card_tabs_json():
-    """Genera JSON RND_CARD_TABS con datos para sort en cards KPI NoDispo e IPM."""
+    """Genera JSON RND_CARD_TABS con datos para sort en la card KPI NoDispo."""
     CANASTA_BY = D.get('CANASTA', {})
     result = {}
     _AGG_BY_TKEY = {'pais':'agg_pais', 'destino':'agg_dest', 'corp':'agg_corp', 'hotel':'agg_hotel'}
     _GLOBAL_SRC = {
-        'pais':    (TAB_NoDispo['pais'].head(50),    TAB_RPM['pais'].head(50)),
-        'destino': (TAB_NoDispo['destino'].head(50), TAB_RPM['destino'].head(50)),
-        'corp':    (TAB_NoDispo['corp'].head(50),    TAB_RPM['corp'].head(50)),
-        'hotel':   (TAB_NoDispo['hotel'].head(10),    TAB_RPM['hotel'].head(10)),  # lazy via RND_HOTEL_POOL
+        'pais':    TAB_NoDispo['pais'].head(50),
+        'destino': TAB_NoDispo['destino'].head(50),
+        'corp':    TAB_NoDispo['corp'].head(50),
+        'hotel':   TAB_NoDispo['hotel'].head(10),  # lazy via RND_HOTEL_POOL
     }
     for canasta_key, tab_key in [('global','global'),('b2c','B2C'),('op','B2B-OP'),('cug','CUG')]:
         # Desglose per-canasta: cada canasta es un subset del Global (por DistributionCategory).
-        # Global usa TAB_NoDispo/TAB_RPM; las canastas usan sus propios agg_* del pickle
-        # (CANASTA[c]). El row-builder re-ordena cada df (nd por %NoDispo desc · ipm por IPM asc).
+        # Global usa TAB_NoDispo; las canastas usan sus propios agg_* del pickle (CANASTA[c]).
         _c = CANASTA_BY.get(canasta_key) if canasta_key != 'global' else None
-        nd_rows, ipm_rows = [], []
         for t_key in ['pais', 'destino', 'corp', 'hotel']:
             _agg = _c.get(_AGG_BY_TKEY[t_key]) if _c is not None else None
             if _agg is not None and len(_agg):
-                df_nd = df_ipm = _agg
+                df_nd = _agg
             else:
-                df_nd, df_ipm = _GLOBAL_SRC[t_key]
+                df_nd = _GLOBAL_SRC[t_key]
             _name_col = {'pais':'PaisDestino','destino':'Destino','corp':'CorpName','hotel':'Hotel'}.get(t_key,'Destino')
             # NoDispo rows: ordenar peor primero (mayor %NoDispo)
             df_nd_s = df_nd.sort_values('%NoDispo', ascending=False).head(10)  # resto en RND_CARD_TABS JSON
@@ -494,34 +472,7 @@ def _build_rnd_card_tabs_json():
                     round((nd - r.get('%NoDispo_W18', nd)) * 100, 4),   # r[10] hist_w20
                     _cfc, _cfd, _cfp,                                   # r[11] corp, r[12] dest, r[13] pais
                 ])
-            # IPM rows: ordenar peor primero (menor IPM)
-            df_ipm_s = df_ipm[df_ipm['Bookings'] > 0].sort_values('IPM', ascending=True).head(10)  # resto en RND_CARD_TABS JSON
-            ipm_tab = []
-            for _, r in df_ipm_s.iterrows():
-                lab      = str(r.get(_name_col, '?'))[:60]
-                ipm      = r.get('IPM', r.get('RPM', 0))
-                traf     = r.get('Trafico', 0)
-                traf_wow = r.get('Trafico_WoW_pct', None)
-                wow      = r.get('IPM_WoW_pp', None)
-                bnd      = banda_rpm(ipm, int(r.get('Bookings', 1)))
-                bc       = BANDA_COLORS.get(bnd, {})
-                traf_str = fmt_big(traf) if traf else '0'
-                ipm_tab.append([
-                    lab,
-                    '',              # r[1] sub
-                    bc.get('bg','#F2EEE6'), bc.get('fg','#5F5E5A'), bnd,
-                    traf_str,        # r[5] tráfico abreviado
-                    round(float(traf_wow), 2) if traf_wow is not None and not _math_rnd.isnan(float(traf_wow)) else None,  # r[6] wow tráfico %
-                    round(ipm, 2),   # r[7] val_pct
-                    round(float(wow), 2) if wow is not None and not _math_rnd.isnan(float(wow)) else None,  # r[8] wow val
-                    round(ipm, 4),   # r[9]  hist_w21
-                    0,               # r[10] hist_w20
-                    str(r.get('CorpName','') or ''), str(r.get('Destino','') or ''), str(r.get('PaisDestino','') or ''),  # r[11,12,13]
-                ])
-            nd_rows_map  = nd_rows if t_key == 'hotel' else None
-            ipm_rows_map = ipm_rows if t_key == 'hotel' else None
             result.setdefault(canasta_key, {}).setdefault('nd', {})[t_key]  = nd_tab
-            result.setdefault(canasta_key, {}).setdefault('ipm', {})[t_key] = ipm_tab
     return f'\n<script>\nvar RND_CARD_TABS={_json_rnd.dumps(result, ensure_ascii=False, default=lambda x: None)};\n</script>\n'
 
 def _build_rnd_membership_json():
@@ -559,9 +510,8 @@ def _build_rnd_hotel_pool_json():
     """Pool COMPLETO de hoteles (~21K) para el cross-filter →hotel en las KPI cards RND.
     Compacto y NO en el DOM: el JS arma las filas del subconjunto cruzado on-demand
     (B · W24). Resuelve C/D — corp/dest/país →hotel alcanzaban solo el top-500/100.
-    Formato fila (12 campos):
-      [label, corp, dest, pais, traf_str, traf_wow,
-       nd_pct, nd_bidx, nd_wow, ipm_val, ipm_bidx, ipm_wow]
+    Formato fila (9 campos):
+      [label, corp, dest, pais, traf_str, traf_wow, nd_pct, nd_bidx, nd_wow]
     Banda como índice 0-5 → _RND_BAND_NAMES → _AR_BANDA_C (colores) en JS."""
     _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
              'Súper Crítica': 4, 'Sin Conversión': 5}
@@ -588,16 +538,8 @@ def _build_rnd_hotel_pool_json():
         nd_pct = _num(nd * 100) if nd is not None else None
         nd_band = _BIDX.get(r.get('BandaNoDispo') or (banda_nodispo(nd) if nd is not None else 'Sin Conversión'), 5)
         nd_wow = _num(r.get('NoDispo_WoW_pp'))
-        bk = r.get('Bookings', 0) or 0
-        ipm = r.get('IPM')
-        if bk > 0 and ipm is not None and float(ipm) > 0:
-            ipm_val = _num(ipm)
-            ipm_band = _BIDX.get(r.get('BandaRPM') or banda_rpm(ipm, int(bk)), 5)
-            ipm_wow = _num(r.get('IPM_WoW_pp'))
-        else:
-            ipm_val = ipm_band = ipm_wow = None
         pool.append([lab, corp, dest, pais, traf_str, traf_wow,
-                     nd_pct, nd_band, nd_wow, ipm_val, ipm_band, ipm_wow])
+                     nd_pct, nd_band, nd_wow])
     return ('\n<script>\nvar RND_HOTEL_POOL='
             + _json_rnd.dumps(pool, ensure_ascii=False, default=lambda x: None)
             + ';\nvar _RND_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\\u00edtica",'
@@ -611,9 +553,8 @@ def _build_rnd_dim_pools_json():
     (RND_CARD_TABS, .head(10) en _build_rnd_card_tabs_json) truncan antes de
     emitir — un corp/destino/país fuera de esos topes nunca llega a ningún
     lugar buscable. Solo Hotel tenía pool completo (RND_HOTEL_POOL). Mismo
-    formato de fila (12 campos) para reusar _cardRow del lado JS:
-      [label, corp, dest, pais, traf_str, traf_wow,
-       nd_pct, nd_bidx, nd_wow, ipm_val, ipm_bidx, ipm_wow]
+    formato de fila (9 campos) para reusar _cardRow del lado JS:
+      [label, corp, dest, pais, traf_str, traf_wow, nd_pct, nd_bidx, nd_wow]
     """
     _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
              'Súper Crítica': 4, 'Sin Conversión': 5}
@@ -637,12 +578,6 @@ def _build_rnd_dim_pools_json():
     def _build_one(t_key):
         name_col = _NAME_COL[t_key]
         df_nd  = TAB_NoDispo[t_key]
-        df_ipm = TAB_RPM[t_key]
-        ipm_by_name = {}
-        for _, r in df_ipm.iterrows():
-            n = str(r.get(name_col, '') or '')
-            if n:
-                ipm_by_name[n] = r
         pool, seen = [], set()
         for _, r in df_nd.iterrows():
             raw = str(r.get(name_col, '') or '')
@@ -660,17 +595,8 @@ def _build_rnd_dim_pools_json():
             nd_pct  = _num(nd * 100) if nd is not None else None
             nd_band = _BIDX.get(r.get('BandaNoDispo') or (banda_nodispo(nd) if nd is not None else 'Sin Conversión'), 5)
             nd_wow  = _num(r.get('NoDispo_WoW_pp'))
-            rp = ipm_by_name.get(raw)
-            ipm_val = ipm_band = ipm_wow = None
-            if rp is not None:
-                bk  = rp.get('Bookings', 0) or 0
-                ipm = rp.get('IPM', rp.get('RPM'))
-                if bk > 0 and ipm is not None and float(ipm) > 0:
-                    ipm_val  = _num(ipm)
-                    ipm_band = _BIDX.get(rp.get('BandaRPM') or banda_rpm(ipm, int(bk)), 5)
-                    ipm_wow  = _num(rp.get('IPM_WoW_pp'))
             pool.append([lab, corp, dest, pais, traf_str, traf_wow,
-                         nd_pct, nd_band, nd_wow, ipm_val, ipm_band, ipm_wow])
+                         nd_pct, nd_band, nd_wow])
         return pool
 
     pools = {t: _build_one(t) for t in ('corp', 'destino', 'pais')}
@@ -692,11 +618,9 @@ def _build_rnd_hist_json():
         out = {}
         for name, wdict in hist.get(bucket, {}).items():
             nd_vals  = [wdict.get(w, {}).get('nd')  for w in semanas_prev]
-            ipm_vals = [wdict.get(w, {}).get('ipm') for w in semanas_prev]
             if any(v is not None for v in nd_vals):
                 out[name] = {
                     'nd':  [round(v * 100, 2) if v is not None else None for v in nd_vals],
-                    'ipm': [round(v, 0)        if v is not None else None for v in ipm_vals],
                 }
         return out
 
@@ -706,8 +630,8 @@ def _build_rnd_hist_json():
     pais_js  = json.dumps(_entity_dict('pais'),  ensure_ascii=False, separators=(',', ':'))
 
     # Histórico POR HOTEL: solo hoteles P80 (los clickeables del reporte) para acotar tamaño.
-    # nd+ipm · ~2.3MB vs ~6MB de los 47K. El JS lo usa ANTES del fallback corp → cada hotel
-    # muestra su propia serie W19-W25 (antes todos los hoteles de un corp compartían el proxy corp).
+    # El JS lo usa ANTES del fallback corp → cada hotel muestra su propia serie W19-W25
+    # (antes todos los hoteles de un corp compartían el proxy corp).
     _p80 = D.get('p80_hotel')
     _p80_keys = set()
     if _p80 is not None and hasattr(_p80, 'columns') and 'Hotel' in _p80.columns:
@@ -722,11 +646,9 @@ def _build_rnd_hist_json():
             if name not in _p80_keys:
                 continue
             nd_vals  = [wdict.get(w, {}).get('nd')  for w in semanas_prev]
-            ipm_vals = [wdict.get(w, {}).get('ipm') for w in semanas_prev]
             if any(v is not None for v in nd_vals):
                 out[name] = {
                     'nd':  [round(v * 100, 2) if v is not None else None for v in nd_vals],
-                    'ipm': [round(v, 0)        if v is not None else None for v in ipm_vals],
                 }
         return out
 
@@ -737,54 +659,6 @@ def _build_rnd_hist_json():
         f'var RND_HOTEL_HIST={hotel_js};\n'
         f'var RND_PAIS_HIST={pais_js};\n</script>\n'
     )
-
-
-    """Pool COMPLETO de hoteles (~21K) para el cross-filter →hotel en las KPI cards RND.
-    Compacto y NO en el DOM: el JS arma las filas del subconjunto cruzado on-demand
-    (B · W24). Resuelve C/D — corp/dest/país →hotel alcanzaban solo el top-500/100.
-    Formato fila (12 campos):
-      [label, corp, dest, pais, traf_str, traf_wow,
-       nd_pct, nd_bidx, nd_wow, ipm_val, ipm_bidx, ipm_wow]
-    Banda como índice 0-5 → _RND_BAND_NAMES → _AR_BANDA_C (colores) en JS."""
-    _BIDX = {'Exitosa': 0, 'Aceptable': 1, 'Revisar': 2, 'Crítica': 3,
-             'Súper Crítica': 4, 'Sin Conversión': 5}
-
-    def _num(v, ndig=2):
-        try:
-            f = float(v)
-            if _math_rnd.isnan(f) or _math_rnd.isinf(f):
-                return None
-            return round(f, ndig)
-        except (TypeError, ValueError):
-            return None
-
-    pool = []
-    for _, r in p80_hotel.iterrows():
-        lab = truncate(clean_hotel_name(str(r.get('Hotel', ''))), 38)
-        corp = str(r.get('CorpName', '') or '')
-        dest = str(r.get('Destino', '') or '')
-        pais = str(r.get('PaisDestino', '') or '')
-        traf = r.get('Trafico', 0)
-        traf_str = fmt_big(traf) if traf else '0'
-        traf_wow = _num(r.get('Trafico_WoW_pct'))
-        nd = r.get('%NoDispo')
-        nd_pct = _num(nd * 100) if nd is not None else None
-        nd_band = _BIDX.get(r.get('BandaNoDispo') or (banda_nodispo(nd) if nd is not None else 'Sin Conversión'), 5)
-        nd_wow = _num(r.get('NoDispo_WoW_pp'))
-        bk = r.get('Bookings', 0) or 0
-        ipm = r.get('IPM')
-        if bk > 0 and ipm is not None and float(ipm) > 0:
-            ipm_val = _num(ipm)
-            ipm_band = _BIDX.get(r.get('BandaRPM') or banda_rpm(ipm, int(bk)), 5)
-            ipm_wow = _num(r.get('IPM_WoW_pp'))
-        else:
-            ipm_val = ipm_band = ipm_wow = None
-        pool.append([lab, corp, dest, pais, traf_str, traf_wow,
-                     nd_pct, nd_band, nd_wow, ipm_val, ipm_band, ipm_wow])
-    return ('\n<script>\nvar RND_HOTEL_POOL='
-            + _json_rnd.dumps(pool, ensure_ascii=False, default=lambda x: None)
-            + ';\nvar _RND_BAND_NAMES=["Exitosa","Aceptable","Revisar","Cr\\u00edtica",'
-              '"S\\u00faper Cr\\u00edtica","Sin Conversi\\u00f3n"];\n</script>\n')
 
 
 PART1 = (
@@ -809,12 +683,6 @@ window.HIST_DATA['rnd'] = {
         'op':     [3.18, 2.62, 1.93, 2.24, 2.19],
         'cug':    [4.34, 3.07, 2.73, 2.82, 2.78],
         'b2c':    [4.48, 3.68, 3.36, 3.31, 3.29],
-    },
-    'ipm': {
-        'global': [574.0, 524.0, 499.0, 677.0, 834.0],
-        'op':     [523.0, 534.0, 479.0, 688.0, 845.0],
-        'cug':    [866.0, 659.0, 656.0, 787.0, 944.0],
-        'b2c':    [183.0, 206.0, 188.0, 248.0, 304.0],
     },
 };
 </script>

@@ -43,8 +43,7 @@ w22_redrawCanvas = function(accent){
       }
       /* Bind tooltip RND */
       if (typeof w22_bindCanvasTip === 'function') {
-        var metric_rnd = cid.indexOf('ipm')>-1?'ipm':'nodispo';
-        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:metric_rnd}, pts);
+        w22_bindCanvasTip(el, cid, {vals:cfg.vals, semanas:_SEMANAS_HIST, metric:'nodispo'}, pts);
       }
     });
   }
@@ -297,7 +296,7 @@ w22_setMode = function(m, el) {
   var sub = document.getElementById('w22-alertas-sub');
   if(sub) sub.textContent = m==='cr'
     ? 'Peor Performance + Peor ConvRate \u00b7 canasta activa'
-    : 'Mayor NoDispo + Menor IPM \u00b7 canasta activa';
+    : 'Mayor NoDispo \u00b7 canasta activa';
 
   /* Panel AR compartido — oculto en RND (tiene su propia card AR arriba), visible en CR */
   var sharedAR = document.getElementById('shared-ar-panel');
@@ -470,9 +469,7 @@ function _hookTooltip() {
           var cfg = W22_CANVAS_CFG[cid];
           if (semIdx >= 0 && semIdx < cfg.vals.length) {
             var val = cfg.vals[semIdx];
-            var fmtVal = cfg.metric === 'ipm'
-              ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
-              : val.toFixed(2) + '%';
+            var fmtVal = val.toFixed(2) + '%';
             v = m[1] + ': ' + fmtVal;
           }
         }
@@ -487,7 +484,7 @@ window.addEventListener('load', function() { setTimeout(_hookTooltip, 100); });
 
 var _patchedCanvases = {};
 function _patchCanvasTooltips() {
-  var canvasIds = ['hcr-global-ef','hcr-global-cv','hrnd-global-nd','hrnd-global-ipm',
+  var canvasIds = ['hcr-global-ef','hcr-global-cv','hrnd-global-nd',
                    'hcr-panel-ef','hrnd-panel-nd','hcr-dim-ef','hrnd-dim-nd',
                    'h-bk-global','h-bk-panel','h-bk-dim'];
   canvasIds.forEach(function(cid) {
@@ -525,12 +522,10 @@ function _patchCanvasTooltips() {
         return parseInt(ls.replace('W', '')) || 25;
       })();
       var val = vals[best];
-      /* cfg: leer del registro vivo del canvas para el formato (ipm = $, resto = %).
+      /* cfg: leer del registro vivo del canvas para el formato.
          Antes faltaba esta línea → 'cfg is not defined' en cada mousemove. */
       var cfg = (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid]) || _kh || {};
-      var fmtVal = cfg.metric === 'ipm'
-        ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
-        : val.toFixed(2) + '%';
+      var fmtVal = val.toFixed(2) + '%';
       var semLabel = 'W' + (_lastSemNum - (vals.length - 1 - best));
       tip.textContent = semLabel + ': ' + fmtVal;
       tip.style.display = 'block';
@@ -930,12 +925,12 @@ function w22_renderRNDCardTabs(canasta) {
   var RND_TABS = (typeof RND_CARD_TABS !== 'undefined') ? RND_CARD_TABS : null;
   if (!RND_TABS) return;
   var tabs = RND_TABS[canasta] || RND_TABS['global'] || {};
-  var grids = { 'nd': 'minmax(0,1fr) 72px 74px 46px', 'ipm': 'minmax(0,1fr) 72px 74px 46px' };
-  var hdrs  = { 'nd': ['Tráfico','%NoDispo','WoW'], 'ipm': ['Tráfico','IPM','WoW'] };
+  var grids = { 'nd': 'minmax(0,1fr) 72px 74px 46px' };
+  var hdrs  = { 'nd': ['Tráfico','%NoDispo','WoW'] };
   var _ll = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:left;padding:2px 0 4px;';
   var _lr = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);text-align:right;padding:2px 0 4px;white-space:nowrap;';
-  ['nd','ipm'].forEach(function(metric) {
-    var tabPrefix = metric === 'nd' ? 'nd' : 'rpm';
+  ['nd'].forEach(function(metric) {
+    var tabPrefix = 'nd';
     ['pais','destino','corp','hotel'].forEach(function(tkey) {
       var allRows = ((tabs[metric]||{})[tkey])||[];
       if (!allRows.length) return;
@@ -1176,7 +1171,7 @@ function _arRows(n, tab) {
     }
     return _arFilterApply(rows || [], n, 'hotel');
   } else {
-    /* Card 2: Conv Rate (CR) ordenado por conv rate ASC / IPM (RND) ordenado por IPM ASC */
+    /* Card 2: Conv Rate (CR) ordenado por conv rate ASC — Card 2 no existe en RND (oculta vía CSS) */
     var rows2;
     if (isCR) {
       /* Card 2 BR/SC: mismo pool que card 1 pero re-ordenado por ConvRate (r[6]) ASC */
@@ -1190,10 +1185,10 @@ function _arRows(n, tab) {
               tab === 'sc' ? _sc2 :
               (dd.hotels_cv || dd.hotels_crit || dd.hotels);
     } else {
-      /* Card 2 RND (IPM): pools propios por banda IPM (distintos a NoDispo) */
-      rows2 = tab === 'br' ? (dd.hotels_ipm_br  || dd.hotels_br || dd.hotels) :
-              tab === 'sc' ? (dd.hotels_ipm_sc  || dd.hotels_sc || dd.hotels) :
-              (dd.hotels_ipm_dnc || dd.hotels_dnc || dd.hotels);
+      /* RND no tiene Card 2 (oculta vía CSS data-ar-mode='rnd') — fallback a los mismos pools de NoDispo */
+      rows2 = tab === 'br' ? (dd.hotels_br || dd.hotels) :
+              tab === 'sc' ? (dd.hotels_sc || dd.hotels) :
+              (dd.hotels_dnc || dd.hotels);
     }
     /* Ampliar card 2 con pool _sb */
     var sbKey2 = tab === 'br' ? 'hotels_br_sb' : tab === 'sc' ? 'hotels_sc_sb' : tab === 'dnc' ? 'hotels_dnc_sb' : 'hotels_crit_sb';
@@ -1223,7 +1218,7 @@ function _arRenderChan(n) {
   var tp_html = tp.map(function(r,i){ return _buildChanRow(r,i,{cardN:n,w20:true}); }).join('');
   var metricLbl;
   if (isCR) metricLbl = (n === 1) ? 'Performance' : 'Conv Rate';
-  else      metricLbl = (n === 1) ? '%NoDispo' : 'IPM';
+  else      metricLbl = (n === 1) ? '%NoDispo' : '%NoDispo';
   var _mkHdr = function(lbl){
     return '<div style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;'
       +'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid '+acc+';margin-bottom:2px;">'
@@ -1261,15 +1256,6 @@ function _arDimRows(n, dim) {
     /* Corp */
     if (n === 2 && isCR && dd.corps_cv) base = dd.corps_cv;
     else base = dd.corps || dd.dims || [];
-  }
-  /* Card 2 en RND (IPM): reordenar por IPM DESC (r[6] es "$611"/"$0"). Card 1 queda por NoDispo. */
-  if (n === 2 && !isCR && base && base.length) {
-    var _parseIpm = function(s){
-      if (s == null) return -1;
-      var v = parseFloat(String(s).replace(/[^0-9.\-]/g,''));
-      return isNaN(v) ? -1 : v;
-    };
-    base = base.slice().sort(function(a,b){ return _parseIpm(b[6]) - _parseIpm(a[6]); });
   }
   /* Aplicar cross-filter (corp/dest/pais con membership) también a las vistas dim — W24 */
   return _arFilterApply(base || [], n, dim);
@@ -1379,11 +1365,11 @@ function ar_updateLabels() {
   var tdc1 = document.getElementById('ar1-td-col-m');
   var tdc2 = document.getElementById('ar2-td-col-m');
   if (lbl1) lbl1.textContent = isCR ? 'Performance' : '%NoDispo';
-  if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (lbl2) lbl2.textContent = isCR ? 'Conv Rate' : '%NoDispo';
   if (col1) col1.textContent = isCR ? 'Performance' : '%NoDispo';
-  if (col2) col2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (col2) col2.textContent = isCR ? 'Conv Rate' : '%NoDispo';
   if (tdc1) tdc1.textContent = isCR ? 'Performance' : '%NoDispo';
-  if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : 'IPM';
+  if (tdc2) tdc2.textContent = isCR ? 'Conv Rate' : '%NoDispo';
   /* Pestaña Canal → Channel (CR) o País (RND) */
   var chanLabel = isCR ? 'Channel' : 'País';
   [1,2].forEach(function(n){
@@ -1580,7 +1566,7 @@ function ar_renderTable(n, tbodyId, btnId, rows) {
 
  /* Header de columnas — 3 cols (sin WoW, AR es solo vista hotel) */
  var isCR = (typeof W !== 'undefined') && W.mode === 'cr';
- var metLbl = n===1 ? (isCR?'Performance':'%NoDispo') : (isCR?'Conv Rate':'IPM');
+ var metLbl = n===1 ? (isCR?'Performance':'%NoDispo') : (isCR?'Conv Rate':'%NoDispo');
  var grid = 'minmax(0,1fr) 80px 72px';
  var _s = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);';
  var _mkSH = function(lbl, col, acc) {
@@ -1684,16 +1670,14 @@ var _AR_MODE_CFG = {
     cv_target:   '· Target ≥ 2,5%',
     ef_good_up:  true,   /* eficacia: más alto = mejor */
     cv_good_up:  true,   /* conv rate: más alto = mejor */
-    cv_is_ipm:   false,
   },
   rnd: {
     hist_ef:     'hrnd-global-nd',
-    hist_cv:     'hrnd-global-ipm',
+    hist_cv:     'hrnd-global-nd',
     ef_target:   '· Target < 3%',
-    cv_target:   '· Target ≥ $650',
+    cv_target:   '· Target < 3%',
     ef_good_up:  false,  /* NoDispo: más bajo = mejor */
-    cv_good_up:  true,   /* IPM: más alto = mejor */
-    cv_is_ipm:   true,
+    cv_good_up:  false,
   }
 };
 
@@ -1733,20 +1717,15 @@ function _arReadKpiData(cdata, cfg) {
     if (cdata.ef) d.ef21 = cdata.ef;
   }
 
-  /* CV (ConvRate o IPM) */
+  /* CV (ConvRate en CR, NoDispo en RND) */
   if (cdata.cv_prev != null) {
     d.cv20 = cdata.cv_prev; d.cv21 = cdata.cv; d.cvWow = cdata.cv_wow;
   } else {
     var cv_g = HIST[cfg.hist_cv] || {};
     if (cv_g.vals && cv_g.vals.length >= 2) {
       var iv = cv_g.vals;
-      if (cfg.cv_is_ipm) {
-        d.cv21 = '$'+Math.round(iv[iv.length-1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-        d.cv20 = '$'+Math.round(iv[iv.length-2]).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-      } else {
-        d.cv21 = iv[iv.length-1].toFixed(2).replace('.',',')+' %';
-        d.cv20 = iv[iv.length-2].toFixed(2).replace('.',',')+' %';
-      }
+      d.cv21 = iv[iv.length-1].toFixed(2).replace('.',',')+' %';
+      d.cv20 = iv[iv.length-2].toFixed(2).replace('.',',')+' %';
       d.cvWow = iv[iv.length-1] - iv[iv.length-2];
     }
     if (cdata.cv) d.cv21 = cdata.cv;
@@ -1853,7 +1832,7 @@ function ar_updateKPIs() {
     d.vol, d.trafico, d.trafWow, GAUGE_COLORS,
     wPill, wPillSm, gauge, wowBox);
 
-  /* Card 2: CV / IPM */
+  /* Card 2: Conv Rate (solo CR) */
   var cvBanda2   = cdata.band_cv   || d.cvBanda;
   var cvBandaBg2 = cdata.bbg_cv    || d.cvBandaBg;
   var cvBandaFg2 = cdata.bfg_cv    || d.cvBandaFg;
@@ -2054,7 +2033,7 @@ document.addEventListener('click', function(e) {
   _arCrossFilterPillsRender(cn);
   _arPillRender(cn);
   /* Selección + actualización de gráfica (igual que KPI) — re-aplicar tras el re-render destructivo */
-  var _cid = isCR ? (cn===1?'hcr-panel-ef':'hcr-panel-cv') : (cn===1?'hrnd-panel-nd':'hrnd-panel-ipm');
+  var _cid = isCR ? (cn===1?'hcr-panel-ef':'hcr-panel-cv') : 'hrnd-panel-nd';
   if (_wasSel) {
     document.dispatchEvent(new CustomEvent('hist-reset', {detail:{cid:_cid}}));
     var _lblR = document.getElementById('hist-'+_cid+'-label'); if (_lblR) _lblR.textContent = 'Global';
@@ -2226,7 +2205,6 @@ var _KPI_GRID = {
   ef:  'minmax(0,1fr) 80px 54px 48px',
   cv:  'minmax(0,1fr) 80px 68px 40px',
   nd:  'minmax(0,1fr) 72px 74px 46px',
-  ipm: 'minmax(0,1fr) 72px 74px 46px',
   bk:  'minmax(0,1fr) 80px 54px 48px',
 };
 
@@ -2309,7 +2287,6 @@ function _kpiSortRender(panel, sorted10, activeCol, dir, isEf, grid, key, allRow
     ef:  ['Tráfico','PERF','WoW'],
     cv:  ['Tráfico','Conv Rate','WoW'],
     nd:  ['Tráfico','%NoDispo','WoW'],
-    ipm: ['Tráfico','IPM','WoW'],
     bk:  ['Trx','BK%','WoW'],
   };
   var labels = hdrLabels[metricKey] || hdrLabels.ef;
@@ -2348,7 +2325,6 @@ var _METRIC_DEFS = {
   'ef':  {suffix:'-ef-',  tabKeys:['nd','ef'], tabs_key:'ef'},
   'cv':  {suffix:'-cv-',  tabKeys:['nd','cv'], tabs_key:'cv'},
   'nd':  {suffix:'-nd-',  tabKeys:['pais','destino','corp','hotel'], tabs_key:'nd'},
-  'ipm': {suffix:'-rpm-', tabKeys:['pais','destino','corp','hotel'], tabs_key:'ipm'},
 };
 
 function _initAllSort() {
@@ -2389,10 +2365,10 @@ function _initAllSort() {
       }
     }
   } else {
-    /* RND: cards NoDispo + IPM — refactor pills W24: buscar card por ID
-       (kpicard-nd / kpicard-ipm) en vez de radios tab-nd-* inexistentes */
+    /* RND: card NoDispo — refactor pills W24: buscar card por ID
+       (kpicard-nd) en vez de radios tab-nd-* inexistentes */
     var RND_TABS = (typeof RND_CARD_TABS!=='undefined') ? RND_CARD_TABS : null;
-    [['nd','nd'],['ipm','ipm']].forEach(function(pair){
+    [['nd','nd']].forEach(function(pair){
       var cardId = pair[0], metricKey = pair[1];
       var card = document.getElementById('kpicard-'+cardId);
       if (!card) return;

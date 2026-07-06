@@ -301,9 +301,7 @@ window._injectHistAttrs = function(tbodyId, rows) {
       if (best < 0 || bestDx > 60) { tip.style.display='none'; return; }
       var sem = (liveCfg.semanas && tipCfg.semanas.length === vals.length) ? tipCfg.semanas[best] : (_SEMANAS_HIST[best] || ('W'+(16+best)));
       var val = vals[best];
-      var fmtVal = liveCfg.metric === 'ipm'
-        ? ('$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','))
-        : val.toFixed(2) + '%';
+      var fmtVal = val.toFixed(2) + '%';
       tip.textContent = sem + ': ' + fmtVal;
       tip.style.display = 'block';
       tip.style.left = (e.clientX + 10) + 'px';
@@ -959,10 +957,10 @@ function _cfRestoreMoreBtn(container) {
 /* ── B (W24): Pool completo de hoteles RND para cross-filter →hotel ──────────
    El universo RND es ~21K hoteles; volcarlos al DOM (como P15 en CR) serían
    +29MB. En su lugar viven en RND_HOTEL_POOL (JSON compacto). Cuando hay un
-   cross-filter activo en la vista hotel de nd/ipm, el JS arma SOLO el
+   cross-filter activo en la vista hotel de nd, el JS arma SOLO el
    subconjunto cruzado on-demand y reemplaza el panel hotel. Al limpiar el
    cross-filter se restaura el estático cacheado. Resuelve C/D. */
-var _rndHotelOrigHTML = {};   /* cache del innerHTML estático por card (nd/ipm) */
+var _rndHotelOrigHTML = {};   /* cache del innerHTML estático por card (nd) */
 
 /* ── Config del motor lazy de hoteles · genérico CR + RND (W24) ──────────────
    Layout del pool por reporte (índices de campo) + métricas (val/banda/wow,
@@ -973,8 +971,7 @@ var _HOTEL_POOL_CFG = {
     poolVar:'RND_HOTEL_POOL', bandNamesVar:'_RND_BAND_NAMES',
     corpIdx:1, destIdx:2, paisIdx:3, trafIdx:4, trafWowIdx:5,
     metrics:{
-      nd: {valIdx:6, bandIdx:7,  wowIdx:8,  sortDesc:true,  requireVal:false, grid:'minmax(0,1fr) 72px 74px 46px'},
-      ipm:{valIdx:9, bandIdx:10, wowIdx:11, sortDesc:false, requireVal:true,  grid:'minmax(0,1fr) 72px 74px 46px'}
+      nd: {valIdx:6, bandIdx:7,  wowIdx:8,  sortDesc:true,  requireVal:false, grid:'minmax(0,1fr) 72px 74px 46px'}
     }
   },
   cr: {
@@ -1231,7 +1228,7 @@ function _kpiPillRender(card) {
   if (activeTab === 'hotel') {
     var _hasCf = !!(cf.corp || cf.dest || cf.pais || cf.hotel);  /* W25: cf.hotel desde searchbox */
     var _hasBand = !!(activeBands && activeBands.length);
-    /* B (W24): RND nd/ipm → el panel hotel se sirve del pool completo on-demand.
+    /* B (W24): RND nd → el panel hotel se sirve del pool completo on-demand.
        Con cross-filter: render lazy del subconjunto cruzado (cubre los 21K).
        Sin cross-filter: si antes se reemplazó, restaurar el estático y salir. */
     /* BK (W25): hotel rows tienen data-cf-corp (corp name) pero data-cf-dest vacío.
@@ -1371,8 +1368,7 @@ var _kpiCrossFilter = {
   ef: {corp: null, dest: null, channel: null, _order: []},
   cv: {corp: null, dest: null, channel: null, _order: []},
   bk: {corp: null, dest: null, channel: null, _order: []},
-  nd: {corp: null, dest: null, pais: null, channel: null, _order: []},
-  ipm: {corp: null, dest: null, pais: null, channel: null, _order: []}
+  nd: {corp: null, dest: null, pais: null, channel: null, _order: []}
 };
 
 function _kpiNormCF(s) {
@@ -1389,7 +1385,7 @@ function _kpiCrossFilterPillsRender(card) {
   if (!f) return;
 
   /* Cross-pills: en CR (Connectivities: ef/cv/bk) van en VIOLETA (acento CR);
-     en RND (nd/ipm) van en VERDE. El magenta/violeta de nav queda para la pill activa. */
+     en RND (nd) van en VERDE. El magenta/violeta de nav queda para la pill activa. */
   var _isCR = (card === 'ef' || card === 'cv' || card === 'bk');
   var GR_BG = '#E1F5EE';
   var GR_FG = '#1A6B4A';
@@ -1670,9 +1666,7 @@ document.addEventListener('click', function(e) {
         });
         if(best<0||bestDx>40){tip.style.display='none';return;}
         var val = vals[best];
-        var fmtVal = cfg.metric==='ipm'
-          ? ('$'+Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','))
-          : val.toFixed(2)+'%';
+        var fmtVal = val.toFixed(2)+'%';
         tip.textContent = (sems[best]||_SEMANAS_HIST[best]||('W'+(16+best)))+': '+fmtVal;
         tip.style.display='block';
         tip.style.left=(e.clientX+10)+'px';
@@ -1944,10 +1938,10 @@ AR3_CANVAS_JS = '''
     if (METRIC === 'eficacia' || METRIC === 'bookability') { var pct = v / 100; if (pct >= 0.97) return 'Exitosa'; if (pct >= 0.93) return 'Aceptable'; if (pct >= 0.85) return 'Revisar'; if (pct >= 0.60) return 'Crítica'; return 'Súper Crítica'; }
     if (METRIC === 'convrate') { var pct = v / 100; if (pct === 0) return 'Sin Conversión'; if (pct < 0.008) return 'Crítica'; if (pct < 0.015) return 'Revisar'; if (pct <= 0.025) return 'Aceptable'; return 'Exitosa'; }
     if (METRIC === 'nodispo') { var pct = v / 100; if (pct < 0.03) return 'Exitosa'; if (pct <= 0.05) return 'Aceptable'; if (pct <= 0.20) return 'Revisar'; if (pct <= 0.60) return 'Crítica'; return 'Súper Crítica'; }
-    if (v === 0) return 'Sin Conversión'; if (v < 200) return 'Crítica'; if (v < 650) return 'Revisar'; if (v <= 1500) return 'Aceptable'; return 'Exitosa';
+    return 'Sin Conversión';
   }
   
-  function fmtVal(v) { return METRIC === 'ipm' ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : v.toFixed(2) + '%'; }
+  function fmtVal(v) { return v.toFixed(2) + '%'; }
   
   /* Thresholds por métrica */
   var THS = METRIC === 'eficacia' ? [97, 93, 85, 60] :
@@ -1979,14 +1973,12 @@ AR3_CANVAS_JS = '''
   
   /* Formato de label de threshold */
   function fmtThLabel(t) {
-    return METRIC === 'ipm' ? '$' + t.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
+    return METRIC === 'nodispo' ? t.toFixed(1) + '%' : t.toFixed(t < 10 ? 1 : 0) + '%';
   }
   
   /* Formato de label de target */
   function fmtTarget() {
-    return METRIC === 'ipm' ? 'T:$' + TARGET.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
-           (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
+    return (METRIC === 'eficacia' || METRIC === 'bookability') ? 'T:' + TARGET.toFixed(0) + '%' : 'T:' + TARGET.toFixed(1) + '%';
   }
   
   var _lastWidth = 0;  /* Ancho válido del último drawCanvas exitoso */
@@ -2734,7 +2726,7 @@ SHARED_CONTAINERS = f'''
     </div>
   </div>
 
-  <!-- ── CARD 2: Conv Rate / IPM ── -->
+  <!-- ── CARD 2: Conv Rate (solo CR — oculta en RND vía data-ar-mode) ── -->
   <div class="kpi-card" id="kpicard-ar2" style="border:1px solid var(--rule);padding:0;border-radius:3px;background:var(--paper);">
     <!-- Header título -->
     <div style="padding:12px 16px 0;">
@@ -2978,7 +2970,6 @@ if (typeof HIST_DATA !== 'undefined') {
     if (typeof W22_CANVAS_CFG !== 'undefined' && W22_CANVAS_CFG[cid] && W22_CANVAS_CFG[cid].metric) {
       return W22_CANVAS_CFG[cid].metric;
     }
-    if (cid.indexOf('ipm') > -1) return 'ipm';
     if (cid.indexOf('cv') > -1 || cid.indexOf('convrate') > -1) return 'convrate';
     if (cid.indexOf('nd') > -1 || cid.indexOf('nodispo') > -1) return 'nodispo';
     if (cid.indexOf('bk') > -1) return 'bookability';
@@ -3003,9 +2994,6 @@ if (typeof HIST_DATA !== 'undefined') {
   }
 
   function _fmtVal(val, metric) {
-    if (metric === 'ipm') {
-      return '$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
     return val.toFixed(2) + '%';
   }
 
