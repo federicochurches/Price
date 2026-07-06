@@ -1,0 +1,92 @@
+
+================================================================================
+🚀 PIPELINE SUPPLY OPTIMIZATION · W27
+================================================================================
+[2026-07-06 12:15:53] INFO: Período: 6 – 12 jul 2026
+[2026-07-06 12:15:53] INFO: Config: WEEK_CONFIG_W27.yml
+[2026-07-06 12:15:53] INFO: Log: C:\Users\federico.iglesias\Price\pipeline_W27_run_20260706_121553.log
+
+================================================================================
+📊 VALIDACIÓN DE DATASETS
+================================================================================
+[2026-07-06 12:15:53] SUCCESS: ✓ Dataset_RatesNoDispo_W27.xlsx (RND actual) en /uploads
+[2026-07-06 12:15:53] SUCCESS: ✓ Dataset_CheckRates_W27.xlsx (CR actual) en /uploads
+[2026-07-06 12:15:53] SUCCESS: ✓ Dataset_RatesNoDispo_W26.xlsx (RND anterior (WoW)) en /uploads
+[2026-07-06 12:15:53] SUCCESS: ✓ Dataset_CheckRates_W26.xlsx (CR anterior (WoW)) en /uploads
+[2026-07-06 12:15:53] SUCCESS: ✅ Todos los datasets validados
+
+================================================================================
+🔧 CONFIGURACIÓN
+================================================================================
+[2026-07-06 12:15:53] INFO: WEEK=W27
+[2026-07-06 12:15:53] INFO: VOL_NUM=27
+[2026-07-06 12:15:53] INFO: PERIODO=6 – 12 jul 2026
+[2026-07-06 12:15:53] INFO: MES_AÑO=Julio 2026
+[2026-07-06 12:15:53] INFO: FECHA_PUB=LUNES 07 de Julio de 2026
+[2026-07-06 12:15:53] INFO: WEEK_PREV=W26
+[2026-07-06 12:15:53] INFO: VOL_NUM_PREV=26
+[2026-07-06 12:15:53] INFO: PERIODO_PREV=29 jun – 05 jul 2026
+[2026-07-06 12:15:53] INFO: PICKLE_RND=rnd_w27_data.pkl
+[2026-07-06 12:15:53] INFO: PICKLE_CR=cr_w27_data.pkl
+[2026-07-06 12:15:53] INFO: PICKLE_BK=bk_w27_data.pkl
+[2026-07-06 12:15:53] INFO: PROJECT_DIR=C:/Users/federico.iglesias/Price
+[2026-07-06 12:15:53] INFO: OUTPUTS_DIR=C:/Users/federico.iglesias/Price
+[2026-07-06 12:15:53] INFO: UPLOADS_DIR=C:/Users/federico.iglesias/Price
+[2026-07-06 12:15:53] INFO: PYTHONIOENCODING=utf-8
+[2026-07-06 12:15:53] SUCCESS: ✅ Variables de entorno configuradas
+
+================================================================================
+▶️  INICIANDO PIPELINE · 7 PASOS
+================================================================================
+[2026-07-06 12:15:53] INFO: 
+[1/7] Ejecutando: 1. CALC RND
+
+================================================================================
+🔄 PASO: 1. CALC RND
+================================================================================
+
+--- STDOUT ---
+Cargando datasets...
+  W27 (pivot diario→largo): 171,510 filas · tráfico total 559,465,599
+  W27: 171,361 filas · {'CUG (UOP)': 57141, 'B2C': 57114, 'B2B (OP)': 57106}
+  W26 (pivot diario→largo): 171,425 filas · tráfico total 18,107,737,991
+  W26: 171,275 filas · {'CUG (UOP)': 57153, 'B2B (OP)': 57063, 'B2C': 57059}
+Calculando P90 (hoteles con Trafico >= 50K)...
+  nd_por_tier: P=3.42% S=3.81% T=4.11%
+Calculando canastas...
+  [hist RND] W26 error: 'Trafico'
+  [hist RND] corps=111  dests=3052  hotels=47190  paises=152
+   RND_HIST corps: 111  dests: 3052
+✅ RND W27 calculado con deltas WoW
+   %NoDispo W19: 3.54% | W18: 2.87% | WoW: +0.68pp
+   Hoteles P80: 385
+
+[2026-07-06 12:24:20] SUCCESS: ✅ 1. CALC RND completado
+[2026-07-06 12:24:20] INFO: 
+[2/7] Ejecutando: 2. CALC CR
+
+================================================================================
+🔄 PASO: 2. CALC CR
+================================================================================
+
+--- STDOUT ---
+  (pivot diario→largo CR): 72,808 filas
+  [hist CR] corps=63  dests=1157  hotels=6740  providers=10
+   CR_HIST corps: 63  dests: 1157
+✅ Pickle guardado: cr_w27_data.pkl
+   Eficacia global W27: 0.9414 (94.14%)
+   ConvRate global W27: 0.0084 (0.84%)
+   CR únicos W27: 1,619,129
+   Bookings W27:  13,586
+   Hoteles P80:   2053
+   Severity Ef P80: {'Exitosa': np.int64(1351), 'Aceptable': np.int64(288), 'Revisar': np.int64(216), 'Crítica': np.int64(148), 'Súper Crítica': np.int64(50)}
+   Severity CV P80: {'Crítica': np.int64(690), 'Sin Conversión': np.int64(494), 'Revisar': np.int64(345), 'Exitosa': np.int64(263), 'Aceptable': np.int64(261)}
+   Canastas: B2C=258,762 | OP=515,354 | CUG=845,013
+
+[2026-07-06 12:26:17] SUCCESS: ✅ 2. CALC CR completado
+[2026-07-06 12:26:17] INFO: 
+[3/7] Ejecutando: 3. CALC BK
+
+================================================================================
+🔄 PASO: 3. CALC BK
+================================================================================
