@@ -155,6 +155,18 @@ elif _acumulado_path:
     df_cur  = load_bk(_acumulado_path, week_num=WEEK_NUM)
     df_prev = load_bk(_acumulado_path, week_num=WEEK_NUM - 1)
     print(f"✅ Dataset acumulado ({os.path.basename(_acumulado_path)}), filtrando semanas {WEEK_NUM} y {WEEK_NUM-1}")
+elif _semanal_path:
+    # Fallback W27+: solo se encontró el archivo con nombre "semanal"
+    # (Dataset_bookability_W{N}.xlsx), pero puede ser en realidad un acumulado
+    # (trae varias semanas en la col 'Semana', simplemente no se llamó
+    # 'Dataset_bookability_historico.xlsx'). Filtrar por semana funciona igual
+    # en ambos casos — si no hay filas de la semana anterior, agg_dim_wow()
+    # ya maneja el WoW en 0/N-A sin romper.
+    df_cur  = load_bk(_semanal_path, week_num=WEEK_NUM)
+    df_prev = load_bk(_semanal_path, week_num=WEEK_NUM - 1)
+    print(f"✅ Dataset semanal ({os.path.basename(_semanal_path)}), filtrando semanas {WEEK_NUM} y {WEEK_NUM-1}")
+    if len(df_prev) == 0:
+        print(f"   ⚠️  Sin filas de Semana {WEEK_NUM-1} en el archivo — WoW de Bookability saldrá en 0/N-A")
 else:
     raise FileNotFoundError(f'No se encontró ningún dataset de bookability para W{WEEK_NUM}')
 
