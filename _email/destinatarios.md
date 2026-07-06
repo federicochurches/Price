@@ -3,35 +3,50 @@
 ## Destinatarios actuales (W20+) · 28 personas en BCC
 
 ```
-rafael.durand@pricetravel.com
-bellanira.hernandez@pricetravel.com
-maria.rico@pricetravel.com
-javier.parra@pricetravel.com
-alonso.mis@pricetravel.com
-ingrid.kuhnne@pricetravel.com
-david.gamboa@pricetravel.com
-hugo.ascencio@pricetravel.com
-ext.jesus.lizarraga@pricetravel.com
-alejandro.flores@pricetravel.com
-gabriela.guerra@pricetravel.com
-barbara.rodriguez@pricetravel.com
-jordi.pena@pricetravel.com
-sergio.sanchez@pricetravel.com
-monica.delateja@pricetravel.com
-brenda.pacheco@pricetravel.com
-gabriela.garcia@pricetravel.com
-lizette.urrea@pricetravel.com
-pedro.vargas@pricetravel.com
-seiji.komori@pricetravel.com
-araceli.lopez@pricetravel.com
-edgar.ic@pricetravel.com
-jeison.barros@pricetravel.com
-sofia.quintal@pricetravel.com
-stivalis.alcantara@pricetravel.com
-ariana.caldelas@pricetravel.com
-daniela.chino@pricetravel.com
-christians.ortiz@pricetravel.com
-carlos.geroy@pricetravel.com 
+Federico Iglesias <federico.iglesias@pricetravel.com>,
+Rafael Durand Gutierrez <rafael.durand@pricetravel.com>,
+Bellanira Hernandez Garcia <bellanira.hernandez@pricetravel.com>,
+Maria Alejandra Rico <maria.rico@pricetravel.com>,
+Javier Parra Ladrón de Guevara <javier.parra@pricetravel.com>,
+Alonso Mis Perez <alonso.mis@pricetravel.com>,
+Ingrid Dayanna Hernandez Kuhnne <ingrid.kuhnne@pricetravel.com>,
+David Carrillo Gamboa <david.gamboa@pricetravel.com>,
+Hugo Iván Ascencio Martínez <hugo.ascencio@pricetravel.com>,
+"ext.alice.medina@pricetravel.com" <ext.alice.medina@pricetravel.com>,
+"ext.marco.ali@pricetravel.com" <ext.marco.ali@pricetravel.com>,
+Ext Jesus Lizarraga <ext.jesus.lizarraga@pricetravel.com>,
+"alejandro.flores" <alejandro.flores@pricetravel.com>,
+Gabriela Guerra <gabriela.guerra@pricetravel.com>,
+Barbara Rodriguez Yeverino <barbara.rodriguez@pricetravel.com>,
+Jordi Alejandro Peña Negrete <jordi.pena@pricetravel.com>,
+Sergio Sanchez <sergio.sanchez@pricetravel.com>,
+Monica Ivonne De la Teja <monica.delateja@pricetravel.com>,
+Brenda Pacheco <brenda.pacheco@pricetravel.com>,
+Jenny Gabriela Garcia Hipolito <gabriela.garcia@pricetravel.com>,
+Lizette Daniela Urrea Aguirre <lizette.urrea@pricetravel.com>,
+Pedro Vargas Alvino <pedro.vargas@pricetravel.com>,
+Seiji Komori Guzmán <seiji.komori@pricetravel.com>,
+Araceli Lopez <araceli.lopez@pricetravel.com>,
+Edgar Santiago Ic Noh <edgar.ic@pricetravel.com>,
+Jeison Barros Molano <jeison.barros@pricetravel.com>,
+Sofia Andrea Jimenez Quintal <sofia.quintal@pricetravel.com>,
+Stivalis Alcantara <stivalis.alcantara@pricetravel.com>,
+ariana.caldelas@pricetravel.com,
+"daniela.chino" <daniela.chino@pricetravel.com>,
+"christians.ortiz" <christians.ortiz@pricetravel.com>,
+Alan Omar Guerrero Toledo <alan.guerrero@pricetravel.com>,
+Ana María Vergara Fuentes <ana.vergara@pricetravel.com>,
+Pedro Vargas Alvino <araceli.cadena@pricetravel.com>,
+Nayra Elizabeth Machuca Lopez <elizabeth.machuca@pricetravel.com>,
+Esau Heriberto García Macías <heriberto.garcia@pricetravel.com>,
+Isela Galicia <ilse.galicia@pricetravel.com>,
+"ivan.montoro" <ivan.montoro@pricetravel.com>,
+Jose Castillo <camilo.castillo@pricetravel.com>,
+Jose Juan Martinez Sanchez <jose.msanchez@pricetravel.com>,
+Laura Alarcon <laura.alarcon@pricetravel.com>,
+Maria Santos <maria.santos@pricetravel.com>,
+Mesly Lopez <mesly.rodriguez@pricetravel.com>,
+"sandra.salgado" <sandra.salgado@pricetravel.com>
 ```
 
 ## Convención
