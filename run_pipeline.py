@@ -157,6 +157,7 @@ def create_env_vars(config, logger):
         # Pickles (nombres esperados)
         'PICKLE_RND': f"rnd_w{vol_num}_data.pkl",
         'PICKLE_CR': f"cr_w{vol_num}_data.pkl",
+        'PICKLE_BK': f"bk_w{vol_num}_data.pkl",
         
         # Rutas
         'PROJECT_DIR': config['paths']['project'],
@@ -250,7 +251,8 @@ def run_step(step_name, script_cmd, config, env, logger):
 
 # ── PIPELINE STEPS ────────────────────────────────────────────────────────
 def get_pipeline_steps(config):
-    """Definir los 6 pasos del pipeline"""
+    """Definir los 7 pasos del pipeline (BK agregado — antes eran 6 y Bookability
+    quedaba afuera del todo, la card nunca aparecía en el HTML)."""
     return [
         {
             'name': '1. CALC RND',
@@ -263,22 +265,30 @@ def get_pipeline_steps(config):
             'critical': True,
         },
         {
-            'name': '3. RENDER RND + CR',
+            'name': '3. CALC BK',
+            'cmd': ['python', 'calc_bk.py'],
+            # No-critical: si no está el dataset de Bookability esa semana, el resto
+            # del pipeline sigue — render_cr_p1.py omite la card BK con gracia si
+            # no encuentra bk_wNN_data.pkl (documentado, no es un error real).
+            'critical': False,
+        },
+        {
+            'name': '4. RENDER RND + CR',
             'cmd': 'python render_rnd_p1.py && python render_rnd_p2.py && python render_rnd_p3.py && python render_cr_p1.py && python render_cr_p2.py && python render_cr_p3.py',
             'critical': True,
         },
         {
-            'name': '4. ASSEMBLE UNIFICADO',
+            'name': '5. ASSEMBLE UNIFICADO',
             'cmd': 'python assemble_unified.py',
             'critical': True,
         },
         {
-            'name': '5. EXCEL RND + CR (consolidados)',
+            'name': '6. EXCEL RND + CR (consolidados)',
             'cmd': 'python excel_rnd.py && python excel_cr.py',
             'critical': False,  # No-critical: continuar aunque falle
         },
         {
-            'name': '6. MAIL + HUB',
+            'name': '7. MAIL + HUB',
             'cmd': 'python render_mail_v3.py && python build_package.py',
             'critical': False,
         },
