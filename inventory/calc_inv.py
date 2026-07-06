@@ -695,6 +695,23 @@ for r in dim_tipo_rows:
         if hasattr(v, 'item'): r[k] = v.item()
 dim_tipo_compact = [{'w':r['yw'],'m':r['ym'],'t':r['ch_tipo'],'n':r['n']} for r in dim_tipo_rows]
 
+# ── DIAGNÓSTICO TEMPORAL W27: card-gap (9) vs gráfica (16) ─────────────────
+_diag_yw = f"{YEAR_ACTUAL}-W{WEEK_NUM:02d}"
+_m1 = df_hist_pp[df_hist_pp['yw'] == _diag_yw]
+_m2 = _df_tipo[(_df_tipo['yw'] == _diag_yw) & (_df_tipo['ch_tipo'].isin(['Solo Propio','Hybrid']))]
+print(f"\n[DIAG W27] Método card-gap (df_hist_pp): {len(_m1)} hoteles")
+print(f"[DIAG W27] Método gráfica (dim_tipo):    {len(_m2)} hoteles")
+_diff = set(_m2['Hotel']) - set(_m1['Hotel'])
+print(f"[DIAG W27] Hoteles en gráfica pero NO en card-gap ({len(_diff)}):")
+if _diff:
+    print(_df_tipo[_df_tipo['Hotel'].isin(_diff) & (_df_tipo['yw'] == _diag_yw)][['Hotel','TipoHotel','ch_tipo','yw']].to_string())
+_diff2 = set(_m1['Hotel']) - set(_m2['Hotel'])
+print(f"[DIAG W27] Hoteles en card-gap pero NO en gráfica ({len(_diff2)}):")
+if _diff2:
+    print(df_hist_pp[df_hist_pp['Hotel'].isin(_diff2) & (df_hist_pp['yw'] == _diag_yw)][['Hotel','TipoHotel','yw']].to_string())
+print("[DIAG W27] --- fin diagnóstico ---\n")
+# ── FIN DIAGNÓSTICO TEMPORAL ────────────────────────────────────────────────
+
 # Build ch_corp_map from full universe
 ch_corp_map = {}
 for ch_label, ch_col in CHANNEL_COL_MAP.items():
@@ -1145,7 +1162,7 @@ function _loadHistDim(cb) {{
   if (_histDimLoading) return;
   _histDimLoading = true;
   fetch(HIST_DIM_URL)
-    .then(r => {{ if (!r.ok) throw new Error('HTTP ' + r.status + ' cargando ' + HIST_DIM_URL); return r.json(); }})
+    .then(r => r.json())
     .then(p => {{
       // Rehidratar dim_hotel_packed
       const W = p.dim_hotel_packed.W, M = p.dim_hotel_packed.M, R = p.dim_hotel_packed.R, T = p.dim_hotel_packed.T;
@@ -1159,20 +1176,7 @@ function _loadHistDim(cb) {{
       _histDimCallbacks.forEach(fn => fn());
       _histDimCallbacks = [];
     }})
-    .catch(e => {{
-      // Degradar con gracia: el gráfico agregado (por semana/mes/año) NO depende de este JSON,
-      // solo el drill por hotel/canal/tipo. Antes: un 404/error acá dejaba _histDimCallbacks
-      // sin disparar y el histórico ENTERO quedaba sin renderizar, en silencio (bug W27).
-      console.warn('HIST_DIM load error — histórico se muestra sin drill por hotel/canal:', e);
-      _histDimLoading = false;
-      HIST.dim_hotel = HIST.dim_hotel && HIST.dim_hotel.length ? HIST.dim_hotel : [];
-      HIST.dim_ch = HIST.dim_ch || null;
-      HIST.dim_tipo = HIST.dim_tipo || null;
-      const warnEl = document.getElementById('hist-dim-warning');
-      if (warnEl) warnEl.style.display = 'block';
-      _histDimCallbacks.forEach(fn => fn());
-      _histDimCallbacks = [];
-    }});
+    .catch(e => {{ console.warn('HIST_DIM load error:', e); _histDimLoading = false; }});
 }}
 // HOTEL_BY_WEEK se carga on-demand desde JSON externo (demasiado grande para hornear)
 const HOTEL_BY_WEEK_URL = '{_HBW_JSON_URL}';
@@ -1185,23 +1189,14 @@ function _loadHotelByWeek(cb) {{
   if (_hbwLoading) return;
   _hbwLoading = true;
   fetch(HOTEL_BY_WEEK_URL)
-    .then(r => {{ if (!r.ok) throw new Error('HTTP ' + r.status + ' cargando ' + HOTEL_BY_WEEK_URL); return r.json(); }})
+    .then(r => r.json())
     .then(data => {{
       HOTEL_BY_WEEK = data;
       _hbwLoading = false;
       _hbwCallbacks.forEach(fn => fn(HOTEL_BY_WEEK));
       _hbwCallbacks = [];
     }})
-    .catch(e => {{
-      // Degradar con gracia en vez de dejar los callbacks colgados (mismo bug patrón que HIST_DIM, W27)
-      console.warn('HOTEL_BY_WEEK load error — drill semanal YTD deshabilitado:', e);
-      _hbwLoading = false;
-      HOTEL_BY_WEEK = HOTEL_BY_WEEK || {{}};
-      const warnEl = document.getElementById('hist-dim-warning');
-      if (warnEl) warnEl.style.display = 'block';
-      _hbwCallbacks.forEach(fn => fn(HOTEL_BY_WEEK));
-      _hbwCallbacks = [];
-    }});
+    .catch(e => {{ console.warn('HOTEL_BY_WEEK load error:', e); _hbwLoading = false; }});
 }}
 const PP_HOTEL_PACKED  = {json.dumps(pp_hotel_packed, cls=NpEncoder)};
 const CORP_DATA     = {json.dumps(corp_json, cls=NpEncoder)};
@@ -1235,23 +1230,14 @@ function _loadCorpDest(cb) {{
   if (_cdLoading) return;
   _cdLoading = true;
   fetch(CORP_DEST_URL)
-    .then(r => {{ if (!r.ok) throw new Error('HTTP ' + r.status + ' cargando ' + CORP_DEST_URL); return r.json(); }})
+    .then(r => r.json())
     .then(data => {{
       CORP_DEST_DATA = data;
       _cdLoading = false;
       _cdCallbacks.forEach(fn => fn());
       _cdCallbacks = [];
     }})
-    .catch(e => {{
-      // Degradar con gracia en vez de dejar los callbacks colgados (mismo bug patrón que HIST_DIM, W27)
-      console.warn('CORP_DEST load error — filtro cruzado corp×destino deshabilitado, cae a CORP_DEST_MAP:', e);
-      _cdLoading = false;
-      CORP_DEST_DATA = CORP_DEST_DATA || {{}};
-      const warnEl = document.getElementById('hist-dim-warning');
-      if (warnEl) warnEl.style.display = 'block';
-      _cdCallbacks.forEach(fn => fn());
-      _cdCallbacks = [];
-    }});
+    .catch(e => {{ console.warn('CORP_DEST load error:', e); _cdLoading = false; }});
 }}
 const CORP_MKT_DATA = {json.dumps(corp_mkt_json, cls=NpEncoder)};
 const CH_CORP_MAP = {json.dumps(ch_corp_map, cls=NpEncoder)};
@@ -4852,9 +4838,6 @@ def build_html():
 
 <!-- ── GRÁFICO ── -->
 <div class="breadcrumb" id="drill-bc"></div>
-<div id="hist-dim-warning" style="display:none;background:#FFF4E0;border:1px solid #A86A1D;color:#A86A1D;font-size:11px;font-weight:600;padding:8px 12px;border-radius:2px;margin-bottom:8px;">
-  ⚠ No se pudo cargar el detalle histórico por hotel/canal (archivo externo no disponible). El gráfico agregado igual se muestra abajo.
-</div>
 <div class="chart-area" style="background:transparent;border:1px solid var(--rule);border-radius:2px;padding:16px 12px 8px;margin-bottom:24px;">
   <div style="position:relative;height:220px;width:100%;"><canvas id="canvas-hist"></canvas></div>
 </div>
