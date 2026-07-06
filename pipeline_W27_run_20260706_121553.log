@@ -90,3 +90,229 @@ Calculando canastas...
 ================================================================================
 🔄 PASO: 3. CALC BK
 ================================================================================
+
+--- STDOUT ---
+✅ W27: semanal (Dataset_bookability_W27.xlsx) filtrado → Semana 27
+   W26: acumulado (Dataset_bookability_historico.xlsx) filtrado → Semana 26
+   W27: 19,068 filas · 67,287 books
+   W26: 19,156 filas · 72,445 books
+
+📊 Bookability Global W27: 98.48% (Exitosa)
+   WoW: -0.25pp
+
+   Providers: 12
+   Destinos:  909
+   Corps:     91
+   Hoteles:   3349
+
+   Severity BK (P80): {'Exitosa': 2993, 'Revisar': 141, 'Crítica': 118, 'Aceptable': 90, 'Súper Crítica': 7}
+
+   Histórico por semana: ['W19', 'W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27']
+   BK corp hist: 123 corps, semanas W19-W26
+   BK provider hist: 15 providers, semanas W19-W26
+   BK dest hist: 2628 destinos
+   BK hotel hist: 2435 hoteles
+
+✅ Pickle guardado: bk_w27_data.pkl
+   Bookability global: 98.48% (Exitosa) · WoW -0.25pp
+
+[2026-07-06 12:27:28] SUCCESS: ✅ 3. CALC BK completado
+[2026-07-06 12:27:28] INFO: 
+[4/7] Ejecutando: 4. RENDER RND + CR
+
+================================================================================
+🔄 PASO: 4. RENDER RND + CR
+================================================================================
+
+--- STDOUT ---
+Part 1 RND escrito: 696,491 chars
+[carryover] pickle previo RND cargado: rnd_w26_data.pkl
+Calculando RND_CV...
+Calculando RND_D...
+Calculando RND_AL...
+Part 2 RND escrito: 586,096 chars
+Part 3 RND escrito: 0 chars (W21+ vacío — canastas en JS)
+Part 1 CR escrito: 3,291,311 chars
+[carryover] pickle previo CR cargado: cr_w26_data.pkl
+Calculando CR_CV...
+Calculando CR_D...
+Calculando CR_AL...
+Part 2 CR escrito: 1,195,781 chars
+Part 3 CR escrito: 0 chars (W21+ vacío — canastas en JS)
+
+[2026-07-06 12:27:37] SUCCESS: ✅ 4. RENDER RND + CR completado
+[2026-07-06 12:27:37] INFO: 
+[5/7] Ejecutando: 5. ASSEMBLE UNIFICADO
+
+================================================================================
+🔄 PASO: 5. ASSEMBLE UNIFICADO
+================================================================================
+
+--- STDOUT ---
+✅ SUPPLY_W27 ensamblado: C:\Users\federico.iglesias\Price\SUPPLY_W27.html
+   Tamaño: 6396 KB · 6,450,076 chars
+   CR: 4,473,979 chars
+   RND: 1,269,484 chars
+
+═══ check_html · SUPPLY_W27.html ═══
+
+[PRESUPUESTO] total: 6.24MB (6,540,074 bytes)  ·  Δ vs baseline: −12.67MB
+
+[COMPOSICIÓN] vars top-level ≥ 4KB:
+      1.17MB  18.8%  CR_D
+       863KB  13.5%  CR_HOTEL_HIST
+       579KB   9.1%  RND_D
+       429KB   6.7%  CR_CARD_TABS
+       360KB   5.6%  CR_HOTEL_POOL
+       202KB   3.2%  BK_HOTEL_HIST
+       199KB   3.1%  _BK_TRX_WOW
+       165KB   2.6%  BK_DEST_HIST
+       164KB   2.6%  RND_DEST_HIST
+       133KB   2.1%  BK_CARD_TABS
+       126KB   2.0%  CR_DEST_HIST
+        45KB   0.7%  RND_HOTEL_POOL
+        29KB   0.4%  RND_HOTEL_HIST
+        28KB   0.4%  BK_DATA  (no-JSON, sin chequeo de dups)
+        20KB   0.3%  RND_CARD_TABS
+         9KB   0.1%  RND_MEMBERSHIP
+         8KB   0.1%  RND_PAIS_HIST
+         7KB   0.1%  BK_CORP_HIST
+         7KB   0.1%  CR_CORP_HIST
+         6KB   0.1%  RND_CORP_HIST
+         6KB   0.1%  RND_DEST_POOL
+
+[DUPLICADOS] blobs byte-idénticos emitidos ≥2 veces:
+       100KB redundantes · 4× 33KB c/u
+              BK_CARD_TABS.global
+              BK_CARD_TABS.b2c
+              BK_CARD_TABS.op
+              BK_CARD_TABS.cug
+       100KB redundantes · 4× 33KB c/u
+              BK_CARD_TABS.global.bk
+              BK_CARD_TABS.b2c.bk
+              BK_CARD_TABS.op.bk
+              BK_CARD_TABS.cug.bk
+        20KB redundantes · 2× 20KB c/u
+              CR_D.global.hotels
+              CR_D.global.hotels_crit
+        13KB redundantes · 2× 13KB c/u
+              CR_D.cug.hotels
+              CR_D.cug.hotels_crit
+         9KB redundantes · 2× 9KB c/u
+              CR_D.op.hotels
+              CR_D.op.hotels_crit
+   → recuperable deduplicando: ~242KB
+
+[HUÉRFANOS] (candidatos a revisar — los IDs dinámicos no se chequean)
+   getElementById literales: 70 · onclick handlers: 8
+   IDs buscados por JS y AUSENTES en el DOM (35):
+      · ar-btn-cr
+      · ar-btn-rnd
+      · ar-strip-bk
+      · ar1-col-m
+      · ar1-td-col-m
+      · ar2-col-m
+      · ar2-td-col-m
+      · ar3-books
+      · ar3-books-wow
+      · ar3-th-dim
+      · ar3-vol
+      · ar3-wow-pill
+      · sb-panel-th
+      · tab-bk-destino
+      · vch-d
+      · vch-h
+      · w21-kv-rpm
+      · w22-alertas-sub
+      · w22-dim-lbl-chan
+      · w22-pd
+      · w22-ph
+      · w22-report-tag
+      · w22-tab-lbl-1
+      · w22-tab-lbl-2
+      · w22-tab-lbl-3
+      … (+10 más)
+   ✓ ningún onclick sin función definida
+
+
+
+--- STDERR ---
+C:\Users\federico.iglesias\Price\assemble_unified.py:526: SyntaxWarning: "\(" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\("? A raw string is also an option.
+  var _arHHotelName = (_arHVal || '').replace(/^\(\d+\)\s*-\s*/, '').trim();
+
+[2026-07-06 12:27:39] SUCCESS: ✅ 5. ASSEMBLE UNIFICADO completado
+[2026-07-06 12:27:39] INFO: 
+[6/7] Ejecutando: 6. EXCEL RND + CR (consolidados)
+
+================================================================================
+🔄 PASO: 6. EXCEL RND + CR (CONSOLIDADOS)
+================================================================================
+
+--- STDOUT ---
+✅ Excel RND: C:/Users/federico.iglesias/Price/Analisis_RatesNoDispo_W27.xlsx
+   5 hojas: Severity | Maestra | Críticos | Bajo Rendimiento | Sin Conversión
+✅ Excel CR: C:/Users/federico.iglesias/Price/Analisis_CheckRates_W27.xlsx
+   5 hojas: Severity | Maestra | Críticos | Bajo Rendimiento | Sin Conversión
+
+[2026-07-06 12:27:51] SUCCESS: ✅ 6. EXCEL RND + CR (consolidados) completado
+[2026-07-06 12:27:51] INFO: 
+[7/7] Ejecutando: 7. MAIL + HUB
+
+================================================================================
+🔄 PASO: 7. MAIL + HUB
+================================================================================
+
+--- STDOUT ---
+  [inv] KPIs auto-cargados de inventory/week-27/INVENTORY_W27.html: PP=59245 netnew=9 avance=84.6%
+Mail W27 v6.0 (table-based) → C:\Users\federico.iglesias\Price\Mail_W27.html
+Tamaño: 17,378 chars
+  → copia en _email/week-27/ ✓
+✅ index.html generado · 46,352 chars
+✅ plan_seguimiento_W27.md generado · 9 items OPEN
+
+Copiando archivos al ZIP...
+  ✓ index.html
+  ✓ _email\week-27\Mail_W27.html
+  ✓ _seguimiento\plan_seguimiento_W27.md
+  ✓ reports\week-27\SUPPLY_W27.html
+  ✓ checkrates\week-27\Analisis_CheckRates_W27.xlsx
+  ✓ rates-nodispo\week-27\Analisis_RatesNoDispo_W27.xlsx
+  ✓ inventory\calc_inv.py
+  ✗ FALTA: INVENTORY_W27.html
+  ✗ FALTA: Analisis_Inventory_W27.xlsx
+  ✓ checkrates\week-27\Dataset_CheckRates_W27.xlsx
+  ✓ rates-nodispo\week-27\Dataset_RatesNoDispo_W27.xlsx
+
+✅ ZIP generado: C:\Users\federico.iglesias\Price\Price_W27.zip
+   Tamaño: 67195 KB
+
+⚠️  Faltantes: ['INVENTORY_W27.html', 'Analisis_Inventory_W27.xlsx']
+
+📦 Estructura del ZIP:
+   _email/week-27/Mail_W27.html  (17 KB)
+   _seguimiento/plan_seguimiento_W27.md  (2 KB)
+   checkrates/week-27/Analisis_CheckRates_W27.xlsx  (598 KB)
+   checkrates/week-27/Dataset_CheckRates_W27.xlsx  (29217 KB)
+   index.html  (46 KB)
+   inventory/calc_inv.py  (297 KB)
+   rates-nodispo/week-27/Analisis_RatesNoDispo_W27.xlsx  (148 KB)
+   rates-nodispo/week-27/Dataset_RatesNoDispo_W27.xlsx  (45765 KB)
+   reports/week-27/SUPPLY_W27.html  (6396 KB)
+
+✅ build_package.py completado · Week 27
+   Commit: "feat: Week 27 · Supply unificado + Excels consolidados · 6 – 12 jul 2026"
+
+🧹 Limpiados 11 archivos intermedios de outputs/ y directorio de trabajo
+   Outputs finales: Price_W27.zip · ProyectoClaude_PRICE_WNN.zip
+
+[2026-07-06 12:27:55] SUCCESS: ✅ 7. MAIL + HUB completado
+
+================================================================================
+📋 RESUMEN
+================================================================================
+[2026-07-06 12:27:55] SUCCESS: ✅ PIPELINE COMPLETADO EXITOSAMENTE
+[2026-07-06 12:27:55] SUCCESS:    Week: W27
+[2026-07-06 12:27:55] SUCCESS:    Período: 6 – 12 jul 2026
+[2026-07-06 12:27:55] SUCCESS:    ZIP: C:/Users/federico.iglesias/Price/Price_W27.zip
+[2026-07-06 12:27:55] SUCCESS:    Log: C:\Users\federico.iglesias\Price\pipeline_W27_run_20260706_121553.log
+[2026-07-06 12:27:55] SUCCESS:    Summary JSON: C:\Users\federico.iglesias\Price\pipeline_W27_summary.json
