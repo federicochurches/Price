@@ -1,3 +1,43 @@
+## Sesión W26-deploy-f · 04-07-2026 — Validación en producción de grupos A-F + fix menor PERF + travesía de deploy (index.html perdido en un git reset)
+
+### Contexto
+Continuación same-day de la sesión W26-grupos-abcde. Fede corrió el pipeline localmente para validar los 5 grupos (A-E) + investigar 2 reportes nuevos: la card de Bookability (CR) y la card "Análisis de Rendimiento" de RND no actualizaban al cambiar de canasta.
+
+### Grupo F — investigación y fix
+**RND (AR NoDispo, `kpicard-ar-nd`):** causa raíz real — esta card es standalone (no usa `ar-kpi-1`/`ar-kpi-2` genéricas de CR), construida en `render_ar_card_nodispo()` (`render_rnd_p1.py`) con el valor/badge/wow-box **hardcodeados en el HTML sin ningún `id`**, por lo que nunca pudo reaccionar a JS. Fix: agregados 5 IDs (`ar-nd-kv`, `ar-nd-wow-pill`, `ar-nd-traf-line`, `ar-nd-band-pill`, `ar-nd-wowbox`) + nueva función `_rndArNdApplyCanasta()` en `js_override.js` que lee `RND_CV[canasta]` (mismo dato que ya alimenta la KPI card) y repinta los 5 elementos + dispara el `histUpdate_` del sparkline. Engancha al mismo hook de `w22_update()` que ya usa Bookability. **Validado por Fede en producción: número y badge cambian correctamente entre canastas.** ✅
+
+**CR (Bookability, AR3):** encontrada y arreglada la causa (`tryInitBK()` leía `BK_DATA.global` hardcodeado, corría una sola vez al cargar la página) — se extrajo a función reusable `_bkApplyCanasta()` enganchada al mismo hook. **Pero al validar, Fede confirmó que el número no cambia entre canastas** — investigación más profunda reveló que `BK_DATA` (`assemble_unified.py`) **nunca tuvo claves `b2c`/`op`/`cug`**, solo `global` (más las dimensiones `prov`/`dest`/`corp`/`hotel`, que no son canastas). Confirmado con Fede: **esto es correcto — Bookability siempre fue una cifra Global única, no varía por canal de distribución.** El fix de JS no está mal (reacciona bien a la canasta), simplemente no hay dato per-canasta que mostrar. Cerrado como "no era un bug" — no se debe reintentar esto en el futuro (regla #48 agregada al CORE).
+
+### Grupo G (nuevo, menor)
+Columna "PERFORMANCE" en el header de la vista Channel de la card Performance (CR) ocupaba mucho espacio en mayúsculas. Fix: `_metric_lbl = 'Performance'` → `'Perf'` en `render_cr_p1.py` (bloque EF; el bloque de ConvRate usa `_metric_lbl = 'ConvRate'` en otra variable, no se tocó).
+
+### La travesía de deploy (~1 hora, documentada para no repetir)
+Después de validar el código, Fede intentó publicar. Cadena de problemas, en orden real de cómo pasó (no como se diagnosticaron):
+
+1. **Carpetas `_extracted\`/`_zip_extract\`** apareciendo en GitHub Desktop en 2 sesiones distintas — restos de extraer un ZIP dentro de la carpeta del repo. No se resolvió (pendiente: borrar físicamente).
+2. **Archivos sueltos de sesiones previas** (`_seguimiento\*.md`, Excels de `accounts\`, `check.py`, etc.) mezclados en el mismo commit — se separaron destildándolos, no se investigó su origen.
+3. **`INVENTORY_W26.html` + 3 JSON de Inventory** con conflicto de pull (local vs remoto, no se sabía cuál era más nuevo) → resuelto con `git stash` — **queda sin resolver, pendiente sesión dedicada** (agregado a pendientes del CORE).
+4. **Secret scanning bloqueó el push 3 veces** — `text2.txt` (con un GitHub PAT viejo, confirmado por Fede como no explotable) seguía presente en el commit pese a haberlo borrado en el filesystem, porque no se había incluido el borrado en un commit nuevo. Se resolvió recién a la 3ra vuelta usando el bypass de GitHub con motivo **"I'll fix it later"** (no "false positive", ya que el secreto era real aunque viejo).
+5. **El push finalmente pasó** — confirmado en GitHub.com que `render_cr_p1.py` sí tenía el string "Performance" con el commit correcto como "latest commit".
+6. **Aun así, Netlify no mostraba los cambios.** Causa: el deploy automático que se había disparado con el pull de los 3 commits remotos corrió **antes** de que el push local lograra pasar el secret scanning — Netlify construyó desde código viejo.
+7. **Al regenerar y republicar, apareció "Page Not Found" en la raíz del sitio** (`/` y `/index.html`), con el deploy en verde ("Published"). Se investigó **1 hora en la dirección equivocada**: Pretty URLs (probado, no era), sección Redirects del dashboard (no había reglas), Production branch (no llegó a chequearse), Clear cache and deploy (no resolvió, log mostró "Deploying: Skipped" sospechoso).
+8. **Causa real, encontrada al parar y preguntar lo más básico:** `index.html` **no existía en el repo de GitHub** — ni la versión vieja ni la nueva. Se había perdido en algún punto de los pasos 3-4 (probablemente un `git reset --hard`/discard usado para destrabar el pull/push, que también se llevó `index.html` sin que nadie lo notara). Fix: `build_package.py` ya lo había regenerado localmente en un paso anterior del pipeline — solo faltaba confirmar que GitHub Desktop lo tuviera tildado en el commit. Commiteado y pusheado → resuelto.
+
+### Lecciones (agregadas al CORE — regla nueva + checklist de deploy)
+- **`git reset --hard` / discard es destructivo para TODO el working directory sin commitear, no solo el archivo en conflicto** — después de usarlo, hay que re-verificar que todos los archivos de la sesión siguen presentes, no asumir que "solo se sincronizó main".
+- **Cuando algo no se ve en producción, la verificación correcta es SIEMPRE, en este orden: (1) ¿está en el commit local? (2) ¿está en github.com con el contenido esperado? (3) recién ahí, si 1 y 2 son sí, investigar Netlify.** Saltarse el paso 2 costó ~1 hora de configuración de Netlify irrelevante.
+- **`assemble_unified.py` necesita los 6 parciales** (`_p1`/`_p2`/`_p3` de CR y RND) en el CWD — corrieron solo los `_p1` en un momento y `assemble_unified.py` tiró `FileNotFoundError` en `part2_cr.html`, cortando toda la cadena (assemble → copy a reports/ → build_package → index.html) sin que quedara claro en el momento que el problema era ese.
+- **Netlify sirve `reports/week-NN/SUPPLY_WNN.html` en vivo, no el `SUPPLY_WNN.html` de la raíz** que genera `assemble_unified.py` directamente — hay que copiarlo manualmente (`netlify.toml`: `publish = "."`, sin build command propio).
+- Checklist de deploy completo agregado a `PROMPT_CORE.md` para la próxima vez.
+
+### Archivos modificados en esta sesión (además de los de W26-grupos-abcde)
+`render_rnd_p1.py` (Grupo F — 5 IDs nuevos en `render_ar_card_nodispo()`) · `js_override.js` (Grupo F — `_bkApplyCanasta()` + `_rndArNdApplyCanasta()` + hook en `w22_update`) · `render_cr_p1.py` (Grupo G — `_metric_lbl` Perf). Sin acceso a `calc_cr.py`/`render_cr_p3.py`/`render_rnd_p3.py` en esta sesión (Fede los corrió directo en su máquina, ya existían en el repo).
+
+### Estado final
+✅ Grupos A-G en producción, validados por Fede. ✅ `index.html` restaurado y commiteado. ⏸ Pendiente: stash de Inventory, carpeta `_extracted\` local, limpieza de reglas del CORE (49 → repasar).
+
+---
+
 ## Sesión W26-grupos-abcde · 04-07-2026 — Renames + severity fill + KPI negro unificado + Third Party channels + AR Global/hotel + BK columnas
 
 ### Contexto

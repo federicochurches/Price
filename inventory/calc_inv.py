@@ -24,11 +24,11 @@ except Exception:
 # ─────────────────────────────────────────────
 # CONFIG — editar cada semana
 # ─────────────────────────────────────────────
-WEEK          = "W26"
-WEEK_NUM      = 26
-VOL_NUM       = "26"
+WEEK          = "W27"
+WEEK_NUM      = 27
+VOL_NUM       = "27"
 YEAR_ACTUAL   = 2026
-SNAPSHOT_DATE = "29 de Junio de 2026"
+SNAPSHOT_DATE = "06 de Julio de 2026"
 SNAPSHOT_DATE_UPPER = SNAPSHOT_DATE.upper()
 INPUT_FILE    = "dataHoteles_contratos.xlsx"
 OUTPUT_FILE   = f"INVENTORY_{WEEK}.html"
