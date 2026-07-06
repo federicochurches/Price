@@ -527,7 +527,7 @@ if acum_months:
     acum_months[-1]['acum'] = pp
 
 # Acumulado por semana ISO (global) — con fill de semanas sin datos
-by_week_g = df_hist_pp.groupby(['yw','ym']).size().reset_index(name='netnew').sort_values('yw')
+by_week_g = df_hist_pp.groupby('yw').agg(netnew=('yw','size'), ym=('ym','first')).reset_index().sort_values('yw')
 # Construir lookup de netnew por yw
 week_netnew = {r['yw']: int(r['netnew']) for _, r in by_week_g.iterrows()}
 # Determinar yw de la primera semana con dato hasta la última
