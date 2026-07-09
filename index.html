@@ -89,7 +89,7 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
     <div class="lock-error" id="error">Usuario o contraseña incorrectos. Intentá de nuevo.</div>
   </div>
   <div class="lock-footer">
-    <span class="lock-footer-tag">analytics-desk.netlify.app</span>
+    <span class="lock-footer-tag">https://federicochurches.github.io/Price</span>
     <span class="lock-footer-url">Week 27</span>
   </div>
 </div>
@@ -285,16 +285,34 @@ body{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);min
 </div>
 
 <script>
-const CREDS = { user: 'pricetravel', pass: 'supply2026' };
 const SESSION_KEY = 'pt_analytics_auth';
-function checkAuth() {
+async function checkAuth() {
   const u = document.getElementById('user').value.trim().toLowerCase();
   const p = document.getElementById('pass').value;
-  if (u === CREDS.user && p === CREDS.pass) {
-    localStorage.setItem(SESSION_KEY, '1');
-    showHub();
-  } else {
+  if (!u || !p) {
     document.getElementById('error').style.display = 'block';
+    return;
+  }
+  try {
+    const response = await fetch('/auth/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const data = await response.json();
+    if (data.ok) {
+      localStorage.setItem(SESSION_KEY, '1');
+      logAccessEvent('auth-success', { user: u });
+      showHub();
+    } else {
+      const msg = data.error ? `Error de autenticación: ${data.error}` : 'Usuario o contraseña incorrectos. Intentá de nuevo.';
+      document.getElementById('error').textContent = msg;
+      document.getElementById('error').style.display = 'block';
+      logAccessEvent('auth-failed', { user: u, reason: data.error });
+    }
+  } catch (e) {
+    document.getElementById('error').style.display = 'block';
+    logAccessEvent('auth-failed', { user: u, reason: 'network' });
   }
 }
 function showHub() {
@@ -304,8 +322,32 @@ function showHub() {
 }
 if (localStorage.getItem(SESSION_KEY)) showHub();
 document.addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+</script>
+<script>
 
+const PRICE_SITE_BASE_URL = 'https://federicochurches.github.io/Price';
+const PRICE_AUTH_MODE = 'vpn-ad';
+const PRICE_AUDIT_ENDPOINT = null;
+const PRICE_ALLOW_LOCAL_DEV = false;
 
+function logAccessEvent(eventName, detail) {
+  const payload = { event: eventName, mode: PRICE_AUTH_MODE, detail };
+  if (PRICE_AUDIT_ENDPOINT) {
+    fetch(PRICE_AUDIT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  }
+}
+
+function requireAccess() {
+  if (PRICE_ALLOW_LOCAL_DEV && window.location.hostname === 'localhost') return true;
+  if (window.location.hostname.includes('github.io')) return true;
+  if (window.navigator.userAgent.includes('VPN')) return true;
+  logAccessEvent('access-denied', { hostname: window.location.hostname });
+  return false;
+}
 </script>
 </body>
 </html>
