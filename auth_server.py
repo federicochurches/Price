@@ -11,6 +11,27 @@ from urllib.parse import urlparse
 from ad_auth_service import AuthenticationConfig, authenticate_ad_user
 
 
+_SAFE_ERROR_CODES = {
+    "missing_credentials",
+    "authentication_not_configured",
+    "invalid_credentials",
+    "ldap3_not_installed",
+}
+
+
+def is_within_root(target: Path, root: Path) -> bool:
+    """True if ``target`` is ``root`` or a descendant of it.
+
+    Comparing resolved Path objects (not strings) avoids the classic
+    startswith() bug where a sibling directory whose name extends the
+    root's name (e.g. root=".../Price", target=".../Price_stage/x")
+    would incorrectly pass a naive string-prefix check.
+    """
+    target = target.resolve()
+    root = root.resolve()
+    return target == root or root in target.parents
+
+
 class AuthHandler(BaseHTTPRequestHandler):
     root_dir = Path(os.getcwd())
 
@@ -39,15 +60,22 @@ class AuthHandler(BaseHTTPRequestHandler):
         password = str(payload.get('password', ''))
         config = AuthenticationConfig.from_environment()
         result = authenticate_ad_user(username, password, config)
+        # No exponer detalle de servidor/puerto/excepción a un caller anónimo de
+        # la red — solo códigos de error conocidos salen tal cual; el resto se
+        # loguea server-side y se devuelve genérico.
+        if not result.get('ok') and result.get('error') not in _SAFE_ERROR_CODES:
+            print(f"[auth] error interno de autenticación: {result.get('error')}")
+            result = {**result, 'error': 'auth_service_unavailable'}
         self._send_json(result)
 
     def _serve_static(self, path: str) -> None:
         rel_path = path.split('?', 1)[0].split('#', 1)[0]
         rel_path = rel_path.lstrip('/') or 'index.html'
-        target = (self.root_dir / rel_path).resolve()
-        if not str(target).startswith(str(self.root_dir.resolve())):
+        target = self.root_dir / rel_path
+        if not is_within_root(target, self.root_dir):
             self.send_error(403)
             return
+        target = target.resolve()
         if target.is_dir():
             target = target / 'index.html'
         if not target.exists():
