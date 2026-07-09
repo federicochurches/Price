@@ -18,7 +18,10 @@ Analisis_*_7d*.xlsx
 Analisis_Rates_NoDispo_*_7d*.xlsx
 Analisis_Checkrates_*_7d*.xlsx
 
-# Datasets sueltos en raíz (deben estar en checkrates/ o rates-nodispo/)
+# Datasets crudos — NUNCA van al repo, ni en la raíz ni dentro de
+# checkrates/rates-nodispo/. Viven solo en Price_stage/_datasets_raw/ (local,
+# sin git). Comentario anterior decía lo contrario y causó que 20 datasets
+# (201MB) terminaran commiteados — ver W28-security-review.
 /Dataset_*.xlsx
 /data_set_*.xlsx
 /Week*.xlsx
