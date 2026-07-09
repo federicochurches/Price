@@ -1,5 +1,8 @@
 desktop.ini
 
+# Config local de auth AD — secretos, nunca al repo (ver .env.example)
+.env
+
 # ZIPs de release
 *.zip
 

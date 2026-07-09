@@ -1,32 +1,4 @@
+# Legacy deployment config retained for historical reference.
+# This repository no longer relies on Netlify for hosting or access control.
 [build]
   publish = "."
-
-[[headers]]
-  for = "/*.html"
-  [headers.values]
-    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
-    X-Content-Type-Options = "nosniff"
-
-[[headers]]
-  for = "/reports/*/*.html"
-  [headers.values]
-    Cache-Control = "no-store, no-cache, must-revalidate, max-age=0"
-
-[[headers]]
-  for = "/*.xlsx"
-  [headers.values]
-    Content-Disposition = "attachment"
-    Cache-Control = "public, max-age=86400"
-
-[[headers]]
-  for = "/checkrates/*/*.xlsx"
-  [headers.values]
-    Content-Disposition = "attachment"
-    Cache-Control = "public, max-age=86400"
-
-[[headers]]
-  for = "/rates-nodispo/*/*.xlsx"
-  [headers.values]
-    Content-Disposition = "attachment"
-    Cache-Control = "public, max-age=86400"
-# deploy: 2026-06-27 04:30:00

@@ -11,6 +11,9 @@ import pickle, zipfile, shutil
 import sys, os
 from pathlib import Path
 
+from auth_integration import build_access_policy
+from ad_auth_service import AuthenticationConfig, authenticate_ad_user
+
 # Agregar raíz del proyecto a sys.path (para imports de _helpers/)
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -90,6 +93,9 @@ _LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAQMAAAA/CAYAAADkHq2pAAAAAXNSR0IArs4c6QAAAIR
 
 # ── Generar index.html del hub ─────────────────────────────────────────────────
 def build_index():
+    access_policy = build_access_policy()
+    access_script = access_policy.render_script()
+    SITE_BASE_URL = access_policy.site_base_url
     nd_meta = (
         f'{len(DR["p80_hotel"]):,} hoteles P80 · '
         f'%NoDispo {es(rnd_pct)}% · '
@@ -242,7 +248,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     <div class="lock-error" id="error">Usuario o contraseña incorrectos. Intentá de nuevo.</div>
   </div>
   <div class="lock-footer">
-    <span class="lock-footer-tag">analytics-desk.netlify.app</span>
+    <span class="lock-footer-tag">{SITE_BASE_URL}</span>
     <span class="lock-footer-url">{SEMANA}</span>
   </div>
 </div>
@@ -438,16 +444,34 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
 </div>
 
 <script>
-const CREDS = {{ user: 'pricetravel', pass: 'supply2026' }};
 const SESSION_KEY = 'pt_analytics_auth';
-function checkAuth() {{
+async function checkAuth() {{
   const u = document.getElementById('user').value.trim().toLowerCase();
   const p = document.getElementById('pass').value;
-  if (u === CREDS.user && p === CREDS.pass) {{
-    localStorage.setItem(SESSION_KEY, '1');
-    showHub();
-  }} else {{
+  if (!u || !p) {{
     document.getElementById('error').style.display = 'block';
+    return;
+  }}
+  try {{
+    const response = await fetch('/auth/validate', {{
+      method: 'POST',
+      headers: {{ 'Content-Type': 'application/json' }},
+      body: JSON.stringify({{ username: u, password: p }})
+    }});
+    const data = await response.json();
+    if (data.ok) {{
+      localStorage.setItem(SESSION_KEY, '1');
+      logAccessEvent('auth-success', {{ user: u }});
+      showHub();
+    }} else {{
+      const msg = data.error ? `Error de autenticación: ${{data.error}}` : 'Usuario o contraseña incorrectos. Intentá de nuevo.';
+      document.getElementById('error').textContent = msg;
+      document.getElementById('error').style.display = 'block';
+      logAccessEvent('auth-failed', {{ user: u, reason: data.error }});
+    }}
+  }} catch (e) {{
+    document.getElementById('error').style.display = 'block';
+    logAccessEvent('auth-failed', {{ user: u, reason: 'network' }});
   }}
 }}
 function showHub() {{
@@ -457,8 +481,9 @@ function showHub() {{
 }}
 if (localStorage.getItem(SESSION_KEY)) showHub();
 document.addEventListener('keydown', e => {{ if (e.key === 'Enter') checkAuth(); }});
-
-
+</script>
+<script>
+{access_script}
 </script>
 </body>
 </html>"""
