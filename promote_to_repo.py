@@ -49,6 +49,10 @@ def should_ignore(rel_path: Path) -> bool:
         return True
     if rel_path.name.startswith("detalleHoteles_") and rel_path.suffix == ".xlsx":
         return True
+    if rel_path.name.lower() == "datahoteles_contratos.xlsx":
+        return True
+    if rel_path.name.startswith("~$"):
+        return True
     return False
 
 

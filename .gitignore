@@ -31,6 +31,14 @@ Dataset_*.xlsx
 detalleHoteles_*.xlsx
 inventory/Dataset_*.xlsx
 inventory/detalleHoteles_*.xlsx
+# dataHoteles_contratos.xlsx (input crudo de calc_inv.py) — mismo trato que
+# Dataset_*.xlsx, no matchea ese patrón por el nombre. 2 variantes de mayúscula
+# terminaron commiteadas (68.7MB c/u) — ver W28-security-review.
+dataHoteles_contratos.xlsx
+datahoteles_contratos.xlsx
+
+# Archivos de lock temporales de Excel — nunca deberían commitearse
+~$*.xlsx
 
 # Pickles generados por el pipeline
 *.pkl
