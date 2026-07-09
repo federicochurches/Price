@@ -1,0 +1,73 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "weekConfigFile",
+      "type": "promptString",
+      "description": "Archivo de config YAML del pipeline Supply (ej: WEEK_CONFIG_W28.yml)",
+      "default": "WEEK_CONFIG_W28.yml"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Supply: pipeline completo (run_pipeline.py)",
+      "detail": "calc RND+CR+BK → render → assemble → Excel globales → mail+Hub. Requiere WEEK_CONFIG_WNN.yml en la raíz del stage.",
+      "type": "process",
+      "command": "python",
+      "args": ["run_pipeline.py", "${input:weekConfigFile}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Supply: standalone rápido (calc_supply.py)",
+      "detail": "Pasos 1-4 (sin Hub/mail/commit/BK/Excels regionales). Copiar los 4 datasets a la raíz y editar el bloque CONFIG del script antes de correr.",
+      "type": "process",
+      "command": "python",
+      "args": ["calc_supply.py"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Inventory: calc_inv.py",
+      "detail": "Genera INVENTORY_WNN.html + los 3 JSON en inventory/week-NN/.",
+      "type": "process",
+      "command": "python",
+      "args": ["calc_inv.py"],
+      "options": { "cwd": "${workspaceFolder}/inventory" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Promote: Stage → Repo (dry-run)",
+      "detail": "Compara Price_stage vs Price por hash y muestra qué se copiaría, sin tocar nada.",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "promote_to_repo.py",
+        "--stage", "${workspaceFolder}",
+        "--repo", "C:/Users/federico.iglesias/Price",
+        "--dry-run"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Promote: Stage → Repo (real — copia archivos)",
+      "detail": "Corré primero el dry-run y revisá la lista. Este paso copia de verdad — después hay que ir a la ventana de Price\\ y commitear desde el Source Control.",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "promote_to_repo.py",
+        "--stage", "${workspaceFolder}",
+        "--repo", "C:/Users/federico.iglesias/Price"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    }
+  ]
+}
