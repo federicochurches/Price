@@ -10,7 +10,7 @@ from engine import banda_nodispo, banda_rpm, get_dest_tier
 from editorial_engine import build_editorial_rnd
 from render_helpers import (BANDA_COLORS, fmt_int_es, fmt_big,
                             es_pct, es_int, es_ipm, banda_colors, wow_arrow,
-                            sev_badge_html_p2)
+                            sev_badge_html_p2, json_dumps_for_script)
 
 with open(os.getenv('PICKLE_RND', 'rnd_w21_data.pkl'), 'rb') as f:
     D = pickle.load(f)
@@ -623,9 +623,9 @@ def safe_json(obj):
     if isinstance(obj, np.ndarray): return obj.tolist()
     raise TypeError(f'Not serializable: {type(obj)}')
 
-RND_CV_JSON = json.dumps(RND_CV, ensure_ascii=False, default=safe_json)
-RND_D_JSON  = json.dumps(RND_D,  ensure_ascii=False, default=safe_json)
-RND_AL_JSON = json.dumps(RND_AL, ensure_ascii=False, default=safe_json)
+RND_CV_JSON = json_dumps_for_script(RND_CV, ensure_ascii=False, default=safe_json)
+RND_D_JSON  = json_dumps_for_script(RND_D,  ensure_ascii=False, default=safe_json)
+RND_AL_JSON = json_dumps_for_script(RND_AL, ensure_ascii=False, default=safe_json)
 
 # Alertas subtitle dinámico para RND
 PART2 = (

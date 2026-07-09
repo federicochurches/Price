@@ -113,14 +113,15 @@ def score_hotel(row, vol_max, metric, scope='global', report_type='cr'):
     banda = row.get(BANDA_COL.get(metric, ''), '')
     sev_idx = 1.0 if banda == 'Súper Crítica' else 0.6
 
-    # Bonus WoW (asimétrico — solo empeora sube el score)
+    # Bonus WoW (asimétrico — solo empeora sube el score). bonus_wow es un
+    # indicador 0/1; el peso de 10% se aplica una sola vez, en el return.
     wow_val = row.get(WOW_COL.get(metric, ''), None)
     if _nan(wow_val):
         bonus_wow = 0.0
     elif report_type == 'rnd':
-        bonus_wow = 0.10 if float(wow_val) > 0 else 0.0   # NoDispo sube = empeora
+        bonus_wow = 1.0 if float(wow_val) > 0 else 0.0   # NoDispo sube = empeora
     else:
-        bonus_wow = 0.10 if float(wow_val) < 0 else 0.0   # Eficacia baja = empeora
+        bonus_wow = 1.0 if float(wow_val) < 0 else 0.0   # Eficacia baja = empeora
 
     return 0.60 * vol_norm + 0.30 * sev_idx + 0.10 * bonus_wow
 

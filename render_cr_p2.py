@@ -11,7 +11,7 @@ from engine import banda_eficacia, banda_convrate
 from editorial_engine import build_editorial_cr
 from render_helpers import (clean_hotel_name, BANDA_COLORS, fmt_pct2, fmt_int_es, fmt_big,
                             es_pct, es_int, es_pct2, banda_colors, wow_arrow, wow_arrow_abs,
-                            sev_badge_html_p2)
+                            sev_badge_html_p2, json_dumps_for_script)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 with open(os.getenv('PICKLE_CR', 'cr_w21_data.pkl'), 'rb') as f:
@@ -829,9 +829,9 @@ def safe_json(obj):
     if isinstance(obj, np.ndarray): return obj.tolist()
     raise TypeError(f'Not serializable: {type(obj)}')
 
-CR_CV_JSON = json.dumps(CR_CV, ensure_ascii=False, default=safe_json)
-CR_D_JSON  = json.dumps(CR_D,  ensure_ascii=False, default=safe_json)
-CR_AL_JSON = json.dumps(CR_AL, ensure_ascii=False, default=safe_json)
+CR_CV_JSON = json_dumps_for_script(CR_CV, ensure_ascii=False, default=safe_json)
+CR_D_JSON  = json_dumps_for_script(CR_D,  ensure_ascii=False, default=safe_json)
+CR_AL_JSON = json_dumps_for_script(CR_AL, ensure_ascii=False, default=safe_json)
 
 PART2 = (
     '<div id="w22-sev-cr">\n' + render_severity() + '\n</div>\n' +

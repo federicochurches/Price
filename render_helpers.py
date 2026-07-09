@@ -2,11 +2,22 @@
 Generador del reporte editorial RatesNoDispo W18
 Sistema bandas D · post W17
 """
-import sys, os
+import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pandas as pd
 import numpy as np
 from engine import *
+
+
+def json_dumps_for_script(obj, **kwargs):
+    """json.dumps() seguro para insertar crudo dentro de un <script> del HTML.
+
+    json.dumps() no escapa '/', así que un '</strong>'/'</div>' que venga de
+    HTML generado (ej. drilldowns del motor editorial) corta el <script> al
+    insertarse tal cual (regla #42 del proyecto — ya rompió un reporte antes).
+    '<\\/' es un escape válido en JS/JSON, el navegador nunca ve '</' literal.
+    """
+    return json.dumps(obj, **kwargs).replace('</', '<\\/')
 
 # ============ CONFIG W18 ============
 WEEK_NUM = os.getenv('WEEK', 'W20')
