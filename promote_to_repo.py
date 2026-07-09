@@ -53,6 +53,11 @@ def should_ignore(rel_path: Path) -> bool:
         return True
     if rel_path.name.startswith("~$"):
         return True
+    # .env (config local de auth AD, secretos) — nunca va al repo, gitignored
+    # en Price\. Sin esto, promote_to_repo.py lo copiaba igual porque nunca
+    # llega a tocar git — descubierto corriendo el --dry-run el 09-07-2026.
+    if rel_path.name == ".env":
+        return True
     return False
 
 
