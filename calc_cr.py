@@ -32,7 +32,7 @@ WEEK_NUM = int(WEEK.replace('W', ''))
 VOL_NUM_PREV = int(VOL_NUM) - 1
 
 PRODUCTO_PROPIO = ['DerbySoft','Internal','HBSI','SynXis','Siteminder','Travelclick','Omnibees']
-THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate']
+THIRD_PARTY     = ['Expedia','HotelBeds','Hotel Unico','Travelgate','RateFox']
 
 CANAL_VALIDO = ['B2C', 'B2B (OP)', 'CUG (UOP)']
 
@@ -67,22 +67,26 @@ def _reshape_daily_pivot(path):
     for c in date_cols:
         df_raw[c] = pd.to_numeric(df_raw[c], errors='coerce').fillna(0)
 
+    # Unión de índices de las 5 métricas (no anclar en la primera que itere:
+    # count_metrics es un set, su orden de iteración no es estable entre
+    # corridas — anclar en una sola metrica podía descartar en silencio
+    # combinaciones id_cols presentes solo en otra métrica).
     pieces = {}
-    base_index = None
-    for metric in count_metrics:
+    union_index = None
+    for metric in sorted(count_metrics):
         sub = df_raw[df_raw['Metric'] == metric]
         if not len(sub):
             continue
         s = sub.set_index(id_cols)[date_cols].sum(axis=1)
         pieces[metric] = s
-        base_index = s.index if base_index is None else base_index
+        union_index = s.index if union_index is None else union_index.union(s.index)
 
-    if base_index is None:
+    if union_index is None:
         return None
 
-    out = pd.DataFrame(index=base_index)
-    for metric in count_metrics:
-        out[metric] = pieces.get(metric, pd.Series(0, index=base_index)).reindex(base_index).fillna(0)
+    out = pd.DataFrame(index=union_index)
+    for metric in sorted(count_metrics):
+        out[metric] = pieces.get(metric, pd.Series(0, index=union_index)).reindex(union_index).fillna(0)
     out = out.reset_index()
     # Limpiar fila de placeholder (todo cero + Corporate/Hotel='-')
     _corp_col = 'Corporate' if 'Corporate' in out.columns else None
@@ -496,7 +500,7 @@ def canasta_data(cat, short, df18=df18, df17=df17):
     g_h = sub18.groupby('Hotel').agg(CR_Unicos=('CR_Unicos','sum')).reset_index()
     g_h = g_h.sort_values('CR_Unicos', ascending=False)
     g_h['cum'] = g_h['CR_Unicos'].cumsum()/g_h['CR_Unicos'].sum()
-    p80_list = g_h[g_h['cum'].shift(1, fill_value=0) < 0.80]['Hotel'].tolist()
+    p80_list = g_h[g_h['cum'].shift(1, fill_value=0) < 0.90]['Hotel'].tolist()
     
     p80_can = agg_hotel(sub18, p80_list)
 
