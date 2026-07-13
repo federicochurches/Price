@@ -251,8 +251,9 @@ def run_step(step_name, script_cmd, config, env, logger):
 
 # ── PIPELINE STEPS ────────────────────────────────────────────────────────
 def get_pipeline_steps(config):
-    """Definir los 8 pasos del pipeline (BK + copia a archivo agregados —
-    antes eran 6 y ni Bookability ni las carpetas de archivo se actualizaban)."""
+    """Definir los 9 pasos del pipeline (BK, copia a archivo y Excels
+    regional/accounts agregados — antes eran 6 y Bookability, las carpetas de
+    archivo y los Excels por región/cuenta no se actualizaban)."""
     return [
         {
             'name': '1. CALC RND',
@@ -286,6 +287,15 @@ def get_pipeline_steps(config):
             'name': '6. EXCEL RND + CR (consolidados)',
             'cmd': 'python excel_rnd.py && python excel_cr.py',
             'critical': False,  # No-critical: continuar aunque falle
+        },
+        {
+            'name': '6b. EXCEL REGIONAL + ACCOUNTS',
+            # Generan los Excels por región (México/US/CALA) y por cuenta
+            # (Global Accounts/Estratégicas) que SUPPLY_WNN.html e index.html
+            # linkean directo a GitHub — antes quedaban fuera del pipeline
+            # automatizado y esos links daban 404 (nunca se generaban).
+            'cmd': 'python excel_cr_regional.py && python excel_rnd_regional.py && python excel_cr_accounts.py && python excel_rnd_accounts.py',
+            'critical': False,
         },
         {
             'name': '7. COPY TO ARCHIVE',

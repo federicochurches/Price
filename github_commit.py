@@ -112,6 +112,8 @@ def commit_to_github(token, week_num, periodo, tipo, mensaje_extra, blobs_map):
     head_sha = r.json()['object']['sha']
 
     r = requests.get(f'{BASE}/git/commits/{head_sha}', headers=headers)
+    if r.status_code != 200:
+        print(f"❌ No se pudo leer commit base: {r.text[:100]}"); return None
     base_tree_sha = r.json()['tree']['sha']
 
     # Crear blobs
@@ -181,15 +183,19 @@ def build_blobs_map(week_num, outputs_dir, scripts_dir):
         print(f"  📦 ZIP del repo: {len(blobs)} archivos de {zip_path.name}")
     else:
         print(f"  ⚠️  No se encontró {zip_path.name} — commitando solo scripts desde raíz")
-        # Fallback: subir scripts individuales a la raíz
-        for fname in SCRIPT_FILES:
-            local = scripts / fname
-            if local.exists():
-                blobs[fname] = local.read_bytes()
-        for fname in DOC_FILES:
-            local = scripts / fname
-            if local.exists():
-                blobs[fname] = local.read_bytes()
+
+    # 2. Scripts + docs actualizados — SIEMPRE, no solo cuando falta el ZIP.
+    # El ZIP de build_package.py solo trae outputs generados (HTML/Excel), nunca
+    # el código fuente (render_*.py, js_override.js, etc.) — sin este paso, un
+    # fix de código nunca llegaba a GitHub mientras el ZIP de la semana existiera.
+    for fname in SCRIPT_FILES:
+        local = scripts / fname
+        if local.exists():
+            blobs[fname] = local.read_bytes()
+    for fname in DOC_FILES:
+        local = scripts / fname
+        if local.exists():
+            blobs[fname] = local.read_bytes()
 
     return blobs
 
@@ -306,7 +312,7 @@ def main():
     if commit_sha:
         print(f"\n  ✅ Commit: {commit_sha[:12]}")
         print(f"  🔗 https://github.com/{REPO}/commit/{commit_sha}")
-        print(f"  🌐 Hub: https://analytics-desk.netlify.app")
+        print(f"  🌐 Hub: {os.getenv('PRICE_SITE_BASE_URL', 'https://federicochurches.github.io/Price')}")
 
         # ZIP del proyecto Claude
         if not args.skip_zip:

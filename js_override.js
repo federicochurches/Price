@@ -3316,3 +3316,71 @@ function ar3_showMore() {
   })();
 })();
 
+/* ══════════════════════════════════════════════════════════════════════
+   Sort click-to-sort para la card AR-NoDispo (RND) — kpicard-ar-nd.
+   Los 3 paneles de banda (Críticos/Bajo Rend/Sin Conv) se generan como HTML
+   estático (build_kpi_tab_rows) sin sort, a diferencia de la card AR vieja de
+   CR que sí lo tiene (_arSort/_arSortAttach). Acá se reordenan los <div> de
+   fila directamente en el DOM — no hay un array de datos JS equivalente al
+   de CR/RND_D para estos paneles. Cada panel guarda su propio orden original
+   y estado de sort de forma independiente (son elementos separados).
+   ══════════════════════════════════════════════════════════════════════ */
+function arNdSort(el, key) {
+  var panel = el.closest('.ar-nd-panel');
+  if (!panel) return;
+  var wrap = panel.querySelector('.kpi-tab-rows');
+  if (!wrap) return;
+  if (!panel._origOrder) {
+    panel._origOrder = Array.prototype.slice.call(wrap.querySelectorAll('div[data-row-idx]'));
+  }
+  var st = panel._sortState || {key: null, dir: 'orig'};
+  var dir = (st.key === key) ? (st.dir === 'asc' ? 'desc' : (st.dir === 'desc' ? 'orig' : 'asc')) : 'asc';
+  panel._sortState = {key: key, dir: dir};
+
+  var rows = panel._origOrder.slice();
+  if (dir !== 'orig') {
+    var attr = key === 'traf' ? 'data-traf' : 'data-hist-w21';
+    rows.sort(function(a, b) {
+      var va = parseFloat(a.getAttribute(attr)) || 0;
+      var vb = parseFloat(b.getAttribute(attr)) || 0;
+      return dir === 'asc' ? va - vb : vb - va;
+    });
+  }
+
+  var TOP_N    = (typeof _KPI_TOP_N !== 'undefined')    ? _KPI_TOP_N    : 5;
+  var EXPAND_N = (typeof _KPI_EXPAND_N !== 'undefined') ? _KPI_EXPAND_N : 10;
+  var moreBtn = wrap.querySelector('button.kpi-more-btn');
+  rows.forEach(function(row, i) {
+    row.classList.remove('rows-more', 'sb-hidden', 'sb-search-hit');
+    if (i < TOP_N) {
+      row.style.setProperty('display', 'grid');
+    } else if (i < EXPAND_N) {
+      row.classList.add('rows-more');
+      row.style.setProperty('display', 'none');
+    } else {
+      row.classList.add('sb-hidden');
+      row.style.removeProperty('display');
+    }
+    wrap.appendChild(row);
+  });
+  /* Reubicar el botón "Ver más" al final — appendChild de las filas lo deja
+     a mitad de camino — y resetear su estado a colapsado. */
+  if (moreBtn) {
+    wrap.appendChild(moreBtn);
+    moreBtn.setAttribute('data-exp', '0');
+    moreBtn.textContent = 'Ver más ▾';
+    moreBtn.style.display = (rows.length > TOP_N) ? '' : 'none';
+  }
+
+  /* Ícono ↕/↑/↓ — solo la columna activa muestra dirección */
+  wrap.querySelectorAll('[data-sort-key]').forEach(function(sp) {
+    var ico = sp.querySelector('.ar-nd-sort-ico');
+    if (!ico) return;
+    if (sp.getAttribute('data-sort-key') !== key || dir === 'orig') {
+      ico.textContent = '↕'; ico.style.opacity = '.35';
+    } else {
+      ico.textContent = dir === 'asc' ? '↑' : '↓'; ico.style.opacity = '1';
+    }
+  });
+}
+

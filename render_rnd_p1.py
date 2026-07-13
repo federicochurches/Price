@@ -314,12 +314,26 @@ def render_ar_card_nodispo(pct_w18, pct_w17, pct_wow):
             _AR_CFG['hist_prev_col'] = _hcol
             break
 
+    # ── Header ordenable (Tráfico/%NoDispo) — click-to-sort de las filas del
+    # panel activo; mismo estilo visual que tab_column_header pero con
+    # data-sort-key + onclick (W27: la card ar-nd no tenía sort, a diferencia
+    # de la card AR vieja en CR que sí lo tiene vía _arSort/_arSortAttach). ──
+    def _ar_nd_sortable_header():
+        _lbl = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);'
+        def _sh(lbl, key):
+            return (f'<span onclick="arNdSort(this,\'{key}\')" data-sort-key="{key}" '
+                    f'style="{_lbl}text-align:right;padding:2px 0 4px;cursor:pointer;user-select:none;">'
+                    f'{lbl} <span class="ar-nd-sort-ico" style="opacity:.35;font-size:8px;">↕</span></span>')
+        return (f'<div style="display:grid;grid-template-columns:{_AR_HDR["widths"]};'
+                f'gap:6px;padding:2px 0 4px;border-bottom:1px solid var(--rule);margin-bottom:2px;">'
+                f'<span></span>{_sh("Tráfico","traf")}{_sh("%NoDispo","val")}<span></span></div>')
+
     # ── 3 paneles de banda (crit visible, br/sc ocultos) ──
     _BANDS = [('crit', 'Críticos', _df_crit), ('br', 'Bajo Rendimiento', _df_br), ('sc', 'Sin Conversión', _df_sc)]
     panels_ar = ''
     for _i, (_bkey, _blabel, _bdf) in enumerate(_BANDS):
         _top, _rest = build_kpi_tab_rows(_bdf, 'hotel', _AR_CFG)
-        _hdr = tab_column_header(_AR_HDR['headers'], _AR_HDR['widths'])
+        _hdr = _ar_nd_sortable_header()
         _more = _kpi_ver_mas_btn(target_class='rows-more') if _rest else ''
         _hide = '' if _i == 0 else ' style="display:none;"'
         panels_ar += (f'<div class="ar-nd-panel" data-band="{_bkey}"{_hide}>'

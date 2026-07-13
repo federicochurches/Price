@@ -193,7 +193,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
         'grid_cols':     'minmax(0,1fr) 80px 54px 48px',
         'show_severity': False,
     }
-    _EF_HDR = {'headers': ['Tráfico','PERF','WoW'],
+    _EF_HDR = {'headers': ['Tráfico','Performance','WoW'],
                'widths':  'minmax(0,1fr) 80px 54px 48px'}
     # ────────────────────────────────────────────────────────────────────────────
 
@@ -256,13 +256,15 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
                     _wv = r[wow_col_k]; _bk_wow_v = _wv if _wv == _wv else 0
                 except Exception:
                     _bk_wow_v = 0
-                # Grid de 4 cols (BK style): nombre · TRX · valor · WoW — clase bk-row para sort+selección
+                # Grid de 4 cols — mismas columnas que el resto de la card (_EF_CFG/_CV_CFG
+                # grid_cols), no las de Bookability; clase bk-row se conserva solo para
+                # reusar la maquinaria de sort/selección (window.bkSort), no el layout.
                 return (f'<div class="bk-row" data-lbl="{_lbl}" data-trx="{_trx_int}" data-trx-wow="0" '
                         f'data-bk="{_bk_val:.6f}" data-bk-wow="{_bk_wow_v:.6f}" '
                         f'data-hist-w21="{_w21}" '
                         f'data-hist-w20="{round(_w21 - _bk_wow_v * 100, 4)}"'
                         f' data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
+                        f' style="display:grid;grid-template-columns:{_EF_CFG["grid_cols"]};align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
@@ -273,7 +275,7 @@ def render_kpi_card_eficacia(ef_w18, ef_w17, ef_wow, week_num=f'W{WEEK_NUM_INT}'
             rows_tp = ''.join(chan_row(i, nombre, r, 'Eficacia') for i, (nombre, r) in enumerate(_tp_sorted))
             _metric_lbl = 'Perf'
             _hdr_chan = lambda lbl, acc: (
-                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;width:100%;'
+                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:{_EF_CFG["grid_cols"]};width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
                 f'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
                 f'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Trx <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
@@ -426,7 +428,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
                         f'data-hist-w21="{_w21}" '
                         f'data-hist-w20="{round(_w21 - _bk_wow_v * 100, 4)}"'
                         f' data-hist-label="{_lbl}"'
-                        f' style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
+                        f' style="display:grid;grid-template-columns:{_CV_CFG["grid_cols"]};align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--rule-soft);cursor:pointer;transition:background .12s;width:100%;">'
                         f'<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;min-width:0;font-size:11px;color:var(--ink);">{_lbl}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{trx_str}</span>'
                         f'<span style="text-align:right;font-size:11px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;">{val_str}</span>'
@@ -437,7 +439,7 @@ def render_kpi_card_convrate(cv_w18, cv_w17, cv_wow, week_num=f'W{WEEK_NUM_INT}'
             rows_tp = ''.join(chan_row_cv(i, nombre, r, 'ConvRate') for i, (nombre, r) in enumerate(_tp_sorted_cv))
             _metric_lbl = 'ConvRate'
             _hdr_chan = lambda lbl, acc: (
-                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:minmax(0,1fr) 68px 72px 48px;width:100%;'
+                f'<div class="bk-sort-hdr" style="display:grid;grid-template-columns:{_CV_CFG["grid_cols"]};width:100%;'
                 f'align-items:center;gap:6px;padding:4px 0;border-bottom:2px solid {acc};margin-bottom:2px;">'
                 f'<span data-sort-key="lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);cursor:pointer;user-select:none;">Channel <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'
                 f'<span data-sort-key="trx" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);text-align:right;cursor:pointer;user-select:none;">Trx <em class="bk-arrow" style="font-style:normal;opacity:.4;">↕</em></span>'

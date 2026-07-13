@@ -708,12 +708,14 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
 
         # Tráfico
         traf_str = '—'
+        _traf_raw = 0
         if traf_col:
             _tv = r.get(traf_col)
             try:
                 _tvf = float(_tv)
                 if not _math.isnan(_tvf):
                     traf_str = traf_fmt(int(_tvf))
+                    _traf_raw = _tvf
             except (TypeError, ValueError):
                 pass
 
@@ -765,6 +767,7 @@ def build_kpi_tab_rows(df_t, t_key, cfg):
             f'<div class="{_cls}" data-row-idx="{i}"'
             f' data-cf-corp="{_cf_corp_v}" data-cf-dest="{_cf_dest_v}" data-cf-pais="{_cf_pais_v}"'
             f' data-hist-w21="{_hist_w21}" data-hist-w20="{_hist_w20}" data-hist-label="{raw_lab}"'
+            f' data-traf="{_traf_raw}"'
             f' style="display:{_display};grid-template-columns:{grid_cols};align-items:center;gap:6px;'
             f'width:100%;padding:6px 0;border-bottom:1px solid var(--rule-soft);'
             f'cursor:pointer;transition:background .12s;">'

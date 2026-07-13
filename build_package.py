@@ -337,7 +337,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     </div>
     <div style="padding:10px 14px;">
       <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Contratación</div>
-      <div style="font-size:15px;font-weight:700;color:var(--ink);">{_inv_fmt(_inv_pp_d)} hoteles</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_pp_n} hoteles</div>
       <div style="margin-top:2px;">{wow_inv_gap}</div>
     </div>
   </div>
@@ -652,9 +652,17 @@ files = {
     # ── inventory/week-NN · script + HTML + Excel ─────────────────────────
     SCRIPT_DIR / 'inventory' / 'calc_inv.py':
         ZIP_ROOT / 'inventory' / 'calc_inv.py',
-    OUTPUTS / f'INVENTORY_W{WEEK}.html':
+
+    # calc_inv.py escribe directo a inventory/week-NN/ (no a la raíz);
+    # fallback a la raíz por si alguna corrida vieja lo dejó ahí.
+    (SCRIPT_DIR / 'inventory' / WEEK_STR / f'INVENTORY_W{WEEK}.html'
+     if (SCRIPT_DIR / 'inventory' / WEEK_STR / f'INVENTORY_W{WEEK}.html').exists()
+     else OUTPUTS / f'INVENTORY_W{WEEK}.html'):
         ZIP_ROOT / 'inventory' / WEEK_STR / f'INVENTORY_W{WEEK}.html',
-    OUTPUTS / f'Analisis_Inventory_W{WEEK}.xlsx':
+
+    (SCRIPT_DIR / 'inventory' / WEEK_STR / f'Analisis_Inventory_W{WEEK}.xlsx'
+     if (SCRIPT_DIR / 'inventory' / WEEK_STR / f'Analisis_Inventory_W{WEEK}.xlsx').exists()
+     else OUTPUTS / f'Analisis_Inventory_W{WEEK}.xlsx'):
         ZIP_ROOT / 'inventory' / WEEK_STR / f'Analisis_Inventory_W{WEEK}.xlsx',
 }
 
