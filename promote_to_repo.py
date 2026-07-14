@@ -58,6 +58,10 @@ def should_ignore(rel_path: Path) -> bool:
     # llega a tocar git — descubierto corriendo el --dry-run el 09-07-2026.
     if rel_path.name == ".env":
         return True
+    # Basura de Windows Explorer (metadata de carpeta/thumbnails) — nunca es
+    # contenido del proyecto, se genera solo al navegar carpetas en Explorer.
+    if rel_path.name.lower() in ("desktop.ini", "thumbs.db"):
+        return True
     return False
 
 

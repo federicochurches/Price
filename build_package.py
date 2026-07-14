@@ -173,8 +173,9 @@ def build_index():
         _inv_total = _inv_cur['total'] if _inv_cur['total'] else _inv_pp
         _netnew    = _inv_cur['netnew']
 
-        inv_n      = f'{_inv_total:,}'.replace(',', '.')
-        inv_pp_n   = f'{_inv_pp:,}'.replace(',', '.')
+        inv_n         = f'{_inv_total:,}'.replace(',', '.')
+        inv_pp_n      = f'{_inv_pp:,}'.replace(',', '.')
+        inv_netnew_str = _inv_fmt(_netnew)
         inv_gap    = f'{max(INV_TARGET - _inv_pp, 0):,}'.replace(',', '.')
         inv_avance = f'{round(_inv_pp / INV_TARGET * 100, 1):.1f}%'
 
@@ -201,7 +202,7 @@ def build_index():
     else:
         # Sin INVENTORY_WNN.html disponible para esta semana — degradar con
         # gracia en vez de mostrar un número viejo como si fuera actual.
-        inv_n = inv_pp_n = inv_gap = inv_avance = '—'
+        inv_n = inv_pp_n = inv_gap = inv_avance = inv_netnew_str = '—'
         wow_inv_pp = wow_inv_gap = wow_inv_n = ''
 
 
@@ -337,7 +338,7 @@ body{{font-family:'Geist',sans-serif;background:var(--paper);color:var(--ink);mi
     </div>
     <div style="padding:10px 14px;">
       <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Avance Contratación</div>
-      <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_pp_n} hoteles</div>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);">{inv_netnew_str} hoteles</div>
       <div style="margin-top:2px;">{wow_inv_gap}</div>
     </div>
   </div>

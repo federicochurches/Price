@@ -31,8 +31,8 @@ except Exception:
 # Si necesitás forzar una semana específica (corriste tarde, re-generás una
 # semana vieja, etc.), completá WEEK_NUM_OVERRIDE y SNAPSHOT_DATE_OVERRIDE
 # abajo — si están seteados, tienen prioridad sobre el auto-cálculo.
-WEEK_NUM_OVERRIDE      = 27
-SNAPSHOT_DATE_OVERRIDE = "6 de Julio de 2026"
+WEEK_NUM_OVERRIDE      = 28
+SNAPSHOT_DATE_OVERRIDE = "13 de Julio de 2026"
 
 _MESES_ES = {1:'Enero',2:'Febrero',3:'Marzo',4:'Abril',5:'Mayo',6:'Junio',
              7:'Julio',8:'Agosto',9:'Septiembre',10:'Octubre',11:'Noviembre',12:'Diciembre'}
@@ -4117,7 +4117,7 @@ def build_unified_distrib():
     dest_rows = ''
     for i,(_, r) in enumerate(dest_grp.head(1000).iterrows()):
         cls = 'rows-more-dest' if i>=10 else ''; sty = 'display:none'
-        dest_name = str(r['Destino']).replace("'", '')
+        dest_name = str(r['Destino']).replace(chr(34), chr(39))  # " -> ' (igual que build_gap_tab); no tocar apóstrofes reales
         pp_=r['prod_propio']; tp=r['solo_tercero']; tot=r['total']
         pct_pp = pp_/tot*100 if tot else 0; vs = pct_pp - pp/N*100
         dest_rows += (
@@ -4739,10 +4739,10 @@ def build_html():
       f'<div style="margin-bottom:10px;">'
       f'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'
       f'<div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;">{r["Corporativo"]}</div>'
-      f'<span style="font-size:13px;font-weight:700;color:#6A6A6A;">{100-int(r["pct_penetracion"]):.1f}%</span>'
+      f'<span style="font-size:13px;font-weight:700;color:#6A6A6A;">{100-r["pct_penetracion"]:.1f}%</span>'
       f'</div>'
       f'<div style="height:3px;background:var(--rule-soft);border-radius:2px;">'
-      f'<div style="height:100%;width:{min(100,100-int(r["pct_penetracion"])):.1f}%;background:#6A6A6A;border-radius:2px;opacity:.7;"></div>'
+      f'<div style="height:100%;width:{min(100,100-r["pct_penetracion"]):.1f}%;background:#6A6A6A;border-radius:2px;opacity:.7;"></div>'
       f'</div>'
       f'<div style="font-size:11px;color:#6A6A6A;margin-top:1px;">{fmt_n(int(r["sin_directo"]))}</div>'
       f'</div>'
