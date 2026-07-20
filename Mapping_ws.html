@@ -462,9 +462,10 @@ let geo2ReqSeq = 0;
 let geo2PendingReqId = null;
 
 (function initGeo2Worker(){
+  const geo2AbsoluteUrl = new URL('geo2.json', document.baseURI).href;
   const workerSrc = [
     "let GEO2 = null;",
-    "fetch('geo2.json').then(function(r){",
+    "fetch('" + geo2AbsoluteUrl + "').then(function(r){",
     "  if(!r.ok) throw new Error('HTTP ' + r.status);",
     "  return r.json();",
     "}).then(function(data){",
