@@ -460,6 +460,11 @@ let geo2LoadFailed = false;
 let geo2Worker = null;
 let geo2ReqSeq = 0;
 let geo2PendingReqId = null;
+// Puente hacia las funciones definidas dentro de initApp() (que este bloque, a
+// nivel superior del script, no puede referenciar directamente por scope).
+// initApp las registra aca apenas arranca.
+let geo2OnReady = null;
+let geo2OnResult = null;
 
 (function initGeo2Worker(){
   const geo2AbsoluteUrl = new URL('geo2.json', document.baseURI).href;
@@ -519,20 +524,20 @@ let geo2PendingReqId = null;
     const msg = e.data;
     if(msg.type === 'ready'){
       geo2Ready = true;
-      if(typeof renderHistoryAndGeo === 'function'){
-        try { renderHistoryAndGeo(); } catch(err){}
+      if(geo2OnReady){
+        try { geo2OnReady(); } catch(err){}
       }
     } else if(msg.type === 'error'){
       geo2LoadFailed = true;
       console.error('No se pudieron cargar los datos geograficos (geo2.json):', msg.message);
-      if(typeof renderHistoryAndGeo === 'function'){
-        try { renderHistoryAndGeo(); } catch(err){}
+      if(geo2OnReady){
+        try { geo2OnReady(); } catch(err){}
       }
     } else if(msg.type === 'result'){
       if(msg.requestId !== geo2PendingReqId) return;
       if(msg.error) return;
-      if(typeof continueRenderHistoryAndGeo === 'function'){
-        try { continueRenderHistoryAndGeo(msg.agg); } catch(err){ console.error(err); }
+      if(geo2OnResult){
+        try { geo2OnResult(msg.agg); } catch(err){ console.error(err); }
       }
     }
   };
@@ -540,8 +545,8 @@ let geo2PendingReqId = null;
   geo2Worker.onerror = function(err){
     geo2LoadFailed = true;
     console.error('Error en el worker de datos geograficos:', err);
-    if(typeof renderHistoryAndGeo === 'function'){
-      try { renderHistoryAndGeo(); } catch(e){}
+    if(geo2OnReady){
+      try { geo2OnReady(); } catch(e){}
     }
   };
 })();
@@ -1541,6 +1546,9 @@ function initApp(chartAvailable){
     geo2PendingReqId = reqId;
     geo2Worker.postMessage({ type: 'query', requestId: reqId, corps: corpsArr, agency: state.agency });
   }
+
+  geo2OnReady = renderHistoryAndGeo;
+  geo2OnResult = continueRenderHistoryAndGeo;
 
   function continueRenderHistoryAndGeo(agg){
     const corpsArr = Array.from(state.corps);
